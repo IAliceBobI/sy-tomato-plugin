@@ -1,8 +1,8 @@
 {
-  "name": "plugin-sample",
-  "author": "Vanessa",
-  "url": "https://github.com/siyuan-note/plugin-sample",
-  "version": "0.2.7",
+  "name": "sy-tomato-plugin",
+  "author": "IAliceBobI",
+  "url": "https://github.com/IAliceBobI/sy-tomato-plugin",
+  "version": "0.0.1",
   "minAppVersion": "2.10.13",
   "backends": [
     "windows",
@@ -14,12 +14,12 @@
     "desktop-window"
   ],
   "displayName": {
-    "default": "Plugin Sample",
-    "zh_CN": "插件示例"
+    "default": "sy tomato plugin",
+    "zh_CN": "思源番茄钟插件"
   },
   "description": {
-    "default": "This is a plugin sample",
-    "zh_CN": "这是一个插件示例"
+    "default": "Boost productivity with TomatoClock. Balance work and life, achieve goals.",
+    "zh_CN": "提升生产力，使用TomatoClock。平衡工作与生活，实现目标。"
   },
   "readme": {
     "default": "README.md",
@@ -29,11 +29,28 @@
     "openCollective": "",
     "patreon": "",
     "github": "",
-    "custom": [
-      "https://ld246.com/sponsor"
-    ]
+    "custom": []
   },
   "keywords": [
-    "sample", "示例"
+    "TomatoClock",
+    "Time management",
+    "Productivity",
+    "Pomodoro technique",
+    "Timer plugin",
+    "Task scheduling",
+    "Focus sessions",
+    "Work intervals",
+    "Breaks",
+    "Time tracking",
+    "Timeboxing",
+    "Time optimization",
+    "Efficiency",
+    "Work-life balance",
+    "Distraction management",
+    "Task prioritization",
+    "Time blocking",
+    "Time visualization",
+    "Progress tracking",
+    "Goal setting"
   ]
 }
