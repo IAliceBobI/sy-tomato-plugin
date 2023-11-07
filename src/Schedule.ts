@@ -1,12 +1,12 @@
 import { Constants, Dialog, Plugin, Protyle, } from "siyuan";
-import { dateFromYYYYMMDDHHmmss, currentTime, pushMsg } from './utils';
-import { v4 as uuid } from "uuid";
+import { dateFromYYYYMMDDHHmmss, currentTime, pushMsg, newID } from './utils';
 import "./index.scss";
 
 const STORAGE_SCHEDULE = "schedule.json";
 
 class Schedule {
     onload(plugin: Plugin) {
+        plugin.data[STORAGE_SCHEDULE] = {}
         this.plugin = plugin;
         this.plugin.eventBus.on("click-editorcontent", ({ detail }: any) => {
             let id = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id")
@@ -22,11 +22,11 @@ class Schedule {
     }
 
     private async showScheduleDialog() {
-        let inputID = uuid()
-        let btnScheduleID = uuid()
+        let inputID = newID()
+        let btnScheduleID = newID()
 
         const dialog = new Dialog({
-            title: `SiYuan ${Constants.SIYUAN_VERSION}, AppID: ${this.plugin.app.appId}`,
+            title: `确定时间`,
             content: `<div class="b3-dialog__content">
     <div>${this.lastBlockID}</div>
     <div class="fn__hr"></div>
@@ -58,12 +58,13 @@ class Schedule {
         data[this.lastBlockID] = inputValue;
         await this.plugin.saveData(STORAGE_SCHEDULE, data)
         await this.doSchedule(this.lastBlockID, data);
-        await pushMsg(`<h1>Schedule</h1><br>${this.lastBlockID} scheduled at ${inputValue}`);
+        await pushMsg(`<h1>${this.plugin.i18n.schedule}</h1>
+        <br>${this.lastBlockID} ${this.plugin.i18n.scheduleAt} ${inputValue}`);
     }
 
     private showTimeoutDialog(blockID: string, theTime: string) {
         const dialog = new Dialog({
-            title: `提醒: ${theTime}`,
+            title: `${this.plugin.i18n.remind}: ${theTime}`,
             content: `<div id="protyle" style="height: 200px;"></div>`,
             width: "560px",
             height: "540px",
@@ -87,8 +88,8 @@ class Schedule {
 
     private loopSchedule() {
         let data = this.plugin.data[STORAGE_SCHEDULE] ?? {};
-        for (const blockID of data) {
-            this.doSchedule(blockID, data);
+        for (const keyBlockID in data) {
+            this.doSchedule(keyBlockID, data);
         }
     }
 
