@@ -1,0 +1,14 @@
+{
+  "addTopBarIcon": "Add a top bar icon by plugin",
+  "cancel": "Cancel",
+  "save": "Save",
+  "byeMenu": "Bye, Menu!",
+  "helloPlugin": "Hello, Plugin!",
+  "byePlugin": "Bye, Plugin!",
+  "showDialog": "Show dialog",
+  "getTab": "Print out all opened custom tabs in the debugger",
+  "removedData": "Data deleted",
+  "confirmRemove": "Confirm to delete the data in ${name}?",
+  "insertEmoji": "Insert Emoji",
+  "removeSpace": "Remove Space"
+}
