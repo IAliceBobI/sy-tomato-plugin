@@ -11,3 +11,53 @@
     font-size: 40px;
   }
 }
+
+.plugin-style {
+  &__button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  &__button:hover {
+    background-color: #45a049;
+  }
+
+  &__button:active {
+    background-color: #3e8e41;
+  }
+
+  &__button.large {
+    padding: 12px 24px;
+    font-size: 24px;
+  }
+
+  &__button.small {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  &__input-field {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: larger;
+    width: 300px;
+  }
+
+  &__input-field::placeholder {
+    color: #999;
+  }
+
+  &__input-field:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+  }
+}

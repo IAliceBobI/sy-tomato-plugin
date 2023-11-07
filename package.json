@@ -48,5 +48,9 @@
     "webpack": "^5.76.0",
     "webpack-cli": "^5.0.2",
     "zip-webpack-plugin": "^4.0.1"
+  },
+  "dependencies": {
+    "@types/uuid": "^9.0.6",
+    "uuid": "^9.0.1"
   }
 }

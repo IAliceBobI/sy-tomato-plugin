@@ -3,7 +3,7 @@ import {
     Plugin,
     showMessage,
 } from "siyuan";
-import "./plugin.scss";
+import "./index.scss";
 
 class TomatoClock {
     private plugin: Plugin
