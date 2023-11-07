@@ -14,8 +14,8 @@
     "desktop-window"
   ],
   "displayName": {
-    "default": "sy tomato plugin",
-    "zh_CN": "思源番茄钟插件"
+    "default": "TomatoClock",
+    "zh_CN": "番茄钟"
   },
   "description": {
     "default": "Boost productivity with TomatoClock. Balance work and life, achieve goals.",

@@ -1,22 +1,13 @@
-.plugin-sample {
-  &__custom-tab {
-    background-color: var(--b3-theme-background);
-    height: 100%;
-    width: 100%;
+.tomato-style {
+  &__container {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
   }
 
-  &__custom-dock {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  &__time {
-    background: var(--b3-card-info-background);
-    border-radius: 4px;
-    padding: 2px 8px;
+  &__centered-text {
+    text-align: center;
+    font-size: 40px;
   }
 }
