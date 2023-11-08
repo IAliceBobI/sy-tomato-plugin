@@ -51,7 +51,14 @@ class ToolBox {
             langKey: "moveBlocks",
             hotkey: "",
             globalCallback: async () => {
-                await moveBlocks()
+                await moveBlocks(false)
+            },
+        });
+        this.plugin.addCommand({
+            langKey: "copyBlocks",
+            hotkey: "",
+            globalCallback: async () => {
+                await moveBlocks(true)
             },
         });
     }

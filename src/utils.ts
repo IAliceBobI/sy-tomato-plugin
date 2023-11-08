@@ -98,6 +98,25 @@ export async function moveBlockAfter(id: string, previousID: string) {
     return call("/api/block/moveBlock", { id, previousID })
 }
 
+export async function getBlockKramdown(id: string) {
+    return call("/api/block/getBlockKramdown", { id })
+}
+
+export async function insertBlockAfter(data: string, previousID: string, dataType = 'markdown') {
+    // dataType [markdown, kramdown]
+    return call('/api/block/insertBlock', { data, dataType, previousID })
+}
+
+export async function insertBlockBefore(data: string, nextID: string, dataType = 'markdown') {
+    // dataType [markdown, kramdown]
+    return call('/api/block/insertBlock', { data, dataType, nextID })
+}
+
+export async function insertBlockAsChildOf(data: string, parentID: string, dataType = 'markdown') {
+    // dataType [markdown, kramdown]
+    return call('/api/block/insertBlock', { data, dataType, parentID })
+}
+
 export function newID() {
     return "ID" + uuid().replace("-", "")
 }
@@ -188,7 +207,7 @@ export async function deleteBlocks() {
     }
 }
 
-export async function moveBlocks() {
+export async function moveBlocks(copy: boolean = false) {
     const startPoint = await sqlOne("select id,root_id from blocks where content='aacc-start'")
     const endPoint = await sqlOne("select id,root_id from blocks where content='aacc-end'")
     const insertPoint = await sqlOne("select id,root_id from blocks where content='aacc-insert'")
@@ -196,21 +215,27 @@ export async function moveBlocks() {
     if (!doc1 || !doc2 || doc1 !== doc2) {
         pushMsg("请分别用两行aacc-start与aacc-end把要处理的内容包裹起来。再到目标位置插入一行aacc-insert")
     }
-    let doCopy = false
+    let found = false
     const blocks = await getChildBlocks(doc1)
     const ids = []
     for (const child of blocks) {
         if (child['id'] === startPoint["id"]) {
-            doCopy = true
-        }
-        if (doCopy) {
-            ids.push(child['id'])
+            found = true
+            continue
         }
         if (child['id'] === endPoint["id"]) break
+        if (found) {
+            ids.push(child['id'])
+        }
     }
     ids.reverse()
     for (const id of ids) {
-        await moveBlockAfter(id, insertPoint["id"])
+        if (copy) {
+            const { kramdown } = await getBlockKramdown(id)
+            await insertBlockAfter(kramdown, insertPoint["id"])
+        } else {
+            await moveBlockAfter(id, insertPoint["id"])
+        }
     }
     await deleteBlock(startPoint["id"])
     await deleteBlock(endPoint["id"])

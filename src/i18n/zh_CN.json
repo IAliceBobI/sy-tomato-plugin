@@ -20,5 +20,6 @@
   "removedBrokenCards": "已经删除的失效闪卡：",
   "thereIsNoInvalidCards": "无失效闪卡！",
   "deleteBlocks": "deleteBlocks: 批量删除大量连续内容块",
-  "moveBlocks": "moveBlocks: 批量移动大量连续内容块"
+  "moveBlocks": "moveBlocks: 批量移动大量连续内容块",
+  "copyBlocks": "copyBlocks: 批量复制大量连续内容块"
 }
