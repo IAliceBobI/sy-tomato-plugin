@@ -10,7 +10,7 @@ class TomatoClock {
     private timeoutID: number
     private lastDelayMin: number
 
-    init(plugin: Plugin) {
+    onload(plugin: Plugin) {
         this.plugin = plugin
         this.lastDelayMin = 0
         this.timeoutID = 0

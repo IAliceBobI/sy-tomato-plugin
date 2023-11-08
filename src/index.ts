@@ -10,7 +10,7 @@ import { schedule } from "./Schedule";
 export default class ThePlugin extends Plugin {
     onload() {
         this.addIcons(ICONS);
-        tomatoClock.init(this);
+        tomatoClock.onload(this);
         schedule.onload(this)
     }
 
