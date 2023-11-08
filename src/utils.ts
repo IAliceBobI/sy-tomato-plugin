@@ -16,7 +16,6 @@ export function dateFormat(date: Date) {
     return year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
 }
 
-
 export function dateFromYYYYMMDDHHmmss(date: string) {
     return new Date(date)
 }
@@ -131,4 +130,18 @@ export function makesureDateTimeFormat(input: string) {
         return `${year}-${zeroPad(month)}-${zeroPad(day)} ${zeroPad(hour)}:${zeroPad(minute)}:${zeroPad(second)}`;
     });
     return formattedTimeString
+}
+
+export async function removeBookmarks(docID: string, keepBlockID: string) {
+    const bookmark = ""
+    const rows = await sql(`select id from blocks where root_id='${docID}' and ial like '%bookmark=%'`);
+    for (const row of rows) {
+        const id = row['id'];
+        if (keepBlockID === id) continue
+        await setBlockAttrs(id, { bookmark })
+    }
+}
+
+export async function addBookmark(id: string, bookmark: string) {
+    return setBlockAttrs(id, { bookmark })
 }

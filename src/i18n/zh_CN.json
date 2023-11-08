@@ -11,5 +11,7 @@
   "setDateTitle": "请为以下块设置时间",
   "scheduledAt": "提醒时间",
   "remind": "提醒",
-  "scheduleSetSuccess": "提醒设置成功"
+  "scheduleSetSuccess": "提醒设置成功",
+  "schedule": "schedule: 给当前内容块设置一个提醒日期",
+  "addBookmark": "addBookmark: 设置阅读点（设置当前内容块为书签）"
 }
