@@ -57,7 +57,10 @@ class ToolBox {
     }
 
     private async addFlashCard() {
-        if (!this.lastBlockID) return
+        if (!this.lastBlockID) {
+            pushMsg(this.plugin.i18n.clickOneBlockFirst)
+            return
+        }
         const id = this.lastBlockID;
         pushMsg(this.plugin.i18n.flashCardWaitForTheIndex)
         setTimeout(async () => {
@@ -67,7 +70,10 @@ class ToolBox {
     }
 
     private async addReadPoint() {
-        if (!this.lastBlockID) return
+        if (!this.lastBlockID) {
+            pushMsg(this.plugin.i18n.clickOneBlockFirst)
+            return
+        }
         const id = this.lastBlockID
         const docID = await getDocIDByBlockID(id);
 
