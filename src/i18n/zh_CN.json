@@ -13,5 +13,6 @@
   "remind": "提醒",
   "scheduleSetSuccess": "提醒设置成功",
   "schedule": "schedule: 给当前内容块设置一个提醒日期",
-  "addBookmark": "addBookmark: 设置阅读点（设置当前内容块为书签）"
+  "addBookmark": "addBookmark: 设置阅读点（设置当前内容块为书签）",
+  "addFlashCard": "addFlashCard: 添加闪卡（如果是大纲/列表，则设置整个列表为闪卡，而不是当前光标所在的列表项）"
 }

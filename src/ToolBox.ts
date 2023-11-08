@@ -1,5 +1,5 @@
 import { Plugin, } from "siyuan";
-import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark } from './utils';
+import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType } from './utils';
 import "./index.scss";
 
 
@@ -15,6 +15,13 @@ class ToolBox {
             this.lastBlockID = id ?? "";
         });
         this.plugin.addCommand({
+            langKey: "addFlashCard",
+            hotkey: "⌘1",
+            globalCallback: async () => {
+                await this.addFlashCard()
+            },
+        });
+        this.plugin.addCommand({
             langKey: "addBookmark",
             hotkey: "⌘2",
             globalCallback: async () => {
@@ -22,6 +29,13 @@ class ToolBox {
             },
         });
     }
+
+    private async addFlashCard() {
+        if (!this.lastBlockID) return
+        const realID = await findListType(this.lastBlockID)
+        await addRiffCards([realID])
+    }
+
     private async addReadPoint() {
         if (!this.lastBlockID) return
         const id = this.lastBlockID

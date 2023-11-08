@@ -145,3 +145,92 @@ export async function removeBookmarks(docID: string, keepBlockID: string) {
 export async function addBookmark(id: string, bookmark: string) {
     return setBlockAttrs(id, { bookmark })
 }
+
+export async function addRiffCards(blockIDs: Array<string>, deckID: string = "20230218211946-2kw8jgx") {
+    return call("/api/riff/addRiffCards", { blockIDs, deckID })
+}
+
+export async function getRiffCards(page: number = 1, deckID: string = "") {
+    return call("/api/riff/getRiffCards", { "id": deckID, page })
+}
+
+export async function removeRiffCards(blockIDs: Array<string>, deckID: string = "") {
+    return call("/api/riff/removeRiffCards", { deckID, blockIDs })
+}
+
+export async function findListType(thisID: string) {
+    const thisBlock = await getRowByID(thisID);
+    const parentID = thisBlock['parent_id'];
+    const parentBlock = await getRowByID(parentID);
+    if (parentBlock['type'] === "i" || parentBlock['type'] === "l" || parentBlock['type'] === "p") {
+        return findListType(parentID)
+    }
+    return thisID
+}
+
+export async function deleteBlocks() {
+    const startPoint = await sqlOne("select id,root_id from blocks where content='aadd-start'")
+    const endPoint = await sqlOne("select id,root_id from blocks where content='aadd-end'")
+    const [doc1, doc2] = [startPoint["root_id"], endPoint["root_id"]]
+    if (doc1 !== doc2) return
+    if (!doc1) return
+    let doDelete = false
+    const blocks = await getChildBlocks(doc1)
+    for (const child of blocks) {
+        if (child['id'] === startPoint["id"]) {
+            doDelete = true
+        }
+        if (doDelete) {
+            await deleteBlock(child['id'])
+        }
+        if (child['id'] === endPoint["id"]) break
+    }
+}
+
+export async function moveBlocks() {
+    const startPoint = await sqlOne("select id,root_id from blocks where content='aacc-start'")
+    const endPoint = await sqlOne("select id,root_id from blocks where content='aacc-end'")
+    const insertPoint = await sqlOne("select id,root_id from blocks where content='aacc-insert'")
+    const [doc1, doc2] = [startPoint["root_id"], endPoint["root_id"]]
+    if (doc1 !== doc2) return
+    if (!doc1) return
+    let doCopy = false
+    const blocks = await getChildBlocks(doc1)
+    const ids = []
+    for (const child of blocks) {
+        if (child['id'] === startPoint["id"]) {
+            doCopy = true
+        }
+        if (doCopy) {
+            ids.push(child['id'])
+        }
+        if (child['id'] === endPoint["id"]) break
+    }
+    ids.reverse()
+    for (const id of ids) {
+        await moveBlockAfter(id, insertPoint["id"])
+    }
+    await deleteBlock(startPoint["id"])
+    await deleteBlock(endPoint["id"])
+    await deleteBlock(insertPoint["id"])
+}
+
+export async function removeBrokenCards() {
+    const invalidCardIDs = []
+    for (let page = 1; page < Number.MAX_SAFE_INTEGER; page++) {
+        const resp = await getRiffCards(page)
+        const cards = resp['blocks']
+        if (!cards.length) break
+        for (const i in cards) {
+            const card = cards[i]
+            const valid = card['box'] && card['markdown']
+            if (!valid) {
+                invalidCardIDs.push(card['id'])
+            }
+        }
+    }
+    if (invalidCardIDs.length) {
+        await removeRiffCards(invalidCardIDs)
+    }
+    return invalidCardIDs
+}
