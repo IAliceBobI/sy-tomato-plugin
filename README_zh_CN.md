@@ -25,3 +25,11 @@
 ### 选择`给当前内容块设置一个提醒日期`。也可以用快捷键 `Ctrl+3`。
 ![Alt text](./assets/cmd.png)
 
+### 设置时间
+![Alt text](./assets/scheduleSetTime.png)
+
+### 提醒
+
+![Alt text](./assets/remind.png)
+
+## xx
