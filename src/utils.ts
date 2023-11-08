@@ -172,8 +172,9 @@ export async function deleteBlocks() {
     const startPoint = await sqlOne("select id,root_id from blocks where content='aadd-start'")
     const endPoint = await sqlOne("select id,root_id from blocks where content='aadd-end'")
     const [doc1, doc2] = [startPoint["root_id"], endPoint["root_id"]]
-    if (doc1 !== doc2) return
-    if (!doc1) return
+    if (!doc1 || !doc2 || doc1 !== doc2) {
+        pushMsg("请分别用两行aadd-start与aadd-end把要处理的内容包裹起来。")
+    }
     let doDelete = false
     const blocks = await getChildBlocks(doc1)
     for (const child of blocks) {
@@ -192,8 +193,9 @@ export async function moveBlocks() {
     const endPoint = await sqlOne("select id,root_id from blocks where content='aacc-end'")
     const insertPoint = await sqlOne("select id,root_id from blocks where content='aacc-insert'")
     const [doc1, doc2] = [startPoint["root_id"], endPoint["root_id"]]
-    if (doc1 !== doc2) return
-    if (!doc1) return
+    if (!doc1 || !doc2 || doc1 !== doc2) {
+        pushMsg("请分别用两行aacc-start与aacc-end把要处理的内容包裹起来。再到目标位置插入一行aacc-insert")
+    }
     let doCopy = false
     const blocks = await getChildBlocks(doc1)
     const ids = []
