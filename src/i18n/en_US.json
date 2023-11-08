@@ -16,7 +16,6 @@
   "addBookmark": "addBookmark: Set a reading point: Set the current content block as a bookmark and remove other bookmarks from the current document",
   "removeBrokenCards": "removeBrokenCards: Clean up all invalid flashcards. (Note: Do not use if the index is being rebuilt. Wait for the rebuild and use it to avoid deleting valid flashcards by mistake) (Invalid: Flashcards corresponding to deleted content blocks)",
   "addFlashCard": "addFlashCard: Add a flashcard (If it is an outline/list, set the entire list as a flashcard instead of the current cursor position list item)",
-  "flashCardWaitForTheIndex": "Waiting for the database to build the index while setting up flashcards.",
   "removedBrokenCards": "Removed invalid flashcards:",
   "thereIsNoInvalidCards": "No invalid flashcards!",
   "deleteBlocks": "deleteBlocks: Delete a large number of consecutive content blocks in bulk",

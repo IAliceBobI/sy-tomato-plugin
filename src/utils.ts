@@ -178,13 +178,17 @@ export async function removeRiffCards(blockIDs: Array<string>, deckID: string = 
 }
 
 export async function findListType(thisID: string) {
-    const thisBlock = await getRowByID(thisID);
-    const parentID = thisBlock['parent_id'];
-    const parentBlock = await getRowByID(parentID);
-    if (parentBlock['type'] === "i" || parentBlock['type'] === "l" || parentBlock['type'] === "p") {
-        return findListType(parentID)
+    let theUpperestListID = ""
+    while (true) {
+        const thisBlock = await getRowByID(thisID);
+        const thisType = thisBlock['type'];
+        if (thisType === 'l')
+            theUpperestListID = thisID;
+        else if (thisType === 'd')
+            break;
+        thisID = thisBlock['parent_id']
     }
-    return thisID
+    return theUpperestListID;
 }
 
 export async function deleteBlocks() {
@@ -262,4 +266,10 @@ export async function removeBrokenCards() {
         await removeRiffCards(invalidCardIDs)
     }
     return invalidCardIDs
+}
+
+export function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
 }

@@ -16,7 +16,6 @@
   "addBookmark": "addBookmark: 设置阅读点：设置当前内容块为书签，并删除当前文档的其他书签",
   "removeBrokenCards": "removeBrokenCards: 清理所有失效闪卡。（注意：如果正在重建索引中，不要使用，等重建后使用，以免误删除有效的闪卡）（失效：闪卡对应的内容块被删除）",
   "addFlashCard": "addFlashCard: 添加闪卡（如果是大纲/列表，则设置整个列表为闪卡，而不是当前光标所在的列表项）",
-  "flashCardWaitForTheIndex": "设置闪卡中，等待数据库建立索引。",
   "removedBrokenCards": "已经删除的失效闪卡：",
   "thereIsNoInvalidCards": "无失效闪卡！",
   "deleteBlocks": "deleteBlocks: 批量删除大量连续内容块",

@@ -1,5 +1,5 @@
 import { Plugin } from "siyuan";
-import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg } from './utils';
+import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep } from './utils';
 import "./index.scss";
 
 
@@ -79,11 +79,16 @@ class ToolBox {
             return
         }
         const id = this.lastBlockID;
-        pushMsg(this.plugin.i18n.flashCardWaitForTheIndex)
-        setTimeout(async () => {
-            const realID = await findListType(id)
-            await addRiffCards([realID])
-        }, 3000);
+        let count = 30;
+        while (count > 0) {
+            count -= 1;
+            const listID = await findListType(id);
+            if (listID) {
+                await addRiffCards([listID]);
+                break;
+            }
+            await sleep(200);
+        }
     }
 
     private async addReadPoint() {
