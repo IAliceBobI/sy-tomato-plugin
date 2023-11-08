@@ -12,8 +12,7 @@ class Schedule {
         this.plugin = plugin;
         this.plugin.data[STORAGE_SCHEDULE] = {}
         this.plugin.eventBus.on("click-editorcontent", ({ detail }: any) => {
-            let id = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id")
-            this.lastBlockID = id ?? "";
+            this.lastBlockID = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id") ?? ""
         });
         this.plugin.addCommand({
             langKey: "schedule",

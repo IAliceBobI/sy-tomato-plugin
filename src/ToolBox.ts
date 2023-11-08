@@ -1,18 +1,34 @@
-import { Plugin, getFrontend } from "siyuan";
+import { Plugin } from "siyuan";
 import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep } from './utils';
 import "./index.scss";
 
 
 class ToolBox {
     private lastBlockID: string;
+    private lastNotebookID: string;
     private plugin: Plugin;
     private timeoutID: number;
 
     onload(plugin: Plugin) {
         this.plugin = plugin
         this.plugin.eventBus.on("click-editorcontent", ({ detail }: any) => {
-            let id = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id")
-            this.lastBlockID = id ?? "";
+            this.lastBlockID = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id") ?? this.lastBlockID
+            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
+        });
+        this.plugin.eventBus.on("open-menu-doctree", ({ detail }: any) => {
+            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
+        });
+        this.plugin.eventBus.on("loaded-protyle-static", ({ detail }: any) => {
+            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
+        });
+        this.plugin.eventBus.on("loaded-protyle-dynamic", ({ detail }: any) => {
+            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
+        });
+        this.plugin.eventBus.on("switch-protyle", ({ detail }: any) => {
+            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
+        });
+        this.plugin.eventBus.on("destroy-protyle", ({ detail }: any) => {
+            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
         });
         this.plugin.addCommand({
             langKey: "addFlashCard",
@@ -83,7 +99,8 @@ class ToolBox {
     }
 
     private showContents() {
-
+        //🌐
+        console.log("🌐" + this.lastNotebookID)
     }
 
     private async addFlashCard() {
