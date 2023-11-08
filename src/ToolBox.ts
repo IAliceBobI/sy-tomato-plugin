@@ -34,9 +34,9 @@ class ToolBox {
             globalCallback: async () => {
                 const ids = await removeBrokenCards()
                 if (ids.length) {
-                    pushMsg(`删除失效闪卡：${ids}`)
+                    pushMsg(`${this.plugin.i18n.removedBrokenCards}${ids}`)
                 } else {
-                    pushMsg(`无失效闪卡！`)
+                    pushMsg(this.plugin.i18n.thereIsNoInvalidCards)
                 }
             },
         });
@@ -58,8 +58,12 @@ class ToolBox {
 
     private async addFlashCard() {
         if (!this.lastBlockID) return
-        const realID = await findListType(this.lastBlockID)
-        await addRiffCards([realID])
+        const id = this.lastBlockID;
+        pushMsg(this.plugin.i18n.flashCardWaitForTheIndex)
+        setTimeout(async () => {
+            const realID = await findListType(id)
+            await addRiffCards([realID])
+        }, 3000);
     }
 
     private async addReadPoint() {
