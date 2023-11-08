@@ -192,7 +192,7 @@ export async function deleteBlocks() {
     const endPoint = await sqlOne("select id,root_id from blocks where content='aacc2'")
     const [doc1, doc2] = [startPoint["root_id"], endPoint["root_id"]]
     if (!doc1 || !doc2 || doc1 !== doc2) {
-        pushMsg("请分别用两行aadd-start与aadd-end把要处理的内容包裹起来。")
+        return false
     }
     let doDelete = false
     const blocks = await getChildBlocks(doc1)
@@ -205,6 +205,7 @@ export async function deleteBlocks() {
         }
         if (child['id'] === endPoint["id"]) break
     }
+    return true
 }
 
 export async function moveBlocks(copy: boolean = false) {
@@ -213,7 +214,7 @@ export async function moveBlocks(copy: boolean = false) {
     const insertPoint = await sqlOne("select id,root_id from blocks where content='aacc3'")
     const [doc1, doc2] = [startPoint["root_id"], endPoint["root_id"]]
     if (!doc1 || !doc2 || doc1 !== doc2) {
-        pushMsg("请分别用两行aacc-start与aacc-end把要处理的内容包裹起来。再到目标位置插入一行aacc-insert")
+        return false
     }
     let found = false
     const blocks = await getChildBlocks(doc1)
@@ -240,7 +241,7 @@ export async function moveBlocks(copy: boolean = false) {
     await deleteBlock(startPoint["id"])
     await deleteBlock(endPoint["id"])
     await deleteBlock(insertPoint["id"])
-    return doc1
+    return true
 }
 
 export async function removeBrokenCards() {

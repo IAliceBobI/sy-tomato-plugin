@@ -44,24 +44,31 @@ class ToolBox {
             langKey: "deleteBlocks",
             hotkey: "",
             globalCallback: async () => {
-                await deleteBlocks()
-                window.location.reload()
+                if (await deleteBlocks())
+                    window.location.reload()
+                else {
+                    pushMsg("请分别用两行 aadd1 与 aacc2 把要处理的内容包裹起来。")
+                }
             },
         });
         this.plugin.addCommand({
             langKey: "moveBlocks",
             hotkey: "",
             globalCallback: async () => {
-                await moveBlocks(false)
-                window.location.reload()
+                if (await moveBlocks(false))
+                    window.location.reload()
+                else
+                    pushMsg("请分别用两行 aadd1 与 aacc2 把要处理的内容包裹起来。再到目标位置插入一行 aacc3")
             },
         });
         this.plugin.addCommand({
             langKey: "copyBlocks",
             hotkey: "",
             globalCallback: async () => {
-                await moveBlocks(true)
-                window.location.reload()
+                if (await moveBlocks(true))
+                    window.location.reload()
+                else
+                    pushMsg("请分别用两行 aadd1 与 aacc2 把要处理的内容包裹起来。再到目标位置插入一行 aacc3")
             },
         });
     }
