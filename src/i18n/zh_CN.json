@@ -1,4 +1,6 @@
 {
+  "setDate": "设置时间",
+  "setDateTitle": "请为以下块设置时间",
   "scheduledAt": "提醒时间",
   "remind": "提醒",
   "schedule": "定时提醒"

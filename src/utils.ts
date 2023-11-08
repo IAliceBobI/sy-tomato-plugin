@@ -21,9 +21,9 @@ export function dateFromYYYYMMDDHHmmss(date: string) {
     return new Date(date)
 }
 
-export async function currentTime() {
+export async function currentTime(secs: number=0) {
     const response = await fetchSyncPost("/api/system/currentTime", {})
-    return dateFormat(new Date(response.data));
+    return dateFormat(new Date(response.data + secs * 1000));
 }
 
 export async function pushMsg(msg: string, timeoutMs: number = 7000) {

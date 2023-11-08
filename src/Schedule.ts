@@ -26,14 +26,14 @@ class Schedule {
         let btnScheduleID = newID()
 
         const dialog = new Dialog({
-            title: `确定时间`,
+            title: "⏰ " + this.plugin.i18n.setDateTitle,
             content: `<div class="b3-dialog__content">
     <div>${this.lastBlockID}</div>
     <div class="fn__hr"></div>
     <input type="text" id="${inputID}" class="plugin-style__input-field" />
-    <button id="${btnScheduleID}" class="plugin-style__button">Schedule</button><br>
+    <button id="${btnScheduleID}" class="plugin-style__button">${this.plugin.i18n.setDate}</button><br>
     <div class="fn__hr"></div>
-    <div id="protyle" style="height: 40px;"></div>
+    <div id="protyle" style="height: 380px;"></div>
     </div>`,
             width: "560px",
             height: "540px",
@@ -44,11 +44,12 @@ class Schedule {
         });
 
         const inputField = document.getElementById(inputID) as HTMLInputElement;
-        inputField.value = await currentTime();
+        inputField.value = await currentTime(10);
 
         const btnSchedule = document.getElementById(btnScheduleID) as HTMLButtonElement;
         btnSchedule.addEventListener("click", () => {
             this.addSchedule(inputField.value)
+            dialog.destroy()
         });
     }
 
