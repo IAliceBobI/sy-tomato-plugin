@@ -1,5 +1,5 @@
 import { Plugin, } from "siyuan";
-import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType } from './utils';
+import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg } from './utils';
 import "./index.scss";
 
 
@@ -26,6 +26,32 @@ class ToolBox {
             hotkey: "⌘2",
             globalCallback: async () => {
                 await this.addReadPoint()
+            },
+        });
+        this.plugin.addCommand({
+            langKey: "removeBrokenCards",
+            hotkey: "",
+            globalCallback: async () => {
+                const ids = await removeBrokenCards()
+                if (ids.length) {
+                    pushMsg(`删除失效闪卡：${ids}`)
+                } else {
+                    pushMsg(`无失效闪卡！`)
+                }
+            },
+        });
+        this.plugin.addCommand({
+            langKey: "deleteBlocks",
+            hotkey: "",
+            globalCallback: async () => {
+                await deleteBlocks()
+            },
+        });
+        this.plugin.addCommand({
+            langKey: "moveBlocks",
+            hotkey: "",
+            globalCallback: async () => {
+                await moveBlocks()
             },
         });
     }
