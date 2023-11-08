@@ -1,4 +1,11 @@
 {
+  "name": "番茄钟",
+  "takeARestPlease": "😊休息一会儿吧！",
+  "hasWorkedMinutes": "分钟已到",
+  "takeARestAfterMinutes": "分钟后休息",
+  "startCountdown": "开始计时",
+  "cancelCountdown": "取消计时",
+  "cancelLastCountdown": "取消上次的计时",
   "clickOneBlockFirst": "请先点击一个内容块",
   "setDate": "设置时间",
   "setDateTitle": "请为以下块设置时间",

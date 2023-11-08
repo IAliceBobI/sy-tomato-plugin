@@ -1,5 +1,15 @@
 {
-  "scheduledAt": "scheduled at",
-  "remind": "remind",
-  "schedule": "reminder"
+  "name": "Tomato Timer",
+  "takeARestPlease": "😊 Take a break for a while!",
+  "hasWorkedMinutes": " minutes have passed",
+  "takeARestAfterMinutes": " minutes until break",
+  "startCountdown": "Start Countdown",
+  "cancelCountdown": "Cancel Countdown",
+  "cancelLastCountdown": "Cancel Last Countdown",
+  "clickOneBlockFirst": "Please click on a content block first",
+  "setDate": "Set Time",
+  "setDateTitle": "Please set the time for the following blocks",
+  "scheduledAt": "Reminder Time",
+  "remind": "Remind",
+  "scheduleSetSuccess": "Reminder successfully set"
 }

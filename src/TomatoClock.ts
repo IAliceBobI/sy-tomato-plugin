@@ -23,18 +23,22 @@ class TomatoClock {
     }
 
     private addTomatoClock(icon: string, minute: number) {
-        let label = `番茄钟：${minute}分钟后休息。`
+        const name = this.plugin.i18n.name;
+        let label = `${name}🍅${minute}${this.plugin.i18n.takeARestAfterMinutes}`
         if (minute === 0) {
-            label = "番茄钟：取消计时。"
+            label = `${name}🍅${this.plugin.i18n.cancelCountdown}`
         }
         const statusIconTemp = document.createElement("template");
         statusIconTemp.innerHTML = `<div class="toolbar__item ariaLabel" aria-label="${label}">
     <svg> <use xlink:href="#${icon}"></use> </svg></div>`;
         statusIconTemp.content.firstElementChild.addEventListener("click", () => {
             clearTimeout(this.timeoutID);
-            showMessage(`番茄钟：取消上次的计时：${this.lastDelayMin}m`, 5000)
+            if (this.lastDelayMin > 0) {
+                showMessage(`${name}🍅${this.plugin.i18n.cancelLastCountdown}: ${this.lastDelayMin}m`, 5000)
+            }
             this.lastDelayMin = minute
             if (minute > 0) {
+                showMessage(`${name}🍅${this.plugin.i18n.startCountdown}: ${minute}m`, 5000)
                 this.timeoutID = setTimeout(() => {
                     this.showTimeoutDialog(minute)
                     this.lastDelayMin = 0
@@ -47,11 +51,12 @@ class TomatoClock {
     }
 
     private showTimeoutDialog(minute: number) {
+        const name = this.plugin.i18n.name;
         new Dialog({
-            title: `番茄钟：${minute} 分钟已到`,
+            title: `${name}🍅${minute}${this.plugin.i18n.hasWorkedMinutes}`,
             content: `
                 <div class="tomato-style__container">
-                    <p class="tomato-style__centered-text">😊休息一会儿吧！</p>
+                    <p class="tomato-style__centered-text">${this.plugin.i18n.takeARestPlease}</p>
                 </div>
             `,
             width: "800px",
