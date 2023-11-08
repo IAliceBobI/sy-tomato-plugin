@@ -14,12 +14,12 @@
     "desktop-window"
   ],
   "displayName": {
-    "default": "TomatoClock",
-    "zh_CN": "番茄钟"
+    "default": "Tomato toolbox",
+    "zh_CN": "番茄工具箱"
   },
   "description": {
-    "default": "Boost productivity with TomatoClock. Balance work and life, achieve goals.",
-    "zh_CN": "提升生产力，使用TomatoClock。平衡工作与生活，实现目标。"
+    "default": "Practical tomato clock, regular reminder, reading point, rapid list card making, clean invalid flash card, long content deletion, long content copy, long content move.",
+    "zh_CN": "状态栏番茄钟、定期提醒、阅读点、急速列表制卡、清理失效闪卡、长内容删除、长内容复制、长内容移动"
   },
   "readme": {
     "default": "README.md",
