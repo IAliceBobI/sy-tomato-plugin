@@ -1,4 +1,4 @@
-import { Plugin } from "siyuan";
+import { Plugin, getFrontend } from "siyuan";
 import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep } from './utils';
 import "./index.scss";
 
@@ -72,6 +72,18 @@ class ToolBox {
                     pushMsg(this.plugin.i18n.moveBlocksHelp, 0)
             },
         });
+        this.plugin.addTopBar({
+            icon: "iconContents",
+            title: this.plugin.i18n.topBarTitleShowContents,
+            position: "right",
+            callback: () => {
+                this.showContents()
+            }
+        });
+    }
+
+    private showContents() {
+
     }
 
     private async addFlashCard() {
