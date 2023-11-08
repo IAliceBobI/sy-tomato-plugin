@@ -12,7 +12,14 @@
   }
 }
 
-.plugin-style {
+.schedule-style {
+  &__id {
+    background: var(--b3-card-info-background);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: large;
+  }
+
   &__button {
     display: inline-block;
     padding: 10px 20px;

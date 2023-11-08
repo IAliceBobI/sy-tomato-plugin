@@ -28,10 +28,10 @@ class Schedule {
         const dialog = new Dialog({
             title: "⏰ " + this.plugin.i18n.setDateTitle,
             content: `<div class="b3-dialog__content">
-    <div>${this.lastBlockID}</div>
+    <div class="schedule-style__id">${this.lastBlockID}</div>
     <div class="fn__hr"></div>
-    <input type="text" id="${inputID}" class="plugin-style__input-field" />
-    <button id="${btnScheduleID}" class="plugin-style__button">${this.plugin.i18n.setDate}</button><br>
+    <input type="text" id="${inputID}" class="schedule-style__input-field" />
+    <button id="${btnScheduleID}" class="schedule-style__button">${this.plugin.i18n.setDate}</button><br>
     <div class="fn__hr"></div>
     <div id="protyle" style="height: 380px;"></div>
     </div>`,
