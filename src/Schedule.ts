@@ -1,4 +1,4 @@
-import { Constants, Dialog, Plugin, Protyle, } from "siyuan";
+import { Dialog, Plugin, Protyle, } from "siyuan";
 import { dateFromYYYYMMDDHHmmss, currentTime, pushMsg, newID } from './utils';
 import "./index.scss";
 
