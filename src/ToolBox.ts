@@ -47,7 +47,7 @@ class ToolBox {
                 if (await deleteBlocks())
                     window.location.reload()
                 else {
-                    pushMsg("请分别用两行 aadd1 与 aacc2 把要处理的内容包裹起来。")
+                    pushMsg(this.plugin.i18n.deleteBlocksHelp, 0)
                 }
             },
         });
@@ -58,7 +58,8 @@ class ToolBox {
                 if (await moveBlocks(false))
                     window.location.reload()
                 else
-                    pushMsg("请分别用两行 aadd1 与 aacc2 把要处理的内容包裹起来。再到目标位置插入一行 aacc3")
+                    pushMsg(this.plugin.i18n.moveBlocksHelp, 0)
+
             },
         });
         this.plugin.addCommand({
@@ -68,7 +69,7 @@ class ToolBox {
                 if (await moveBlocks(true))
                     window.location.reload()
                 else
-                    pushMsg("请分别用两行 aadd1 与 aacc2 把要处理的内容包裹起来。再到目标位置插入一行 aacc3")
+                    pushMsg(this.plugin.i18n.moveBlocksHelp, 0)
             },
         });
     }

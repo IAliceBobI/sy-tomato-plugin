@@ -53,7 +53,7 @@ class TomatoClock {
     private showTimeoutDialog(minute: number) {
         const name = this.plugin.i18n.name;
         new Dialog({
-            title: `${name}🍅${minute}${this.plugin.i18n.hasWorkedMinutes}`,
+            title: `${name}🍅${minute} ${this.plugin.i18n.hasWorkedMinutes}`,
             content: `
                 <div class="tomato-style__container">
                     <p class="tomato-style__centered-text">${this.plugin.i18n.takeARestPlease}</p>

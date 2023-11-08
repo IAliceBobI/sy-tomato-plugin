@@ -15,10 +15,12 @@
   "schedule": "schedule: 给当前内容块设置一个提醒日期",
   "addBookmark": "addBookmark: 设置阅读点：设置当前内容块为书签，并删除当前文档的其他书签",
   "removeBrokenCards": "removeBrokenCards: 清理所有失效闪卡。（注意：如果正在重建索引中，不要使用，等重建后使用，以免误删除有效的闪卡）（失效：闪卡对应的内容块被删除）",
-  "addFlashCard": "addFlashCard: 添加闪卡（如果是大纲/列表，则设置整个列表为闪卡，而不是当前光标所在的列表项）",
+  "addFlashCard": "addFlashCard: 添加列表闪卡（针对大纲/列表，则设置整个列表为闪卡，而不是当前光标所在的列表项）",
   "removedBrokenCards": "已经删除的失效闪卡：",
   "thereIsNoInvalidCards": "无失效闪卡！",
   "deleteBlocks": "deleteBlocks: 批量删除大量连续内容块",
   "moveBlocks": "moveBlocks: 批量移动大量连续内容块",
-  "copyBlocks": "copyBlocks: 批量复制大量连续内容块"
+  "copyBlocks": "copyBlocks: 批量复制大量连续内容块",
+  "deleteBlocksHelp": "批量删除帮助: <h4>请分别用 aadd1 与 aacc2 两行把要处理的内容包裹起来。</h4> <h5>aacc1</h5> <h5>今天有个好天气1!</h5> <h5>今天有个好天气2!</h5> <h5>...</h5> <h5>今天有个好天气3!</h5> <h5>aacc2</h5>",
+  "moveBlocksHelp": "批量移动复制帮助: <h4>请分别用 aadd1 与 aacc2 两行把要处理的内容包裹起来。再到目标位置插入一行 aacc3。</h4> <h5>[文档1]</h5> <h5>aacc1</h5> <h5>今天有个好天气1!</h5> <h5>今天有个好天气2!</h5> <h5>...</h5> <h5>今天有个好天气3!</h5> <h5>aacc2</h5> <h5>[文档2]</h5> <h5>...</h5> <h5>aacc3</h5> <h5>...</h5><h5>(文档1与文档2可以是同一个文档)</h5>"
 }
