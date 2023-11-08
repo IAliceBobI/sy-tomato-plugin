@@ -5,14 +5,23 @@ import "./index.scss";
 const STORAGE_SCHEDULE = "schedule.json";
 
 class Schedule {
+    private lastBlockID: string;
+    private plugin: Plugin;
+
     onload(plugin: Plugin) {
-        plugin.data[STORAGE_SCHEDULE] = {}
         this.plugin = plugin;
+        this.plugin.data[STORAGE_SCHEDULE] = {}
         this.plugin.eventBus.on("click-editorcontent", ({ detail }: any) => {
             let id = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id")
             this.lastBlockID = id ?? "";
         });
-        this.addCommands();
+        this.plugin.addCommand({
+            langKey: "schedule",
+            hotkey: "⌘3",
+            globalCallback: async () => {
+                await this.showScheduleDialog()
+            },
+        });
     }
 
     onLayoutReady() {
@@ -24,11 +33,15 @@ class Schedule {
     private async showScheduleDialog() {
         let inputID = newID()
         let btnScheduleID = newID()
+        let idMsg = this.plugin.i18n.clickOneBlockFirst
+        if (this.lastBlockID) {
+            idMsg = this.lastBlockID
+        }
 
         const dialog = new Dialog({
             title: "⏰ " + this.plugin.i18n.setDateTitle,
             content: `<div class="b3-dialog__content">
-    <div class="schedule-style__id">${this.lastBlockID}</div>
+    <div class="schedule-style__id">${idMsg}</div>
     <div class="fn__hr"></div>
     <input type="text" id="${inputID}" class="schedule-style__input-field" />
     <button id="${btnScheduleID}" class="schedule-style__button">${this.plugin.i18n.setDate}</button><br>
@@ -42,6 +55,10 @@ class Schedule {
         new Protyle(this.plugin.app, dialog.element.querySelector("#protyle"), {
             blockId: this.lastBlockID,
         });
+
+        if (!this.lastBlockID) {
+            return
+        }
 
         const inputField = document.getElementById(inputID) as HTMLInputElement;
         inputField.value = await currentTime(10);
@@ -98,20 +115,6 @@ class Schedule {
             this.doSchedule(keyBlockID, data);
         }
     }
-
-    private addCommands() {
-        this.plugin.addCommand({
-            langKey: "schedule",
-            hotkey: "⌘3",
-            globalCallback: async () => {
-                await this.showScheduleDialog()
-            },
-        });
-    }
-
-    // -------------------------------------------
-    private lastBlockID: string;
-    private plugin: Plugin;
 }
 
 export const schedule = new Schedule();

@@ -20,6 +20,4 @@ export default class ThePlugin extends Plugin {
 
     onunload() {
     }
-
 }
-``
