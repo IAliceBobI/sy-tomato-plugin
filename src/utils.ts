@@ -21,7 +21,7 @@ export function dateFromYYYYMMDDHHmmss(date: string) {
     return new Date(date)
 }
 
-export async function currentTime(secs: number=0) {
+export async function currentTime(secs: number = 0) {
     const response = await fetchSyncPost("/api/system/currentTime", {})
     return dateFormat(new Date(response.data + secs * 1000));
 }
@@ -101,4 +101,34 @@ export async function moveBlockAfter(id: string, previousID: string) {
 
 export function newID() {
     return "ID" + uuid().replace("-", "")
+}
+
+const timeRegex = /^(\d{4})-(\d{1,2})-(\d{1,2}) ?(\d{1,2}):(\d{1,2}):(\d{1,2})$/;
+
+export function checkTimeFormat(input: string) {
+    return timeRegex.test(input);
+}
+
+function padStart(input: string, targetLength: number, padString: string): string {
+    const inputLength = input.length;
+
+    if (inputLength >= targetLength) {
+        return input;
+    }
+
+    const paddingLength = targetLength - inputLength;
+    const padding = padString.repeat(Math.ceil(paddingLength / padString.length)).slice(0, paddingLength);
+
+    return padding + input;
+}
+
+export function makesureDateTimeFormat(input: string) {
+    const zeroPad = (value: string) => {
+        const v = value?.toString() ?? ""
+        return padStart(v, 2, '0');
+    };
+    const formattedTimeString = input.replace(timeRegex, (_match, year, month, day, hour, minute, second) => {
+        return `${year}-${zeroPad(month)}-${zeroPad(day)} ${zeroPad(hour)}:${zeroPad(minute)}:${zeroPad(second)}`;
+    });
+    return formattedTimeString
 }
