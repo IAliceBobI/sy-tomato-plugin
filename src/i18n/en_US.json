@@ -13,6 +13,7 @@
   "remind": "Remind",
   "scheduleSetSuccess": "Reminder set successfully",
   "schedule": "schedule: Set a reminder date for the current content block",
+  "btnAddADay": "+1Day",
   "addBookmark": "addBookmark: Set a reading point: Set the current content block as a bookmark, and delete other bookmarks in the current document",
   "removeBrokenCards": "removeBrokenCards: Clear all invalid flashcards. (Note: Do not use if you are rebuilding the index, wait until after rebuilding to avoid accidentally deleting valid flashcards.) (Invalid: The content block corresponding to the flashcard is deleted)",
   "addFlashCard": "addFlashCard: Add a list flashcard (for outlines/lists, set the entire list as a flashcard, not the current list item where the cursor is located)",

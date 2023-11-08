@@ -52,11 +52,15 @@ async function call(url: string, reqData: any) {
     return json.data
 }
 
-async function sql(stmt: string) {
+export async function checkBlockExist(id: string) {
+    return call("/api/block/checkBlockExist", { id })
+}
+
+export async function sql(stmt: string) {
     return call('/api/query/sql', { stmt })
 }
 
-async function sqlOne(stmt: string) {
+export async function sqlOne(stmt: string) {
     const ret = await sql(stmt)
     if (ret.length >= 1) {
         return ret[0]
@@ -148,6 +152,9 @@ export function makesureDateTimeFormat(input: string) {
     const formattedTimeString = input.replace(timeRegex, (_match, year, month, day, hour, minute, second) => {
         return `${year}-${zeroPad(month)}-${zeroPad(day)} ${zeroPad(hour)}:${zeroPad(minute)}:${zeroPad(second)}`;
     });
+    if (new Date(formattedTimeString).toDateString() === 'Invalid Date') {
+        return ""
+    }
     return formattedTimeString
 }
 

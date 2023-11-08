@@ -1,5 +1,5 @@
 import { Dialog, Plugin, Protyle, } from "siyuan";
-import { dateFromYYYYMMDDHHmmss, currentTime, pushMsg, newID, makesureDateTimeFormat, checkTimeFormat } from './utils';
+import { dateFromYYYYMMDDHHmmss, currentTime, pushMsg, newID, makesureDateTimeFormat, checkTimeFormat, dateFormat, checkBlockExist } from './utils';
 import "./index.scss";
 
 const STORAGE_SCHEDULE = "schedule.json";
@@ -33,6 +33,7 @@ class Schedule {
     private async showScheduleDialog() {
         let inputID = newID()
         let btnScheduleID = newID()
+        let btnAddADayID = newID()
         let idMsg = this.plugin.i18n.clickOneBlockFirst
         if (this.lastBlockID) {
             idMsg = this.lastBlockID
@@ -44,11 +45,12 @@ class Schedule {
     <div class="schedule-style__id">${idMsg}</div>
     <div class="fn__hr"></div>
     <input type="text" id="${inputID}" class="schedule-style__input-field" />
+    <button id="${btnAddADayID}" class="schedule-style__button">${this.plugin.i18n.btnAddADay}</button>
     <button id="${btnScheduleID}" class="schedule-style__button">${this.plugin.i18n.setDate}</button><br>
     <div class="fn__hr"></div>
     <div id="protyle" style="height: 380px;"></div>
     </div>`,
-            width: "560px",
+            width: "600px",
             height: "540px",
         });
 
@@ -67,11 +69,28 @@ class Schedule {
         btnSchedule.addEventListener("click", async () => {
             const timestr = inputField.value.trim();
             if (checkTimeFormat(timestr)) {
-                this.addSchedule(makesureDateTimeFormat(timestr))
-                dialog.destroy()
-            } else {
-                inputField.value = await currentTime(30);
+                const tidiedStr = makesureDateTimeFormat(timestr);
+                if (tidiedStr) {
+                    this.addSchedule(tidiedStr)
+                    dialog.destroy()
+                    return
+                }
             }
+            inputField.value = await currentTime(30);
+        });
+
+        const btnAddADay = document.getElementById(btnAddADayID) as HTMLButtonElement;
+        btnAddADay.addEventListener("click", async () => {
+            const timestr = inputField.value.trim();
+            if (checkTimeFormat(timestr)) {
+                const tidiedStr = makesureDateTimeFormat(timestr);
+                if (tidiedStr) {
+                    const newTime = new Date(new Date(tidiedStr).getTime() + 1000 * 60 * 60 * 24)
+                    inputField.value = dateFormat(newTime)
+                    return
+                }
+            }
+            inputField.value = await currentTime(30);
         });
     }
 
@@ -85,16 +104,18 @@ class Schedule {
         <br>${this.plugin.i18n.scheduledAt} ${inputValue}`, 8 * 1000);
     }
 
-    private showTimeoutDialog(blockID: string, theTime: string) {
-        const dialog = new Dialog({
-            title: `${this.plugin.i18n.remind}: ${theTime}`,
-            content: `<div id="protyle" style="height: 480px;"></div>`,
-            width: "560px",
-            height: "540px",
-        });
-        new Protyle(this.plugin.app, dialog.element.querySelector("#protyle"), {
-            blockId: blockID,
-        });
+    private async showTimeoutDialog(blockID: string, theTime: string) {
+        if (await checkBlockExist(blockID)) {
+            const dialog = new Dialog({
+                title: `${this.plugin.i18n.remind}: ${theTime}`,
+                content: `<div id="protyle" style="height: 480px;"></div>`,
+                width: "560px",
+                height: "540px",
+            });
+            new Protyle(this.plugin.app, dialog.element.querySelector("#protyle"), {
+                blockId: blockID,
+            });
+        }
     }
 
     private async doSchedule(blockID: string, data: any) {
@@ -103,7 +124,7 @@ class Schedule {
         let delay = ms - nowMs;
         if (delay < 0) delay = 0;
         setTimeout(async (blockID: string, theTime: string) => {
-            this.showTimeoutDialog(blockID, theTime);
+            await this.showTimeoutDialog(blockID, theTime);
             delete data[blockID];
             await this.plugin.saveData(STORAGE_SCHEDULE, data);
         }, delay, blockID, data[blockID])
