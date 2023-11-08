@@ -1,5 +1,5 @@
 import { Plugin } from "siyuan";
-import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep } from './utils';
+import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, createDocWithMd } from './utils';
 import "./index.scss";
 
 
@@ -98,9 +98,11 @@ class ToolBox {
         });
     }
 
-    private showContents() {
-        //🌐
-        console.log("🌐" + this.lastNotebookID)
+    private async showContents() {
+        console.log(`this.lastNotebookID ${this.lastNotebookID}`)
+        // find last from storage
+        // and list and find the opened book
+        // await createDocWithMd(this.lastNotebookID, "/📚", `{{select * from blocks where   ial like '%bookmark=%' order by updated desc }}`)
     }
 
     private async addFlashCard() {

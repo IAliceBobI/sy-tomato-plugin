@@ -52,10 +52,11 @@ async function call(url: string, reqData: any) {
     return json.data
 }
 
-// export async function createDocWithMd(notebookID: string) {
-//     const notebook = notebookID
-//     return call("/api/filetree/createDocWithMd", { notebook })
-// }
+export async function createDocWithMd(notebookID: string, path_readable: string, markdown: string) {
+    const notebook = notebookID
+    const path = path_readable
+    return call("/api/filetree/createDocWithMd", { notebook, path, markdown })
+}
 
 export async function checkBlockExist(id: string) {
     return call("/api/block/checkBlockExist", { id })
