@@ -188,8 +188,8 @@ export async function findListType(thisID: string) {
 }
 
 export async function deleteBlocks() {
-    const startPoint = await sqlOne("select id,root_id from blocks where content='aadd-start'")
-    const endPoint = await sqlOne("select id,root_id from blocks where content='aadd-end'")
+    const startPoint = await sqlOne("select id,root_id from blocks where content='aacc1'")
+    const endPoint = await sqlOne("select id,root_id from blocks where content='aacc2'")
     const [doc1, doc2] = [startPoint["root_id"], endPoint["root_id"]]
     if (!doc1 || !doc2 || doc1 !== doc2) {
         pushMsg("请分别用两行aadd-start与aadd-end把要处理的内容包裹起来。")
@@ -208,9 +208,9 @@ export async function deleteBlocks() {
 }
 
 export async function moveBlocks(copy: boolean = false) {
-    const startPoint = await sqlOne("select id,root_id from blocks where content='aacc-start'")
-    const endPoint = await sqlOne("select id,root_id from blocks where content='aacc-end'")
-    const insertPoint = await sqlOne("select id,root_id from blocks where content='aacc-insert'")
+    const startPoint = await sqlOne("select id,root_id from blocks where content='aacc1'")
+    const endPoint = await sqlOne("select id,root_id from blocks where content='aacc2'")
+    const insertPoint = await sqlOne("select id,root_id from blocks where content='aacc3'")
     const [doc1, doc2] = [startPoint["root_id"], endPoint["root_id"]]
     if (!doc1 || !doc2 || doc1 !== doc2) {
         pushMsg("请分别用两行aacc-start与aacc-end把要处理的内容包裹起来。再到目标位置插入一行aacc-insert")
@@ -240,6 +240,7 @@ export async function moveBlocks(copy: boolean = false) {
     await deleteBlock(startPoint["id"])
     await deleteBlock(endPoint["id"])
     await deleteBlock(insertPoint["id"])
+    return doc1
 }
 
 export async function removeBrokenCards() {

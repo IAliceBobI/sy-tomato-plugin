@@ -1,4 +1,4 @@
-import { Plugin, } from "siyuan";
+import { Plugin } from "siyuan";
 import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg } from './utils';
 import "./index.scss";
 
@@ -45,6 +45,7 @@ class ToolBox {
             hotkey: "",
             globalCallback: async () => {
                 await deleteBlocks()
+                window.location.reload()
             },
         });
         this.plugin.addCommand({
@@ -52,6 +53,7 @@ class ToolBox {
             hotkey: "",
             globalCallback: async () => {
                 await moveBlocks(false)
+                window.location.reload()
             },
         });
         this.plugin.addCommand({
@@ -59,6 +61,7 @@ class ToolBox {
             hotkey: "",
             globalCallback: async () => {
                 await moveBlocks(true)
+                window.location.reload()
             },
         });
     }
