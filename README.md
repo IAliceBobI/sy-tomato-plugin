@@ -55,6 +55,10 @@
 
 > **Note:** Do not use this feature while the index is being rebuilt. Creating an index during the rebuild.
 
+> **Note:** If you use the flashcards without opening all the notebooks and then close them, even valid flashcards will be considered invalid. Therefore, make sure to open all the notebooks before using them. I only use one notebook, so I often use this feature.
+
+> **Note:** Make sure to backup before using!
+
 ## Operations on Long Contents
 
 *Copying, moving, and deleting operations on long contents can be frustrating! Here, I use a simple method to handle such operations!*
@@ -114,3 +118,17 @@ aacc3
 ### Delete Operation
 
 *Similar to the move operation, but select the delete command and no need to write `aacc3`.*
+
+## Quickly Create Flashcards from a List
+
+For a given list:
+
+* a0
+* a1
+  * a2
+    * a3
+
+Previously, creating flashcards for the entire list was a bit cumbersome as you had to select the entire list. If you could create flashcards by simply placing the cursor anywhere within the list, it would be much more convenient. That's where the "Quick List Flashcard" feature comes in.
+
+You can place the cursor on `a3` or any other location like `a2`, `a1`, `a0`, and then press `Ctrl+1`. Alternatively, you can open the `Command Palette` and select `Add List Flashcard`.
+
