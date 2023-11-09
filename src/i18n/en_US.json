@@ -23,5 +23,7 @@
   "moveBlocks": "moveBlocks: Batch move a large number of consecutive content blocks",
   "copyBlocks": "copyBlocks: Batch copy a large number of consecutive content blocks",
   "deleteBlocksHelp": "Batch delete help: <h4>Please wrap the content to be processed with aadd1 and aacc2 lines respectively.</h4> <h5>aacc1</h5> <h5>It's a nice day today 1!</h5> <h5>It's a nice day today 2!</h5> <h5>...</h5> <h5>It's a nice day today 3!</h5> <h5>aacc2</h5>",
-  "moveBlocksHelp": "Batch move and copy help: <h4>Please wrap the content to be processed with aadd1 and aacc2 lines respectively. Then insert a line aacc3 at the target location.</h4> <h5>[Document 1]</h5> <h5>aacc1</h5> <h5>It's a nice day today 1!</h5> <h5>It's a nice day today 2!</h5> <h5>...</h5> <h5>It's a nice day today 3!</h5> <h5>aacc2</h5> <h5>[Document 2]</h5> <h5>...</h5> <h5>aacc3</h5> <h5>...</h5><h5>(Document 1 and Document 2 can be the same document)</h5>"
+  "moveBlocksHelp": "Batch move and copy help: <h4>Please wrap the content to be processed with aadd1 and aacc2 lines respectively. Then insert a line aacc3 at the target location.</h4> <h5>[Document 1]</h5> <h5>aacc1</h5> <h5>It's a nice day today 1!</h5> <h5>It's a nice day today 2!</h5> <h5>...</h5> <h5>It's a nice day today 3!</h5> <h5>aacc2</h5> <h5>[Document 2]</h5> <h5>...</h5> <h5>aacc3</h5> <h5>...</h5><h5>(Document 1 and Document 2 can be the same document)</h5>",
+  "topBarTitleShowContents": "Open Table of Contents/Bookmarks",
+  "thereIsNoBookmark": "No bookmarks found."
 }

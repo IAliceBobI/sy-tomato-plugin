@@ -1,5 +1,5 @@
 import { Plugin, openTab } from "siyuan";
-import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, getFile, lsNotebooks, findBookOpennedFirst, openNotebook, createDocWithMdIfNotExists, createDocWithMd, clearAll, insertBlockAsChildOf } from './utils';
+import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, getFile, lsNotebooks, findBookOpennedFirst, openNotebook, createDocWithMdIfNotExists, createDocWithMd, clearAll, insertBlockAsChildOf, sqlOne, sql } from './utils';
 import "./index.scss";
 
 
@@ -104,19 +104,32 @@ class ToolBox {
             this.lastNotebookID = localCfg["local-dailynoteid"] ?? ""
             this.lastNotebookID = findBookOpennedFirst(this.lastNotebookID, await lsNotebooks(false))
             if (!this.lastNotebookID) {
-                console.log("there is no openned notebook!")
-                return
+                this.lastNotebookID = findBookOpennedFirst(this.lastNotebookID, await lsNotebooks(true))
+                if (!this.lastNotebookID) {
+                    console.log("there is no notebook!")
+                    return
+                }
             }
             await openNotebook(this.lastNotebookID)
         }
-        const docID = await createDocWithMdIfNotExists(this.lastNotebookID, "/📚📚📚", "");
-        await clearAll(docID)
-        const markdown = `{{select * from blocks where ial like '%bookmark=%' order by updated desc }}`;
-        await insertBlockAsChildOf(markdown, docID)
-        openTab({
-            app: this.plugin.app,
-            doc: { id: docID },
-        })
+        const sqlStr = `select * from blocks where ial like '%bookmark=%' order by updated desc`
+        const rows = await sql(sqlStr)
+        if (rows.length > 0) {
+            const docID = await createDocWithMdIfNotExists(this.lastNotebookID, "/📚📚📚", "");
+            await clearAll(docID)
+            await insertBlockAsChildOf(`{{${sqlStr}}}`, docID)
+            openTab({
+                app: this.plugin.app,
+                doc: { id: docID },
+            })
+        } else {
+            try {
+                const cfg = await getNotebookConf(this.lastNotebookID)
+                pushMsg(cfg.name + this.plugin.i18n.thereIsNoBookmark)
+            } catch (e) {
+                this.lastNotebookID = ""
+            }
+        }
     }
 
     private async addFlashCard() {
