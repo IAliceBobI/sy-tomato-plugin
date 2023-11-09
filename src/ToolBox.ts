@@ -1,5 +1,5 @@
 import { Plugin } from "siyuan";
-import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, createDocWithMd, getFile, lsNotebooks, findBook, openNotebook } from './utils';
+import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, getFile, lsNotebooks, findBook, openNotebook, createDocWithMdIfNotExists, createDocWithMd } from './utils';
 import "./index.scss";
 
 
@@ -107,10 +107,13 @@ class ToolBox {
                 console.log("there is no openned notebook!")
                 return
             }
-            await openNotebook(this.lastNotebookID)
+            try {
+                await openNotebook(this.lastNotebookID)
+            } catch (e) { }
         }
-        console.log(this.lastNotebookID)
-        // await createDocWithMd(this.lastNotebookID, "/📚", `{{select * from blocks where   ial like '%bookmark=%' order by updated desc }}`)
+        const markdown = `{{select * from blocks where ial like '%bookmark=%' order by updated desc }}`;
+        const docID = await createDocWithMdIfNotExists(this.lastNotebookID, "/📚", markdown);
+        console.log(docID)
     }
 
     private async addFlashCard() {

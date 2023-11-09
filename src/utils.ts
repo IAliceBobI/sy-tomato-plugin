@@ -72,7 +72,7 @@ export async function lsNotebooks(closed: boolean) {
     const l = []
     for (const book of resp['notebooks']) {
         if (book.closed === closed) {
-            l.push(book)
+            l.push(book.id)
         }
     }
     return l;
@@ -84,6 +84,15 @@ export function findBook(bookID: string, bookIDList: string[]): string {
         return bookIDList[0];
     }
     return bookID;
+}
+
+export async function createDocWithMdIfNotExists(notebookID: string, path_readable: string, markdown: string) {
+    const row = await sqlOne(`select id from blocks where hpath="${path_readable}" and type='d' limit 1`)
+    const docID = row?.id ?? "";
+    if (!docID) {
+        return createDocWithMd(notebookID, path_readable, markdown);
+    }
+    return docID;
 }
 
 export async function createDocWithMd(notebookID: string, path_readable: string, markdown: string) {
