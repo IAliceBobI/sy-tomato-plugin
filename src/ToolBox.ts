@@ -11,32 +11,32 @@ import "./index.scss";
 
 class ToolBox {
     private lastBlockID: string;
-    private lastNotebookID: string;
+    private boxID: string;
     private plugin: Plugin;
     private timeoutID: number;
-    private contentIDs: Array<string>;
+    private contentIDs: { [key: string]: string[] };
 
     onload(plugin: Plugin) {
-        this.contentIDs = []
+        this.contentIDs = {}
         this.plugin = plugin
         this.plugin.eventBus.on("click-editorcontent", ({ detail }: any) => {
             this.lastBlockID = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id") ?? this.lastBlockID
-            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID
         });
         this.plugin.eventBus.on("open-menu-doctree", ({ detail }: any) => {
-            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID
         });
         this.plugin.eventBus.on("loaded-protyle-static", ({ detail }: any) => {
-            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID
         });
         this.plugin.eventBus.on("loaded-protyle-dynamic", ({ detail }: any) => {
-            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID
         });
         this.plugin.eventBus.on("switch-protyle", ({ detail }: any) => {
-            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID
         });
         this.plugin.eventBus.on("destroy-protyle", ({ detail }: any) => {
-            this.lastNotebookID = detail?.protyle?.notebookId ?? this.lastNotebookID
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID
         });
         this.plugin.addCommand({
             langKey: "addFlashCard",
@@ -106,34 +106,43 @@ class ToolBox {
         });
     }
 
-    private async showContents() {
-        if (!this.lastNotebookID) {
-            const localCfg = await getFile("/data/storage/local.json")
-            this.lastNotebookID = localCfg["local-dailynoteid"] ?? ""
-            this.lastNotebookID = findBookOpennedFirst(this.lastNotebookID, await lsNotebooks(false))
-            if (!this.lastNotebookID) {
-                this.lastNotebookID = findBookOpennedFirst(this.lastNotebookID, await lsNotebooks(true))
-                if (!this.lastNotebookID) {
-                    console.log("there is no notebook!")
-                    return
-                }
-            }
-            const cfg = await getNotebookConf(this.lastNotebookID)
-            if (cfg.conf.closed) {
-                await openNotebook(this.lastNotebookID)
-                await sleep(3000)
+    private async setNotebookID() {
+        const localCfg = await getFile("/data/storage/local.json")
+        this.boxID = localCfg["local-dailynoteid"] ?? ""
+        this.boxID = findBookOpennedFirst(this.boxID, await lsNotebooks(false))
+        if (!this.boxID) {
+            this.boxID = findBookOpennedFirst(this.boxID, await lsNotebooks(true))
+            if (!this.boxID) {
+                console.log("there is no notebook!")
+                return
             }
         }
-        const sqlStr = `select * from blocks where ial like '%bookmark=%' order by updated desc`
+        const cfg = await getNotebookConf(this.boxID)
+        if (cfg.conf.closed) {
+            await openNotebook(this.boxID)
+            await sleep(3000)
+        }
+        return cfg;
+    }
+
+    private async showContents() {
+        if (!this.boxID) {
+            await this.setNotebookID()
+        }
+        const cfg = await getNotebookConf(this.boxID)
+        const sqlStr = `select * from blocks where box='${this.boxID}' and ial like '%bookmark=%' order by updated desc`
         const rows = await sql(sqlStr)
         if (rows.length > 0) {
             let docID = ""
-            if (this.contentIDs.length > 0) {
-                this.contentIDs = this.contentIDs.slice(-1)
-                docID = this.contentIDs[0]
+            if (!this.contentIDs[this.boxID]) {
+                this.contentIDs[this.boxID] = []
+            }
+            if (this.contentIDs[this.boxID].length > 0) {
+                this.contentIDs[this.boxID] = this.contentIDs[this.boxID].slice(-1)
+                docID = this.contentIDs[this.boxID][0]
             } else {
-                docID = await createDocWithMdIfNotExists(this.lastNotebookID, "/📚📚📚", "");
-                this.contentIDs.push(docID)
+                docID = await createDocWithMdIfNotExists(this.boxID, "/📚" + cfg.name, "");
+                this.contentIDs[this.boxID].push(docID)
             }
             await clearAll(docID)
             await insertBlockAsChildOf(`{{${sqlStr}}}`, docID)
@@ -143,11 +152,10 @@ class ToolBox {
             })
         } else {
             try {
-                const cfg = await getNotebookConf(this.lastNotebookID)
                 pushMsg(cfg.name + this.plugin.i18n.thereIsNoBookmark)
             } catch (e) {
                 console.log(e)
-                this.lastNotebookID = ""
+                this.boxID = ""
             }
         }
     }
