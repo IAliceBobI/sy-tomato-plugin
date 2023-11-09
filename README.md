@@ -20,6 +20,9 @@
 *Next is the content block reminder tool.*
 
 ### First, click on the content you want to set a reminder for, then press `Shift+Alt+P` to open the `Command Palette`.
+
+> The plugin can only identify which content block to process when clicked with a mouse. It cannot detect cursor movement using the keyboard.
+
 ![Alt text](./assets/cmdEntry.png)
 
 ### Select the command "Set a reminder date for the current content block". You can also use the shortcut `Ctrl+3`.
@@ -37,9 +40,12 @@
 *A reading point is the last position you read in a document. We store it in a `bookmark` and automatically remove other `bookmarks` within the current file. This keeps only one `bookmark` in this file.*
 
 ### First, click on the `content block` you want to set as the reading point. Then, you can either select "Set reading point" from the `Command Palette` by pressing `Shift+Alt+P` or use the shortcut `Ctrl+2`.
+
+> The plugin can only identify which content block to process when clicked with a mouse. It cannot detect cursor movement using the keyboard.
+
 ![Alt text](./assets/cmd.png)
 
-### To view the `bookmark`, you can directly view the `bookmark panel`. Alternatively, you can click on the `Reading Point` icon in the top right corner to view more detailed information.
+### To view the `bookmark`, you can directly view the `bookmark panel`. Alternatively, you can click on the `Reading Point` (ctrl+4) icon in the top right corner to view more detailed information.
 
 ![Alt text](./assets/bookmark.png)
 
@@ -62,6 +68,8 @@
 ## Operations on Long Contents
 
 *Copying, moving, and deleting operations on long contents can be frustrating! Here, I use a simple method to handle such operations!*
+
+> If you notice any missing content after performing an operation, please refresh the page with F5. This can happen if the operation was performed too quickly and the page didn't have enough time to update!
 
 ### Move Operation
 

@@ -119,6 +119,13 @@ class ToolBox {
                     pushMsg(this.plugin.i18n.moveBlocksHelp, 0)
             },
         });
+        this.plugin.addCommand({
+            langKey: "showBookmarks",
+            hotkey: "⌘4",
+            globalCallback: async () => {
+                this.showContents()
+            },
+        });
         this.plugin.addTopBar({
             icon: "iconContents",
             title: this.plugin.i18n.topBarTitleShowContents,

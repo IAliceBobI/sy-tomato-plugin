@@ -25,5 +25,6 @@
   "deleteBlocksHelp": "批量删除帮助: <h4>请分别用 aadd1 与 aacc2 两行把要处理的内容包裹起来。</h4> <h5>aacc1</h5> <h5>今天有个好天气1!</h5> <h5>今天有个好天气2!</h5> <h5>...</h5> <h5>今天有个好天气3!</h5> <h5>aacc2</h5>",
   "moveBlocksHelp": "批量移动复制帮助: <h4>请分别用 aadd1 与 aacc2 两行把要处理的内容包裹起来。再到目标位置插入一行 aacc3。</h4> <h5>[文档1]</h5> <h5>aacc1</h5> <h5>今天有个好天气1!</h5> <h5>今天有个好天气2!</h5> <h5>...</h5> <h5>今天有个好天气3!</h5> <h5>aacc2</h5> <h5>[文档2]</h5> <h5>...</h5> <h5>aacc3</h5> <h5>...</h5><h5>(文档1与文档2可以是同一个文档)</h5>",
   "topBarTitleShowContents": "打开目录页/书签页",
-  "thereIsNoBookmark": "：找不到任何书签"
+  "thereIsNoBookmark": "：找不到任何书签",
+  "showBookmarks": "ReadingPoints: 查看阅读点"
 }
