@@ -26,6 +26,7 @@
 ![Alt text](./assets/cmdEntry.png)
 
 ### Select the command "Set a reminder date for the current content block". You can also use the shortcut `Ctrl+3`.
+
 ![Alt text](./assets/cmd.png)
 
 ### Set the time
@@ -37,7 +38,7 @@
 
 ## Reading Point
 
-*A reading point is the last position you read in a document. We store it in a `bookmark` and automatically remove other `bookmarks` within the current file. This keeps only one `bookmark` in this file.*
+*A reading point refers to the last position you read in a document. We save it as a `bookmark` and automatically remove any other `bookmarks` within the current file. This ensures that there is only one `bookmark` within the document.*
 
 ### First, click on the `content block` you want to set as the reading point. Then, you can either select "Set reading point" from the `Command Palette` by pressing `Shift+Alt+P` or use the shortcut `Ctrl+2`.
 
@@ -59,7 +60,7 @@
 
 ![Alt text](./assets/cmd.png)
 
-> **Note:** Do not use this feature while the index is being rebuilt. Creating an index during the rebuild.
+> **Note:** Do not use this feature while the index is being rebuilt. The index being rebuilt is not yet complete, and using the feature that relies on the index can lead to misleading results and accidental deletion of flashcards.
 
 > **Note:** If you use the flashcards without opening all the notebooks and then close them, even valid flashcards will be considered invalid. Therefore, make sure to open all the notebooks before using them.
 
@@ -69,7 +70,7 @@
 
 *Copying, moving, and deleting operations on long contents can be frustrating! Here, I use a simple method to handle such operations!*
 
-> If you notice any missing content after performing an operation, please refresh the page with F5. This can happen if the operation was performed too quickly and the page didn't have enough time to update!
+> After performing the operation, if you find missing content, please refresh the page by pressing F5. It simply means that you performed the operation too quickly and the page didn't have time to update!
 
 ### Move Operation
 
