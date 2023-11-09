@@ -139,6 +139,12 @@ export async function getChildBlocks(id: string) {
     return call("/api/block/getChildBlocks", { id })
 }
 
+export async function clearAll(docID: string) {
+    for (const child of await getChildBlocks(docID)) {
+        await deleteBlock(child["id"])
+    }
+}
+
 export async function deleteBlock(id: string) {
     return call("/api/block/deleteBlock", { id })
 }
