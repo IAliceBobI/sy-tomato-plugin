@@ -95,10 +95,30 @@ export async function createDocWithMdIfNotExists(notebookID: string, path_readab
     return docID;
 }
 
-export async function createDocWithMd(notebookID: string, path_readable: string, markdown: string) {
+function randStr(length: number): string {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * chars.length);
+        result += chars.charAt(randomIndex);
+    }
+    return result;
+}
+
+export function newNodeID(): string {
+    const now = new Date();
+    const formattedDate = now.toISOString().replace(/[-T:Z.]/g, "").slice(0, 14);
+    const randomStr = randStr(7);
+    return formattedDate + "-" + randomStr;
+}
+
+export async function createDocWithMd(notebookID: string, path_readable: string, markdown: string, id: string = "") {
     const notebook = notebookID
     const path = path_readable
-    return call("/api/filetree/createDocWithMd", { notebook, path, markdown })
+    const params = { notebook, path, markdown, id }
+    if (!id) delete params['id']
+    console.log("createDocWithMd", params)
+    return call("/api/filetree/createDocWithMd", params)
 }
 
 export async function checkBlockExist(id: string) {
@@ -122,6 +142,21 @@ export async function setBlockAttrs(id: string, attrs: any) {
 }
 
 export async function getNotebookConf(notebookID: string) {
+    // {
+    //     "box": "20231109134354-obnhgjv",
+    //     "conf": {
+    //         "name": "33",
+    //         "sort": 0,
+    //         "icon": "",
+    //         "closed": false,
+    //         "refCreateSavePath": "",
+    //         "docCreateSavePath": "",
+    //         "dailyNoteSavePath": "/daily note/{{now | date \"2006/01\"}}/{{now | date \"2006-01-02\"}}",
+    //         "dailyNoteTemplatePath": "",
+    //         "sortMode": 15
+    //     },
+    //     "name": "33"
+    // }
     return call("/api/notebook/getNotebookConf", { "notebook": notebookID })
 }
 

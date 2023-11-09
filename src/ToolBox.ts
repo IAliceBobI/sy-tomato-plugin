@@ -1,5 +1,11 @@
 import { Plugin, openTab } from "siyuan";
-import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, getFile, lsNotebooks, findBookOpennedFirst, openNotebook, createDocWithMdIfNotExists, createDocWithMd, clearAll, insertBlockAsChildOf, sqlOne, sql } from './utils';
+import {
+    getDocIDByBlockID, getRowByID, getNotebookConf,
+    removeBookmarks, addBookmark, addRiffCards, findListType,
+    deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, getFile, lsNotebooks,
+    findBookOpennedFirst, openNotebook,
+    clearAll, insertBlockAsChildOf, sql, createDocWithMdIfNotExists
+} from './utils';
 import "./index.scss";
 
 
@@ -8,8 +14,10 @@ class ToolBox {
     private lastNotebookID: string;
     private plugin: Plugin;
     private timeoutID: number;
+    private contentIDs: Array<string>;
 
     onload(plugin: Plugin) {
+        this.contentIDs = []
         this.plugin = plugin
         this.plugin.eventBus.on("click-editorcontent", ({ detail }: any) => {
             this.lastBlockID = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id") ?? this.lastBlockID
@@ -110,12 +118,23 @@ class ToolBox {
                     return
                 }
             }
-            await openNotebook(this.lastNotebookID)
+            const cfg = await getNotebookConf(this.lastNotebookID)
+            if (cfg.conf.closed) {
+                await openNotebook(this.lastNotebookID)
+                await sleep(3000)
+            }
         }
         const sqlStr = `select * from blocks where ial like '%bookmark=%' order by updated desc`
         const rows = await sql(sqlStr)
         if (rows.length > 0) {
-            const docID = await createDocWithMdIfNotExists(this.lastNotebookID, "/📚📚📚", "");
+            let docID = ""
+            if (this.contentIDs.length > 0) {
+                this.contentIDs = this.contentIDs.slice(-1)
+                docID = this.contentIDs[0]
+            } else {
+                docID = await createDocWithMdIfNotExists(this.lastNotebookID, "/📚📚📚", "");
+                this.contentIDs.push(docID)
+            }
             await clearAll(docID)
             await insertBlockAsChildOf(`{{${sqlStr}}}`, docID)
             openTab({
@@ -127,6 +146,7 @@ class ToolBox {
                 const cfg = await getNotebookConf(this.lastNotebookID)
                 pushMsg(cfg.name + this.plugin.i18n.thereIsNoBookmark)
             } catch (e) {
+                console.log(e)
                 this.lastNotebookID = ""
             }
         }
