@@ -132,3 +132,6 @@ Previously, creating flashcards for the entire list was a bit cumbersome as you 
 
 You can place the cursor on `a3` or any other location like `a2`, `a1`, `a0`, and then press `Ctrl+1`. Alternatively, you can open the `Command Palette` and select `Add List Flashcard`.
 
+## Welcome to communication
+
+QQ Group: 263961482
