@@ -196,6 +196,38 @@ export async function getBlockKramdown(id: string) {
     return call("/api/block/getBlockKramdown", { id })
 }
 
+export async function listDocsByPath(notebookID: string, notReadablePath: string, sort = 15) {
+    // {
+    //     "box": "20220705180858-r5dh51g",
+    //     "files": [
+    //         {
+    //             "path": "/20231109151158-92arxkh.sy",
+    //             "name": "📚C.sy",
+    //             "icon": "",
+    //             "name1": "",
+    //             "alias": "",
+    //             "memo": "",
+    //             "bookmark": "",
+    //             "id": "20231109151158-92arxkh",
+    //             "count": 0,
+    //             "size": 809,
+    //             "hSize": "809 B",
+    //             "mtime": 1699515172,
+    //             "ctime": 1699513918,
+    //             "hMtime": "刚刚",
+    //             "hCtime": "2023-11-09 15:11:58",
+    //             "sort": 0,
+    //             "subFileCount": 0,
+    //             "hidden": false,
+    //             "newFlashcardCount": 0,
+    //             "dueFlashcardCount": 0,
+    //             "flashcardCount": 0
+    //     ],
+    //     "path": "/"
+    // }
+    return call("/api/filetree/listDocsByPath", { notebook: notebookID, path: notReadablePath, sort })
+}
+
 export async function insertBlockAfter(data: string, previousID: string, dataType = 'markdown') {
     // dataType [markdown, kramdown]
     return call('/api/block/insertBlock', { data, dataType, previousID })

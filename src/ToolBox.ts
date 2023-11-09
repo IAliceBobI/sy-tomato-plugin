@@ -4,7 +4,7 @@ import {
     removeBookmarks, addBookmark, addRiffCards, findListType,
     deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, getFile, lsNotebooks,
     findBookOpennedFirst, openNotebook,
-    clearAll, insertBlockAsChildOf, sql, createDocWithMdIfNotExists
+    clearAll, insertBlockAsChildOf, sql, createDocWithMdIfNotExists, listDocsByPath
 } from './utils';
 import "./index.scss";
 
@@ -125,18 +125,32 @@ class ToolBox {
         return cfg;
     }
 
+    private async insertContents(docID: string) {
+        const resp = await listDocsByPath(this.boxID, "/", 256)
+        resp.files.reverse()
+        for (const file of resp.files) {
+            const fromWhere = `from blocks where path like '${file.path.replace(/\.sy$/, "")}%' and box='${this.boxID}' and ial like '%bookmark=%'`
+            const rows = await sql(`select id ${fromWhere} limit 1`)
+            if (rows.length > 0) {
+                const sqlStr = `select * ${fromWhere} order by updated desc`
+                await insertBlockAsChildOf(`{{${sqlStr}}}`, docID)
+                await insertBlockAsChildOf(`###### ${file.name.replace(/\.sy$/, "")}`, docID)
+            }
+        }
+    }
+
     private async showContents() {
         if (!this.boxID) {
             await this.setNotebookID()
         }
+        if (!this.contentIDs[this.boxID]) {
+            this.contentIDs[this.boxID] = []
+        }
         const cfg = await getNotebookConf(this.boxID)
-        const sqlStr = `select * from blocks where box='${this.boxID}' and ial like '%bookmark=%' order by updated desc`
+        const sqlStr = `select id from blocks where box='${this.boxID}' and ial like '%bookmark=%' limit 1`
         const rows = await sql(sqlStr)
         if (rows.length > 0) {
             let docID = ""
-            if (!this.contentIDs[this.boxID]) {
-                this.contentIDs[this.boxID] = []
-            }
             if (this.contentIDs[this.boxID].length > 0) {
                 this.contentIDs[this.boxID] = this.contentIDs[this.boxID].slice(-1)
                 docID = this.contentIDs[this.boxID][0]
@@ -145,7 +159,7 @@ class ToolBox {
                 this.contentIDs[this.boxID].push(docID)
             }
             await clearAll(docID)
-            await insertBlockAsChildOf(`{{${sqlStr}}}`, docID)
+            await this.insertContents(docID)
             openTab({
                 app: this.plugin.app,
                 doc: { id: docID },
