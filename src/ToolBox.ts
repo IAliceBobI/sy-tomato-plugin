@@ -1,5 +1,5 @@
-import { Plugin } from "siyuan";
-import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, getFile, lsNotebooks, findBook, openNotebook, createDocWithMdIfNotExists, createDocWithMd, clearAll, insertBlockAsChildOf } from './utils';
+import { Plugin, openTab } from "siyuan";
+import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, getFile, lsNotebooks, findBookOpennedFirst, openNotebook, createDocWithMdIfNotExists, createDocWithMd, clearAll, insertBlockAsChildOf } from './utils';
 import "./index.scss";
 
 
@@ -102,17 +102,21 @@ class ToolBox {
         if (!this.lastNotebookID) {
             const localCfg = await getFile("/data/storage/local.json")
             this.lastNotebookID = localCfg["local-dailynoteid"] ?? ""
-            this.lastNotebookID = findBook(this.lastNotebookID, await lsNotebooks(false))
+            this.lastNotebookID = findBookOpennedFirst(this.lastNotebookID, await lsNotebooks(false))
             if (!this.lastNotebookID) {
                 console.log("there is no openned notebook!")
                 return
             }
             await openNotebook(this.lastNotebookID)
         }
-        const markdown = `{{select * from blocks where ial like '%bookmark=%' order by updated desc }}`;
-        const docID = await createDocWithMdIfNotExists(this.lastNotebookID, "/📚", "");
+        const docID = await createDocWithMdIfNotExists(this.lastNotebookID, "/📚📚📚", "");
         await clearAll(docID)
+        const markdown = `{{select * from blocks where ial like '%bookmark=%' order by updated desc }}`;
         await insertBlockAsChildOf(markdown, docID)
+        openTab({
+            app: this.plugin.app,
+            doc: { id: docID },
+        })
     }
 
     private async addFlashCard() {

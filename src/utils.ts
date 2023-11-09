@@ -78,7 +78,7 @@ export async function lsNotebooks(closed: boolean) {
     return l;
 }
 
-export function findBook(bookID: string, bookIDList: string[]): string {
+export function findBookOpennedFirst(bookID: string, bookIDList: string[]): string {
     if (bookIDList.length === 0) return bookID;
     if (bookIDList.indexOf(bookID) === -1) {
         return bookIDList[0];
