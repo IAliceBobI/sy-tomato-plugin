@@ -325,7 +325,7 @@ export async function deleteBlocks() {
     const endPoint = await sqlOne("select id,root_id from blocks where content='aacc2'")
     const [doc1, doc2] = [startPoint["root_id"], endPoint["root_id"]]
     if (!doc1 || !doc2 || doc1 !== doc2) {
-        return false
+        return ""
     }
     let doDelete = false
     const blocks = await getChildBlocks(doc1)
@@ -338,19 +338,19 @@ export async function deleteBlocks() {
         }
         if (child['id'] === endPoint["id"]) break
     }
-    return true
+    return doc1
 }
 
 export async function moveBlocks(copy: boolean = false) {
     const startPoint = await sqlOne("select id,root_id from blocks where content='aacc1'")
     const endPoint = await sqlOne("select id,root_id from blocks where content='aacc2'")
     const insertPoint = await sqlOne("select id,root_id from blocks where content='aacc3'")
-    const [doc1, doc2] = [startPoint["root_id"], endPoint["root_id"]]
-    if (!doc1 || !doc2 || doc1 !== doc2) {
-        return false
+    const [startDocID, endDocID] = [startPoint["root_id"], endPoint["root_id"]]
+    if (!startDocID || !endDocID || startDocID !== endDocID) {
+        return []
     }
     let found = false
-    const blocks = await getChildBlocks(doc1)
+    const blocks = await getChildBlocks(startDocID)
     const ids = []
     for (const child of blocks) {
         if (child['id'] === startPoint["id"]) {
@@ -374,7 +374,7 @@ export async function moveBlocks(copy: boolean = false) {
     await deleteBlock(startPoint["id"])
     await deleteBlock(endPoint["id"])
     await deleteBlock(insertPoint["id"])
-    return true
+    return [startDocID, insertPoint["root_id"]]
 }
 
 export async function removeBrokenCards() {

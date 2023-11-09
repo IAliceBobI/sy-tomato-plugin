@@ -68,9 +68,13 @@ class ToolBox {
             langKey: "deleteBlocks",
             hotkey: "",
             globalCallback: async () => {
-                if (await deleteBlocks())
-                    window.location.reload()
-                else {
+                const docID = await deleteBlocks()
+                if (docID) {
+                    openTab({
+                        app: this.plugin.app,
+                        doc: { id: docID },
+                    })
+                } else {
                     pushMsg(this.plugin.i18n.deleteBlocksHelp, 0)
                 }
             },
@@ -79,20 +83,39 @@ class ToolBox {
             langKey: "moveBlocks",
             hotkey: "",
             globalCallback: async () => {
-                if (await moveBlocks(false))
-                    window.location.reload()
-                else
+                const [doc1, doc2] = await moveBlocks(false);
+                if (doc1) {
+                    openTab({
+                        app: this.plugin.app,
+                        doc: { id: doc1 },
+                    })
+                    if (doc1 !== doc2) {
+                        openTab({
+                            app: this.plugin.app,
+                            doc: { id: doc2 },
+                        })
+                    }
+                } else
                     pushMsg(this.plugin.i18n.moveBlocksHelp, 0)
-
             },
         });
         this.plugin.addCommand({
             langKey: "copyBlocks",
             hotkey: "",
             globalCallback: async () => {
-                if (await moveBlocks(true))
-                    window.location.reload()
-                else
+                const [doc1, doc2] = await moveBlocks(true);
+                if (doc1) {
+                    openTab({
+                        app: this.plugin.app,
+                        doc: { id: doc1 },
+                    })
+                    if (doc1 !== doc2) {
+                        openTab({
+                            app: this.plugin.app,
+                            doc: { id: doc2 },
+                        })
+                    }
+                } else
                     pushMsg(this.plugin.i18n.moveBlocksHelp, 0)
             },
         });
