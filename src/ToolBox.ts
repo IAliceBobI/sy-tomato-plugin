@@ -1,5 +1,5 @@
 import { Plugin } from "siyuan";
-import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, createDocWithMd, getFile } from './utils';
+import { getDocIDByBlockID, getRowByID, getNotebookConf, removeBookmarks, addBookmark, addRiffCards, findListType, deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, createDocWithMd, getFile, lsNotebooks, findBook, openNotebook } from './utils';
 import "./index.scss";
 
 
@@ -100,13 +100,17 @@ class ToolBox {
 
     private async showContents() {
         if (!this.lastNotebookID) {
-            const cfg = await getFile("/data/storage/local.json")
-            this.lastNotebookID = cfg["local-dailynoteid"] ?? ""
+            const localCfg = await getFile("/data/storage/local.json")
+            this.lastNotebookID = localCfg["local-dailynoteid"] ?? ""
+            this.lastNotebookID = findBook(this.lastNotebookID, await lsNotebooks(false))
+            if (!this.lastNotebookID) {
+                console.log("there is no openned notebook!")
+                return
+            }
+            await openNotebook(this.lastNotebookID)
         }
-        if (!this.lastNotebookID) {
-            
-        }
-        await createDocWithMd(this.lastNotebookID, "/📚", `{{select * from blocks where   ial like '%bookmark=%' order by updated desc }}`)
+        console.log(this.lastNotebookID)
+        // await createDocWithMd(this.lastNotebookID, "/📚", `{{select * from blocks where   ial like '%bookmark=%' order by updated desc }}`)
     }
 
     private async addFlashCard() {

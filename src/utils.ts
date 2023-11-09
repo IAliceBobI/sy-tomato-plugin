@@ -63,6 +63,29 @@ export async function getFile(path: string) {
     return await data.json()
 }
 
+export async function openNotebook(notebookID: string) {
+    const notebook = notebookID
+    return call("/api/notebook/openNotebook", { notebook })
+}
+export async function lsNotebooks(closed: boolean) {
+    const resp = await call("/api/notebook/lsNotebooks", {})
+    const l = []
+    for (const book of resp['notebooks']) {
+        if (book.closed === closed) {
+            l.push(book)
+        }
+    }
+    return l;
+}
+
+export function findBook(bookID: string, bookIDList: string[]): string {
+    if (bookIDList.length === 0) return bookID;
+    if (bookIDList.indexOf(bookID) === -1) {
+        return bookIDList[0];
+    }
+    return bookID;
+}
+
 export async function createDocWithMd(notebookID: string, path_readable: string, markdown: string) {
     const notebook = notebookID
     const path = path_readable
