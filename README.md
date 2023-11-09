@@ -55,7 +55,7 @@
 
 > **Note:** Do not use this feature while the index is being rebuilt. Creating an index during the rebuild.
 
-> **Note:** If you use the flashcards without opening all the notebooks and then close them, even valid flashcards will be considered invalid. Therefore, make sure to open all the notebooks before using them. I only use one notebook, so I often use this feature.
+> **Note:** If you use the flashcards without opening all the notebooks and then close them, even valid flashcards will be considered invalid. Therefore, make sure to open all the notebooks before using them.
 
 > **Note:** Make sure to backup before using!
 

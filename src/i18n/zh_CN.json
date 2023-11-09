@@ -15,7 +15,7 @@
   "schedule": "schedule: 给当前内容块设置一个提醒日期",
   "btnAddADay": "+1日",
   "addBookmark": "addBookmark: 设置阅读点：设置当前内容块为书签，并删除当前文档的其他书签",
-  "removeBrokenCards": "removeBrokenCards: 清理所有失效闪卡。（注意：如果正在重建索引中，不要使用，等重建后使用，以免误删除有效的闪卡）（失效：闪卡对应的内容块被删除）",
+  "removeBrokenCards": "removeBrokenCards: 清理所有失效闪卡。（确保打开全部文档，并且索引都构建完毕）（失效：闪卡对应的内容块被删除）",
   "addFlashCard": "addFlashCard: 添加列表闪卡（针对大纲/列表，则设置整个列表为闪卡，而不是当前光标所在的列表项）",
   "removedBrokenCards": "已经删除的失效闪卡：",
   "thereIsNoInvalidCards": "无失效闪卡！",
