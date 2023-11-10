@@ -1,6 +1,6 @@
 {
   "name": "sy-tomato-plugin",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Practical tomato clock, regular reminder, reading point, rapid list card making, clean invalid flash card, long content deletion, long content copy, long content move.",
   "main": ".src/index.js",
   "scripts": {

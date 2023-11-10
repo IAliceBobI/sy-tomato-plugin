@@ -367,14 +367,21 @@ export async function moveBlocks(copy = false) {
         }
     }
     ids.reverse();
+    const idSet = new Set<string>();
     for (const id of ids) {
         if (copy) {
             const { kramdown } = await getBlockKramdown(id);
             const lines: Array<string> = kramdown.split("\n");
             let attrs = lines.pop();
-            attrs = attrs.replace(IDRegexp, `id="${newNodeID()}"`);
+
+            let newID = "";
+            do {
+                newID = newNodeID();
+            } while (idSet.has(newID));
+            idSet.add(newID);
+
+            attrs = attrs.replace(IDRegexp, `id="${newID}"`);
             lines.push(attrs);
-            console.log(lines.join("\n"));
             await insertBlockAfter(lines.join("\n"), insertPoint["id"]);
         } else {
             await moveBlockAfter(id, insertPoint["id"]);
