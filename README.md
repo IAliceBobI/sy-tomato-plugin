@@ -4,7 +4,7 @@
 
 ## Pomodoro Timer
 
-### The first tool is the status bar Pomodoro timer:
+*Status Bar Pomodoro Timer*
 
 ![](./assets/statustomato.png)
 
@@ -17,7 +17,7 @@
 
 ## Content Reminder
 
-*Next is the content block reminder tool.*
+*Set a reminder date for a content block!*
 
 ### First, click on the content you want to set a reminder for, then press `Shift+Alt+P` to open the `Command Palette`.
 
@@ -137,7 +137,9 @@ For a given list:
   * a2
     * a3
 
-Previously, creating flashcards for the entire list was a bit cumbersome as you had to select the entire list. If you could create flashcards by simply placing the cursor anywhere within the list, it would be much more convenient. That's where the "Quick List Flashcard" feature comes in.
+Previously, it was cumbersome to create a card for the entire list as you had to select the entire list. If you could create a card by simply clicking anywhere in the list, it would be more convenient. Thus, the feature of "Quick Card Creation for Lists" was developed.
+
+> The plugin can only identify which content block to process when clicked with a mouse. It cannot detect cursor movement using the keyboard.
 
 You can place the cursor on `a3` or any other location like `a2`, `a1`, `a0`, and then press `Ctrl+1`. Alternatively, you can open the `Command Palette` and select `Add List Flashcard`.
 
