@@ -343,6 +343,8 @@ export async function deleteBlocks() {
     return doc1;
 }
 
+const IDRegexp = /id="[^"]+"/;
+
 export async function moveBlocks(copy = false) {
     const startPoint = await sqlOne("select id,root_id from blocks where content='aacc1'");
     const endPoint = await sqlOne("select id,root_id from blocks where content='aacc2'");
@@ -368,7 +370,12 @@ export async function moveBlocks(copy = false) {
     for (const id of ids) {
         if (copy) {
             const { kramdown } = await getBlockKramdown(id);
-            await insertBlockAfter(kramdown, insertPoint["id"]);
+            const lines: Array<string> = kramdown.split("\n");
+            let attrs = lines.pop();
+            attrs = attrs.replace(IDRegexp, `id="${newNodeID()}"`);
+            lines.push(attrs);
+            console.log(lines.join("\n"));
+            await insertBlockAfter(lines.join("\n"), insertPoint["id"]);
         } else {
             await moveBlockAfter(id, insertPoint["id"]);
         }

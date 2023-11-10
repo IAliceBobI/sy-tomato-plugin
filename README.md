@@ -146,3 +146,14 @@ You can place the cursor on `a3` or any other location like `a2`, `a1`, `a0`, an
 ## Welcome to communication
 
 QQ Group: 263961482
+
+## Changelog
+
+### 2023-11-10
+
+* Fixed the bug related to copying long content.
+
+### 2023-11-08
+
+* The first release.
+

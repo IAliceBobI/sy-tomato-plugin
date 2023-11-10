@@ -1,19 +1,16 @@
 import { Dialog, Plugin, Protyle, } from "siyuan";
 import { dateFromYYYYMMDDHHmmss, currentTime, pushMsg, newID, makesureDateTimeFormat, checkTimeFormat, dateFormat, checkBlockExist } from "./utils";
 import "./index.scss";
+import { events } from "./Events";
 
 const STORAGE_SCHEDULE = "schedule.json";
 
 class Schedule {
-    private lastBlockID: string;
     private plugin: Plugin;
 
     onload(plugin: Plugin) {
         this.plugin = plugin;
         this.plugin.data[STORAGE_SCHEDULE] = {};
-        this.plugin.eventBus.on("click-editorcontent", ({ detail }: any) => {
-            this.lastBlockID = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id") ?? "";
-        });
         this.plugin.addCommand({
             langKey: "schedule",
             hotkey: "⌘3",
@@ -34,8 +31,8 @@ class Schedule {
         const btnScheduleID = newID();
         const btnAddADayID = newID();
         let idMsg = this.plugin.i18n.clickOneBlockFirst;
-        if (this.lastBlockID) {
-            idMsg = this.lastBlockID;
+        if (events.lastBlockID) {
+            idMsg = events.lastBlockID;
         }
 
         const dialog = new Dialog({
@@ -54,10 +51,10 @@ class Schedule {
         });
 
         new Protyle(this.plugin.app, dialog.element.querySelector("#protyle"), {
-            blockId: this.lastBlockID,
+            blockId: events.lastBlockID,
         });
 
-        if (!this.lastBlockID) {
+        if (!events.lastBlockID) {
             return;
         }
 
@@ -94,11 +91,11 @@ class Schedule {
     }
 
     private async addSchedule(inputValue: string) {
-        if (!this.lastBlockID) return;
+        if (!events.lastBlockID) return;
         const data = this.plugin.data[STORAGE_SCHEDULE] ?? {};
-        data[this.lastBlockID] = inputValue;
+        data[events.lastBlockID] = inputValue;
         await this.plugin.saveData(STORAGE_SCHEDULE, data);
-        await this.doSchedule(this.lastBlockID, data);
+        await this.doSchedule(events.lastBlockID, data);
         await pushMsg(`<h1>${this.plugin.i18n.scheduleSetSuccess}</h1>
         <br>${this.plugin.i18n.scheduledAt} ${inputValue}`, 8 * 1000);
     }

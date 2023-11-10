@@ -7,11 +7,9 @@ import {
     clearAll, insertBlockAsChildOf, sql, createDocWithMdIfNotExists, listDocsByPath
 } from "./utils";
 import "./index.scss";
-
+import { events } from "./Events";
 
 class ToolBox {
-    private lastBlockID: string;
-    private boxID: string;
     private plugin: Plugin;
     private timeoutID: number;
     private contentIDs: { [key: string]: string[] };
@@ -19,25 +17,6 @@ class ToolBox {
     onload(plugin: Plugin) {
         this.contentIDs = {};
         this.plugin = plugin;
-        this.plugin.eventBus.on("click-editorcontent", ({ detail }: any) => {
-            this.lastBlockID = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id") ?? this.lastBlockID;
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
-        });
-        this.plugin.eventBus.on("open-menu-doctree", ({ detail }: any) => {
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
-        });
-        this.plugin.eventBus.on("loaded-protyle-static", ({ detail }: any) => {
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
-        });
-        this.plugin.eventBus.on("loaded-protyle-dynamic", ({ detail }: any) => {
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
-        });
-        this.plugin.eventBus.on("switch-protyle", ({ detail }: any) => {
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
-        });
-        this.plugin.eventBus.on("destroy-protyle", ({ detail }: any) => {
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
-        });
         this.plugin.addCommand({
             langKey: "addFlashCard",
             hotkey: "⌘1",
@@ -138,28 +117,28 @@ class ToolBox {
 
     private async setNotebookID() {
         const localCfg = await getFile("/data/storage/local.json");
-        this.boxID = localCfg["local-dailynoteid"] ?? "";
-        this.boxID = findBookOpennedFirst(this.boxID, await lsNotebooks(false));
-        if (!this.boxID) {
-            this.boxID = findBookOpennedFirst(this.boxID, await lsNotebooks(true));
-            if (!this.boxID) {
+        events.boxID = localCfg["local-dailynoteid"] ?? "";
+        events.boxID = findBookOpennedFirst(events.boxID, await lsNotebooks(false));
+        if (!events.boxID) {
+            events.boxID = findBookOpennedFirst(events.boxID, await lsNotebooks(true));
+            if (!events.boxID) {
                 console.log("there is no notebook!");
                 return;
             }
         }
-        const cfg = await getNotebookConf(this.boxID);
+        const cfg = await getNotebookConf(events.boxID);
         if (cfg.conf.closed) {
-            await openNotebook(this.boxID);
+            await openNotebook(events.boxID);
             await sleep(3000);
         }
         return cfg;
     }
 
     private async insertContents(docID: string) {
-        const resp = await listDocsByPath(this.boxID, "/", 256);
+        const resp = await listDocsByPath(events.boxID, "/", 256);
         resp.files.reverse();
         for (const file of resp.files) {
-            const fromWhere = `from blocks where path like '${file.path.replace(/\.sy$/, "")}%' and box='${this.boxID}' and ial like '%bookmark=%'`;
+            const fromWhere = `from blocks where path like '${file.path.replace(/\.sy$/, "")}%' and box='${events.boxID}' and ial like '%bookmark=%'`;
             const rows = await sql(`select id ${fromWhere} limit 1`);
             if (rows.length > 0) {
                 const sqlStr = `select * ${fromWhere} order by updated desc`;
@@ -170,23 +149,23 @@ class ToolBox {
     }
 
     private async showContents() {
-        if (!this.boxID) {
+        if (!events.boxID) {
             await this.setNotebookID();
         }
-        if (!this.contentIDs[this.boxID]) {
-            this.contentIDs[this.boxID] = [];
+        if (!this.contentIDs[events.boxID]) {
+            this.contentIDs[events.boxID] = [];
         }
-        const cfg = await getNotebookConf(this.boxID);
-        const sqlStr = `select id from blocks where box='${this.boxID}' and ial like '%bookmark=%' limit 1`;
+        const cfg = await getNotebookConf(events.boxID);
+        const sqlStr = `select id from blocks where box='${events.boxID}' and ial like '%bookmark=%' limit 1`;
         const rows = await sql(sqlStr);
         if (rows.length > 0) {
             let docID = "";
-            if (this.contentIDs[this.boxID].length > 0) {
-                this.contentIDs[this.boxID] = this.contentIDs[this.boxID].slice(-1);
-                docID = this.contentIDs[this.boxID][0];
+            if (this.contentIDs[events.boxID].length > 0) {
+                this.contentIDs[events.boxID] = this.contentIDs[events.boxID].slice(-1);
+                docID = this.contentIDs[events.boxID][0];
             } else {
-                docID = await createDocWithMdIfNotExists(this.boxID, "/📚" + cfg.name, "");
-                this.contentIDs[this.boxID].push(docID);
+                docID = await createDocWithMdIfNotExists(events.boxID, "/📚" + cfg.name, "");
+                this.contentIDs[events.boxID].push(docID);
             }
             await clearAll(docID);
             await this.insertContents(docID);
@@ -199,17 +178,17 @@ class ToolBox {
                 pushMsg(cfg.name + this.plugin.i18n.thereIsNoBookmark);
             } catch (e) {
                 console.log(e);
-                this.boxID = "";
+                events.boxID = "";
             }
         }
     }
 
     private async addFlashCard() {
-        if (!this.lastBlockID) {
+        if (!events.lastBlockID) {
             pushMsg(this.plugin.i18n.clickOneBlockFirst);
             return;
         }
-        const id = this.lastBlockID;
+        const id = events.lastBlockID;
         let count = 30;
         while (count > 0) {
             count -= 1;
@@ -223,11 +202,11 @@ class ToolBox {
     }
 
     private async addReadPoint() {
-        if (!this.lastBlockID) {
+        if (!events.lastBlockID) {
             pushMsg(this.plugin.i18n.clickOneBlockFirst);
             return;
         }
-        const id = this.lastBlockID;
+        const id = events.lastBlockID;
         const docID = await getDocIDByBlockID(id);
 
         const docInfo = await getRowByID(docID);
