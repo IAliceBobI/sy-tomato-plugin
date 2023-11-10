@@ -1,5 +1,5 @@
 import { Dialog, Plugin, Protyle, } from "siyuan";
-import { dateFromYYYYMMDDHHmmss, currentTime, pushMsg, newID, makesureDateTimeFormat, checkTimeFormat, dateFormat, checkBlockExist } from './utils';
+import { dateFromYYYYMMDDHHmmss, currentTime, pushMsg, newID, makesureDateTimeFormat, checkTimeFormat, dateFormat, checkBlockExist } from "./utils";
 import "./index.scss";
 
 const STORAGE_SCHEDULE = "schedule.json";
@@ -10,15 +10,15 @@ class Schedule {
 
     onload(plugin: Plugin) {
         this.plugin = plugin;
-        this.plugin.data[STORAGE_SCHEDULE] = {}
+        this.plugin.data[STORAGE_SCHEDULE] = {};
         this.plugin.eventBus.on("click-editorcontent", ({ detail }: any) => {
-            this.lastBlockID = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id") ?? ""
+            this.lastBlockID = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id") ?? "";
         });
         this.plugin.addCommand({
             langKey: "schedule",
             hotkey: "⌘3",
             globalCallback: async () => {
-                await this.showScheduleDialog()
+                await this.showScheduleDialog();
             },
         });
     }
@@ -26,16 +26,16 @@ class Schedule {
     onLayoutReady() {
         this.plugin.loadData(STORAGE_SCHEDULE).then(() => {
             this.loopSchedule();
-        })
+        });
     }
 
     private async showScheduleDialog() {
-        let inputID = newID()
-        let btnScheduleID = newID()
-        let btnAddADayID = newID()
-        let idMsg = this.plugin.i18n.clickOneBlockFirst
+        const inputID = newID();
+        const btnScheduleID = newID();
+        const btnAddADayID = newID();
+        let idMsg = this.plugin.i18n.clickOneBlockFirst;
         if (this.lastBlockID) {
-            idMsg = this.lastBlockID
+            idMsg = this.lastBlockID;
         }
 
         const dialog = new Dialog({
@@ -58,7 +58,7 @@ class Schedule {
         });
 
         if (!this.lastBlockID) {
-            return
+            return;
         }
 
         const inputField = document.getElementById(inputID) as HTMLInputElement;
@@ -70,9 +70,9 @@ class Schedule {
             if (checkTimeFormat(timestr)) {
                 const tidiedStr = makesureDateTimeFormat(timestr);
                 if (tidiedStr) {
-                    this.addSchedule(tidiedStr)
-                    dialog.destroy()
-                    return
+                    this.addSchedule(tidiedStr);
+                    dialog.destroy();
+                    return;
                 }
             }
             inputField.value = await currentTime(30);
@@ -84,9 +84,9 @@ class Schedule {
             if (checkTimeFormat(timestr)) {
                 const tidiedStr = makesureDateTimeFormat(timestr);
                 if (tidiedStr) {
-                    const newTime = new Date(new Date(tidiedStr).getTime() + 1000 * 60 * 60 * 24)
-                    inputField.value = dateFormat(newTime)
-                    return
+                    const newTime = new Date(new Date(tidiedStr).getTime() + 1000 * 60 * 60 * 24);
+                    inputField.value = dateFormat(newTime);
+                    return;
                 }
             }
             inputField.value = await currentTime(30);
@@ -94,10 +94,10 @@ class Schedule {
     }
 
     private async addSchedule(inputValue: string) {
-        if (!this.lastBlockID) return
-        let data = this.plugin.data[STORAGE_SCHEDULE] ?? {};
+        if (!this.lastBlockID) return;
+        const data = this.plugin.data[STORAGE_SCHEDULE] ?? {};
         data[this.lastBlockID] = inputValue;
-        await this.plugin.saveData(STORAGE_SCHEDULE, data)
+        await this.plugin.saveData(STORAGE_SCHEDULE, data);
         await this.doSchedule(this.lastBlockID, data);
         await pushMsg(`<h1>${this.plugin.i18n.scheduleSetSuccess}</h1>
         <br>${this.plugin.i18n.scheduledAt} ${inputValue}`, 8 * 1000);
@@ -107,7 +107,7 @@ class Schedule {
         if (await checkBlockExist(blockID)) {
             const dialog = new Dialog({
                 title: `${this.plugin.i18n.remind}: ${theTime}`,
-                content: `<div id="protyle" style="height: 480px;"></div>`,
+                content: "<div id=\"protyle\" style=\"height: 480px;\"></div>",
                 width: "560px",
                 height: "540px",
             });
@@ -126,11 +126,11 @@ class Schedule {
             await this.showTimeoutDialog(blockID, theTime);
             delete data[blockID];
             await this.plugin.saveData(STORAGE_SCHEDULE, data);
-        }, delay, blockID, data[blockID])
+        }, delay, blockID, data[blockID]);
     }
 
     private loopSchedule() {
-        let data = this.plugin.data[STORAGE_SCHEDULE] ?? {};
+        const data = this.plugin.data[STORAGE_SCHEDULE] ?? {};
         for (const keyBlockID in data) {
             this.doSchedule(keyBlockID, data);
         }

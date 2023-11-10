@@ -1,4 +1,4 @@
-export const ICONS: string = `
+export const ICONS = `
 <symbol id="iconBooks" viewBox="0 0 32 32"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
 <path d="M24.5 4c1.89 0 3.5 1.61 3.5 3.5v18c0 1.89-1.61 3.5-3.5 3.5h-17C2.61 29 1 27.39 1 25.5v-18C1 5.61 2.61 4 4.5 4h20zm0-2h-20C1.12 2 0 3.12 0 4.5v18C0 24.88 1.12 26 2.5 26h17c.28 0 .5-.22.5-.5v-18c0-.28-.22-.5-.5-.5zm-14 22h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3v-2h3v2zm6 8h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3v-2h3v2zm8 8h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3v-2h3v2z" fill="#000"/>
 </svg></symbol>
@@ -35,4 +35,4 @@ export const ICONS: string = `
 <symbol id="iconTomato25" viewBox="0 0 32 32"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
 <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="bold">25</text>
 </svg></symbol>
-`
+`;

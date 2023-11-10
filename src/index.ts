@@ -12,8 +12,8 @@ export default class ThePlugin extends Plugin {
     onload() {
         this.addIcons(ICONS);
         tomatoClock.onload(this);
-        schedule.onload(this)
-        toolBox.onload(this)
+        schedule.onload(this);
+        toolBox.onload(this);
     }
 
     onLayoutReady() {
@@ -21,5 +21,6 @@ export default class ThePlugin extends Plugin {
     }
 
     onunload() {
+        console.log("unload tomato plugin");
     }
 }

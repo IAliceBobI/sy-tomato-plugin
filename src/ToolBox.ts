@@ -5,7 +5,7 @@ import {
     deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, getFile, lsNotebooks,
     findBookOpennedFirst, openNotebook,
     clearAll, insertBlockAsChildOf, sql, createDocWithMdIfNotExists, listDocsByPath
-} from './utils';
+} from "./utils";
 import "./index.scss";
 
 
@@ -17,50 +17,50 @@ class ToolBox {
     private contentIDs: { [key: string]: string[] };
 
     onload(plugin: Plugin) {
-        this.contentIDs = {}
-        this.plugin = plugin
+        this.contentIDs = {};
+        this.plugin = plugin;
         this.plugin.eventBus.on("click-editorcontent", ({ detail }: any) => {
-            this.lastBlockID = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id") ?? this.lastBlockID
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID
+            this.lastBlockID = detail?.event?.srcElement?.parentElement?.getAttribute("data-node-id") ?? this.lastBlockID;
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
         });
         this.plugin.eventBus.on("open-menu-doctree", ({ detail }: any) => {
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
         });
         this.plugin.eventBus.on("loaded-protyle-static", ({ detail }: any) => {
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
         });
         this.plugin.eventBus.on("loaded-protyle-dynamic", ({ detail }: any) => {
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
         });
         this.plugin.eventBus.on("switch-protyle", ({ detail }: any) => {
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
         });
         this.plugin.eventBus.on("destroy-protyle", ({ detail }: any) => {
-            this.boxID = detail?.protyle?.notebookId ?? this.boxID
+            this.boxID = detail?.protyle?.notebookId ?? this.boxID;
         });
         this.plugin.addCommand({
             langKey: "addFlashCard",
             hotkey: "⌘1",
             globalCallback: async () => {
-                await this.addFlashCard()
+                await this.addFlashCard();
             },
         });
         this.plugin.addCommand({
             langKey: "addBookmark",
             hotkey: "⌘2",
             globalCallback: async () => {
-                await this.addReadPoint()
+                await this.addReadPoint();
             },
         });
         this.plugin.addCommand({
             langKey: "removeBrokenCards",
             hotkey: "",
             globalCallback: async () => {
-                const ids = await removeBrokenCards()
+                const ids = await removeBrokenCards();
                 if (ids.length) {
-                    pushMsg(`${this.plugin.i18n.removedBrokenCards}${ids}`)
+                    pushMsg(`${this.plugin.i18n.removedBrokenCards}${ids}`);
                 } else {
-                    pushMsg(this.plugin.i18n.thereIsNoInvalidCards)
+                    pushMsg(this.plugin.i18n.thereIsNoInvalidCards);
                 }
             },
         });
@@ -68,14 +68,14 @@ class ToolBox {
             langKey: "deleteBlocks",
             hotkey: "",
             globalCallback: async () => {
-                const docID = await deleteBlocks()
+                const docID = await deleteBlocks();
                 if (docID) {
                     openTab({
                         app: this.plugin.app,
                         doc: { id: docID },
-                    })
+                    });
                 } else {
-                    pushMsg(this.plugin.i18n.deleteBlocksHelp, 0)
+                    pushMsg(this.plugin.i18n.deleteBlocksHelp, 0);
                 }
             },
         });
@@ -88,15 +88,15 @@ class ToolBox {
                     openTab({
                         app: this.plugin.app,
                         doc: { id: doc1 },
-                    })
+                    });
                     if (doc1 !== doc2) {
                         openTab({
                             app: this.plugin.app,
                             doc: { id: doc2 },
-                        })
+                        });
                     }
                 } else
-                    pushMsg(this.plugin.i18n.moveBlocksHelp, 0)
+                    pushMsg(this.plugin.i18n.moveBlocksHelp, 0);
             },
         });
         this.plugin.addCommand({
@@ -108,22 +108,22 @@ class ToolBox {
                     openTab({
                         app: this.plugin.app,
                         doc: { id: doc1 },
-                    })
+                    });
                     if (doc1 !== doc2) {
                         openTab({
                             app: this.plugin.app,
                             doc: { id: doc2 },
-                        })
+                        });
                     }
                 } else
-                    pushMsg(this.plugin.i18n.moveBlocksHelp, 0)
+                    pushMsg(this.plugin.i18n.moveBlocksHelp, 0);
             },
         });
         this.plugin.addCommand({
             langKey: "showBookmarks",
             hotkey: "⌘4",
             globalCallback: async () => {
-                this.showContents()
+                this.showContents();
             },
         });
         this.plugin.addTopBar({
@@ -131,83 +131,83 @@ class ToolBox {
             title: this.plugin.i18n.topBarTitleShowContents,
             position: "right",
             callback: () => {
-                this.showContents()
+                this.showContents();
             }
         });
     }
 
     private async setNotebookID() {
-        const localCfg = await getFile("/data/storage/local.json")
-        this.boxID = localCfg["local-dailynoteid"] ?? ""
-        this.boxID = findBookOpennedFirst(this.boxID, await lsNotebooks(false))
+        const localCfg = await getFile("/data/storage/local.json");
+        this.boxID = localCfg["local-dailynoteid"] ?? "";
+        this.boxID = findBookOpennedFirst(this.boxID, await lsNotebooks(false));
         if (!this.boxID) {
-            this.boxID = findBookOpennedFirst(this.boxID, await lsNotebooks(true))
+            this.boxID = findBookOpennedFirst(this.boxID, await lsNotebooks(true));
             if (!this.boxID) {
-                console.log("there is no notebook!")
-                return
+                console.log("there is no notebook!");
+                return;
             }
         }
-        const cfg = await getNotebookConf(this.boxID)
+        const cfg = await getNotebookConf(this.boxID);
         if (cfg.conf.closed) {
-            await openNotebook(this.boxID)
-            await sleep(3000)
+            await openNotebook(this.boxID);
+            await sleep(3000);
         }
         return cfg;
     }
 
     private async insertContents(docID: string) {
-        const resp = await listDocsByPath(this.boxID, "/", 256)
-        resp.files.reverse()
+        const resp = await listDocsByPath(this.boxID, "/", 256);
+        resp.files.reverse();
         for (const file of resp.files) {
-            const fromWhere = `from blocks where path like '${file.path.replace(/\.sy$/, "")}%' and box='${this.boxID}' and ial like '%bookmark=%'`
-            const rows = await sql(`select id ${fromWhere} limit 1`)
+            const fromWhere = `from blocks where path like '${file.path.replace(/\.sy$/, "")}%' and box='${this.boxID}' and ial like '%bookmark=%'`;
+            const rows = await sql(`select id ${fromWhere} limit 1`);
             if (rows.length > 0) {
-                const sqlStr = `select * ${fromWhere} order by updated desc`
-                await insertBlockAsChildOf(`{{${sqlStr}}}`, docID)
-                await insertBlockAsChildOf(`###### ${file.name.replace(/\.sy$/, "")}`, docID)
+                const sqlStr = `select * ${fromWhere} order by updated desc`;
+                await insertBlockAsChildOf(`{{${sqlStr}}}`, docID);
+                await insertBlockAsChildOf(`###### ${file.name.replace(/\.sy$/, "")}`, docID);
             }
         }
     }
 
     private async showContents() {
         if (!this.boxID) {
-            await this.setNotebookID()
+            await this.setNotebookID();
         }
         if (!this.contentIDs[this.boxID]) {
-            this.contentIDs[this.boxID] = []
+            this.contentIDs[this.boxID] = [];
         }
-        const cfg = await getNotebookConf(this.boxID)
-        const sqlStr = `select id from blocks where box='${this.boxID}' and ial like '%bookmark=%' limit 1`
-        const rows = await sql(sqlStr)
+        const cfg = await getNotebookConf(this.boxID);
+        const sqlStr = `select id from blocks where box='${this.boxID}' and ial like '%bookmark=%' limit 1`;
+        const rows = await sql(sqlStr);
         if (rows.length > 0) {
-            let docID = ""
+            let docID = "";
             if (this.contentIDs[this.boxID].length > 0) {
-                this.contentIDs[this.boxID] = this.contentIDs[this.boxID].slice(-1)
-                docID = this.contentIDs[this.boxID][0]
+                this.contentIDs[this.boxID] = this.contentIDs[this.boxID].slice(-1);
+                docID = this.contentIDs[this.boxID][0];
             } else {
                 docID = await createDocWithMdIfNotExists(this.boxID, "/📚" + cfg.name, "");
-                this.contentIDs[this.boxID].push(docID)
+                this.contentIDs[this.boxID].push(docID);
             }
-            await clearAll(docID)
-            await this.insertContents(docID)
+            await clearAll(docID);
+            await this.insertContents(docID);
             openTab({
                 app: this.plugin.app,
                 doc: { id: docID },
-            })
+            });
         } else {
             try {
-                pushMsg(cfg.name + this.plugin.i18n.thereIsNoBookmark)
+                pushMsg(cfg.name + this.plugin.i18n.thereIsNoBookmark);
             } catch (e) {
-                console.log(e)
-                this.boxID = ""
+                console.log(e);
+                this.boxID = "";
             }
         }
     }
 
     private async addFlashCard() {
         if (!this.lastBlockID) {
-            pushMsg(this.plugin.i18n.clickOneBlockFirst)
-            return
+            pushMsg(this.plugin.i18n.clickOneBlockFirst);
+            return;
         }
         const id = this.lastBlockID;
         let count = 30;
@@ -224,22 +224,22 @@ class ToolBox {
 
     private async addReadPoint() {
         if (!this.lastBlockID) {
-            pushMsg(this.plugin.i18n.clickOneBlockFirst)
-            return
+            pushMsg(this.plugin.i18n.clickOneBlockFirst);
+            return;
         }
-        const id = this.lastBlockID
+        const id = this.lastBlockID;
         const docID = await getDocIDByBlockID(id);
 
         const docInfo = await getRowByID(docID);
-        const path: Array<string> = docInfo['hpath'].split("/");
-        path.pop()
-        let title = path[path.length - 1]
+        const path: Array<string> = docInfo["hpath"].split("/");
+        path.pop();
+        let title = path[path.length - 1];
         if (title === "") {
-            const boxConf = await getNotebookConf(docInfo['box'])
-            title = boxConf['name']
+            const boxConf = await getNotebookConf(docInfo["box"]);
+            title = boxConf["name"];
         }
         await addBookmark(id, title);
-        clearTimeout(this.timeoutID)
+        clearTimeout(this.timeoutID);
         this.timeoutID = setTimeout(async () => {
             await removeBookmarks(docID, id);
         }, 1000);

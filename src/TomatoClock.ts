@@ -6,27 +6,27 @@ import {
 import "./index.scss";
 
 class TomatoClock {
-    private plugin: Plugin
-    private timeoutID: number
-    private lastDelayMin: number
+    private plugin: Plugin;
+    private timeoutID: number;
+    private lastDelayMin: number;
 
     onload(plugin: Plugin) {
-        this.plugin = plugin
-        this.lastDelayMin = 0
-        this.timeoutID = 0
-        this.addTomatoClock("iconTomato0", 0)
-        this.addTomatoClock("iconTomato5", 5)
-        this.addTomatoClock("iconTomato10", 10)
-        this.addTomatoClock("iconTomato15", 15)
-        this.addTomatoClock("iconTomato20", 20)
-        this.addTomatoClock("iconTomato25", 25)
+        this.plugin = plugin;
+        this.lastDelayMin = 0;
+        this.timeoutID = 0;
+        this.addTomatoClock("iconTomato0", 0);
+        this.addTomatoClock("iconTomato5", 5);
+        this.addTomatoClock("iconTomato10", 10);
+        this.addTomatoClock("iconTomato15", 15);
+        this.addTomatoClock("iconTomato20", 20);
+        this.addTomatoClock("iconTomato25", 25);
     }
 
     private addTomatoClock(icon: string, minute: number) {
         const name = this.plugin.i18n.name;
-        let label = `${name}🍅${minute}${this.plugin.i18n.takeARestAfterMinutes}`
+        let label = `${name}🍅${minute}${this.plugin.i18n.takeARestAfterMinutes}`;
         if (minute === 0) {
-            label = `${name}🍅${this.plugin.i18n.cancelCountdown}`
+            label = `${name}🍅${this.plugin.i18n.cancelCountdown}`;
         }
         const statusIconTemp = document.createElement("template");
         statusIconTemp.innerHTML = `<div class="toolbar__item ariaLabel" aria-label="${label}">
@@ -34,14 +34,14 @@ class TomatoClock {
         statusIconTemp.content.firstElementChild.addEventListener("click", () => {
             clearTimeout(this.timeoutID);
             if (this.lastDelayMin > 0) {
-                showMessage(`${name}🍅${this.plugin.i18n.cancelLastCountdown}: ${this.lastDelayMin}m`, 5000)
+                showMessage(`${name}🍅${this.plugin.i18n.cancelLastCountdown}: ${this.lastDelayMin}m`, 5000);
             }
-            this.lastDelayMin = minute
+            this.lastDelayMin = minute;
             if (minute > 0) {
-                showMessage(`${name}🍅${this.plugin.i18n.startCountdown}: ${minute}m`, 5000)
+                showMessage(`${name}🍅${this.plugin.i18n.startCountdown}: ${minute}m`, 5000);
                 this.timeoutID = setTimeout(() => {
-                    this.showTimeoutDialog(minute)
-                    this.lastDelayMin = 0
+                    this.showTimeoutDialog(minute);
+                    this.lastDelayMin = 0;
                 }, minute * 60 * 1000);
             }
         });
@@ -65,4 +65,4 @@ class TomatoClock {
     }
 }
 
-export const tomatoClock = new TomatoClock()
+export const tomatoClock = new TomatoClock();
