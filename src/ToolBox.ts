@@ -231,6 +231,7 @@ class ToolBox {
         const docID = await getDocIDByBlockID(id);
 
         const docInfo = await getRowByID(docID);
+        if (!docInfo["hpath"]) return;
         const path: Array<string> = docInfo["hpath"].split("/");
         path.pop();
         let title = path[path.length - 1];

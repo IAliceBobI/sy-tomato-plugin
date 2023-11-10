@@ -19,7 +19,7 @@
 
 *Set a reminder date for a content block!*
 
-### First, click on the content you want to set a reminder for, then press `Shift+Alt+P` to open the `Command Palette`.
+### First, click on the content you want to set a reminder for, then press `Shift+Alt+P` to open the `Command Palette`. You can also use the shortcut `Ctrl+3`.
 
 > The plugin can only identify which content block to process when clicked with a mouse. It cannot detect cursor movement using the keyboard.
 
@@ -62,7 +62,7 @@
 
 > **Note:** Do not use this feature while the index is being rebuilt. The index being rebuilt is not yet complete, and using the feature that relies on the index can lead to misleading results and accidental deletion of flashcards.
 
-> **Note:** If you use the flashcards without opening all the notebooks and then close them, even valid flashcards will be considered invalid. Therefore, make sure to open all the notebooks before using them.
+> **Note:** If you use the flashcards without opening all the notebooks and then close them, even the valid flashcards will be considered invalid. So make sure to open all the notebooks when using them.
 
 > **Note:** Make sure to backup before using!
 

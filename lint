@@ -1,0 +1,3 @@
+#!/bin/env zsh
+
+pnpm run lint
