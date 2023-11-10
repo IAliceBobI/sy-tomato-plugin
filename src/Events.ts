@@ -5,6 +5,10 @@ import "./index.scss";
 class Events {
     private _lastBlockID: string;
     public get lastBlockID(): string {
+        const blockID = getCursorBlock();
+        if (blockID) {
+            this._lastBlockID = blockID;
+        }
         return this._lastBlockID;
     }
     private set lastBlockID(value: string) {
@@ -41,6 +45,12 @@ class Events {
             this.boxID = detail?.protyle?.notebookId ?? this.boxID;
         });
     }
+}
+
+function getCursorBlock() {
+    const selection = document.getSelection();
+    const blockID = selection?.focusNode?.parentElement?.parentElement?.getAttribute("data-node-id") ?? "";
+    return blockID;
 }
 
 export const events = new Events();

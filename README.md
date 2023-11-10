@@ -19,7 +19,7 @@
 
 *Set a reminder date for a content block!*
 
-### First, click on the content you want to set a reminder for, then press `Shift+Alt+P` to open the `Command Palette`. You can also use the shortcut `Ctrl+3`.
+### Position the cursor to select the "content block", then press `Shift+Alt+P` to open the "Command Palette". You can also use the shortcut `Ctrl+3`.
 
 > The plugin can only identify which content block to process when clicked with a mouse. It cannot detect cursor movement using the keyboard.
 
@@ -40,7 +40,7 @@
 
 *A reading point refers to the last position you read in a document. We save it as a `bookmark` and automatically remove any other `bookmarks` within the current file. This ensures that there is only one `bookmark` within the document.*
 
-### First, click on the `content block` you want to set as the reading point. Then, you can either select "Set reading point" from the `Command Palette` by pressing `Shift+Alt+P` or use the shortcut `Ctrl+2`.
+### Position the cursor to select the "content block", then you can use `Shift+Alt+P` to select "Set reading point", or directly use `Ctrl+2`.
 
 > The plugin can only identify which content block to process when clicked with a mouse. It cannot detect cursor movement using the keyboard.
 
@@ -137,7 +137,7 @@ For a given list:
   * a2
     * a3
 
-Previously, it was cumbersome to create a card for the entire list as you had to select the entire list. If you could create a card by simply clicking anywhere in the list, it would be more convenient. Thus, the feature of "Quick Card Creation for Lists" was developed.
+Previously, if you wanted to make a card for the entire list, it was cumbersome as you needed to select the entire list. If you only need the cursor to be at any position within the list to make a card, it would be more convenient. Thus, the "List Quick Card Creation" feature was introduced.
 
 > The plugin can only identify which content block to process when clicked with a mouse. It cannot detect cursor movement using the keyboard.
 
@@ -151,6 +151,7 @@ QQ Group: 263961482
 
 ### 2023-11-10
 
+* Enhance operational fluency
 * Fixed the bug related to copying long content.
 
 ### 2023-11-08
