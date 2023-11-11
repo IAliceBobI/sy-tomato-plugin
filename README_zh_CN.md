@@ -137,9 +137,11 @@ aacc3
 
 我们可以把光标放在 `a3` 上，或者其他地方，`a2`、`a1`、`a0`都行，然后 `Ctrl+1`。或者打开`命令面板`选择`添加列表闪卡`。
 
-## 欢迎交流
+## BUG反馈、建议
 
 QQ群: 263961482
+
+[或者到 Github 提交问题](https://github.com/IAliceBobI/sy-tomato-plugin/issues)
 
 ## 更新日志
 

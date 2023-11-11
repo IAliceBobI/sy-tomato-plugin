@@ -143,9 +143,11 @@ Previously, if you wanted to make a card for the entire list, it was cumbersome 
 
 You can place the cursor on `a3` or any other location like `a2`, `a1`, `a0`, and then press `Ctrl+1`. Alternatively, you can open the `Command Palette` and select `Add List Flashcard`.
 
-## Welcome to communication
+## Bug Feedback and Suggestions
 
 QQ Group: 263961482
+
+[Alternatively, submit issues on GitHub](https://github.com/IAliceBobI/sy-tomato-plugin/issues)
 
 ## Changelog
 
