@@ -19,20 +19,19 @@
 
 *Set a reminder date for a content block!*
 
-### Position the cursor to select the "content block", then press `Shift+Alt+P` to open the "Command Palette". You can also use the shortcut `Ctrl+3`.
-
-> The plugin can only identify which content block to process when clicked with a mouse. It cannot detect cursor movement using the keyboard.
+**Position the cursor to select the "content block", then press `Shift+Alt+P` to open the "Command Palette". You can also use the shortcut `Ctrl+3`.**
 
 ![Alt text](./assets/cmdEntry.png)
 
-### Select the command "Set a reminder date for the current content block". You can also use the shortcut `Ctrl+3`.
+**Select the command "Set a reminder date for the current content block". You can also use the shortcut `Ctrl+3`.**
 
 ![Alt text](./assets/cmd.png)
 
-### Set the time
+**Set the time**
+
 ![Alt text](./assets/scheduleSetTime.png)
 
-### Reminder
+**Reminding**
 
 ![Alt text](./assets/remind.png)
 
@@ -40,13 +39,11 @@
 
 *A reading point refers to the last position you read in a document. We save it as a `bookmark` and automatically remove any other `bookmarks` within the current file. This ensures that there is only one `bookmark` within the document.*
 
-### Position the cursor to select the "content block", then you can use `Shift+Alt+P` to select "Set reading point", or directly use `Ctrl+2`.
-
-> The plugin can only identify which content block to process when clicked with a mouse. It cannot detect cursor movement using the keyboard.
+**Position the cursor to select the "content block", then you can use `Shift+Alt+P` to select "Set reading point", or directly use `Ctrl+2`.**
 
 ![Alt text](./assets/cmd.png)
 
-### To view the `bookmark`, you can directly view the `bookmark panel`. Alternatively, you can click on the `Reading Point` (ctrl+4) icon in the top right corner to view more detailed information.
+**To view the `bookmark`, you can directly view the `bookmark panel`. Alternatively, you can click on the `Reading Point` (ctrl+4) icon in the top right corner to view more detailed information.**
 
 ![Alt text](./assets/bookmark.png)
 
@@ -56,7 +53,7 @@
 
 *If the content containing a flashcard is deleted, the invalid flashcard remains on the disk. We can delete it.*
 
-### Open the `Command Palette` and select "Clean all invalid flashcards".
+**Open the `Command Palette` and select "Clean all invalid flashcards".**
 
 ![Alt text](./assets/cmd.png)
 
@@ -119,7 +116,6 @@ aacc3
 
 ![Alt text](./assets/cmd.png)
 
-
 ### Copy Operation
 
 *Similar to the move operation, but select the copy command.*
@@ -138,8 +134,6 @@ For a given list:
     * a3
 
 Previously, if you wanted to make a card for the entire list, it was cumbersome as you needed to select the entire list. If you only need the cursor to be at any position within the list to make a card, it would be more convenient. Thus, the "List Quick Card Creation" feature was introduced.
-
-> The plugin can only identify which content block to process when clicked with a mouse. It cannot detect cursor movement using the keyboard.
 
 You can place the cursor on `a3` or any other location like `a2`, `a1`, `a0`, and then press `Ctrl+1`. Alternatively, you can open the `Command Palette` and select `Add List Flashcard`.
 
