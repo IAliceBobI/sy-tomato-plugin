@@ -31,11 +31,20 @@ jobs:
       - name: Build
         run: pnpm run build
       
-      - name: Release
-        uses: ncipollo/release-action@v1
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
         with:
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          artifacts: "package.zip"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: true
+          token: ${{ secrets.GITHUB_TOKEN }}  # Use the default GitHub token
+
+          # Additional optional inputs
+          tag_name: ${{ github.sha }}
+          release_name: Release ${{ github.sha }}
+          draft: false
+          prerelease: false
+
+      - name: Upload package.zip
+        uses: actions/upload-artifact@v2
+        with:
+          name: package
+          path: ./package.zip
