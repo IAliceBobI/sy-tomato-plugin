@@ -1,5 +1,8 @@
 #!/bin/env zsh
 
+git add -A
+git commit -m "auto"
+
 # Get the latest version tag
 latest_tag=$(git describe --tags --abbrev=0)
 # Increment the version
@@ -9,3 +12,5 @@ git tag ${new_version}
 # Push the new tag to remote
 git push gitee ${new_version}
 git push origin ${new_version}
+git push origin
+git push gitee
