@@ -151,6 +151,10 @@ QQ Group: 263961482
 
 ## Changelog
 
+### 2023-11-12
+
+* If there is an issue with the index, the flashcard creation will fail. A failure prompt has already been added.
+
 ### 2023-11-10
 
 * Enhance operational fluency
