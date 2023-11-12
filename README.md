@@ -149,6 +149,8 @@ QQ Group: 263961482
 
 [Alternatively, submit issues on GitHub](https://github.com/IAliceBobI/sy-tomato-plugin/issues)
 
+[Or, you can submit your question on the official forum.](https://ld246.com/tag/siyuan)
+
 # Changelog
 
 ## 2023-11-12
