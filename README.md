@@ -154,6 +154,7 @@ QQ Group: 263961482
 ## 2023-11-12
 
 * If there is an issue with the index, the flashcard creation will fail. A failure prompt has already been added.
+* Push to Gitee.
 
 ## 2023-11-10
 
