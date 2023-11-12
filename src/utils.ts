@@ -308,18 +308,27 @@ export async function removeRiffCards(blockIDs: Array<string>, deckID = "") {
 
 export async function findListType(thisID: string) {
     let theUpperestListID = "";
-    let count = 10000;
+    let theMD = "";
+    let count = 500;
     while (count > 0) {
         count -= 1;
         const thisBlock = await getRowByID(thisID);
+        if (!theMD) {
+            theMD = thisBlock["content"];
+            if (!theMD) theMD = " ";
+        }
         const thisType = thisBlock["type"];
-        if (thisType === "l")
+        if (thisType === "l") {
             theUpperestListID = thisID;
-        else if (thisType === "d")
+        }
+        else if (thisType === "d" || thisType === undefined) {
             break;
+        }
+        if (!thisID) break;
         thisID = thisBlock["parent_id"];
+        if (!thisType) break;
     }
-    return theUpperestListID;
+    return [theUpperestListID, theMD];
 }
 
 export async function deleteBlocks() {

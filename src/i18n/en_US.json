@@ -26,5 +26,6 @@
   "moveBlocksHelp": "Bulk move/copy help: Wrap the content to be processed with 'aadd1' and 'aacc2' on separate lines. Then insert a line 'aacc3' at the target position. <h5>[Document 1]</h5> <h5>aadd1</h5> <h5>Today is a beautiful day 1!</h5> <h5>Today is a beautiful day 2!</h5> <h5>...</h5> <h5>Today is a beautiful day 3!</h5> <h5>aacc2</h5> <h5>[Document 2]</h5> <h5>...</h5> <h5>aacc3</h5> <h5>...</h5> <h5>(Document 1 and Document 2 can be the same document)</h5>",
   "topBarTitleShowContents": "Open Table of Contents/Bookmarks",
   "thereIsNoBookmark": ": No bookmarks found",
-  "showBookmarks": "View Reading Points"
+  "showBookmarks": "View Reading Points",
+  "reindex": "I'm sorry, but I am unable to find the list you mentioned. If you have indeed placed the cursor inside a list item and have tried multiple times, you can try rebuilding the index."
 }

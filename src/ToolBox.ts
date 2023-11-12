@@ -190,14 +190,19 @@ class ToolBox {
         }
         const id = events.lastBlockID;
         let count = 30;
+        let md = "";
         while (count > 0) {
             count -= 1;
-            const listID = await findListType(id);
+            const [listID, mdret] = await findListType(id);
+            md = mdret;
             if (listID) {
                 await addRiffCards([listID]);
                 break;
             }
             await sleep(200);
+        }
+        if (count <= 0) {
+            pushMsg(md + "<br>" + this.plugin.i18n.reindex, 0);
         }
     }
 
