@@ -143,24 +143,24 @@ Previously, if you wanted to make a card for the entire list, it was cumbersome 
 
 You can place the cursor on `a3` or any other location like `a2`, `a1`, `a0`, and then press `Ctrl+1`. Alternatively, you can open the `Command Palette` and select `Add List Flashcard`.
 
-## Bug Feedback and Suggestions
+# Bug Feedback and Suggestions
 
 QQ Group: 263961482
 
 [Alternatively, submit issues on GitHub](https://github.com/IAliceBobI/sy-tomato-plugin/issues)
 
-## Changelog
+# Changelog
 
-### 2023-11-12
+## 2023-11-12
 
 * If there is an issue with the index, the flashcard creation will fail. A failure prompt has already been added.
 
-### 2023-11-10
+## 2023-11-10
 
 * Enhance operational fluency
 * Fixed the bug related to copying long content.
 
-### 2023-11-08
+## 2023-11-08
 
 * The first release.
 
