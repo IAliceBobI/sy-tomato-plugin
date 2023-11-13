@@ -1,4 +1,4 @@
-import { fetchSyncPost } from "siyuan";
+import { Constants, IOperation, fetchSyncPost } from "siyuan";
 import { v4 as uuid } from "uuid";
 
 export function dateFormat(date: Date) {
@@ -139,6 +139,16 @@ export async function sqlOne(stmt: string) {
 
 export async function setBlockAttrs(id: string, attrs: any) {
     return call("/api/attr/setBlockAttrs", { id, attrs });
+}
+
+export async function transactions(doOperations: IOperation[]) {
+    return call("/api/transactions", {
+        session: Constants.SIYUAN_APPID,
+        app: Constants.SIYUAN_APPID,
+        transactions: [{
+            doOperations
+        }]
+    });
 }
 
 export async function getNotebookConf(notebookID: string) {
