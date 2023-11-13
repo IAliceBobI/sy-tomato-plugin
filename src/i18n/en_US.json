@@ -27,5 +27,6 @@
   "topBarTitleShowContents": "Open Table of Contents/Bookmarks",
   "thereIsNoBookmark": ": No bookmarks found",
   "showBookmarks": "View Reading Points",
-  "reindex": "I'm sorry, but I am unable to find the list you mentioned. If you have indeed placed the cursor inside a list item and have tried multiple times, you can try rebuilding the index."
+  "reindex": "I'm sorry, but I am unable to find the list you mentioned. If you have indeed placed the cursor inside a list item and have tried multiple times, you can try rebuilding the index.",
+  "wait4finish": "Please wait for the previous operation to complete!"
 }

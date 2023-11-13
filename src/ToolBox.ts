@@ -9,13 +9,13 @@ import {
 import "./index.scss";
 import { events } from "./Events";
 
+const CreateDocLock = "CreateDocLock";
+const AddReadingPointLock = "AddReadingPointLock";
+
 class ToolBox {
     private plugin: Plugin;
-    private timeoutID: number;
-    private contentIDs: { [key: string]: string[] };
 
     onload(plugin: Plugin) {
-        this.contentIDs = {};
         this.plugin = plugin;
         this.plugin.addCommand({
             langKey: "addFlashCard",
@@ -28,7 +28,14 @@ class ToolBox {
             langKey: "addBookmark",
             hotkey: "⌘2",
             globalCallback: async () => {
-                await this.addReadPoint();
+                navigator.locks.request(AddReadingPointLock, { ifAvailable: true }, async (lock) => {
+                    if (lock) {
+                        await this.addReadPoint();
+                        await sleep(2000);
+                    } else {
+                        pushMsg(this.plugin.i18n.wait4finish);
+                    }
+                });
             },
         });
         this.plugin.addCommand({
@@ -102,15 +109,15 @@ class ToolBox {
             langKey: "showBookmarks",
             hotkey: "⌘4",
             globalCallback: async () => {
-                this.showContents();
+                await this.showContentsWithLock();
             },
         });
         this.plugin.addTopBar({
             icon: "iconContents",
             title: this.plugin.i18n.topBarTitleShowContents,
             position: "right",
-            callback: () => {
-                this.showContents();
+            callback: async () => {
+                await this.showContentsWithLock();
             }
         });
     }
@@ -119,19 +126,12 @@ class ToolBox {
         const localCfg = await getFile("/data/storage/local.json");
         events.boxID = localCfg["local-dailynoteid"] ?? "";
         events.boxID = findBookOpennedFirst(events.boxID, await lsNotebooks(false));
-        if (!events.boxID) {
-            events.boxID = findBookOpennedFirst(events.boxID, await lsNotebooks(true));
-            if (!events.boxID) {
-                console.log("there is no notebook!");
-                return;
-            }
-        }
-        const cfg = await getNotebookConf(events.boxID);
-        if (cfg.conf.closed) {
+        try {
+            await getNotebookConf(events.boxID);
+        } catch (e) {
             await openNotebook(events.boxID);
             await sleep(3000);
         }
-        return cfg;
     }
 
     private async insertContents(docID: string) {
@@ -148,25 +148,23 @@ class ToolBox {
         }
     }
 
+    private async showContentsWithLock() {
+        navigator.locks.request(CreateDocLock, { ifAvailable: true }, async (lock) => {
+            if (lock) {
+                await this.showContents();
+                await sleep(4000);
+            }
+        });
+    }
     private async showContents() {
         if (!events.boxID) {
             await this.setNotebookID();
-        }
-        if (!this.contentIDs[events.boxID]) {
-            this.contentIDs[events.boxID] = [];
         }
         const cfg = await getNotebookConf(events.boxID);
         const sqlStr = `select id from blocks where box='${events.boxID}' and ial like '%bookmark=%' limit 1`;
         const rows = await sql(sqlStr);
         if (rows.length > 0) {
-            let docID = "";
-            if (this.contentIDs[events.boxID].length > 0) {
-                this.contentIDs[events.boxID] = this.contentIDs[events.boxID].slice(-1);
-                docID = this.contentIDs[events.boxID][0];
-            } else {
-                docID = await createDocWithMdIfNotExists(events.boxID, "/📚" + cfg.name, "");
-                this.contentIDs[events.boxID].push(docID);
-            }
+            const docID = await createDocWithMdIfNotExists(events.boxID, "/📚" + cfg.name, "");
             await clearAll(docID);
             await this.insertContents(docID);
             openTab({
@@ -224,10 +222,7 @@ class ToolBox {
             title = boxConf["name"];
         }
         await addBookmark(id, title);
-        clearTimeout(this.timeoutID);
-        this.timeoutID = setTimeout(async () => {
-            await removeBookmarks(docID, id);
-        }, 1000);
+        await removeBookmarks(docID, id);
     }
 }
 
