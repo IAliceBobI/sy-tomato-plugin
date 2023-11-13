@@ -147,6 +147,10 @@ QQ Group: 263961482
 
 # Changelog
 
+## 2023-11-13
+
+* Improve the smoothness of operations related to "reading points".
+
 ## 2023-11-12
 
 * If there is an issue with the index, the flashcard creation will fail. A failure prompt has already been added.
