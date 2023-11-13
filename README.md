@@ -147,6 +147,10 @@ QQ Group: 263961482
 
 # Changelog
 
+## 2023-11-14
+
+* When copying long texts, the copy should remove flashcard attributes.
+
 ## 2023-11-13
 
 * Improve the smoothness of operations related to "reading points".

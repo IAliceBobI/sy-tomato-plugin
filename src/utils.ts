@@ -363,6 +363,7 @@ export async function deleteBlocks() {
 }
 
 const IDRegexp = /id="[^"]+"/;
+const RIFFRegexp = /custom-riff-decks="[^"]+"/;
 
 export async function moveBlocks(copy = false) {
     const startPoint = await sqlOne("select id,root_id from blocks where content='aacc1'");
@@ -392,6 +393,7 @@ export async function moveBlocks(copy = false) {
             const lines: Array<string> = kramdown.split("\n");
             let attrs = lines.pop();
             attrs = attrs.replace(IDRegexp, "");
+            attrs = attrs.replace(RIFFRegexp, "");
             lines.push(attrs);
             await insertBlockAfter(lines.join("\n"), insertPoint["id"]);
         } else {
@@ -429,3 +431,7 @@ export function sleep(ms: number): Promise<void> {
         setTimeout(resolve, ms);
     });
 }
+
+export default {
+    getBlockKramdown
+};
