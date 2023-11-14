@@ -377,8 +377,8 @@ export async function deleteBlocks() {
     return doc1;
 }
 
-const IDRegexp = /id="[^"]+"/;
-const RIFFRegexp = /custom-riff-decks="[^"]+"/;
+export const IDRegexp = /id="[^"]+"/;
+export const RIFFRegexp = /custom-riff-decks="[^"]+"/;
 
 export async function moveBlocks(copy = false) {
     const startPoint = await sqlOne("select id,root_id from blocks where content='aacc1'");
@@ -419,6 +419,10 @@ export async function moveBlocks(copy = false) {
     await deleteBlock(endPoint["id"]);
     await deleteBlock(insertPoint["id"]);
     return [startDocID, insertPoint["root_id"]];
+}
+
+export function copyContent() {
+    
 }
 
 export async function removeBrokenCards() {
