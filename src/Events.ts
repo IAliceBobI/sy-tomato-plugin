@@ -1,10 +1,8 @@
 import { Plugin, getFrontend } from "siyuan";
-import "./index.scss";
-
 
 class Events {
     private static readonly GLOBAL_THIS: Record<string, any> = globalThis;
-    
+
     private _lastBlockID: string;
     public get lastBlockID(): string {
         const blockID = getCursorBlock();

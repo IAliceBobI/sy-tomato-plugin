@@ -1,14 +1,8 @@
 import { Plugin, openTab } from "siyuan";
-import {
-    getDocIDByBlockID, getRowByID, getNotebookConf,
-    removeBookmarks, addBookmark, addRiffCards, findListType,
-    deleteBlocks, moveBlocks, removeBrokenCards, pushMsg, sleep, getFile, lsNotebooks,
-    findBookOpennedFirst, openNotebook,
-    clearAll, insertBlockAsChildOf, sql, createDocWithMdIfNotExists, listDocsByPath
-} from "./utils";
+import { siyuan, sleep, findBookOpennedFirst } from "./utils";
 import "./index.scss";
 import { events } from "./Events";
-import utils from "./utils";
+import * as utils from "./utils";
 
 const CreateDocLock = "CreateDocLock";
 const AddReadingPointLock = "AddReadingPointLock";
@@ -37,7 +31,7 @@ class ToolBox {
                         await this.addReadPoint();
                         await sleep(2000);
                     } else {
-                        pushMsg(this.plugin.i18n.wait4finish);
+                        siyuan.pushMsg(this.plugin.i18n.wait4finish);
                     }
                 });
             },
@@ -46,11 +40,11 @@ class ToolBox {
             langKey: "removeBrokenCards",
             hotkey: "",
             globalCallback: async () => {
-                const ids = await removeBrokenCards();
+                const ids = await siyuan.removeBrokenCards();
                 if (ids.length) {
-                    pushMsg(`${this.plugin.i18n.removedBrokenCards}${ids}`);
+                    siyuan.pushMsg(`${this.plugin.i18n.removedBrokenCards}${ids}`);
                 } else {
-                    pushMsg(this.plugin.i18n.thereIsNoInvalidCards);
+                    siyuan.pushMsg(this.plugin.i18n.thereIsNoInvalidCards);
                 }
             },
         });
@@ -58,14 +52,14 @@ class ToolBox {
             langKey: "deleteBlocks",
             hotkey: "",
             globalCallback: async () => {
-                const docID = await deleteBlocks();
+                const docID = await siyuan.deleteBlocks();
                 if (docID) {
                     openTab({
                         app: this.plugin.app,
                         doc: { id: docID },
                     });
                 } else {
-                    pushMsg(this.plugin.i18n.deleteBlocksHelp, 0);
+                    siyuan.pushMsg(this.plugin.i18n.deleteBlocksHelp, 0);
                 }
             },
         });
@@ -73,7 +67,7 @@ class ToolBox {
             langKey: "moveBlocks",
             hotkey: "",
             globalCallback: async () => {
-                const [doc1, doc2] = await moveBlocks(false);
+                const [doc1, doc2] = await siyuan.moveBlocks(false);
                 if (doc1) {
                     openTab({
                         app: this.plugin.app,
@@ -86,14 +80,14 @@ class ToolBox {
                         });
                     }
                 } else
-                    pushMsg(this.plugin.i18n.moveBlocksHelp, 0);
+                    siyuan.pushMsg(this.plugin.i18n.moveBlocksHelp, 0);
             },
         });
         this.plugin.addCommand({
             langKey: "copyBlocks",
             hotkey: "",
             globalCallback: async () => {
-                const [doc1, doc2] = await moveBlocks(true);
+                const [doc1, doc2] = await siyuan.moveBlocks(true);
                 if (doc1) {
                     openTab({
                         app: this.plugin.app,
@@ -106,7 +100,7 @@ class ToolBox {
                         });
                     }
                 } else
-                    pushMsg(this.plugin.i18n.moveBlocksHelp, 0);
+                    siyuan.pushMsg(this.plugin.i18n.moveBlocksHelp, 0);
             },
         });
         this.plugin.addCommand({
@@ -127,27 +121,27 @@ class ToolBox {
     }
 
     private async setNotebookID() {
-        const localCfg = await getFile("/data/storage/local.json");
+        const localCfg = await siyuan.getFile("/data/storage/local.json");
         events.boxID = localCfg["local-dailynoteid"] ?? "";
-        events.boxID = findBookOpennedFirst(events.boxID, await lsNotebooks(false));
+        events.boxID = findBookOpennedFirst(events.boxID, await siyuan.lsNotebooks(false));
         try {
-            await getNotebookConf(events.boxID);
+            await siyuan.getNotebookConf(events.boxID);
         } catch (e) {
-            await openNotebook(events.boxID);
+            await siyuan.openNotebook(events.boxID);
             await sleep(3000);
         }
     }
 
     private async insertContents(docID: string) {
-        const resp = await listDocsByPath(events.boxID, "/", 256);
+        const resp = await siyuan.listDocsByPath(events.boxID, "/", 256);
         resp.files.reverse();
         for (const file of resp.files) {
             const fromWhere = `from blocks where path like '${file.path.replace(/\.sy$/, "")}%' and box='${events.boxID}' and ial like '%bookmark=%'`;
-            const rows = await sql(`select id ${fromWhere} limit 1`);
+            const rows = await siyuan.sql(`select id ${fromWhere} limit 1`);
             if (rows.length > 0) {
                 const sqlStr = `select * ${fromWhere} order by updated desc`;
-                await insertBlockAsChildOf(`{{${sqlStr}}}`, docID);
-                await insertBlockAsChildOf(`###### ${file.name.replace(/\.sy$/, "")}`, docID);
+                await siyuan.insertBlockAsChildOf(`{{${sqlStr}}}`, docID);
+                await siyuan.insertBlockAsChildOf(`###### ${file.name.replace(/\.sy$/, "")}`, docID);
             }
         }
     }
@@ -164,12 +158,12 @@ class ToolBox {
         if (!events.boxID) {
             await this.setNotebookID();
         }
-        const cfg = await getNotebookConf(events.boxID);
+        const cfg = await siyuan.getNotebookConf(events.boxID);
         const sqlStr = `select id from blocks where box='${events.boxID}' and ial like '%bookmark=%' limit 1`;
-        const rows = await sql(sqlStr);
+        const rows = await siyuan.sql(sqlStr);
         if (rows.length > 0) {
-            const docID = await createDocWithMdIfNotExists(events.boxID, "/📚" + cfg.name, "");
-            await clearAll(docID);
+            const docID = await siyuan.createDocWithMdIfNotExists(events.boxID, "/📚" + cfg.name, "");
+            await siyuan.clearAll(docID);
             await this.insertContents(docID);
             openTab({
                 app: this.plugin.app,
@@ -177,7 +171,7 @@ class ToolBox {
             });
         } else {
             try {
-                pushMsg(cfg.name + this.plugin.i18n.thereIsNoBookmark);
+                siyuan.pushMsg(cfg.name + this.plugin.i18n.thereIsNoBookmark);
             } catch (e) {
                 console.log(e);
                 events.boxID = "";
@@ -187,7 +181,7 @@ class ToolBox {
 
     private async addFlashCard() {
         if (!events.lastBlockID) {
-            pushMsg(this.plugin.i18n.clickOneBlockFirst);
+            siyuan.pushMsg(this.plugin.i18n.clickOneBlockFirst);
             return;
         }
         const id = events.lastBlockID;
@@ -195,38 +189,38 @@ class ToolBox {
         let md = "";
         while (count > 0) {
             count -= 1;
-            const [listID, mdret] = await findListType(id);
+            const [listID, mdret] = await siyuan.findListType(id);
             md = mdret;
             if (listID) {
-                await addRiffCards([listID]);
+                await siyuan.addRiffCards([listID]);
                 break;
             }
             await sleep(200);
         }
         if (count <= 0) {
-            pushMsg(md + "<br>" + this.plugin.i18n.reindex, 0);
+            siyuan.pushMsg(md + "<br>" + this.plugin.i18n.reindex, 0);
         }
     }
 
     private async addReadPoint() {
         if (!events.lastBlockID) {
-            pushMsg(this.plugin.i18n.clickOneBlockFirst);
+            siyuan.pushMsg(this.plugin.i18n.clickOneBlockFirst);
             return;
         }
         const id = events.lastBlockID;
-        const docID = await getDocIDByBlockID(id);
+        const docID = await siyuan.getDocIDByBlockID(id);
 
-        const docInfo = await getRowByID(docID);
+        const docInfo = await siyuan.getRowByID(docID);
         if (!docInfo["hpath"]) return;
         const path: Array<string> = docInfo["hpath"].split("/");
         path.pop();
         let title = path[path.length - 1];
         if (title === "") {
-            const boxConf = await getNotebookConf(docInfo["box"]);
+            const boxConf = await siyuan.getNotebookConf(docInfo["box"]);
             title = boxConf["name"];
         }
-        await addBookmark(id, title);
-        await removeBookmarks(docID, id);
+        await siyuan.addBookmark(id, title);
+        await siyuan.removeBookmarks(docID, id);
     }
 }
 

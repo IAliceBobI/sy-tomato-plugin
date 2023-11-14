@@ -1,5 +1,5 @@
 import { Dialog, Plugin, Protyle, } from "siyuan";
-import { dateFromYYYYMMDDHHmmss, currentTime, pushMsg, newID, makesureDateTimeFormat, checkTimeFormat, dateFormat, checkBlockExist } from "./utils";
+import { siyuan, newID, timeUtil } from "./utils";
 import "./index.scss";
 import { events } from "./Events";
 
@@ -59,34 +59,34 @@ class Schedule {
         }
 
         const inputField = document.getElementById(inputID) as HTMLInputElement;
-        inputField.value = await currentTime(10);
+        inputField.value = await siyuan.currentTime(10);
 
         const btnSchedule = document.getElementById(btnScheduleID) as HTMLButtonElement;
         btnSchedule.addEventListener("click", async () => {
             const timestr = inputField.value.trim();
-            if (checkTimeFormat(timestr)) {
-                const tidiedStr = makesureDateTimeFormat(timestr);
+            if (timeUtil.checkTimeFormat(timestr)) {
+                const tidiedStr = timeUtil.makesureDateTimeFormat(timestr);
                 if (tidiedStr) {
                     this.addSchedule(tidiedStr);
                     dialog.destroy();
                     return;
                 }
             }
-            inputField.value = await currentTime(30);
+            inputField.value = await siyuan.currentTime(30);
         });
 
         const btnAddADay = document.getElementById(btnAddADayID) as HTMLButtonElement;
         btnAddADay.addEventListener("click", async () => {
             const timestr = inputField.value.trim();
-            if (checkTimeFormat(timestr)) {
-                const tidiedStr = makesureDateTimeFormat(timestr);
+            if (timeUtil.checkTimeFormat(timestr)) {
+                const tidiedStr = timeUtil.makesureDateTimeFormat(timestr);
                 if (tidiedStr) {
                     const newTime = new Date(new Date(tidiedStr).getTime() + 1000 * 60 * 60 * 24);
-                    inputField.value = dateFormat(newTime);
+                    inputField.value = timeUtil.dateFormat(newTime);
                     return;
                 }
             }
-            inputField.value = await currentTime(30);
+            inputField.value = await siyuan.currentTime(30);
         });
     }
 
@@ -96,12 +96,12 @@ class Schedule {
         data[events.lastBlockID] = inputValue;
         await this.plugin.saveData(STORAGE_SCHEDULE, data);
         await this.doSchedule(events.lastBlockID, data);
-        await pushMsg(`<h1>${this.plugin.i18n.scheduleSetSuccess}</h1>
+        await siyuan.pushMsg(`<h1>${this.plugin.i18n.scheduleSetSuccess}</h1>
         <br>${this.plugin.i18n.scheduledAt} ${inputValue}`, 8 * 1000);
     }
 
     private async showTimeoutDialog(blockID: string, theTime: string) {
-        if (await checkBlockExist(blockID)) {
+        if (await siyuan.checkBlockExist(blockID)) {
             const dialog = new Dialog({
                 title: `${this.plugin.i18n.remind}: ${theTime}`,
                 content: "<div id=\"protyle\" style=\"height: 480px;\"></div>",
@@ -116,7 +116,7 @@ class Schedule {
 
     private async doSchedule(blockID: string, data: any) {
         const nowMs = new Date().getTime();
-        const ms = dateFromYYYYMMDDHHmmss(data[blockID]).getTime();
+        const ms = timeUtil.dateFromYYYYMMDDHHmmss(data[blockID]).getTime();
         let delay = ms - nowMs;
         if (delay < 0) delay = 0;
         setTimeout(async (blockID: string, theTime: string) => {
