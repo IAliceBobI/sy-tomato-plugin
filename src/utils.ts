@@ -404,13 +404,8 @@ export async function moveBlocks(copy = false) {
     ids.reverse();
     for (const id of ids) {
         if (copy) {
-            const { kramdown } = await getBlockKramdown(id);
-            const lines: Array<string> = kramdown.split("\n");
-            let attrs = lines.pop();
-            attrs = attrs.replace(IDRegexp, "");
-            attrs = attrs.replace(RIFFRegexp, "");
-            lines.push(attrs);
-            await insertBlockAfter(lines.join("\n"), insertPoint["id"]);
+            const l = await getBlockKramdownWithoutID(id);
+            await insertBlockAfter(l, insertPoint["id"]);
         } else {
             await moveBlockAfter(id, insertPoint["id"]);
         }
@@ -421,8 +416,14 @@ export async function moveBlocks(copy = false) {
     return [startDocID, insertPoint["root_id"]];
 }
 
-export function copyContent() {
-    
+export async function getBlockKramdownWithoutID(id: string) {
+    const { kramdown } = await getBlockKramdown(id);
+    const lines: Array<string> = kramdown.split("\n");
+    let attrs = lines.pop();
+    attrs = attrs.replace(IDRegexp, "");
+    attrs = attrs.replace(RIFFRegexp, "");
+    lines.push(attrs);
+    return lines.join("\n");
 }
 
 export async function removeBrokenCards() {

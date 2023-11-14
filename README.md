@@ -73,6 +73,8 @@
 
 *Assume there are `Document 1` and `Document 2`. In `Document 1`, wrap the content to be moved with two lines `aacc1` and `aacc2`. Then, insert `aacc3` at a certain position in `Document 2`. Finally, open the `Command Palette` and select `Batch Move a Large Amount of Continuous Content`.*
 
+**This move operation will transfer the 'flashcards' together without changing the review status of the 'flashcards'. However, a simple 'ctrl+c, v' will make the involved 'flashcards' invalid.**
+
 > **Note:** `Document 1` and `Document 2` can be the same document, i.e., moving or copying within the same document.
 
 ```
