@@ -21,8 +21,12 @@ export function dateFromYYYYMMDDHHmmss(date: string) {
 }
 
 export async function currentTime(secs = 0) {
+    return dateFormat(new Date(await currentTimeMs(secs)));
+}
+
+export async function currentTimeMs(secs = 0) {
     const response = await fetchSyncPost("/api/system/currentTime", {});
-    return dateFormat(new Date(response.data + secs * 1000));
+    return response.data + secs * 1000;
 }
 
 export async function pushMsg(msg: string, timeoutMs = 7000) {
@@ -117,8 +121,12 @@ export async function createDocWithMd(notebookID: string, path_readable: string,
     const path = path_readable;
     const params = { notebook, path, markdown, id };
     if (!id) delete params["id"];
-    console.log("createDocWithMd", params);
+    // console.log("createDocWithMd", params);
     return call("/api/filetree/createDocWithMd", params);
+}
+
+export async function removeDoc(notebookID: string, path: string) {
+    return call("/api/filetree/removeDoc", { notebook: notebookID, path });
 }
 
 export async function checkBlockExist(id: string) {
@@ -181,7 +189,14 @@ export async function getRowByID(id: string) {
 }
 
 export async function getChildBlocks(id: string) {
+    // return {id, type}
     return call("/api/block/getChildBlocks", { id });
+}
+
+export async function getBlocksWordCount(ids: string[]) {
+    // {runeCount: 0, wordCount: 0, linkCount: 0, imageCount: 0, refCount: 0}
+    // if ids.length > 1, like wordCount will be the sum of blocks.
+    return call("api/block/getBlocksWordCount", { ids });
 }
 
 export async function clearAll(docID: string) {
