@@ -3,6 +3,8 @@ import "./index.scss";
 
 
 class Events {
+    private static readonly GLOBAL_THIS: Record<string, any> = globalThis;
+    
     private _lastBlockID: string;
     public get lastBlockID(): string {
         const blockID = getCursorBlock();
@@ -54,6 +56,8 @@ class Events {
     private plugin: Plugin;
 
     onload(plugin: Plugin) {
+        Events.GLOBAL_THIS["events_zZmqus5PtYRi"] = this;
+
         this.plugin = plugin;
         const frontEnd = getFrontend();
         this.isMobile = frontEnd === "mobile" || frontEnd === "browser-mobile";

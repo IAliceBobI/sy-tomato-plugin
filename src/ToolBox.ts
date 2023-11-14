@@ -8,18 +8,18 @@ import {
 } from "./utils";
 import "./index.scss";
 import { events } from "./Events";
-// import utils from "./utils";
+import utils from "./utils";
 
 const CreateDocLock = "CreateDocLock";
 const AddReadingPointLock = "AddReadingPointLock";
 
 class ToolBox {
-    // private static readonly GLOBAL_THIS: Record<string, any> = globalThis;
+    private static readonly GLOBAL_THIS: Record<string, any> = globalThis;
     private plugin: Plugin;
 
     onload(plugin: Plugin) {
-        // ToolBox.GLOBAL_THIS["toolBox_FtudOUF6WU"] = this;
-        // ToolBox.GLOBAL_THIS["toolBoxUtils_FtudOUF6WU"] = utils;
+        ToolBox.GLOBAL_THIS["toolBox_zZmqus5PtYRi"] = this;
+        ToolBox.GLOBAL_THIS["toolBoxUtils_zZmqus5PtYRi"] = utils;
         this.plugin = plugin;
         this.plugin.addCommand({
             langKey: "addFlashCard",
