@@ -33,9 +33,21 @@
 
 ![Alt text](./assets/scheduleSetTime.png)
 
+*设置时间好，会自动加上一个时间tag。*
+
+![Alt text](./assets/aftersettime.png)
+
+*我们可以在tag面板查看已经计划中的提醒都有哪些。*
+
+![Alt text](./assets/seefromtagpanel.png)
+
 **提醒**
 
 ![Alt text](./assets/remind.png)
+
+**删除时间tag**
+
+*目前需要用户动手自给自足！*
 
 ## 阅读点
 
@@ -157,6 +169,7 @@ QQ群: 263961482
 
 * 库做了重构，为了保持我们用的代码一致，只能更新一下版本了。
 * 更新README。
+* 定时提醒设置后，会自动加上时间TAG。
 
 ## 2023-11-14
 

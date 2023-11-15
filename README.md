@@ -27,13 +27,25 @@
 
 ![Alt text](./assets/cmd.png)
 
-**Set the time**
+**Set Time**
 
 ![Alt text](./assets/scheduleSetTime.png)
+
+*Setting the time will automatically add a time tag.*
+
+![Alt text](./assets/aftersettime.png)
+
+*We can see the scheduled reminders in the tag panel.*
+
+![Alt text](./assets/seefromtagpanel.png)
 
 **Reminding**
 
 ![Alt text](./assets/remind.png)
+
+**Delete Time Tag**
+
+*Currently, users need to take care of deleting the time tags themselves!*
 
 ## Reading Point
 
@@ -155,6 +167,7 @@ QQ Group: 263961482
 
 * The library has been refactored, and in order to keep our code consistent, we can only update the version.
 * Update the README.
+* After setting a scheduled reminder, it will automatically add a time tag.
 
 ## 2023-11-14
 
