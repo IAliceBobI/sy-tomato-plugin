@@ -91,14 +91,19 @@ class Schedule {
         });
     }
 
-    private async addSchedule(blockID: string, inputValue: string) {
+    private async addTag(blockID: string, datetime: string) {
+        
+    }
+
+    private async addSchedule(blockID: string, datetime: string) {
         if (!blockID) return;
         const data = this.plugin.data[STORAGE_SCHEDULE] ?? {};
-        data[blockID] = inputValue;
+        data[blockID] = datetime;
         await this.plugin.saveData(STORAGE_SCHEDULE, data);
         await this.doSchedule(blockID, data);
+        await this.addTag(blockID, datetime);
         await siyuan.pushMsg(`<h1>${this.plugin.i18n.scheduleSetSuccess}</h1>
-        <br>${this.plugin.i18n.scheduledAt} ${inputValue}`, 8 * 1000);
+        <br>${this.plugin.i18n.scheduledAt} ${datetime}`, 8 * 1000);
     }
 
     private async showTimeoutDialog(blockID: string, theTime: string) {

@@ -244,9 +244,12 @@ export const siyuan = {
     async getBlockKramdown(id: string) {
         return siyuan.call("/api/block/getBlockKramdown", { id });
     },
+    async updateBlock(id: string, data: string, dataType = "markdown") {
+        return siyuan.call("/api/block/updateBlock", { id, data, dataType });
+    },
     async getBlockMarkdownAndContent(id: string) {
         const row: { [key: string]: string } = await siyuan.sqlOne(`select markdown, content from blocks where id="${id}"`);
-        return { markdown: row?.markdown ?? "", content: row?.content ?? "" }
+        return { markdown: row?.markdown ?? "", content: row?.content ?? "" };
     },
     async listDocsByPath(notebookID: string, notReadablePath: string, sort = 15) {
         // {
