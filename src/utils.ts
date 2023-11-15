@@ -47,7 +47,7 @@ export function newNodeID(): string {
 }
 
 export function newID() {
-    return "ID" + uuid().replace("-", "");
+    return "ID" + uuid().replace(/-/g, "");
 }
 
 export const timeUtil = {
@@ -147,6 +147,7 @@ export const siyuan = {
     async sql(stmt: string) {
         return siyuan.call("/api/query/sql", { stmt });
     },
+    // await globalThis.progressive_zZmqus5PtYRi.siyuan.sqlOne(`select * from blocks where id='20231106015952-wjqufut'`)
     async sqlOne(stmt: string) {
         const ret = await siyuan.sql(stmt);
         if (ret.length >= 1) {
@@ -217,6 +218,10 @@ export const siyuan = {
         // return {id, type}
         return siyuan.call("/api/block/getChildBlocks", { id });
     },
+    async getIDsByHPath(hpath: string, notebookID: string) {
+        // return ['20231102203317-gj54aex']
+        return siyuan.call("/api/filetree/getIDsByHPath", { path: hpath, notebook: notebookID });
+    },
     async getBlocksWordCount(ids: string[]) {
         // {runeCount: 0, wordCount: 0, linkCount: 0, imageCount: 0, refCount: 0}
         // if ids.length > 1, like wordCount will be the sum of blocks.
@@ -238,6 +243,10 @@ export const siyuan = {
     },
     async getBlockKramdown(id: string) {
         return siyuan.call("/api/block/getBlockKramdown", { id });
+    },
+    async getBlockMarkdownAndContent(id: string) {
+        const row: { [key: string]: string } = await siyuan.sqlOne(`select markdown, content from blocks where id="${id}"`);
+        return { markdown: row?.markdown ?? "", content: row?.content ?? "" }
     },
     async listDocsByPath(notebookID: string, notReadablePath: string, sort = 15) {
         // {
