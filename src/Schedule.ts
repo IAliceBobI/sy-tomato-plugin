@@ -96,7 +96,9 @@ class Schedule {
         const parts: string[] = kramdown.split("\n");
         const lastIdx = parts.length - 2;
         if (lastIdx >= 0) {
-            parts[lastIdx] += ` #⏰/${datetime.split(" ").join("/")}#`;
+            // check time tag
+            parts[lastIdx] = parts[lastIdx].replace(/#⏰\/[\d-]+\/[\d:]+#/, "");
+            parts[lastIdx] += `#⏰/${datetime.split(" ").join("/")}#`;
             await siyuan.updateBlock(blockID, parts.join("\n"));
         }
     }

@@ -222,6 +222,9 @@ export const siyuan = {
         // return ['20231102203317-gj54aex']
         return siyuan.call("/api/filetree/getIDsByHPath", { path: hpath, notebook: notebookID });
     },
+    async getTag(sort: number) {
+        return siyuan.call("/api/tag/getTag", { sort });
+    },
     async getBlocksWordCount(ids: string[]) {
         // {runeCount: 0, wordCount: 0, linkCount: 0, imageCount: 0, refCount: 0}
         // if ids.length > 1, like wordCount will be the sum of blocks.
