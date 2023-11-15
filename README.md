@@ -77,6 +77,8 @@
 
 > **Note:** `Document 1` and `Document 2` can be the same document, i.e., moving or copying within the same document.
 
+> **Note:** `aacc1`, `aacc2`, `aacc3` should not have spaces before or after them, otherwise the plugin won't be able to find them.
+
 ```
 《Document 1》
 
@@ -148,6 +150,11 @@ QQ Group: 263961482
 [Or, you can submit your question on the official forum.](https://ld246.com/tag/siyuan)
 
 # Changelog
+
+## 2023-11-15
+
+* The library has been refactored, and in order to keep our code consistent, we can only update the version.
+* Update the README.
 
 ## 2023-11-14
 
