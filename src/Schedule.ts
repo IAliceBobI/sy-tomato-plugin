@@ -92,7 +92,13 @@ class Schedule {
     }
 
     private async addTag(blockID: string, datetime: string) {
-        
+        const { kramdown } = await siyuan.getBlockKramdown(blockID);
+        const parts: string[] = kramdown.split("\n");
+        const lastIdx = parts.length - 2;
+        if (lastIdx >= 0) {
+            parts[lastIdx] += ` #⏰/${datetime.split(" ").join("/")}#`;
+            await siyuan.updateBlock(blockID, parts.join("\n"));
+        }
     }
 
     private async addSchedule(blockID: string, datetime: string) {
