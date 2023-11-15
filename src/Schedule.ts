@@ -31,8 +31,9 @@ class Schedule {
         const btnScheduleID = newID();
         const btnAddADayID = newID();
         let idMsg = this.plugin.i18n.clickOneBlockFirst;
-        if (events.lastBlockID) {
-            idMsg = events.lastBlockID;
+        const blockID = events.lastBlockID;
+        if (blockID) {
+            idMsg = blockID;
         }
 
         const dialog = new Dialog({
@@ -51,10 +52,10 @@ class Schedule {
         });
 
         new Protyle(this.plugin.app, dialog.element.querySelector("#protyle"), {
-            blockId: events.lastBlockID,
+            blockId: blockID,
         });
 
-        if (!events.lastBlockID) {
+        if (!blockID) {
             return;
         }
 
@@ -67,7 +68,7 @@ class Schedule {
             if (timeUtil.checkTimeFormat(timestr)) {
                 const tidiedStr = timeUtil.makesureDateTimeFormat(timestr);
                 if (tidiedStr) {
-                    this.addSchedule(tidiedStr);
+                    this.addSchedule(blockID, tidiedStr);
                     dialog.destroy();
                     return;
                 }
@@ -90,12 +91,12 @@ class Schedule {
         });
     }
 
-    private async addSchedule(inputValue: string) {
-        if (!events.lastBlockID) return;
+    private async addSchedule(blockID: string, inputValue: string) {
+        if (!blockID) return;
         const data = this.plugin.data[STORAGE_SCHEDULE] ?? {};
-        data[events.lastBlockID] = inputValue;
+        data[blockID] = inputValue;
         await this.plugin.saveData(STORAGE_SCHEDULE, data);
-        await this.doSchedule(events.lastBlockID, data);
+        await this.doSchedule(blockID, data);
         await siyuan.pushMsg(`<h1>${this.plugin.i18n.scheduleSetSuccess}</h1>
         <br>${this.plugin.i18n.scheduledAt} ${inputValue}`, 8 * 1000);
     }
