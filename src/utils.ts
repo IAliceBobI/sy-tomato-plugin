@@ -400,12 +400,20 @@ export const siyuan = {
         await siyuan.deleteBlock(insertPoint["id"]);
         return [startDocID, insertPoint["root_id"]];
     },
-    async getBlockKramdownWithoutID(id: string) {
+    async getBlockKramdownWithoutID(id: string, newAttrs: string[] = []) {
         const { kramdown } = await siyuan.getBlockKramdown(id);
         const lines: Array<string> = kramdown.split("\n");
         let attrs = lines.pop();
         attrs = attrs.replace(IDRegexp, "");
         attrs = attrs.replace(RIFFRegexp, "");
+        if (newAttrs) {
+            attrs = attrs.trim();
+            attrs = attrs.slice(0, attrs.length - 1); // rm the '}'
+            for (const newattr of newAttrs) {
+                attrs += " " + newattr + " "
+            }
+            attrs += "}"
+        }
         lines.push(attrs);
         return lines.join("\n");
     },
