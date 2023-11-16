@@ -170,8 +170,15 @@ export const siyuan = {
         if (!id) delete params["id"];
         return siyuan.call("/api/filetree/createDocWithMd", params);
     },
-    async removeDoc(notebookID: string, path: string) {
-        return siyuan.call("/api/filetree/removeDoc", { notebook: notebookID, path });
+    async removeDoc(notebookID: string, path_not_readable: string) {
+        return siyuan.call("/api/filetree/removeDoc", { notebook: notebookID, path: path_not_readable });
+    },
+    async removeDocByID(docID: string) {
+        const row = await this.sqlOne(`select box, path from blocks where id="${docID}" and type="d"`);
+        if (row) {
+            return siyuan.removeDoc(row["box"], row["path"]);
+        }
+        return {};
     },
     async checkBlockExist(id: string) {
         return siyuan.call("/api/block/checkBlockExist", { id });
@@ -410,11 +417,13 @@ export const siyuan = {
             attrs = attrs.trim();
             attrs = attrs.slice(0, attrs.length - 1); // rm the '}'
             for (const newattr of newAttrs) {
-                attrs += " " + newattr + " "
+                attrs += " " + newattr + " ";
             }
-            attrs += "}"
+            attrs += "}";
         }
-        lines.push(attrs);
+        if (attrs != "{: }") {
+            lines.push(attrs);
+        }
         return lines.join("\n");
     },
     async removeBrokenCards() {
@@ -437,3 +446,27 @@ export const siyuan = {
         return invalidCardIDs;
     },
 };
+
+/* {
+    "alias": "",
+    "box": "20220705180858-r5dh51g",
+    "content": "",
+    "created": "20231115194509",
+    "fcontent": "",
+    "hash": "19c377a",
+    "hpath": "/daily note/test",
+    "ial": "{: id=\"20231115194509-d03yn0d\" updated=\"20231116004755\"}",
+    "id": "20231115194509-d03yn0d",
+    "length": 0,
+    "markdown": "---",
+    "memo": "",
+    "name": "",
+    "parent_id": "20231102203317-gj54aex",
+    "path": "/20220705180902-2x8ujrh/20231102203317-gj54aex.sy",
+    "root_id": "20231102203317-gj54aex",
+    "sort": 100,
+    "subtype": "",
+    "tag": "",
+    "type": "tb",
+    "updated": "20231116004755"
+} */

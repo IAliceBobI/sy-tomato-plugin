@@ -6,6 +6,7 @@ import * as utils from "./utils";
 
 const CreateDocLock = "CreateDocLock";
 const AddReadingPointLock = "AddReadingPointLock";
+const LongContentOpsLock = "LongContentOpsLock";
 
 class ToolBox {
     private static readonly GLOBAL_THIS: Record<string, any> = globalThis;
@@ -52,55 +53,39 @@ class ToolBox {
             langKey: "deleteBlocks",
             hotkey: "",
             globalCallback: async () => {
-                const docID = await siyuan.deleteBlocks();
-                if (docID) {
-                    openTab({
-                        app: this.plugin.app,
-                        doc: { id: docID },
-                    });
-                } else {
-                    siyuan.pushMsg(this.plugin.i18n.deleteBlocksHelp, 0);
-                }
+                navigator.locks.request(LongContentOpsLock, { ifAvailable: true }, async (lock) => {
+                    if (lock) {
+                        await this.deleteBlocks();
+                    } else {
+                        siyuan.pushMsg(this.plugin.i18n.wait4finish);
+                    }
+                });
             },
         });
         this.plugin.addCommand({
             langKey: "moveBlocks",
             hotkey: "",
             globalCallback: async () => {
-                const [doc1, doc2] = await siyuan.moveBlocks(false);
-                if (doc1) {
-                    openTab({
-                        app: this.plugin.app,
-                        doc: { id: doc1 },
-                    });
-                    if (doc1 !== doc2) {
-                        openTab({
-                            app: this.plugin.app,
-                            doc: { id: doc2 },
-                        });
+                navigator.locks.request(LongContentOpsLock, { ifAvailable: true }, async (lock) => {
+                    if (lock) {
+                        await this.moveBlocks(false);
+                    } else {
+                        siyuan.pushMsg(this.plugin.i18n.wait4finish);
                     }
-                } else
-                    siyuan.pushMsg(this.plugin.i18n.moveBlocksHelp, 0);
+                });
             },
         });
         this.plugin.addCommand({
             langKey: "copyBlocks",
             hotkey: "",
             globalCallback: async () => {
-                const [doc1, doc2] = await siyuan.moveBlocks(true);
-                if (doc1) {
-                    openTab({
-                        app: this.plugin.app,
-                        doc: { id: doc1 },
-                    });
-                    if (doc1 !== doc2) {
-                        openTab({
-                            app: this.plugin.app,
-                            doc: { id: doc2 },
-                        });
+                navigator.locks.request(LongContentOpsLock, { ifAvailable: true }, async (lock) => {
+                    if (lock) {
+                        await this.moveBlocks(true);
+                    } else {
+                        siyuan.pushMsg(this.plugin.i18n.wait4finish);
                     }
-                } else
-                    siyuan.pushMsg(this.plugin.i18n.moveBlocksHelp, 0);
+                });
             },
         });
         this.plugin.addCommand({
@@ -118,6 +103,38 @@ class ToolBox {
                 await this.showContentsWithLock();
             }
         });
+    }
+
+    private async deleteBlocks() {
+        const docID = await siyuan.deleteBlocks();
+        if (docID) {
+            openTab({
+                app: this.plugin.app,
+                doc: { id: docID },
+            });
+            await sleep(4000);
+        } else {
+            siyuan.pushMsg(this.plugin.i18n.deleteBlocksHelp, 0);
+        }
+    }
+
+    private async moveBlocks(ops: boolean) {
+        const [doc1, doc2] = await siyuan.moveBlocks(ops);
+        if (doc1) {
+            openTab({
+                app: this.plugin.app,
+                doc: { id: doc1 },
+            });
+            if (doc1 !== doc2) {
+                openTab({
+                    app: this.plugin.app,
+                    doc: { id: doc2 },
+                });
+            }
+            await sleep(4000);
+        }
+        else
+            siyuan.pushMsg(this.plugin.i18n.moveBlocksHelp, 0);
     }
 
     private async setNotebookID() {
