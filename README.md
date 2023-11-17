@@ -175,6 +175,10 @@ QQ Group: 263961482
 
 # Changelog
 
+## 2023-11-18
+
+* add content menu
+
 ## 2023-11-16
 
 * Wait for 4 seconds after performing a long content operation for added reliability.
