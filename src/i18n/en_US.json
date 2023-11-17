@@ -16,7 +16,7 @@
   "btnAddADay": "+1 Day",
   "addBookmark": "addBookmark: Set reading point: Set the current content block as a bookmark and remove other bookmarks from the current document",
   "removeBrokenCards": "removeBrokenCards: Clean all broken flashcards. (Make sure all documents are open and indexes are built) (Broken: Flashcard corresponds to a deleted content block)",
-  "addFlashCard": "addFlashCard: Add list flashcards (For outlines/lists, set the entire list as a flashcard instead of the current cursor's list item)",
+  "addFlashCard": "addFlashCard:  set the entire list as a flashcard",
   "removedBrokenCards": "Removed broken flashcards:",
   "thereIsNoInvalidCards": "No invalid flashcards!",
   "deleteBlocks": "deleteBlocks: Bulk delete a large number of consecutive content blocks",
