@@ -29,6 +29,10 @@
 
 ![Alt text](./assets/cmd.png)
 
+**或者使用右键菜单**
+
+![Alt text](assets/contentMenu.png)
+
 **设置时间**
 
 ![Alt text](./assets/scheduleSetTime.png)
@@ -56,6 +60,10 @@
 **光标定位好要选择的`内容块`，然后可以 `Shift+Alt+P` 选择 `设置阅读点`，也可以直接 `Ctrl+2`。**
 
 ![Alt text](./assets/cmd.png)
+
+**或者使用右键菜单**
+
+![Alt text](assets/contentMenu.png)
 
 **之后要查看`书签`可以，可以直接看`书签面板`。也可以点击右上角的 `阅读点` (ctrl+4) 图标，查看更加详细的信息。**
 
@@ -154,6 +162,10 @@ aacc3
 原先要想给整个列表制卡比较麻烦，需要选择这个列表。如果只要光标在这个列表的随意一个位置就可制卡，那就方便了。于是有了这个`列表快速制卡`的功能。
 
 我们可以把光标放在 `a3` 上，或者其他地方，`a2`、`a1`、`a0`都行，然后 `Ctrl+1`。或者打开`命令面板`选择`添加列表闪卡`。
+
+**或者使用右键菜单**
+
+![Alt text](assets/contentMenu.png)
 
 # BUG反馈、建议
 

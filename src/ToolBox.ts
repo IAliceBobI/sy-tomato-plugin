@@ -34,7 +34,7 @@ class ToolBox {
             const menu = detail.menu;
             menu.addItem({
                 label: this.plugin.i18n.addFlashCard,
-                icon: "iconSchedule",
+                icon: "iconFlashcard",
                 click: () => {
                     const blockID = detail?.element?.getAttribute("data-node-id") ?? "";
                     if (blockID) {
@@ -44,7 +44,7 @@ class ToolBox {
             });
             menu.addItem({
                 label: this.plugin.i18n.addBookmark,
-                icon: "iconSchedule",
+                icon: "iconBookmark",
                 click: () => {
                     const blockID = detail?.element?.getAttribute("data-node-id") ?? "";
                     if (blockID) {
