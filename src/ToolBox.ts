@@ -27,15 +27,31 @@ class ToolBox {
             langKey: "addBookmark",
             hotkey: "⌘2",
             globalCallback: async () => {
-                navigator.locks.request(AddReadingPointLock, { ifAvailable: true }, async (lock) => {
-                    if (lock) {
-                        await this.addReadPoint();
-                        await sleep(2000);
-                    } else {
-                        siyuan.pushMsg(this.plugin.i18n.wait4finish);
-                    }
-                });
+                this.addReadPointLock();
             },
+        });
+        this.plugin.eventBus.on("open-menu-content", async ({ detail }) => {
+            const menu = detail.menu;
+            menu.addItem({
+                label: this.plugin.i18n.addFlashCard,
+                icon: "iconSchedule",
+                click: () => {
+                    const blockID = detail?.element?.getAttribute("data-node-id") ?? "";
+                    if (blockID) {
+                        this.addFlashCard(blockID);
+                    }
+                },
+            });
+            menu.addItem({
+                label: this.plugin.i18n.addBookmark,
+                icon: "iconSchedule",
+                click: () => {
+                    const blockID = detail?.element?.getAttribute("data-node-id") ?? "";
+                    if (blockID) {
+                        this.addReadPointLock(blockID);
+                    }
+                },
+            });
         });
         this.plugin.addCommand({
             langKey: "removeBrokenCards",
@@ -101,6 +117,17 @@ class ToolBox {
             position: "right",
             callback: async () => {
                 await this.showContentsWithLock();
+            }
+        });
+    }
+
+    private addReadPointLock(blockID?: string) {
+        navigator.locks.request(AddReadingPointLock, { ifAvailable: true }, async (lock) => {
+            if (lock) {
+                await this.addReadPoint(blockID);
+                await sleep(2000);
+            } else {
+                siyuan.pushMsg(this.plugin.i18n.wait4finish);
             }
         });
     }
@@ -196,17 +223,17 @@ class ToolBox {
         }
     }
 
-    private async addFlashCard() {
-        if (!events.lastBlockID) {
+    private async addFlashCard(blockID?: string) {
+        if (!blockID) blockID = events.lastBlockID;
+        if (!blockID) {
             siyuan.pushMsg(this.plugin.i18n.clickOneBlockFirst);
             return;
         }
-        const id = events.lastBlockID;
         let count = 30;
         let md = "";
         while (count > 0) {
             count -= 1;
-            const [listID, mdret] = await siyuan.findListType(id);
+            const [listID, mdret] = await siyuan.findListType(blockID);
             md = mdret;
             if (listID) {
                 await siyuan.addRiffCards([listID]);
@@ -219,13 +246,13 @@ class ToolBox {
         }
     }
 
-    private async addReadPoint() {
-        if (!events.lastBlockID) {
+    private async addReadPoint(blockID?: string) {
+        if (!blockID) blockID = events.lastBlockID;
+        if (!blockID) {
             siyuan.pushMsg(this.plugin.i18n.clickOneBlockFirst);
             return;
         }
-        const id = events.lastBlockID;
-        const docID = await siyuan.getDocIDByBlockID(id);
+        const docID = await siyuan.getDocIDByBlockID(blockID);
 
         const docInfo = await siyuan.getRowByID(docID);
         if (!docInfo["hpath"]) return;
@@ -236,8 +263,8 @@ class ToolBox {
             const boxConf = await siyuan.getNotebookConf(docInfo["box"]);
             title = boxConf["name"];
         }
-        await siyuan.addBookmark(id, title);
-        await siyuan.removeBookmarks(docID, id);
+        await siyuan.addBookmark(blockID, title);
+        await siyuan.removeBookmarks(docID, blockID);
     }
 }
 
