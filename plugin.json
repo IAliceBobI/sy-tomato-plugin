@@ -5,13 +5,10 @@
   "version": "0.1.1",
   "minAppVersion": "2.10.13",
   "backends": [
-    "windows",
-    "linux",
-    "darwin"
+    "all"
   ],
   "frontends": [
-    "desktop",
-    "desktop-window"
+    "all"
   ],
   "displayName": {
     "default": "Tomato toolbox",

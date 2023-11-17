@@ -18,14 +18,25 @@ export default class ThePlugin extends Plugin {
         schedule.onload(this);
         toolBox.onload(this);
 
+        const textareaElement = document.createElement("textarea");
         this.setting = new Setting({
             confirmCallback: () => {
-                this.saveData(STORAGE_SETTINGS, {});
+                this.saveData(STORAGE_SETTINGS, { readonlyText: textareaElement.value });
             }
+        });
+        this.setting.addItem({
+            title: "Readonly text, 0 close, 1 open",
+            createActionElement: () => {
+                textareaElement.className = "b3-text-field fn__block";
+                textareaElement.placeholder = "0 close, 1 open";
+                textareaElement.value = this.data[STORAGE_SETTINGS]?.readonlyText ?? 1;
+                return textareaElement;
+            },
         });
     }
 
     onLayoutReady() {
+        this.loadData(STORAGE_SETTINGS);
         schedule.onLayoutReady();
     }
 
