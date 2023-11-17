@@ -18,6 +18,19 @@ class Schedule {
                 await this.showScheduleDialog();
             },
         });
+        this.plugin.eventBus.on("open-menu-content", async ({ detail }) => {
+            const menu = detail.menu;
+            menu.addItem({
+                label: this.plugin.i18n.schedule,
+                icon: "iconSchedule",
+                click: () => {
+                    const blockID = detail?.element?.getAttribute("data-node-id") ?? "";
+                    if (blockID) {
+                        this.showScheduleDialog(blockID);
+                    }
+                },
+            });
+        });
     }
 
     onLayoutReady() {
@@ -26,16 +39,15 @@ class Schedule {
         });
     }
 
-    private async showScheduleDialog() {
+    private async showScheduleDialog(blockID?: string) {
         const inputID = newID();
         const btnScheduleID = newID();
         const btnAddADayID = newID();
         let idMsg = this.plugin.i18n.clickOneBlockFirst;
-        const blockID = events.lastBlockID;
+        if (!blockID) blockID = events.lastBlockID;
         if (blockID) {
             idMsg = blockID;
         }
-
         const dialog = new Dialog({
             title: "⏰ " + this.plugin.i18n.setDateTitle,
             content: `<div class="b3-dialog__content">
