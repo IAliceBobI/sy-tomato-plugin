@@ -1,5 +1,5 @@
 import {
-    Plugin,
+    Plugin, Setting,
 } from "siyuan";
 import "./index.scss";
 import { ICONS } from "./icons";
@@ -7,6 +7,7 @@ import { tomatoClock } from "./TomatoClock";
 import { schedule } from "./Schedule";
 import { toolBox } from "./ToolBox";
 import { events } from "./Events";
+import { STORAGE_SETTINGS } from "./constants";
 
 
 export default class ThePlugin extends Plugin {
@@ -16,6 +17,12 @@ export default class ThePlugin extends Plugin {
         tomatoClock.onload(this);
         schedule.onload(this);
         toolBox.onload(this);
+
+        this.setting = new Setting({
+            confirmCallback: () => {
+                this.saveData(STORAGE_SETTINGS, {});
+            }
+        });
     }
 
     onLayoutReady() {
