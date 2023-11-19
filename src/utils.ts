@@ -50,6 +50,12 @@ export function newID() {
     return "ID" + uuid().replace(/-/g, "");
 }
 
+export function dir(path: string) {
+    const parts = path.split("/");
+    const file = parts.pop();
+    return [parts.join("/"), file];
+}
+
 export const timeUtil = {
     dateFormat(date: Date) {
         const year: any = date.getFullYear();
@@ -102,6 +108,15 @@ export const siyuan = {
         const response = await fetchSyncPost("/api/system/currentTime", {});
         return response.data + secs * 1000;
     },
+    async readDir(path: string) {
+        // [      {
+        //         "isDir": false,
+        //         "isSymlink": false,
+        //         "name": "20231119160703-oelb6pi.sy",
+        //         "updated": 1700381318
+        //     }  ]
+        return siyuan.call("/api/file/readDir", { path });
+    },
     async getFile(path: string) {
         const method = "POST";
         const headers = { "Content-Type": "application/json" };
@@ -123,7 +138,7 @@ export const siyuan = {
         });
         const json = await data.json();
         if (json?.code && json?.code != 0) {
-            console.warn("code=%s %s", json?.code, json?.msg);
+            console.warn("p5 code=%s %s", json?.code, json?.msg);
             return null;
         }
         if (json?.data === undefined)
@@ -407,10 +422,18 @@ export const siyuan = {
         await siyuan.deleteBlock(insertPoint["id"]);
         return [startDocID, insertPoint["root_id"]];
     },
-    async getBlockKramdownWithoutID(id: string, newAttrs: string[] = []) {
+    async getBlockKramdownWithoutID(id: string, newAttrs: string[] = [], prefix?: string, suffix?: string,) {
         const { kramdown } = await siyuan.getBlockKramdown(id);
         const lines: Array<string> = kramdown.split("\n");
         let attrs = lines.pop();
+        if (lines.length > 0) {
+            if (prefix) {
+                lines[0] = prefix + lines[0];
+            }
+            if (suffix) {
+                lines[lines.length - 1] += suffix;
+            }
+        }
         attrs = attrs.replace(IDRegexp, "");
         attrs = attrs.replace(RIFFRegexp, "");
         if (newAttrs) {
