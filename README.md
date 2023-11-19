@@ -19,15 +19,11 @@
 
 *Set a reminder date for a content block!*
 
-**Position the cursor to select the "content block", then press `Shift+Alt+P` to open the "Command Palette". You can also use the shortcut `Ctrl+3`.**
+**Position the cursor to select the "content block".**
 
 ![Alt text](./assets/cmdEntry.png)
 
-**Select the command "Set a reminder date for the current content block". You can also use the shortcut `Ctrl+3`.**
-
-![Alt text](./assets/cmd.png)
-
-**or using the content menu**
+**using the content menu**
 
 ![Alt text](assets/contentMenu.png)
 
@@ -55,11 +51,7 @@
 
 *A reading point refers to the last position you read in a document. We save it as a `bookmark` and automatically remove any other `bookmarks` within the current file. This ensures that there is only one `bookmark` within the document.*
 
-**Position the cursor to select the "content block", then you can use `Shift+Alt+P` to select "Set reading point", or directly use `Ctrl+2`.**
-
-![Alt text](./assets/cmd.png)
-
-**or using the content menu**
+**Position the cursor to select the "content block", then using the content menu**
 
 ![Alt text](assets/contentMenu.png)
 
