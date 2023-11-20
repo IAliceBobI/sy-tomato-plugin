@@ -159,6 +159,10 @@ aacc3
 
 ![Alt text](assets/contentMenu.png)
 
+# 已知问题
+
+* 添加外观的内容，复制时外观样式丢失并把样式代码显现到内容中。
+
 # BUG反馈、建议
 
 QQ群: 263961482
