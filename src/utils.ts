@@ -56,6 +56,10 @@ export function dir(path: string) {
     return [parts.join("/"), file];
 }
 
+export function isValidNumber(num: number) {
+    return typeof num === "number" && !isNaN(num);
+}
+
 export const timeUtil = {
     dateFormat(date: Date) {
         const year: any = date.getFullYear();
