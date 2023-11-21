@@ -1,5 +1,7 @@
 #!/bin/env zsh
 
+./lint
+
 current_version=$(jq -r '.version' plugin.json)
 IFS='.' read -r major minor patch <<< "$current_version"
 ((patch++))
