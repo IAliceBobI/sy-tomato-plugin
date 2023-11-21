@@ -205,6 +205,9 @@ export const siyuan = {
     async setBlockAttrs(id: string, attrs: any) {
         return siyuan.call("/api/attr/setBlockAttrs", { id, attrs });
     },
+    async getBlockAttrs(id: string) {
+        return siyuan.call("/api/attr/getBlockAttrs", { id });
+    },
     async transactions(doOperations: IOperation[]) {
         return siyuan.call("/api/transactions", {
             session: Constants.SIYUAN_APPID,
@@ -461,7 +464,7 @@ export const siyuan = {
             if (!cards.length) break;
             for (const i in cards) {
                 const card = cards[i];
-                const valid = card["box"] && card["markdown"];
+                const valid = card["box"] && card["content"];
                 if (!valid) {
                     invalidCardIDs.push(card["id"]);
                 }
