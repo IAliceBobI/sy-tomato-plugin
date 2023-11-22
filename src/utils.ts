@@ -464,7 +464,7 @@ export const siyuan = {
             if (!cards.length) break;
             for (const i in cards) {
                 const card = cards[i];
-                const valid = card["box"] && card["content"];
+                const valid = card["box"];
                 if (!valid) {
                     invalidCardIDs.push(card["id"]);
                 }
