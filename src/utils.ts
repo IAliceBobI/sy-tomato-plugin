@@ -11,6 +11,20 @@ export function sleep(ms: number): Promise<void> {
     });
 }
 
+export function divideArrayIntoParts<T>(array: T[], n: number): T[][] {
+    n = Math.ceil(array.length / n);
+    return chunks(array, n);
+}
+
+export function chunks<T>(array: T[], n: number): T[][] {
+    const newArr: T[][] = [];
+    for (let i = 0; i < array.length; i += n) {
+        const part = array.slice(i, i + n);
+        if (part.length > 0) newArr.push(part);
+    }
+    return newArr;
+}
+
 function padStart(input: string, targetLength: number, padString: string): string {
     const inputLength = input.length;
     if (inputLength >= targetLength) {
