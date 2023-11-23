@@ -231,6 +231,7 @@ class ToolBox {
         }
         let count = 30;
         let md = "";
+        let msgSent = false;
         while (count > 0) {
             count -= 1;
             const [listID, mdret] = await siyuan.findListType(blockID);
@@ -239,7 +240,10 @@ class ToolBox {
                 await siyuan.addRiffCards([listID]);
                 break;
             }
-            siyuan.pushMsg(this.plugin.i18n.lookingForTheList, 2000);
+            if (!msgSent) {
+                siyuan.pushMsg(this.plugin.i18n.lookingForTheList, 2000);
+                msgSent = true;
+            }
             await sleep(200);
         }
         if (count <= 0) {
