@@ -239,6 +239,7 @@ class ToolBox {
                 await siyuan.addRiffCards([listID]);
                 break;
             }
+            siyuan.pushMsg(this.plugin.i18n.lookingForTheList, 2000);
             await sleep(200);
         }
         if (count <= 0) {
