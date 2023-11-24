@@ -1,4 +1,4 @@
-import { Constants, IOperation, fetchSyncPost } from "siyuan";
+import { Constants, IOperation, Lute, fetchSyncPost } from "siyuan";
 import { v4 as uuid } from "uuid";
 
 const timeRegex = /^(\d{4})-(\d{1,2})-(\d{1,2}) ?(\d{1,2}):(\d{1,2}):(\d{1,2})$/;
@@ -10,6 +10,8 @@ export function sleep(ms: number): Promise<void> {
         setTimeout(resolve, ms);
     });
 }
+
+export const NewLute: () => Lute = (globalThis as any).Lute.New;
 
 export const NewNodeID: () => string = (globalThis as any).Lute.NewNodeID;
 
@@ -411,10 +413,17 @@ export const siyuan = {
             }
         }
         ids.reverse();
+        const lute = NewLute();
         for (const id of ids) {
             if (copy) {
-                const l = await siyuan.getBlockKramdownWithoutID(id);
-                await siyuan.insertBlockAfter(l, insertPoint["id"]);
+                const { dom } = await siyuan.getBlockDOM(id);
+                let md = lute.BlockDOM2Md(dom);
+                const list = md.trim().split("\n");
+                if (list[list.length - 1].trim().startsWith("{: ")) {
+                    list.pop();
+                }
+                md = list.join("\n");
+                await siyuan.insertBlockAfter(md, insertPoint["id"]);
             } else {
                 await siyuan.moveBlockAfter(id, insertPoint["id"]);
             }
