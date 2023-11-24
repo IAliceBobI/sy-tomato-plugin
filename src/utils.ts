@@ -11,6 +11,10 @@ export function sleep(ms: number): Promise<void> {
     });
 }
 
+export const NewNodeID: () => string = (globalThis as any).Lute.NewNodeID;
+
+export const BlockDOM2Content: (html: string) => string = (globalThis as any).Lute.BlockDOM2Content;
+
 export function divideArrayIntoParts<T>(array: T[], n: number): T[][] {
     n = Math.ceil(array.length / n);
     return chunks(array, n);
@@ -25,39 +29,12 @@ export function chunks<T>(array: T[], n: number): T[][] {
     return newArr;
 }
 
-function padStart(input: string, targetLength: number, padString: string): string {
-    const inputLength = input.length;
-    if (inputLength >= targetLength) {
-        return input;
-    }
-    const paddingLength = targetLength - inputLength;
-    const padding = padString.repeat(Math.ceil(paddingLength / padString.length)).slice(0, paddingLength);
-    return padding + input;
-}
-
 export function findBookOpennedFirst(bookID: string, bookIDList: string[]): string {
     if (bookIDList.length === 0) return bookID;
     if (bookIDList.indexOf(bookID) === -1) {
         return bookIDList[0];
     }
     return bookID;
-}
-
-function randStr(length: number): string {
-    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * chars.length);
-        result += chars.charAt(randomIndex);
-    }
-    return result;
-}
-
-export function newNodeID(): string {
-    const now = new Date();
-    const formattedDate = now.toISOString().replace(/[-T:Z.]/g, "").slice(0, 14);
-    const randomStr = randStr(7);
-    return formattedDate + "-" + randomStr;
 }
 
 export function newID() {
@@ -215,6 +192,10 @@ export const siyuan = {
     },
     async checkBlockExist(id: string) {
         return siyuan.call("/api/block/checkBlockExist", { id });
+    },
+    async getBlockDOM(id: string) {
+        // {dom, id}
+        return siyuan.call("/api/block/getBlockDOM", { id });
     },
     async setBlockAttrs(id: string, attrs: any) {
         return siyuan.call("/api/attr/setBlockAttrs", { id, attrs });
@@ -490,6 +471,16 @@ export const siyuan = {
         return invalidCardIDs;
     },
 };
+
+function padStart(input: string, targetLength: number, padString: string): string {
+    const inputLength = input.length;
+    if (inputLength >= targetLength) {
+        return input;
+    }
+    const paddingLength = targetLength - inputLength;
+    const padding = padString.repeat(Math.ceil(paddingLength / padString.length)).slice(0, paddingLength);
+    return padding + input;
+}
 
 /* {
     "alias": "",
