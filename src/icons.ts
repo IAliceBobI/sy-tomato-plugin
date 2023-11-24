@@ -1,6 +1,6 @@
 export const ICONS = `
-<symbol id="iconContents" viewBox="0 0 32 32"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-<path d="M4 6h24v4H4zm0 6h24v4H4zm0 6h24v4H4zm0 6h24v4H4z" fill="#000" />
+<symbol id="iconContents" viewBox="0 0 32 32"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+<path fill="#FFFFFF" d="M4,4v24h24V4H4z M6,6h20v8H6V6z M6,20h20v6H6V20z"/>
 </svg></symbol>
 
 <symbol id="iconSchedule" viewBox="0 0 32 32"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
