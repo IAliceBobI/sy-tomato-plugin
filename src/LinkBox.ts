@@ -9,11 +9,11 @@ class LinkBox {
         this.plugin = plugin;
         this.plugin.addCommand({
             langKey: "bilink",
-            hotkey: "",
+            hotkey: "⌥/",
             editorCallback: async (protyle) => {
                 const ids = this.getSelectedIDs(protyle);
                 if (ids.length == 0) ids.push(events.lastBlockID)
-                for (const id of this.getSelectedIDs(protyle))
+                for (const id of ids)
                     await this.addLink(id);
             },
         });
@@ -22,6 +22,7 @@ class LinkBox {
             menu.addItem({
                 label: this.plugin.i18n.bilink,
                 icon: "iconLink",
+                accelerator: "⌥/",
                 click: () => {
                     const blockID = detail?.element?.getAttribute("data-node-id") ?? "";
                     if (blockID) this.addLink(blockID);
@@ -30,7 +31,7 @@ class LinkBox {
         });
     }
     private async addLink(blockID: string) {
-        throw new Error("Method not implemented.");
+        console.log(blockID)
     }
     private getSelectedIDs(protyle: any) {
         const multiLine = protyle?.element?.getElementsByTagName("div") as HTMLDivElement[] ?? [];
