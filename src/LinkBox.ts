@@ -1,6 +1,8 @@
 import { Plugin } from "siyuan";
 import { events } from "./Events";
 import * as constants from "./constants";
+import { siyuan } from "./utils";
+import * as utils from "./utils";
 
 class LinkBox {
     private plugin: Plugin;
@@ -12,7 +14,7 @@ class LinkBox {
             hotkey: "⌥/",
             editorCallback: async (protyle) => {
                 const ids = this.getSelectedIDs(protyle);
-                if (ids.length == 0) ids.push(events.lastBlockID)
+                if (ids.length == 0) ids.push(events.lastBlockID);
                 for (const id of ids)
                     await this.addLink(id);
             },
@@ -30,9 +32,12 @@ class LinkBox {
             });
         });
     }
+
     private async addLink(blockID: string) {
-        console.log(blockID)
+        const { markdown } = await siyuan.getBlockMarkdownAndContent(blockID);
+        console.log(utils.extractLinks(markdown));
     }
+
     private getSelectedIDs(protyle: any) {
         const multiLine = protyle?.element?.getElementsByTagName("div") as HTMLDivElement[] ?? [];
         const ids = [];

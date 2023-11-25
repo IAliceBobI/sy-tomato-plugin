@@ -1,9 +1,24 @@
 import { Constants, IOperation, Lute, fetchSyncPost } from "siyuan";
 import { v4 as uuid } from "uuid";
 
-const timeRegex = /^(\d{4})-(\d{1,2})-(\d{1,2}) ?(\d{1,2}):(\d{1,2}):(\d{1,2})$/;
-export const IDRegexp = /id="[^"]+"/;
-export const RIFFRegexp = /custom-riff-decks="[^"]+"/;
+export function extractLinks(txt: string) {
+    const RefRegexImu = /\(\(([0-9\-a-z]{22}) "[^"]*?"\)\)/g;
+    const RefRegexMu = /\(\(([0-9\-a-z]{22}) '[^']*?'\)\)/g;
+    const extractedMatches: string[] = [];
+    const match1 = RefRegexImu.exec(txt);
+    console.log(match1);
+    const match2 = RefRegexImu.exec(txt);
+    console.log(match2);
+
+    // let match;
+    // while ((match = RefRegexImu.exec(txt)) !== null) {
+    //   extractedMatches.push(match[1]);
+    // }
+    // while ((match = RefRegexMu.exec(txt)) !== null) {
+    //   extractedMatches.push(match[1]);
+    // }
+    // console.log(extractedMatches);
+}
 
 export function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => {
@@ -72,9 +87,12 @@ export const timeUtil = {
         return new Date(date);
     },
     checkTimeFormat(input: string) {
+        const timeRegex = /^(\d{4})-(\d{1,2})-(\d{1,2}) ?(\d{1,2}):(\d{1,2}):(\d{1,2})$/;
+
         return timeRegex.test(input);
     },
     makesureDateTimeFormat(input: string) {
+        const timeRegex = /^(\d{4})-(\d{1,2})-(\d{1,2}) ?(\d{1,2}):(\d{1,2}):(\d{1,2})$/;
         const zeroPad = (value: string) => {
             const v = value?.toString() ?? "";
             return padStart(v, 2, "0");
@@ -445,6 +463,8 @@ export const siyuan = {
                 lines[lines.length - 1] += suffix;
             }
         }
+        const IDRegexp = /id="[^"]+"/;
+        const RIFFRegexp = /custom-riff-decks="[^"]+"/;
         attrs = attrs.replace(IDRegexp, "");
         attrs = attrs.replace(RIFFRegexp, "");
         if (newAttrs) {
