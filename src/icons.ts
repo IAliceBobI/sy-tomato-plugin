@@ -1,4 +1,8 @@
 export const ICONS = `
+<symbol id="iconLink" viewBox="0 0 32 32"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<path d="M18.293 22.293l-1.414-1.414L22.586 16H8v-2h14.586l-5.707-5.707 1.414-1.414L26.414 15l-7.121 7.121zM6 6h20v20H6z"/>
+</svg></symbol>
+
 <symbol id="iconContents" viewBox="0 0 32 32"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
 <path d="M6 5h20v2H6zm0 4h20v2H6zm0 4h20v2H6zm0 4h20v2H6zm0 4h20v2H6zm0 4h20v2H6zm0 4h20v2H6z"/>
 </svg></symbol>

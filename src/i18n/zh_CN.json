@@ -29,5 +29,6 @@
   "showBookmarks": "查看阅读点",
   "lookingForTheList": "正在查找列表……",
   "reindex": "无法找到要制卡的列表，如果你确实是将光标放到列表的某个列表项内尝试多次，你可以尝试重建索引。",
-  "wait4finish": "请等待上个操作完成！"
+  "wait4finish": "请等待上个操作完成！",
+  "bilink": "双向互链"
 }

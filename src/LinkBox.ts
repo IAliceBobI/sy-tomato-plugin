@@ -1,4 +1,6 @@
 import { Plugin } from "siyuan";
+import { events } from "./Events";
+import * as constants from "./constants";
 
 class LinkBox {
     private plugin: Plugin;
@@ -6,28 +8,41 @@ class LinkBox {
     onload(plugin: Plugin) {
         this.plugin = plugin;
         this.plugin.addCommand({
-            langKey: "addFlashCard",
+            langKey: "bilink",
             hotkey: "",
-            globalCallback: async () => {
-                await this.addLink();
+            editorCallback: async (protyle) => {
+                const ids = this.getSelectedIDs(protyle);
+                if (ids.length == 0) ids.push(events.lastBlockID)
+                for (const id of this.getSelectedIDs(protyle))
+                    await this.addLink(id);
             },
         });
         this.plugin.eventBus.on("open-menu-content", async ({ detail }) => {
             const menu = detail.menu;
             menu.addItem({
-                label: this.plugin.i18n.addFlashCard,
-                icon: "iconFlashcard",
+                label: this.plugin.i18n.bilink,
+                icon: "iconLink",
                 click: () => {
                     const blockID = detail?.element?.getAttribute("data-node-id") ?? "";
-                    if (blockID) {
-                        this.addLink(blockID);
-                    }
+                    if (blockID) this.addLink(blockID);
                 },
             });
         });
     }
-    private async addLink(blockID?: string) {
+    private async addLink(blockID: string) {
         throw new Error("Method not implemented.");
+    }
+    private getSelectedIDs(protyle: any) {
+        const multiLine = protyle?.element?.getElementsByTagName("div") as HTMLDivElement[] ?? [];
+        const ids = [];
+        for (const div of multiLine) {
+            if (div.classList.contains(constants.PROTYLE_WYSIWYG_SELECT)) {
+                const id = div.getAttribute(constants.DATA_NODE_ID);
+                div.classList.remove(constants.PROTYLE_WYSIWYG_SELECT);
+                ids.push(id);
+            }
+        }
+        return ids;
     }
 }
 
