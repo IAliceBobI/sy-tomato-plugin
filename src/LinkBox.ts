@@ -35,7 +35,32 @@ class LinkBox {
 
     private async addLink(blockID: string) {
         const { markdown } = await siyuan.getBlockMarkdownAndContent(blockID);
-        console.log(utils.extractLinks(markdown));
+        const lnks = utils.extractLinks(markdown);
+        if (lnks.length <= 0) return;
+        const docID = await siyuan.getDocIDByBlockID(blockID)
+        if (!docID) return;
+        const { content } = await siyuan.getBlockMarkdownAndContent(docID);
+        if (!content) return;
+        const lute = utils.NewLute();
+        for (const link of lnks) {
+            const row = await siyuan.sqlOne(`select type from blocks where id="${link}"`);
+            const idType = row?.type ?? "";
+            if (!idType) continue;
+            const backLink = `[((${blockID} "${content}"))]`
+            if (idType == "d") {
+                await siyuan.insertBlockAsChildOf(backLink, link);
+            } else {
+                const { dom } = await siyuan.getBlockDOM(link)
+                const md = lute.BlockDOM2Md(dom).trim();
+                if (md.includes(backLink)) continue;
+                const parts = md.split("\n");
+                if (parts.length >= 2) {
+                    const lastLine = parts[parts.length - 2];
+                    parts[parts.length - 2] = lastLine + backLink;
+                }
+                await siyuan.updateBlock(link, parts.join("\n"))
+            }
+        }
     }
 
     private getSelectedIDs(protyle: any) {
