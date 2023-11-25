@@ -9,7 +9,7 @@ export function extractLinks(txt: string) {
         match = RefRegex.exec(txt) ?? [];
         const id = match[1] ?? "";
         if (id) extractedMatches.push(id);
-    } while (match.length > 0)
+    } while (match.length > 0);
     return extractedMatches;
 }
 

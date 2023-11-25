@@ -37,7 +37,7 @@ class LinkBox {
         const { markdown } = await siyuan.getBlockMarkdownAndContent(blockID);
         const lnks = utils.extractLinks(markdown);
         if (lnks.length <= 0) return;
-        const docID = await siyuan.getDocIDByBlockID(blockID)
+        const docID = await siyuan.getDocIDByBlockID(blockID);
         if (!docID) return;
         const { content } = await siyuan.getBlockMarkdownAndContent(docID);
         if (!content) return;
@@ -46,11 +46,11 @@ class LinkBox {
             const row = await siyuan.sqlOne(`select type from blocks where id="${link}"`);
             const idType = row?.type ?? "";
             if (!idType) continue;
-            const backLink = `[((${blockID} "${content}"))]`
+            const backLink = `[((${blockID} "${content}"))]`;
             if (idType == "d") {
                 await siyuan.insertBlockAsChildOf(backLink, link);
             } else {
-                const { dom } = await siyuan.getBlockDOM(link)
+                const { dom } = await siyuan.getBlockDOM(link);
                 const md = lute.BlockDOM2Md(dom).trim();
                 if (md.includes(backLink)) continue;
                 const parts = md.split("\n");
@@ -58,7 +58,7 @@ class LinkBox {
                     const lastLine = parts[parts.length - 2];
                     parts[parts.length - 2] = lastLine + backLink;
                 }
-                await siyuan.updateBlock(link, parts.join("\n"))
+                await siyuan.updateBlock(link, parts.join("\n"));
             }
         }
     }
