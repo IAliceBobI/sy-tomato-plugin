@@ -2,22 +2,15 @@ import { Constants, IOperation, Lute, fetchSyncPost } from "siyuan";
 import { v4 as uuid } from "uuid";
 
 export function extractLinks(txt: string) {
-    const RefRegexImu = /\(\(([0-9\-a-z]{22}) "[^"]*?"\)\)/g;
-    const RefRegexMu = /\(\(([0-9\-a-z]{22}) '[^']*?'\)\)/g;
+    const RefRegex = /\(\(([0-9\-a-z]{22}) (("[^"]*?")|('[^']*?'))\)\)/g;
     const extractedMatches: string[] = [];
-    const match1 = RefRegexImu.exec(txt);
-    console.log(match1);
-    const match2 = RefRegexImu.exec(txt);
-    console.log(match2);
-
-    // let match;
-    // while ((match = RefRegexImu.exec(txt)) !== null) {
-    //   extractedMatches.push(match[1]);
-    // }
-    // while ((match = RefRegexMu.exec(txt)) !== null) {
-    //   extractedMatches.push(match[1]);
-    // }
-    // console.log(extractedMatches);
+    let match;
+    do {
+        match = RefRegex.exec(txt) ?? [];
+        const id = match[1] ?? "";
+        if (id) extractedMatches.push(id);
+    } while (match.length > 0)
+    return extractedMatches;
 }
 
 export function sleep(ms: number): Promise<void> {
