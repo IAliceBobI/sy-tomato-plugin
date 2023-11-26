@@ -86,8 +86,14 @@ class Events {
 
 function getCursorBlock() {
     const selection = document.getSelection();
-    const blockID = selection?.focusNode?.parentElement?.parentElement?.getAttribute("data-node-id") ?? "";
-    return blockID;
+    return getID(selection?.focusNode?.parentElement);
+}
+
+function getID(e: Element) {
+    if (e.tagName.toLocaleLowerCase() == "body") return "";
+    const id = e?.getAttribute("data-node-id") ?? "";
+    if (!id) return getID(e?.parentElement);
+    return id;
 }
 
 export const events = new Events();
