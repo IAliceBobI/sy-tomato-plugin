@@ -74,6 +74,7 @@ class LinkBox {
                 await siyuan.updateBlock(link, parts.join("\n"));
             }
         }
+        await siyuan.pushMsg(`已经插入${ids.length}个链接。`);
     }
 
     private getSelectedIDs(protyle: any) {
