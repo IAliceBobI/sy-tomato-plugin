@@ -3,14 +3,18 @@ import { v4 as uuid } from "uuid";
 
 export function extractLinks(txt: string) {
     const RefRegex = /\(\(([0-9\-a-z]{22}) (("[^"]*?")|('[^']*?'))\)\)/g;
-    const extractedMatches: string[] = [];
+    const ids: string[] = [];
+    const links: string[] = [];
     let match;
     do {
         match = RefRegex.exec(txt) ?? [];
         const id = match[1] ?? "";
-        if (id) extractedMatches.push(id);
+        if (id) {
+            ids.push(id);
+            links.push(match[0]);
+        }
     } while (match.length > 0);
-    return extractedMatches;
+    return { ids, links };
 }
 
 export function sleep(ms: number): Promise<void> {

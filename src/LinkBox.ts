@@ -1,4 +1,4 @@
-import { Plugin } from "siyuan";
+import { Lute, Plugin } from "siyuan";
 import { events } from "./Events";
 import * as constants from "./constants";
 import { siyuan } from "./utils";
@@ -33,20 +33,33 @@ class LinkBox {
         });
     }
 
+    private async turn2static(blockID: string, links: string[], lute: Lute) {
+        const { dom } = await siyuan.getBlockDOM(blockID);
+        let md = lute.BlockDOM2Md(dom);
+        for (const lnk of links) {
+            if (lnk.includes("'")) {
+                const st = lnk.replace(/'/g, '"');
+                md = md.replace(lnk, st);
+            }
+        }
+        await siyuan.updateBlock(blockID, md);
+    }
+
     private async addLink(blockID: string) {
         const { markdown } = await siyuan.getBlockMarkdownAndContent(blockID);
-        const lnks = utils.extractLinks(markdown);
-        if (lnks.length <= 0) return;
+        const { links, ids } = utils.extractLinks(markdown);
+        if (ids.length <= 0) return;
         const docID = await siyuan.getDocIDByBlockID(blockID);
         if (!docID) return;
         const { content } = await siyuan.getBlockMarkdownAndContent(docID);
         if (!content) return;
         const lute = utils.NewLute();
-        for (const link of lnks) {
+        await this.turn2static(blockID, links, lute);
+        for (const link of ids) {
             const row = await siyuan.sqlOne(`select type from blocks where id="${link}"`);
             const idType = row?.type ?? "";
             if (!idType) continue;
-            const backLink = `[((${blockID} "${content}"))]`;
+            const backLink = `((${blockID} "[${content}]"))`;
             if (idType == "d") {
                 await siyuan.insertBlockAsChildOf(backLink, link);
             } else {
