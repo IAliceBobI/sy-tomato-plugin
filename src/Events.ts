@@ -90,7 +90,9 @@ function getCursorBlock() {
 }
 
 function getID(e: Element) {
-    if (e.tagName.toLocaleLowerCase() == "body") return "";
+    const tn = e?.tagName?.toLocaleLowerCase() ?? "";
+    if (!tn) return "";
+    if (tn == "body") return "";
     const id = e?.getAttribute("data-node-id") ?? "";
     if (!id) return getID(e?.parentElement);
     return id;
