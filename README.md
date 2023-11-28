@@ -163,7 +163,7 @@ You can place the cursor on `a3` or any other location like `a2`, `a1`, `a0`, an
 
 QQ Group: 263961482
 
-[Alternatively, submit issues on GitHub](https://github.com/IAliceBobI/sy-tomato-plugin/issues)
+[Alternatively, submit issues on GitHub](https://github.com/IAliceBobI/sy-plugins/issues)
 
 [Or, you can submit your question on the official forum.](https://ld246.com/tag/siyuan)
 

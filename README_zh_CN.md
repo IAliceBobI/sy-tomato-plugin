@@ -175,13 +175,19 @@ aacc3
 
 # BUG反馈、建议
 
+插件需要大家包括我，在长期使用中改进，如有问题、建议可以一起讨论。
+
 QQ群: 263961482
 
-[或者到 Github 提交问题](https://github.com/IAliceBobI/sy-tomato-plugin/issues)
+[或者到 Github 提交问题](https://github.com/IAliceBobI/sy-plugins/issues)
 
 [或者到官方论坛提交问题](https://ld246.com/tag/siyuan)
 
 # 更新日志
+
+## 2023-11-29
+
+* 代码重构
 
 ## 2023-11-27
 
