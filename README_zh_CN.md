@@ -6,6 +6,12 @@
 
 > [我猜下面的图九成九是裂开了😢，看这里吧！](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+## 配置
+
+![Alt text](assets/settings.png)
+
+![Alt text](assets/settingsDetail.png)
+
 ## 番茄钟
 
 *状态栏番茄钟*
@@ -18,6 +24,10 @@
 * **25**：计时二十五分钟
 
 ![](./assets/tomatoTimeup.png)
+
+## 极简反链
+
+![Alt text](assets/backlink.png)
 
 ## 双向互链
 
@@ -184,6 +194,11 @@ QQ群: 263961482
 [或者到官方论坛提交问题](https://ld246.com/tag/siyuan)
 
 # 更新日志
+
+## 2023-12-01
+
+* 可配置各种功能是否开启。
+* 增加极简反链面板。
 
 ## 2023-11-29
 
