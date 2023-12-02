@@ -25,6 +25,20 @@
 
 ![](./assets/tomatoTimeup.png)
 
+## 底部反链区
+
+加入类似 `logseq` 的底部反链区。并对列表/大纲块，做了特殊处理，能看到相关的上级项，直到根部。其他非列表的块，则直接复制。
+
+例如整个列表为：
+![Alt text](assets/logseqori.png)
+
+在`皂荚`文档内，看到的只有相关信息，直到根部，其他分支隐藏。
+![Alt text](assets/logseqbl.png)
+
+**使用方法： 右键，插件->刷新底部反链**
+
+![Alt text](assets/logseqmenu.png)
+
 ## 极简反链
 
 ![Alt text](assets/backlink.png)
@@ -194,6 +208,10 @@ QQ群: 263961482
 [或者到官方论坛提交问题](https://ld246.com/tag/siyuan)
 
 # 更新日志
+
+## 2023-12-03
+
+* 加入仿 `logseq` 的底部反链区。
 
 ## 2023-12-02
 
