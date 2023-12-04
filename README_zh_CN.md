@@ -216,6 +216,7 @@ QQ群: 263961482
 ## 2023-12-04
 
 * 底部反链区重新设计。
+* [拆分反链与提及为两个独立菜单。](https://github.com/IAliceBobI/sy-tomato-plugin/issues/2)
 
 ## 2023-12-03
 
