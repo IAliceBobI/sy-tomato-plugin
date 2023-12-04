@@ -41,6 +41,12 @@
 
 ![Alt text](assets/logseqmenu.png)
 
+**新本也有过滤功能**
+
+![Alt text](assets/filterA.png)
+
+![Alt text](assets/filterB.png)
+
 ## 双向互链
 
 如图两个文档《皂荚》、《山羊》，皂荚中引用了山羊的`aa`，`bb`两个块，我们对皂荚中内容使用`双向互链`功能，则会在山羊文档相关内容后添加反回皂荚的链接。
