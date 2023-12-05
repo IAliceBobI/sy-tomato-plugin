@@ -219,6 +219,7 @@ QQ群: 263961482
 
 * 重构配置代码。
 * [番茄钟支持自定义时长。](https://github.com/IAliceBobI/sy-tomato-plugin/issues/3)
+* [修复BUG](https://ld246.com/article/1701445627641/comment/1701761268877?r=player#comments)
 
 ## 2023-12-04
 
