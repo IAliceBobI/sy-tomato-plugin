@@ -218,6 +218,7 @@ QQ群: 263961482
 ## 2023-12-08
 
 * [加入开关，控制插入反链同时，是否也插入一个一级标题，方便在大纲中快速定位反链。默认为关闭。](https://github.com/IAliceBobI/sy-tomato-plugin/issues/5)
+* [修复刷新、编辑js嵌入块后的异常。](https://github.com/IAliceBobI/sy-tomato-plugin/issues/4)
 
 ## 2023-12-07
 
