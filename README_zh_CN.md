@@ -203,6 +203,10 @@ aacc3
 
 ![Alt text](assets/contentMenu.png)
 
+# 鸣谢
+
+* 反链使用的js嵌入块部分代码参考[zxhd863943427](https://github.com/zxhd863943427)的：[siyuan-plugin-data-query](https://github.com/zxhd863943427/siyuan-plugin-data-query)
+
 # BUG反馈、建议
 
 插件需要大家包括我，在长期使用中改进，如有问题、建议可以一起讨论。
