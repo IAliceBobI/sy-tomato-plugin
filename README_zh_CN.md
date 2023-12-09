@@ -49,6 +49,8 @@
 
 ![Alt text](assets/filterB.png)
 
+> 反链使用的js嵌入块部分代码参考了：[siyuan-plugin-data-query](https://github.com/zxhd863943427/siyuan-plugin-data-query)，感谢：[zxhd863943427](https://github.com/zxhd863943427)。
+
 ## 双向互链
 
 如图两个文档《皂荚》、《山羊》，皂荚中引用了山羊的`aa`，`bb`两个块，我们对皂荚中内容使用`双向互链`功能，则会在山羊文档相关内容后添加反回皂荚的链接。
@@ -203,9 +205,17 @@ aacc3
 
 ![Alt text](assets/contentMenu.png)
 
-# 鸣谢
+## 图片遮挡
 
-* 反链使用的js嵌入块部分代码参考[zxhd863943427](https://github.com/zxhd863943427)的：[siyuan-plugin-data-query](https://github.com/zxhd863943427/siyuan-plugin-data-query)
+**用法:** 对图片块，右键->插件->添加图片遮挡层。
+
+本功能主要**自用**，默认关闭，需要先在`番茄工具箱`的配置中开启`图片遮挡`功能。
+
+> 为什么做此功能？
+> 
+> 我的需求与 [siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance) 的`图片遮挡`功能有点差异。希望图片一直处于遮挡，无论是否在闪卡复习中，除非鼠标悬浮其上，才会撤销遮挡。对于一个图片有多个遮挡层的情况，只有鼠标悬浮的那个遮挡层才消失。（部分代码参考了：[siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance)，感谢：[zxhd863943427](https://github.com/zxhd863943427)）
+
+**想看原图，可以双击无图片中无遮挡层的区域。**
 
 # BUG反馈、建议
 
