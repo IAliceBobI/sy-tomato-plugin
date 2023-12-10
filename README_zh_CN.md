@@ -39,17 +39,8 @@
 
 ![Alt text](assets/logseqbl.png)
 
-**使用方法： 右键，插件->刷新底部反链**
-
-![Alt text](assets/logseqmenu.png)
-
-**新本也有过滤功能**
-
-![Alt text](assets/filterA.png)
-
-![Alt text](assets/filterB.png)
-
-> 反链使用的js嵌入块部分代码参考了：[siyuan-plugin-data-query](https://github.com/zxhd863943427/siyuan-plugin-data-query)，感谢：[zxhd863943427](https://github.com/zxhd863943427)。
+> 老版本：反链使用的js嵌入块部分代码参考了：[siyuan-plugin-data-query](https://github.com/zxhd863943427/siyuan-plugin-data-query)，感谢：[zxhd863943427](https://github.com/zxhd863943427)。
+> 新版本不用js嵌入块了。
 
 ## 双向互链
 
@@ -228,6 +219,10 @@ QQ群: 263961482
 [或者到官方论坛提交问题](https://ld246.com/tag/siyuan)
 
 # 更新日志
+
+## 2023-12-10
+
+* 底部反链不再插入js嵌入块，不再修改文档内容。而是直接显示到页面底部。
 
 ## 2023-12-09
 
