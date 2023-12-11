@@ -39,8 +39,11 @@
 
 ![Alt text](assets/logseqbl.png)
 
-> 老版本：反链使用的js嵌入块部分代码参考了：[siyuan-plugin-data-query](https://github.com/zxhd863943427/siyuan-plugin-data-query)，感谢：[zxhd863943427](https://github.com/zxhd863943427)。
-> 新版本不用js嵌入块了。
+输入框内支持实时搜索。
+
+![Alt text](assets/logseqblq.png)
+
+> `底部反链区` 默认关闭，请从配置中打开。
 
 ## 双向互链
 
@@ -220,11 +223,15 @@ QQ群: 263961482
 
 # 更新日志
 
+## 2023-12-12
+
+* 底部反链整体支持搜索。
+
 ## 2023-12-11
 
 * 修复反链出现在文件中间的问题。
-* `双向链接`功能触发后，光标改为定位到块的最后。
-* 修复`双向链接`无法识别带外观的链接的BUG。
+* `双向链接`功能触发后，光标改为定位到块的最后。[*](https://github.com/IAliceBobI/sy-tomato-plugin/issues/6)
+* 修复`双向链接`无法识别带外观的链接的BUG。[*](https://github.com/IAliceBobI/sy-tomato-plugin/issues/7)
 
 ## 2023-12-10
 
