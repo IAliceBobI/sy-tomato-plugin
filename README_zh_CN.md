@@ -235,9 +235,11 @@ aacc3
 
 # BUG反馈、建议
 
-插件需要大家包括我，在长期使用中改进，如有问题、建议可以一起讨论。
+[请填写：反馈表单](https://awx9773btw.feishu.cn/share/base/form/shrcnO85H3V1iNvfEAc2JoQyXeh)
 
-QQ群: 263961482
+或者 [看看大家反馈了什么](https://awx9773btw.feishu.cn/share/base/view/shrcniyck0JM6yJS3rnj2xXGQ9f)
+
+或者到`QQ`群: 263961482
 
 [或者到 Github 提交问题](https://github.com/IAliceBobI/sy-plugins/issues)
 
@@ -249,6 +251,7 @@ QQ群: 263961482
 
 * 底部反链：缩短`提及`缓存时间。
 * 批量复制功能提供健壮性。
+* 闪卡复习时，不显示`底部反链`。
 
 ## 2023-12-17
 
