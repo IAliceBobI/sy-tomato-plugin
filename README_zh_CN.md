@@ -12,6 +12,9 @@
 
 ![Alt text](assets/settingsDetail.png)
 
+> [请填写：反馈表单](https://awx9773btw.feishu.cn/share/base/form/shrcnO85H3V1iNvfEAc2JoQyXeh)
+> 或者 [看看大家反馈了什么](https://awx9773btw.feishu.cn/share/base/view/shrcniyck0JM6yJS3rnj2xXGQ9f)
+
 ## 番茄钟
 
 *状态栏番茄钟*
