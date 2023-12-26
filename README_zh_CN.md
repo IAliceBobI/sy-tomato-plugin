@@ -28,7 +28,9 @@
 
 ![](./assets/tomatoTimeup.png)
 
-> 新本支持自定义时长。
+> 支持自定义时长。
+
+> 新本能查看剩余时间。
 
 ## 底部反链区
 
@@ -250,9 +252,12 @@ aacc3
 
 **感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。**
 
-* 2023-12-13 [没头脑和不高兴](https://afdian.net/u/25e08b1eb1a511edbb3d5254001e7c00)
-* 2023-12-11 [爱发电用户_EbBe](https://afdian.net/u/d11e3c741bc711ee95eb52540025c377)
-* 2023-12-10 [爱发电用户_b2864](https://afdian.net/u/b286492496af11eea38752540025c377)
+* 2023-12 [爱发电用户_Pv38](https://afdian.net/u/3911fecaa3ad11ee8fa95254001e7c00)
+* 2023-12 [赐我一胖](https://afdian.net/u/74d98cf66f0711eda8ca52540025c377)
+* 2023-12 [QQQOrange](https://afdian.net/u/2c73a3c6a1f011eeb98a52540025c377)
+* 2023-12 [没头脑和不高兴](https://afdian.net/u/25e08b1eb1a511edbb3d5254001e7c00)
+* 2023-12 [爱发电用户_EbBe](https://afdian.net/u/d11e3c741bc711ee95eb52540025c377)
+* 2023-12 [爱发电用户_b2864](https://afdian.net/u/b286492496af11eea38752540025c377)
 
 # BUG反馈、建议
 
@@ -271,6 +276,11 @@ aacc3
 **[请移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2023-12-26
+
+* 底部反链：忽略渐进学习插件中书籍下的卡片文件。
+* 番茄钟：添加查看剩余时间的按钮。
 
 ## 2023-12-25
 
