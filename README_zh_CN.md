@@ -286,6 +286,7 @@ aacc3
 
 * 添加topbar打开闪卡按钮。
 * 添加topbar打开上一个、下一个daily note按钮。
+* 手机端不显示topbar图标。
 
 ## 2023-12-31
 
