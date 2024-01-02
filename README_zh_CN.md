@@ -128,7 +128,7 @@
 
 > 图中最右边添加了删除按钮。
 
-> 快捷键： ctrl+0
+> 快捷键： ctrl+9
 
 ![Alt text](assets/delCard1.png)
 
