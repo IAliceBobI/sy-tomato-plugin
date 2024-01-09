@@ -10,23 +10,24 @@
 
 ![Alt text](assets/settings.png)
 
-![Alt text](assets/settingsDetail.png)
+<img src="assets/settingsDetail.png" alt="drawing" width="400"/>
 
-> [请填写：反馈表单](https://awx9773btw.feishu.cn/share/base/form/shrcnO85H3V1iNvfEAc2JoQyXeh)
-> 或者 [看看大家反馈了什么](https://awx9773btw.feishu.cn/share/base/view/shrcniyck0JM6yJS3rnj2xXGQ9f)
+> [反馈表单](https://awx9773btw.feishu.cn/share/base/form/shrcnO85H3V1iNvfEAc2JoQyXeh)
+
+> [反馈汇总](https://awx9773btw.feishu.cn/share/base/view/shrcniyck0JM6yJS3rnj2xXGQ9f)
 
 ## 番茄钟
 
 *状态栏番茄钟*
 
-![](./assets/statustomato.png)
+<img src="assets/statustomato.png" alt="drawing" width="400"/>
 
 * **0**：取消倒计时
 * **5**：计时五分钟
 * ……
 * **25**：计时二十五分钟
 
-![](./assets/tomatoTimeup.png)
+<img src="assets/tomatoTimeup.png" alt="drawing" width="400"/>
 
 > 支持自定义时长。
 
@@ -40,7 +41,7 @@
 
 将把左边的文档合并到右边：复制左边文档的内容、属性到右边，以及转移引用到右边。
 
-![Alt text](assets/mergeDocs.png)
+<img src="assets/mergeDocs.png" alt="drawing" width="400"/>
 
 例如图中，`test1`的内容、属性被复制到`test2`，其他地方对`test1`的引用，将全部转移到`test2`，变成引用`test2`。
 
@@ -52,7 +53,7 @@
 
 例如整个列表为：
 
-![Alt text](assets/logseqori.png)
+<img src="assets/logseqori.png" alt="drawing" width="200"/>
 
 图中列表提到的`皂荚`文档内，看到的只有相关信息（上下级），直到根部，其他分支隐藏。并且把涉及到的引用（概念）与引用次数也列出，方便查看。
 
@@ -84,9 +85,9 @@
 
 快捷键：`Alt+/`
 
-![Alt text](assets/bilink.png)
+<img src="assets/bilink.png" alt="drawing" width="400"/>
 
-![Alt text](assets/bilink-result.png)
+<img src="assets/bilink-result.png" alt="drawing" width="400"/>
 
 > **提示** 可以多行选择，但需要使用快捷键：`Alt+/`。
 
@@ -96,19 +97,19 @@
 
 **光标定位好要选择的`内容块`**
 
-![Alt text](./assets/cmdEntry.png)
+<img src="assets/cmdEntry.png" alt="drawing" width="400"/>
 
 **使用右键菜单。也可以用快捷键 `Ctrl+3`。**
 
-![Alt text](assets/contentMenu.png)
+<img src="assets/contentMenu.png" alt="drawing" width="400"/>
 
 **设置时间**
 
-![Alt text](./assets/scheduleSetTime.png)
+<img src="assets/scheduleSetTime.png" alt="drawing" width="400"/>
 
 *设置时间好，会自动加上一个时间tag。*
 
-![Alt text](./assets/aftersettime.png)
+<img src="assets/aftersettime.png" alt="drawing" width="400"/>
 
 *我们可以在tag面板查看已经计划中的提醒都有哪些。*
 
@@ -116,7 +117,7 @@
 
 **提醒**
 
-![Alt text](./assets/remind.png)
+<img src="assets/remind.png" alt="drawing" width="400"/>
 
 **删除时间tag**
 
@@ -128,11 +129,11 @@
 
 **光标定位好要选择的`内容块`，使用右键菜单，也可以直接 `Ctrl+2`。**
 
-![Alt text](assets/contentMenu.png)
+<img src="assets/contentMenu.png" alt="drawing" width="400"/>
 
 **之后要查看`书签`可以，可以直接看`书签面板`。也可以点击右上角的 `阅读点` (ctrl+4) 图标，查看更加详细的信息。**
 
-![Alt text](./assets/bookmark.png)
+<img src="assets/bookmark.png" alt="drawing" width="400"/>
 
 > **注意** `阅读点` 图标的分组方式与书签面板的不一样。
 
@@ -144,7 +145,7 @@
 
 > 快捷键： ctrl+9
 
-![Alt text](assets/delCard1.png)
+<img src="assets/delCard1.png" alt="drawing" width="400"/>
 
 ## 清理失效`闪卡`
 
@@ -152,7 +153,7 @@
 
 **打开命令面板，选择 `清理所有失效闪卡`**
 
-![Alt text](./assets/cmd.png)
+<img src="assets/cmd.png" alt="drawing" width="400"/>
 
 > **注意** 正在重建索引的时候，不要使用该功能。正在重建中的索引还不完善，插件依赖索引时会被误导，导致误删闪卡。
 
@@ -215,7 +216,7 @@ aacc3
 
 ```
 
-![Alt text](./assets/cmd.png)
+<img src="assets/cmd.png" alt="drawing" width="400"/>
 
 ### 复制操作
 
@@ -240,7 +241,7 @@ aacc3
 
 **或者使用右键菜单**
 
-![Alt text](assets/contentMenu.png)
+<img src="assets/contentMenu.png" alt="drawing" width="400"/>
 
 ## 图片遮挡（闪卡图片挖空）
 
@@ -308,12 +309,16 @@ aacc3
 
 # 打赏、鼓励 🎉
 
-**[请移步，爱发电](https://afdian.net/a/playerv5)**
+<img src="assets/wx.png" alt="drawing" width="180"/>
+<img src="assets/zfb.jpg" alt="drawing" width="180"/>
+
+**[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
 
 ## 2024-01-09
 
+* 更新readme图片。
 * 增加文档合并功能。合并包括引用转移、内容复制，属性复制。
 
 ## 2024-01-07
