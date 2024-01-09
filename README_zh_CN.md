@@ -42,7 +42,7 @@
 
 ![Alt text](assets/mergeDocs.png)
 
-例如图中, `test1` 的内容、属性被复制到 `test2`, `test1`的引用将转移到`test2`
+例如图中，`test1`的内容、属性被复制到`test2`，其他地方对`test1`的引用，将全部转移到`test2`，变成引用`test2`。
 
 > 本功能默认关闭，请从配置中打开。
 
