@@ -45,6 +45,10 @@
 
 <img src="assets/cardPriorityMenu.png" alt="drawing" width="600"/>
 
+复习时，也可以调整优先级:
+
+<img src="assets/cardPrioritySet.png" alt="drawing" width="600"/>
+
 > 本功能默认关闭，请从配置中打开。
 
 ## 命令块
