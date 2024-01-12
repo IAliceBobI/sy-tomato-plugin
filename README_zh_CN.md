@@ -305,6 +305,7 @@ aacc3
 
 **感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。**
 
+* 2024-01 [赐我一胖](https://afdian.net/u/74d98cf66f0711eda8ca52540025c377)
 * 2023-12 [爱发电用户_WGH7](https://afdian.net/u/ceefbee4a48111ee983f5254001e7c00)
 * 2023-12 [爱发电用户_Pv38](https://afdian.net/u/3911fecaa3ad11ee8fa95254001e7c00)
 * 2023-12 [赐我一胖](https://afdian.net/u/74d98cf66f0711eda8ca52540025c377)
@@ -333,6 +334,10 @@ aacc3
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-01-12
+
+* 底部反链的概念栏，不再包含daily note。
 
 ## 2024-01-11
 
