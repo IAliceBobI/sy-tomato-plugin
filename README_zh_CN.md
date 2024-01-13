@@ -55,13 +55,23 @@
 
 ### 文档合并
 
-在思源编辑器内，随意找一空行，写下要合并的两个文档的引用，并打下 `/`，然后选择`合并两个文档`。
+在思源编辑器内，随意找一空行，打下 `/`，然后选择`合并两个文档`：
+
+<img src="assets/mergeDocsPrompt.png" alt="drawing" width="600"/>
+
+得到提示，并在两个框内填入要合并的两个文档的引用。
+
+<img src="assets/mergeDocsPromptContentFill.png" alt="drawing" width="600"/>
+
+最后，同样在此块上，打下 `/`，再次选择`合并两个文档`
 
 将把左边的文档合并到右边：复制左边文档的内容、属性到右边，以及转移引用到右边。
 
-<img src="assets/mergeDocs.png" alt="drawing" width="600"/>
-
 例如图中，`test1`的内容、属性被复制到`test2`，其他地方对`test1`的引用，将全部转移到`test2`，变成引用`test2`。
+
+也可以直接写2个引用，打下 `/`，然后选择`合并两个文档`：
+
+<img src="assets/mergeDocs.png" alt="drawing" width="600"/>
 
 > 本功能默认关闭，请从配置中打开。
 
@@ -334,6 +344,10 @@ aacc3
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-01-13
+
+* 列表制卡重新设计，性能提高。
 
 ## 2024-01-12
 
