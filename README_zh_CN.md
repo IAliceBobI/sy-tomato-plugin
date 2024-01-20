@@ -59,15 +59,11 @@
 
 设置后，直接用`alt+0`复习即可。插件已在复习前，根据优先级对闪卡排序。
 
-优先级保存在闪卡的自定义属性`card-priority`中。可手动调整。
+优先级保存在闪卡的自定义属性`card-priority`中。可手动调整，也可通过闪卡下方按钮调整。
 
 优先级范围 0 ~ 100，默认优先级为50，没设置过优先级的闪卡也默认为50.
 
 <img src="assets/cardPriorityMenu.png" alt="drawing" width="600"/>
-
-复习时，也可以调整优先级:
-
-<img src="assets/cardPrioritySet.png" alt="drawing" width="600"/>
 
 > 本功能默认关闭，请从配置中打开。
 
