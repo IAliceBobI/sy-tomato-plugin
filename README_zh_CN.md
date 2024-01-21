@@ -355,8 +355,12 @@ aacc3
 
 # 打赏、鼓励 🎉
 
-<img src="assets/wx.png" alt="drawing" width="180"/>
-<img src="assets/zfb.jpg" alt="drawing" width="180"/>
+<div>
+<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/wx.png" alt="alipay" width="180" />
+</div>
+<div>
+<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/zfb.jpg" alt="wechat" width="180" />
+</div>
 
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
