@@ -16,7 +16,7 @@
 
 > [查看所有反馈，请到这里](https://awx9773btw.feishu.cn/share/base/view/shrcniyck0JM6yJS3rnj2xXGQ9f)
 
-> [打赏鼓励，请到这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-progressive-plugin/README_zh_CN.md#%E6%89%93%E8%B5%8F%E9%BC%93%E5%8A%B1-)
+> [打赏鼓励，请到这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md#bug%E5%8F%8D%E9%A6%88%E5%BB%BA%E8%AE%AE)
 
 ## 番茄钟
 
@@ -34,6 +34,8 @@
 > 支持自定义时长。
 
 > 新本能查看剩余时间。
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
 ## 标签转引用
 
@@ -55,6 +57,8 @@
 
 > 本功能默认关闭，请从配置中打开。
 
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
 ## 闪卡优先级
 
 对闪卡设置优先级，级别高的优先复习。同级之间每次复习，都会打乱顺序。
@@ -68,6 +72,8 @@
 <img src="assets/cardPriorityMenu.png" alt="drawing" width="600"/>
 
 > 本功能默认关闭，请从配置中打开。
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
 ## 命令块
 
@@ -93,6 +99,8 @@
 
 > 本功能默认关闭，请从配置中打开。
 
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
 ## 底部反链区
 
 加入类似 `logseq` 的底部反链区。对于列表/大纲块，我们可以看到其上级与下级。上级从面包屑看，下级从内容中看。
@@ -110,6 +118,8 @@
 输入框内支持多个`关键词`实时搜索。
 
 ![Alt text](assets/logseqblq.png)
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
 ### 搜索语法
 
@@ -136,6 +146,8 @@
 <img src="assets/bilink-result.png" alt="drawing" width="600"/>
 
 > **提示** 可以多行选择，但需要使用快捷键：`Alt+/`。
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
 ## 内容提醒
 
@@ -169,6 +181,8 @@
 
 *目前需要用户动手自给自足！*
 
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
 ## 阅读点
 
 *阅读点也就是一个文档上次阅读到的位置，我们把它记录到`书签`里面，并且自动删除当前文件内的其他`书签`。以保持本文件内只有一个`书签`。*
@@ -193,6 +207,8 @@
 
 <img src="assets/delCard1.png" alt="drawing" width="600"/>
 
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
 ## 清理失效`闪卡`
 
 *如果闪卡所在的内容被我们删除了，这样的失效闪卡还存在于磁盘中。我们可以对其进行删除。*
@@ -206,6 +222,8 @@
 > **注意** 如果把`笔记本`关闭后使用，正常的闪卡也会被认为是失效的闪卡。所以使用时要打开全部笔记本。
 
 > **注意** 使用前做好备份！
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
 ## 超长内容操作
 
@@ -305,6 +323,8 @@ aacc3
 > 
 > 我的需求与 [siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance) 的`图片遮挡`功能有点差异。希望图片一直处于遮挡，无论是否在闪卡复习中，除非鼠标悬浮其上，才会撤销遮挡。对于一个图片有多个遮挡层的情况，只有鼠标悬浮的那个遮挡层才消失。（部分代码参考了：[siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance)，感谢：[zxhd863943427](https://github.com/zxhd863943427)）
 
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
 ## 移动内容到 daily note
 
 将光标所在的内容块、选中的所有内容，移动到今日的daily note底部。
@@ -312,6 +332,8 @@ aacc3
 支持右键与快捷键，默认关闭，请从配置打开。
 
 > 仅仅移动选中的单行或者多行内容，或者未选中时，光标所在块。
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
 ## 附加小功能
 
@@ -367,6 +389,10 @@ aacc3
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-01-23
+
+* 修改readme.
 
 ## 2024-01-22
 
