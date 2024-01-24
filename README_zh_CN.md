@@ -353,9 +353,11 @@ aacc3
 
 ### 打开闪卡
 
-**那个闪电图标就是**
+**那个闪电图标就是** 默认打开。
 
-> 默认关闭，请从配置打开："闪卡工具" 功能。
+### 刷新虚拟引用
+
+新本插件有，默认打开。
 
 # 鸣谢
 
@@ -386,15 +388,19 @@ aacc3
 # 打赏、鼓励、催更 🎉
 
 <div>
-<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/wx.png" alt="alipay" width="180" />
+<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/wx1.png" alt="alipay" width="180" />
 </div>
 <div>
-<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/zfb.jpg" alt="wechat" width="180" />
+<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/zfb1.jpg" alt="wechat" width="180" />
 </div>
 
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-01-24
+
+* 底部反链概念区，排除 "*"、"@"、"[数字]开头"。
 
 ## 2024-01-23
 
