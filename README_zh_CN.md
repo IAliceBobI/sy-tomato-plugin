@@ -388,10 +388,11 @@ aacc3
 # 打赏、鼓励、催更 🎉
 
 <div>
-<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/wx1.png" alt="alipay" width="180" />
+<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/wx1.png" alt="alipay" width="300" />
 </div>
+<br>
 <div>
-<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/zfb1.jpg" alt="wechat" width="180" />
+<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/zfb1.jpg" alt="wechat" width="300" />
 </div>
 
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
@@ -400,7 +401,7 @@ aacc3
 
 ## 2024-01-24
 
-* 添加刷新虚拟引用toolbar图标。
+* 添加刷新虚拟引用topbar图标。
 
 ## 2024-01-23
 
