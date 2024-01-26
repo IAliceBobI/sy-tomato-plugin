@@ -341,6 +341,10 @@ aacc3
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+## 取消任务的勾选
+
+右键菜单，默认开启，取消当前文档中所有任务的勾选。
+
 ## 附加小功能
 
 ![Alt text](assets/nextdailynote.png)
@@ -402,6 +406,7 @@ aacc3
 ## 2024-01-26
 
 * 定期提醒添加复制ID功能。
+* 添加右键菜单，取消当前文档中所有任务的勾选。
 
 ## 2024-01-25
 
