@@ -36,9 +36,9 @@
     "@sveltejs/vite-plugin-svelte": "^2.5.3",
     "@tsconfig/svelte": "^4.0.1",
     "@types/fabric": "^5.3.6",
-    "@types/node": "^20.11.6",
-    "@typescript-eslint/eslint-plugin": "^6.19.1",
-    "@typescript-eslint/parser": "^6.19.1",
+    "@types/node": "^20.11.10",
+    "@typescript-eslint/eslint-plugin": "^6.20.0",
+    "@typescript-eslint/parser": "^6.20.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-turbo": "^1.11.3",
@@ -48,7 +48,7 @@
     "minimist": "^1.2.8",
     "rollup-plugin-livereload": "^2.0.5",
     "sass": "^1.70.0",
-    "siyuan": "^0.9.2",
+    "siyuan": "^0.9.3",
     "svelte": "^3.59.2",
     "typescript": "^5.3.3",
     "vite": "^4.5.2",
@@ -56,7 +56,7 @@
     "vite-plugin-zip-pack": "^1.2.0"
   },
   "dependencies": {
-    "@types/uuid": "^9.0.7",
+    "@types/uuid": "^9.0.8",
     "fabric": "^5.3.0",
     "uuid": "^9.0.1"
   }
