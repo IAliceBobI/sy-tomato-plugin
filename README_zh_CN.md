@@ -159,13 +159,15 @@
 
 *给一个内容块设置个提醒日期吧！*
 
-**光标定位好要选择的`内容块`**
+**光标定位好要选择的`内容块`，右键菜单中选择`设置提醒`**
 
 <img src="assets/scheduleSetTime.png" alt="drawing" width="600"/>
 
 *设置时间好，会自动加上一个时间书签。可到书签面板查看。*
 
 *提醒后，会自动删除书签*
+
+> 提醒功能默认关闭，请到配置里打开。
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
