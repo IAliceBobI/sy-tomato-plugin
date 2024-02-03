@@ -161,31 +161,11 @@
 
 **光标定位好要选择的`内容块`**
 
-<img src="assets/cmdEntry.png" alt="drawing" width="600"/>
-
-**使用右键菜单。也可以用快捷键 `Ctrl+3`。**
-
-<img src="assets/contentMenu.png" alt="drawing" width="600"/>
-
-**设置时间**
-
 <img src="assets/scheduleSetTime.png" alt="drawing" width="600"/>
 
-*设置时间好，会自动加上一个时间tag。*
+*设置时间好，会自动加上一个时间书签。可到书签面板查看。*
 
-<img src="assets/aftersettime.png" alt="drawing" width="600"/>
-
-*我们可以在tag面板查看已经计划中的提醒都有哪些。*
-
-![Alt text](./assets/seefromtagpanel.png)
-
-**提醒**
-
-<img src="assets/remind.png" alt="drawing" width="600"/>
-
-**删除时间tag**
-
-*目前需要用户动手自给自足！*
+*提醒后，会自动删除书签*
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
@@ -409,6 +389,7 @@ aacc3
 ## 2024-02-03
 
 * 底部反链：按照更新时间倒序排序。
+* 定时提醒：被提醒的内容块，不再加标签，而是加书签。到期提醒后，自动删除书签。
 
 ## 2024-02-02
 
