@@ -71,7 +71,15 @@
 
 <img src="assets/cardPriorityMenu.png" alt="drawing" width="600"/>
 
-还可鼠标悬浮于优先级上，查看复习次数（reps）：
+暂停的闪卡，加入书签，方便查看所有暂停的闪卡。
+
+闪卡暂停后，显示到期时间。时间到，自动恢复正常状态。
+
+暂停的闪卡，不会推送给用户复习。
+
+<img src="assets/stopCard.png" alt="drawing" width="600"/>
+
+还可鼠标悬浮于优先级上，查看复习次数（**reps**）：
 
 <img src="assets/cardReps.png" alt="drawing" width="600"/>
 
@@ -383,6 +391,7 @@ aacc3
 ## 2024-02-05
 
 * 底部反链：可以编辑、拖动。
+* 暂停的闪卡，加入书签。
 
 ## 2024-02-04
 
