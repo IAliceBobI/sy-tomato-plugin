@@ -323,6 +323,10 @@ aacc3
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+## 删除已经勾选的任务
+
+右键菜单，默认开启，删除当前文档内已经勾选的任务。
+
 ## 取消任务的勾选
 
 右键菜单，默认开启，取消当前文档中所有任务的勾选。
@@ -388,6 +392,10 @@ aacc3
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-02-15
+
+* 添加功能：删除文档内已经勾选的任务。
 
 ## 2024-02-14
 
