@@ -58,6 +58,7 @@
   "dependencies": {
     "@types/uuid": "^9.0.8",
     "fabric": "^5.3.0",
+    "moment-timezone": "^0.5.45",
     "uuid": "^9.0.1"
   }
 }
