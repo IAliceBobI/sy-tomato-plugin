@@ -415,6 +415,10 @@ aacc3
 
 # 更新日志
 
+## 2024-03-15
+
+* daily note不显示底部反链。
+
 ## 2024-03-14
 
 * 解决AI错误码：the length of messages must be an odd number.
