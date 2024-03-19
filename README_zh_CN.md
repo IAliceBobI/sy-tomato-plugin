@@ -425,6 +425,7 @@ aacc3
 * Slash：加入插入单项列表功能。 
   filter: ["item", "single", "list", "列表", "单项", "dxlb", "lb"]
   filter: ["comment", "zsdxlb", "list", "zs"]
+* 底部反链：移动内容后不留空白行。
 
 ## 2024-03-18
 
