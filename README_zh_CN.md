@@ -90,8 +90,6 @@
 
 > 带引用的列表，可表示出层级关系。`test1` `test2` `test3` 都可在自己的反链面板中查看层级关系。
 
-> **注意：** 如果打开的文件包含标签，也将被转为引用，请慎用。
-
 > 本功能默认关闭，请从配置中打开。
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
