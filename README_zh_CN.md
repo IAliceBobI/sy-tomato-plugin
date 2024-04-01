@@ -39,9 +39,11 @@
 
 ## 写本书
 
-<img src="assets/wrtingBookTree.png" alt="drawing" width="300"/>
-<img src="assets/wrtingBookDocs.png" alt="drawing" width="300"/>
-<img src="assets/wrtingBook.png" alt="drawing" width="300"/>
+<img src="assets/wrtingBookTree.png" alt="drawing" width="300"/>  
+
+<img src="assets/wrtingBookDocs.png" alt="drawing" width="300"/>  
+
+<img src="assets/wrtingBook.png" alt="drawing" width="300"/>  
 
 找个空白文件，`ctrl+F3` 或者右键->`初始化本书`，即可在空白文件中初始化好一些按钮。
 
@@ -55,7 +57,7 @@
 
 > 可以用h6，六级标题来代表本章的简单总结。配合`快捷菜单`中的 `ctrl+\` 把h6变成注释，这样复制章节的时候，就忽略那h6。
 
-`♻️更新`：删除老大纲，从新构建书籍大纲。
+`♻️更新`：删除老大纲，重新构建书籍大纲。
 
 ## 快捷菜单
 
