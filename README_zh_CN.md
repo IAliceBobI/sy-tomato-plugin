@@ -37,6 +37,26 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+## 写本书
+
+<img src="assets/wrtingBookTree.png" alt="drawing" width="300"/>
+<img src="assets/wrtingBookDocs.png" alt="drawing" width="300"/>
+<img src="assets/wrtingBook.png" alt="drawing" width="300"/>
+
+找个空白文件，`ctrl+F3` 或者右键->`初始化本书`，即可在空白文件中初始化好一些按钮。
+
+`📔复制书`：复制整本书，忽略注释。
+
+> 可以用`快捷菜单`中的 `ctrl+\`来把内容变为注释。
+
+`➕📄`：添加一个新的页面。
+
+每个页面里面可以有多个一级标题，一级标题就是一个章节，也就是一个页面内可以有多个章节。
+
+> 可以用h6，六级标题来代表本章的简单总结。配合`快捷菜单`中的 `ctrl+\` 把h6变成注释，这样复制章节的时候，就忽略那h6。
+
+`♻️更新`：删除老大纲，从新构建书籍大纲。
+
 ## 快捷菜单
 
 > **额外功能：** 如果段落块以`;;`开头，会被当做注释。快捷菜单中的复制当前文档功能，会忽略注释。
@@ -416,6 +436,10 @@ aacc3
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-04-01
+
+* 添加写本书功能`ctrl+F3`：找一个空文件，右键`初始化书本`。
 
 ## 2024-03-30
 
