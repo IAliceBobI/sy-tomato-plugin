@@ -12,10 +12,6 @@
 
 <img src="assets/settingsDetail.png" alt="drawing" width="600"/>
 
-> [反馈建议，请到这里](https://awx9773btw.feishu.cn/share/base/form/shrcnO85H3V1iNvfEAc2JoQyXeh)
-
-> [查看所有反馈，请到这里](https://awx9773btw.feishu.cn/share/base/view/shrcniyck0JM6yJS3rnj2xXGQ9f)
-
 > [打赏鼓励，请到这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md#bug%E5%8F%8D%E9%A6%88%E5%BB%BA%E8%AE%AE)
 
 ## 番茄钟
@@ -372,15 +368,9 @@ aacc3
 
 # BUG反馈、建议
 
-[请填写：反馈表单](https://awx9773btw.feishu.cn/share/base/form/shrcnO85H3V1iNvfEAc2JoQyXeh)
-
-或者 [看看大家反馈了什么](https://awx9773btw.feishu.cn/share/base/view/shrcniyck0JM6yJS3rnj2xXGQ9f)
-
-或者到`QQ`群: 263961482
+到`QQ`群: 263961482
 
 [或者到 Github 提交问题](https://github.com/IAliceBobI/sy-plugins/issues)
-
-[或者到官方论坛提交问题](https://ld246.com/tag/siyuan)
 
 # 打赏、鼓励、催更 🎉
 
@@ -395,6 +385,10 @@ aacc3
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-04-25
+
+* 关闭飞书反馈渠道
 
 ## 2024-04-23
 
