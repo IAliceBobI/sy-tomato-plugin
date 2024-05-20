@@ -33,6 +33,14 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+## 想法收集
+
+收集想法到 daily note。
+
+<img src="assets/idea2.jpg" alt="drawing" width="300"/>
+
+<img src="assets/idea1.jpg" alt="drawing" width="300"/>
+
 ## 杂项
 
 ### 文心一言4.0 `F10`
@@ -392,6 +400,7 @@ aacc3
 
 ## 2024-05-20
 
+* 新功能，想法收集：主要用于在手机上使用，把想法发送到dailynote。
 * 底部反链：提供开关，dailynote可以选择禁用底部反链。
 * 任务列表的操作：可以通过命令面板进行操作。删除、取消勾选。
 
