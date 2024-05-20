@@ -33,9 +33,9 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
-## 想法收集
+## 拍照闪念
 
-收集想法到 daily note。
+收集闪念到 daily note，可插入图片，支持`相机`与`图库`。
 
 <img src="assets/idea2.jpg" alt="drawing" width="300"/>
 
@@ -398,9 +398,12 @@ aacc3
 
 # 更新日志
 
+## 2024-05-21
+
+* 新功能 —— 拍照闪念：主要在手机上使用，把图片闪念发送到 dailynote。
+
 ## 2024-05-20
 
-* 新功能，想法收集：主要用于在手机上使用，把想法发送到dailynote。
 * 底部反链：提供开关，dailynote可以选择禁用底部反链。
 * 任务列表的操作：可以通过命令面板进行操作。删除、取消勾选。
 
