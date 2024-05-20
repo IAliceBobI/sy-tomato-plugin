@@ -37,9 +37,9 @@
 
 收集闪念到 daily note，可插入图片，支持`相机`与`图库`。
 
-<img src="assets/idea2.jpg" alt="drawing" width="300"/>
-
 <img src="assets/idea1.jpg" alt="drawing" width="300"/>
+
+<img src="assets/idea2.jpg" alt="drawing" width="300"/>
 
 ## 杂项
 
