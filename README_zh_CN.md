@@ -309,11 +309,11 @@ aacc3
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
-## 删除已经勾选的任务
+## 删除已经勾选的任务（命令面板）
 
 右键菜单，默认开启，删除当前文档内已经勾选的任务。
 
-## 取消任务的勾选
+## 取消任务的勾选（命令面板）
 
 右键菜单，默认开启，取消当前文档中所有任务的勾选。
 
