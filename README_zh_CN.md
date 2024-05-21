@@ -35,23 +35,27 @@
 
 ## 拍照闪念
 
-收集闪念到 daily note，可插入图片，支持`相机`与`图库`。
+收集闪念到 daily note，可插入图片，支持`相机`与`图库`。  
 
-<img src="assets/idea1.jpg" alt="drawing" width="300"/>
+📸相机拍照  
+🖼️从图库从选择  
+📩插入到dailynote  
+🗑️清理列表，清理输入框  
+🔄同步数据到云端  
 
-<img src="assets/idea2.jpg" alt="drawing" width="300"/>
+<img src="assets/idea1.jpg" alt="drawing" width="300"/>  
+
+<img src="assets/idea2.jpg" alt="drawing" width="300"/>  
 
 记录的信息，可能的类别：
 
-```
-闪念: 💡
-场所: 🏞️
-健康: 💪
-社交: 💬
-生活: 🍴
-学习: 📚
-工作: 💼
-```
+闪念: 💡  
+场所: 🏞️  
+健康: 💪  
+社交: 💬  
+生活: 🍴  
+学习: 📚  
+工作: 💼  
 
 ## 杂项
 
