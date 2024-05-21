@@ -57,6 +57,11 @@
 学习: 📚  
 工作: 💼  
 
+**可以配合下面介绍的`文本转引用`功能。快速插入引用。**
+
+<img src="assets/idea3.png" alt="drawing" width="300"/>  
+<img src="assets/idea4.png" alt="drawing" width="300"/>  
+
 ## 杂项
 
 ### 文心一言4.0 `F10`
