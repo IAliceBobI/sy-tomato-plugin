@@ -91,7 +91,10 @@
 <img src="assets/idea4.png" alt="drawing" width="300"/>  
 
 **桌面端中使用：**
-<img src="assets/idea-desktop.png" alt="drawing" width="300"/>  
+
+`ctrl+q` 可以从应用外唤出。
+
+`ctrl+alt+z` 为应用内唤出与关闭。
 
 ## 杂项
 
@@ -454,6 +457,7 @@ aacc3
 
 ## 2024-05-22
 
+* 拍照闪念：桌面端`ctrl+q`可以从应用外唤出，`ctrl+alt+z`为应用内换出与关闭。
 * 拍照闪念：字体缩小。去掉日期。
 * 拍照闪念：默认插入到日记的顶部，可以通过选项修改为插入到底部。
 * 拍照闪念：修复个bug。
