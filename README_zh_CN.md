@@ -10,7 +10,7 @@
 
 ![Alt text](assets/settings.png)
 
-<img src="assets/settingsDetail.png" alt="drawing" width="600"/>
+<img src="assets/settingsDetail.png" alt="drawing" width="300"/>
 
 > [打赏鼓励，请到这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md#bug%E5%8F%8D%E9%A6%88%E5%BB%BA%E8%AE%AE)
 
@@ -18,14 +18,14 @@
 
 *状态栏番茄钟*
 
-<img src="assets/statustomato.png" alt="drawing" width="600"/>
+<img src="assets/statustomato.png" alt="drawing" width="300"/>
 
 * **0**：取消倒计时
 * **5**：计时五分钟
 * ……
 * **25**：计时二十五分钟
 
-<img src="assets/tomatoTimeup.png" alt="drawing" width="600"/>
+<img src="assets/tomatoTimeup.png" alt="drawing" width="300"/>
 
 > *支持自定义时长。*
 > *重启思源后也会继续倒计时。*
@@ -50,6 +50,8 @@
 <img src="assets/idea1.jpg" alt="drawing" width="300"/>  
 
 <img src="assets/idea2.jpg" alt="drawing" width="300"/>  
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
 **记录的信息，可能的类别：**
 
@@ -90,40 +92,11 @@
 <img src="assets/idea3.png" alt="drawing" width="300"/>  
 <img src="assets/idea4.png" alt="drawing" width="300"/>  
 
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
 **桌面端使用：**
 
 `ctrl+q` 可以从应用外唤出。`ctrl+w` 关闭。
-
-## 杂项
-
-### 文心一言4.0 `F10`
-
-### 静态反链
-
-右键->插件->快捷菜单，找静态反链按钮
-
-使用场景：
-
-* 用于`标签`文件。
-* 对于用于充当`标签`的文件，到处都可能被引用。
-* `标签`文件被引用的次数可能非常多。
-* 通过反链面板查看这样的文件效率低下。
-
-举例：
-
-比如一个`标签`文件：`@开心`，在daily note里，每天都被引用过，在其他文档里也被引用过。
-
-3年后……
-
-如果我们要集中的看，3年来一切`@开心`的事情，就可以用`静态反链`功能。
-
-### 文档合并
-
-在`文档B`中某处右键->插件->快捷菜单，找`合并文档`按钮。
-
-把填入的`文档A`内容移动到右键处，把`文档A`的引用、属性到转移到`文档B`。
-
-把`文档A`删除。
 
 ## 文本转引用（原`标签转引用`）
 
@@ -370,11 +343,11 @@ aacc3
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
-## 删除已经勾选的任务（命令面板）
+## 删除已经勾选的任务（命令面板） `shift+alt+u`
 
 右键菜单，默认开启，删除当前文档内已经勾选的任务。
 
-## 取消任务的勾选（命令面板）
+## 取消任务的勾选（命令面板） `shift+alt+d`
 
 右键菜单，默认开启，取消当前文档中所有任务的勾选。
 
@@ -382,19 +355,60 @@ aacc3
 
 ![Alt text](assets/nextdailynote.png)
 
-### 打开上一个/下一个 daily note
+### 打开上一个/下一个 daily note（配置：移动内容到 daily note）
 
 **最后2个图标，代表上一个、下一个 daily note**
 
 > 默认关闭，请从配置打开："移动内容到 daily note" 功能。
 
-### 打开闪卡
+### 打开闪卡（配置：开启toolbar按钮）
 
 **那个闪电图标就是** 默认打开。
 
-### 刷新虚拟引用
+### 全局定位文档（配置：开启toolbar按钮）
 
-新本插件有，默认打开。
+自动打开文档树，折叠文档，定位文档。只有目标文档的路径是展开的，其他文档路径是折叠的。
+
+### 刷新虚拟引用（配置：开启toolbar按钮）
+
+默认打开。
+
+## 杂项
+
+### 文心一言4.0 `F10`
+
+### 静态反链
+
+右键->插件->快捷菜单，找静态反链按钮
+
+使用场景：
+
+* 用于`标签`文件。
+* 对于用于充当`标签`的文件，到处都可能被引用。
+* `标签`文件被引用的次数可能非常多。
+* 通过反链面板查看这样的文件效率低下。
+
+举例：
+
+比如一个`标签`文件：`@开心`，在daily note里，每天都被引用过，在其他文档里也被引用过。
+
+3年后……
+
+如果我们要集中的看，3年来一切`@开心`的事情，就可以用`静态反链`功能。
+
+### 文档合并
+
+在`文档B`中某处右键->插件->快捷菜单，找`合并文档`按钮。
+
+把填入的`文档A`内容移动到右键处，把`文档A`的引用、属性到转移到`文档B`。
+
+把`文档A`删除。
+
+### 选中文本转引用 F3
+
+### 一键加书签 ctrl+f1
+
+### 一键删当前文档所有书签 ctrl+f2
 
 # 鸣谢
 
@@ -454,9 +468,14 @@ aacc3
 
 # 更新日志
 
+## 2024-05-23
+
+* 拍照闪念：记录的类别持久化。
+* 拍照闪念：改进桌面端全局唤出输入框的体验。
+
 ## 2024-05-22
 
-* 拍照闪念：桌面端`ctrl+q`可以从应用外唤出，`ctrl+alt+z`为应用内换出与关闭。
+* 拍照闪念：桌面端`ctrl+q`可以从应用外唤出。
 * 拍照闪念：字体缩小。去掉日期。
 * 拍照闪念：默认插入到日记的顶部，可以通过选项修改为插入到底部。
 * 拍照闪念：修复个bug。
