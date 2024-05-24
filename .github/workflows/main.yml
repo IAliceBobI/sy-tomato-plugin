@@ -22,36 +22,31 @@ jobs:
           node-version: 18
           registry-url: "https://registry.npmjs.org"
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        id: pnpm-install
-        with:
-          version: 8
-          run_install: false
+      - name: Install yarn
+        run: npm install -g yarn
 
-      - name: Get pnpm store directory
-        id: pnpm-cache
+      - name: Set yarn cache directory
+        id: yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)"
         shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
-      - name: Setup pnpm cache
+      - name: Cache dependencies
         uses: actions/cache@v3
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-yarn-
 
       - name: Install dependencies
         run: |
           cd $PROJ_PATH
-          pnpm install
+          yarn install
 
       - name: Build for production
         run: |
           cd $PROJ_PATH
-          pnpm build
+          yarn build
           mv package.zip ..
 
       - name: Release
