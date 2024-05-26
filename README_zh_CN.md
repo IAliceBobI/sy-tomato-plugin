@@ -95,7 +95,12 @@
 
 **桌面端使用：**
 
-`ctrl+q` 可以从应用外唤出。`ctrl+w` 关闭。
+<img src="assets/idea-desktop.png" alt="drawing" width="300"/>  
+
+`ctrl+q` 可以从应用外唤出。  
+`escape` 关闭。  
+`shift+enter` 软换行。  
+`enter` 写入当天的dailynote。  
 
 ## 文本转引用（原`标签转引用`）
 
