@@ -8,65 +8,75 @@
 
 ## 配置
 
-![Alt text](assets/settings.png)
-
-<img src="assets/settingsDetail.png" alt="drawing" width="300"/>
+<img src="assets/settings.gif" alt="drawing" width="800"/>
 
 > [打赏鼓励，请到这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md#bug%E5%8F%8D%E9%A6%88%E5%BB%BA%E8%AE%AE)
 
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
+---
+
+## `右键菜单`与`图标菜单`
+
+<img src="assets/menu.png" alt="drawing" width="600"/>
+<img src="assets/iconmenu.png" alt="drawing" width="600"/>
+
+---
+
 ## 番茄钟
+
+##### TODO: 随机视频
 
 *状态栏番茄钟*
 
-<img src="assets/statustomato.png" alt="drawing" width="300"/>
+<img src="assets/statustomato.png" alt="drawing" width="600"/>
 
 * **0**：取消倒计时
 * **5**：计时五分钟
 * ……
 * **25**：计时二十五分钟
 
-<img src="assets/tomatoTimeup.png" alt="drawing" width="300"/>
+<img src="assets/tomatoTimeup.png" alt="drawing" width="600"/>
 
-> *支持自定义时长。*
-> *重启思源后也会继续倒计时。*
-> *能查看剩余时间。*
+*支持自定义时长。*
+*重启思源后也会继续倒计时。*
+*能查看剩余时间。*
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
+---
 
 ## 拍照闪念
 
-收集闪念到 daily note，可插入图片，支持`相机`与`图库`。  
+收集闪念到当天dailynote，支持从`相机`与`图库`插入图片。  
 
-**按钮说明**
+### 按钮说明
 
-📸相机拍照  
-🖼️从图库从选择  
-📩插入到dailynote  
-🗑️清理列表，清理输入框  
-🔄同步数据到云端  
+|  📸相机拍照           |  🖼️从图库从选择   |
+|---|---|
+| 📩插入到dailynote    |  🗑️清理列表，清理输入框    |
+| 🔄同步数据到云端      |                         |
 
-**移动端中使用：**
 
-<img src="assets/idea1.jpg" alt="drawing" width="300"/>  
+### 移动端中使用
 
-<img src="assets/idea2.jpg" alt="drawing" width="300"/>  
+*开发初衷：`拍照闪念`功能，主要是为了在移动端，快速插入灵感。*
+
+<img src="assets/idea1.jpg" alt="drawing" width="400"/>  
+<img src="assets/idea2.jpg" alt="drawing" width="400"/>  
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
-**记录的信息，可能的类别：**
+### 记录的信息，可能的类别
 
-闪念: 💡：段落块  
-场所: 🏞️：段落块  
-健康: 💪：段落块  
-社交: 💬：段落块  
-生活: 🍴：段落块  
-学习: 📚：段落块  
-工作: 💼：段落块  
-任务: 📌：**任务块**  
+| 场所: 🏞️：段落块   | 健康: 💪：段落块   | 社交: 💬：段落块   |
+|---|---|---|
+|生活: 🍴：段落块    |学习: 📚：段落块    | 工作: 💼：段落块   |
+|任务: 📌：**任务块**    |  |  |
 
-**默认关闭：`规避云端同步冲突`选项**
+### 默认关闭：`规避云端同步冲突`选项
 
-<img src="assets/idea-conflict.png" alt="drawing" width="600"/>  
+<img src="assets/ideaconflict.png" alt="drawing" width="600"/>  
 
 原因：桌面端与移动端都同时写入Dailynote会引起内容不一致，导致同步时发生冲突。
 
@@ -86,23 +96,32 @@
 
 > 缺点：在手机端的dailynote不能直接看到新插入的闪念，需要桌面端来合并。
 
-**可以配合下面介绍的`文本转引用`功能。快速插入引用。**
+### 可以配合下面介绍的`文本转引用`功能。快速插入引用。
 
-<img src="assets/idea3.png" alt="drawing" width="300"/>  
-<img src="assets/idea4.png" alt="drawing" width="300"/>  
+<img src="assets/fastref.gif" alt="drawing" width="600"/>  
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
-**桌面端使用：**
+### 桌面端使用
 
-<img src="assets/idea-desktop.png" alt="drawing" width="300"/>  
+*在看<small>大</small>电影时，也可以快速`ctrl+Q`打开小窗，记录灵感。*
+
+如果无法使用，建议检查`快捷键`是否有**冲突**。
+
+<img src="assets/ideadesktop.gif" alt="drawing" width="600"/>  
 
 `ctrl+q` 可以从应用外唤出。  
 `escape` 关闭。  
 `shift+enter` 软换行。  
 `enter` 写入当天的dailynote。  
 
-## 文本转引用（原`标签转引用`）
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
+---
+
+## 文本转引用
+
+<img src="assets/text2ref.gif" alt="drawing" width="600" />
 
 ### `@@`：精确转换：  
 
@@ -116,17 +135,27 @@
 
 **创建文件时可将文件制卡，可以给文件加上拼音属性。需要在配置中打开。**
 
+---
+
 ## 闪卡优先级
 
-对闪卡设置优先级，级别高的优先复习。同级之间每次复习，都会打乱顺序。
+<img src="assets/cardpri1.gif" alt="drawing" width="600" />
 
-设置后，直接用`alt+0`复习即可。插件已在复习前，根据优先级对闪卡排序。
+对闪卡设置优先级，优先级**数值大**的**优先**复习。
 
-优先级保存在闪卡的自定义属性`card-priority`中。可手动调整，也可通过闪卡下方按钮调整。
+同级之间每次复习，都会打乱顺序。
+
+设置后，直接用`alt+0`复习即可。
+
+插件已在复习前，根据优先级对闪卡排序。
+
+优先级保存在闪卡的自定义属性`card-priority`中。
+
+可手动调整，也可通过闪卡下方按钮调整。
 
 优先级范围 0 ~ 100，默认优先级为50，没设置过优先级的闪卡也默认为50.
 
-<img src="assets/cardPriorityMenu.png" alt="drawing" width="600"/>
+**推迟：**
 
 推迟的闪卡，加入书签，方便查看所有推迟的闪卡。
 
@@ -134,27 +163,49 @@
 
 推迟的闪卡，不会推送给用户复习。
 
-<img src="assets/stopCard.png" alt="drawing" width="600"/>
+还可鼠标悬浮于优先级上，查看复习次数。
 
-还可鼠标悬浮于优先级上，查看复习次数（**reps**）：
-
-<img src="assets/cardReps.png" alt="drawing" width="600"/>
-
-**需要点击内容块任意位置，以触发复习次数的加载。当`优先级`由普通字体变成粗体时，可以鼠标悬浮以显示复习次数。**
-
-> 本功能默认关闭，请从配置中打开。
+<img src="assets/cardSusp.gif" alt="drawing" width="600"/>
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
+---
+
+## 复习时添加删除`闪卡`按钮
+
+请在配置中开启`闪卡工具`。
+
+**复习界面快捷键：**
+
+取消制卡：`ctrl+9`
+跳过卡：`ctrl+8`
+改优先级：`ctrl+;`
+
+<img src="assets/delCard.gif" alt="drawing" width="700"/>
+
+**列表制卡：**
+
+`ctrl+1` 创建列表，并制卡。在列表卡中，再次使用`ctrl+1`则为取消制卡。
+
+<img src="assets/createCard.gif" alt="drawing" width="700"/>
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
+---
 
 ## 底部反链
 
 加入类似 `logseq` 的底部反链区。对于列表/大纲块，我们可以看到其上级与下级。上级从面包屑看，下级从内容中看。
 
-**能力：可以编辑、拖动、一键复制、一键移动、实时搜索过滤、标识某个反链是否属于当前文档等……**
+### 概念栏/引用栏
 
 **`层级概念`：文件名如 `AA|BB|CC`，它的底部反链，最上面的双链栏，可能会出现：`AA*  AA|BB*  AA|BB|CC*` 如果有。（图中红圈）**
 
 **`相关概念`：双链栏除了`层级概念`的其他双链。**
+
+<img src="assets/bkAndText2ref.gif" alt="drawing" width="600"/>
+
+**反链区工具：可以编辑、拖动、一键复制、一键移动、实时搜索过滤、标识某个反链是否属于当前文档等……**
 
 <img src="assets/bottomBK.png" alt="drawing" width="1000"/>
 
@@ -178,25 +229,27 @@
 
 > `底部反链区` 默认关闭，请从配置中打开。
 
+---
+
 ## 双向互链
 
 ### 用法1
+
+<img src="assets/bilink1.gif" alt="drawing" width="600"/>
 
 使用`Alt+F1`选择第一个块，在第二个块处使用`Alt+F2`，这样就创建好了两个互相跳转的链接。
 
 ### 用法2
 
-如图两个文档《皂荚》、《山羊》，皂荚中引用了山羊的`aa`，`bb`两个块，我们对皂荚中内容使用`双向互链`功能，则会在山羊文档相关内容后添加反回皂荚的链接。
+<img src="assets/bilink2.gif" alt="drawing" width="600"/>
 
-快捷键：`Alt+/`
-
-<img src="assets/bilink.png" alt="drawing" width="600"/>
-
-<img src="assets/bilink-result.png" alt="drawing" width="600"/>
+快捷键：`Alt+/` 或者菜单中选择对应功能。
 
 > **提示** 可以多行选择，但需要使用快捷键：`Alt+/`。
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
+---
 
 ## 内容提醒
 
@@ -214,13 +267,15 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+---
+
 ## 阅读点
+
+<img src="assets/readingpoint.gif" alt="drawing" width="800"/>
 
 *阅读点也就是一个文档上次阅读到的位置，我们把它记录到`书签`里面，并且自动删除当前文件内的其他`书签`。以保持本文件内只有一个`书签`。*
 
 **光标定位好要选择的`内容块`，使用右键菜单，也可以直接 `Ctrl+2`。**
-
-<img src="assets/contentMenu.png" alt="drawing" width="600"/>
 
 **之后要查看`书签`可以，可以直接看`书签面板`。也可以点击右上角的 `阅读点` (ctrl+4) 图标，查看更加详细的信息。**
 
@@ -230,25 +285,15 @@
 
 > **注意** `阅读点` 图标的分组方式与书签面板的不一样。
 
-## 复习时添加删除`闪卡`按钮
-
-请在配置中开启`闪卡工具`。
-
-> 图中最右边添加了删除按钮。
-
-> 快捷键： ctrl+9
-
-<img src="assets/delCard1.png" alt="drawing" width="600"/>
-
-> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+---
 
 ## 清理失效`闪卡`
+
+<img src="assets/cleancards.gif" alt="drawing" width="600"/>
 
 *如果闪卡所在的内容被我们删除了，这样的失效闪卡还存在于磁盘中。我们可以对其进行删除。*
 
 **打开命令面板，选择 `清理所有失效闪卡`**
-
-<img src="assets/cmd.png" alt="drawing" width="600"/>
 
 > **注意** 正在重建索引的时候，不要使用该功能。正在重建中的索引还不完善，插件依赖索引时会被误导，导致误删闪卡。
 
@@ -258,72 +303,37 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+---
+
 ## 超长内容操作
 
 *超长内容的复制、移动、删除操作让我发疯！这里我使用了一种朴素的方法来对付这样的操作！*
 
-> 操作后，如果发现内容缺失，请F5刷新一下，那只是操作太快，页面没来得及更新！
+**移动操作**
 
-### 移动操作
+<img src="assets/longMove.gif" alt="drawing" width="600"/>
 
 *假设有`文档1`与`文档2`，在`文档1`中，用`aacc1`、`aacc2`两行包裹住要移动的内容，然后在`文档2`的某个位置插入`aacc3`，最后打开`命令面板`，选择`批量移动大量连续内容`即可*
 
 **此移动操作会连同`闪卡`一起转移，不会改变`闪卡`的复习现状。而简单的`ctrl+c,v`会让涉及到的`闪卡`失效。**
 
-> **注意** `文档1`与`文档2` 可以是同一个文档，也就是在同一个文档内移动或者复制。
-
 > **注意** `aacc1`、`aacc2`、`aacc3` 前后不能有空格，不然插件找不到。
-
-```
-《文档1》
-
-在黄昏的余晖中，
-我漫步于林间的小径。
-脚下的落叶沙沙作响，
-微风轻拂着我的脸庞。
-
-aacc1
-
-枝叶间透出一丝光明，
-如同岁月的记忆在闪烁。
-我静静地倾听自然的呼吸，
-感受生命在这片宁静中延续。
-
-...这里有巨多内容...
-
-这是一段与自然的对话，
-我倾听着它们的声音，
-我的心灵在这片宁静中得到滋养，
-与大自然相互交融，共舞着生命的旋律。
-
-aacc2
-
-在这个喧嚣的世界中，
-我寻找到了属于自己的一方净土。
-在大自然的怀抱中，
-我找到了宁静与自由的力量。
-```
-
-```
-《文档2》
-
-...
-aacc3
-...
-
-```
 
 <img src="assets/cmd.png" alt="drawing" width="600"/>
 
-### 复制操作
+**复制操作**
 
-*类似移动操作，但要选择复制命令。*
+<img src="assets/longCopy.gif" alt="drawing" width="600"/>
 
-### 删除操作
+**删除操作**
 
-*类似移动操作，但要选择删除命令，且无需写`aacc3`。*
+类似移动操作，但要选择删除命令，且无需写`aacc3`。
+
+---
 
 ## 图片遮挡（闪卡图片挖空）
+
+<img src="assets/overlay.gif" alt="drawing" width="800"/>
 
 **用法:** 对图片块，右键->插件->添加图片遮挡层。
 
@@ -341,7 +351,13 @@ aacc3
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+---
+
 ## 移动内容到 daily note
+
+`Ctrl+6`
+
+<img src="assets/move2dailynote.gif" alt="drawing" width="700"/>
 
 将光标所在的内容块、选中的所有内容，移动到今日的daily note底部。
 
@@ -351,15 +367,23 @@ aacc3
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+---
+
 ## 删除已经勾选的任务（命令面板） `shift+alt+u`
 
+<img src="assets/taskrm.gif" alt="drawing" width="600"/>
+
 右键菜单，默认开启，删除当前文档内已经勾选的任务。
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
 ## 取消任务的勾选（命令面板） `shift+alt+d`
 
 右键菜单，默认开启，取消当前文档中所有任务的勾选。
 
-## 附加小功能
+---
+
+## 顶部工具条
 
 ![Alt text](assets/nextdailynote.png)
 
@@ -367,44 +391,53 @@ aacc3
 
 **最后2个图标，代表上一个、下一个 daily note**
 
+`alt+w`、`alt+q`
+
 > 默认关闭，请从配置打开："移动内容到 daily note" 功能。
 
-### 打开闪卡（配置：开启toolbar按钮）
+### 打开闪卡（配置：开启toolbar按钮）`alt+0`
 
 **那个闪电图标就是** 默认打开。
 
-### 全局定位文档（配置：开启toolbar按钮）
+### 全局定位文档（配置：开启toolbar按钮）`alt+1`
 
 自动打开文档树，折叠文档，定位文档。只有目标文档的路径是展开的，其他文档路径是折叠的。
 
-### 刷新虚拟引用（配置：开启toolbar按钮）
+### 刷新虚拟引用（配置：开启toolbar按钮）`F5`
 
 默认打开。
 
-## 杂项
+> 以上的快捷键有些与官方的冲突，需要先去掉官方的才能生效。或者修改本插件的快捷键。
 
-### 文心一言4.0 `F10`
+---
+
+## 其他功能
+
+### 文心一言4.0 
+
+先到配置中写入keys：
+
+<img src="assets/baiduAI1.png" alt="drawing" width="400"/>
+
+然后对`选中文本`，或者`光标所在文本`，使用快捷键：`F10`  
+
+<img src="assets/baiduAI2.png" alt="drawing" width="200"/>
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
 ### 静态反链
 
-右键->插件->快捷菜单，找静态反链按钮
+可以被导出的底部反链。
 
-使用场景：
+对于反链特别多的文件，用静态反链无压力。
 
-* 用于`标签`文件。
-* 对于用于充当`标签`的文件，到处都可能被引用。
-* `标签`文件被引用的次数可能非常多。
-* 通过反链面板查看这样的文件效率低下。
+<img src="assets/statickLnk.gif" alt="drawing" width="800"/>
 
-举例：
-
-比如一个`标签`文件：`@开心`，在daily note里，每天都被引用过，在其他文档里也被引用过。
-
-3年后……
-
-如果我们要集中的看，3年来一切`@开心`的事情，就可以用`静态反链`功能。
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
 ### 文档合并
+
+<img src="assets/mergeDocs.gif" alt="drawing" width="600"/>
 
 在`文档B`中某处右键->插件->快捷菜单，找`合并文档`按钮。
 
@@ -412,11 +445,24 @@ aacc3
 
 把`文档A`删除。
 
-### 选中文本转引用 F3
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
-### 一键加书签 ctrl+f1
+### 选中文本转引用
 
-### 一键删当前文档所有书签 ctrl+f2
+快捷键：`F3`
+
+<img src="assets/text2refF3.gif" alt="drawing" width="500"/>
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
+### 一键加书签
+
+一键加书签 `ctrl+f1`  
+一键删当前文档所有书签 `ctrl+f2`  
+
+<img src="assets/flagBookmark.gif" alt="drawing" width="500"/>
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
 # 鸣谢
 
@@ -475,6 +521,12 @@ aacc3
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-06-01
+
+* 长文本复制优化。
+* 移动到今日dailynote优化。
+* readme加入gif。
 
 ## 2024-05-31
 
