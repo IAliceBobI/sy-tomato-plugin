@@ -191,6 +191,10 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+**文档所有卡，取消制卡**
+
+<img src="assets/removeCardsInDoc.gif" alt="drawing" width="700"/>
+
 ---
 
 ## 底部反链
@@ -251,19 +255,23 @@
 
 ---
 
-## 内容提醒
+## 内容提醒 `ctrl+3`
 
 *给一个内容块设置个提醒日期吧！*
 
 **光标定位好要选择的`内容块`，右键菜单中选择`设置提醒`**
 
-<img src="assets/scheduleSetTime.png" alt="drawing" width="600"/>
+<img src="assets/scheduleSetTime.gif" alt="drawing" width="600"/>
 
 *设置时间好，会自动加上一个时间书签。可到书签面板查看。*
 
 *提醒后，会自动删除书签*
 
 > 提醒功能默认关闭，请到配置里打开。
+
+**连续两次按下`ctrl+3`为复制光标所在的块ID**
+
+<img src="assets/scheduleCopyID.gif" alt="drawing" width="400"/>
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
@@ -464,6 +472,20 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+### 跳转到剪贴板中的块ID
+
+<img src="assets/gotoBlockID.gif" alt="drawing" width="500"/>
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
+### 创建空白xmind文件
+
+*需要先安装 xmind*
+
+<img src="assets/createXmid.gif" alt="drawing" width="500"/>
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
 # 鸣谢
 
 **感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。**
@@ -524,6 +546,7 @@
 
 ## 2024-06-01
 
+* 插入xmind，移动文档内容，清理文档闪卡，删除阅读点。
 * 长文本复制优化。
 * 移动到今日dailynote优化。
 * readme加入gif。
