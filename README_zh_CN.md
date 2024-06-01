@@ -443,6 +443,10 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+### 移动文档内容到另一文档
+
+<img src="assets/moveDocs.gif" alt="drawing" width="600"/>
+
 ### 文档合并
 
 <img src="assets/mergeDocs.gif" alt="drawing" width="600"/>
