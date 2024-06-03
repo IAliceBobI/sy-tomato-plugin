@@ -25,22 +25,40 @@
 
 ## 番茄钟
 
-##### TODO: 随机视频
+**状态栏番茄钟**
 
-*状态栏番茄钟*
+*快速测试*可以加入`0.01`分钟，例如配置：`0.01,5,10,15,25,30`
 
-<img src="assets/statustomato.png" alt="drawing" width="600"/>
+<img src="assets/tomatoClockCfg.png" alt="drawing" width="300"/>
 
-* **0**：取消倒计时
+<img src="assets/statustomato.png" alt="drawing" width="300"/>
+
+> [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
+
+* **0**：取消计时
 * **5**：计时五分钟
 * ……
 * **25**：计时二十五分钟
 
-<img src="assets/tomatoTimeup.png" alt="drawing" width="600"/>
-
 *支持自定义时长。*
-*重启思源后也会继续倒计时。*
+*重启思源后，也会继续上次的计时。*
 *能查看剩余时间。*
+
+**计时结束后，播放随机内容**
+
+从一个指定文件中随机读取内容，并在计时结束后展示。
+
+演示中的文件为`demo`，里面的内容包括，文本、图片、IFrame链接、视频，还可以有音频等。
+
+*`Escape`可关闭弹出窗口*
+
+<img src="assets/randVedio.gif" alt="drawing" width="600"/>
+
+**计时后改变背景图**
+
+需要给明亮与黑暗两种模式都找一个图。
+
+<img src="assets/changeBG.gif" alt="drawing" width="600"/>
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
@@ -551,6 +569,10 @@
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-06-03
+
+* 状态栏番茄钟：可以指定一个文件，计时结束后，随机播放文件的内容。
 
 ## 2024-06-02
 
