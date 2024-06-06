@@ -239,6 +239,10 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+### 将不相关的内容置于底部
+
+<img src="assets/uncorrelated.gif" alt="drawing" width="1000"/>
+
 ### 底部反链::搜索语法
 
 *输入框内支持多个`关键词`实时搜索。*
