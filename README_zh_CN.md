@@ -512,6 +512,12 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-plugins/blob/main/sy-tomato-plugin/README_zh_CN.md)
 
+### 选中文字与其拼音加入文档的别名，方便用拼音搜索。Ctrl+shift+y
+
+默认关闭，需要从配置中打开。然后在选中文字，在右键菜单中使用。
+
+<img src="assets/addPinyin.gif" alt="drawing" width="800"/>
+
 ### 创建空白xmind文件
 
 *需要先安装 xmind*
@@ -581,6 +587,7 @@
 
 ## 2024-06-06
 
+* 杂项：添加选中文字与其拼音加入文档的别名。Ctrl+shift+y
 * 底部反链：将不相关的内容块置于底部。尤其适合提及。
 * 底部反链：修复提及数量无法设置为0的bug。
 * 顶部工具栏：添加各国语言切换按钮。需要从配置中打开。
