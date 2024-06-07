@@ -1,4 +1,4 @@
-[中文](README_zh_CN.md)
+[中文](https://github.com/IAliceBobI/sy-tomato-plugin/blob/main/README_zh_CN.md)
 
 # Tomato Toolbox
 

@@ -1,4 +1,4 @@
-[English](README.md)
+[English](https://github.com/IAliceBobI/sy-tomato-plugin/blob/main/README.md)
 
 # 番茄工具箱
 
@@ -516,6 +516,12 @@
 
 <img src="assets/addPinyin.gif" alt="drawing" width="800"/>
 
+### 整理Assets下的图片、视频、音频。
+
+*如果assets下的文件太多，是个地雷，不小心点到得卡半天。我个人会整理这些文件，为年月的文件夹结构。*
+
+<img src="assets/tidyAssets.gif" alt="drawing" width="800"/>
+
 ### 创建空白xmind文件
 
 *需要先安装 xmind*
@@ -585,6 +591,7 @@
 
 ## 2024-06-07
 
+* 顶部工具栏：添加整理Assets下的图片、视频、音频，为年月的文件夹结构的功能。
 * 不开源
 
 ## 2024-06-06
