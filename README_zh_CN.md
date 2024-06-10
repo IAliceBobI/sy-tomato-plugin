@@ -451,6 +451,8 @@
 
 ## 人工智能
 
+支持：*文心一言、deepseek、moonshot、思源配置里的OpenAI。*
+
 先到配置中写入keys：
 
 <img src="assets/baiduAI1.png" alt="drawing" width="400"/>
