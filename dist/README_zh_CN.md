@@ -449,9 +449,7 @@
 
 ---
 
-## 其他功能
-
-### 文心一言4.0 
+## 人工智能
 
 先到配置中写入keys：
 
@@ -459,9 +457,11 @@
 
 然后对`选中文本`，或者`光标所在文本`，使用快捷键：`F10`  
 
-<img src="assets/baiduAI2.png" alt="drawing" width="200"/>
+<img src="assets/AI_OP.gif" alt="drawing" width="700"/>
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
+## 其他功能
 
 ### 静态反链
 
@@ -536,6 +536,7 @@
 
 **感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。**
 
+* 2024-06 `*超`
 * 2024-06 `**峰`
 * 2024-06 [固元膏v](https://afdian.net/u/d1fe450cbf4b11ea9ffa52540025c377)
 * 2024-05 `*超`
@@ -591,6 +592,11 @@
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-06-10
+
+* AI部分重做。选中文字后`F10`
+* 配置部分重做。
 
 ## 2024-06-08
 
