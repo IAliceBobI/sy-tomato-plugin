@@ -463,6 +463,8 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
 
+---
+
 ## 其他功能
 
 ### 静态反链
