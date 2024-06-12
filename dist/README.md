@@ -539,6 +539,7 @@ Default is off, needs to be turned on from the configuration. Then use it in the
 
 **Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.**
 
+* 2024-06 `雨`
 * 2024-06 `*超`
 * 2024-06 `**峰`
 * 2024-06 [固元膏v](https://afdian.net/u/d1fe450cbf4b11ea9ffa52540025c377)
