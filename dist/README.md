@@ -599,6 +599,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-06-12
 
+* The AI interface can execute quickly with ALT+X.
 * i18n
 
 ## 2024-06-11
