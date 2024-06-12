@@ -596,9 +596,18 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-06-12
+
+* i18n
+
 ## 2024-06-11
 
-* Enhanced robustness.
+* Before cleaning up the invalid flash cards, check whether the user has set a secret key to automatically create local snapshots.
+* Fixed a bug in sorting assets.
+* Fixed a bug in document positioning.
+* Partial i18n.
+* Increased robustness.
+* When creating a reference, whether to add Jianpin can be chosen.
 
 ## 2024-06-10
 
