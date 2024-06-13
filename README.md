@@ -600,6 +600,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-06-13
 
+* readingpoint css style updated
 * Cleaning up invalid flashcards for upgrade, not relying on indexes, for security updates.
 * The image sorting feature has been upgraded to be compatible with databases and other special scenarios.
 * config
