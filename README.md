@@ -539,6 +539,7 @@ Default is off, needs to be turned on from the configuration. Then use it in the
 
 **Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.**
 
+* 2024-06 [爱发电用户_jykN](https://afdian.net/u/20b38264295811efb0695254001e7c00)
 * 2024-06 `雨`
 * 2024-06 `*超`
 * 2024-06 `**峰`
