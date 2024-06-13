@@ -599,6 +599,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-06-13
 
+* The image sorting feature has been upgraded to be compatible with databases and other special scenarios.
 * config
 
 ## 2024-06-12
