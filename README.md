@@ -597,6 +597,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-06-13
+
+* config
+
 ## 2024-06-12
 
 * The AI interface can execute quickly with ALT+X.
