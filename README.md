@@ -598,6 +598,11 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-06-14
+
+* readingpoint: fix a bug.
+* buttom backlink: by default, disabled auto refresh
+
 ## 2024-06-13
 
 * readingpoint css style updated
