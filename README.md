@@ -456,7 +456,7 @@ First, write keys in the configuration:
 
 <img src="assets/baiduAI1.png" alt="drawing" width="400"/>
 
-Then use the shortcut `Ctrl+Shift+S` for `selected text` or `text at the cursor`:
+Then use the shortcut `Alt+Shift+S` for `selected text` or `text at the cursor`:
 
 <img src="assets/AI_OP.gif" alt="drawing" width="700"/>
 
@@ -633,7 +633,7 @@ Join the `QQ` group: 263961482
 
 * AI: Mobile support added.
 * AI: Integration of deepseek, moonshot, and siyuan configurations.
-* AI functionality partially reworked. Selection of text followed by `Ctrl+Shift+S`.
+* AI functionality partially reworked. Selection of text followed by `Alt+Shift+S`.
 * Configuration section reworked.
 
 ## 2024-06-08
@@ -810,7 +810,7 @@ Join the `QQ` group: 263961482
 * Fixed bug where tag-to-reference did not work.
 * Fixed several bugs.
 * Bottom backlinks disappearing and not reappearing bug fixed.
-* Quick menu removed, some functions moved to new module: `Miscellaneous`, AI part retained, still `Ctrl+Shift+S`.
+* Quick menu removed, some functions moved to new module: `Miscellaneous`, AI part retained, still `Alt+Shift+S`.
 
 ## 2024-04-21
 
@@ -936,7 +936,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-03-12
 
-* Ctrl+Shift+S: Directly send the selected content to the AI.
+* Alt+Shift+S: Directly send the selected content to the AI.
 * Provide shortcut keys to jump to the bookmark location of the current document.
 
 ## 2024-03-10

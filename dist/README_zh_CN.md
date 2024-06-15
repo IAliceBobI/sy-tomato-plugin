@@ -453,7 +453,7 @@
 
 <img src="assets/baiduAI1.png" alt="drawing" width="400"/>
 
-然后对`选中文本`，或者`光标所在文本`，使用快捷键：`Ctrl+Shift+S`  
+然后对`选中文本`，或者`光标所在文本`，使用快捷键：`Alt+Shift+S`  
 
 <img src="assets/AI_OP.gif" alt="drawing" width="700"/>
 
@@ -630,7 +630,7 @@
 
 * AI: 支持移动端。
 * AI: 加入 deepseek、moonshot、思源配置的AI。
-* AI部分重做。选中文字后`Ctrl+Shift+S`
+* AI部分重做。选中文字后`Alt+Shift+S`
 * 配置部分重做。
 
 ## 2024-06-08
@@ -807,7 +807,7 @@
 * 修复标签转引用不灵的bug。
 * 修复若干bug。
 * 底部反链消失后不出现的bug。
-* 快捷菜单下架，部分功能移动到新模块：`杂项`，保留AI部分，依然是 Ctrl+Shift+S
+* 快捷菜单下架，部分功能移动到新模块：`杂项`，保留AI部分，依然是 Alt+Shift+S
 
 ## 2024-04-21
 
@@ -935,7 +935,7 @@
 
 ## 2024-03-12
 
-* Ctrl+Shift+S：直接把选中内容发给ai。
+* Alt+Shift+S：直接把选中内容发给ai。
 * 提供快捷键，跳到当前文档书签位置。
 
 ## 2024-03-10
