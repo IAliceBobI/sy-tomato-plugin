@@ -600,6 +600,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-06-15
 
+* AI: max temperature to two.
 * Bottom Backlink: Adjusting the window size for hierarchical concept.
 
 ## 2024-06-14
