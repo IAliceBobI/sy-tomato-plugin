@@ -598,6 +598,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-06-15
+
+* Bottom Backlink: Adjusting the window size for hierarchical concept.
+
 ## 2024-06-14
 
 * readingpoint: fix a bug.
