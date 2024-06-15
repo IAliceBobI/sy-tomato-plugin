@@ -598,6 +598,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-06-16
+
+* Log Browsing Alt+W: Cursor Positioning.
+
 ## 2024-06-15
 
 * AI: max temperature to two.
