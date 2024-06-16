@@ -600,6 +600,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-06-16
 
+* Browsing Diary Feature: Supports selecting a default notebook.
 * Log Browsing Alt+W: Cursor Positioning.
 
 ## 2024-06-15
