@@ -600,6 +600,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-06-20
 
+* Change the color of the settings icon.
 * Clean up invalid flashcards: Fix an exception caused by an empty notebook.
 * Journal browsing: altW altQ can select a fixed notebook or the current notebook.
 * Reading points: Display bookmarks of all notebooks.
