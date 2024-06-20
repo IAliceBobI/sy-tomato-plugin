@@ -598,6 +598,12 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-06-20
+
+* Clean up invalid flashcards: Fix an exception caused by an empty notebook.
+* Journal browsing: altW altQ can select a fixed notebook or the current notebook.
+* Reading points: Display bookmarks of all notebooks.
+
 ## 2024-06-16
 
 * Browsing Diary Feature: Supports selecting a default notebook.
