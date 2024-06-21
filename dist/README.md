@@ -598,6 +598,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-06-21
+
+* Bottom-level backlinks: Fix the bug where the number of referenced documents cannot be set to zero.
+
 ## 2024-06-20
 
 * Change the color of the settings icon.
