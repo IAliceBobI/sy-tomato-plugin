@@ -598,6 +598,11 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-06-25
+
+* Flashcard Priority: Fix bug where adjustments were not triggering a refresh.
+* Flashcard Priority: Add options to hide the slider and pause button.
+
 ## 2024-06-21
 
 * Bottom-level backlinks: Fix the bug where the number of referenced documents cannot be set to zero.
