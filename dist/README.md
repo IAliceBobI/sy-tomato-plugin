@@ -535,6 +535,12 @@ Default is off, needs to be turned on from the configuration. Then use it in the
 
 > [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
 
+### Make Content Blurry Alt+Shift+D
+
+The first press applies a blur effect, the second press removes the blur effect.
+
+<img src="assets/makeItBlur.gif" alt="drawing" width="300"/>
+
 # Acknowledgements
 
 **Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.**
@@ -597,6 +603,10 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.net/a/playerv5)**
 
 # Changelog
+
+## 2024-06-26
+
+* Add the feature to make the content blurry and unclear. Alt+Shift+D. Need to turn on miscellaneous features.
 
 ## 2024-06-25
 

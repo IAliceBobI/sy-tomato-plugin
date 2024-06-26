@@ -532,6 +532,12 @@
 
 > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
 
+### 让内容变得模糊 Alt+Shift+D
+
+第一次按下为附加模糊效果，第二按下为取消模糊效果。
+
+<img src="assets/makeItBlur.gif" alt="drawing" width="300"/>
+
 # 鸣谢
 
 **感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。**
@@ -594,6 +600,10 @@
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-06-26
+
+* 添加使内容变得模糊不可看清楚的功能。Alt+Shift+D。需要打开杂项功能。
 
 ## 2024-06-25
 
