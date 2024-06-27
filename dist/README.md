@@ -541,6 +541,12 @@ The first press applies a blur effect, the second press removes the blur effect.
 
 <img src="assets/makeItBlur.gif" alt="drawing" width="300"/>
 
+### Create a Table Using Alt+Shift+T
+
+Columns in a table are separated by the '|' character for multiple lines.
+
+<img src="assets/makeTab.gif" alt="drawing" width="300"/>
+
 # Acknowledgements
 
 **Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.**
@@ -603,6 +609,11 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.net/a/playerv5)**
 
 # Changelog
+
+## 2024-06-27
+
+* AI: Add tab prompt words.
+* Content tabulation: alt+shift+t. Use '|' to separate multiple lines into columns for tabulation.
 
 ## 2024-06-26
 
