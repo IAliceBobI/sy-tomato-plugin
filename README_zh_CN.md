@@ -538,6 +538,12 @@
 
 <img src="assets/makeItBlur.gif" alt="drawing" width="300"/>
 
+### 内容制表 Alt+Shift+T
+
+多行用‘|’分割的列，可以制表。
+
+<img src="assets/makeTab.gif" alt="drawing" width="300"/>
+
 # 鸣谢
 
 **感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。**
@@ -600,6 +606,11 @@
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-06-27
+
+* AI：添加制表提示词。
+* 内容制表：alt+shift+t。 多行用‘|’分割的列，可制表。
 
 ## 2024-06-26
 
