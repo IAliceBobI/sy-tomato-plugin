@@ -551,6 +551,7 @@ Columns in a table are separated by the '|' character for multiple lines.
 
 **Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.**
 
+* 2024-06 [虚青海](https://afdian.net/a/xqh042)
 * 2024-06 [爱发电用户_jykN](https://afdian.net/u/20b38264295811efb0695254001e7c00)
 * 2024-06 `雨`
 * 2024-06 `*超`
@@ -609,6 +610,10 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.net/a/playerv5)**
 
 # Changelog
+
+## 2024-07-01
+
+* Flashcard Priority: Allows you to locate the file containing the flashcard within the document tree. Useful for reviewing flashcards. [thx](https://ld246.com/article/1719737172053/comment/1719741383007?r=player#comments)
 
 ## 2024-06-27
 
