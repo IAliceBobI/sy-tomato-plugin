@@ -614,6 +614,8 @@ Join the `QQ` group: 263961482
 ## 2024-07-01
 
 * Flashcard Priority: Allows you to locate the file containing the flashcard within the document tree. Useful for reviewing flashcards. [thx](https://ld246.com/article/1719737172053/comment/1719741383007?r=player#comments)
+* Flash Thoughts support the insertion of video and audio.
+* Display the time difference between flash thoughts, in minutes.
 
 ## 2024-06-27
 
