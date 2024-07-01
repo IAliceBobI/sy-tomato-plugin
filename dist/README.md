@@ -611,6 +611,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-07-02
+
+* The Pomodoro timer can now be placed on the left side of the status bar.
+
 ## 2024-07-01
 
 * Flashcard Priority: Allows you to locate the file containing the flashcard within the document tree. Useful for reviewing flashcards. [thx](https://ld246.com/article/1719737172053/comment/1719741383007?r=player#comments)
