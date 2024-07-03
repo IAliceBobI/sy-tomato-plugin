@@ -464,6 +464,12 @@ Then use the shortcut `Alt+Shift+S` for `selected text` or `text at the cursor`:
 
 ---
 
+## Copy Multiple Blocks as a Image
+
+<img src="assets/copAsImg.gif" alt="drawing" width="900"/>
+
+---
+
 ## Additional Features
 
 ### Static Backlinks
@@ -614,6 +620,7 @@ Join the `QQ` group: 263961482
 ## 2024-07-03
 
 * Flash Idea Bug Fix: Incorrect image address when inserting images.
+* Added feature: Copy multiple blocks as a image.
 
 ## 2024-07-02
 
