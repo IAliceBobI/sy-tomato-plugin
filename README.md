@@ -611,6 +611,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-07-03
+
+* Flash Idea Bug Fix: Incorrect image address when inserting images.
+
 ## 2024-07-02
 
 * The Pomodoro timer can now be placed on the left side of the status bar.
