@@ -553,6 +553,8 @@ Columns in a table are separated by the '|' character for multiple lines.
 
 <img src="assets/makeTab.gif" alt="drawing" width="300"/>
 
+### Paragraph block read-only function Alt+Shift+L
+
 # Acknowledgements
 
 **Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.**
@@ -619,7 +621,9 @@ Join the `QQ` group: 263961482
 
 ## 2024-07-04
 
-* Copy as an image: Modify the background color.
+* New feature: Paragraph block read-only function `alt+shift+L`, can be enabled in Miscellaneous.
+* New feature: Display Memo above content, can be enabled in settings.
+* Copy as image: Fix background color.
 
 ## 2024-07-03
 
