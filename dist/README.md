@@ -617,6 +617,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-07-04
+
+* Copy as an image: Modify the background color.
+
 ## 2024-07-03
 
 * Flash Idea Bug Fix: Incorrect image address when inserting images.
