@@ -619,6 +619,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-07-05
+
+* Organize images, videos, and audio in the Assets folder: Fix the bug of converting resource names to lowercase.
+
 ## 2024-07-04
 
 * New feature: Paragraph block read-only function `alt+shift+L`, can be enabled in Miscellaneous.
