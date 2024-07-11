@@ -62,6 +62,73 @@ A picture is needed for both light and dark modes.
 
 ---
 
+## AI Knowledge Base Q&A `Ctrl+Shift+S`
+
+For SiYuan documents, ask questions and include references to the sources in the answers.
+
+Based on the Baidu Qianfan Knowledge Base.
+
+<img src="assets/knowledgeShow.gif" alt="drawing" width="800"/>
+
+### 1 Open Configuration
+
+<img src="assets/knowledgeCfg.png" alt="drawing" width="400"/>  
+
+### 2 [Create API Key](https://console.bce.baidu.com/ai_apaas/secretKey)
+
+Follow the link in the configuration to register an account, create an API key, and fill it into the toolbox configuration.
+
+<img src="assets/knowledgeToken.png" alt="drawing" width="200"/>  
+
+### 3 [Create Knowledge Base](https://console.bce.baidu.com/ai_apaas/personalSpace/knowledgeBase)
+
+<img src="assets/knowledgeCreateKnowledge.png" alt="drawing" width="500"/>  
+
+*You need to upload a random file first, otherwise you cannot create a knowledge base. Delete it later. All options are set to default.*
+
+<img src="assets/knowledgeCreateKnowledgeID.png" alt="drawing" width="300"/>  
+
+Fill the ID into the toolbox configuration.
+
+### 4 [Create Application](https://console.bce.baidu.com/ai_apaas/personalSpace/app)
+
+<img src="assets/knowledgeCreateApp.png" alt="drawing" width="800"/>  
+
+*1 Must add the knowledge base created earlier.*
+
+*2 You can choose `ERNIE Bot 4.0`*
+
+*3 Publish, you need the ID after publishing*
+
+<img src="assets/knowledgeCreateAppID.png" alt="drawing" width="300"/>  
+
+Get the ID after publishing and fill it into the toolbox configuration.
+
+### 5 [Download Qianfan Interface Forwarder](https://gitee.com/TokenzQdBN/baidu-qf)
+
+*Why do you need this? Baidu does not provide a JS SDK, but offers a Python SDK.*
+
+*To allow the Tomato Toolbox to access Baidu Qianfan, I developed a forwarder using the Python SDK.*
+
+#### Windows users can directly [download](https://gitee.com/TokenzQdBN/baidu-qf/releases) the compiled forwarder EXE
+
+Place it anywhere and double-click to run it with default settings.
+
+The first run will generate a `.ini` file.
+
+If needed, you can configure the address and port, which will take effect after a restart.
+
+Remember to also modify the configuration in the Tomato Toolbox.
+
+#### Linux, Windows, MACOS can install the forwarder from source
+
+1. Download the project source code
+1. Install the cross-platform `Powershell`
+1. Execute `initProj.ps1`
+1. Execute `run.ps1 pro`
+
+---
+
 ## Capture Fleeting Thoughts
 
 Collect fleeting thoughts into the daily note, supporting image insertion from `camera` and `gallery`.
@@ -559,6 +626,7 @@ Columns in a table are separated by the '|' character for multiple lines.
 
 **Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.**
 
+* 2024-07 `**岚`
 * 2024-06 [虚青海](https://afdian.net/a/xqh042)
 * 2024-06 [爱发电用户_jykN](https://afdian.net/u/20b38264295811efb0695254001e7c00)
 * 2024-06 `雨`
@@ -618,6 +686,10 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.net/a/playerv5)**
 
 # Changelog
+
+## 2024-07-12
+
+* Knowledge Base Q&A: Ask a question about Siyuan Document, and include a citation of the source in the answer.
 
 ## 2024-07-05
 

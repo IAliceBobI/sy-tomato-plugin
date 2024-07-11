@@ -62,6 +62,73 @@
 
 ---
 
+## AI知识库问答 `Ctrl+Shift+S`
+
+针对思源文档，进行提问，答案中包含出处的引用。
+
+基于百度千帆知识库。
+
+<img src="assets/knowledgeShow.gif" alt="drawing" width="800"/>
+
+### 1 打开配置
+
+<img src="assets/knowledgeCfg.png" alt="drawing" width="400"/>  
+
+### 2 [创建密钥](https://console.bce.baidu.com/ai_apaas/secretKey)
+
+根据配置中的链接，注册账户，创建密钥，把密钥填入工具箱的配置中。
+
+<img src="assets/knowledgeToken.png" alt="drawing" width="200"/>  
+
+### 3 [创建知识库](https://console.bce.baidu.com/ai_apaas/personalSpace/knowledgeBase)
+
+<img src="assets/knowledgeCreateKnowledge.png" alt="drawing" width="500"/>  
+
+*需要先随便上传一个文件，不然不能创建知识库。最后再删除其。全部选项默认。*
+
+<img src="assets/knowledgeCreateKnowledgeID.png" alt="drawing" width="300"/>  
+
+把ID填入工具箱的配置中。
+
+### 4 [创建应用](https://console.bce.baidu.com/ai_apaas/personalSpace/app)
+
+<img src="assets/knowledgeCreateApp.png" alt="drawing" width="800"/>  
+
+*1 必须添加刚才创建的知识库。*
+
+*2 可以选`文心一言4.0`*
+
+*3 发布，发布才有ID*
+
+<img src="assets/knowledgeCreateAppID.png" alt="drawing" width="300"/>  
+
+发布得到ID，把ID填入工具箱的配置中。
+
+### 5 [下载千帆接口转发器](https://gitee.com/TokenzQdBN/baidu-qf)
+
+*为什么要这个东西？百度不提供 JS SDK，提供了 Python SDK。*
+
+*为了让番茄工具箱，可以访问百度千帆，我用 Python SDK 开发了个转发器。*
+
+#### Windows 用户可以直接[下载](https://gitee.com/TokenzQdBN/baidu-qf/releases)，编译好的转发器EXE
+
+随便放一个地方，双击运行即可，使用默认配置。
+
+第一次运行，会生成一个 `.ini` 文件。
+
+如果需要，可以配置地址与端口，重启生效。
+
+记得再番茄工具箱配置也修改。
+
+#### Linux, Windows, MACOS 可以通过源码安装转发器
+
+1. 下载项目源码
+1. 安装跨平台 `Powershell`
+1. 执行 `initProj.ps1`
+1. 执行 `run.ps1 pro`
+
+---
+
 ## 拍照闪念
 
 收集闪念到当天dailynote，支持从`相机`与`图库`插入图片。  
@@ -556,6 +623,7 @@
 
 **感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。**
 
+* 2024-07 `**岚`
 * 2024-06 [虚青海](https://afdian.net/a/xqh042)
 * 2024-06 [爱发电用户_jykN](https://afdian.net/u/20b38264295811efb0695254001e7c00)
 * 2024-06 `雨`
@@ -615,6 +683,10 @@
 **[或者移步，爱发电](https://afdian.net/a/playerv5)**
 
 # 更新日志
+
+## 2024-07-12
+
+* 知识库问答：针对思源文档，进行提问，答案中包含出处的引用。
 
 ## 2024-07-05
 
