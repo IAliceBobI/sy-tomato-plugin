@@ -110,7 +110,7 @@
 
 *为了让番茄工具箱，可以访问百度千帆，我用 Python SDK 开发了个转发器。*
 
-#### Windows 用户可以直接[下载](https://gitee.com/TokenzQdBN/baidu-qf/releases)，编译好的转发器EXE
+#### 方法1：Windows 用户可以直接[下载](https://gitee.com/TokenzQdBN/baidu-qf/releases)，编译好的转发器EXE
 
 随便放一个地方，双击运行即可，使用默认配置。
 
@@ -120,12 +120,29 @@
 
 记得再番茄工具箱配置也修改。
 
-#### Linux, Windows, MACOS 可以通过源码安装转发器
+到这里已经可以使用了。
 
-1. 下载项目源码
-1. 安装跨平台 `Powershell`
+#### 方法2：Linux, Windows, MAC 可以通过源码安装转发器
+
+1. [下载源码](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip)
+1. 安装跨平台 [Powershell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.4)
 1. 执行 `initProj.ps1`
 1. 执行 `run.ps1 pro`
+
+**如果不用 powershell**
+
+[下载源码](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip) 或者 `git clone https://gitee.com/TokenzQdBN/baidu-qf.git`
+
+```sh
+cd baidu-qf
+python -m venv venv
+venv\Scripts\activate
+pip install --upgrade appbuilder-sdk flask waitress pyinstaller
+cd app-builder
+pip install .
+cd ..
+python app.py
+```
 
 ---
 

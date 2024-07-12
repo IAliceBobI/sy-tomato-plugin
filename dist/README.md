@@ -110,22 +110,39 @@ Get the ID after publishing and fill it into the toolbox configuration.
 
 *To allow the Tomato Toolbox to access Baidu Qianfan, I developed a forwarder using the Python SDK.*
 
-#### Windows users can directly [download](https://gitee.com/TokenzQdBN/baidu-qf/releases) the compiled forwarder EXE
+#### Method 1: Windows Users Can Directly [Download](https://gitee.com/TokenzQdBN/baidu-qf/releases) the Compiled Forwarder EXE
 
-Place it anywhere and double-click to run it with default settings.
+Place it anywhere and double-click to run it with the default configuration.
 
-The first run will generate a `.ini` file.
+The first time it runs, it will generate a `.ini` file.
 
-If needed, you can configure the address and port, which will take effect after a restart.
+If needed, you can configure the address and port, which will take effect after restarting.
 
 Remember to also modify the configuration in the Tomato Toolbox.
 
-#### Linux, Windows, MACOS can install the forwarder from source
+At this point, it is ready to use.
 
-1. Download the project source code
-1. Install the cross-platform `Powershell`
+#### Method 2: Linux, Windows, MAC Can Install the Forwarder via Source Code
+
+1. [Download the source code](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip)
+1. Install the cross-platform [Powershell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.4)
 1. Execute `initProj.ps1`
 1. Execute `run.ps1 pro`
+
+**If you do not use Powershell**
+
+[Download the source code](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip) or `git clone https://gitee.com/TokenzQdBN/baidu-qf.git`
+
+```sh
+cd baidu-qf
+python -m venv venv
+venv\Scripts\activate
+pip install --upgrade appbuilder-sdk flask waitress pyinstaller
+cd app-builder
+pip install .
+cd ..
+python app.py
+```
 
 ---
 
