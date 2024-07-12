@@ -70,6 +70,10 @@
 
 <img src="assets/knowledgeShow.gif" alt="drawing" width="800"/>
 
+<img src="assets/knowledgeShow2.gif" alt="drawing" width="800"/>
+
+<img src="assets/knowledgeShow3.png" alt="drawing" width="600"/>  
+
 ### 1 打开配置
 
 <img src="assets/knowledgeCfg.png" alt="drawing" width="400"/>  
@@ -116,9 +120,9 @@
 
 第一次运行，会生成一个 `.ini` 文件。
 
-如果需要，可以配置地址与端口，重启生效。
+如果需要，可以在`.ini`修改地址与端口，重启生效。
 
-记得再番茄工具箱配置也修改。
+记得再到番茄工具箱配置也修改。
 
 到这里已经可以使用了。
 

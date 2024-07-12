@@ -2,7 +2,7 @@
   "name": "sy-tomato-plugin",
   "author": "IAliceBobI",
   "url": "https://github.com/IAliceBobI/sy-tomato-plugin",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "minAppVersion": "3.0.3",
   "backends": [
     "all"
