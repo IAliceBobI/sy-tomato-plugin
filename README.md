@@ -704,6 +704,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-07-13
+
+* Knowledge Base: A single document can be uploaded separately.
+
 ## 2024-07-12
 
 * Knowledge Base Q&A: Ask a question about Siyuan Document, and include a citation of the source in the answer.
