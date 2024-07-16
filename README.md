@@ -704,6 +704,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-07-15
+
+* Tomato Timer: After the countdown ends, a video can be randomly selected from a specified file and its sub-files for playback.
+
 ## 2024-07-13
 
 * Knowledge Base: A single document can be uploaded separately.
