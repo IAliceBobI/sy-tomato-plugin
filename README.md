@@ -704,6 +704,11 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-07-26
+
+* Move to Today's Notes: You can choose to move to the bottom of the document.
+* Delete the reading point of the current document, shortcut key: `ctrl+F7`
+
 ## 2024-07-17
 
 * Bottom Inverse Links: Column Count Adaptive.
