@@ -2,7 +2,7 @@
   "name": "sy-tomato-plugin",
   "author": "IAliceBobI",
   "url": "https://github.com/IAliceBobI/sy-tomato-plugin",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "minAppVersion": "3.0.3",
   "backends": [
     "all"
@@ -27,7 +27,7 @@
     "patreon": "",
     "github": "",
     "custom": [
-      "https://afdian.net/a/playerv5"
+      "https://afdian.com/a/playerv5"
     ]
   },
   "keywords": [
