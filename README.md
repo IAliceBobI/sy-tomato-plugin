@@ -637,9 +637,13 @@ Columns in a table are separated by the '|' character for multiple lines.
 
 <img src="assets/makeTab.gif" alt="drawing" width="300"/>
 
-### Paragraph block read-only function Alt+Shift+L
+### Paragraph block read-only function `Alt+Shift+L`
 
-### Locate all backlinks for a block. `Alt+Shift+A`.
+### Locate all backlinks for a block `Alt+Shift+A`
+
+### Click on the reference count in the upper right corner of the block to locate all backlinks.
+
+<img src="assets/openRefByClick.gif" alt="drawing" width="600"/>
 
 # Acknowledgements
 
@@ -710,7 +714,8 @@ Join the `QQ` group: 263961482
 ## 2024-07-31
 
 * Bottom Backlinks: Fixed a bug that caused a 5-second delay. Now, bottom backlinks can be loaded instantly.
-* Locate all backlinks for a block. `Alt+Shift+A`.
+* Miscellaneous: Locate all backlinks for a block. `Alt+Shift+A`.
+* Miscellaneous: Click on the reference count in the upper right corner of the block to locate all backlinks.
 
 ## 2024-07-30
 
