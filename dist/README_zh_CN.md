@@ -638,7 +638,9 @@ python app.py
 
 <img src="assets/makeTab.gif" alt="drawing" width="300"/>
 
-### 段落块只读功能 Alt+Shift+L
+### 段落块只读功能 `Alt+Shift+L`
+
+### 定位一个块的所有反链 `Alt+Shift+A`
 
 # 鸣谢
 
@@ -705,6 +707,11 @@ python app.py
 **[或者移步，爱发电](https://afdian.com/a/playerv5)**
 
 # 更新日志
+
+## 2024-07-31
+
+* 底部反链：修复导致卡5s的bug。现在可以瞬间加载底部反链。
+* 定位一个块的所有反链。`Alt+Shift+A`。
 
 ## 2024-07-30
 

@@ -639,6 +639,8 @@ Columns in a table are separated by the '|' character for multiple lines.
 
 ### Paragraph block read-only function Alt+Shift+L
 
+### Locate all backlinks for a block. `Alt+Shift+A`.
+
 # Acknowledgements
 
 **Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.**
@@ -704,6 +706,11 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.com/a/playerv5)**
 
 # Changelog
+
+## 2024-07-31
+
+* Bottom Backlinks: Fixed a bug that caused a 5-second delay. Now, bottom backlinks can be loaded instantly.
+* Locate all backlinks for a block. `Alt+Shift+A`.
 
 ## 2024-07-30
 
