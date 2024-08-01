@@ -5,645 +5,693 @@
 > [I guess the image below is probably broken 😢, check here!](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
 
 ## Configuration
-
-<img src="assets/settings.gif" alt="drawing" width="800"/>
-
-> [To support and encourage, please visit here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md#bug-feedback-recommendations)
-
-> [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+<details>
+  
+  <img src="assets/settings.gif" alt="drawing" width="800"/>
+  
+  > [To support and encourage, please visit here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md#bug-feedback-recommendations)
+  
+  > [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+</details>
 
 ---
 
 ## `Right-click Menu` and `Icon Menu`
-
-<img src="assets/menu.png" alt="drawing" width="600"/>
-<img src="assets/iconmenu.png" alt="drawing" width="600"/>
+<details>
+  
+  <img src="assets/menu.png" alt="drawing" width="600"/>
+  <img src="assets/iconmenu.png" alt="drawing" width="600"/>
+</details>
 
 ---
 
 ## Tomato Clock
 
 **Status Bar Tomato Clock**
+<details>
+  
+  *Quick Test* can add `0.01` minutes, for example, the configuration: `0.01,5,10,15,25,30`
+  
+  <img src="assets/tomatoClockCfg.png" alt="drawing" width="300"/>
+  
+  <img src="assets/statustomato.png" alt="drawing" width="300"/>
 
-*Quick Test* can add `0.01` minutes, for example, the configuration: `0.01,5,10,15,25,30`
+  > [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
 
-<img src="assets/tomatoClockCfg.png" alt="drawing" width="300"/>
+  * **0**: Cancel timing
+  * **5**: Time for five minutes
+  * …
+  * **25**: Time for twenty-five minutes
 
-<img src="assets/statustomato.png" alt="drawing" width="300"/>
-
-> [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-* **0**: Cancel timing
-* **5**: Time for five minutes
-* …
-* **25**: Time for twenty-five minutes
-
-*Custom durations are supported.*
-*The timer will continue from the last session even after restarting SiYuan.*
-*Remaining time can be viewed.*
+  *Custom durations are supported.*
+  *The timer will continue from the last session even after restarting SiYuan.*
+  *Remaining time can be viewed.*
+</details>
 
 **Random content playback after timing ends**
-
-Randomly reads content from a specified file and displays it after timing ends.
-
-The demo file is `demo`, which includes text, images, IFrame links, videos, and audio.
-
-*`Escape` can close the pop-up window*
-
-<img src="assets/randVedio.gif" alt="drawing" width="600"/>
+<details>
+  
+  Randomly reads content from a specified file and displays it after timing ends.
+  
+  The demo file is `demo`, which includes text, images, IFrame links, videos, and audio.
+  
+  *`Escape` can close the pop-up window*
+  
+  <img src="assets/randVedio.gif" alt="drawing" width="600"/>
+</details>
 
 **Change background image after timing**
-
-A picture is needed for both light and dark modes.
-
-<img src="assets/changeBG.gif" alt="drawing" width="600"/>
-
-> [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+<details>
+  
+  A picture is needed for both light and dark modes.
+  
+  <img src="assets/changeBG.gif" alt="drawing" width="600"/>
+  
+  > [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+</details>
 
 ---
 
 ## AI Knowledge Base Q&A `Ctrl+Shift+S`
-
-For SiYuan documents, ask questions and include references to the sources in the answers.
-
-Based on the Baidu Qianfan Knowledge Base.
-
-<img src="assets/knowledgeShow.gif" alt="drawing" width="800"/>
-
-### 1 Open Configuration
-
-<img src="assets/knowledgeCfg.png" alt="drawing" width="400"/>  
-
-### 2 [Create API Key](https://console.bce.baidu.com/ai_apaas/secretKey)
-
-Follow the link in the configuration to register an account, create an API key, and fill it into the toolbox configuration.
-
-<img src="assets/knowledgeToken.png" alt="drawing" width="200"/>  
-
-### 3 [Create Knowledge Base](https://console.bce.baidu.com/ai_apaas/personalSpace/knowledgeBase)
-
-<img src="assets/knowledgeCreateKnowledge.png" alt="drawing" width="500"/>  
-
-*You need to upload a random file first, otherwise you cannot create a knowledge base. Delete it later. All options are set to default.*
-
-<img src="assets/knowledgeCreateKnowledgeID.png" alt="drawing" width="300"/>  
-
-Fill the ID into the toolbox configuration.
-
-### 4 [Create Application](https://console.bce.baidu.com/ai_apaas/personalSpace/app)
-
-<img src="assets/knowledgeCreateApp.png" alt="drawing" width="800"/>  
-
-*1 Must add the knowledge base created earlier.*
-
-*2 You can choose `ERNIE Bot 4.0`*
-
-*3 Publish, you need the ID after publishing*
-
-<img src="assets/knowledgeCreateAppID.png" alt="drawing" width="300"/>  
-
-Get the ID after publishing and fill it into the toolbox configuration.
-
-### 5 [Download Qianfan Interface Forwarder](https://gitee.com/TokenzQdBN/baidu-qf)
-
-*Why do you need this? Baidu does not provide a JS SDK, but offers a Python SDK.*
-
-*To allow the Tomato Toolbox to access Baidu Qianfan, I developed a forwarder using the Python SDK.*
-
-#### Method 1: Windows Users Can Directly [Download](https://gitee.com/TokenzQdBN/baidu-qf/releases) the Compiled Forwarder EXE
-
-Place it anywhere and double-click to run it with the default configuration.
-
-The first time it runs, it will generate a `.ini` file.
-
-If needed, you can configure the address and port, which will take effect after restarting.
-
-Remember to also modify the configuration in the Tomato Toolbox.
-
-At this point, it is ready to use.
-
-#### Method 2: Linux, Windows, MAC Can Install the Forwarder via Source Code
-
-1. [Download the source code](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip)
-1. Install the cross-platform [Powershell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.4)
-1. Execute `initProj.ps1`
-1. Execute `run.ps1 pro`
-
-**If you do not use Powershell**
-
-[Download the source code](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip) or `git clone https://gitee.com/TokenzQdBN/baidu-qf.git`
-
-```sh
-cd baidu-qf
-python -m venv venv
-venv\Scripts\activate
-pip install --upgrade appbuilder-sdk flask waitress pyinstaller
-cd app-builder
-pip install .
-cd ..
-python app.py
-```
+<details>
+  
+  For SiYuan documents, ask questions and include references to the sources in the answers.
+  
+  Based on the Baidu Qianfan Knowledge Base.
+  
+  <img src="assets/knowledgeShow.gif" alt="drawing" width="800"/>
+  
+  ### 1 Open Configuration
+  
+  <img src="assets/knowledgeCfg.png" alt="drawing" width="400"/>
+  
+  ### 2 [Create API Key](https://console.bce.baidu.com/ai_apaas/secretKey)
+  
+  Follow the link in the configuration to register an account, create an API key, and fill it into the toolbox configuration.
+  
+  <img src="assets/knowledgeToken.png" alt="drawing" width="200"/>
+  
+  ### 3 [Create Knowledge Base](https://console.bce.baidu.com/ai_apaas/personalSpace/knowledgeBase)
+  
+  <img src="assets/knowledgeCreateKnowledge.png" alt="drawing" width="500"/>
+  
+  *You need to upload a random file first, otherwise you cannot create a knowledge base. Delete it later. All options are set to default.*
+  
+  <img src="assets/knowledgeCreateKnowledgeID.png" alt="drawing" width="300"/>
+  
+  Fill the ID into the toolbox configuration.
+  
+  ### 4 [Create Application](https://console.bce.baidu.com/ai_apaas/personalSpace/app)
+  
+  <img src="assets/knowledgeCreateApp.png" alt="drawing" width="800"/>
+  
+  *1 Must add the knowledge base created earlier.*
+  
+  *2 You can choose `ERNIE Bot 4.0`*
+  
+  *3 Publish, you need the ID after publishing*
+  
+  <img src="assets/knowledgeCreateAppID.png" alt="drawing" width="300"/>
+  
+  Get the ID after publishing and fill it into the toolbox configuration.
+  
+  ### 5 [Download Qianfan Interface Forwarder](https://gitee.com/TokenzQdBN/baidu-qf)
+  
+  *Why do you need this? Baidu does not provide a JS SDK, but offers a Python SDK.*
+  
+  *To allow the Tomato Toolbox to access Baidu Qianfan, I developed a forwarder using the Python SDK.*
+  
+  #### Method 1: Windows Users Can Directly [Download](https://gitee.com/TokenzQdBN/baidu-qf/releases) the Compiled Forwarder EXE
+  
+  Place it anywhere and double-click to run it with the default configuration.
+  
+  The first time it runs, it will generate a `.ini` file.
+  
+  If needed, you can configure the address and port, which will take effect after restarting.
+  
+  Remember to also modify the configuration in the Tomato Toolbox.
+  
+  At this point, it is ready to use.
+  
+  #### Method 2: Linux, Windows, MAC Can Install the Forwarder via Source Code
+  
+  1. [Download the source code](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip)
+  1. Install the cross-platform [Powershell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.4)
+  1. Execute `initProj.ps1`
+  1. Execute `run.ps1 pro`
+  
+  **If you do not use Powershell**
+  
+  [Download the source code](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip) or `git clone https://gitee.com/TokenzQdBN/baidu-qf.git`
+  
+  ```sh
+  cd baidu-qf
+  python -m venv venv
+  venv\Scripts\activate
+  pip install --upgrade appbuilder-sdk flask waitress pyinstaller
+  cd app-builder
+  pip install .
+  cd ..
+  python app.py
+  ```
+</details>
 
 ---
 
 ## Capture Fleeting Thoughts
-
-Collect fleeting thoughts into the daily note, supporting image insertion from `camera` and `gallery`.
-
-### Button Descriptions
-
-| 📸 Camera | 🖼️ Gallery |
-|---|---|
-| 📩 Insert into daily note | 🗑️ Clear list, clear input box |
-| 🔄 Sync data to cloud | |
-
-### Using on Mobile
-
-*The original intent of the `Capture Fleeting Thoughts` feature is to quickly insert inspirations on mobile devices.*
-
-<img src="assets/idea1.jpg" alt="drawing" width="400"/>  
-<img src="assets/idea2.jpg" alt="drawing" width="400"/>  
-
-> [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-### Possible Categories of Recorded Information
-
-| Location: 🏞️: Paragraph Block | Health: 💪: Paragraph Block | Social: 💬: Paragraph Block |
-|---|---|---|
-| Life: 🍴: Paragraph Block | Study: 📚: Paragraph Block | Work: 💼: Paragraph Block |
-| Task: 📌: **Task Block** | | |
-
-### `Avoid Cloud Sync Conflicts` Option
-
-*Default is off, needs to be enabled in the settings.*
-
-<img src="assets/ideaconflict.png" alt="drawing" width="600"/>  
-
-Reason: Simultaneous writing to Dailynote from both desktop and mobile can cause content inconsistency, leading to conflicts during synchronization.
-
-Therefore, simultaneous modification of the same file by both ends should be avoided.
-
-When this option is enabled, the mobile end will not directly write to the daily note but will write to a sub-file of the daily note.
-
-The desktop end merges the sub-file into the daily note indirectly.
-
-The mobile end is more inclined to record and does not directly modify the daily note.
-
-The desktop end is for organizing and maintaining, and can directly modify the daily note.
-
-> Advantage: No sync conflicts.
-
-> Advantage: Mobile and desktop synchronization via cloud features without needing to enable server. For example: Settings -> Cloud -> S3 -> aliyun OSS.
-
-> Disadvantage: Newly inserted fleeting thoughts cannot be directly seen in the mobile daily note, and need to be merged by the desktop end.
-
-### Can be used in conjunction with the `Text to Reference` feature introduced below. Quick insertion of references.
-
-<img src="assets/fastref.gif" alt="drawing" width="600"/>  
-
-> [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-### Using on Desktop
-
-*While watching a <small>big</small> movie, you can also quickly `ctrl+Q` to open a small window and record inspirations.*
-
-If it doesn't work, check if there is a **conflict** with the `shortcut keys`.
-
-<img src="assets/ideadesktop.gif" alt="drawing" width="600"/>  
-
-`ctrl+q` can be called from outside the application.  
-`escape` to close.  
-`shift+enter` for soft line breaks.  
-`enter` to write into the daily note of the day.  
-
-> [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+<details>
+  
+  Collect fleeting thoughts into the daily note, supporting image insertion from `camera` and `gallery`.
+  
+  ### Button Descriptions
+  
+  | 📸 Camera | 🖼️ Gallery |
+  |---|---|
+  | 📩 Insert into daily note | 🗑️ Clear list, clear input box |
+  | 🔄 Sync data to cloud | |
+  
+  ### Using on Mobile
+  
+  *The original intent of the `Capture Fleeting Thoughts` feature is to quickly insert inspirations on mobile devices.*
+  
+  <img src="assets/idea1.jpg" alt="drawing" width="400"/>
+  <img src="assets/idea2.jpg" alt="drawing" width="400"/>
+  
+  > [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+  
+  ### Possible Categories of Recorded Information
+  
+  | Location: 🏞️: Paragraph Block | Health: 💪: Paragraph Block | Social: 💬: Paragraph Block |
+  |---|---|---|
+  | Life: 🍴: Paragraph Block | Study: 📚: Paragraph Block | Work: 💼: Paragraph Block |
+  | Task: 📌: **Task Block** | | |
+  
+  ### `Avoid Cloud Sync Conflicts` Option
+  
+  *Default is off, needs to be enabled in the settings.*
+  
+  <img src="assets/ideaconflict.png" alt="drawing" width="600"/>
+  
+  Reason: Simultaneous writing to Dailynote from both desktop and mobile can cause content inconsistency, leading to conflicts during synchronization.
+  
+  Therefore, simultaneous modification of the same file by both ends should be avoided.
+  
+  When this option is enabled, the mobile end will not directly write to the daily note but will write to a sub-file of the daily note.
+  
+  The desktop end merges the sub-file into the daily note indirectly.
+  
+  The mobile end is more inclined to record and does not directly modify the daily note.
+  
+  The desktop end is for organizing and maintaining, and can directly modify the daily note.
+  
+  > Advantage: No sync conflicts.
+  
+  > Advantage: Mobile and desktop synchronization via cloud features without needing to enable server. For example: Settings -> Cloud -> S3 -> aliyun OSS.
+  
+  > Disadvantage: Newly inserted fleeting thoughts cannot be directly seen in the mobile daily note, and need to be merged by the desktop end.
+  
+  ### Can be used in conjunction with the `Text to Reference` feature introduced below. Quick insertion of references.
+  
+  <img src="assets/fastref.gif" alt="drawing" width="600"/>
+  
+  > [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+  
+  ### Using on Desktop
+  
+  *While watching a <small>big</small> movie, you can also quickly `ctrl+Q` to open a small window and record inspirations.*
+  
+  If it doesn't work, check if there is a **conflict** with the `shortcut keys`.
+  
+  <img src="assets/ideadesktop.gif" alt="drawing" width="600"/>
+  
+  `ctrl+q` can be called from outside the application.
+  `escape` to close.
+  `shift+enter` for soft line breaks.
+  `enter` to write into the daily note of the day.
+  
+  > [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+</details>
 
 ---
 
 ## Text to Reference Conversion
-
-<img src="assets/text2ref.gif" alt="drawing" width="600" />
-
-### `@@`: Exact Conversion:  
-
-For example, in a content block, `aaa @@bb ccc` will be converted to `aaa bb ccc` where `bb` is a reference.
-
-Use `@` to isolate references from other text. For instance, `EE@@ABC@FF` will be converted to `EEABCFF` where `ABC` is a reference.
-
-### `@@@`: Fuzzy Conversion:  
-
-For example, in a content block, `aaa @@@剑仙 ccc` may be converted to `aaa 九位剑仙 ccc` if there is already a file named `九位剑仙`.  
-
-If there is no existing file name containing `剑仙`, the text `@@@剑仙` will be converted to `@剑仙@`.
-
-**When creating a file, you can make a flashcard for it and add a pinyin attribute to the file. This needs to be enabled in the configuration.**
+<details>
+  
+  <img src="assets/text2ref.gif" alt="drawing" width="600" />
+  
+  ### `@@`: Exact Conversion:
+  
+  For example, in a content block, `aaa @@bb ccc` will be converted to `aaa bb ccc` where `bb` is a reference.
+  
+  Use `@` to isolate references from other text. For instance, `EE@@ABC@FF` will be converted to `EEABCFF` where `ABC` is a reference.
+  
+  ### `@@@`: Fuzzy Conversion:
+  
+  For example, in a content block, `aaa @@@剑仙 ccc` may be converted to `aaa 九位剑仙 ccc` if there is already a file named `九位剑仙`.
+  
+  If there is no existing file name containing `剑仙`, the text `@@@剑仙` will be converted to `@剑仙@`.
+  
+  **When creating a file, you can make a flashcard for it and add a pinyin attribute to the file. This needs to be enabled in the configuration.**
+</details>
 
 ---
 
 ## Flashcard Priority
-
-<img src="assets/cardpri1.gif" alt="drawing" width="600" />
-
-Set priority for flashcards, with higher numerical priority being reviewed first.
-
-Within the same priority level, the order is shuffled each time for review.
-
-After setting, you can review directly using `alt+0`.
-
-The plugin sorts flashcards based on priority before review.
-
-The priority is stored in the flashcard's custom attribute `card-priority`.
-
-You can adjust it manually or through the buttons below the flashcard.
-
-The priority range is 0 to 100, with a default priority of 50. Flashcards without a set priority also default to 50.
-
-**Postponement:**
-
-Postponed flashcards are added to bookmarks for easy viewing of all postponed flashcards.
-
-After postponing a flashcard, the due date is displayed. When the time comes, it automatically returns to normal status.
-
-Postponed flashcards will not be sent to the user for review.
-
-You can also hover over the priority to view the number of review times.
-
-<img src="assets/cardSusp.gif" alt="drawing" width="600"/>
-
-> [If you can't open the image, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+<details>
+  
+  <img src="assets/cardpri1.gif" alt="drawing" width="600" />
+  
+  Set priority for flashcards, with higher numerical priority being reviewed first.
+  
+  Within the same priority level, the order is shuffled each time for review.
+  
+  After setting, you can review directly using `alt+0`.
+  
+  The plugin sorts flashcards based on priority before review.
+  
+  The priority is stored in the flashcard's custom attribute `card-priority`.
+  
+  You can adjust it manually or through the buttons below the flashcard.
+  
+  The priority range is 0 to 100, with a default priority of 50. Flashcards without a set priority also default to 50.
+  
+  **Postponement:**
+  
+  Postponed flashcards are added to bookmarks for easy viewing of all postponed flashcards.
+  
+  After postponing a flashcard, the due date is displayed. When the time comes, it automatically returns to normal status.
+  
+  Postponed flashcards will not be sent to the user for review.
+  
+  You can also hover over the priority to view the number of review times.
+  
+  <img src="assets/cardSusp.gif" alt="drawing" width="600"/>
+  
+  > [If you can't open the image, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+</details>
 
 ---
 
 ## Add/Delete Flashcard Buttons During Review
-
-Please enable the `Flashcard Tools` in the configuration.
-
-**Review Interface Shortcuts:**
-
-Cancel card making: `ctrl+9`
-Skip card: `ctrl+8`
-Change priority: `ctrl+;`
-
-<img src="assets/delCard.gif" alt="drawing" width="700"/>
-
-**List Card Making:**
-
-`ctrl+1` to create a list and make a card. In a list card, using `ctrl+1` again cancels card making.
-
-<img src="assets/createCard.gif" alt="drawing" width="700"/>
-
-> [If you can't open the image, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-**Cancel Card Making for All Cards in a Document**
-
-<img src="assets/removeCardsInDoc.gif" alt="drawing" width="700"/>
+<details>
+  
+  Please enable the `Flashcard Tools` in the configuration.
+  
+  **Review Interface Shortcuts:**
+  
+  Cancel card making: `ctrl+9`
+  Skip card: `ctrl+8`
+  Change priority: `ctrl+;`
+  
+  <img src="assets/delCard.gif" alt="drawing" width="700"/>
+  
+  **List Card Making:**
+  
+  `ctrl+1` to create a list and make a card. In a list card, using `ctrl+1` again cancels card making.
+  
+  <img src="assets/createCard.gif" alt="drawing" width="700"/>
+  
+  > [If you can't open the image, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+  
+  **Cancel Card Making for All Cards in a Document**
+  
+  <img src="assets/removeCardsInDoc.gif" alt="drawing" width="700"/>
+</details>
 
 ---
 
 ## Bottom Backlinks
-
-Incorporate a bottom backlinks area similar to that in `logseq`. For list/outline blocks, we can see their parent and child blocks. The parent is viewed from the breadcrumb, and the child from the content.
-
-### Concept Bar/Reference Bar
-
-**`Hierarchical Concept`: File names like `AA|BB|CC`, its bottom backlinks, the top double-link bar, might show: `AA*  AA|BB*  AA|BB|CC*` if available. (Red circle in the image)**
-
-**`Related Concepts`: Other double-links in the double-link bar besides `Hierarchical Concept`.**
-
-*Below demonstrates the `Hierarchical Concept Forest` with the `Text to Reference` feature enabled.*
-
-<img src="assets/bkAndText2ref.gif" alt="drawing" width="600"/>
-
-**Backlinks Area Tools: Edit, drag, copy with one click, move with one click, real-time search filtering, mark whether a backlink belongs to the current document, etc...**
-
-<img src="assets/bottomBK.png" alt="drawing" width="1000"/>
-
-> Right-click menu in the document allows enabling and disabling the bottom backlinks for this document.
-
-> [If images cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-### Place Unrelated Content at the Bottom
-
-<img src="assets/uncorrelated.gif" alt="drawing" width="1000"/>
-
-### Bottom Backlinks::Search Syntax
-
-*The input box supports real-time search for multiple `keywords`.*
-
-**Separate `keywords` with `spaces`, and if a `keyword` is preceded by an `exclamation mark`, it means the backlink should not contain this `keyword`.**
-
-**For example:** `Xiaoming Xiaohong !Laowang !Wangzong` will search for backlinks containing `Xiaoming` and `Xiaohong` but not containing `Laowang` or `Wangzong`.
-
-**If `keywords` are separated by `|`, it means any of these `keywords` should appear.**
-
-**For example:** `Xiaoming Xiaohong|Ruhua !Laowang !Wangzong` will search for backlinks containing `Xiaoming` and at least one of `Xiaohong` or `Ruhua`, but not containing `Laowang` or `Wangzong`.
-
-**For example:** `Xiaoming Laopao Xiaohong|Ruhua|Qiuju !Laowang !Wangzong` will search for backlinks containing `Xiaoming` and `Laopao`, and at least one of `Xiaohong`, `Ruhua`, or `Qiuju`, but not containing `Laowang` or `Wangzong`.
-
-> The `Bottom Backlinks Area` is default off, please turn it on from the configuration.
+<details>
+  
+  Incorporate a bottom backlinks area similar to that in `logseq`. For list/outline blocks, we can see their parent and child blocks. The parent is viewed from the breadcrumb, and the child from the content.
+  
+  ### Concept Bar/Reference Bar
+  
+  **`Hierarchical Concept`: File names like `AA|BB|CC`, its bottom backlinks, the top double-link bar, might show: `AA*  AA|BB*  AA|BB|CC*` if available. (Red circle in the image)**
+  
+  **`Related Concepts`: Other double-links in the double-link bar besides `Hierarchical Concept`.**
+  
+  *Below demonstrates the `Hierarchical Concept Forest` with the `Text to Reference` feature enabled.*
+  
+  <img src="assets/bkAndText2ref.gif" alt="drawing" width="600"/>
+  
+  **Backlinks Area Tools: Edit, drag, copy with one click, move with one click, real-time search filtering, mark whether a backlink belongs to the current document, etc...**
+  
+  <img src="assets/bottomBK.png" alt="drawing" width="1000"/>
+  
+  > Right-click menu in the document allows enabling and disabling the bottom backlinks for this document.
+  
+  > [If images cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+  
+  ### Place Unrelated Content at the Bottom
+  
+  <img src="assets/uncorrelated.gif" alt="drawing" width="1000"/>
+  
+  ### Bottom Backlinks::Search Syntax
+  
+  *The input box supports real-time search for multiple `keywords`.*
+  
+  **Separate `keywords` with `spaces`, and if a `keyword` is preceded by an `exclamation mark`, it means the backlink should not contain this `keyword`.**
+  
+  **For example:** `Xiaoming Xiaohong !Laowang !Wangzong` will search for backlinks containing `Xiaoming` and `Xiaohong` but not containing `Laowang` or `Wangzong`.
+  
+  **If `keywords` are separated by `|`, it means any of these `keywords` should appear.**
+  
+  **For example:** `Xiaoming Xiaohong|Ruhua !Laowang !Wangzong` will search for backlinks containing `Xiaoming` and at least one of `Xiaohong` or `Ruhua`, but not containing `Laowang` or `Wangzong`.
+  
+  **For example:** `Xiaoming Laopao Xiaohong|Ruhua|Qiuju !Laowang !Wangzong` will search for backlinks containing `Xiaoming` and `Laopao`, and at least one of `Xiaohong`, `Ruhua`, or `Qiuju`, but not containing `Laowang` or `Wangzong`.
+  
+  > The `Bottom Backlinks Area` is default off, please turn it on from the configuration.
+</details>
 
 ---
 
 ## Bidirectional Links
-
-### Usage 1
-
-<img src="assets/bilink1.gif" alt="drawing" width="600"/>
-
-Use `Alt+F1` to select the first block, and use `Alt+F2` at the second block to create two links that jump to each other.
-
-### Usage 2
-
-<img src="assets/bilink2.gif" alt="drawing" width="600"/>
-
-Shortcut: `Alt+/` or select the corresponding function from the menu.
-
-> **Tip** Multiple lines can be selected, but the shortcut key: `Alt+/` must be used.
-
-> [If images cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+<details>
+  
+  ### Usage 1
+  
+  <img src="assets/bilink1.gif" alt="drawing" width="600"/>
+  
+  Use `Alt+F1` to select the first block, and use `Alt+F2` at the second block to create two links that jump to each other.
+  
+  ### Usage 2
+  
+  <img src="assets/bilink2.gif" alt="drawing" width="600"/>
+  
+  Shortcut: `Alt+/` or select the corresponding function from the menu.
+  
+  > **Tip** Multiple lines can be selected, but the shortcut key: `Alt+/` must be used.
+  
+  > [If images cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+</details>
 
 ---
 
 ## Content Reminder `ctrl+3`
-
-*Set a reminder date for a content block!*
-
-**Place the cursor on the `content block` to be selected, and choose `Set Reminder` from the right-click menu**
-
-<img src="assets/scheduleSetTime.gif" alt="drawing" width="600"/>
-
-*After setting the time, an automatic time bookmark will be added. Check it in the bookmarks panel.*
-
-*After the reminder, the bookmark will be automatically deleted*
-
-> The reminder feature is default off, please turn it on in the configuration.
-
-**Pressing `ctrl+3` twice consecutively copies the block ID where the cursor is located**
-
-<img src="assets/scheduleCopyID.gif" alt="drawing" width="400"/>
-
-> [If images cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+<details>
+  
+  *Set a reminder date for a content block!*
+  
+  **Place the cursor on the `content block` to be selected, and choose `Set Reminder` from the right-click menu**
+  
+  <img src="assets/scheduleSetTime.gif" alt="drawing" width="600"/>
+  
+  *After setting the time, an automatic time bookmark will be added. Check it in the bookmarks panel.*
+  
+  *After the reminder, the bookmark will be automatically deleted*
+  
+  > The reminder feature is default off, please turn it on in the configuration.
+  
+  **Pressing `ctrl+3` twice consecutively copies the block ID where the cursor is located**
+  
+  <img src="assets/scheduleCopyID.gif" alt="drawing" width="400"/>
+  
+  > [If images cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+</details>
 
 ---
 
 ## Reading Point
-
-<img src="assets/readingpoint.gif" alt="drawing" width="800"/>
-
-*A reading point is the last position read in a document, which is recorded in the `bookmark` and automatically deletes other `bookmarks` within the current file to maintain only one `bookmark` in the file.*
-
-**Place the cursor on the `content block` to be selected, use the right-click menu, or directly use `Ctrl+2`.**
-
-**To view the `bookmark` later, you can directly check the `bookmarks panel`. You can also click the `Reading Point` (ctrl+4) icon in the upper right corner to view more detailed information.**
-
-<img src="assets/bookmark.png" alt="drawing" width="600"/>
-
-> The Reading Point has been upgraded: In addition to the previous bookmark function, flashcards have been added, utilizing the scheduling capabilities of flashcards, and also saving which files have been viewed at the time.
-
-> **Note** The grouping method of the `Reading Point` icon is different from that of the bookmarks panel.
+<details>
+  
+  <img src="assets/readingpoint.gif" alt="drawing" width="800"/>
+  
+  *A reading point is the last position read in a document, which is recorded in the `bookmark` and automatically deletes other `bookmarks` within the current file to maintain only one `bookmark` in the file.*
+  
+  **Place the cursor on the `content block` to be selected, use the right-click menu, or directly use `Ctrl+2`.**
+  
+  **To view the `bookmark` later, you can directly check the `bookmarks panel`. You can also click the `Reading Point` (ctrl+4) icon in the upper right corner to view more detailed information.**
+  
+  <img src="assets/bookmark.png" alt="drawing" width="600"/>
+  
+  > The Reading Point has been upgraded: In addition to the previous bookmark function, flashcards have been added, utilizing the scheduling capabilities of flashcards, and also saving which files have been viewed at the time.
+  
+  > **Note** The grouping method of the `Reading Point` icon is different from that of the bookmarks panel.
+</details>
 
 ---
 
 ## Cleaning Invalid Flashcards
-
-<img src="assets/cleancards.gif" alt="drawing" width="600"/>
-
-*If the content where the flashcards are located has been deleted, these invalid flashcards still exist on the disk. We can delete them.*
-
-**Open the command palette and select `Clean All Invalid Flashcards`**
-
-> **Note** Do not use this feature while the index is being rebuilt. The index being rebuilt is not yet complete, and the plugin may be misled by the index, leading to accidental deletion of flashcards.
-
-> **Note** If you use this feature after closing the `notebook`, normal flashcards may also be considered invalid. Therefore, all notebooks should be open when using this feature.
-
-> **Note** Make a backup before using!
-
-> [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+<details>
+  
+  <img src="assets/cleancards.gif" alt="drawing" width="600"/>
+  
+  *If the content where the flashcards are located has been deleted, these invalid flashcards still exist on the disk. We can delete them.*
+  
+  **Open the command palette and select `Clean All Invalid Flashcards`**
+  
+  > **Note** Do not use this feature while the index is being rebuilt. The index being rebuilt is not yet complete, and the plugin may be misled by the index, leading to accidental deletion of flashcards.
+  
+  > **Note** If you use this feature after closing the `notebook`, normal flashcards may also be considered invalid. Therefore, all notebooks should be open when using this feature.
+  
+  > **Note** Make a backup before using!
+  
+  > [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+</details>
 
 ---
 
 ## Handling Long Content Operations
-
-*Copying, moving, and deleting long content drives me crazy! Here, I use a simple method to handle such operations!*
-
-**Moving Operation**
-
-<img src="assets/longMove.gif" alt="drawing" width="600"/>
-
-*Suppose there are `Document 1` and `Document 2`, in `Document 1`, wrap the content to be moved with `aacc1` and `aacc2`, then insert `aacc3` at a certain position in `Document 2`, and finally open the `command palette` and select `Batch Move Large Continuous Content`*
-
-**This moving operation will transfer the flashcards along with the content, without changing the review status of the flashcards. Simple `ctrl+c,v` will make the involved flashcards invalid.**
-
-> **Note** `aacc1`, `aacc2`, `aacc3` must not have spaces before or after, otherwise the plugin will not find them.
-
-<img src="assets/cmd.png" alt="drawing" width="600"/>
-
-**Copying Operation**
-
-<img src="assets/longCopy.gif" alt="drawing" width="600"/>
-
-**Deleting Operation**
-
-Similar to the moving operation, but select the delete command and do not need to write `aacc3`.
+<details>
+  
+  *Copying, moving, and deleting long content drives me crazy! Here, I use a simple method to handle such operations!*
+  
+  **Moving Operation**
+  
+  <img src="assets/longMove.gif" alt="drawing" width="600"/>
+  
+  *Suppose there are `Document 1` and `Document 2`, in `Document 1`, wrap the content to be moved with `aacc1` and `aacc2`, then insert `aacc3` at a certain position in `Document 2`, and finally open the `command palette` and select `Batch Move Large Continuous Content`*
+  
+  **This moving operation will transfer the flashcards along with the content, without changing the review status of the flashcards. Simple `ctrl+c,v` will make the involved flashcards invalid.**
+  
+  > **Note** `aacc1`, `aacc2`, `aacc3` must not have spaces before or after, otherwise the plugin will not find them.
+  
+  <img src="assets/cmd.png" alt="drawing" width="600"/>
+  
+  **Copying Operation**
+  
+  <img src="assets/longCopy.gif" alt="drawing" width="600"/>
+  
+  **Deleting Operation**
+  
+  Similar to the moving operation, but select the delete command and do not need to write `aacc3`.
+</details>
 
 ---
 
 ## Image Overlay (Flashcard Image Censoring)
-
-<img src="assets/overlay.gif" alt="drawing" width="800"/>
-
-**Usage:** Right-click on the image block -> Plugin -> Add Image Overlay.
-
-This feature is disabled by default and needs to be enabled in the `Tomato Toolbox` configuration.
-
-**To view the original image, double-click on the area without the overlay in the image.**
-
-**Supports image zooming. Overlays created in older versions need to be re-edited to support zooming.**
-
-**Supports mouse drag to draw a rectangle.**
-
-> Why this feature?
-> 
-> My needs are slightly different from the `Image Overlay` feature of [siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance). I want the image to always be covered, regardless of whether it is in flashcard review, unless the mouse hovers over it, the overlay will be removed. For an image with multiple overlays, only the overlay under the mouse will disappear. (Some code referenced from: [siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance), thanks to: [zxhd863943427](https://github.com/zxhd863943427))
-
-> [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+<details>
+  
+  <img src="assets/overlay.gif" alt="drawing" width="800"/>
+  
+  **Usage:** Right-click on the image block -> Plugin -> Add Image Overlay.
+  
+  This feature is disabled by default and needs to be enabled in the `Tomato Toolbox` configuration.
+  
+  **To view the original image, double-click on the area without the overlay in the image.**
+  
+  **Supports image zooming. Overlays created in older versions need to be re-edited to support zooming.**
+  
+  **Supports mouse drag to draw a rectangle.**
+  
+  > Why this feature?
+  >
+  > My needs are slightly different from the `Image Overlay` feature of [siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance). I want the image to always be covered, regardless of whether it is in flashcard review, unless the mouse hovers over it, the overlay will be removed. For an image with multiple overlays, only the overlay under the mouse will disappear. (Some code referenced from: [siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance), thanks to: [zxhd863943427](https://github.com/zxhd863943427))
+  
+  > [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+</details>
 
 ---
 
 ## Move Content to Daily Note
-
-`Ctrl+6`
-
-<img src="assets/move2dailynote.gif" alt="drawing" width="700"/>
-
-Move the content block at the cursor or all selected content to the bottom of today's daily note.
-
-Supports right-click and shortcut keys, disabled by default, please enable from the configuration.
-
-> Only moves the selected single line or multiple lines of content, or the block at the cursor when nothing is selected.
-
-> [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+<details>
+  
+  `Ctrl+6`
+  
+  <img src="assets/move2dailynote.gif" alt="drawing" width="700"/>
+  
+  Move the content block at the cursor or all selected content to the bottom of today's daily note.
+  
+  Supports right-click and shortcut keys, disabled by default, please enable from the configuration.
+  
+  > Only moves the selected single line or multiple lines of content, or the block at the cursor when nothing is selected.
+  
+  > [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+</details>
 
 ---
 
 ## Delete Checked Tasks (Command Palette) `shift+alt+u`
-
-<img src="assets/taskrm.gif" alt="drawing" width="600"/>
-
-Right-click menu, enabled by default, deletes checked tasks within the current document.
-
-> [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+<details>
+  
+  <img src="assets/taskrm.gif" alt="drawing" width="600"/>
+  
+  Right-click menu, enabled by default, deletes checked tasks within the current document.
+  
+  > [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+</details>
 
 ## Uncheck Tasks (Command Palette) `shift+alt+d`
-
-Right-click menu, enabled by default, unchecks all tasks in the current document.
+<details>
+  
+  Right-click menu, enabled by default, unchecks all tasks in the current document.
+</details>
 
 ---
 
 ## Top Toolbar
-
-![Alt text](assets/nextdailynote.png)
-
-### Open Previous/Next Daily Note (Configuration: Move Content to Daily Note)
-
-**The last two icons represent the previous and next daily notes**
-
-`alt+w`, `alt+q`
-
-> Default is off, please enable from configuration: "Move Content to Daily Note" feature.
-
-### Open Flashcards (Configuration: Enable Toolbar Button) `alt+0`
-
-**The lightning icon is** default open.
-
-### Global Document Navigation (Configuration: Enable Toolbar Button) `alt+1`
-
-Automatically opens the document tree, collapses documents, and navigates to the document. Only the path of the target document is expanded, other document paths are collapsed.
-
-### Refresh Virtual References (Configuration: Enable Toolbar Button) `F5`
-
-Default open.
-
-### Language Switch Button (Configuration: Enable Toolbar Button)
-
-Default off.
-
-> Some of the above shortcuts conflict with the official ones and need to be removed before they can take effect. Alternatively, modify the shortcuts of this plugin.
+<details>
+  
+  ![Alt text](assets/nextdailynote.png)
+  
+  ### Open Previous/Next Daily Note (Configuration: Move Content to Daily Note)
+  
+  **The last two icons represent the previous and next daily notes**
+  
+  `alt+w`, `alt+q`
+  
+  > Default is off, please enable from configuration: "Move Content to Daily Note" feature.
+  
+  ### Open Flashcards (Configuration: Enable Toolbar Button) `alt+0`
+  
+  **The lightning icon is** default open.
+  
+  ### Global Document Navigation (Configuration: Enable Toolbar Button) `alt+1`
+  
+  Automatically opens the document tree, collapses documents, and navigates to the document. Only the path of the target document is expanded, other document paths are collapsed.
+  
+  ### Refresh Virtual References (Configuration: Enable Toolbar Button) `F5`
+  
+  Default open.
+  
+  ### Language Switch Button (Configuration: Enable Toolbar Button)
+  
+  Default off.
+  
+  > Some of the above shortcuts conflict with the official ones and need to be removed before they can take effect. Alternatively, modify the shortcuts of this plugin.
+</details>
 
 ---
 
 ## Artificial Intelligence (Streaming Stream)
-
-Supported: *ERNIE, DeepSeek, Moonshot, OpenAI in the Source Configuration.*
-
-First, write keys in the configuration:
-
-<img src="assets/baiduAI1.png" alt="drawing" width="400"/>
-
-Then use the shortcut `Alt+Shift+S` for `selected text` or `text at the cursor`:
-
-<img src="assets/AI_OP.gif" alt="drawing" width="700"/>
-
-> [If the image cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+<details>
+  
+  Supported: *ERNIE, DeepSeek, Moonshot, OpenAI in the Source Configuration.*
+  
+  First, write keys in the configuration:
+  
+  <img src="assets/baiduAI1.png" alt="drawing" width="400"/>
+  
+  Then use the shortcut `Alt+Shift+S` for `selected text` or `text at the cursor`:
+  
+  <img src="assets/AI_OP.gif" alt="drawing" width="700"/>
+  
+  > [If the image cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+</details>
 
 ---
 
 ## Copy Multiple Blocks as a Image
-
-<img src="assets/copAsImg.gif" alt="drawing" width="900"/>
+<details>
+  
+  <img src="assets/copAsImg.gif" alt="drawing" width="900"/>
+</details>
 
 ---
 
 ## Additional Features
-
-### Static Backlinks
-
-Exportable bottom backlinks.
-
-For files with a large number of backlinks, using static backlinks is stress-free.
-
-<img src="assets/statickLnk.gif" alt="drawing" width="800"/>
-
-> [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-### Move Document Content to Another Document
-
-<img src="assets/moveDocs.gif" alt="drawing" width="600"/>
-
-### Merge Documents
-
-<img src="assets/mergeDocs.gif" alt="drawing" width="600"/>
-
-Right-click at a certain point in `Document B` -> Plugins -> Quick Menu, find the `Merge Documents` button.
-
-Move the content of `Document A` to the right-click location, transfer the references and properties of `Document A` to `Document B`.
-
-Delete `Document A`.
-
-> [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-### Convert Selected Text to Reference
-
-Shortcut key: `F3`
-
-<img src="assets/text2refF3.gif" alt="drawing" width="500"/>
-
-> [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-### One-click Bookmarking
-
-One-click bookmarking `ctrl+f1`  
-One-click deletion of all bookmarks in the current document `ctrl+f2`  
-
-<img src="assets/flagBookmark.gif" alt="drawing" width="500"/>
-
-> [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-### Jump to Block ID in Clipboard
-
-<img src="assets/gotoBlockID.gif" alt="drawing" width="500"/>
-
-> [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-### Add Selected Text and Its Pinyin as Aliases in the Document for Easy Search by Pinyin. Ctrl+shift+y
-
-Default is off, needs to be turned on from the configuration. Then use it in the right-click menu after selecting the text.
-
-<img src="assets/addPinyin.gif" alt="drawing" width="800"/>
-
-### Organize Images, Videos, and Audios Under Assets
-
-*If there are too many files under assets, it's a minefield, accidentally clicking on them can cause a freeze. I personally organize these files into a folder structure by year and month.*
-
-<img src="assets/tidyAssets.gif" alt="drawing" width="800"/>
-
-### Create an Empty Xmind File
-
-*Requires Xmind to be installed first*
-
-<img src="assets/createXmid.gif" alt="drawing" width="500"/>
-
-> [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-### Make Content Blurry Alt+Shift+D
-
-The first press applies a blur effect, the second press removes the blur effect.
-
-<img src="assets/makeItBlur.gif" alt="drawing" width="300"/>
-
-### Create a Table Using Alt+Shift+T
-
-Columns in a table are separated by the '|' character for multiple lines.
-
-<img src="assets/makeTab.gif" alt="drawing" width="300"/>
-
-### Paragraph block read-only function `Alt+Shift+L`
-
-### Locate all backlinks for a block `Alt+Shift+A`
-
-### Click on the reference count in the upper right corner of the block to locate all backlinks.
-
-<img src="assets/openRefByClick.gif" alt="drawing" width="600"/>
+<details>
+  
+  ### Static Backlinks
+  
+  Exportable bottom backlinks.
+  
+  For files with a large number of backlinks, using static backlinks is stress-free.
+  
+  <img src="assets/statickLnk.gif" alt="drawing" width="800"/>
+  
+  > [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+  
+  ### Move Document Content to Another Document
+  
+  <img src="assets/moveDocs.gif" alt="drawing" width="600"/>
+  
+  ### Merge Documents
+  
+  <img src="assets/mergeDocs.gif" alt="drawing" width="600"/>
+  
+  Right-click at a certain point in `Document B` -> Plugins -> Quick Menu, find the `Merge Documents` button.
+  
+  Move the content of `Document A` to the right-click location, transfer the references and properties of `Document A` to `Document B`.
+  
+  Delete `Document A`.
+  
+  > [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+  
+  ### Convert Selected Text to Reference
+  
+  Shortcut key: `F3`
+  
+  <img src="assets/text2refF3.gif" alt="drawing" width="500"/>
+  
+  > [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+  
+  ### One-click Bookmarking
+  
+  One-click bookmarking `ctrl+f1`
+  One-click deletion of all bookmarks in the current document `ctrl+f2`
+  
+  <img src="assets/flagBookmark.gif" alt="drawing" width="500"/>
+  
+  > [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+  
+  ### Jump to Block ID in Clipboard
+  
+  <img src="assets/gotoBlockID.gif" alt="drawing" width="500"/>
+  
+  > [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+  
+  ### Add Selected Text and Its Pinyin as Aliases in the Document for Easy Search by Pinyin. Ctrl+shift+y
+  
+  Default is off, needs to be turned on from the configuration. Then use it in the right-click menu after selecting the text.
+  
+  <img src="assets/addPinyin.gif" alt="drawing" width="800"/>
+  
+  ### Organize Images, Videos, and Audios Under Assets
+  
+  *If there are too many files under assets, it's a minefield, accidentally clicking on them can cause a freeze. I personally organize these files into a folder structure by year and month.*
+  
+  <img src="assets/tidyAssets.gif" alt="drawing" width="800"/>
+  
+  ### Create an Empty Xmind File
+  
+  *Requires Xmind to be installed first*
+  
+  <img src="assets/createXmid.gif" alt="drawing" width="500"/>
+  
+  > [Unable to open the image? Click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+  
+  ### Make Content Blurry Alt+Shift+D
+  
+  The first press applies a blur effect, the second press removes the blur effect.
+  
+  <img src="assets/makeItBlur.gif" alt="drawing" width="300"/>
+  
+  ### Create a Table Using Alt+Shift+T
+  
+  Columns in a table are separated by the '|' character for multiple lines.
+  
+  <img src="assets/makeTab.gif" alt="drawing" width="300"/>
+  
+  ### Paragraph block read-only function `Alt+Shift+L`
+  
+  ### Locate all backlinks for a block `Alt+Shift+A`
+  
+  ### Click on the reference count in the upper right corner of the block to locate all backlinks.
+  
+  <img src="assets/openRefByClick.gif" alt="drawing" width="600"/>
+</details>
 
 # Acknowledgements
 
@@ -716,7 +764,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-08-01
 
-* update readme
+* Tomato Timer: Background image has been upgraded to enhance visual appeal.
 
 ## 2024-07-31
 
