@@ -647,7 +647,8 @@ Columns in a table are separated by the '|' character for multiple lines.
 
 # Acknowledgements
 
-**Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.**
+<details>
+  <summary>Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.</summary>
 
 * 2024-07 `凭风引`
 * 2024-07 `**岚`
@@ -691,6 +692,8 @@ Columns in a table are separated by the '|' character for multiple lines.
 * 2023-12 [爱发电用户_EbBe](https://afdian.com/u/d11e3c741bc711ee95eb52540025c377)
 * 2023-12 [爱发电用户_b2864](https://afdian.com/u/b286492496af11eea38752540025c377)
 
+</details>
+
 # Bug Reports and Suggestions
 
 Join the `QQ` group: 263961482
@@ -711,6 +714,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-08-01
+
+* update readme
+
 ## 2024-07-31
 
 * Bottom Backlinks: Fixed a bug that caused a 5-second delay. Now, bottom backlinks can be loaded instantly.
@@ -725,6 +732,9 @@ Join the `QQ` group: 263961482
 
 * Move to Today's Notes: You can choose to move to the bottom of the document.
 * Delete the reading point of the current document, shortcut key: `ctrl+F7`
+
+<details>
+  <summary>more changelogs</summary>
 
 ## 2024-07-17
 
@@ -1617,3 +1627,5 @@ Join the `QQ` group: 263961482
 ## 2023-11-08
 
 * First version
+
+</details>
