@@ -115,45 +115,8 @@
   
   Get the ID after publishing and fill it into the toolbox configuration.
   
-  ### 5 [Download Qianfan Interface Forwarder](https://gitee.com/TokenzQdBN/baidu-qf)
-  
-  *Why do you need this? Baidu does not provide a JS SDK, but offers a Python SDK.*
-  
-  *To allow the Tomato Toolbox to access Baidu Qianfan, I developed a forwarder using the Python SDK.*
-  
-  #### Method 1: Windows Users Can Directly [Download](https://gitee.com/TokenzQdBN/baidu-qf/releases) the Compiled Forwarder EXE
-  
-  Place it anywhere and double-click to run it with the default configuration.
-  
-  The first time it runs, it will generate a `.ini` file.
-  
-  If needed, you can configure the address and port, which will take effect after restarting.
-  
-  Remember to also modify the configuration in the Tomato Toolbox.
-  
   At this point, it is ready to use.
   
-  #### Method 2: Linux, Windows, MAC Can Install the Forwarder via Source Code
-  
-  1. [Download the source code](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip)
-  1. Install the cross-platform [Powershell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.4)
-  1. Execute `initProj.ps1`
-  1. Execute `run.ps1 pro`
-  
-  **If you do not use Powershell**
-  
-  [Download the source code](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip) or `git clone https://gitee.com/TokenzQdBN/baidu-qf.git`
-  
-  ```sh
-  cd baidu-qf
-  python -m venv venv
-  venv\Scripts\activate
-  pip install --upgrade appbuilder-sdk flask waitress pyinstaller
-  cd app-builder
-  pip install .
-  cd ..
-  python app.py
-  ```
 </details>
 
 ---
@@ -761,6 +724,10 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.com/a/playerv5)**
 
 # Changelog
+
+## 2024-08-05
+
+* AI Knowledge Base: It has been upgraded to a pure plugin function and no longer requires an additional `EXE` file to act as a forwarder.
 
 ## 2024-08-01
 

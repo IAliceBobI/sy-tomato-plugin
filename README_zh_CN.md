@@ -127,45 +127,8 @@
   
   发布得到ID，把ID填入工具箱的配置中。
   
-  ### 5 [下载千帆接口转发器](https://gitee.com/TokenzQdBN/baidu-qf)
-  
-  *为什么要这个东西？百度不提供 JS SDK，提供了 Python SDK。*
-  
-  *为了让番茄工具箱，可以访问百度千帆，我用 Python SDK 开发了个转发器。*
-  
-  #### 方法1：Windows 用户可以直接[下载](https://gitee.com/TokenzQdBN/baidu-qf/releases)，编译好的转发器EXE
-  
-  随便放一个地方，双击运行即可，使用默认配置。
-  
-  第一次运行，会生成一个 `.ini` 文件。
-  
-  如果需要，可以在`.ini`修改地址与端口，重启生效。
-  
-  记得再到番茄工具箱配置也修改。
-  
   到这里已经可以使用了。
   
-  #### 方法2：Linux, Windows, MAC 可以通过源码安装转发器
-  
-  1. [下载源码](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip)
-  1. 安装跨平台 [Powershell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.4)
-  1. 执行 `initProj.ps1`
-  1. 执行 `run.ps1 pro`
-  
-  **如果不用 powershell**
-  
-  [下载源码](https://gitee.com/TokenzQdBN/baidu-qf/repository/archive/main.zip) 或者 `git clone https://gitee.com/TokenzQdBN/baidu-qf.git`
-  
-  ```sh
-  cd baidu-qf
-  python -m venv venv
-  venv\Scripts\activate
-  pip install --upgrade appbuilder-sdk flask waitress pyinstaller
-  cd app-builder
-  pip install .
-  cd ..
-  python app.py
-  ```
 </details>
 
 ---
@@ -800,6 +763,10 @@
 **[或者移步，爱发电](https://afdian.com/a/playerv5)**
 
 # 更新日志
+
+## 2024-08-05
+
+* AI知识库：目前已经升级为纯插件功能，不需要额外的`EXE`来做转发器了。
 
 ## 2024-08-01
 
