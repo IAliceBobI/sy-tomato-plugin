@@ -725,6 +725,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-08-06
+
+* fastnote: Create file with Ctrl+N, locate the last file with Ctrl+Alt+N. Need to enable from the settings.
+
 ## 2024-08-05
 
 * AI Knowledge Base: It has been upgraded to a pure plugin function and no longer requires an additional `EXE` file to act as a forwarder.
@@ -733,6 +737,9 @@ Join the `QQ` group: 263961482
 
 * Tomato Timer: Background image has been upgraded to enhance visual appeal.
 
+<details>
+  <summary>more changelogs</summary>
+  
 ## 2024-07-31
 
 * Bottom Backlinks: Fixed a bug that caused a 5-second delay. Now, bottom backlinks can be loaded instantly.
@@ -748,8 +755,7 @@ Join the `QQ` group: 263961482
 * Move to Today's Notes: You can choose to move to the bottom of the document.
 * Delete the reading point of the current document, shortcut key: `ctrl+F7`
 
-<details>
-  <summary>more changelogs</summary>
+
 
 ## 2024-07-17
 
