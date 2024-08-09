@@ -725,6 +725,12 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-08-09
+
+* Bottom Backlinks: Ability to manually set the number of columns.
+* Bottom Backlinks: Default to collapsing the probability bar.
+* Knowledge Base: Ability to delete documents and sub-documents.
+
 ## 2024-08-08
 
 * Bidirectional interlinking: Text can be omitted for the link. 
@@ -733,6 +739,9 @@ Join the `QQ` group: 263961482
 
 * fastnote: Create file with Ctrl+N, locate the last file with Ctrl+Alt+N. Need to enable from the settings.
 
+<details>
+  <summary>more changelogs</summary>
+
 ## 2024-08-05
 
 * AI Knowledge Base: It has been upgraded to a pure plugin function and no longer requires an additional `EXE` file to act as a forwarder.
@@ -740,9 +749,6 @@ Join the `QQ` group: 263961482
 ## 2024-08-01
 
 * Tomato Timer: Background image has been upgraded to enhance visual appeal.
-
-<details>
-  <summary>more changelogs</summary>
   
 ## 2024-07-31
 
