@@ -727,6 +727,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-08-09
 
+* Miscellaneous: Copy the document as standard markdown.
 * Bottom Backlinks: Ability to manually set the number of columns.
 * Bottom Backlinks: Default to collapsing the probability bar.
 * Knowledge Base: Ability to delete documents and sub-documents.
