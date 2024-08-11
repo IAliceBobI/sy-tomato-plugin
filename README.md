@@ -338,6 +338,8 @@
   
   Use `Alt+F1` to select the first block, and use `Alt+F2` at the second block to create two links that jump to each other.
   
+  `alt+shift+F1` can fix bidirectional links. For example, if you cut and paste content and the block ID changes, you can use `alt+shift+F1` to repair it.
+
   ### Usage 2
   
   <img src="assets/bilink2.gif" alt="drawing" width="600"/>
@@ -724,6 +726,10 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.com/a/playerv5)**
 
 # Changelog
+
+## 2024-08-11
+
+* `alt+shift+F1` can fix bidirectional links. For example, if you cut and paste content and the block ID changes, you can use `alt+shift+F1` to repair it.
 
 ## 2024-08-09
 
