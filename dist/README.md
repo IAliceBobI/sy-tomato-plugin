@@ -727,6 +727,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-08-12
+
+* config: Permanently display Home, End icons on the right side of the document.
+
 ## 2024-08-11
 
 * `alt+shift+F1` can fix bidirectional links. For example, if you cut and paste content and the block ID changes, you can use `alt+shift+F1` to repair it.
@@ -738,6 +742,9 @@ Join the `QQ` group: 263961482
 * Bottom Backlinks: Default to collapsing the probability bar.
 * Knowledge Base: Ability to delete documents and sub-documents.
 
+<details>
+  <summary>more changelogs</summary>
+
 ## 2024-08-08
 
 * Bidirectional interlinking: Text can be omitted for the link. 
@@ -745,9 +752,6 @@ Join the `QQ` group: 263961482
 ## 2024-08-06
 
 * fastnote: Create file with Ctrl+N, locate the last file with Ctrl+Alt+N. Need to enable from the settings.
-
-<details>
-  <summary>more changelogs</summary>
 
 ## 2024-08-05
 
