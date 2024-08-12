@@ -663,6 +663,7 @@
 <details>
   <summary>Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.</summary>
 
+* 2024-08 `duanduan`
 * 2024-07 `凭风引`
 * 2024-07 `**岚`
 * 2024-06 [虚青海](https://afdian.com/a/xqh042)
@@ -729,6 +730,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-08-12
 
+* Move to the daily note: Add a copy function. The anchor text can be set.
 * config: Permanently display Home, End icons on the right side of the document.
 
 ## 2024-08-11
