@@ -653,6 +653,10 @@
   
   ### Locate all backlinks for a block `Alt+Shift+A`
   
+  ### Delete Content and Flashcards `ctrl+alt+d`
+
+  Simultaneously delete the selected or cursor-positioned content block, document, and corresponding flashcards. If the cursor is at the title, it deletes the document. If deleting a document, it first deletes the flashcards within it.
+
   ### Click on the reference count in the upper right corner of the block to locate all backlinks.
   
   <img src="assets/openRefByClick.gif" alt="drawing" width="600"/>
@@ -727,6 +731,10 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.com/a/playerv5)**
 
 # Changelog
+
+## 2024-08-14
+
+* Miscellaneous: ctrl+alt+d simultaneously deletes the selected content block, the content block at the cursor, the document, and the corresponding flashcards. If the cursor is at the title, it deletes the document. If it is deleting a document, it first deletes the flashcards within it.
 
 ## 2024-08-12
 
