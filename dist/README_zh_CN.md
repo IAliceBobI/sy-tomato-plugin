@@ -358,7 +358,9 @@
   使用`Alt+F1`选择第一个块，在第二个块处使用`Alt+F2`，这样就创建好了两个互相跳转的链接。
 
   `alt+shift+F1` 可以修复双向链接。比如把内容剪切后再粘贴，块ID发生了变化，可以用`alt+shift+F1`修复。
-  
+
+  <img src="assets/fixbrokenlnks.gif" alt="drawing" width="400"/>
+
   ### 用法2
   
   <img src="assets/bilink2.gif" alt="drawing" width="600"/>
@@ -770,6 +772,10 @@
 **[或者移步，爱发电](https://afdian.com/a/playerv5)**
 
 # 更新日志
+
+## 2024-08-16
+
+* 移动到dailynote: 增加复制功能。可复制到新文件。
 
 ## 2024-08-14
 

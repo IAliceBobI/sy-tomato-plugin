@@ -340,6 +340,8 @@
   
   `alt+shift+F1` can fix bidirectional links. For example, if you cut and paste content and the block ID changes, you can use `alt+shift+F1` to repair it.
 
+  <img src="assets/fixbrokenlnks.gif" alt="drawing" width="400"/>
+
   ### Usage 2
   
   <img src="assets/bilink2.gif" alt="drawing" width="600"/>
@@ -731,6 +733,10 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.com/a/playerv5)**
 
 # Changelog
+
+## 2024-08-16
+
+* Move to the daily note: Add a copy function. It can copy to a new file.
 
 ## 2024-08-14
 
