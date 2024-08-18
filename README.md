@@ -669,6 +669,8 @@
 <details>
   <summary>Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.</summary>
 
+* 2024-08 `edapan`
+* 2024-08 [虚青海](https://afdian.com/a/xqh042)
 * 2024-08 `duanduan`
 * 2024-07 `凭风引`
 * 2024-07 `**岚`
@@ -733,6 +735,10 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.com/a/playerv5)**
 
 # Changelog
+
+## 2024-08-18
+
+* `ctrl+1` Experience is smooth!
 
 ## 2024-08-16
 
