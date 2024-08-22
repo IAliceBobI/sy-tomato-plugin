@@ -736,6 +736,11 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-08-22
+
+* Upgrade dependencies.
+* Improve loading speed.
+
 ## 2024-08-18
 
 * `ctrl+1` Experience is smooth!
