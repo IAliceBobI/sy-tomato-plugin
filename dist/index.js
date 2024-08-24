@@ -748,7 +748,7 @@ ${Wn()}`,u.docID),await m.pushMsg(I.copyBlock复制块成功,2e3),Q0}async funct
         font-size: initial !important;
         }
         .card__block--hidemark span[data-type~=mark]:hover::before {
-        content: "";
+        content: "🙋➡️";
         }
     `,document.head.appendChild(t)}function l6(){if(!k2.get())return;let t=document.createElement("style");t.innerText=`
         .protyle-wysiwyg div[memo]::before {
