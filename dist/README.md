@@ -736,6 +736,13 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-08-26
+
+* Some minor updates
+
+<details>
+  <summary>more changelogs</summary>
+  
 ## 2024-08-22
 
 * Upgrade dependencies.
@@ -768,9 +775,6 @@ Join the `QQ` group: 263961482
 * Bottom Backlinks: Ability to manually set the number of columns.
 * Bottom Backlinks: Default to collapsing the probability bar.
 * Knowledge Base: Ability to delete documents and sub-documents.
-
-<details>
-  <summary>more changelogs</summary>
 
 ## 2024-08-08
 
