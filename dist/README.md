@@ -739,6 +739,7 @@ Join the `QQ` group: 263961482
 ## 2024-08-26
 
 * Some minor updates
+* Bottom backlink: adding concise mode
 
 <details>
   <summary>more changelogs</summary>
