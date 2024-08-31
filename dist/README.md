@@ -736,6 +736,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-08-31
+
+* Configurable, move the HomeEnd icon to the left.
+
 ## 2024-08-27
 
 * Show custom properties of the document. Can be turned on from the settings.
