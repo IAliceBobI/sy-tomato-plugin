@@ -362,6 +362,12 @@
   <img src="assets/fixbrokenlnks.gif" alt="drawing" width="400"/>
 
   ### 用法2
+
+  链接到底部: `Alt+F3`
+
+  <img src="assets/bilink1bottom.gif" alt="drawing" width="400"/>
+
+  ### 用法3
   
   <img src="assets/bilink2.gif" alt="drawing" width="600"/>
   
@@ -775,9 +781,16 @@
 
 # 更新日志
 
+## 2024-09-01
+
+* 双向互链：增加`链接到块底部`功能。
+
 ## 2024-08-31
 
 * 可配置，HomeEnd图标放到左边。
+
+<details>
+  <summary>更多更新日志</summary>
 
 ## 2024-08-27
 
@@ -787,9 +800,6 @@
 
 * 一些小更新
 * 底部反链：增加简洁模式
-
-<details>
-  <summary>更多更新日志</summary>
 
 ## 2024-08-22
 

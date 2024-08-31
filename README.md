@@ -343,6 +343,12 @@
   <img src="assets/fixbrokenlnks.gif" alt="drawing" width="400"/>
 
   ### Usage 2
+
+  link to bottom: `Alt+F3`
+
+  <img src="assets/bilink1bottom.gif" alt="drawing" width="400"/>
+
+  ### Usage 3
   
   <img src="assets/bilink2.gif" alt="drawing" width="600"/>
   
@@ -736,9 +742,16 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-09-01
+
+* add `link to block bottom` function.
+
 ## 2024-08-31
 
 * Configurable, move the HomeEnd icon to the left.
+
+<details>
+  <summary>more changelogs</summary>
 
 ## 2024-08-27
 
@@ -748,9 +761,6 @@ Join the `QQ` group: 263961482
 
 * Some minor updates
 * Bottom backlink: adding concise mode
-
-<details>
-  <summary>more changelogs</summary>
   
 ## 2024-08-22
 
