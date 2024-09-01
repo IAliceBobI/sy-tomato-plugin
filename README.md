@@ -744,6 +744,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-09-01
 
+* Bottom backlinks: Can be sorted by modification time in descending order, or by creation time in descending order.
 * add `link to block bottom` function.
 
 ## 2024-08-31
