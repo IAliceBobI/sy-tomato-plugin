@@ -659,7 +659,7 @@
   
   ### Paragraph block read-only function `Alt+Shift+L`
   
-  ### Locate all backlinks for a block `Alt+Shift+A`
+  ### Can locate the backlinks of a specified block, as well as virtual forward links `Alt+Shift+A`
   
   ### Delete Content and Flashcards `ctrl+alt+d`
 
@@ -741,6 +741,11 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.com/a/playerv5)**
 
 # Changelog
+
+## 2024-09-02
+
+* Miscellaneous: `Alt+Shift+A`, can locate the backlinks of a specified block, as well as virtual forward links
+* Reading point: `ctrl+4`, redesigned for more convenience and speed.
 
 ## 2024-09-01
 
