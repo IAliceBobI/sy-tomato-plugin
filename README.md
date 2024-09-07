@@ -742,6 +742,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-09-08
+
+* The logic for traversing daily notes has been improved and is more reasonable.
+
 ## 2024-09-02
 
 * Miscellaneous: `Alt+Shift+A`, can locate the backlinks of a specified block, as well as virtual forward links
