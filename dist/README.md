@@ -742,6 +742,13 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-09-09
+
+* Bottom backlinks: Feature optimization. You can now jump from the title to the bottom backlinks.
+
+<details>
+  <summary>more changelogs</summary>
+
 ## 2024-09-08
 
 * The logic for traversing daily notes has been improved and is more reasonable.
@@ -759,9 +766,6 @@ Join the `QQ` group: 263961482
 ## 2024-08-31
 
 * Configurable, move the HomeEnd icon to the left.
-
-<details>
-  <summary>more changelogs</summary>
 
 ## 2024-08-27
 
