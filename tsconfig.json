@@ -33,18 +33,26 @@
         "checkJs": true,
         "types": [
             "node",
-            "vite/client",
-            "svelte"
+            // "vite/client",
+            // "svelte"
         ],
         // "baseUrl": "./src",
-        "paths": {
-            "@/*": ["./src/*"],
-            "@/libs/*": ["./src/libs/*"],
-        }
+        // "paths": {
+        //     "@/*": ["./src/*"],
+        //     "@/libs/*": ["./src/libs/*"],
+        // },
+        "typeRoots": [
+            "./src/types",
+            "./node_modules/@types"
+        ],
     },
     "include": [
         "src/**/*.ts",
         "src/**/*.d.ts",
+        "src/**/*.svelte",
+    ],
+    "exclude": [
+        "node_modules"
     ],
     "references": [
         {
