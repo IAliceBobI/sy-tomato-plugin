@@ -367,6 +367,14 @@
 
   <img src="assets/bilink1bottom.gif" alt="drawing" width="400"/>
 
+  ### 用法3
+  
+  <img src="assets/bilink2.gif" alt="drawing" width="600"/>
+  
+  快捷键：`Alt+/` 或者菜单中选择对应功能。
+  
+  > **提示** 可以多行选择，但需要使用快捷键：`Alt+/`。
+
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
 </details>
 
