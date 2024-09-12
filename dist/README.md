@@ -348,14 +348,6 @@
 
   <img src="assets/bilink1bottom.gif" alt="drawing" width="400"/>
 
-  ### Usage 3
-  
-  <img src="assets/bilink2.gif" alt="drawing" width="600"/>
-  
-  Shortcut: `Alt+/` or select the corresponding function from the menu.
-  
-  > **Tip** Multiple lines can be selected, but the shortcut key: `Alt+/` must be used.
-  
   > [If images cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
 </details>
 
@@ -741,6 +733,10 @@ Join the `QQ` group: 263961482
 **[Or visit, Afdian](https://afdian.com/a/playerv5)**
 
 # Changelog
+
+## 2024-09-12
+
+* Bottom backlinks: supports sorting by title.
 
 ## 2024-09-09
 

@@ -367,14 +367,6 @@
 
   <img src="assets/bilink1bottom.gif" alt="drawing" width="400"/>
 
-  ### 用法3
-  
-  <img src="assets/bilink2.gif" alt="drawing" width="600"/>
-  
-  快捷键：`Alt+/` 或者菜单中选择对应功能。
-  
-  > **提示** 可以多行选择，但需要使用快捷键：`Alt+/`。
-  
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
 </details>
 
@@ -780,6 +772,10 @@
 **[或者移步，爱发电](https://afdian.com/a/playerv5)**
 
 # 更新日志
+
+## 2024-09-12
+
+* 底部反链：支持按照标题排序。
 
 ## 2024-09-09
 
