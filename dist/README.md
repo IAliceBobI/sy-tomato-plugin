@@ -742,6 +742,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-09-13
+
+* Quick Documentation: Add "Document Backside" (Draft), where each document can switch between the backside and the front side using `F4`. The default shortcut is likely to conflict, so please adjust it.
+
 ## 2024-09-12
 
 * Bottom backlinks: supports sorting by title.
