@@ -745,7 +745,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-09-14
 
-* New Feature: Render content containing specified strings as tags.
+* New Feature: Render references containing a specified prefix as tags.
 
 ## 2024-09-13
 
