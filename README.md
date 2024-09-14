@@ -742,6 +742,10 @@ Join the `QQ` group: 263961482
 
 # Changelog
 
+## 2024-09-14
+
+* new: If the quote is at the beginning or end of the paragraph, change it to tag style. (If it doesn't display correctly, refresh the page with F5.)
+
 ## 2024-09-13
 
 * Quick Documentation: Add "Document Backside" (Draft), where each document can switch between the backside and the front side using `F4`. The default shortcut is likely to conflict, so please adjust it.
