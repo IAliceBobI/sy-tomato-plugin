@@ -745,7 +745,7 @@ Join the `QQ` group: 263961482
 
 ## 2024-09-14
 
-* new: If the quote is at the beginning or end of the paragraph, change it to tag style. (If it doesn't display correctly, refresh the page with F5.)
+* New Feature: Render content containing specified strings as tags.
 
 ## 2024-09-13
 
