@@ -723,12 +723,6 @@
 
 </details>
 
-# Bug Reports and Suggestions
-
-Join the `QQ` group: 263961482
-
-[Or submit an issue on Github](https://github.com/IAliceBobI/sy-plugins/issues)
-
 # Donations, Encouragement, and Reminders for Updates 🎉
 
 <div>
@@ -738,8 +732,6 @@ Join the `QQ` group: 263961482
 <div>
 <img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/zfb1.jpg" alt="WeChat" width="300" />
 </div>
-
-**[Or visit, Afdian](https://afdian.com/a/playerv5)**
 
 # Changelog
 

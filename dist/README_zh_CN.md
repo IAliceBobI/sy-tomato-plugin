@@ -762,12 +762,6 @@
 
 </details>
 
-# BUG反馈、建议
-
-到`QQ`群: 263961482
-
-[或者到 Github 提交问题](https://github.com/IAliceBobI/sy-plugins/issues)
-
 # 打赏、鼓励、催更 🎉
 
 <div>
@@ -777,8 +771,6 @@
 <div>
 <img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/zfb1.jpg" alt="wechat" width="300" />
 </div>
-
-**[或者移步，爱发电](https://afdian.com/a/playerv5)**
 
 # 更新日志
 
