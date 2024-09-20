@@ -737,7 +737,8 @@
 
 ## 2024-09-20
 
-* 新功能：总是保持已经加载的内容
+* New feature: Always keep the loaded content.
+* Reading points: Can be uniformly stored.
 
 ## 2024-09-14
 
