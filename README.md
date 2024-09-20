@@ -735,6 +735,10 @@
 
 # Changelog
 
+## 2024-09-20
+
+* 新功能：总是保持已经加载的内容
+
 ## 2024-09-14
 
 * New Feature: Render references containing a specified prefix as tags.
