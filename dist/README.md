@@ -735,6 +735,10 @@
 
 # Changelog
 
+## 2024-09-23
+
+* Hover to display flashcard answer feature: Adjust font.
+
 ## 2024-09-20
 
 * New feature: Always keep the loaded content.
