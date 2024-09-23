@@ -935,7 +935,7 @@
 ## 2024-06-14
 
 * readingpoint: fix a bug.
-* buttom backlink: by default, disabled auto refresh
+* bottom backlink: by default, disabled auto refresh
 
 ## 2024-06-13
 
