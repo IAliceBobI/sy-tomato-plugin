@@ -735,6 +735,13 @@
 
 # Changelog
 
+## 2024-09-25
+
+* Miscellaneous: Inserting mind maps supports ".drawio" and ".xmind".
+
+<details>
+  <summary>more changelogs</summary>
+
 ## 2024-09-23
 
 * Hover to display flashcard answer feature: Adjust font.
@@ -759,9 +766,6 @@
 ## 2024-09-09
 
 * Bottom backlinks: Feature optimization. You can now jump from the title to the bottom backlinks.
-
-<details>
-  <summary>more changelogs</summary>
 
 ## 2024-09-08
 
