@@ -738,6 +738,7 @@
 ## 2024-09-25
 
 * Miscellaneous: Inserting mind maps supports ".drawio" and ".xmind".
+* Database backlink `F9`: Insert the backlink into the database.
 
 <details>
   <summary>more changelogs</summary>
