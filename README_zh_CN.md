@@ -720,7 +720,8 @@
 <details>
   <summary>感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。</summary>
 
-* 2024-08 [Tisamn](https://afdian.com/u/cef7f2e42a0f11efb03952540025c377)
+* 2024-09 星愿无辰
+* 2024-09 [Tisamn](https://afdian.com/u/cef7f2e42a0f11efb03952540025c377)
 * 2024-08 `edapan`
 * 2024-08 [虚青海](https://afdian.com/a/xqh042)
 * 2024-08 `duanduan`
@@ -780,13 +781,17 @@
 
 # 更新日志
 
+## 2024-09-27
+
+* 快速笔记功能调整快捷键。
+
+<details>
+  <summary>更多更新日志</summary>
+
 ## 2024-09-25
 
 * 杂项：插入脑图支持 ".drawio" 以及 ".xmind"
 * 数据库反链`F9`: 将反链插入数据库。
-
-<details>
-  <summary>更多更新日志</summary>
   
 ## 2024-09-23
 
