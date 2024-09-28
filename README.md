@@ -736,12 +736,16 @@
 
 # Changelog
 
-## 2024-09-27
+## 2024-09-28
 
-* Adjust the shortcut keys for the quick note function.
+* bottom backlink optimization
 
 <details>
   <summary>more changelogs</summary>
+
+## 2024-09-27
+
+* Adjust the shortcut keys for the quick note function.
 
 ## 2024-09-25
 
