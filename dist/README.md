@@ -736,12 +736,16 @@
 
 # Changelog
 
-## 2024-09-28
+## 2024-09-30
 
-* bottom backlink optimization
+* The storage point for reading points can be specified with a file name.
 
 <details>
   <summary>more changelogs</summary>
+
+## 2024-09-28
+
+* bottom backlink optimization
 
 ## 2024-09-27
 
