@@ -208,11 +208,7 @@
   
   Use `@` to isolate references from other text. For instance, `EE@@ABC@FF` will be converted to `EEABCFF` where `ABC` is a reference.
   
-  ### `@@@`: Fuzzy Conversion:
-  
-  For example, in a content block, `aaa @@@剑仙 ccc` may be converted to `aaa 九位剑仙 ccc` if there is already a file named `九位剑仙`.
-  
-  If there is no existing file name containing `剑仙`, the text `@@@剑仙` will be converted to `@剑仙@`.
+  ### `@@@`: Fuzzy Conversion: `ctrl+4`
   
   **When creating a file, you can make a flashcard for it and add a pinyin attribute to the file. This needs to be enabled in the configuration.**
 </details>
@@ -736,12 +732,14 @@
 
 # Changelog
 
-## 2024-09-30
-
-* The storage point for reading points can be specified with a file name.
+[中文](https://github.com/IAliceBobI/sy-tomato-plugin/blob/main/README_zh_CN.md)
 
 <details>
   <summary>more changelogs</summary>
+
+## 2024-09-30
+
+* The storage point for reading points can be specified with a file name.
 
 ## 2024-09-28
 
