@@ -208,7 +208,7 @@
   
   Use `@` to isolate references from other text. For instance, `EE@@ABC@FF` will be converted to `EEABCFF` where `ABC` is a reference.
   
-  ### `@@@`: Fuzzy Conversion: `ctrl+4`
+  ### Fuzzy Conversion: `ctrl+4`
   
   **When creating a file, you can make a flashcard for it and add a pinyin attribute to the file. This needs to be enabled in the configuration.**
 </details>
@@ -1118,7 +1118,7 @@
 
 ## 2024-05-07
 
-* Text-to-reference, fuzzy search: Changed to use `@@@`.
+* Text-to-reference, fuzzy search: ctrl+4
 
 ## 2024-05-05
 
@@ -1130,7 +1130,7 @@
 * Removed tag-to-reference feature.
 * New feature: Text-to-reference.
 * Text-to-reference mode 1: Exact search: Text prefixed with `@@` in paragraph blocks is converted to references.
-* Text-to-reference mode 2: Fuzzy search: Text prefixed with `@@@` in paragraph blocks is converted to references. For example, `@@@sword` might be converted to `swordmaster` reference if `swordmaster` exists. If not, create `sword` file and convert to reference.
+* Text-to-reference mode 2: ctrl+4
 
 ## 2024-05-02
 
