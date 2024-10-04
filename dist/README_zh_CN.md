@@ -7,11 +7,13 @@
 ## 配置
 
 <details>
+
   <img src="assets/settings.gif" alt="drawing" width="800"/>
   
   > [打赏鼓励，请到这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md#bug%E5%8F%8D%E9%A6%88%E5%BB%BA%E8%AE%AE)
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
@@ -19,8 +21,10 @@
 ## `右键菜单`与`图标菜单`
 
 <details>
+
   <img src="assets/menu.png" alt="drawing" width="600"/>
   <img src="assets/iconmenu.png" alt="drawing" width="600"/>
+
 </details>
 
 ---
@@ -73,6 +77,7 @@
   <img src="assets/changeBG.gif" alt="drawing" width="600"/>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
@@ -134,6 +139,7 @@
 ---
 
 ## 拍照闪念
+
 <details>
   
   收集闪念到当天dailynote，支持从`相机`与`图库`插入图片。
@@ -206,11 +212,13 @@
   `enter` 写入当天的dailynote。
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## 文本转引用
+
 <details>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
@@ -226,6 +234,7 @@
   ### 模糊转换：`ctrl+4`
   
   **创建文件时可将文件制卡，可以给文件加上拼音属性。需要在配置中打开。**
+
 </details>
 
 ---
@@ -263,6 +272,7 @@
   <img src="assets/cardSusp.gif" alt="drawing" width="600"/>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
@@ -292,17 +302,19 @@
   **文档所有卡，取消制卡**
   
   <img src="assets/removeCardsInDoc.gif" alt="drawing" width="700"/>
+
 </details>
 
 ---
 
 ## 数据库反链
 
-将反链插入数据库。
+将反链插入数据库。`F9`
 
 ---
 
 ## 底部反链
+
 <details>
   
   
@@ -345,11 +357,13 @@
   **比如：** `小明 老炮 小红|如花|秋菊 !老王 !王总`，将搜索到包含`小明`与`老炮`，并且至少包含`小红`、`如花`、`秋菊`中一个，但不包含`老王`，也不包含`王总`的反链。
   
   > `底部反链区` 默认关闭，请从配置中打开。
+
 </details>
 
 ---
 
 ## 双向互链
+
 <details>
   
   
@@ -378,11 +392,13 @@
   > **提示** 可以多行选择，但需要使用快捷键：`Alt+/`。
 
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## 内容提醒 `ctrl+3`
+
 <details>
   
   *给一个内容块设置个提醒日期吧！*
@@ -402,11 +418,13 @@
   <img src="assets/scheduleCopyID.gif" alt="drawing" width="400"/>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## 阅读点
+
 <details>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
@@ -424,11 +442,13 @@
   > 阅读点全新升级：保留之前的书签功能外，另加入闪卡，利用了闪卡的计划能力，同时也保存了当时看过了哪些文件。
   
   > **注意** `阅读点` 图标的分组方式与书签面板的不一样。
+
 </details>
 
 ---
 
 ## 清理失效`闪卡` ctrl+shift+z
+
 <details>
   
   <img src="assets/cleancards.gif" alt="drawing" width="600"/>
@@ -440,11 +460,13 @@
   > **注意** 使用前做好备份！
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## 超长内容操作
+
 <details>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
@@ -470,11 +492,13 @@
   **删除操作**
   
   类似移动操作，但要选择删除命令，且无需写`aacc3`。
+
 </details>
 
 ---
 
 ## 图片遮挡（闪卡图片挖空）
+
 <details>
   
   <img src="assets/overlay.gif" alt="drawing" width="800"/>
@@ -494,11 +518,13 @@
   > 我的需求与 [siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance) 的`图片遮挡`功能有点差异。希望图片一直处于遮挡，无论是否在闪卡复习中，除非鼠标悬浮其上，才会撤销遮挡。对于一个图片有多个遮挡层的情况，只有鼠标悬浮的那个遮挡层才消失。（部分代码参考了：[siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance)，感谢：[zxhd863943427](https://github.com/zxhd863943427)）
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## 移动内容到 daily note
+
 <details>
   
   `Ctrl+6`
@@ -512,11 +538,13 @@
   > 仅仅移动选中的单行或者多行内容，或者未选中时，光标所在块。
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## 删除已经勾选的任务（命令面板） `shift+alt+u`
+
 <details>
   
   <img src="assets/taskrm.gif" alt="drawing" width="600"/>
@@ -528,11 +556,13 @@
   ## 取消任务的勾选（命令面板） `shift+alt+d`
   
   右键菜单，默认开启，取消当前文档中所有任务的勾选。
+
 </details>
 
 ---
 
 ## 顶部工具条
+
 <details>
   
   ![Alt text](assets/nextdailynote.png)
@@ -562,11 +592,13 @@
   默认关闭。
   
   > 以上的快捷键有些与官方的冲突，需要先去掉官方的才能生效。或者修改本插件的快捷键。
+
 </details>
 
 ---
 
 ## 人工智能（流式 stream）
+
 <details>
   
   支持：*文心一言、deepseek、moonshot、思源配置里的OpenAI。*
@@ -580,14 +612,17 @@
   <img src="assets/AI_OP.gif" alt="drawing" width="700"/>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## 复制多个块为图片
+
 <details>
   
   <img src="assets/copAsImg.gif" alt="drawing" width="900"/>
+
 </details>
 
 ---
@@ -595,6 +630,7 @@
 ## 其他功能
 
 ### 静态反链
+
 <details>
   
   可以被导出的底部反链。
@@ -604,15 +640,19 @@
   <img src="assets/statickLnk.gif" alt="drawing" width="800"/>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ### 移动文档内容到另一文档
+
 <details>
   
   <img src="assets/moveDocs.gif" alt="drawing" width="600"/>
+
 </details>
 
 ### 文档合并
+
 <details>
   
   <img src="assets/mergeDocs.gif" alt="drawing" width="600"/>
@@ -624,9 +664,11 @@
   把`文档A`删除。
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ### 选中文本转引用
+
 <details>
   
   快捷键：`F3`
@@ -634,9 +676,11 @@
   <img src="assets/text2refF3.gif" alt="drawing" width="500"/>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ### 一键加书签
+
 <details>
   
   一键加书签 `ctrl+f1`
@@ -645,33 +689,41 @@
   <img src="assets/flagBookmark.gif" alt="drawing" width="500"/>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ### 跳转到剪贴板中的块ID
+
 <details>
   
   <img src="assets/gotoBlockID.gif" alt="drawing" width="500"/>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ### 选中文字与其拼音加入文档的别名，方便用拼音搜索。Ctrl+shift+y
+
 <details>
   
   默认关闭，需要从配置中打开。然后在选中文字，在右键菜单中使用。
   
   <img src="assets/addPinyin.gif" alt="drawing" width="800"/>
+
 </details>
 
 ### 整理Assets下的图片、视频、音频。
+
 <details>
   
   *如果assets下的文件太多，是个地雷，不小心点到得卡半天。我个人会整理这些文件，为年月的文件夹结构。*
   
   <img src="assets/tidyAssets.gif" alt="drawing" width="800"/>
+
 </details>
 
 ### 创建空白xmind文件
+
 <details>
   
   *需要先安装 xmind*
@@ -679,22 +731,27 @@
   <img src="assets/createXmid.gif" alt="drawing" width="500"/>
   
   > [打不开图片请看这里](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ### 让内容变得模糊 Alt+Shift+D
+
 <details>
   
   第一次按下为附加模糊效果，第二按下为取消模糊效果。
   
   <img src="assets/makeItBlur.gif" alt="drawing" width="300"/>
+
 </details>
 
 ### 内容制表 Alt+Shift+T
+
 <details>
   
   多行用‘|’分割的列，可以制表。
   
   <img src="assets/makeTab.gif" alt="drawing" width="300"/>
+
 </details>
 
 ### 段落块只读功能 `Alt+Shift+L`
@@ -706,14 +763,17 @@
 同时删除选中的、光标处的内容块，文档，以及对应的闪卡。光标在标题处，则是删除文档。如果是删除文档，则先删除其内部的闪卡。
 
 ### 点击块右上角引用数，定位所有反链。
+
 <details>
   
   <img src="assets/openRefByClick.gif" alt="drawing" width="600"/>
+
 </details>
 
 # 鸣谢
 
 <details>
+
   <summary>感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。</summary>
 
 * 2024-10 `**强`
