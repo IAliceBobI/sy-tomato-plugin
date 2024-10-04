@@ -5,6 +5,7 @@
 > [I guess the image below is probably broken 😢, check here!](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
 
 ## Configuration
+
 <details>
   
   <img src="assets/settings.gif" alt="drawing" width="800"/>
@@ -12,15 +13,18 @@
   > [To support and encourage, please visit here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md#bug-feedback-recommendations)
   
   > [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## `Right-click Menu` and `Icon Menu`
+
 <details>
   
   <img src="assets/menu.png" alt="drawing" width="600"/>
   <img src="assets/iconmenu.png" alt="drawing" width="600"/>
+
 </details>
 
 ---
@@ -28,6 +32,7 @@
 ## Tomato Clock
 
 **Status Bar Tomato Clock**
+
 <details>
   
   *Quick Test* can add `0.01` minutes, for example, the configuration: `0.01,5,10,15,25,30`
@@ -46,9 +51,11 @@
   *Custom durations are supported.*
   *The timer will continue from the last session even after restarting SiYuan.*
   *Remaining time can be viewed.*
+
 </details>
 
 **Random content playback after timing ends**
+
 <details>
   
   Randomly reads content from a specified file and displays it after timing ends.
@@ -58,9 +65,11 @@
   *`Escape` can close the pop-up window*
   
   <img src="assets/randVedio.gif" alt="drawing" width="600"/>
+
 </details>
 
 **Change background image after timing**
+
 <details>
   
   A picture is needed for both light and dark modes.
@@ -68,11 +77,13 @@
   <img src="assets/changeBG.gif" alt="drawing" width="600"/>
   
   > [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## AI Knowledge Base Q&A `Ctrl+Shift+S`
+
 <details>
   
   For SiYuan documents, ask questions and include references to the sources in the answers.
@@ -117,11 +128,13 @@
   
   At this point, it is ready to use.
   
+
 </details>
 
 ---
 
 ## Capture Fleeting Thoughts
+
 <details>
   
   Collect fleeting thoughts into the daily note, supporting image insertion from `camera` and `gallery`.
@@ -193,11 +206,13 @@
   `enter` to write into the daily note of the day.
   
   > [Unable to open images? Check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## Text to Reference Conversion
+
 <details>
   
   <img src="assets/text2ref.gif" alt="drawing" width="600" />
@@ -211,11 +226,13 @@
   ### Fuzzy Conversion: `ctrl+4`
   
   **When creating a file, you can make a flashcard for it and add a pinyin attribute to the file. This needs to be enabled in the configuration.**
+
 </details>
 
 ---
 
 ## Flashcard Priority
+
 <details>
   
   <img src="assets/cardpri1.gif" alt="drawing" width="600" />
@@ -247,11 +264,13 @@
   <img src="assets/cardSusp.gif" alt="drawing" width="600"/>
   
   > [If you can't open the image, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## Add/Delete Flashcard Buttons During Review
+
 <details>
   
   Please enable the `Flashcard Tools` in the configuration.
@@ -275,11 +294,13 @@
   **Cancel Card Making for All Cards in a Document**
   
   <img src="assets/removeCardsInDoc.gif" alt="drawing" width="700"/>
+
 </details>
 
 ---
 
 ## Bottom Backlinks
+
 <details>
   
   Incorporate a bottom backlinks area similar to that in `logseq`. For list/outline blocks, we can see their parent and child blocks. The parent is viewed from the breadcrumb, and the child from the content.
@@ -321,11 +342,13 @@
   **For example:** `Xiaoming Laopao Xiaohong|Ruhua|Qiuju !Laowang !Wangzong` will search for backlinks containing `Xiaoming` and `Laopao`, and at least one of `Xiaohong`, `Ruhua`, or `Qiuju`, but not containing `Laowang` or `Wangzong`.
   
   > The `Bottom Backlinks Area` is default off, please turn it on from the configuration.
+
 </details>
 
 ---
 
 ## Bidirectional Links
+
 <details>
   
   ### Usage 1
@@ -353,11 +376,13 @@
   > **Tip** Multiple lines can be selected, but the shortcut key: `Alt+/` must be used.
   
   > [If images cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## Content Reminder `ctrl+3`
+
 <details>
   
   *Set a reminder date for a content block!*
@@ -377,11 +402,13 @@
   <img src="assets/scheduleCopyID.gif" alt="drawing" width="400"/>
   
   > [If images cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## Reading Point
+
 <details>
   
   <img src="assets/readingpoint.gif" alt="drawing" width="800"/>
@@ -397,11 +424,13 @@
   > The Reading Point has been upgraded: In addition to the previous bookmark function, flashcards have been added, utilizing the scheduling capabilities of flashcards, and also saving which files have been viewed at the time.
   
   > **Note** The grouping method of the `Reading Point` icon is different from that of the bookmarks panel.
+
 </details>
 
 ---
 
 ## Cleaning Invalid Flashcards
+
 <details>
   
   <img src="assets/cleancards.gif" alt="drawing" width="600"/>
@@ -417,11 +446,13 @@
   > **Note** Make a backup before using!
   
   > [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## Handling Long Content Operations
+
 <details>
   
   *Copying, moving, and deleting long content drives me crazy! Here, I use a simple method to handle such operations!*
@@ -445,11 +476,13 @@
   **Deleting Operation**
   
   Similar to the moving operation, but select the delete command and do not need to write `aacc3`.
+
 </details>
 
 ---
 
 ## Image Overlay (Flashcard Image Censoring)
+
 <details>
   
   <img src="assets/overlay.gif" alt="drawing" width="800"/>
@@ -469,11 +502,13 @@
   > My needs are slightly different from the `Image Overlay` feature of [siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance). I want the image to always be covered, regardless of whether it is in flashcard review, unless the mouse hovers over it, the overlay will be removed. For an image with multiple overlays, only the overlay under the mouse will disappear. (Some code referenced from: [siyuan-plugin-flash-enhance](https://github.com/zxhd863943427/siyuan-plugin-flash-enhance), thanks to: [zxhd863943427](https://github.com/zxhd863943427))
   
   > [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## Move Content to Daily Note
+
 <details>
   
   `Ctrl+6`
@@ -487,11 +522,13 @@
   > Only moves the selected single line or multiple lines of content, or the block at the cursor when nothing is selected.
   
   > [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## Delete Checked Tasks (Command Palette) `shift+alt+u`
+
 <details>
   
   <img src="assets/taskrm.gif" alt="drawing" width="600"/>
@@ -499,17 +536,21 @@
   Right-click menu, enabled by default, deletes checked tasks within the current document.
   
   > [If you can't open the image, click here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ## Uncheck Tasks (Command Palette) `shift+alt+d`
+
 <details>
   
   Right-click menu, enabled by default, unchecks all tasks in the current document.
+
 </details>
 
 ---
 
 ## Top Toolbar
+
 <details>
   
   ![Alt text](assets/nextdailynote.png)
@@ -539,11 +580,13 @@
   Default off.
   
   > Some of the above shortcuts conflict with the official ones and need to be removed before they can take effect. Alternatively, modify the shortcuts of this plugin.
+
 </details>
 
 ---
 
 ## Artificial Intelligence (Streaming Stream)
+
 <details>
   
   Supported: *ERNIE, DeepSeek, Moonshot, OpenAI in the Source Configuration.*
@@ -557,19 +600,23 @@
   <img src="assets/AI_OP.gif" alt="drawing" width="700"/>
   
   > [If the image cannot be opened, please check here](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 </details>
 
 ---
 
 ## Copy Multiple Blocks as a Image
+
 <details>
   
   <img src="assets/copAsImg.gif" alt="drawing" width="900"/>
+
 </details>
 
 ---
 
 ## Additional Features
+
 <details>
   
   ### Static Backlinks
@@ -664,9 +711,11 @@
   ### Click on the reference count in the upper right corner of the block to locate all backlinks.
   
   <img src="assets/openRefByClick.gif" alt="drawing" width="600"/>
+
 </details>
 
 # Acknowledgements
+
 
 <details>
   <summary>Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.</summary>
@@ -721,6 +770,7 @@
 * 2023-12 [爱发电用户_EbBe](https://afdian.com/u/d11e3c741bc711ee95eb52540025c377)
 * 2023-12 [爱发电用户_b2864](https://afdian.com/u/b286492496af11eea38752540025c377)
 
+
 </details>
 
 # Donations, Encouragement, and Reminders for Updates 🎉
@@ -736,6 +786,7 @@
 # Changelog
 
 [中文](https://github.com/IAliceBobI/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 
 <details>
   <summary>more changelogs</summary>
@@ -1766,5 +1817,6 @@
 ## 2023-11-08
 
 * First version
+
 
 </details>
