@@ -671,6 +671,7 @@
 <details>
   <summary>Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.</summary>
 
+* 2024-10 `**强`
 * 2024-10 Sonetto
 * 2024-09 星愿无辰
 * 2024-09 [Tisamn](https://afdian.com/u/cef7f2e42a0f11efb03952540025c377)

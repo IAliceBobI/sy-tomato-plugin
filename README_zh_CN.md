@@ -716,6 +716,7 @@
 <details>
   <summary>感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。</summary>
 
+* 2024-10 `**强`
 * 2024-10 Sonetto
 * 2024-09 星愿无辰
 * 2024-09 [Tisamn](https://afdian.com/u/cef7f2e42a0f11efb03952540025c377)
