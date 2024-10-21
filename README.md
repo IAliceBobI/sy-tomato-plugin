@@ -787,7 +787,6 @@
 
 [中文](https://github.com/IAliceBobI/sy-tomato-plugin/blob/main/README_zh_CN.md)
 
-
 <details>
   <summary>more changelogs</summary>
 
