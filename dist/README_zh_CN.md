@@ -383,11 +383,15 @@
 
   ### 用法2
 
+  在A块ctrl+f1，然后在B块ctrl+f2，将在创建B块下方创建A块的`嵌入块`。
+
+  ### 用法3
+
   链接到底部: `Alt+F3`
 
   <img src="assets/bilink1bottom.gif" alt="drawing" width="400"/>
 
-  ### 用法3
+  ### 用法4
   
   <img src="assets/bilink2.gif" alt="drawing" width="600"/>
   
@@ -844,12 +848,16 @@
 
 # 更新日志
 
-## 2024-10-30
+## 2024-10-31
 
-* 文本转引用: 如果你有文档 ABC 与 AEF, '@@@A' 将展开为： 'ABC AEF'。
+* 双向互链：在A块ctrl+f1，然后在B块ctrl+f2，将在创建B块下方创建A块的嵌入块。
 
 <details>
   <summary>更多更新日志</summary>
+
+## 2024-10-30
+
+* 文本转引用: 如果你有文档 ABC 与 AEF, '@@@A' 将展开为： 'ABC AEF'。
 
 ## 2024-10-20
 
