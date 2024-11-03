@@ -720,6 +720,7 @@
 <details>
   <summary>Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.</summary>
 
+* 2024-10 `Nnf`
 * 2024-10 `**强`
 * 2024-10 Sonetto
 * 2024-09 星愿无辰
@@ -769,7 +770,6 @@
 * 2023-12 [没头脑和不高兴](https://afdian.com/u/25e08b1eb1a511edbb3d5254001e7c00)
 * 2023-12 [爱发电用户_EbBe](https://afdian.com/u/d11e3c741bc711ee95eb52540025c377)
 * 2023-12 [爱发电用户_b2864](https://afdian.com/u/b286492496af11eea38752540025c377)
-
 
 </details>
 
