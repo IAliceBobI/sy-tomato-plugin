@@ -2,7 +2,10 @@
 
 # 番茄工具箱
 
-> [我猜下面的图九成九是裂开了😢，看这里吧！](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+## [新文档(编辑中)👈👈👈](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)
+
+## [老文档](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
+
 
 ## 配置
 
@@ -784,6 +787,8 @@
 
   <summary>感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。</summary>
 
+* 2024-11 [爱发电用户_35865](https://afdian.com/u/35865882c7e411ed8b3b5254001e7c00)
+* 2024-11 [Tisamn](https://afdian.com/u/cef7f2e42a0f11efb03952540025c377)
 * 2024-10 `Nnf`
 * 2024-10 `**强`
 * 2024-10 Sonetto
@@ -848,6 +853,10 @@
 </div>
 
 # 更新日志
+
+## 2024-11-08
+
+* 加入内容关系图
 
 ## 2024-11-03
 

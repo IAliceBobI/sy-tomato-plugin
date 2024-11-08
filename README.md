@@ -2,11 +2,11 @@
 
 # Tomato Toolbox
 
-> [I guess the image below is probably broken 😢, check here!](https://gitee.com/TokenzQdBN/sy-tomato-plugin/blob/main/README_zh_CN.md)
-
-## Configuration
+## [new doc👈👈👈](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)
 
 <details>
+## Configuration
+
   
   <img src="assets/settings.gif" alt="drawing" width="800"/>
   
@@ -720,6 +720,8 @@
 <details>
   <summary>Thank you to all the generous supporters, your donations are of great significance to the development of my plugins.</summary>
 
+* 2024-11 [爱发电用户_35865](https://afdian.com/u/35865882c7e411ed8b3b5254001e7c00)
+* 2024-11 [Tisamn](https://afdian.com/u/cef7f2e42a0f11efb03952540025c377)
 * 2024-10 `Nnf`
 * 2024-10 `**强`
 * 2024-10 Sonetto

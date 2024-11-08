@@ -34,6 +34,7 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "@tsconfig/svelte": "^4.0.1",
+    "@types/elliptic": "^6.4.18",
     "@types/fabric": "^5.3.7",
     "@types/node": "^20.12.7",
     "fast-glob": "^3.2.12",
@@ -47,11 +48,12 @@
     "typescript": "^5.4.5",
     "vite": "^5.0.0",
     "vite-plugin-static-copy": "^1.0.2",
-    "vite-plugin-zip-pack": "^1.2.3",
-    "@types/elliptic": "^6.4.18"
+    "vite-plugin-zip-pack": "^1.2.3"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^1.1.4",
     "@types/uuid": "^9.0.8",
+    "@xyflow/svelte": "^0.1.23",
     "elliptic": "^6.5.7",
     "fabric": "^5.4.0",
     "html2canvas": "^1.4.1",
