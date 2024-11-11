@@ -2,8 +2,9 @@
 
 # [新文档(编辑中)👈👈👈](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)
 
-# [issue 反馈提交到这里](https://pd.qq.com/s/2fh7nh7gz)
-[English](https://github.com/IAliceBobI/sy-tomato-plugin/blob/main/README.md)
+# [issue 反馈](https://pd.qq.com/s/2fh7nh7gz)
+
+# [更新日志](https://awx9773btw.feishu.cn/docx/KekbdZ6Ozo4LLHxAGsncGTKJnff?from=from_copylink)
 
 # 番茄工具箱
 

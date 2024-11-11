@@ -4,7 +4,9 @@
 
 ## [new doc 👈👈👈](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)
 
-# [issue 反馈提交到这里](https://pd.qq.com/s/2fh7nh7gz)
+# [issue 反馈](https://pd.qq.com/s/2fh7nh7gz)
+
+# [CHANGELOG](https://awx9773btw.feishu.cn/docx/KekbdZ6Ozo4LLHxAGsncGTKJnff?from=from_copylink)
 
 <details>
 <details>
