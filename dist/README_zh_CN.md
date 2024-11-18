@@ -1,10 +1,10 @@
 [English](https://github.com/IAliceBobI/sy-tomato-plugin/blob/main/README.md)
 
-# [新文档(编辑中)👈👈👈](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)
+# [DOC 帮助文档 👈](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)
 
-# [issue 反馈 交流 QQ频道](https://pd.qq.com/s/2fh7nh7gz)
+# [ISSUE 反馈 交流 QQ频道](https://pd.qq.com/s/2fh7nh7gz)
 
-# [更新日志](https://awx9773btw.feishu.cn/docx/KekbdZ6Ozo4LLHxAGsncGTKJnff?from=from_copylink)
+# [CHANGELOG 更新日志](https://awx9773btw.feishu.cn/docx/KekbdZ6Ozo4LLHxAGsncGTKJnff?from=from_copylink)
 
 # 番茄工具箱
 
@@ -785,8 +785,6 @@
 # 鸣谢
 
 <details>
-
-  <summary>感谢所有慷慨的支持者，你们的打赏对我的插件开发意义重大。</summary>
 
 * 2024-11 [爱发电用户_35865](https://afdian.com/u/35865882c7e411ed8b3b5254001e7c00)
 * 2024-11 [Tisamn](https://afdian.com/u/cef7f2e42a0f11efb03952540025c377)

@@ -4,7 +4,7 @@
         "useDefineForClassFields": true,
         "module": "ESNext",
         "lib": [
-            "ES2021",
+            "ES2022",
             "DOM",
             "DOM.Iterable"
         ],
