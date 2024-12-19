@@ -55,7 +55,7 @@ on:
 #           artifactErrorsFailBuild: true
 #           artifacts: "package.zip"
 #           token: ${{ secrets.GITHUB_TOKEN }}
-#           prerelease: false
+#           prerelease: true
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -77,4 +77,4 @@ jobs:
           artifactErrorsFailBuild: true
           artifacts: "package.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: false
+          prerelease: true
