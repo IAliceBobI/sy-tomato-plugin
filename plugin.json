@@ -2,7 +2,7 @@
   "name": "sy-tomato-plugin",
   "author": "IAliceBobI",
   "url": "https://github.com/IAliceBobI/sy-tomato-plugin",
-  "version": "2.6.50",
+  "version": "3.0.1",
   "minAppVersion": "3.0.3",
   "backends": [
     "all"
@@ -15,8 +15,8 @@
     "zh_CN": "番茄工具箱"
   },
   "description": {
-    "default": "Status Bar Pomodoro, Bottom Backlinks, Sync Blocks, Block Relationship Graph, Text to Reference, Flash Idea via Camera, Reading Points, Two-Way Mutual Links, AI Knowledge Base Q&A, Streaming AI, Database Backlinks, Flashcard Priority, Document Merge, Recurring Reminders, Delete Cards During Review, Flashcard Image Cloze, Move to Today's Notes, Clean Up Invalid Flashcards",
-    "zh_CN": "状态栏番茄钟、底部反链、同步块、块关系图、文本转引用、拍照闪念、阅读点、双向互链、AI知识库问答、流式AI、数据库反链、闪卡优先级、文档合并、定期提醒、复习时删卡、闪卡图片挖空、移到今日笔记、清理失效闪卡"
+    "default": "Status Bar Pomodoro, Annotation, Bottom Backlinks, Sync Blocks, Block Relationship Graph, Text to Reference, Flash Idea via Camera, Reading Points, Two-Way Mutual Links, AI Knowledge Base Q&A, Streaming AI, Database Backlinks, Flashcard Priority, Document Merge, Recurring Reminders, Delete Cards During Review, Flashcard Image Cloze, Move to Today's Notes, Clean Up Invalid Flashcards",
+    "zh_CN": "状态栏番茄钟、批注、底部反链、同步块、块关系图、文本转引用、拍照闪念、阅读点、双向互链、AI知识库问答、流式AI、数据库反链、闪卡优先级、文档合并、定期提醒、复习时删卡、闪卡图片挖空、移到今日笔记、清理失效闪卡"
   },
   "readme": {
     "default": "README.md",
