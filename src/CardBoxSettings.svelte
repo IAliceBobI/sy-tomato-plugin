@@ -8,6 +8,9 @@
     import { locTree, OpenSyFile2 } from "./libs/docUtils";
     import { DestroyManager } from "./libs/destroyer";
     import { tomatoI18n } from "./tomatoI18n";
+    import { cardBoxSpradEvenlyPostpone } from "./libs/stores";
+    import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
+    import TomatoVIP from "./TomatoVIP.svelte";
 
     export let protyle: IProtyle;
     protyle;
@@ -120,24 +123,36 @@
                     type="number"
                     class="b3-text-field"
                 />
-                Days
+                {tomatoI18n.天}
             </label>
+            <br />
             <button class="b3-button b3-button--outline" on:click={delayCard}
                 >📅{tomatoI18n.推迟x小时(hours)}</button
             >
+            <br />
             <button
                 title={tomatoI18n.没处理过的闪卡都被推迟}
                 class="b3-button b3-button--outline"
                 on:click={() => delayRestCards(false)}
                 >🌊📅{tomatoI18n.推迟余下闪卡x小时(hours)}</button
             >
-            <button
-                class="b3-button b3-button--outline"
-                on:click={() => delayRestCards(true)}
-                >🌊{tomatoI18n.把剩余闪卡均匀推迟在未来x小时内(
-                    hours.toFixed(1),
-                )}</button
-            >
+            {#if $cardBoxSpradEvenlyPostpone}
+                <br />
+                <button
+                    disabled={!lastVerifyResult()}
+                    class="b3-button b3-button--outline"
+                    on:click={async () => {
+                        if (await verifyKeyTomato()) {
+                            await delayRestCards(true);
+                        }
+                    }}
+                    >🌊{tomatoI18n.把剩余闪卡分散推迟在未来x小时内(
+                        hours.toFixed(1),
+                    )}
+                    <TomatoVIP codeValid={lastVerifyResult()}
+                    ></TomatoVIP></button
+                >
+            {/if}
         </div>
     </div>
 </div>

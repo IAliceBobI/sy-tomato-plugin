@@ -606,50 +606,8 @@ export abstract class TomatoI18nABC8 extends TomatoI18nABC9 {
                 return "Quick notes";
         }
     }
-    public get 创建快速笔记() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "创建快速笔记 Ctrl+N";
-            case "es_ES":
-                return "Crear nota rápida Ctrl+N";
-            case "fr_FR":
-                return "Créer une note rapide Ctrl+N";
-            case "ja_JP":
-                return "クイックノートを作成する Ctrl+N";
-            case "zh_CHT":
-                return "建立快速筆記 Ctrl+N";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Create quick note Ctrl+N";
-        }
-    }
-    public get 打开最后一个笔记() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "打开最后一个笔记 Ctrl+Alt+N";
-            case "es_ES":
-                return "Abrir última nota Ctrl+Alt+N";
-            case "fr_FR":
-                return "Ouvrir la dernière note Ctrl+Alt+N";
-            case "ja_JP":
-                return "最後のノートを開く Ctrl+Alt+N";
-            case "zh_CHT":
-                return "打開最後一個筆記 Ctrl+Alt+N";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Open last note Ctrl+Alt+N";
-        }
-    }
+
+  
     public get 给链接加文字(): string {
         switch (this.conf.appearance.lang) {
             case "zh_CN":

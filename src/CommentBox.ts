@@ -1,13 +1,13 @@
 import { adaptHotkey, Dock, IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { add_ref, cloneCleanDiv, extendMap, getAllText, getAttribute, getContextPath, newID, setAttribute, siyuan } from "./libs/utils";
+import { add_ref, cloneCleanDiv, extendMap, getAllText, getAttribute, getContextPath, newID, NewNodeID, setAttribute, setTimeouts, siyuan } from "./libs/utils";
 import CommentBoxSvelte from "./CommentBox.svelte";
 import { commentBoxAddFlashCard, commentBoxAddUnderline, commentBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { isReadonly } from "./libs/docUtils";
 import { DialogTextArea } from "./libs/DialogText";
-import { DomListBuilder, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
+import { domNewHeading, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
 
 const DOCK_TYPE = "dock_CommentBox";
 
@@ -93,7 +93,7 @@ class CommentBox {
 
     private async findDivs(protyle: IProtyle, _newFile: boolean) {
         const ro = isReadonly(protyle)
-        const { ids, selected, rangeText } = await events.selectedDivs(protyle);
+        const { ids, selected, rangeText, range } = await events.selectedDivs(protyle);
         if (!selected || selected.length == 0) return;
         let boxID = storeNoteBox_selectedNotebook.getOr();
         if (!boxID) boxID = events.boxID;
@@ -133,41 +133,68 @@ class CommentBox {
 
             builder.setAttr("custom-lnk-bottom", "1");
             builder.setAttr("custom-tomato-ref-hpath", await rpath);
+            text.trim().split("\n").forEach(l => builder.append(domNewLine(l)))
+
+            const heandingID = NewNodeID();
             if (newDivs.length == 1) {
-                setAttribute(newDivs[0], "fold", "1");
-                builder.append(newDivs[0]);
+                setAttribute(newDivs.at(0), "fold", "1");
+                builder.append(newDivs.at(0));
             } else {
-                const list = new DomListBuilder();
                 const txtLen = txt.length;
-                const maxLen = 40;
+                const maxLen = 32;
                 txt = txt.slice(0, maxLen)
                 if (txtLen > maxLen) {
                     txt += "..."
                 }
-                list.append2FirstItem(domNewLine(txt));
+                const h = domNewHeading(txt, "h6", heandingID, true);
+                setAttribute(h, "custom-comment-heading", "1")
+                builder.append(h);
+                builder.append(...newDivs)
+
                 newDivs.forEach(div => {
-                    list.append2FirstItem(div);
-                })
-                const c = list.build();
-                c.firstElementChild.setAttribute("fold", "1");
-                builder.append(c)
+                    setAttribute(div, "fold", "1")
+                    setAttribute(div, "heading-fold", "1")
+                });
             }
-            text.split("\n").forEach(l => builder.append(domNewLine(l)))
 
             const { id: docID } = await createDailyNoteTask;
-            const tail = await siyuan.getTailChildBlocks(docID, 1);
-            ops.push(...siyuan.transInsertBlocksAfter([builder.build().outerHTML], tail[0].id))
+            const tail = await siyuan.getDocLastID(docID);
+            ops.push(...siyuan.transInsertBlocksAfter([builder.build().outerHTML], tail))
             await siyuan.transactions(ops);
 
             if (commentBoxAddFlashCard.get()) {
                 siyuan.addRiffCards([builder.id])
             }
 
-            if (commentBoxAddUnderline.get() && await ro != "true") {
+            if (commentBoxAddUnderline.get() && await ro != "true" && newDivs.length == 1) {
+                const hasUnderline = (e: HTMLElement) => {
+                    if (e?.tagName === "SPAN") {
+                        if (getAttribute(e, "data-type") === "u") {
+                            return true;
+                        }
+                    }
+                }
                 try {
+                    const a = range?.startContainer?.parentElement;
+                    const b = range?.endContainer?.parentElement;
                     protyle.toolbar.setInlineMark(protyle, "u", "range");
+                    if (hasUnderline(a) || hasUnderline(b)) {
+                        protyle.toolbar.setInlineMark(protyle, "u", "range");
+                    }
                 } catch (e) {
                 }
+            }
+
+            if (newDivs.length > 1) {
+                setTimeouts(() => {
+                    newDivs.forEach(div => {
+                        document
+                            .querySelectorAll(`div[data-node-id="${getAttribute(div, "data-node-id")}"]`)
+                            .forEach(e => {
+                                e?.parentElement?.removeChild(e);
+                            });
+                    });
+                }, 500, 3000, 800);
             }
         });
     }

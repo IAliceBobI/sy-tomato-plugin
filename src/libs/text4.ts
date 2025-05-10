@@ -1,28 +1,7 @@
 import { TomatoI18nABC5 } from "./text5";
 
 export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
-    public get 规避云端同步冲突() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "规避云端同步冲突：移动端插入闪念到Dailynote的子文件，桌面端自动合并闪念到Dailynote。";
-            case "es_ES":
-                return "Evitar conflictos de sincronización en la nube: El dispositivo móvil inserta el flash en el subarchivo de Dailynote, y el escritorio combina automáticamente el flash en Dailynote.";
-            case "fr_FR":
-                return "Éviter les conflits de synchronisation cloud: Le mobile insère le flash dans le sous-fichier de Dailynote, et le bureau fusionne automatiquement le flash dans Dailynote.";
-            case "ja_JP":
-                return "クラウド同期の競合を回避する：モバイル端末はフラッシュをDailynoteのサブファイルに挿入し、デスクトップは自動的にフラッシュをDailynoteにマージします。";
-            case "zh_CHT":
-                return "規避雲端同步衝突：移動端插入閃念到Dailynote的子文件，桌面端自動合併閃念到Dailynote。";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Avoid cloud sync conflicts: Mobile inserts flash into Dailynote's subfile, desktop automatically merges flash into Dailynote.";
-        }
-    }
+   
 
     public get 闪念插入到Dailynote顶端() {
         switch (this.conf.appearance.lang) {

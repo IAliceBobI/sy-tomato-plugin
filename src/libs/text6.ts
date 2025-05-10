@@ -1,30 +1,6 @@
 import { TomatoI18nABC7 } from "./text7";
 
 export abstract class TomatoI18nABC6 extends TomatoI18nABC7{
-   
-    public 准备推迟x个闪卡(length: number) {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return `准备推迟${length}个闪卡，请先设置推迟天数（整数、小数、负数）均可。`;
-            case "es_ES":
-                return `Preparándose para posponer ${length} tarjetas de repaso, por favor configure el número de días de retraso (entero, decimal, negativo) antes.`;
-            case "fr_FR":
-                return `Préparez-vous à retarder ${length} cartes flash, veuillez d'abord configurer le nombre de jours de retard (entier, décimal, négatif).`;
-            case "ja_JP":
-                return `${length}枚のフラッシュカードを延期する準備をしています。延期日数（整数、小数、負数）を設定してください。`;
-            case "zh_CHT":
-                return `準備延遲${length}個閃卡，請先設置延遲天數（整數、小數、負數）均可。`;
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return `Preparing to delay ${length} flashcards, please set the delay days (integer, decimal, negative) first.`;
-        }
-    }
-
     public 为x张卡输入新的优先级(length: number) {
         switch (this.conf.appearance.lang) {
             case "zh_CN":

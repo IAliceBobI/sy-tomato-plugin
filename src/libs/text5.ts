@@ -530,53 +530,8 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "Open block diagram";
         }
     }
-    public 把剩余闪卡均匀推迟在未来x小时内(x: string) {
-        // 补充缺失的语言
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return `把剩余闪卡均匀推迟在未来${x}小时内`;
-            case "es_ES":
-                return `Aplazar uniformemente las tarjetas restantes en las próximas ${x} horas`;
-            case "fr_FR":
-                return `Reporter uniformément les cartes restantes dans les ${x} prochaines heures`;
-            case "ja_JP":
-                return `${x}時間以内に残りのカードを均等に延期する`;
-            case "zh_CHT":
-                return `把剩餘閃卡均勻推遲在未來${x}小時內`;
-            case "it_IT":
-                return `Ritardare uniformemente le carte rimanenti nelle prossime ${x} ore`;
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return `Spread the remaining flashcards evenly over the next ${x} hours`;
-        }
-    }
-    public get 按递增时间推迟闪卡() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "按递增时间推迟闪卡delay";
-            case "es_ES":
-                return "Aplazar tarjetas flash por tiempo incremental";
-            case "fr_FR":
-                return "Reporter les cartes mémoire par temps incrémental";
-            case "ja_JP":
-                return "増分時間でフラッシュカードを延期する";
-            case "zh_CHT":
-                return "按遞增時間推遲閃卡";
-            case "it_IT":
-                return "Ritardare le carte flash per tempo incrementale";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Postpone flashcards by incremental time";
-        }
-    }
+
+ 
     public get 批注(): string {
         switch (this.conf.appearance.lang) {
             case "zh_CN":

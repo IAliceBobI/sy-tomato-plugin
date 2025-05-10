@@ -10,6 +10,8 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
+export const DbBkBox刷新数据库反链 = "⇧⌥F9"
+
 class DbBkBox {
     plugin: BaseTomatoPlugin;
 
@@ -20,7 +22,7 @@ class DbBkBox {
         this.plugin.addCommand({
             langKey: "dbbkrefresh2024-9-25 08:32:17",
             langText: tomatoI18n.刷新数据库反链,
-            hotkey: "F9",
+            hotkey: DbBkBox刷新数据库反链,
             editorCallback: async (protyle: IProtyle) => {
                 this.refreshDBBK(protyle)
             },
@@ -49,7 +51,7 @@ class DbBkBox {
         menu.addItem({
             label: tomatoI18n.刷新数据库反链,
             iconHTML: "🍅🔄💾",
-            accelerator: "F9",
+            accelerator: DbBkBox刷新数据库反链,
             click: () => {
                 this.refreshDBBK(detail.protyle)
             },
@@ -253,7 +255,7 @@ class DbBkBox {
         menu.addItem({
             label: tomatoI18n.刷新数据库反链,
             iconHTML: "🔄💾",
-            accelerator: "F9",
+            accelerator: DbBkBox刷新数据库反链,
             click: () => {
                 this.refreshDBBK(protyle);
             },

@@ -70,6 +70,7 @@
     export let dm: DestroyManager;
 
     let autoRefreshChecked = writable(!maker.shouldFreeze);
+    let maxPage = 1;
     let backLinks: BacklinkSv<Protyle>[] = [];
     let hierarchyConcepts: Block[] = [];
     let linkItems: LinkItem[] = [];
@@ -255,6 +256,7 @@
                         block2lnks: bl,
                         hierarchyConcepts: h,
                         linkItemsHierarchy: hi,
+                        maxPage: mp,
                     } = await doGetBackLinks(
                         maker.docID,
                         globalSearchText,
@@ -281,6 +283,7 @@
                     }
                     backLinks = b;
                     block2lnks = bl;
+                    maxPage = mp;
                     hierarchyConcepts = h;
                     if (start > 0) {
                         const end = new Date().getTime();
@@ -683,7 +686,7 @@
                     page = 0;
                     refreshOnPage();
                 }}
-                title={tomatoI18n.回到第一页}>{page + 1}</strong
+                title={tomatoI18n.回到第一页}>{page + 1}/{maxPage}</strong
             >
             <button
                 title={tomatoI18n.下一页}

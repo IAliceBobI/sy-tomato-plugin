@@ -338,35 +338,29 @@ export async function doGetBackLinks(
         await Promise.all(ret.map((r) => addRef(null, r.content, r.id, docID, allRefsHierarchy)))
         return ret;
     });
-    const backLinks = await siyuan.getBacklink2(docID, globalSearchText, globalSearchText, sortBy, sortBy)
+    const { backLinks, bkDocs } = await siyuan.getBacklink2(docID, globalSearchText, globalSearchText, sortBy, sortBy)
         .then(async bkDocs => {
-            if (!bkDocs) return [];
-            const bk = Promise
-                .all( // promieList -> promise
-                    bkDocs.backlinks.slice(page * refDocCount, (page + 1) * refDocCount)
-                        .map(async bkDoc => { // map() returns promieList
-                            const items = await siyuan.getBacklinkDoc(docID, bkDoc.id, globalSearchText);
-                            return items.backlinks.map(bkItem => {
-                                return { isMention: false, bkDoc, bkItem }
-                            })
-                        })
-                )
-                .then(i => i.flat()); // doc[item[]] -> item[]
-            const me = Promise
-                .all( // promieList -> promise
-                    bkDocs.backmentions.slice(page * menDocCount, (page + 1) * menDocCount)
-                        .map(async bkDoc => { // map() returns promieList
-                            const items = await siyuan.getBackmentionDoc(docID, bkDoc.id, globalSearchText);
-                            return items.backmentions.map(bkItem => {
-                                return { isMention: true, bkDoc, bkItem }
-                            })
-                        })
-                )
-                .then(i => i.flat()); // doc[item[]] -> item[]
-            return [...(await bk), ...(await me)];
+            if (!bkDocs) return { bks: [], bkDocs };
+            const bkTask = bkDocs.backlinks.slice(page * refDocCount, (page + 1) * refDocCount)
+                .map(async bkDoc => {
+                    const items = await siyuan.getBacklinkDoc(docID, bkDoc.id, globalSearchText);
+                    return items.backlinks.map(bkItem => {
+                        return { isMention: false, bkDoc, bkItem }
+                    });
+                });
+            const meTask = bkDocs.backmentions.slice(page * menDocCount, (page + 1) * menDocCount)
+                .map(async bkDoc => {
+                    const items = await siyuan.getBackmentionDoc(docID, bkDoc.id, globalSearchText);
+                    return items.backmentions.map(bkItem => {
+                        return { isMention: true, bkDoc, bkItem }
+                    })
+                });
+            const bk = Promise.all(bkTask).then(i => i.flat());
+            const me = Promise.all(meTask).then(i => i.flat());
+            return { bks: [...(await bk), ...(await me)], bkDocs };
         })
-        .then(async bks => {
-            return bks
+        .then(async t => {
+            const bks = t.bks
                 .filter(i => i.bkItem?.dom != null)
                 .map(({ isMention, bkItem, bkDoc }) => {
                     const bkDiv = dom2div(bkItem.dom);
@@ -393,11 +387,12 @@ export async function doGetBackLinks(
                         sortBy,
                     } as BacklinkSv;
                 })
-                .filter(i => i != null)
+                .filter(i => i != null);
+            return { t, bks }
         })
-        .then(bks => {
+        .then(t => {
             const set = new Set<string>();
-            return bks.filter(bk => {
+            const backLinks = t.bks.filter(bk => {
                 const id = getAttribute(bk.bkDiv, "custom-sync-item-id")
                 if (id) {
                     if (set.has(id)) {
@@ -407,6 +402,7 @@ export async function doGetBackLinks(
                 }
                 return true;
             });
+            return { backLinks, bkDocs: t.t.bkDocs }
         })
 
     // 向上传递
@@ -466,8 +462,16 @@ export async function doGetBackLinks(
         return { block2mSelect, block2lnks };
     })();
 
+    const { maxPage } = (() => {
+        const bkCount = bkDocs?.backlinks?.length ?? 0;
+        const meCount = bkDocs?.backmentions?.length ?? 0;
+        const bkPage = Math.ceil(bkCount / refDocCount)
+        const mePage = Math.ceil(meCount / menDocCount)
+        return { maxPage: Math.max(bkPage, mePage) };
+    })();
+
     await Promise.all(taskGetDom);
-    return { linkItems, linkItemsHierarchy, backLinks, block2mSelect, block2lnks, hierarchyConcepts: await task3 }
+    return { linkItems, linkItemsHierarchy, backLinks, block2mSelect, block2lnks, hierarchyConcepts: await task3, maxPage }
 }
 
 export async function insertConcepts(plugin: Plugin, docID: string, hierarchyConcepts: Block[]) {

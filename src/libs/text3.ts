@@ -571,22 +571,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
             default: return "Purchase";
         }
     }
-    public get vip版本上线前打赏的金额可以双倍抵扣() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "vip版本上线前打赏的金额可以双倍抵扣";
-            case "es_ES": return "La cantidad donada antes del lanzamiento de la versión VIP se puede duplicar como crédito";
-            case "fr_FR": return "Le montant des dons avant le lancement de la version VIP peut être doublé en crédit";
-            case "ja_JP": return "VIP版がリリースされる前に寄付した金額は2倍のクレジットとして利用できます";
-            case "zh_CHT": return "VIP版本上線前打賞的金額可以雙倍抵扣";
-            case "it_IT": return "L'importo donato prima del lancio della versione VIP può essere raddoppiato come credito";
-            case "de_DE": return "Der vor dem Release der VIP-Version gespendete Betrag kann als doppelter Guthabenbetrag verwendet werden";
-            case "he_IL": return "הסכום שנתרם לפני הפעלת גרסת ה-VIP ניתן להשתמש בו כזכות כפולה";
-            case "ru_RU": return "Сумма, пожертвованная до запуска VIP-версии, может быть двойным кредитом";
-            case "pl_PL": return "Kwota darowizny przed premiery wersji VIP może być podwojona jako kredyt";
-            case "en_US": return "The amount donated before the release of the VIP version can be doubled as a credit";
-            default: return "The amount donated before the release of the VIP version can be doubled as a credit";
-        }
-    }
     public get 点击打开店铺() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "点击打开店铺";
@@ -1384,29 +1368,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "Extract words and add to flashcards with AI explanation";
         }
     }
-    public get 请选择词语() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "请选择词语";
-            case "es_ES":
-                return "Por favor, selecciona la palabra";
-            case "fr_FR":
-                return "Veuillez sélectionner le mot";
-            case "ja_JP":
-                return "単語を選択してください";
-            case "zh_CHT":
-                return "請選擇詞語";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Please select the word";
-        }
-    }
-
     public get 摘录单词() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":

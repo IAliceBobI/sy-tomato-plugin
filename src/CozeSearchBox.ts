@@ -2,13 +2,14 @@ import { Dialog, IEventBusMap } from "siyuan";
 import { DestroyManager } from "./libs/destroyer";
 import { tomatoI18n } from "./tomatoI18n";
 import { events } from "./libs/Events";
-import { getAllText, newID, siyuan } from "./libs/utils";
+import { getAllText, newID, siyuan, winHotkey } from "./libs/utils";
 import CozeSearchBoxMenu from "./CozeSearchBoxMenu.svelte"
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { cozeSearchBoxCheckbox } from "./libs/stores";
+import { cozeSearchBoxCheckbox, cozeSearchMenuShow } from "./libs/stores";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
+export const CozeSearchBoxHotkey = winHotkey("⌘⇧S")
 class CozeSearchBox {
     private plugin: BaseTomatoPlugin;
 
@@ -19,7 +20,7 @@ class CozeSearchBox {
         this.plugin.addCommand({
             langKey: "coze 2025-1-6 11:44:34",
             langText: "coze" + tomatoI18n.知识库问答,
-            hotkey: "⌘⇧S",
+            hotkey: CozeSearchBoxHotkey.m,
             callback: async () => {
                 try {
                     const { selected, ids } = await events.selectedDivs();
@@ -31,14 +32,18 @@ class CozeSearchBox {
             },
         });
 
-        this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
-            this.aiMenu(detail as any);
-        });
+        if (cozeSearchMenuShow.get()) {
+            this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
+                this.aiMenu(detail as any);
+            });
+        }
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
         if (!this.plugin) return;
-        this.aiMenu(detail as any);
+        if (cozeSearchMenuShow.get()) {
+            this.aiMenu(detail as any);
+        }
     }
 
     aiMenu(detail: TomatoMenu) {
@@ -46,7 +51,7 @@ class CozeSearchBox {
         menu.addItem({
             label: "coze" + tomatoI18n.知识库问答,
             iconHTML: "🍅🔍",
-            accelerator: "⌘⇧S",
+            accelerator: CozeSearchBoxHotkey.m,
             click: async () => {
                 const { selected, ids } = await events.selectedDivs(detail.protyle);
                 const id = ids.pop();

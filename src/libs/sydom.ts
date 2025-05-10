@@ -1,6 +1,6 @@
 import { Lute } from "siyuan";
 import { BLOCK_REF, BlockNodeEnum, CONTENT_EDITABLE, DATA_AV_ID, DATA_ID, DATA_NODE_ID, DATA_NODE_INDEX, DATA_SUBTYPE, DATA_TYPE, WEB_ZERO_SPACE } from "./gconst";
-import { joinArray, dom2div, NewLute, NewNodeID, siyuan, cloneCleanDiv } from "./utils";
+import { joinArray, dom2div, NewLute, NewNodeID, siyuan, cloneCleanDiv, setAttribute } from "./utils";
 import { DocTracer } from "./docUtils";
 
 export function domHdeading(id: string, text: string, subtype = "h1") {
@@ -57,6 +57,24 @@ export function domNewHr() {
     const hr = document.createElement("div")
     hr.innerHTML = `<div data-node-id="${NewNodeID()}" data-type="NodeThematicBreak" class="hr"><div></div></div>`
     return hr.firstElementChild as HTMLElement;
+}
+
+export function domNewHeading(text: string, subtype = "h1", id = "", fold = false) {
+    const h = document.createElement("div");
+    setAttribute(h, "data-type", BlockNodeEnum.NODE_HEADING);
+    setAttribute(h, "data-subtype", subtype);
+    if (!id) id = NewNodeID()
+    setAttribute(h, "data-node-id", id);
+    h.classList.add(subtype);
+
+    const div = h.appendChild(document.createElement("div"))
+    div.textContent = text;
+    div.setAttribute(CONTENT_EDITABLE, "true")
+    div.setAttribute("spellcheck", "false")
+    h.appendChild(newAttr());
+
+    if (fold) setAttribute(h, "fold", "1");
+    return h;
 }
 
 export function domNewLine(text = "", ...refs: HTMLElement[]) {

@@ -15,6 +15,17 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    cardPriorityBoxPriorityMenu: boolean,
+    cardPriorityBoxSpradDelayMenu: boolean,
+    cardPriorityBoxPostponeCardMenu: boolean,
+    cozeSearchMenuShow: boolean,
+    imgBoxShowMenu: boolean,
+    aiBoxMenuShow: boolean,
+    digest2Trace: boolean,
+    digest2dailycard: boolean,
+    words2dailycard: boolean,
+    doubleClick2DigestDesktop: boolean,
+    doubleClick2Digest: boolean,
     merg2newBookEnable: boolean,
     pieceMoveEnable: boolean,
     summaryEnable: boolean,
@@ -86,6 +97,7 @@ type TomatoSettings = {
     readingDialog: boolean,
     cardBoxCheckbox: boolean,
     cardBoxAddConcepts: boolean,
+    cardBoxSpradEvenlyPostpone: boolean,
     cardBoxBuildSupCard: boolean,
     cardRemoveBoxCheckbox: boolean,
     cardAddListBoxCheckbox: boolean,
@@ -224,6 +236,7 @@ type AttrType = {
     "tomato-bk-ignore"?: string,
     "data-position"?: string,
     "data-type"?: string,
+    "data-subtype"?: string,
     "tomato-data-node-id"?: string,
     "data-id"?: string,
     "protyle-breadcrumb__item"?: string,
@@ -254,6 +267,7 @@ type AttrType = {
     "custom-tomato-line-through"?: string,
     "custom-tomato-readingpoint"?: string,
     "custom-tomato-rp-content-hash"?: string,
+    "custom-prog-key-no-color"?: string,
     "custom-pdigest-ctime"?: string,//PDIGEST_CTIME
     "custom-pdigest-last-id"?: string,//PDIGEST_LAST_ID
     "custom-pdigest-parent-id"?: string,//PDIGEST_PARENT_ID
@@ -303,10 +317,12 @@ type AttrType = {
     "custom-super-card-box"?: string,
     "custom-super-card-question"?: string,
     "custom-super-card-answer"?: string,
+    "custom-comment-heading"?: string,
     "custom-comment-fold"?: string,
     "custom-comment-bk-id"?: string,
     "custom-lnk-bottom"?: string,
     "fold"?: string,
+    "heading-fold"?: string,
     "custom-progmark"?: string,
     "custom-doc-notes"?: string,
     "custom-progref"?: string,

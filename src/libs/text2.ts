@@ -639,28 +639,7 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
         }
     }
 
-    public get 清理所有失效的闪卡() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "清理所有失效的闪卡clean";
-            case "es_ES":
-                return "Limpiar todas las tarjetas flash inactivas";
-            case "fr_FR":
-                return "Nettoyer toutes les cartes flash invalides";
-            case "ja_JP":
-                return "すべての無効なフラッシュカードをクリーンアップ";
-            case "zh_CHT":
-                return "清理所有失效的閃卡";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Clean up all invalid flash cards";
-        }
-    }
+
 
     public get 没有失效闪卡() {
         switch (this.conf.appearance.lang) {
@@ -728,51 +707,6 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
             case "en_US":
             default:
                 return "Please confirm the original content";
-        }
-    }
-    public get 复习时的快捷键() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "删块ctrl+shift+9\n删卡ctrl+9\n跳过ctrl+8\n优先级F6\n定位ctrl+shift+j\n均匀推迟ctrl+shift+8";
-            case "es_ES":
-                return "Eliminar bloque ctrl+shift+9\nEliminar tarjeta ctrl+9\nSaltar ctrl+8\nPrioridad F6\nLocalizar ctrl+shift+j";
-            case "fr_FR":
-                return "Supprimer bloc ctrl+shift+9\nSupprimer carte ctrl+9\nPasser ctrl+8\nPriorité F6\nLocaliser ctrl+shift+j";
-            case "ja_JP":
-                return "ブロックを削除 ctrl+shift+9\nカードを削除 ctrl+9\nスキップ ctrl+8\n優先度 F6\n位置を指定 ctrl+shift+j";
-            case "zh_CHT":
-                return "刪塊ctrl+shift+9\n刪卡ctrl+9\n跳過ctrl+8\n優先級F6\n定位ctrl+shift+j";
-            case "it_IT":
-                return "Elimina blocco ctrl+shift+9\nElimina scheda ctrl+9\nSalta ctrl+8\nPriorità F6\nLocalizza ctrl+shift+j";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Delete block ctrl+shift+9\nDelete card ctrl+9\nSkip ctrl+8\nPriority F6\nLocate ctrl+shift+j";
-        }
-    }
-    public get 删卡定位推迟() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "删卡、定位、推迟";
-            case "es_ES":
-                return "eliminación de tarjetas, ubicación, retraso";
-            case "fr_FR":
-                return "suppression de cartes, localisation, report";
-            case "ja_JP":
-                return "カード削除、位置指定、延期";
-            case "zh_CHT":
-                return "刪卡、定位、延遲";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "card deletion, positioning, delay";
         }
     }
 
@@ -1075,29 +1009,6 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
         }
     }
 
-    public get 文档与子文档闪卡推迟() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "文档与子文档闪卡推迟";
-            case "es_ES":
-                return "Documentos y subdocumentos tarjetas retrasadas";
-            case "fr_FR":
-                return "Documents et sous-documents cartes retardées";
-            case "ja_JP":
-                return "文書とサブドキュメントのフラッシュカードが遅れています";
-            case "zh_CHT":
-                return "文件與子文件閃卡延遲";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Documents and subdocuments flashcards delayed";
-        }
-    }
-
     public get 恢复所有暂停的闪卡() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":
@@ -1213,6 +1124,6 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
         }
     }
 
- 
+
 
 }

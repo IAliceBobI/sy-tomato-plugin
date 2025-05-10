@@ -2,11 +2,15 @@ import { IProtyle, Plugin } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { fastNoteBoxAdd2Flashcard, fastNoteBoxCheckbox, fastNoteBoxDelAfterCreating, storeNoteBox_fastnote } from "./libs/stores";
 import * as utils from "./libs/utils";
-import { getContextPath, siyuan } from "./libs/utils";
+import { getContextPath, siyuan, winHotkey } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
 import { isReadonly, OpenSyFile2 } from "./libs/docUtils";
 import { events } from "./libs/Events";
 import { verifyKeyTomato } from "./libs/user";
+
+export const FastNoteBox创建快速笔记 = winHotkey("⌘N")
+export const FastNoteBox打开最后一个笔记 = winHotkey("⌘⌥N")
+export const FastNoteBox草稿切换 = winHotkey("F4")
 
 class FastNoteBox {
     plugin: BaseTomatoPlugin;
@@ -18,7 +22,7 @@ class FastNoteBox {
         this.plugin.addCommand({
             langKey: "2024-08-06 10:35:21",
             langText: tomatoI18n.创建快速笔记,
-            hotkey: "⌘N",
+            hotkey: FastNoteBox创建快速笔记.m,
             callback: () => {
                 navigator.locks.request("FastNoteBox2024-08-06 12:38:21", { mode: "exclusive" }, async () => {
                     await createNote(this.plugin, events.protyle?.protyle);
@@ -28,15 +32,15 @@ class FastNoteBox {
         this.plugin.addCommand({
             langKey: "2024-08-06 10:35:22",
             langText: tomatoI18n.打开最后一个笔记,
-            hotkey: "⌘⌥N",
+            hotkey: FastNoteBox打开最后一个笔记.m,
             callback: () => {
                 this.openNote()
             },
         });
         this.plugin.addCommand({
             langKey: "2024-9-13 09:32:44",
-            langText: tomatoI18n.草稿切换,
-            hotkey: "F4",
+            langText: tomatoI18n.草稿切换 + " · " + tomatoI18n.切换到文档背面,
+            hotkey: FastNoteBox草稿切换.m,
             callback: () => {
                 switchDraft(this.plugin, events.protyle?.protyle)
             },
@@ -57,6 +61,11 @@ class FastNoteBox {
 export const fastNoteBox = new FastNoteBox();
 
 export async function switchDraft(plugin: Plugin, protyle: IProtyle) {
+    if (!(await verifyKeyTomato())) {
+        await siyuan.pushMsg(tomatoI18n.此功能需要激活VIP + ": " + tomatoI18n.草稿切换 + FastNoteBox草稿切换)
+        return;
+    }
+
     const docID = protyle?.block?.rootID;
     if (!docID) return;
     const title = protyle.title?.editElement?.textContent

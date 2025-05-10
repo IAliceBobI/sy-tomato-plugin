@@ -5,7 +5,7 @@ import { userID, userToken, writableWithGet } from './stores';
 const MY_PUBKEY = "044ad3bfb46f3b89979dd551a5dada23f8502f8a0c54d247e1f8d31e5d7705a978df1ef30ba5a4b5206f0b0f573c8f76feada715f949430187f62f5640ca144aa7";
 const ec = new EC('secp256k1');
 const keyPair = ec.keyFromPublic(MY_PUBKEY, 'hex')
-let _isValid = null;
+let _isValid: boolean = null;
 
 export function lastVerifyResult(): boolean {
     return _isValid;

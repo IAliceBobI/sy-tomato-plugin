@@ -208,7 +208,6 @@ class LinkBox {
                             doSync(ops);
                             break;
                         default:
-                            // console.l1og(ops)
                             break;
                     }
                 }

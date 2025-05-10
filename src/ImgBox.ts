@@ -1,14 +1,15 @@
 import { IEventBusMap } from "siyuan";
 import { events } from "./libs/Events";
 import { CUSTOM_RIFF_DECKS, PROTYLE_WYSIWYG_SELECT } from "./libs/gconst";
-import { imgBoxCheckbox } from "./libs/stores";
+import { imgBoxCheckbox, imgBoxShowMenu } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import html2canvas from 'html2canvas';
-import { getAllText, siyuan } from "./libs/utils";
+import { getAllText, siyuan, winHotkey } from "./libs/utils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
+export const ImgBoxHotKey = winHotkey("⌥⇧I")
 class ImgBox {
     private plugin: BaseTomatoPlugin;
 
@@ -18,7 +19,7 @@ class ImgBox {
         this.plugin.addCommand({
             langKey: "ImgBox2024-07-03 18:38:32",
             langText: tomatoI18n.复制为图片,
-            hotkey: "⌥⇧I",
+            hotkey: ImgBoxHotKey.m,
             callback: async () => {
                 const { selected } = await events.selectedDivs();
                 await this.copyDiv(selected)
@@ -108,16 +109,18 @@ class ImgBox {
     }
 
     private copyDivMenu(detail: TomatoMenu) {
-        const menu = detail.menu;
-        menu.addItem({
-            label: tomatoI18n.复制为图片,
-            iconHTML: "🍅🖼️📋",
-            accelerator: "⌥⇧I",
-            click: async () => {
-                const { selected } = await events.selectedDivs(detail.protyle);
-                await this.copyDiv(selected)
-            },
-        });
+        if (imgBoxShowMenu.get()) {
+            const menu = detail.menu;
+            menu.addItem({
+                label: tomatoI18n.复制为图片,
+                iconHTML: "🍅🖼️📋",
+                accelerator: ImgBoxHotKey.m,
+                click: async () => {
+                    const { selected } = await events.selectedDivs(detail.protyle);
+                    await this.copyDiv(selected)
+                },
+            });
+        }
     }
 
 }

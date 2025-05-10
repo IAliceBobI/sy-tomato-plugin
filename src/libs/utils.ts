@@ -965,7 +965,7 @@ export function extractIDs(txt: string) {
     // 20240607225626-o9dqy2r
     const RefRegex = newIDRegexp();
     const matches = txt.matchAll(RefRegex);
-    const set = new Set();
+    const set = new Set<string>();
     for (const m of matches) {
         if (m[0]) set.add(m[0])
     }
@@ -2494,12 +2494,43 @@ async function findAACC() {
         });
 }
 
-export async function getMarkdownsByTrees(ids: string[], boxID = "", excat = false, minUpdated = "", chunkSize = 50) {
-    let allRows: Block[];
+export async function getMarkdownsByTrees(ids: string[], boxID = "") {
+    const allDocRows: Block[] = await getTreeDocIDs(ids, boxID);
+
+    const mds: Block[] = [];
+    for (const rows of chunks(allDocRows, 50)) {
+        mds.push(...await Promise.all(rows.map(async row => {
+            const md = await siyuan.copyStdMarkdown(row.id);
+            row.markdown = md;
+            return row;
+        })))
+        siyuan.pushMsg(`copied: ${mds.length}/${allDocRows.length}`)
+    }
+    return mds;
+}
+
+export async function getBlocksByTrees(ids: string[], excludeID?: string) {
+    const allDocRows: Block[] = await getTreeDocIDs(ids);
+    const roots: Block[] = [];
+    for (const rows of chunks(allDocRows, 50)) {
+        roots.push(...await Promise.all(rows
+            .filter(row => row.id !== excludeID)
+            .map(async row => {
+                const { root } = await getDocBlocks(row.id, "", false, false, 1);
+                return root;
+            })
+        ))
+        siyuan.pushMsg(`copied: ${roots.length}/${allDocRows.length}`)
+    }
+    return roots;
+}
+
+async function getTreeDocIDs(ids: string[], boxID = "", minUpdated = "", excat = false) {
+    let allDocRows: Block[];
     if (boxID) {
-        allRows = await siyuan.sql(`select id,ial,content,updated 
+        allDocRows = await siyuan.sql(`select id,ial,content,updated,path 
             from blocks where box='${boxID}' and type='d' and updated>'${minUpdated}' 
-            order by updated asc limit 999999999`)
+            order by updated asc limit 999999999`);
     } else {
         let or: string;
         if (excat) {
@@ -2508,21 +2539,11 @@ export async function getMarkdownsByTrees(ids: string[], boxID = "", excat = fal
         } else {
             or = ids.map(id => `path like '%${id}%'`).join(" or ");
         }
-        allRows = await siyuan.sql(`select id,ial,content,updated 
+        allDocRows = await siyuan.sql(`select id,ial,content,updated,path 
             from blocks where (${or}) and type='d' and updated>'${minUpdated}' 
-            order by updated asc limit 999999999`)
+            order by updated asc limit 999999999`);
     }
-
-    const mds: Block[] = [];
-    for (const rows of chunks(allRows, chunkSize)) {
-        mds.push(...await Promise.all(rows.map(async row => {
-            const md = await siyuan.copyStdMarkdown(row.id);
-            row.markdown = md;
-            return row;
-        })))
-        siyuan.pushMsg(`copied: ${mds.length}/${allRows.length}`)
-    }
-    return mds;
+    return allDocRows.sort((a, b) => a.path.localeCompare(b.path));
 }
 
 export async function getAllFilesAsBigText() {
@@ -2690,4 +2711,19 @@ export async function cancelSuperBlock(targetID: string) {
     const ops = siyuan.transInsertBlocksAfter(doms, targetID);
     ops.push(...siyuan.transDeleteBlocks([targetID]));
     await siyuan.transactions(ops);
+}
+
+export function winHotkey(m: string) {
+    const w = m.replaceAll("⌘", "Ctrl+").replaceAll("⇧", "Shift+").replaceAll("⌥", "Alt+");
+    const last = m.at(-1);
+    if (m.includes("⌥") && m.includes("⇧") && m.includes("⌘")) {
+        m = "⌥⇧⌘" + last;
+    } else if (m.includes("⌥") && m.includes("⇧")) {
+        m = "⌥⇧" + last;
+    } else if (m.includes("⌥") && m.includes("⌘")) {
+        m = "⌥⌘" + last;
+    } else if (m.includes("⇧") && m.includes("⌘")) {
+        m = "⇧⌘" + last;
+    }
+    return { m, w };
 }

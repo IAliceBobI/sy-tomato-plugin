@@ -6,6 +6,8 @@
     import { tomatoI18n } from "./tomatoI18n";
 
     export let isTomato = true;
+    const price = 99;
+    const nextPrice = 149;
 
     async function copyUserID() {
         let txt = "";
@@ -47,12 +49,15 @@
         </strong>
 
         <div class="item__money">
-            <del style="font-size: small;">￥72</del>
-            {"￥48" + SPACE}
+            <del style="font-size: small;">￥{nextPrice}</del>
+            {"￥" + price + SPACE}
             <span style="font-size: small;">{tomatoI18n.终身}</span>
         </div>
+        <strong>{tomatoI18n.将激活配置中有VIP标志的功能}</strong>
         <strong>{tomatoI18n.一次付费终身使用}</strong>
+        <strong>{tomatoI18n.离线可用新功能可用}</strong>
         <strong>{tomatoI18n.vip版本上线前打赏的金额可以双倍抵扣}</strong>
+        <p class="kbd">{tomatoI18n.广告语(price)}</p>
     </div>
 
     <div class="center">
@@ -81,7 +86,10 @@
         <img alt="taobao" src={taobaoStore} />
     </div>
     <div class="center">
-        {tomatoI18n.淘宝店二维码}
+        <strong> {tomatoI18n.淘宝店二维码}</strong>
+    </div>
+    <div class="center">
+        <strong>{tomatoI18n.可联系客服获取7天试用激活码}</strong>
     </div>
 </div>
 
@@ -128,7 +136,7 @@
     .kbd {
         padding: 2px 4px;
         font:
-            75% Consolas,
+            100% Consolas,
             "Liberation Mono",
             Menlo,
             Courier,

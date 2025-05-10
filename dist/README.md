@@ -8,4 +8,12 @@
 
 # [ACKNOWLEDGMENTS 鸣谢](https://awx9773btw.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
 
+# 为爱发电 💗
 
+<div>
+<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/wx1.png" alt="alipay" width="300" />
+</div>
+<br>
+<div>
+<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/zfb1.jpg" alt="wechat" width="300" />
+</div>

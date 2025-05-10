@@ -1,14 +1,19 @@
-import { ICardData, IEventBusMap } from "siyuan";
+import { confirm, ICardData, IEventBusMap, Protyle } from "siyuan";
 import "./index.scss";
-import { getAttribute, getID, isValidNumber, siyuan, stringToNumber, timeUtil, versionGreaterEqual } from "./libs/utils";
+import { getAttribute, getID, isValidNumber, siyuan, stringToNumber, timeUtil, versionGreaterEqual, winHotkey } from "./libs/utils";
 import { CARD_PRIORITY_STOP, CUSTOM_RIFF_DECKS, TOMATO_CONTROL_ELEMENT } from "./libs/gconst";
 import { DialogText } from "./libs/DialogText";
 import { EventType, events } from "./libs/Events";
 import CardPriorityBar from "./CardPriorityBar.svelte";
 import { doStopCards, getIDFromCard } from "./libs/cardUtils";
-import { auto_card_priority, cardPriorityBoxCheckbox } from "./libs/stores";
+import { auto_card_priority, cardPriorityBoxCheckbox, cardPriorityBoxPostponeCardMenu, cardPriorityBoxPriorityMenu, cardPriorityBoxSpradDelayMenu } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
+
+export const CardPriorityBox修改文档中闪卡优先级 = winHotkey("F6")
+export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8")
+export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9")
+export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y")
 
 class CardPriorityBox {
     plugin: BaseTomatoPlugin;
@@ -18,6 +23,29 @@ class CardPriorityBox {
     onunload() {
         this.observer?.disconnect();
         this.observer = null;
+    }
+
+    blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
+        if (!this.plugin) return;
+        const cards = detail?.blockElements?.filter(e => getAttribute(e, "custom-riff-decks"))
+        if (cards?.length > 0) {
+            detail.menu.addItem({
+                iconHTML: "🍅🏆",
+                label: tomatoI18n.为闪卡设置优先级,
+                click: () => {
+                    this.updatePrioritySelected(detail.blockElements);
+                }
+            });
+            detail.menu.addItem({
+                iconHTML: "🍅🛑",
+                label: tomatoI18n.推迟与取消推迟,
+                click: (_e, event) => {
+                    for (const e of detail.blockElements) {
+                        this.stopCard(event, e);
+                    }
+                }
+            });
+        }
     }
 
     async onload(plugin: BaseTomatoPlugin) {
@@ -40,9 +68,11 @@ class CardPriorityBox {
                 this.updateDocPriorityBatchDialog(blocks);
             }
         }
+
         this.plugin.addCommand({
-            langKey: "cardPrioritySet",
-            hotkey: "F6",
+            langKey: "cardPrioritySet2025-5-10 11:18:36",
+            langText: tomatoI18n.修改文档中闪卡优先级,
+            hotkey: CardPriorityBox修改文档中闪卡优先级.m,
             callback: cardPrioritySet,
         });
 
@@ -55,44 +85,68 @@ class CardPriorityBox {
             }
             this.stopCards(blocks, spread)
         }
+
         this.plugin.addCommand({
             langKey: "delay all cards spread on x days 2024-12-19 14:41:11",
-            langText: tomatoI18n.按递增时间推迟闪卡,
-            hotkey: "⌘⇧8",
+            langText: tomatoI18n.分散推迟闪卡,
+            hotkey: CardPriorityBox分散推迟闪卡.m,
             callback: () => delay(true),
         });
+
+        this.plugin.addCommand({
+            langKey: "delay all cards 2025-5-10 12:31:04",
+            langText: tomatoI18n.推迟闪卡,
+            hotkey: CardPriorityBox推迟闪卡.m,
+            callback: () => delay(),
+        });
+
+        const resumeAll = async (detail: Protyle) => {
+            const docID = detail?.protyle?.block?.rootID;
+            if (!docID) return;
+            const blocks = (await siyuan.sqlAttr(`select block_id from attributes where name="${CARD_PRIORITY_STOP}" limit 999999999999`))
+                .map(attr => {
+                    return { ial: { id: attr.block_id } };
+                });
+            confirm(tomatoI18n.恢复所有暂停的闪卡, `${tomatoI18n.数量} : ${blocks.length}`, () => {
+                doStopCards("0", blocks as any);
+            })
+        }
+
+        this.plugin.addCommand({
+            langKey: "resume all cards 2025-5-10 12:31:04",
+            langText: tomatoI18n.恢复所有暂停的闪卡,
+            hotkey: CardPriority恢复所有暂停的闪卡.m,
+            callback: () => resumeAll(events.protyle),
+        });
+
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
-            menu.addItem({
-                label: this.plugin.i18n.cardPrioritySet,
-                iconHTML: "🍅🌊🏆",
-                accelerator: "F6",
-                click: cardPrioritySet,
-            });
-            menu.addItem({
-                label: tomatoI18n.按递增时间推迟闪卡,
-                iconHTML: "🍅🌊🛑",
-                accelerator: "⌘⇧8",
-                click: () => delay(true),
-            });
-            menu.addItem({
-                label: tomatoI18n.文档与子文档闪卡推迟,
-                iconHTML: "🍅🌊🛑",
-                click: () => delay(),
-            });
-            menu.addItem({
-                label: tomatoI18n.恢复所有暂停的闪卡,
-                iconHTML: "🍅🌊🗃️",
-                click: async () => {
-                    const docID = detail?.protyle?.block?.rootID;
-                    if (!docID) return;
-                    const blocks = (await siyuan.sqlAttr(`select block_id from attributes where name="${CARD_PRIORITY_STOP}" limit 999999999999`))
-                        .map(attr => {
-                            return { ial: { id: attr.block_id } };
-                        });
-                    await doStopCards("0", blocks as any);
-                },
-            });
+            if (cardPriorityBoxSpradDelayMenu.get()) {
+                menu.addItem({
+                    label: tomatoI18n.分散推迟闪卡,
+                    iconHTML: "🍅🌊🛑",
+                    accelerator: CardPriorityBox分散推迟闪卡.m,
+                    click: () => delay(true),
+                });
+            }
+
+            if (cardPriorityBoxPriorityMenu.get()) {
+                menu.addItem({
+                    label: tomatoI18n.修改文档中闪卡优先级,
+                    iconHTML: "🍅🌊🏆",
+                    accelerator: CardPriorityBox修改文档中闪卡优先级.m,
+                    click: cardPrioritySet,
+                });
+            }
+
+            if (cardPriorityBoxPostponeCardMenu.get()) {
+                menu.addItem({
+                    label: tomatoI18n.推迟闪卡,
+                    accelerator: CardPriorityBox推迟闪卡.m,
+                    iconHTML: "🍅🌊🛑",
+                    click: () => delay(),
+                });
+            }
         });
 
         this.observer = new MutationObserver((mutationsList) => {
@@ -191,25 +245,6 @@ class CardPriorityBox {
         return blocks;
     }
 
-    blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
-        if (!this.plugin) return;
-        detail.menu.addItem({
-            iconHTML: "🍅🏆",
-            label: tomatoI18n.为闪卡设置优先级,
-            click: () => {
-                this.updatePrioritySelected(detail.blockElements);
-            }
-        });
-        detail.menu.addItem({
-            iconHTML: "🍅🛑",
-            label: tomatoI18n.推迟与取消推迟,
-            click: (_e, event) => {
-                for (const e of detail.blockElements) {
-                    this.stopCard(event, e);
-                }
-            }
-        });
-    }
 
     async stopCard(event: MouseEvent, cardElement: HTMLElement) {
         event.stopPropagation();
@@ -225,8 +260,14 @@ class CardPriorityBox {
     }
 
     async stopCards(blocks: GetCardRetBlock[], spread = false) {
+        let text: string;
+        if (spread) {
+            text = tomatoI18n.准备分散推迟x个闪卡(blocks.length)
+        } else[
+            text = tomatoI18n.准备推迟x个闪卡(blocks.length)
+        ]
         new DialogText(
-            tomatoI18n.准备推迟x个闪卡(blocks.length),
+            text,
             "2",
             async (days: string) => {
                 await doStopCards(days, blocks, spread);
@@ -254,7 +295,7 @@ class CardPriorityBox {
 
     async updateDocPriorityBatchDialog(blocks: GetCardRetBlock[], priority?: number, dialog?: boolean, cb?: Func) {
         if (blocks.length == 0) {
-            siyuan.pushMsg("no card");
+            siyuan.pushMsg(tomatoI18n.找不到闪卡);
             return;
         }
         const txt = blocks.map(b => b.content).join("🧱")

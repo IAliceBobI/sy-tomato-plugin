@@ -1,14 +1,14 @@
 import { Dialog, IEventBusMap } from "siyuan";
-import { getAllText, newID, } from "./libs/utils";
+import { getAllText, newID, winHotkey, } from "./libs/utils";
 import { events } from "./libs/Events";
-import { aiBoxCheckbox, } from "./libs/stores";
+import { aiBoxCheckbox, aiBoxMenuShow, } from "./libs/stores";
 import AIBoxMenu from "./AIBoxMenu.svelte";
 import { DestroyManager } from "./libs/destroyer";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
-
+export const AIBoxHotkey = winHotkey("⌥⇧S")
 class AIBox {
     private plugin: BaseTomatoPlugin;
     private dm: DestroyManager;
@@ -20,7 +20,7 @@ class AIBox {
         this.plugin.addCommand({
             langKey: "2024-6-9 01:58:39",
             langText: tomatoI18n.人工智能,
-            hotkey: "⌥⇧S",
+            hotkey: AIBoxHotkey.m,
             editorCallback: async (protyle) => {
                 const { selected, ids } = await events.selectedDivs(protyle);
                 const id = ids.pop();
@@ -28,14 +28,18 @@ class AIBox {
             },
         });
 
-        this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
-            this.aiMenu(detail as any);
-        });
+        if (aiBoxMenuShow.get()) {
+            this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
+                this.aiMenu(detail as any);
+            });
+        }
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
         if (!this.plugin) return;
-        this.aiMenu(detail as any);
+        if (aiBoxMenuShow.get()) {
+            this.aiMenu(detail as any);
+        }
     }
 
     aiMenu(detail: TomatoMenu) {
@@ -43,7 +47,7 @@ class AIBox {
         menu.addItem({
             label: tomatoI18n.人工智能,
             iconHTML: "🍅💻",
-            accelerator: "⌥⇧S",
+            accelerator: AIBoxHotkey.m,
             click: async () => {
                 const { selected, ids } = await events.selectedDivs(detail.protyle);
                 const id = ids.pop();

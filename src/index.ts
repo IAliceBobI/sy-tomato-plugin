@@ -1,3 +1,4 @@
+import { autoExitFocus } from "./libs/focusUtils";
 import { Dialog, ICardData, Setting } from "siyuan";
 import { ICONS } from "./icons";
 import { linkBox } from "./LinkBox";
@@ -10,7 +11,7 @@ import * as tools from "./libs/tools";
 import { imgOverlayBox } from "./ImgOverlayBox";
 import { dailyNoteBox } from "./DailyNoteBox";
 import { cardPriorityBox } from "./CardPriorityBox";
-import { isCardByUpLook, siyuan, timeUtil } from "../../sy-tomato-plugin/src/libs/utils";
+import { siyuan, timeUtil } from "../../sy-tomato-plugin/src/libs/utils";
 import { mixBox } from "./MixBox";
 import { DATA_TYPE } from "./libs/gconst";
 import { tomatoI18n } from "./tomatoI18n";
@@ -29,19 +30,25 @@ import { aiBox } from "./AIBox";
 import { imgBox } from "./ImgBox";
 import { fastNoteBox } from "./FastNoteBox";
 import * as plugin from "siyuan";
-import { aiBoxCheckbox, aiBoxPrompts, auto_card_priority, avoiding_cloud_synchronization_conflicts, awaysExitFocusStore, back_link_concept_fold, back_link_copy, back_link_dailynote_off, back_link_default_off, back_link_embed, back_link_goto_bottom_btn, back_link_max_size, back_link_mention_count, back_link_more_btns, back_link_move_here, back_link_move_to_dailynote, back_link_move_with_backlink, back_link_passup_heading, back_link_passup_quote, back_link_passup_super, back_link_protyle_height, back_link_ref, back_link_refresh_off, back_link_remove_refs, back_link_show_floatUI, back_link_show_path, backLinkBottomBoxCheckbox, card_priority_slider_hide, card_priority_stopBtn_hide, cardBoxAddConcepts, cardBoxBuildSupCard, cardBoxCheckbox, cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, commentBoxAddFlashCard, commentBoxAddUnderline, commentBoxBackwardRef, commentBoxCheckbox, commentBoxForwardRef, commentBoxMaxProtyleHeight, commentBoxShowID, commentBoxStaticOutlink, commentBoxVirtualRef, cozeSearchAppID, cozeSearchBoxCheckbox, cozeSearchDoubaoID, cozeSearchKnowledgeID, cozeSearchOauthTokenID, cozeSearchSpaceID, cpBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefSquareBrackets, cssRefStyle, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, dailyNoteBoxCheckbox, dailyNoteCopy, dailyNoteCopyAnchorText, dailyNoteCopyComment, dailyNoteCopyFlashCard, dailyNoteCopyInsertPR, dailyNoteCopyShowPath, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteMoveToBottom, dbBkBoxCheckbox, dbBkBoxHideDatetime, dbBkBoxMaxBacklinkSize, dont_break_list, fastNoteBoxAdd2Flashcard, fastNoteBoxCheckbox, fastNoteBoxDelAfterCreating, fastNoteBoxDisableBK, flash_thoughts_2_top, flash_thoughts_target_file, flashThoughtUseDialog, graphBoxCheckbox, graphClick2Locate, graphMaxAllBlocks, graphMaxPBlocks, imgBoxCheckbox, imgOverlayCheckbox, keepLazyLoadStore, linkBoxAttrIconOnHide, linkBoxCheckbox, linkBoxLnkTitle, linkBoxSyncBlock, linkBoxSyncBlockAuto, linkBoxSyncHref, linkBoxSyncRef, linkBoxUseLnkOrRef, listBoxCheckbox, mixBoxAddAlias, mixBoxCheckbox, mixBoxPinyin, noteBoxAllKinds, noteBoxCheckbox, readingAdd2Card, readingDialog, readingPointBoxCheckbox, readingPointWithEnv, readingSaveFile, readingShowAllFolders, readingTopBar, showDocAttrs, storeCopyStdMD, storeFillMemoMenu, storeInsertXml, storeMergeDoc, storeMoveDocContentHere, storeNoteBox_fastnote, storeNoteBox_keep, storeNoteBox_noteAreaText, storeNoteBox_pin, storeNoteBox_recentText, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType, storeOpenRefsClick, storeOpenRefsMenu, storeRefreshStaticBkLnk, tag2RefBoxCheckbox, tag_to_ref_add_card, tag_to_ref_add_pinyin, tomato_clocks, tomato_clocks_change_bg, tomato_clocks_change_bg_dark, tomato_clocks_force_dialog, tomato_clocks_force_notice, tomato_clocks_opacity, tomato_clocks_position_right, tomatoClockCheckbox, toolbarBoxCheckbox, toolbarEN2CHBtn, toolbarTidy, userID, userToken } from "./libs/stores";
+import { aiBoxCheckbox, aiBoxMenuShow, aiBoxPrompts, auto_card_priority, avoiding_cloud_synchronization_conflicts, awaysExitFocusStore, back_link_concept_fold, back_link_copy, back_link_dailynote_off, back_link_default_off, back_link_embed, back_link_goto_bottom_btn, back_link_max_size, back_link_mention_count, back_link_more_btns, back_link_move_here, back_link_move_to_dailynote, back_link_move_with_backlink, back_link_passup_heading, back_link_passup_quote, back_link_passup_super, back_link_protyle_height, back_link_ref, back_link_refresh_off, back_link_remove_refs, back_link_show_floatUI, back_link_show_path, backLinkBottomBoxCheckbox, card_priority_slider_hide, card_priority_stopBtn_hide, cardBoxAddConcepts, cardBoxBuildSupCard, cardBoxCheckbox, cardBoxSpradEvenlyPostpone, cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cardPriorityBoxPostponeCardMenu, cardPriorityBoxPriorityMenu, cardPriorityBoxSpradDelayMenu, commentBoxAddFlashCard, commentBoxAddUnderline, commentBoxBackwardRef, commentBoxCheckbox, commentBoxForwardRef, commentBoxMaxProtyleHeight, commentBoxShowID, commentBoxStaticOutlink, commentBoxVirtualRef, cozeSearchAppID, cozeSearchBoxCheckbox, cozeSearchDoubaoID, cozeSearchKnowledgeID, cozeSearchMenuShow, cozeSearchOauthTokenID, cozeSearchSpaceID, cpBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefSquareBrackets, cssRefStyle, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, dailyNoteBoxCheckbox, dailyNoteCopy, dailyNoteCopyAnchorText, dailyNoteCopyComment, dailyNoteCopyFlashCard, dailyNoteCopyInsertPR, dailyNoteCopyShowPath, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteMoveToBottom, dbBkBoxCheckbox, dbBkBoxHideDatetime, dbBkBoxMaxBacklinkSize, dont_break_list, fastNoteBoxAdd2Flashcard, fastNoteBoxCheckbox, fastNoteBoxDelAfterCreating, fastNoteBoxDisableBK, flash_thoughts_2_top, flash_thoughts_target_file, flashThoughtUseDialog, graphBoxCheckbox, graphClick2Locate, graphMaxAllBlocks, graphMaxPBlocks, imgBoxCheckbox, imgBoxShowMenu, imgOverlayCheckbox, keepLazyLoadStore, linkBoxAttrIconOnHide, linkBoxCheckbox, linkBoxLnkTitle, linkBoxSyncBlock, linkBoxSyncBlockAuto, linkBoxSyncHref, linkBoxSyncRef, linkBoxUseLnkOrRef, listBoxCheckbox, mixBoxAddAlias, mixBoxCheckbox, mixBoxPinyin, noteBoxAllKinds, noteBoxCheckbox, readingAdd2Card, readingDialog, readingPointBoxCheckbox, readingPointWithEnv, readingSaveFile, readingShowAllFolders, readingTopBar, showDocAttrs, storeCopyStdMD, storeFillMemoMenu, storeInsertXml, storeMergeDoc, storeMoveDocContentHere, storeNoteBox_fastnote, storeNoteBox_keep, storeNoteBox_noteAreaText, storeNoteBox_pin, storeNoteBox_recentText, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType, storeOpenRefsClick, storeOpenRefsMenu, storeRefreshStaticBkLnk, tag2RefBoxCheckbox, tag_to_ref_add_card, tag_to_ref_add_pinyin, tomato_clocks, tomato_clocks_change_bg, tomato_clocks_change_bg_dark, tomato_clocks_force_dialog, tomato_clocks_force_notice, tomato_clocks_opacity, tomato_clocks_position_right, tomatoClockCheckbox, toolbarBoxCheckbox, toolbarEN2CHBtn, toolbarTidy, userID, userToken } from "./libs/stores";
 import { dbBkBox } from "./DbBkBox";
 import { graphBox } from "./GraphBox";
 import { resetKey, verifyKeyTomato } from "./libs/user";
 import { commentBox } from "./CommentBox";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cozeSearchBox } from "./CozeSearchBox";
-import { addFoldCmd, initMenuListener } from "./exportFiles";
+import { addFoldCmd, initMenuListener, mergeDocMenuListener } from "./exportFiles";
 import { getDocTracer } from "./libs/docUtils";
 
 function loadStore(plugin: BaseTomatoPlugin) {
     userToken.load(plugin);
     userID.load(plugin);
+    aiBoxMenuShow.load(plugin);
+    cozeSearchMenuShow.load(plugin);
+    imgBoxShowMenu.load(plugin);
+    cardPriorityBoxPostponeCardMenu.load(plugin);
+    cardPriorityBoxPriorityMenu.load(plugin);
+    cardPriorityBoxSpradDelayMenu.load(plugin);
     cssRefStyle.load(plugin);
     showDocAttrs.load(plugin);
     cssNattyList.load(plugin);
@@ -79,6 +86,7 @@ function loadStore(plugin: BaseTomatoPlugin) {
     cardBoxCheckbox.load(plugin);
     cardBoxAddConcepts.load(plugin);
     cardBoxBuildSupCard.load(plugin);
+    cardBoxSpradEvenlyPostpone.load(plugin);
     cardPriorityBoxCheckbox.load(plugin);
     cardPriorityBoxAutoHide.load(plugin);
     auto_card_priority.load(plugin);
@@ -287,6 +295,7 @@ export default class ThePlugin extends BaseTomatoPlugin {
             destroyCallback: () => {
                 dm.destroyBy("1")
             },
+            hideCloseIcon: true,
         });
         const d = new IndexConf({
             target: dialog.element.querySelector("#" + id),
@@ -331,22 +340,13 @@ export default class ThePlugin extends BaseTomatoPlugin {
                                 protyle.scroll.keepLazyLoad = true
                             }
                         }
-                        if (awaysExitFocusStore.get() && !events.isMobile) {
-                            setTimeout(() => {
-                                document
-                                    .querySelectorAll(`button[data-type="exit-focus"]`)
-                                    .forEach((e: HTMLButtonElement) => {
-                                        if (!isCardByUpLook(e)) {
-                                            e.click();
-                                        }
-                                    })
-                            }, 1000);
-                        }
+                        autoExitFocus();
                     }
                 });
             }
         });
 
+        mergeDocMenuListener();
         initMenuListener();
         addFoldCmd(this);
         loadCss();

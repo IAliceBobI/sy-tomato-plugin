@@ -270,50 +270,7 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
                 return "Title Natural Number Descending";
         }
     }
-    public get 草稿切换() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "草稿切换";
-            case "es_ES":
-                return "Cambio de borrador";
-            case "fr_FR":
-                return "Changement de brouillon";
-            case "ja_JP":
-                return "下書き切り替え";
-            case "zh_CHT":
-                return "草稿切換";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Draft Switch";
-        }
-    }
-    public get 快速笔记Doc(): string {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "快捷键如有冲突请调整。<br> ctrl+n: 创建快速笔记。<br> ctrl+alt+n: 打开最新的快速笔记。<br> f4: 对任意文档，快速切其正面与背面。";
-            case "es_ES":
-                return "Ajuste los accesos directos si hay conflictos.<br> ctrl+n: Crear una nota rápida.<br> ctrl+alt+n: Abrir la nota rápida más reciente.<br> f4: Cambiar rápidamente entre la parte frontal y trasera de cualquier documento.";
-            case "fr_FR":
-                return "Ajustez les raccourcis si des conflits existent.<br> ctrl+n: Créer une note rapide.<br> ctrl+alt+n: Ouvrir la dernière note rapide.<br> f4: Passer rapidement entre l'avant et l'arrière de n'importe quel document.";
-            case "ja_JP":
-                return "ショートカットキーが競合する場合は調整してください。<br> ctrl+n: クイックノートを作成。<br> ctrl+alt+n: 最新のクイックノートを開く。<br> f4: 任意のドキュメントの表と裏を素早く切り替える。";
-            case "zh_CHT":
-                return "快捷鍵如有衝突請調整。<br> ctrl+n: 創建快速筆記。<br> ctrl+alt+n: 打開最新的快速筆記。<br> f4: 對任意文檔，快速切其正面與背面。";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Adjust shortcuts if there are conflicts.<br> ctrl+n: Create a quick note.<br> ctrl+alt+n: Open the latest quick note.<br> f4: Quickly toggle between the front and back of any document.";
-        }
-    }
+
     public get 将指定的引用渲染为标签(): string {
         switch (this.conf.appearance.lang) {
             case "zh_CN":

@@ -232,6 +232,7 @@ class MixBox {
                                 delete ial["custom-qf-doc-md5"];
                                 delete ial["custom-qf-knowledge-file-id"];
                                 delete ial["custom-qf-file-id"];
+                                delete ial["picgo-file-map-key"];
                                 const virAttrStr = Object.entries(ial)
                                     .sort((a, b) => a[0].localeCompare(b[0]))
                                     .map(([k, v]) => {

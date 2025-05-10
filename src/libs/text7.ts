@@ -475,28 +475,6 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
                 return "When reviewing the entire fragment within the flashcard, hide the button under the fragment";
         }
     }
-    public get 断句并插入下方() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "断句并插入下方";
-            case "es_ES":
-                return "Fractura e inserta debajo";
-            case "fr_FR":
-                return "Casser et insérer ci-dessous";
-            case "ja_JP":
-                return "文を分割して下に挿入";
-            case "zh_CHT":
-                return "斷句並插入下方";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Break and insert below";
-        }
-    }
     public get 切换单卡多卡模式() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":
@@ -652,28 +630,6 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
         }
     }
 
-    public get 摘抄() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "摘抄";
-            case "es_ES":
-                return "Extracto";
-            case "fr_FR":
-                return "Extrait";
-            case "ja_JP":
-                return "抽出";
-            case "zh_CHT":
-                return "摘抄";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Excerpt";
-        }
-    }
 
     public get 不删除已经产生的分片等文件() {
         switch (this.conf.appearance.lang) {
@@ -1287,51 +1243,7 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
         }
     }
 
-    public get 只有一个摘抄加入闪卡() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "只有一个摘抄加入闪卡";
-            case "es_ES":
-                return "Sólo un extracto se añade a la tarjeta de memoria";
-            case "fr_FR":
-                return "Seul un extrait est ajouté à la flashcard";
-            case "ja_JP":
-                return "抜粋はフラッシュカードに一つだけ追加されます";
-            case "zh_CHT":
-                return "只有一個摘錄加入閃卡";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Only one excerpt is added to flashcard";
-        }
-    }
-
-    public get 每个摘抄都加入闪卡() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "每个摘抄都加入闪卡";
-            case "es_ES":
-                return "Cada extracto se añade a la tarjeta de memoria";
-            case "fr_FR":
-                return "Chaque extrait est ajouté à la flashcard";
-            case "ja_JP":
-                return "各抜粋がフラッシュカードに追加されます";
-            case "zh_CHT":
-                return "每個摘錄都加入閃卡";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Each excerpt is added to flashcard";
-        }
-    }
+   
 
     public get 移动到下一分片内() {
         switch (this.conf.appearance.lang) {
