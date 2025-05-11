@@ -1,6 +1,6 @@
 import { TomatoI18nABC7 } from "./text7";
 
-export abstract class TomatoI18nABC6 extends TomatoI18nABC7{
+export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
     public 为x张卡输入新的优先级(length: number) {
         switch (this.conf.appearance.lang) {
             case "zh_CN":
@@ -159,52 +159,6 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7{
             case "en_US":
             default:
                 return "Bulk copy/move: checking data...";
-        }
-    }
-
-    public get 上一个日志() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "上一个日志";
-            case "es_ES":
-                return "Registro anterior";
-            case "fr_FR":
-                return "Journal précédent";
-            case "ja_JP":
-                return "前のログ";
-            case "zh_CHT":
-                return "上一個日誌";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Previous log";
-        }
-    }
-
-    public get 下一个日志() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "下一个日志";
-            case "es_ES":
-                return "Siguiente registro";
-            case "fr_FR":
-                return "Prochain journal";
-            case "ja_JP":
-                return "次のログ";
-            case "zh_CHT":
-                return "下一個日誌";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Next log";
         }
     }
 

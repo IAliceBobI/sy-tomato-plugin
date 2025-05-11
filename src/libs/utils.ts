@@ -2715,7 +2715,7 @@ export async function cancelSuperBlock(targetID: string) {
 
 export function winHotkey(m: string) {
     const w = m.replaceAll("⌘", "Ctrl+").replaceAll("⇧", "Shift+").replaceAll("⌥", "Alt+");
-    const last = m.at(-1);
+    const last = m.at(-1).toUpperCase();
     if (m.includes("⌥") && m.includes("⇧") && m.includes("⌘")) {
         m = "⌥⇧⌘" + last;
     } else if (m.includes("⌥") && m.includes("⇧")) {

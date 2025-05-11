@@ -1,8 +1,8 @@
 import { adaptHotkey, Dock, IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { add_ref, cloneCleanDiv, extendMap, getAllText, getAttribute, getContextPath, newID, NewNodeID, setAttribute, setTimeouts, siyuan } from "./libs/utils";
+import { add_ref, cloneCleanDiv, extendMap, getAllText, getAttribute, getContextPath, newID, NewNodeID, setAttribute, setTimeouts, siyuan, winHotkey } from "./libs/utils";
 import CommentBoxSvelte from "./CommentBox.svelte";
-import { commentBoxAddFlashCard, commentBoxAddUnderline, commentBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
+import { commentBoxAddFlashCard, commentBoxAddUnderline, commentBoxCheckbox, commentBoxMenu, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { isReadonly } from "./libs/docUtils";
@@ -10,6 +10,8 @@ import { DialogTextArea } from "./libs/DialogText";
 import { domNewHeading, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
 
 const DOCK_TYPE = "dock_CommentBox";
+
+export const CommentBox添加批注到日记 = winHotkey("⇧⌥F")
 
 class CommentBox {
     plugin: BaseTomatoPlugin;
@@ -40,30 +42,24 @@ class CommentBox {
         this.plugin.addCommand({
             langKey: "comment box 2024-12-20 12:01:14",
             langText: tomatoI18n.添加批注到日记,
-            hotkey: "⇧⌥F",
+            hotkey: CommentBox添加批注到日记.m,
             callback: () => {
                 this.findDivs(events.protyle.protyle, false);
             },
         });
-        // this.plugin.addCommand({
-        //     langKey: "comment box NewFile 2024-12-20 12:01:27",
-        //     langText: tomatoI18n.添加批注到新文件,
-        //     hotkey: "⇧⌥G",
-        //     callback: () => {
-        //         this.findDivs(events.protyle.protyle, true);
-        //     },
-        // });
 
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
-            menu.addItem({
-                icon: "iconQuoteTomato",
-                accelerator: "⇧⌥F",
-                label: tomatoI18n.添加批注到日记,
-                click: () => {
-                    this.findDivs(detail.protyle, false);
-                },
-            });
+            if (commentBoxMenu.get()) {
+                menu.addItem({
+                    icon: "iconQuoteTomato",
+                    accelerator: CommentBox添加批注到日记.m,
+                    label: tomatoI18n.添加批注到日记,
+                    click: () => {
+                        this.findDivs(detail.protyle, false);
+                    },
+                });
+            }
         });
 
         if (!events.isMobile) {
@@ -80,15 +76,17 @@ class CommentBox {
 
     blockIconEvent(detail: any) {
         if (!this.plugin) return;
-        const protyle: IProtyle = detail.protyle;
-        detail.menu.addItem({
-            icon: "iconQuoteTomato",
-            accelerator: "⇧⌥F",
-            label: tomatoI18n.添加批注到日记,
-            click: () => {
-                this.findDivs(protyle, false);
-            }
-        });
+        if (commentBoxMenu.get()) {
+            const protyle: IProtyle = detail.protyle;
+            detail.menu.addItem({
+                icon: "iconQuoteTomato",
+                accelerator: CommentBox添加批注到日记.m,
+                label: tomatoI18n.添加批注到日记,
+                click: () => {
+                    this.findDivs(protyle, false);
+                }
+            });
+        }
     }
 
     private async findDivs(protyle: IProtyle, _newFile: boolean) {

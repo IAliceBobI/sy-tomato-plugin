@@ -134,6 +134,7 @@
         cardPriorityBoxPostponeCardMenu,
         cardPriorityBoxSpradDelayMenu,
         cardPriorityBoxPriorityMenu,
+        commentBoxMenu,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -141,7 +142,6 @@
     import { cleanDataview, siyuan } from "./libs/utils";
     import { icon } from "./libs/bkUtils";
     import { expStore, resetKey, verifyKeyTomato } from "./libs/user";
-    import { SPACE } from "./libs/gconst";
     import BuyTomato from "./BuyTomato.svelte";
     import { ImgBoxHotKey } from "./ImgBox";
     import { AIBoxHotkey } from "./AIBox";
@@ -162,6 +162,12 @@
         CardPriorityBox推迟闪卡,
         CardPriority恢复所有暂停的闪卡,
     } from "./CardPriorityBox";
+    import { CommentBox添加批注到日记 } from "./CommentBox";
+    import {
+        CpBox批量删除大量连续内容块,
+        CpBox批量复制大量连续内容块,
+        CpBox批量移动大量连续内容块,
+    } from "./CpBox";
     export let dm: DestroyManager;
     export let plugin: BaseTomatoPlugin;
     let buyDIV: HTMLElement;
@@ -525,9 +531,18 @@
                 <input
                     type="checkbox"
                     class="b3-switch"
+                    bind:checked={$commentBoxMenu}
+                />
+                {tomatoI18n.添加右键菜单}
+                <strong>{CommentBox添加批注到日记.w}</strong>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
                     bind:checked={$commentBoxAddFlashCard}
                 />
-                {tomatoI18n.加入闪卡 + SPACE}
+                {tomatoI18n.加入闪卡}
             </div>
             <div>
                 <input
@@ -1046,6 +1061,26 @@
             />
             {tomatoI18n.长内容工具}
         </div>
+        {#if $cpBoxCheckbox}
+            <div>
+                {tomatoI18n.批量删除大量连续内容块}
+                <strong>{CpBox批量删除大量连续内容块.w}</strong>
+            </div>
+            <div class="kbd">
+                {@html tomatoI18n.批量删除帮助}
+            </div>
+            <div>
+                {tomatoI18n.批量移动大量连续内容块}
+                <strong>{CpBox批量移动大量连续内容块.w}</strong>
+            </div>
+            <div>
+                {tomatoI18n.批量复制大量连续内容块}
+                <strong>{CpBox批量复制大量连续内容块.w}</strong>
+            </div>
+            <div class="kbd">
+                {@html tomatoI18n.批量移动复制帮助}
+            </div>
+        {/if}
     </div>
     <!-- 同步块 -->
     <div class="settingBox">
@@ -1627,6 +1662,23 @@
         font:
             /* 75% Consolas, */ "Liberation Mono", Menlo, Courier,
             monospace, var(--b3-font-family);
+        line-height: 1;
+        color: var(--b3-theme-on-surface);
+        vertical-align: middle;
+        background-color: var(--b3-theme-surface);
+        border: solid 1px var(--b3-theme-surface-lighter);
+        border-radius: var(--b3-border-radius);
+        box-shadow: inset 0 -1px 0 var(--b3-theme-surface-lighter);
+    }
+    .kbd {
+        padding: 2px 4px;
+        font:
+            100% Consolas,
+            "Liberation Mono",
+            Menlo,
+            Courier,
+            monospace,
+            var(--b3-font-family);
         line-height: 1;
         color: var(--b3-theme-on-surface);
         vertical-align: middle;

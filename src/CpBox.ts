@@ -1,4 +1,4 @@
-import { siyuan } from "./libs/utils";
+import { siyuan, winHotkey } from "./libs/utils";
 import "./index.scss";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cpBoxCheckbox } from "./libs/stores";
@@ -8,6 +8,10 @@ import { events } from "./libs/Events";
 
 const LongContentOpsLock = "LongContentOpsLock";
 
+export const CpBox批量删除大量连续内容块 = winHotkey("⌘⇧L")
+export const CpBox批量移动大量连续内容块 = winHotkey("⌘L")
+export const CpBox批量复制大量连续内容块 = winHotkey("⌘O")
+
 class CpBox {
     private plugin: BaseTomatoPlugin;
 
@@ -16,8 +20,9 @@ class CpBox {
 
         this.plugin = plugin;
         this.plugin.addCommand({
-            langKey: "deleteBlocks",
-            hotkey: "⌘⇧L",
+            langKey: "deleteBlocks 2025-5-10 23:28:29",
+            langText: tomatoI18n.批量删除大量连续内容块,
+            hotkey: CpBox批量删除大量连续内容块.m,
             callback: async () => {
                 navigator.locks.request(LongContentOpsLock, { ifAvailable: true }, async (lock) => {
                     if (lock) {
@@ -29,8 +34,9 @@ class CpBox {
             },
         });
         this.plugin.addCommand({
-            langKey: "moveBlocks",
-            hotkey: "⌘L",
+            langKey: "moveBlocks 2025-5-10 23:29:52",
+            langText: tomatoI18n.批量移动大量连续内容块,
+            hotkey: CpBox批量移动大量连续内容块.m,
             callback: async () => {
                 navigator.locks.request(LongContentOpsLock, { ifAvailable: true }, async (lock) => {
                     if (lock) {
@@ -42,8 +48,9 @@ class CpBox {
             },
         });
         this.plugin.addCommand({
-            langKey: "copyBlocks",
-            hotkey: "⌘O",
+            langKey: "copyBlocks 2025-5-10 23:31:46",
+            langText: tomatoI18n.批量复制大量连续内容块,
+            hotkey: CpBox批量复制大量连续内容块.m,
             callback: async () => {
                 navigator.locks.request(LongContentOpsLock, { ifAvailable: true }, async (lock) => {
                     if (lock) {

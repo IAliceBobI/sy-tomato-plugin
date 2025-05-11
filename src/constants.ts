@@ -1,4 +1,5 @@
-export const STORAGE_Prog_SETTINGS = "ProgressiveLearning.json";
+// export const STORAGE_Prog_SETTINGS = "ProgressiveLearning.json";
+export const STORAGE_Prog_SETTINGS = "tomato-settings.json";
 export const STORAGE_SETTINGS = "tomato-settings.json"; // plugin switch
 export const STORAGE_SCHEDULE = "schedule.json";
 export const STORAGE_TOMATO_TIME = "tomato-time.json";

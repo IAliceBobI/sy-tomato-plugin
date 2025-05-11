@@ -1,4 +1,4 @@
-# [已开源，源代码](https://github.com/IAliceBobI/sy-tomato-plugin) 👈
+# [OPEN SOURCE 已开源](https://github.com/IAliceBobI/sy-tomato-plugin) 👈
 
 # [DOC 帮助文档](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)
 
@@ -8,7 +8,7 @@
 
 # [ACKNOWLEDGMENTS 鸣谢](https://awx9773btw.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
 
-# 为爱发电 💗
+# POWERED BY LOVE 为爱发电 💗
 
 <div>
 <img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/wx1.png" alt="alipay" width="300" />

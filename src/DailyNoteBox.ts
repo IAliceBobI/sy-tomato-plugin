@@ -1,6 +1,6 @@
 import { IProtyle } from "siyuan";
 import { events } from "./libs/Events";
-import { add_href, add_ref, cloneCleanDiv, closeTabByTitle, getContextPath, getOpenedEditors, Siyuan, siyuan, timeUtil } from "./libs/utils";
+import { add_href, add_ref, cloneCleanDiv, closeTabByTitle, getContextPath, getOpenedEditors, Siyuan, siyuan, timeUtil, winHotkey } from "./libs/utils";
 import { DATA_NODE_ID } from "./libs/gconst";
 import { dailyNoteBoxCheckbox, dailyNoteCopy, dailyNoteCopyAnchorText, dailyNoteCopyComment, dailyNoteCopyFlashCard, dailyNoteCopyInsertPR, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteMoveToBottom, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
@@ -10,6 +10,9 @@ import { DialogText } from "./libs/DialogText";
 import { createAndOpenFastNote } from "./FastNoteBox";
 import { isReadonly, OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
+
+export const DailyNoteBox上一个日志 = winHotkey("⌥Q")
+export const DailyNoteBox下一个日志 = winHotkey("⌥W")
 
 class DailyNoteBox {
     private plugin: BaseTomatoPlugin;
@@ -65,7 +68,7 @@ class DailyNoteBox {
 
         plugin.addTopBar({
             icon: "iconLeft",
-            title: tomatoI18n.上一个日志 + "Alt+Q",
+            title: tomatoI18n.上一个日志 + DailyNoteBox上一个日志.w,
             position: "left",
             callback: () => {
                 this.openDailyNote(-1000 * 60 * 60 * 24);
@@ -73,7 +76,7 @@ class DailyNoteBox {
         });
         plugin.addTopBar({
             icon: "iconRight",
-            title: tomatoI18n.下一个日志 + "Alt+W",
+            title: tomatoI18n.下一个日志 + DailyNoteBox下一个日志.w,
             position: "left",
             callback: () => {
                 this.openDailyNote(1000 * 60 * 60 * 24);
@@ -81,15 +84,17 @@ class DailyNoteBox {
         });
 
         this.plugin.addCommand({
-            langKey: "previousNote",
-            hotkey: "⌥Q",
+            langKey: "previousNote 2025-5-11 08:40:40",
+            langText: tomatoI18n.上一个日志,
+            hotkey: DailyNoteBox上一个日志.m,
             callback: () => {
                 this.openDailyNote(-1000 * 60 * 60 * 24);
             },
         });
         this.plugin.addCommand({
-            langKey: "nextNote",
-            hotkey: "⌥W",
+            langKey: "nextNote 2025-5-11 08:42:17",
+            langText: tomatoI18n.下一个日志,
+            hotkey: DailyNoteBox下一个日志.m,
             callback: () => {
                 this.openDailyNote(1000 * 60 * 60 * 24);
             },
