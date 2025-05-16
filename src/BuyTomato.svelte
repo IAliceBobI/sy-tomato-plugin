@@ -10,7 +10,7 @@
     const nextPrice = 96;
 
     async function copyUserID() {
-        const msg = { 名称: Siyuan?.user?.userName, 用户ID: $userID };
+        const msg = { 用户ID: $userID };
         if (isTomato) {
             msg["插件"] = tomatoI18n.购买番茄工具箱VIP版;
         } else {
