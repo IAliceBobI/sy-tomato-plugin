@@ -39,7 +39,7 @@ async function verifyKey(included: string) {
 
     let v = await verifyUserSign(userToken.get(), included);
     if (!v.valid) {
-        const FREE_KEY = "1freeze7XSGUQr_20250520_name_siyuanTomatoCode_304402206fa940aa9c0462be1ca39ac5e9637214ca1b1321389ee342152627fdb86bf20b022045b57bed970fe1daeb4a3b9e3dcd5f86c16d3eef31edb53bde4a585d8f89fdb9";
+        const FREE_KEY = "freeze7XSGUQr_20250531_name_siyuanTomatoCode_30450221009c482f5a144f605dca52c5c9991501eb98d281755435d6316e666820c718f7ad02207e175822e94fc88fd397bd14f497d123815b91c7d43935a683e26d6bc99c1f76";
         userToken.set(FREE_KEY);
         v = await verifyUserSign(FREE_KEY, "_siyuanTomatoCode_");
     }
