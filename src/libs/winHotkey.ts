@@ -24,7 +24,7 @@ function getAllHotkeys(obj: any) {
     }
 }
 
-function toWin(k: string) {
+function toWin(k: string, newline: boolean) {
     const w = k
         .replaceAll("⌘", "Ctrl+")
         .replaceAll("⇧", "Shift+")
@@ -33,6 +33,9 @@ function toWin(k: string) {
         .replaceAll("⌫", "Backspace")
         .replaceAll("⌦", "Delete")
         .replaceAll("↩", "Enter");
+    if (newline) {
+        return `（${k}）\n（${w}）`
+    }
     return `（${k}）（${w}）`
 }
 
@@ -73,22 +76,22 @@ export function winHotkey(m: string, langKey: string, icon?: string, langText?: 
     // hotkeySet.set(m, langKey);
     // hotkeySet.set(langKey, m);
 
-    const w = () => {
+    const w = (nl = false) => {
         const a = Siyuan?.config?.keymap?.plugin?.['sy-tomato-plugin']?.[langKey]?.custom
-        if (a) return toWin(a);
+        if (a) return toWin(a, nl);
 
         const b = Siyuan?.config?.keymap?.plugin?.['sy-progressive-plugin']?.[langKey]?.custom
-        if (b) return toWin(b);
+        if (b) return toWin(b, nl);
 
         const c = Siyuan?.config?.keymap?.plugin?.['sy-my-plugin']?.[langKey]?.custom
-        if (c) return toWin(c);
+        if (c) return toWin(c, nl);
 
         const a1 = Siyuan?.config?.keymap?.plugin?.['sy-tomato-plugin']?.[langKey]?.default
         const b1 = Siyuan?.config?.keymap?.plugin?.['sy-progressive-plugin']?.[langKey]?.default
         const c1 = Siyuan?.config?.keymap?.plugin?.['sy-my-plugin']?.[langKey]?.default
         const invalid = !!a1 || !!b1 || !!c1;
 
-        return toWin(m) + (invalid ? "🚫" : "");
+        return toWin(m, nl) + (invalid ? "🚫" : "");
     }
 
     const menu = () => {

@@ -212,7 +212,7 @@ class CardBox {
             div.setAttribute("TomatoCardDelBtn", "1");
             div.appendChild(document.createElement("span")) as HTMLSpanElement;
             const btn = div.appendChild(document.createElement("button")) as HTMLButtonElement;
-            btn.setAttribute("aria-label", CardBox闪卡复习时打开闪卡设置.w());
+            btn.setAttribute("aria-label", CardBox闪卡复习时打开闪卡设置.w(true));
             btn.innerHTML = "<div class=\"card__icon\">⚙️</div> " + tomatoI18n.设置;
             btn.title = this.getHK();
             btn.setAttribute("data-type", "-100");
