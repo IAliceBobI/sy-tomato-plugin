@@ -78,8 +78,10 @@
                 {tomatoI18n.如果要激活插件请先登录思源本体的账户}
             </span>
         {/if}
-        <a class="b3-button settingBox" href="https://m.tb.cn/h.6QjEHT9xto5XCmG"
-            >{tomatoI18n.点击打开店铺}</a
+        <a
+            class="b3-button settingBox"
+            href="https://item.taobao.com/item.htm?ft=t&id=914732195167"
+            >{tomatoI18n.点击打开商品}</a
         >
     </div>
 

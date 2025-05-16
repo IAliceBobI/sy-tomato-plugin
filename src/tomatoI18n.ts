@@ -147,6 +147,23 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 点击打开商品() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "点击打开商品";
+            case "es_ES": return "Haga clic para abrir el producto";
+            case "fr_FR": return "Cliquez pour ouvrir le produit";
+            case "ja_JP": return "商品を開くをクリック";
+            case "zh_CHT": return "點擊打開商品";
+            case "it_IT": return "Clicca per aprire il prodotto";
+            case "de_DE": return "Klicken Sie, um das Produkt zu öffnen";
+            case "he_IL": return "לחץ כדי לפתוח את המוצר";
+            case "ru_RU": return "Нажмите, чтобы открыть товар";
+            case "pl_PL": return "Kliknij, aby otworzyć produkt";
+            case "en_US":
+            default: return "Click to open the product";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
