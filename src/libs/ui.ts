@@ -69,8 +69,8 @@ export function searchSettings(settingsDiv: HTMLElement, searchKey: string) {
     getChildElements(settingsDiv).forEach((e) => {
         e.style.display = "";
     });
-    settingsDiv.querySelectorAll(".highlight").forEach(e => {
-        e.classList.remove("highlight")
+    settingsDiv.querySelectorAll(".tomato-highlight").forEach(e => {
+        e.classList.remove("tomato-highlight")
     })
     if (sk) {
         getChildElements(settingsDiv).forEach((e) => {
@@ -86,7 +86,7 @@ export function searchSettings(settingsDiv: HTMLElement, searchKey: string) {
         });
         settingsDiv.querySelectorAll("div,strong").forEach(e => {
             if (getDirectTextContent(e).toLocaleLowerCase().includes(sk)) {
-                e.classList.add("highlight")
+                e.classList.add("tomato-highlight")
             }
         })
     }
