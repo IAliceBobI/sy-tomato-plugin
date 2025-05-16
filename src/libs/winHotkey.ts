@@ -25,14 +25,15 @@ function getAllHotkeys(obj: any) {
 }
 
 function toWin(k: string) {
-    return k
+    const w = k
         .replaceAll("⌘", "Ctrl+")
         .replaceAll("⇧", "Shift+")
         .replaceAll("⌥", "Alt+")
         .replaceAll("⇥", "Tab")
         .replaceAll("⌫", "Backspace")
         .replaceAll("⌦", "Delete")
-        .replaceAll("↩", "Enter")
+        .replaceAll("↩", "Enter");
+    return `（${k}）（${w}）`
 }
 
 interface Get {
