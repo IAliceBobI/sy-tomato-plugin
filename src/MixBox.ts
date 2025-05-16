@@ -1,30 +1,49 @@
 import { confirm, IEventBusMap, IProtyle, Plugin } from "siyuan";
-import { addLineThrough, cleanText, get_siyuan_lnk_md, getAllText, getAttribute, getSyElement, NewNodeID, parseIAL, siyuan, timeUtil } from "./libs/utils";
+import { addLineThrough, cleanText, get_siyuan_lnk_md, getAllText, getAttribute, getSyElement, NewNodeID, parseIAL, siyuan, timeUtil, } from "./libs/utils";
 import { events, EventType } from "./libs/Events";
 import { BlockNodeEnum, CUSTOM_RIFF_DECKS, DATA_NODE_ID, DATA_TYPE, DocAttrShowKey, SPACE, VIRTUAL_BLOCK_REF } from "./libs/gconst";
 import { addTodoBookmark, rmTodoBookmark } from "./libs/bookmark";
-import { item2ref, mergeDocs, moveAllContentHere, openFileByName, OpenSyFile2, pinyinLongShort } from "./libs/docUtils";
+import { getDocBlocks, item2ref, mergeDocs, moveAllContentHere, openFileByName, OpenSyFile2, pinyinLongShort } from "./libs/docUtils";
 import { DialogText } from "./libs/DialogText";
 import { cleanBackLinks, disableBK, enableBK, insertBackLinks } from "./libs/bkUtils";
-import { mixBoxCheckbox, storeOpenRefsMenu, storeAttrManager, storeFillMemoMenu, storeInsertXml, storeMergeDoc, storeMoveDocContentHere, storeRefreshStaticBkLnk, storeOpenRefsClick, storeCopyStdMD, showDocAttrs } from "./libs/stores";
+import { mixBoxCheckbox, storeOpenRefsMenu, storeAttrManager, storeFillMemoMenu, storeInsertXml, storeMergeDoc, storeMoveDocContentHere, storeRefreshStaticBkLnk, storeOpenRefsClick, storeCopyStdMD, showDocAttrs, mixBoxPinyin } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { text2tab } from "./libs/listUtils";
 import { zipNways } from "./libs/functional";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
+import { winHotkey } from "./libs/winHotkey";
+import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
+
+export const MixBox删除块以及闪卡 = winHotkey("ctrl+alt+D", "delete 2025-5-12 09:00:20", "", () => tomatoI18n.删除块以及闪卡)
+export const MixBox内容制表 = winHotkey("alt+shift+T", "tab 2025-5-12 12:15:07", "", () => tomatoI18n.内容制表)
+export const MixBox使内容模糊 = winHotkey("alt+shift+D", "blur 2025-5-12 12:15:08", "", () => tomatoI18n.使内容模糊)
+export const MixBox跳转到剪贴板中ID的块 = winHotkey("alt+shift+J", "jump 2025-5-12 12:15:09", "", () => tomatoI18n.跳转到剪贴板中ID的块)
+export const MixBox添加一个flag书签 = winHotkey("alt+shift+K", "flag 2025-5-12 12:15:11", "", () => tomatoI18n.添加一个flag书签)
+export const MixBox删除所有flag书签 = winHotkey("alt+shift+0", "del flags 2025-5-12 12:15:11", "", () => tomatoI18n.删除所有flag书签)
+export const MixBox空格隔开的所有内容都转为引用 = winHotkey("alt+shift+F3", "txt2ref 2025-5-12 12:15:11", "", () => tomatoI18n.空格隔开的所有内容都转为引用)
+export const MixBox收集当前文档与子文档所有的未完成任务 = winHotkey("⌘⇧w", "收集当前文档与子文档所有的未完成任务 2025-5-12 12:15:11", "", () => tomatoI18n.收集当前文档与子文档所有的未完成任务)
+export const MixBox列出当前文档与子文档中没被引用的文档 = winHotkey("⌘⇧q", "列出当前文档与子文档中没被引用的文档 2025-5-12 12:15:11", "", () => tomatoI18n.列出当前文档与子文档中没被引用的文档)
+export const MixBox将选择文字与其拼音加入文档的别名 = winHotkey("⌘⇧Y", "将选择文字与其拼音加入文档的别名 2025-5-12 12:15:11", "🍅🎵", () => tomatoI18n.将选择文字与其拼音加入文档的别名 + "(pinyin)")
+export const MixBox将选择文字加入文档的别名 = winHotkey("⌘⇧U", "MixBox将选择文字加入文档的别名 2025-5-12 12:15:11", "", () => tomatoI18n.将选择文字加入文档的别名)
+export const MixBox定位所有引用Menu = winHotkey("⌥⇧A", "定位所有引用Menu 2025-5-12 12:15:11", "🍅📍🔗", () => tomatoI18n.定位所有引用Menu)
+export const MixBox复制文档为标准Markdown = winHotkey("⌥⇧B", "复制文档为标准Markdown 2025-5-12 12:15:11", "🍅📜📋", () => tomatoI18n.复制文档为标准Markdown)
+export const MixBox锁定内容 = winHotkey("⌥⇧L", "锁定内容 2025-5-12 12:15:11", "🍅🔒/🔓", () => tomatoI18n.锁定内容)
+export const MixBox复制文档为纯文本 = winHotkey("alt+ctrl+shift+B", "复制文档为纯文本 2025-5-12 12:15:11", "", () => tomatoI18n.复制文档为纯文本)
 
 class MixBox {
     plugin: BaseTomatoPlugin;
 
     async onload(plugin: BaseTomatoPlugin) {
         if (!mixBoxCheckbox.get()) return;
+        await verifyKeyTomato();
 
         this.plugin = plugin;
         this.plugin.addCommand({
-            langKey: "delete2024-08-14 14:32:16",
-            langText: tomatoI18n.删除块以及闪卡,
-            hotkey: "⌘⌥D",
+            langKey: MixBox删除块以及闪卡.langKey,
+            langText: MixBox删除块以及闪卡.langText(),
+            hotkey: MixBox删除块以及闪卡.m,
             editorCallback: (protyle: IProtyle) => {
                 confirm(tomatoI18n.删除块以及闪卡, "⚠️", async () => {
                     const { ids, selected } = await events.selectedDivs(protyle);
@@ -47,9 +66,9 @@ class MixBox {
             },
         });
         this.plugin.addCommand({
-            langKey: "2024-06-27 15:44:47",
-            langText: tomatoI18n.内容制表,
-            hotkey: "⌥⇧T",
+            langKey: MixBox内容制表.langKey,
+            langText: MixBox内容制表.langText(),
+            hotkey: MixBox内容制表.m,
             editorCallback: async (protyle: IProtyle) => {
                 const { selected, ids } = await events.selectedDivs(protyle);
                 const id = ids?.pop()
@@ -60,18 +79,18 @@ class MixBox {
             },
         });
         this.plugin.addCommand({
-            langKey: "2024-6-26 09:45:01",
-            langText: tomatoI18n.使内容模糊,
-            hotkey: "⌥⇧D",
+            langKey: MixBox使内容模糊.langKey,
+            langText: MixBox使内容模糊.langText(),
+            hotkey: MixBox使内容模糊.m,
             editorCallback: async (protyle: IProtyle) => {
                 const { selected } = await events.selectedDivs(protyle);
                 await addLineThrough(protyle, "custom-tomato-line-blur", selected);
             },
         });
         this.plugin.addCommand({
-            langKey: "2024-6-5 23:13:53",
-            langText: tomatoI18n.跳转到剪贴板中的块ID,
-            hotkey: "",
+            langKey: MixBox跳转到剪贴板中ID的块.langKey,
+            langText: MixBox跳转到剪贴板中ID的块.langText(),
+            hotkey: MixBox跳转到剪贴板中ID的块.m,
             callback: async () => {
                 let text = await navigator.clipboard.readText();
                 text = text.replaceAll(/[\"\'\s\t]+/g, "")
@@ -79,27 +98,27 @@ class MixBox {
             },
         });
         this.plugin.addCommand({
-            langKey: "2024-6-9 02:00:06",
-            langText: plugin.i18n.addTODOBookmark,
-            hotkey: "",
+            langKey: MixBox添加一个flag书签.langKey,
+            langText: MixBox添加一个flag书签.langText(),
+            hotkey: MixBox添加一个flag书签.m,
             editorCallback: async (protyle: IProtyle) => {
                 const { ids } = await events.selectedDivs(protyle);
                 await addTodoBookmark(ids);
             },
         });
         this.plugin.addCommand({
-            langKey: "2024-6-9 02:00:25",
-            langText: plugin.i18n.deleteAllTODOBookmarks,
-            hotkey: "",
+            langKey: MixBox删除所有flag书签.langKey,
+            langText: MixBox删除所有flag书签.langText(),
+            hotkey: MixBox删除所有flag书签.m,
             editorCallback: async (protyle: IProtyle) => {
                 const { docID } = await events.selectedDivs(protyle);
                 await rmTodoBookmark(docID);
             },
         });
         this.plugin.addCommand({
-            langKey: "2024-6-9 02:00:37",
-            langText: plugin.i18n.txt2ref,
-            hotkey: "F3",
+            langKey: MixBox空格隔开的所有内容都转为引用.langKey,
+            langText: MixBox空格隔开的所有内容都转为引用.langText(),
+            hotkey: MixBox空格隔开的所有内容都转为引用.m,
             editorCallback: async (protyle: IProtyle) => {
                 const boxID = protyle.notebookId;
                 const { selected, rangeText } = await events.selectedDivs(protyle);
@@ -107,71 +126,71 @@ class MixBox {
             },
         });
         this.plugin.addCommand({
-            langKey: "lockDiv2024-07-04 17:27:42",
-            langText: tomatoI18n.锁定内容,
-            hotkey: "⌥⇧L",
+            langKey: MixBox锁定内容.langKey,
+            langText: MixBox锁定内容.langText(),
+            hotkey: MixBox锁定内容.m,
             callback: async () => {
                 const { selected } = await events.selectedDivs();
                 await this.fillMemo(selected);
             },
         });
         this.plugin.addCommand({
-            langKey: "add task list 2024-07-14 17:48:31",
-            langText: tomatoI18n.收集当前文档与子文档所有的未完成任务,
-            hotkey: "⌘⇧T",
+            langKey: MixBox收集当前文档与子文档所有的未完成任务.langKey,
+            langText: MixBox收集当前文档与子文档所有的未完成任务.langText(),
+            hotkey: MixBox收集当前文档与子文档所有的未完成任务.m,
             callback: async () => {
                 await addTaskPage(this.plugin, events.protyle.protyle)
             },
         });
         this.plugin.addCommand({
-            langKey: "no ref 2024-07-16 01:42:21",
-            langText: tomatoI18n.列出当前文档与子文档中没被引用的文档,
-            hotkey: "⌘⇧R",
+            langKey: MixBox列出当前文档与子文档中没被引用的文档.langKey,
+            langText: MixBox列出当前文档与子文档中没被引用的文档.langText(),
+            hotkey: MixBox列出当前文档与子文档中没被引用的文档.m,
             callback: async () => {
                 await addNoRefPage(this.plugin, events.protyle.protyle)
             },
         });
-        if (this.plugin.settingCfg.mixBoxPinyin) {
-            this.plugin.addCommand({
-                langKey: "2024-6-6 22:05:37",
-                langText: tomatoI18n.将选择文字与其拼音加入文档的别名 + "(pinyin)",
-                hotkey: "⌘⇧Y",
-                editorCallback: (protyle: IProtyle) => {
-                    addPinyin2DocAlias(protyle);
-                },
-            });
-        }
-        if (this.plugin.settingCfg.mixBoxAddAlias) {
-            this.plugin.addCommand({
-                langKey: "mixBoxAddAlias 2024-6-6 22:05:3712",
-                langText: tomatoI18n.将选择文字加入文档的别名,
-                hotkey: "⌘⇧U",
-                editorCallback: (protyle: IProtyle) => {
-                    add2DocAlias(protyle);
-                },
-            });
-        }
-        if (storeOpenRefsMenu.get()) {
-            this.plugin.addCommand({
-                langKey: "2024-07-31 17:55:41",
-                langText: tomatoI18n.定位所有引用Menu,
-                hotkey: "⌥⇧A",
-                editorCallback: (protyle: IProtyle) => {
-                    openRefs(this.plugin, protyle);
-                },
-            });
-        }
-        if (storeCopyStdMD.get()) {
-            this.plugin.addCommand({
-                langKey: "storeCopyStdMD2024-08-09 16:19:32",
-                langText: tomatoI18n.复制文档为标准Markdown,
-                hotkey: "",
-                editorCallback: (protyle: IProtyle) => {
-                    copyStdMD(protyle);
-                },
-            });
-        }
-        if (storeOpenRefsClick.get()) {
+        this.plugin.addCommand({
+            langKey: MixBox将选择文字与其拼音加入文档的别名.langKey,
+            langText: MixBox将选择文字与其拼音加入文档的别名.langText(),
+            hotkey: MixBox将选择文字与其拼音加入文档的别名.m,
+            editorCallback: (protyle: IProtyle) => {
+                addPinyin2DocAlias(protyle);
+            },
+        });
+        this.plugin.addCommand({
+            langKey: MixBox将选择文字加入文档的别名.langKey,
+            langText: MixBox将选择文字加入文档的别名.langText(),
+            hotkey: MixBox将选择文字加入文档的别名.m,
+            editorCallback: (protyle: IProtyle) => {
+                add2DocAlias(protyle);
+            },
+        });
+        this.plugin.addCommand({
+            langKey: MixBox定位所有引用Menu.langKey,
+            langText: MixBox定位所有引用Menu.langText(),
+            hotkey: MixBox定位所有引用Menu.m,
+            editorCallback: (protyle: IProtyle) => {
+                openRefs(this.plugin, protyle);
+            },
+        });
+        this.plugin.addCommand({
+            langKey: MixBox复制文档为标准Markdown.langKey,
+            langText: MixBox复制文档为标准Markdown.langText(),
+            hotkey: MixBox复制文档为标准Markdown.m,
+            editorCallback: (protyle: IProtyle) => {
+                copyStdMD(protyle);
+            },
+        });
+        this.plugin.addCommand({
+            langKey: MixBox复制文档为纯文本.langKey,
+            langText: MixBox复制文档为纯文本.langText(),
+            hotkey: MixBox复制文档为纯文本.m,
+            editorCallback: (protyle: IProtyle) => {
+                copyTextOnly(protyle);
+            },
+        });
+        if (storeOpenRefsClick.get() && lastVerifyResult()) {
             events.addListener("storeOpenRefsClick2024-9-12 23:52:01", (eventType, detail) => {
                 if (eventType == EventType.loaded_protyle_static
                     || eventType == EventType.loaded_protyle_dynamic
@@ -292,9 +311,9 @@ class MixBox {
         if (!storeCopyStdMD.get()) return
         const menu = detail.menu;
         menu.addItem({
-            label: tomatoI18n.复制文档为标准Markdown,
-            iconHTML: "🍅📜📋",
-            accelerator: "",
+            label: MixBox复制文档为标准Markdown.langText(),
+            iconHTML: MixBox复制文档为标准Markdown.icon,
+            accelerator: MixBox复制文档为标准Markdown.m,
             click: async () => {
                 await copyStdMD(detail.protyle);
             },
@@ -305,16 +324,14 @@ class MixBox {
         if (!storeOpenRefsMenu.get()) return
         const menu = detail.menu;
         menu.addItem({
-            label: tomatoI18n.定位所有引用Menu,
-            iconHTML: "🍅📍🔗",
-            accelerator: "⌥⇧A",
+            label: MixBox定位所有引用Menu.langText(),
+            iconHTML: MixBox定位所有引用Menu.icon,
+            accelerator: MixBox定位所有引用Menu.m,
             click: async () => {
                 await openRefs(this.plugin, detail.protyle);
             },
         });
     }
-
-
 
     async fillMemo(selected: HTMLElement[]) {
         if (selected && selected.length > 0) {
@@ -348,9 +365,9 @@ class MixBox {
         if (!storeFillMemoMenu.get()) return
         const menu = detail.menu;
         menu.addItem({
-            label: tomatoI18n.锁定内容,
-            iconHTML: "🍅🔒/🔓",
-            accelerator: "⌥⇧L",
+            label: MixBox锁定内容.langText(),
+            iconHTML: MixBox锁定内容.icon,
+            accelerator: MixBox锁定内容.m,
             click: async () => {
                 const { selected } = await events.selectedDivs();
                 await this.fillMemo(selected);
@@ -359,12 +376,12 @@ class MixBox {
     }
 
     addPinyin2alias(detail: TomatoMenu) {
-        if (!this.plugin.settingCfg.mixBoxPinyin) return;
+        if (!mixBoxPinyin.get()) return;
         const menu = detail.menu;
         menu.addItem({
-            label: tomatoI18n.将选择文字与其拼音加入文档的别名,
-            iconHTML: "🍅🎵",
-            accelerator: "⌘⇧Y",
+            label: MixBox将选择文字与其拼音加入文档的别名.langText(),
+            iconHTML: MixBox将选择文字与其拼音加入文档的别名.icon,
+            accelerator: MixBox将选择文字与其拼音加入文档的别名.m,
             click: () => {
                 addPinyin2DocAlias(detail.protyle);
             },
@@ -665,7 +682,7 @@ async function getLeaveIDs(protyle: IProtyle) {
 async function addTaskPage(plugin: Plugin, protyle: IProtyle) {
     const docID = protyle.block.rootID
     const docRow = await siyuan.getDocRowByBlockID(docID)
-    const sql = `{{select * from blocks where hpath like "${docRow.hpath}%" and type="l" and subtype="t" and markdown like "* [ ] %"}}`;
+    const sql = `{{select * from blocks where hpath like "${docRow.hpath}%" and type="l" and subtype="t" and (markdown like "* [ ] %" or markdown like "- [ ] %")}}`;
     const id = await siyuan.createDocWithMdIfNotExists(protyle.notebookId, `${docRow.hpath}/tasks-${docRow.content}`, sql, { "custom-off-tomatobacklink": "1" })
     await OpenSyFile2(plugin, id)
 }
@@ -707,7 +724,17 @@ async function copyStdMD(protyle: IProtyle) {
     if (docID) {
         const text = await siyuan.copyStdMarkdown(docID);
         await navigator.clipboard.writeText(text);
-        await siyuan.pushMsg("copied!")
+        await siyuan.pushMsg("copied markdown!")
+    }
+}
+
+async function copyTextOnly(protyle: IProtyle) {
+    const docID = protyle?.block?.rootID
+    if (docID) {
+        const { div } = await getDocBlocks(docID, "", false, true, 1);
+        const txt = [...div.querySelectorAll(`div[contenteditable]`)].map(d => d.textContent).join("\n")
+        await navigator.clipboard.writeText(txt);
+        await siyuan.pushMsg("copied text!")
     }
 }
 

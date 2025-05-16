@@ -853,15 +853,15 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
     public get 计时后修改背景黑暗模式() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":
-                return "计时后修改背景-黑暗模式。比如填入：assets/dd-20240206160021-tz7aefu.jpeg";
+                return "计时后修改背景-黑暗模式。比如填入：assets/dd-20240206160021-tz7aefa.jpeg";
             case "es_ES":
-                return "Cambiar el fondo después del tiempo - Modo oscuro. Por ejemplo, ingrese: assets/dd-20240206160021-tz7aefu.jpeg";
+                return "Cambiar el fondo después del tiempo - Modo oscuro. Por ejemplo, ingrese: assets/dd-20240206160021-tz7aefa.jpeg";
             case "fr_FR":
-                return "Changer l'arrière-plan après le temps - Mode sombre. Par exemple, entrer : assets/dd-20240206160021-tz7aefu.jpeg";
+                return "Changer l'arrière-plan après le temps - Mode sombre. Par exemple, entrer : assets/dd-20240206160021-tz7aefa.jpeg";
             case "ja_JP":
-                return "時間経過後に背景を変更 - ダークモード。例えば、次のように入力します：assets/dd-20240206160021-tz7aefu.jpeg";
+                return "時間経過後に背景を変更 - ダークモード。例えば、次のように入力します：assets/dd-20240206160021-tz7aefa.jpeg";
             case "zh_CHT":
-                return "計時後修改背景-黑暗模式。例如填入：assets/dd-20240206160021-tz7aefu.jpeg";
+                return "計時後修改背景-黑暗模式。例如填入：assets/dd-20240206160021-tz7aefa.jpeg";
             case "it_IT":
             case "de_DE":
             case "he_IL":
@@ -869,7 +869,7 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
             case "pl_PL":
             case "en_US":
             default:
-                return "Change background after timing - Dark mode. For example, enter: assets/dd-20240206160021-tz7aefu.jpeg";
+                return "Change background after timing - Dark mode. For example, enter: assets/dd-20240206160021-tz7aefa.jpeg";
         }
     }
 
@@ -1056,29 +1056,6 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
         }
     }
 
-    public get 移动内容到dailynote() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "移动内容到 dailynote";
-            case "es_ES":
-                return "Mover contenido a dailynote";
-            case "fr_FR":
-                return "Déplacer le contenu vers dailynote";
-            case "ja_JP":
-                return "コンテンツをdailynoteに移動";
-            case "zh_CHT":
-                return "將內容移至 dailynote";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Move content to dailynote";
-        }
-    }
-
     public get 打开DailyNote时总是跳到底部() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":
@@ -1145,29 +1122,6 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
                 return "Bottom backlink";
         }
     }
-    public get 杂项文字转引用F3() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "杂项。文字转引用F3";
-            case "es_ES":
-                return "Misceláneo. Convertir texto a referencia F3";
-            case "fr_FR":
-                return "Divers. Convertir le texte en référence F3";
-            case "ja_JP":
-                return "その他。テキストを参照F3に変換";
-            case "zh_CHT":
-                return "雜項。文字轉引用F3";
-            case "it_IT":
-                return "Varie. Converti testo in riferimento F3";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Miscellaneous. Convert text to reference F3";
-        }
-    }
     public get 将选择文字与其拼音加入文档的别名() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":
@@ -1212,29 +1166,6 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
                 return "Also add the abbreviated pinyin";
         }
     }
-    public get 文本转引用() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "文本转引用：@@精确转换，@@@模糊转换，ctrl+4插入包含选中内容的引用，alt+6为插入链接。";
-            case "es_ES":
-                return "Texto a referencia: @@conversión exacta, @@@conversión aproximada, ctrl+4 para insertar una referencia que contiene el texto seleccionado, alt+6 para insertar un enlace.";
-            case "fr_FR":
-                return "Texte à référence : @@conversion exacte, @@@conversion approximative, ctrl+4 pour insérer une référence contenant le texte sélectionné, alt+6 pour insérer un lien.";
-            case "ja_JP":
-                return "テキストから参照：@@正確な変換、@@@あいまいな変換、ctrl+4で選択したテキストを含む参照を挿入、alt+6でリンクを挿入。";
-            case "zh_CHT":
-                return "文本轉引用：@@精確轉換，@@@模糊轉換，ctrl+4插入包含選中內容的引用，alt+6為插入連結。";
-            case "it_IT":
-                return "Testo a riferimento: @@conversione esatta, @@@conversione approssimativa, ctrl+4 per inserire un riferimento contenente il testo selezionato, alt+6 per inserire un collegamento.";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Text to reference: @@exact conversion, @@@fuzzy conversion, ctrl+4 to insert a reference containing the selected text, alt+6 to insert a link.";
-        }
-    }
     public get 添加引用时自动制卡() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":
@@ -1255,28 +1186,6 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
             case "en_US":
             default:
                 return "Automatically create a card when adding a quote";
-        }
-    }
-    public get 拍照闪念收集图片闪念到() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "拍照闪念。收集图片闪念到 DailyNote";
-            case "es_ES":
-                return "Captura de foto. Recoge la imagen flash en DailyNote";
-            case "fr_FR":
-                return "Prendre une photo. Collecter l'image flash dans DailyNote";
-            case "ja_JP":
-                return "写真を撮る。DailyNoteに画像フラッシュを収集";
-            case "zh_CHT":
-                return "拍照閃念。收集圖片閃念到 DailyNote";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Take a photo flash. Collect image flash into DailyNote";
         }
     }
 

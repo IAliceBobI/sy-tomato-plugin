@@ -37,7 +37,6 @@
         cssShowHomeEndIcon,
         cssShowMemo,
         dailyNoteBoxCheckbox,
-        dailyNoteCopy,
         dailyNoteCopyAnchorText,
         dailyNoteCopyComment,
         dailyNoteCopyFlashCard,
@@ -116,7 +115,6 @@
         commentBoxAddUnderline,
         commentBoxShowID,
         back_link_show_path,
-        mixBoxAddAlias,
         cozeSearchBoxCheckbox,
         cozeSearchSpaceID,
         cozeSearchKnowledgeID,
@@ -126,7 +124,6 @@
         cozeSearchDoubaoID,
         userToken,
         cardBoxAddConcepts,
-        cardBoxBuildSupCard,
         cardBoxSpradEvenlyPostpone,
         aiBoxMenuShow,
         cozeSearchMenuShow,
@@ -135,11 +132,33 @@
         cardPriorityBoxSpradDelayMenu,
         cardPriorityBoxPriorityMenu,
         commentBoxMenu,
+        dailyNoteGoToBottomMenu,
+        dailyNoteCopyMenu,
+        graphAddTopbarIcon,
+        graph打开块关系图Menu,
+        graph定位到图中的节点Menu,
+        linkBoxBilinkMenu,
+        bk启用禁用文档的底部反链menu,
+        readingAddRPmenu,
+        dbBkBoxRefreshMenu,
+        readingAddJumpMenu,
+        readingAddDeleteMenu,
+        tag2RefSearchRef,
+        tag2RefSearchLnk,
+        toolbarspacerepeat,
+        toolbarrefreshVr,
+        toolbarlocatedoc,
+        dailyNotetopbarleft,
+        dailyNotetopbarright,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
     import NotebookSelect from "./NotebookSelect.svelte";
-    import { cleanDataview, siyuan } from "./libs/utils";
+    import {
+        cleanDataview,
+        saveRestorePagePosition,
+        siyuan,
+    } from "./libs/utils";
     import { icon } from "./libs/bkUtils";
     import { expStore, resetKey, verifyKeyTomato } from "./libs/user";
     import BuyTomato from "./BuyTomato.svelte";
@@ -168,18 +187,107 @@
         CpBox批量复制大量连续内容块,
         CpBox批量移动大量连续内容块,
     } from "./CpBox";
+    import {
+        DailyNoteBox上一个日志,
+        DailyNoteBox下一个日志,
+        DailyNoteBox复制到dailynote,
+        DailyNoteBox复制到dailynoteNewFile,
+        DailyNoteBox移动内容到dailynote,
+    } from "./DailyNoteBox";
+    import { DbBkBox刷新数据库反链 } from "./DbBkBox";
+    import { GraphBox定位到图中的节点, GraphBox打开块关系图 } from "./GraphBox";
+    import {
+        LinkBoxbilink,
+        LinkBox互相插入引用于下方创建,
+        LinkBox互相插入引用于下方选择,
+        LinkBox修复双向链接,
+        LinkBox关联两个块创建,
+        LinkBox关联两个块选择,
+        LinkBox双向互链创建往返链,
+        LinkBox双向互链选择块,
+        LinkBox同步块创建,
+        LinkBox同步块选择,
+        LinkBox嵌入互链创建,
+        LinkBox嵌入互链选择,
+        LinkBox查看所有同步位置,
+        LinkBox链接到块底部,
+    } from "./LinkBox";
+    import {
+        ListBox取消勾选当前文档所有已完成的todo任务,
+        ListBox删除当前文档所有已完成的todo任务,
+    } from "./ListBox";
+    import { tomatoSettingsOpenHK } from ".";
+    import {
+        MixBox使内容模糊,
+        MixBox内容制表,
+        MixBox列出当前文档与子文档中没被引用的文档,
+        MixBox删除块以及闪卡,
+        MixBox删除所有flag书签,
+        MixBox复制文档为标准Markdown,
+        MixBox复制文档为纯文本,
+        MixBox定位所有引用Menu,
+        MixBox将选择文字与其拼音加入文档的别名,
+        MixBox将选择文字加入文档的别名,
+        MixBox收集当前文档与子文档所有的未完成任务,
+        MixBox添加一个flag书签,
+        MixBox空格隔开的所有内容都转为引用,
+        MixBox跳转到剪贴板中ID的块,
+        MixBox锁定内容,
+    } from "./MixBox";
+    import { NoteBox拍照闪念全局 } from "./NoteBox";
+    import { BK启用禁用文档的底部反链 } from "./BackLinkBottomBox";
+    import {
+        ReadingPointBox删除当前文档的阅读点,
+        ReadingPointBox查看阅读点,
+        ReadingPointBox设置阅读点,
+        ReadingPointBox跳到当前文档的阅读点,
+    } from "./ReadingPointBox";
+    import { ScheduleCopyID } from "./Schedule";
+    import { SPACE } from "./libs/gconst";
+    import {
+        Tag2RefBox模糊查找引用Lnk,
+        Tag2RefBox模糊查找引用Ref,
+    } from "./Tag2RefBox";
+    import {
+        ToolBarBox刷新虚拟引用,
+        ToolBarBox整理assets下的图片视频音频,
+        ToolBarBox突出定位文档,
+        ToolBarBox间隔重复,
+    } from "./ToolbarBox";
+    import { addFoldCmd折叠, addFoldCmd展开 } from "./fold";
+    import { searchSettings } from "./libs/ui";
     export let dm: DestroyManager;
     export let plugin: BaseTomatoPlugin;
     let buyDIV: HTMLElement;
+    let settingsDiv: HTMLElement;
+    let searchInput: HTMLElement;
     let codeValid = false;
     $: codeNotValid = !codeValid;
+    const ICONS_SIZE = 14;
+    let searchKey = "";
+    const SearchKeyItemKey =
+        "tomato_settings_SearchKeyItemKey_RfrUm9VLS4GehTzg5ygRrNT";
     onDestroy(() => {
         dm.destroyBy("2");
+        localStorage.setItem(SearchKeyItemKey, searchKey);
     });
+
     onMount(async () => {
         plugin.global.tomato_zZmqus5PtYRi.save = save;
         codeValid = await verifyKeyTomato();
+        saveRestorePagePosition(
+            "tomato_settings_scrollPosition_YELnPikKNirXyQqzIHNB",
+            dm,
+            settingsDiv?.parentElement?.parentElement,
+            false,
+        );
+        if (localStorage.getItem(SearchKeyItemKey)) {
+            searchKey = localStorage.getItem(SearchKeyItemKey);
+            searchSettings(settingsDiv, searchKey);
+        }
+        searchInput.focus();
     });
+
     async function active() {
         resetKey();
         codeValid = await verifyKeyTomato();
@@ -193,17 +301,17 @@
         await plugin.saveData(STORAGE_SETTINGS, plugin.settingCfg);
         window.location.reload();
     }
-    const ICONS_SIZE = 14;
 </script>
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->
-<div class="  fn_flex fn_flex-column">
-    <div class="alert contentCenter">
+<div class="fn_flex fn_flex-column" bind:this={settingsDiv}>
+    <div class="alert contentCenter" data-hide>
         <span>
             {tomatoI18n.大部分功能不需要激活}
         </span>
     </div>
-    <div class="settingBox">
+    <!-- 激活码 -->
+    <div class="settingBox" data-hide>
         <div>
             {tomatoI18n.激活码}
             <textarea
@@ -231,6 +339,36 @@
             <div bind:this={buyDIV} style="display: none;">
                 <BuyTomato></BuyTomato>
             </div>
+        </div>
+    </div>
+    <!-- search -->
+    <div class="settingBox search-bar" data-search>
+        <input
+            bind:this={searchInput}
+            class="b3-text-field"
+            bind:value={searchKey}
+            on:input={() => searchSettings(settingsDiv, searchKey)}
+        />
+        {tomatoI18n.search搜索配置}
+    </div>
+    <!-- 快捷键 -->
+    <div class="settingBox">
+        <div>{tomatoI18n.快捷键如有冲突请调整}</div>
+        <div>
+            {tomatoSettingsOpenHK.langText()}<strong
+                >{tomatoSettingsOpenHK.w()}</strong
+            >
+        </div>
+        <div>
+            {ScheduleCopyID.langText() + SPACE}<strong
+                >{ScheduleCopyID.w()}</strong
+            >
+        </div>
+        <div>
+            {addFoldCmd折叠.langText()}<strong>{addFoldCmd折叠.w()}</strong>
+        </div>
+        <div>
+            {addFoldCmd展开.langText()}<strong>{addFoldCmd展开.w()}</strong>
         </div>
     </div>
     <!-- 显示文档属性 -->
@@ -403,15 +541,12 @@
                 {tomatoI18n.番茄钟时长多个间用逗号隔开}
             </div>
 
-            <div class:codeNotValid>
+            <div>
                 <input
-                    disabled={codeNotValid}
-                    class:codeNotValid
                     class="b3-text-field"
                     bind:value={$tomato_clocks_force_notice}
                 />
                 {tomatoI18n.随机视频}
-                <TomatoVIP {codeValid}></TomatoVIP>
             </div>
 
             <div class:codeNotValid>
@@ -459,6 +594,11 @@
             {tomatoI18n.拍照闪念收集图片闪念到}
         </div>
         {#if $noteBoxCheckbox}
+            <div>
+                {NoteBox拍照闪念全局.langText()}<strong
+                    >{NoteBox拍照闪念全局.w()}</strong
+                >
+            </div>
             <div>
                 <textarea
                     spellcheck="false"
@@ -527,14 +667,15 @@
             {tomatoI18n.批注}
         </div>
         {#if $commentBoxCheckbox}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
                 <input
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$commentBoxMenu}
                 />
-                {tomatoI18n.添加右键菜单}
-                <strong>{CommentBox添加批注到日记.w}</strong>
+                {tomatoI18n.menu添加右键菜单}
+                <strong>{CommentBox添加批注到日记.w()}</strong>
             </div>
             <div>
                 <input
@@ -573,6 +714,33 @@
             {tomatoI18n.块关系图}
         </div>
         {#if $graphBoxCheckbox}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$graph定位到图中的节点Menu}
+                />
+                {tomatoI18n.menu添加右键菜单}: {GraphBox定位到图中的节点.langText()}
+                <strong>{GraphBox定位到图中的节点.w()}</strong>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$graph打开块关系图Menu}
+                />
+                {tomatoI18n.menu添加右键菜单}: {GraphBox打开块关系图.langText()}
+                <strong>{GraphBox打开块关系图.w()}</strong>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$graphAddTopbarIcon}
+                />
+                {tomatoI18n.添加顶栏图标}
+            </div>
             <div class:codeNotValid>
                 <input
                     disabled={codeNotValid}
@@ -610,6 +778,18 @@
             {tomatoI18n.底部反链}
         </div>
         {#if $backLinkBottomBoxCheckbox}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$bk启用禁用文档的底部反链menu}
+                />
+                {tomatoI18n.menu添加右键菜单}:
+                {BK启用禁用文档的底部反链.langText()}<strong
+                    >{BK启用禁用文档的底部反链.w()}</strong
+                >
+            </div>
             <div>
                 <input
                     type="number"
@@ -793,13 +973,50 @@
             {tomatoI18n.开启toolbar按钮}
         </div>
         {#if $toolbarBoxCheckbox}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$toolbarspacerepeat}
+                />
+                {tomatoI18n.topbar添加图标}：
+                {ToolBarBox间隔重复.langText()}<strong
+                    >{ToolBarBox间隔重复.w()}</strong
+                >
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$toolbarrefreshVr}
+                />
+                {tomatoI18n.topbar添加图标}：
+                {ToolBarBox刷新虚拟引用.langText()}<strong
+                    >{ToolBarBox刷新虚拟引用.w()}</strong
+                >
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$toolbarlocatedoc}
+                />
+                {tomatoI18n.topbar添加图标}：
+                {ToolBarBox突出定位文档.langText()}<strong
+                    >{ToolBarBox突出定位文档.w()}</strong
+                >
+            </div>
             <div>
                 <input
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$toolbarTidy}
                 />
-                {tomatoI18n.整理assets下的图片}
+                {tomatoI18n.topbar添加图标}：
+                {ToolBarBox整理assets下的图片视频音频.langText()}<strong
+                    >{ToolBarBox整理assets下的图片视频音频.w()}</strong
+                >
             </div>
 
             <div class:codeNotValid>
@@ -826,6 +1043,42 @@
             {tomatoI18n.阅读点}
         </div>
         {#if $readingPointBoxCheckbox}
+            <div>
+                {ReadingPointBox查看阅读点.langText()}<strong
+                    >{ReadingPointBox查看阅读点.w()}</strong
+                >
+            </div>
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$readingAddRPmenu}
+                />
+                {tomatoI18n.menu添加右键菜单}:{ReadingPointBox设置阅读点.langText()}<strong
+                    >{ReadingPointBox设置阅读点.w()}</strong
+                >
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$readingAddJumpMenu}
+                />
+                {tomatoI18n.menu添加右键菜单}:{ReadingPointBox跳到当前文档的阅读点.langText()}<strong
+                    >{ReadingPointBox跳到当前文档的阅读点.w()}</strong
+                >
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$readingAddDeleteMenu}
+                />
+                {tomatoI18n.menu添加右键菜单}:{ReadingPointBox删除当前文档的阅读点.langText()}<strong
+                    >{ReadingPointBox删除当前文档的阅读点.w()}</strong
+                >
+            </div>
             <div>
                 <input
                     type="checkbox"
@@ -861,7 +1114,7 @@
                     class="b3-switch"
                     bind:checked={$readingTopBar}
                 />
-                {tomatoI18n.显示topbar}
+                {tomatoI18n.topbar添加图标}
             </div>
 
             <div>
@@ -882,16 +1135,17 @@
                 class="b3-switch"
                 bind:checked={$imgBoxCheckbox}
             />
-            {tomatoI18n.复制为图片}<strong>{ImgBoxHotKey.w}</strong>
+            {tomatoI18n.复制为图片}<strong>{ImgBoxHotKey.w()}</strong>
         </div>
         {#if $imgBoxCheckbox}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
                 <input
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$imgBoxShowMenu}
                 />
-                {tomatoI18n.添加右键菜单}
+                {tomatoI18n.menu添加右键菜单}
             </div>
         {/if}
     </div>
@@ -911,37 +1165,30 @@
             </div>
             <div>
                 {tomatoI18n.取消当前文档内所有闪卡}
-                <strong>{CardBox取消当前文档内所有闪卡.w}</strong>
+                <strong>{CardBox取消当前文档内所有闪卡.w()}</strong>
             </div>
             <div>
                 {tomatoI18n.清理所有失效的闪卡}
-                <strong>{CardBox清理所有失效的闪卡.w}</strong>
+                <strong>{CardBox清理所有失效的闪卡.w()}</strong>
             </div>
 
             <div>
-                <input
-                    type="checkbox"
-                    class="b3-switch"
-                    bind:checked={$cardBoxBuildSupCard}
-                />
                 {tomatoI18n.用选中的行创建超级块超级块制卡取消制卡}<strong
-                    >{CardBox用选中的行创建超级块超级块制卡取消制卡.w}</strong
+                    >{CardBox用选中的行创建超级块超级块制卡取消制卡.w()}</strong
                 >
             </div>
-            {#if $cardBoxBuildSupCard}
-                <div class:codeNotValid>
-                    <input
-                        disabled={codeNotValid}
-                        class:codeNotValid
-                        type="checkbox"
-                        class="b3-switch"
-                        bind:checked={$cardBoxAddConcepts}
-                    />
-                    {tomatoI18n.创建超级块时添加相关匹配到的引用}<TomatoVIP
-                        {codeValid}
-                    ></TomatoVIP>
-                </div>
-            {/if}
+            <div class:codeNotValid>
+                <input
+                    disabled={codeNotValid}
+                    class:codeNotValid
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$cardBoxAddConcepts}
+                />
+                {tomatoI18n.创建超级块时添加相关匹配到的引用}<TomatoVIP
+                    {codeValid}
+                ></TomatoVIP>
+            </div>
             <div class:codeNotValid>
                 <input
                     disabled={codeNotValid}
@@ -975,9 +1222,11 @@
             {tomatoI18n.闪卡优先级}
         </div>
         {#if $cardPriorityBoxCheckbox}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+
             <div>
                 {tomatoI18n.恢复所有暂停的闪卡}
-                <strong>{CardPriority恢复所有暂停的闪卡.w}</strong>
+                <strong>{CardPriority恢复所有暂停的闪卡.w()}</strong>
             </div>
 
             <div>
@@ -986,18 +1235,22 @@
                     class="b3-switch"
                     bind:checked={$cardPriorityBoxPostponeCardMenu}
                 />
-                {tomatoI18n.添加右键菜单 + "：" + tomatoI18n.推迟闪卡}
-                <strong>{CardPriorityBox推迟闪卡.w}</strong>
+                {tomatoI18n.menu添加右键菜单 + "：" + tomatoI18n.推迟闪卡}
+                <strong>{CardPriorityBox推迟闪卡.w()}</strong>
             </div>
 
-            <div>
+            <div class:codeNotValid>
                 <input
+                    disabled={codeNotValid}
+                    class:codeNotValid
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$cardPriorityBoxSpradDelayMenu}
                 />
-                {tomatoI18n.添加右键菜单 + "：" + tomatoI18n.分散推迟闪卡}
-                <strong>{CardPriorityBox分散推迟闪卡.w}</strong>
+                {tomatoI18n.menu添加右键菜单 + "：" + tomatoI18n.分散推迟闪卡}
+                <strong>{CardPriorityBox分散推迟闪卡.w()}</strong><TomatoVIP
+                    {codeValid}
+                ></TomatoVIP>
             </div>
 
             <div>
@@ -1006,10 +1259,10 @@
                     class="b3-switch"
                     bind:checked={$cardPriorityBoxPriorityMenu}
                 />
-                {tomatoI18n.添加右键菜单 +
+                {tomatoI18n.menu添加右键菜单 +
                     "：" +
                     tomatoI18n.修改文档中闪卡优先级}
-                <strong>{CardPriorityBox修改文档中闪卡优先级.w}</strong>
+                <strong>{CardPriorityBox修改文档中闪卡优先级.w()}</strong>
             </div>
 
             <div class:codeNotValid>
@@ -1064,18 +1317,18 @@
         {#if $cpBoxCheckbox}
             <div>
                 {tomatoI18n.批量删除大量连续内容块}
-                <strong>{CpBox批量删除大量连续内容块.w}</strong>
+                <strong>{CpBox批量删除大量连续内容块.w()}</strong>
             </div>
             <div class="kbd">
                 {@html tomatoI18n.批量删除帮助}
             </div>
             <div>
                 {tomatoI18n.批量移动大量连续内容块}
-                <strong>{CpBox批量移动大量连续内容块.w}</strong>
+                <strong>{CpBox批量移动大量连续内容块.w()}</strong>
             </div>
             <div>
                 {tomatoI18n.批量复制大量连续内容块}
-                <strong>{CpBox批量复制大量连续内容块.w}</strong>
+                <strong>{CpBox批量复制大量连续内容块.w()}</strong>
             </div>
             <div class="kbd">
                 {@html tomatoI18n.批量移动复制帮助}
@@ -1095,36 +1348,53 @@
             />
             {tomatoI18n.同步块}
         </div>
-        <div hidden={!$linkBoxSyncBlock} class:codeNotValid>
-            <input
-                disabled={codeNotValid}
-                class:codeNotValid
-                type="checkbox"
-                class="b3-switch"
-                bind:checked={$linkBoxAttrIconOnHide}
-            />
-            {tomatoI18n.隐藏同步块右上角菜单}<TomatoVIP {codeValid}></TomatoVIP>
-        </div>
-        <div hidden={!$linkBoxSyncBlock} class:codeNotValid>
-            <input
-                disabled={codeNotValid}
-                class:codeNotValid
-                type="checkbox"
-                class="b3-switch"
-                bind:checked={$linkBoxSyncHref}
-            />
-            {tomatoI18n.添加到原始块的链接}<TomatoVIP {codeValid}></TomatoVIP>
-        </div>
-        <div hidden={!$linkBoxSyncBlock} class:codeNotValid>
-            <input
-                disabled={codeNotValid}
-                class:codeNotValid
-                type="checkbox"
-                class="b3-switch"
-                bind:checked={$linkBoxSyncRef}
-            />
-            {tomatoI18n.添加到原始块的引用}<TomatoVIP {codeValid}></TomatoVIP>
-        </div>
+        {#if $linkBoxSyncBlock}
+            <div>
+                {LinkBox查看所有同步位置.langText()}
+                <strong> {LinkBox查看所有同步位置.w()}</strong>
+            </div>
+            <div>
+                {LinkBox同步块选择.langText()}
+                <strong> {LinkBox同步块选择.w()}</strong>
+            </div>
+            <div>
+                {LinkBox同步块创建.langText()}
+                <strong> {LinkBox同步块创建.w()}</strong>
+            </div>
+            <div class:codeNotValid>
+                <input
+                    disabled={codeNotValid}
+                    class:codeNotValid
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$linkBoxAttrIconOnHide}
+                />
+                {tomatoI18n.隐藏同步块右上角菜单}<TomatoVIP {codeValid}
+                ></TomatoVIP>
+            </div>
+            <div class:codeNotValid>
+                <input
+                    disabled={codeNotValid}
+                    class:codeNotValid
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$linkBoxSyncHref}
+                />
+                {tomatoI18n.添加到原始块的链接}<TomatoVIP {codeValid}
+                ></TomatoVIP>
+            </div>
+            <div class:codeNotValid>
+                <input
+                    disabled={codeNotValid}
+                    class:codeNotValid
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$linkBoxSyncRef}
+                />
+                {tomatoI18n.添加到原始块的引用}<TomatoVIP {codeValid}
+                ></TomatoVIP>
+            </div>
+        {/if}
     </div>
     <!-- 双向互链 -->
     <div class="settingBox">
@@ -1140,6 +1410,67 @@
             {tomatoI18n.双向互链}
         </div>
         {#if $linkBoxCheckbox}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$linkBoxBilinkMenu}
+                />
+                {tomatoI18n.menu添加右键菜单}: {LinkBoxbilink.langText()}
+                <strong>{LinkBoxbilink.w()}</strong>
+            </div>
+            <div>
+                {LinkBox链接到块底部.langText()}<strong
+                    >{LinkBox链接到块底部.w()}</strong
+                >
+            </div>
+            <div>
+                {LinkBox双向互链选择块.langText()}<strong
+                    >{LinkBox双向互链选择块.w()}</strong
+                >
+            </div>
+            <div>
+                {LinkBox双向互链创建往返链.langText()}<strong
+                    >{LinkBox双向互链创建往返链.w()}</strong
+                >
+            </div>
+            <div>
+                {LinkBox修复双向链接.langText()}<strong
+                    >{LinkBox修复双向链接.w()}</strong
+                >
+            </div>
+            <div class:codeNotValid>
+                {LinkBox嵌入互链选择.langText()}<strong
+                    >{LinkBox嵌入互链选择.w()}</strong
+                ><TomatoVIP {codeValid}></TomatoVIP>
+            </div>
+            <div class:codeNotValid>
+                {LinkBox嵌入互链创建.langText()}<strong
+                    >{LinkBox嵌入互链创建.w()}</strong
+                ><TomatoVIP {codeValid}></TomatoVIP>
+            </div>
+            <div>
+                {LinkBox关联两个块选择.langText()}<strong
+                    >{LinkBox关联两个块选择.w()}</strong
+                >
+            </div>
+            <div>
+                {LinkBox关联两个块创建.langText()}<strong
+                    >{LinkBox关联两个块创建.w()}</strong
+                >
+            </div>
+            <div>
+                {LinkBox互相插入引用于下方选择.langText()}<strong
+                    >{LinkBox互相插入引用于下方选择.w()}</strong
+                >
+            </div>
+            <div>
+                {LinkBox互相插入引用于下方创建.langText()}<strong
+                    >{LinkBox互相插入引用于下方创建.w()}</strong
+                >
+            </div>
+
             <div>
                 <input
                     type="checkbox"
@@ -1167,16 +1498,49 @@
                 class="b3-switch"
                 bind:checked={$dailyNoteBoxCheckbox}
             />
-            {tomatoI18n.移动内容到dailynote}
+            {tomatoI18n.dailynote工具}
         </div>
         {#if $dailyNoteBoxCheckbox}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
                 <input
                     type="checkbox"
                     class="b3-switch"
+                    bind:checked={$dailyNotetopbarleft}
+                />
+                {tomatoI18n.topbar添加图标}:
+                {DailyNoteBox上一个日志.langText()}
+                <strong>{DailyNoteBox上一个日志.w()}</strong>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$dailyNotetopbarright}
+                />
+                {tomatoI18n.topbar添加图标}:
+                {DailyNoteBox下一个日志.langText()}
+                <strong>{DailyNoteBox下一个日志.w()}</strong>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$dailyNoteGoToBottomMenu}
+                />
+                {tomatoI18n.menu添加右键菜单}： {DailyNoteBox移动内容到dailynote.langText()}
+                <strong>{DailyNoteBox移动内容到dailynote.w()}</strong>
+            </div>
+            <div class:codeNotValid>
+                <input
+                    disabled={codeNotValid}
+                    class:codeNotValid
+                    type="checkbox"
+                    class="b3-switch"
                     bind:checked={$dailyNoteGoToBottom}
                 />
-                {tomatoI18n.打开DailyNote时总是跳到底部}
+                {tomatoI18n.打开DailyNote时总是跳到底部}<TomatoVIP {codeValid}
+                ></TomatoVIP>
             </div>
 
             <div>
@@ -1193,33 +1557,34 @@
             </div>
 
             <div>
+                {DailyNoteBox复制到dailynote.langText()}
+                <strong>{DailyNoteBox复制到dailynote.w()}</strong>
+            </div>
+            {#if !$dailyNoteCopySimple}
+                <div>
+                    {DailyNoteBox复制到dailynoteNewFile.langText()}
+                    <strong>{DailyNoteBox复制到dailynoteNewFile.w()}</strong>
+                </div>
+            {/if}
+            <div>
                 <input
                     type="checkbox"
                     class="b3-switch"
-                    bind:checked={$dailyNoteCopySimple}
-                    on:change={() => {
-                        if ($dailyNoteCopySimple) {
-                            $dailyNoteCopy = false;
-                        }
-                    }}
+                    bind:checked={$dailyNoteCopyMenu}
                 />
-                {tomatoI18n.简单复制到dailynote}
+                {tomatoI18n.menu添加右键菜单}： {tomatoI18n.复制到dailynote}
             </div>
 
             <div>
                 <input
                     type="checkbox"
                     class="b3-switch"
-                    bind:checked={$dailyNoteCopy}
-                    on:change={() => {
-                        if ($dailyNoteCopy) {
-                            $dailyNoteCopySimple = false;
-                        }
-                    }}
+                    bind:checked={$dailyNoteCopySimple}
                 />
-                {tomatoI18n.复制到dailynote}
+                {tomatoI18n.简单复制到dailynote}
             </div>
-            {#if $dailyNoteCopy}
+
+            {#if !$dailyNoteCopySimple}
                 <div>
                     <input
                         class="b3-text-field"
@@ -1306,6 +1671,17 @@
             {tomatoI18n.数据库充当反链}
         </div>
         {#if $dbBkBoxCheckbox}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$dbBkBoxRefreshMenu}
+                />
+                {tomatoI18n.menu添加右键菜单}:
+                {DbBkBox刷新数据库反链.langText()}
+                <strong>{DbBkBox刷新数据库反链.w()}</strong>
+            </div>
             <div>
                 <input
                     type="number"
@@ -1339,16 +1715,67 @@
                 class="b3-switch"
                 bind:checked={$mixBoxCheckbox}
             />
-            {tomatoI18n.杂项文字转引用F3}
+            {tomatoI18n.杂项许多小功能}
         </div>
         {#if $mixBoxCheckbox}
+            <div>
+                {MixBox删除块以及闪卡.langText()}
+                <strong>{MixBox删除块以及闪卡.w()}</strong>
+            </div>
+            <div>
+                {MixBox内容制表.langText()}
+                <strong>{MixBox内容制表.w()}</strong>
+            </div>
+            <div>
+                {MixBox使内容模糊.langText()}
+                <strong>{MixBox使内容模糊.w()}</strong>
+            </div>
+            <div>
+                {MixBox跳转到剪贴板中ID的块.langText()}
+                <strong>{MixBox跳转到剪贴板中ID的块.w()}</strong>
+            </div>
+            <div>
+                {MixBox添加一个flag书签.langText()}
+                <strong>{MixBox添加一个flag书签.w()}</strong>
+            </div>
+            <div>
+                {MixBox删除所有flag书签.langText()}
+                <strong>{MixBox删除所有flag书签.w()}</strong>
+            </div>
+            <div>
+                {MixBox空格隔开的所有内容都转为引用.langText()}
+                <strong>{MixBox空格隔开的所有内容都转为引用.w()}</strong>
+            </div>
+            <div>
+                {MixBox收集当前文档与子文档所有的未完成任务.langText()}
+                <strong>{MixBox收集当前文档与子文档所有的未完成任务.w()}</strong
+                >
+            </div>
+            <div>
+                {MixBox列出当前文档与子文档中没被引用的文档.langText()}
+                <strong>{MixBox列出当前文档与子文档中没被引用的文档.w()}</strong
+                >
+            </div>
+            <div>
+                {MixBox将选择文字加入文档的别名.langText()}<strong
+                    >{MixBox将选择文字加入文档的别名.w()}</strong
+                >
+            </div>
+            <div>
+                {MixBox复制文档为纯文本.langText()}<strong
+                    >{MixBox复制文档为纯文本.w()}</strong
+                >
+            </div>
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
                 <input
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$storeFillMemoMenu}
                 />
-                {tomatoI18n.锁定内容}
+                {tomatoI18n.menu添加右键菜单}: {MixBox锁定内容.langText()}<strong
+                    >{MixBox锁定内容.w()}</strong
+                >
             </div>
 
             <div>
@@ -1357,7 +1784,7 @@
                     class="b3-switch"
                     bind:checked={$storeInsertXml}
                 />
-                {tomatoI18n.插入空的脑图流程图文件}
+                {tomatoI18n.menu添加右键菜单}: {tomatoI18n.插入空的脑图流程图文件}
             </div>
 
             <div>
@@ -1366,7 +1793,7 @@
                     class="b3-switch"
                     bind:checked={$storeRefreshStaticBkLnk}
                 />
-                {tomatoI18n.刷新静态反链}
+                {tomatoI18n.menu添加右键菜单}: {tomatoI18n.刷新静态反链}
             </div>
 
             <div>
@@ -1375,7 +1802,7 @@
                     class="b3-switch"
                     bind:checked={$storeMoveDocContentHere}
                 />
-                {tomatoI18n.把文档内容移动到这里}
+                {tomatoI18n.menu添加右键菜单}: {tomatoI18n.把文档内容移动到这里}
             </div>
 
             <div>
@@ -1384,7 +1811,7 @@
                     class="b3-switch"
                     bind:checked={$storeMergeDoc}
                 />
-                {tomatoI18n.合并文档到这里}
+                {tomatoI18n.menu添加右键菜单}: {tomatoI18n.合并文档到这里}
             </div>
 
             <div>
@@ -1393,16 +1820,9 @@
                     class="b3-switch"
                     bind:checked={$mixBoxPinyin}
                 />
-                {tomatoI18n.将选择文字与其拼音加入文档的别名}
-            </div>
-
-            <div>
-                <input
-                    type="checkbox"
-                    class="b3-switch"
-                    bind:checked={$mixBoxAddAlias}
-                />
-                {tomatoI18n.将选择文字加入文档的别名}
+                {tomatoI18n.menu添加右键菜单}: {MixBox将选择文字与其拼音加入文档的别名.langText()}<strong
+                    >{MixBox将选择文字与其拼音加入文档的别名.w()}</strong
+                >
             </div>
 
             <div>
@@ -1411,16 +1831,21 @@
                     class="b3-switch"
                     bind:checked={$storeOpenRefsMenu}
                 />
-                {tomatoI18n.定位所有引用}
+                {tomatoI18n.menu添加右键菜单}: {MixBox定位所有引用Menu.langText()}<strong
+                    >{MixBox定位所有引用Menu.w()}</strong
+                >
             </div>
 
-            <div>
+            <div class:codeNotValid>
                 <input
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$storeOpenRefsClick}
+                    disabled={codeNotValid}
+                    class:codeNotValid
                 />
-                {tomatoI18n.点击引用数打开所有引用}
+                {tomatoI18n.点击引用数打开所有引用}<TomatoVIP {codeValid}
+                ></TomatoVIP>
             </div>
 
             <div>
@@ -1429,7 +1854,9 @@
                     class="b3-switch"
                     bind:checked={$storeCopyStdMD}
                 />
-                {tomatoI18n.复制文档为标准Markdown}
+                {tomatoI18n.menu添加右键菜单}: {MixBox复制文档为标准Markdown.langText()}<strong
+                    >{MixBox复制文档为标准Markdown.w()}</strong
+                >
             </div>
         {/if}
     </div>
@@ -1461,6 +1888,27 @@
                 />{tomatoI18n.给文档添加简拼别名}
                 <TomatoVIP {codeValid}></TomatoVIP>
             </div>
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$tag2RefSearchRef}
+                />
+                {tomatoI18n.menu添加右键菜单}:{Tag2RefBox模糊查找引用Ref.langText()}<strong
+                    >{Tag2RefBox模糊查找引用Ref.w()}</strong
+                >
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$tag2RefSearchLnk}
+                />
+                {tomatoI18n.menu添加右键菜单}:{Tag2RefBox模糊查找引用Lnk.langText()}<strong
+                    >{Tag2RefBox模糊查找引用Lnk.w()}</strong
+                >
+            </div>
         {/if}
     </div>
     <!-- 列表工具 -->
@@ -1474,6 +1922,16 @@
             {tomatoI18n.列表工具}
         </div>
         {#if $listBoxCheckbox}
+            <div>
+                {ListBox取消勾选当前文档所有已完成的todo任务.langText()}
+                <strong
+                    >{ListBox取消勾选当前文档所有已完成的todo任务.w()}</strong
+                >
+            </div>
+            <div>
+                {ListBox删除当前文档所有已完成的todo任务.langText()}
+                <strong>{ListBox删除当前文档所有已完成的todo任务.w()}</strong>
+            </div>
             <div>
                 <input
                     type="checkbox"
@@ -1492,16 +1950,17 @@
                 class="b3-switch"
                 bind:checked={$aiBoxCheckbox}
             />
-            {tomatoI18n.人工智能}<strong>{AIBoxHotkey.w}</strong>
+            {AIBoxHotkey.langText()}<strong>{AIBoxHotkey.w()}</strong>
         </div>
         {#if $aiBoxCheckbox}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
                 <input
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$aiBoxMenuShow}
                 />
-                {tomatoI18n.添加右键菜单}
+                {tomatoI18n.menu添加右键菜单}
             </div>
         {/if}
     </div>
@@ -1513,9 +1972,12 @@
                 class="b3-switch"
                 bind:checked={$cozeSearchBoxCheckbox}
             />
-            coze{tomatoI18n.知识库问答}<strong>{CozeSearchBoxHotkey.w}</strong>
+            coze{tomatoI18n.知识库问答}<strong>{CozeSearchBoxHotkey.w()}</strong
+            >
         </div>
         {#if $cozeSearchBoxCheckbox}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+
             <div>
                 <input
                     class="b3-text-field"
@@ -1554,7 +2016,7 @@
                     class="b3-switch"
                     bind:checked={$cozeSearchMenuShow}
                 />
-                {tomatoI18n.添加右键菜单}
+                {tomatoI18n.menu添加右键菜单}
             </div>
         {/if}
     </div>
@@ -1573,17 +2035,17 @@
 
             <div>
                 {tomatoI18n.创建快速笔记}
-                <strong>{FastNoteBox创建快速笔记.w}</strong>
+                <strong>{FastNoteBox创建快速笔记.w()}</strong>
             </div>
 
             <div>
                 {tomatoI18n.打开最后一个笔记}
-                <strong>{FastNoteBox打开最后一个笔记.w}</strong>
+                <strong>{FastNoteBox打开最后一个笔记.w()}</strong>
             </div>
 
             <div class:codeNotValid>
-                {tomatoI18n.草稿切换 + " · " + tomatoI18n.切换到文档背面}
-                <strong>{FastNoteBox草稿切换.w}</strong><TomatoVIP {codeValid}
+                {FastNoteBox草稿切换.langText()}
+                <strong>{FastNoteBox草稿切换.w()}</strong><TomatoVIP {codeValid}
                 ></TomatoVIP>
             </div>
 
@@ -1609,7 +2071,7 @@
                 {tomatoI18n.创建文件时制卡}
             </div>
 
-            <div>
+            <div class:codeNotValid>
                 <input
                     disabled={codeNotValid}
                     class:codeNotValid
@@ -1629,6 +2091,12 @@
 </div>
 
 <style>
+    .search-bar {
+        position: sticky;
+        top: 0;
+        background-color: var(--b3-theme-surface);
+        z-index: 1000;
+    }
     .settingBox {
         margin: 10px;
         padding: 10px;

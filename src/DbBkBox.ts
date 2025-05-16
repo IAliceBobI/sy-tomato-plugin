@@ -1,16 +1,17 @@
 import { IEventBusMap, IProtyle, subMenu } from "siyuan";
 import { DATA_AV_ID, DATA_ID, DATA_NODE_ID, DATABASE_BACKLINK, DATABASE_BACKLINK_AVID, DATABASE_BACKLINK_ContentID, DATABASE_BACKLINK_createdID, DATABASE_BACKLINK_mSelectID, DATABASE_BACKLINK_PKID, DATABASE_BACKLINK_updatedID, DATABASE_BACKLINK_viewID } from "./libs/gconst";
-import { dbBkBoxCheckbox, dbBkBoxHideDatetime, dbBkBoxMaxBacklinkSize } from "./libs/stores";
+import { dbBkBoxCheckbox, dbBkBoxHideDatetime, dbBkBoxMaxBacklinkSize, dbBkBoxRefreshMenu } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { AvBuilder, domNewLine } from "./libs/sydom";
-import { getBlockDiv, NewNodeID, siyuan, timeUtil } from "./libs/utils";
+import { getBlockDiv, NewNodeID, siyuan, timeUtil, } from "./libs/utils";
 import { doGetBackLinks } from "./libs/bkUtils";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
+import { winHotkey } from "./libs/winHotkey";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
-export const DbBkBox刷新数据库反链 = "⇧⌥F9"
+export const DbBkBox刷新数据库反链 = winHotkey("⇧⌥F9", "dbbkrefresh2024-9-25 08:32:17", "🍅🔄💾", () => tomatoI18n.刷新数据库反链,)
 
 class DbBkBox {
     plugin: BaseTomatoPlugin;
@@ -20,9 +21,9 @@ class DbBkBox {
         this.plugin = plugin;
 
         this.plugin.addCommand({
-            langKey: "dbbkrefresh2024-9-25 08:32:17",
-            langText: tomatoI18n.刷新数据库反链,
-            hotkey: DbBkBox刷新数据库反链,
+            langKey: DbBkBox刷新数据库反链.langKey,
+            langText: DbBkBox刷新数据库反链.langText(),
+            hotkey: DbBkBox刷新数据库反链.m,
             editorCallback: async (protyle: IProtyle) => {
                 this.refreshDBBK(protyle)
             },
@@ -48,14 +49,16 @@ class DbBkBox {
 
     private refreshDBBKMenu(detail: TomatoMenu) {
         const menu = detail.menu;
-        menu.addItem({
-            label: tomatoI18n.刷新数据库反链,
-            iconHTML: "🍅🔄💾",
-            accelerator: DbBkBox刷新数据库反链,
-            click: () => {
-                this.refreshDBBK(detail.protyle)
-            },
-        });
+        if (dbBkBoxRefreshMenu.get()) {
+            menu.addItem({
+                label: DbBkBox刷新数据库反链.langText(),
+                iconHTML: DbBkBox刷新数据库反链.icon,
+                accelerator: DbBkBox刷新数据库反链.m,
+                click: () => {
+                    this.refreshDBBK(detail.protyle)
+                },
+            });
+        }
     }
 
     private async refreshDBBK(protyle: IProtyle) {
@@ -253,9 +256,9 @@ class DbBkBox {
         const avID = dbDiv.getAttribute(DATA_AV_ID)
         if (!avID) return;
         menu.addItem({
-            label: tomatoI18n.刷新数据库反链,
-            iconHTML: "🔄💾",
-            accelerator: DbBkBox刷新数据库反链,
+            label: DbBkBox刷新数据库反链.langText(),
+            iconHTML: DbBkBox刷新数据库反链.icon,
+            accelerator: DbBkBox刷新数据库反链.m,
             click: () => {
                 this.refreshDBBK(protyle);
             },

@@ -1243,7 +1243,7 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
         }
     }
 
-   
+
 
     public get 移动到下一分片内() {
         switch (this.conf.appearance.lang) {
@@ -1479,33 +1479,6 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
                 return "Notebook ID where the new flash card is saved";
         }
     }
-    public get 右键菜单把内容移动到相邻分片中() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "右键菜单：把内容移动到相邻分片中";
-            case "es_ES":
-                return "Menú contextual: Mover contenido a la partición adyacente";
-            case "fr_FR":
-                return "Menu contextuel : Déplacer le contenu vers la partition adjacente";
-            case "ja_JP":
-                return "右クリックメニュー：コンテンツを隣接するパーティションに移動";
-            case "zh_CHT":
-                return "右鍵菜單：將內容移動到相鄰分片中";
-            case "it_IT":
-                return "Menu contestuale: Sposta il contenuto nella partizione adiacente";
-            case "de_DE":
-                return "Kontextmenü: Inhalt in die benachbarte Partition verschieben";
-            case "he_IL":
-                return "תפריט ימני: העבר תוכן לחלוקה הסמוכה";
-            case "ru_RU":
-                return "Контекстное меню: Переместить содержимое в соседний раздел";
-            case "pl_PL":
-                return "Menu podręczne: Przenieś zawartość do sąsiedniej partycji";
-            case "en_US":
-            default:
-                return "Context menu: Move content to the adjacent shard";
-        }
-    }
     public get 收集内容到文件() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "收集内容到文件";
@@ -1536,23 +1509,6 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
             case "pl_PL": return "Funkcja zbierania treści do plików zawsze zbiera do dailynote";
             case "en_US":
             default: return "Collect content to file feature always collects to dailynote";
-        }
-    }
-
-    public get 启用菜单() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "启用菜单";
-            case "es_ES": return "Habilitar menú";
-            case "fr_FR": return "Activer le menu";
-            case "ja_JP": return "メニューを有効にする";
-            case "zh_CHT": return "啟用菜單";
-            case "it_IT": return "Abilita menu";
-            case "de_DE": return "Menü aktivieren";
-            case "he_IL": return "הפעל תפריט";
-            case "ru_RU": return "Включить меню";
-            case "pl_PL": return "Włącz menu";
-            case "en_US":
-            default: return "Enable menu";
         }
     }
 

@@ -301,29 +301,6 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
         }
     }
 
-    public get 跳转到剪贴板中的块ID() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "跳转到剪贴板中的块ID(gotoBlockID)";
-            case "es_ES":
-                return "Ir al ID del bloque en el portapapeles";
-            case "fr_FR":
-                return "Aller à l'ID du bloc dans le presse-papiers";
-            case "ja_JP":
-                return "クリップボードのブロックIDに移動する";
-            case "zh_CHT":
-                return "跳轉到剪貼板中的塊ID(gotoBlockID)";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Go to block ID in clipboard";
-        }
-    }
-
     public get 把文档内容移动到这里() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":

@@ -11,10 +11,10 @@ export function lastVerifyResult(): boolean {
     return _isValid;
 }
 
-export const expStore = writableWithGet("❓")
+export const expStore = writableWithGet("")
 
 export function getUserCodeExp(_exp: string) {
-    if (!_exp) return "❓"
+    if (!_exp) return ""
     return `${_exp.slice(0, 4)} / ${_exp.slice(4, 6)} / ${_exp.slice(6)}`
 }
 

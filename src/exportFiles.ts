@@ -1,13 +1,11 @@
 import { confirm, IProtyle, Plugin } from "siyuan";
 import { events } from "./libs/Events";
-import { cleanDivOnly, cloneCleanDiv, downloadStringAsFile, getAttribute, getBlocksByTrees, getMarkdownsByTrees, removeAttribute, removeInvisibleChars, setAttribute, siyuan, } from "./libs/utils";
+import { cleanDivOnly, cloneCleanDiv, downloadStringAsFile, getAttribute, getBlocksByTrees, getMarkdownsByTrees, removeInvisibleChars, siyuan, } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
-import { BlockNodeEnum, TOMATO_LINE_THROUGH } from "./libs/gconst";
-import { findElement } from "./libs/listUtils";
+import { TOMATO_LINE_THROUGH } from "./libs/gconst";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { DomSuperBlockBuilder } from "./libs/sydom";
 import { verifyKeyTomato } from "./libs/user";
-
 
 export function mergeDocMenuListener() {
     events.addListener_open_menu_doctree("2025-5-8 17:27:45合并文档", (detial) => {
@@ -117,113 +115,3 @@ export async function addComment2Sup(protyle: IProtyle, plugin: Plugin, comment 
     }, 200);
 }
 
-export function addFoldCmd(plugin: Plugin) {
-    plugin.addCommand({
-        langKey: "2025-2-22 17:26:341折叠",
-        langText: "折叠fold",
-        hotkey: "⌘↑",
-        editorCallback: (protyle: IProtyle) => {
-            changeBlockFold(protyle, plugin, true)
-        },
-    });
-    plugin.addCommand({
-        langKey: "2025-2-22 17:26:341展开",
-        langText: "展开unfold",
-        hotkey: "⌘↓",
-        editorCallback: (protyle: IProtyle) => {
-            changeBlockFold(protyle, plugin, false)
-        },
-    });
-}
-
-async function changeBlockFold(protyle: IProtyle, plugin: Plugin, fold: boolean) {
-    const { selected, ids } = await events.selectedDivs(protyle)
-    const targetElement = selected?.at(0);
-    if (!targetElement) return;
-
-    const { found } = findElement(targetElement, false, (e) => {
-        const t = getAttribute(e, "data-type");
-        if (t === BlockNodeEnum.NODE_BLOCKQUOTE
-            || t === BlockNodeEnum.NODE_SUPER_BLOCK
-            || t === BlockNodeEnum.NODE_LIST
-        ) return true
-    });
-    if (found) {
-        doFoldByElement(found, protyle, fold);
-        return;
-    }
-
-    const id = getAttribute(targetElement, "data-node-id")
-    const t = getAttribute(targetElement, "data-type")
-    if (t === BlockNodeEnum.NODE_HEADING) {
-        await foldAndReload(id, fold, protyle)
-    } else if (t === BlockNodeEnum.NODE_PARAGRAPH) {
-        const e = findPreviousElementSibling(targetElement, (e) => {
-            return getAttribute(e, "data-type") === BlockNodeEnum.NODE_HEADING
-        });
-        const targetID = getAttribute(e, "data-node-id")
-        if (targetID) {
-            await foldAndReload(targetID, fold, protyle)
-        } else {
-            const parent = await siyuan.getParentRowByID(id);
-            if (parent?.type === 'h') {
-                await foldAndReload(parent.id, fold, protyle)
-            } else {
-                await foldAll(fold, plugin, protyle, ids)
-            }
-        }
-    }
-}
-
-async function foldAndReload(targetID: string, fold: boolean, protyle: IProtyle) {
-    if (targetID) {
-        if (fold) {
-            await siyuan.setBlockAttrs(targetID, { "fold": "1" })
-        } else {
-            await siyuan.setBlockAttrs(targetID, { "fold": "" })
-        }
-        protyle.getInstance().reload(true);
-    }
-}
-
-async function foldAll(fold: boolean, plugin: Plugin, protyle: IProtyle, ids: string[]) {
-    const params = [
-        ...protyle.element.querySelectorAll(`div[data-type="${BlockNodeEnum.NODE_SUPER_BLOCK}"]`),
-        ...protyle.element.querySelectorAll(`div[data-type="${BlockNodeEnum.NODE_BLOCKQUOTE}"]`),
-    ]
-        .map(e => getAttribute(e, "data-node-id"))
-        .map(id => {
-            return { id, attrs: { "fold": fold ? "1" : "" } }
-        });
-    await siyuan.batchSetBlockAttrs(params);
-    setTimeout(() => {
-        OpenSyFile2(plugin, ids.at(0))
-    }, 200);
-    return params.length > 0;
-}
-
-function doFoldByElement(e: HTMLElement, protyle: IProtyle, fold: boolean) {
-    const id = getAttribute(e, "data-node-id")
-    const old = e.outerHTML
-    const hasFold = e.hasAttribute("fold");
-    if (fold) {
-        if (!hasFold) {
-            setAttribute(e, "fold", "1")
-            protyle.getInstance().updateTransaction(id, e.outerHTML, old)
-        }
-    } else {
-        if (hasFold) {
-            removeAttribute(e, "fold")
-            protyle.getInstance().updateTransaction(id, e.outerHTML, old)
-        }
-    }
-}
-
-function findPreviousElementSibling(e: HTMLElement, f: (a: HTMLElement) => boolean) {
-    while (e != null) {
-        if (f(e)) {
-            return e;
-        }
-        e = e.previousElementSibling as any;
-    }
-}

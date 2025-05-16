@@ -9,6 +9,7 @@ import { events } from "./Events";
 import { linkBoxUseLnkOrRef } from "./stores";
 import { getDocBlocks } from "./docUtils";
 import { domRef, DomSuperBlockBuilder } from "./sydom";
+import { DestroyManager } from "./destroyer";
 
 export function closeTabByTitle(tabs: AttrType[], excludeDocID: string) {
     if (tabs?.length > 0) {
@@ -299,6 +300,14 @@ export function setAttribute(e: any, name: keyof AttrType, value: string) {
 
 export function getAttribute(e: any, name: keyof AttrType) {
     if (e?.getAttribute) return e.getAttribute(name)
+}
+
+export function getChildElements(e: any): HTMLElement[] {
+    if (e?.getAttribute && e.childNodes) {
+        return [...e.childNodes]
+            .filter((e: any) => e.getAttribute) as any
+    }
+    return []
 }
 
 export function removeAttribute(e: any, name: keyof AttrType) {
@@ -2713,17 +2722,20 @@ export async function cancelSuperBlock(targetID: string) {
     await siyuan.transactions(ops);
 }
 
-export function winHotkey(m: string) {
-    const w = m.replaceAll("⌘", "Ctrl+").replaceAll("⇧", "Shift+").replaceAll("⌥", "Alt+");
-    const last = m.at(-1).toUpperCase();
-    if (m.includes("⌥") && m.includes("⇧") && m.includes("⌘")) {
-        m = "⌥⇧⌘" + last;
-    } else if (m.includes("⌥") && m.includes("⇧")) {
-        m = "⌥⇧" + last;
-    } else if (m.includes("⌥") && m.includes("⌘")) {
-        m = "⌥⌘" + last;
-    } else if (m.includes("⇧") && m.includes("⌘")) {
-        m = "⇧⌘" + last;
+export function saveRestorePagePosition(scrollPositionKey: string, dm: DestroyManager, dialog: HTMLElement, focus = false) {
+    if (!dialog || !dm) return;
+    function handleScroll() {
+        localStorage.setItem(scrollPositionKey, dialog.scrollTop.toString());
+    };
+    dialog.addEventListener("scroll", handleScroll);
+    dm.add(scrollPositionKey, () =>
+        dialog.removeEventListener("scroll", handleScroll),
+    );
+    const savedScroll = localStorage.getItem(scrollPositionKey);
+    if (savedScroll) {
+        dialog.scrollTop = parseInt(savedScroll, 10);
     }
-    return { m, w };
+    if (focus) {
+        dialog.focus();
+    }
 }

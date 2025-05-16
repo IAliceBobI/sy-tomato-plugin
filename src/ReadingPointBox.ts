@@ -1,4 +1,4 @@
-import { Siyuan, add_href, cleanText, getBlockDiv, getID, newID, removeSiyuanLnks, siyuan, siyuanCache, sleep, timeUtil } from "./libs/utils";
+import { Siyuan, add_href, cleanText, getBlockDiv, getID, newID, removeSiyuanLnks, siyuan, siyuanCache, sleep, timeUtil, } from "./libs/utils";
 import "./index.scss";
 import { events } from "./libs/Events";
 import { BlockNodeEnum, DATA_NODE_ID, DATA_SUBTYPE, DATA_TYPE, IN_BOOK_INDEX, MarkKey, PARAGRAPH_INDEX, READINGPOINT, RefIDKey, SiyuanNotebook } from "./libs/gconst";
@@ -8,15 +8,20 @@ import { gotoBookmark, removeReadingPoint } from "./libs/bookmark";
 import { Md5 } from "ts-md5";
 import { domBlankLine, domHdeading, domLnk, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
 import { OpenSyFile2 } from "./libs/docUtils";
-import { readingAdd2Card, readingDialog, readingPointBoxCheckbox, readingPointWithEnv, readingSaveFile, readingTopBar, storeNoteBox_selectedNotebook } from "./libs/stores";
+import { readingAdd2Card, readingAddDeleteMenu, readingAddJumpMenu, readingAddRPmenu, readingDialog, readingPointBoxCheckbox, readingPointWithEnv, readingSaveFile, readingTopBar, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import ReadingPoint from "./ReadingPoint.svelte"
 import { DestroyManager } from "./libs/destroyer";
 import { Dialog } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
+import { winHotkey } from "./libs/winHotkey";
 
 export type RPType = { dom: string, row?: Block, line?: string };
+export const ReadingPointBox设置阅读点 = winHotkey("F7", "addBookmark 2025-5-12 17:52:14", "🍅＋🔖", () => tomatoI18n.设置阅读点)
+export const ReadingPointBox跳到当前文档的阅读点 = winHotkey("alt+f5", "gotoBookmark 2025-5-12 18:12:44", "🍅🕊️🔖", () => tomatoI18n.跳到当前文档的阅读点)
+export const ReadingPointBox删除当前文档的阅读点 = winHotkey("⌘F7", "deleteBookmark 2025-5-12 18:25:42", "🍅🗑️🔖", () => tomatoI18n.删除当前文档的阅读点)
+export const ReadingPointBox查看阅读点 = winHotkey("shift+alt+5", "showBookmarks 2025-5-12 18:32:45", "", () => tomatoI18n.查看阅读点)
 
 class ReadingPointBox {
     private plugin: BaseTomatoPlugin;
@@ -59,8 +64,9 @@ class ReadingPointBox {
         }
 
         this.plugin.addCommand({
-            langKey: "addBookmark",
-            hotkey: "⌘2",
+            langKey: ReadingPointBox设置阅读点.langKey,
+            langText: ReadingPointBox设置阅读点.langText(),
+            hotkey: ReadingPointBox设置阅读点.m,
             callback: async () => {
                 const { selected, ids } = await events.selectedDivs();
                 for (const [div, id] of zipNways(selected, ids)) {
@@ -71,22 +77,26 @@ class ReadingPointBox {
         });
 
         this.plugin.addCommand({
-            langKey: "showBookmarks",
-            hotkey: "⌘4",
+            langKey: ReadingPointBox查看阅读点.langKey,
+            langText: ReadingPointBox查看阅读点.langText(),
+            hotkey: ReadingPointBox查看阅读点.m,
             callback: async () => {
                 await this.showContentsWithLock();
             },
         });
         this.plugin.addCommand({
-            langKey: "gotoBookmark",
-            hotkey: "F7",
+            langKey: ReadingPointBox跳到当前文档的阅读点.langKey,
+            langText: ReadingPointBox跳到当前文档的阅读点.langText(),
+            hotkey: ReadingPointBox跳到当前文档的阅读点.m,
             callback: async () => {
                 gotoBookmark(events.docID, this.plugin);
             },
         });
+
         this.plugin.addCommand({
-            langKey: "deleteBookmark",
-            hotkey: "⌘F7",
+            langKey: ReadingPointBox删除当前文档的阅读点.langKey,
+            langText: ReadingPointBox删除当前文档的阅读点.langText(),
+            hotkey: ReadingPointBox删除当前文档的阅读点.m,
             callback: async () => {
                 removeReadingPoint(events.docID);
             },
@@ -94,60 +104,70 @@ class ReadingPointBox {
 
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
-            menu.addItem({
-                label: this.plugin.i18n.addBookmark,
-                iconHTML: "🍅＋🔖",
-                accelerator: "⌘2",
-                click: () => {
-                    const blockID = detail?.element?.getAttribute("data-node-id") ?? "";
-                    if (blockID) {
-                        this.addReadPointLock(blockID, detail?.element);
-                    }
-                },
-            });
-            menu.addItem({
-                label: this.plugin.i18n.gotoBookmark,
-                iconHTML: "🍅🕊️🔖",
-                accelerator: "F7",
-                click: () => {
-                    gotoBookmark(events.docID, this.plugin);
-                },
-            });
-            menu.addItem({
-                label: this.plugin.i18n.deleteBookmark,
-                iconHTML: "🍅🗑️🔖",
-                accelerator: "",
-                click: () => {
-                    removeReadingPoint(events.docID);
-                },
-            });
+            if (readingAddRPmenu.get()) {
+                menu.addItem({
+                    label: ReadingPointBox设置阅读点.langText(),
+                    iconHTML: ReadingPointBox设置阅读点.icon,
+                    accelerator: ReadingPointBox设置阅读点.m,
+                    click: () => {
+                        const blockID = detail?.element?.getAttribute("data-node-id") ?? "";
+                        if (blockID) {
+                            this.addReadPointLock(blockID, detail?.element);
+                        }
+                    },
+                });
+            }
+            if (readingAddJumpMenu.get()) {
+                menu.addItem({
+                    label: ReadingPointBox跳到当前文档的阅读点.langText(),
+                    iconHTML: ReadingPointBox跳到当前文档的阅读点.icon,
+                    accelerator: ReadingPointBox跳到当前文档的阅读点.m,
+                    click: () => {
+                        gotoBookmark(events.docID, this.plugin);
+                    },
+                });
+            }
+            if (readingAddDeleteMenu.get()) {
+                menu.addItem({
+                    label: ReadingPointBox删除当前文档的阅读点.langText(),
+                    iconHTML: ReadingPointBox删除当前文档的阅读点.icon,
+                    accelerator: ReadingPointBox删除当前文档的阅读点.m,
+                    click: () => {
+                        removeReadingPoint(events.docID);
+                    },
+                });
+            }
         });
     }
 
     blockIconEvent(detail: any) {
         if (!this.plugin) return;
-        detail.menu.addItem({
-            iconHTML: "🍅＋🔖",
-            label: this.plugin.i18n.addBookmark,
-            accelerator: "⌘2",
-            click: () => {
-                for (const element of detail.blockElements) {
-                    const blockID = getID(element);
-                    if (blockID) {
-                        this.addReadPointLock(blockID, element);
-                        break;
+        if (readingAddRPmenu.get()) {
+            detail.menu.addItem({
+                label: ReadingPointBox设置阅读点.langText(),
+                iconHTML: ReadingPointBox设置阅读点.icon,
+                accelerator: ReadingPointBox设置阅读点.m,
+                click: () => {
+                    for (const element of detail.blockElements) {
+                        const blockID = getID(element);
+                        if (blockID) {
+                            this.addReadPointLock(blockID, element);
+                            break;
+                        }
                     }
                 }
-            }
-        });
-        detail.menu.addItem({
-            iconHTML: "🍅🕊️🔖",
-            label: this.plugin.i18n.gotoBookmark,
-            accelerator: "F7",
-            click: () => {
-                gotoBookmark(events.docID, this.plugin);
-            },
-        });
+            });
+        }
+        if (readingAddJumpMenu.get()) {
+            detail.menu.addItem({
+                label: ReadingPointBox跳到当前文档的阅读点.langText(),
+                iconHTML: ReadingPointBox跳到当前文档的阅读点.icon,
+                accelerator: ReadingPointBox跳到当前文档的阅读点.m,
+                click: () => {
+                    gotoBookmark(events.docID, this.plugin);
+                },
+            });
+        }
     }
 
     addReadPointLock(blockID: string, div: HTMLElement) {

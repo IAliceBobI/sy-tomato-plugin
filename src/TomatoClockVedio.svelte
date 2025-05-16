@@ -3,7 +3,6 @@
     import { onDestroy, afterUpdate, onMount } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
     import { TomatoClockID, tomatoClock } from "./TomatoClock";
-    import { verifyKeyTomato } from "./libs/user";
 
     export let vedioID: BlockID;
     export let dm: DestroyManager;
@@ -22,8 +21,6 @@
                 window.removeEventListener("keydown", handleEscapePress),
             );
         }
-
-        if (!(await verifyKeyTomato())) vedioID = "";
     });
 
     afterUpdate(async () => {
@@ -52,12 +49,23 @@
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->
 <div id={TomatoClockID}>
     {#if !vedioID}
-        <div class="tomato-style__container">
-            <p class="tomato-style__centered-text">
-                {tomatoClock.plugin.i18n.takeARestPlease}
-            </p>
+        <div class="box">
+            <div class="prompt">{tomatoClock.plugin.i18n.takeARestPlease}</div>
         </div>
     {:else}
         <div bind:this={protyleTarget}></div>
     {/if}
 </div>
+
+<style>
+    .prompt {
+        font-size: x-large;
+    }
+    .box {
+        display: flex;
+        justify-content: center; /* 水平居中 */
+        align-items: center; /* 垂直居中 */
+        height: 300px;
+        width: 300px;
+    }
+</style>

@@ -208,7 +208,28 @@ class Events {
         }
         const element = protyle?.wysiwyg?.element;
         const docID = protyle?.block?.rootID;
-        if (!element || !docID) return {};
+        if (element && docID) {
+            let { selected, ids, rangeText, range, cursorOnly } = this.collectInfo(element);
+            return { selected, ids, docID, element, rangeText, range, docName, boxID: protyle.notebookId, cursorOnly };
+        } else {
+            return {}
+        }
+    }
+
+    selectedDivsSync(protyle?: IProtyle) {
+        if (!protyle) protyle = this.protyle?.protyle;
+        let docName = protyle?.title?.editElement?.textContent;
+        const element = protyle?.wysiwyg?.element;
+        const docID = protyle?.block?.rootID;
+        if (element && docID) {
+            let { selected, ids, rangeText, range, cursorOnly } = this.collectInfo(element);
+            return { selected, ids, docID, element, rangeText, range, docName, boxID: protyle.notebookId, cursorOnly };
+        } else {
+            return {}
+        }
+    }
+
+    private collectInfo(element: HTMLDivElement) {
         const selected: HTMLElement[] = [...element.querySelectorAll(`.${PROTYLE_WYSIWYG_SELECT}`)] as any;
         let cursorOnly = false;
         if (selected.length == 0) {
@@ -216,13 +237,13 @@ class Events {
             const e = getCursorElement();
             if (e) selected.push(e);
         }
-        let range: Range, rangeText: string
+        let range: Range, rangeText: string;
         try {
             range = document.getSelection()?.getRangeAt(0);
             rangeText = range?.cloneContents()?.textContent ?? "";
         } catch { }
         const ids = selected.map(i => i.getAttribute(DATA_NODE_ID));
-        return { selected, ids, docID, element, rangeText, range, docName, boxID: protyle.notebookId, cursorOnly };
+        return { selected, ids, rangeText, range, cursorOnly };
     }
 }
 

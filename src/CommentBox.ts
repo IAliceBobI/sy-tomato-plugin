@@ -1,6 +1,6 @@
 import { adaptHotkey, Dock, IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { add_ref, cloneCleanDiv, extendMap, getAllText, getAttribute, getContextPath, newID, NewNodeID, setAttribute, setTimeouts, siyuan, winHotkey } from "./libs/utils";
+import { add_ref, cloneCleanDiv, extendMap, getAllText, getAttribute, getContextPath, newID, NewNodeID, setAttribute, setTimeouts, siyuan, } from "./libs/utils";
 import CommentBoxSvelte from "./CommentBox.svelte";
 import { commentBoxAddFlashCard, commentBoxAddUnderline, commentBoxCheckbox, commentBoxMenu, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
@@ -8,10 +8,11 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { isReadonly } from "./libs/docUtils";
 import { DialogTextArea } from "./libs/DialogText";
 import { domNewHeading, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
+import { winHotkey } from "./libs/winHotkey";
 
 const DOCK_TYPE = "dock_CommentBox";
 
-export const CommentBox添加批注到日记 = winHotkey("⇧⌥F")
+export const CommentBox添加批注到日记 = winHotkey("⇧⌥F", "comment box 2024-12-20 12:01:14")
 
 class CommentBox {
     plugin: BaseTomatoPlugin;
@@ -40,7 +41,7 @@ class CommentBox {
         this.settingCfg = plugin.settingCfg;
 
         this.plugin.addCommand({
-            langKey: "comment box 2024-12-20 12:01:14",
+            langKey: CommentBox添加批注到日记.langKey,
             langText: tomatoI18n.添加批注到日记,
             hotkey: CommentBox添加批注到日记.m,
             callback: () => {

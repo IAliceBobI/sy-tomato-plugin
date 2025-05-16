@@ -319,7 +319,7 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
         }
     }
 
-    public get 添加右键菜单() {
+    public get menu添加右键菜单() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "添加右键菜单";
             case "es_ES": return "Agregar menú contextual";
@@ -463,23 +463,6 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
             case "pl_PL": return `${x} = Wszechstronny asystent na całe życie! Jednorazowa płatność, wieczne korzystanie. Dostępny offline z praktycznymi funkcjami, które są stale aktualizowane. Mniej niż jeden grosz dziennie, ale to może przyspieszyć wydajność i ułatwić życie. Każde użycie to wyjątkowa wartość zwrotna. Ta inwestycja to pewna wygrana.`;
             case "en_US":
             default: return `${x} = All-in-one assistant for life! Pay once and enjoy forever. Available offline with practical functions that are constantly updated. Less than a cent a day, but it can speed up efficiency and relieve the burden of life. Every use delivers exceptional value. This investment is a sure win.`;
-        }
-    }
-
-    public get vip版本上线前打赏的金额可以双倍抵扣() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "2025年5月6日前打赏享「翻倍 buff」！金额直接 ×2 抵扣，多出来的部分就当请我们喝快乐水啦～主打一个双向奔赴，入股不亏！";
-            case "es_ES": return "¡Disfruta del «efecto multiplicador» en las donaciones antes del 6 de mayo de 2025! El monto se duplica directamente para el descuento. Lo sobrante, considéralo como invitándonos a una bebida refrescante. ¡Es una relación mutua y una inversión sin riesgos!";
-            case "fr_FR": return "Bénéficiez du «bonus double» pour les dons avant le 6 mai 2025 ! Le montant est directement multiplié par 2 pour les déductions. Considérez l'excédent comme une collation pour nous. C'est une relation gagnant - gagnant, un pari sûr !";
-            case "ja_JP": return "2025年5月6日までに寄付すると、「ダブルボーナス」を獲得！金額はそのまま2倍で割り引かれます。余った分は私たちにソフトドリンクをおごる気持ちとして！双方向の支援で、参加すれば損はしません！";
-            case "zh_CHT": return "2025年5月6日前打賞享「翻倍 buff」！金額直接 ×2 抵扣，多出來的部分就當請我們喝快樂水啦～主打一個雙向奔赴，入股不虧！";
-            case "it_IT": return "Ottieni il «bonus raddoppio» per le donazioni prima del 6 maggio 2025! L'importo viene direttamente raddoppiato per gli sconti. Considera l'eccesso come un invito a una bibita per noi. È una relazione di reciproco vantaggio, un investimento sicuro!";
-            case "de_DE": return "Genieße das «Verdoppelungs - Bonus» für Spenden vor dem 6. Mai 2025! Der Betrag wird direkt verdoppelt und abgezogen. Betrachte den Restbetrag als ein Lächeln spenden uns für ein Erfrischungsgetränk. Es ist eine win - win - Situation und eine sichere Investition!";
-            case "he_IL": return "קבל את ה-«בונוס הכפל» לתרומות לפני ה-6 במאי 2025! הסכום משוכלל כפול באופן ישיר. תחשוב על השאריות כמכירה לנו משקה מגרה. זו מערכת של תועלת הדדית, השקעה בטוחה!";
-            case "ru_RU": return "До 6 мая 2025 года получайте «двойной бонус» за пожертвования! Сумма сразу же удваивается для скидки. Считайте остаток как приглашение нас на газировку. Это взаимовыгодное сотрудничество, и вложения точно окупятся!";
-            case "pl_PL": return "Do 6 maja 2025 r. otrzymuj «bonus podwójny» za darowizny! Kwota jest bezpośrednio podwojona do odliczenia. Uważaj nadwyżkę za zaproszenie nas na napój. To wzajemnie korzystna relacja, inwestycja na pewno się opłaci!";
-            case "en_US":
-            default: return "Get the «Double Bonus» for donations before May 6, 2025! The amount is directly doubled for deductions. Consider the extra part as treating us to a soda. It's a win - win relationship, a sure - fire investment!";
         }
     }
 

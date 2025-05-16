@@ -40,16 +40,19 @@ class ImgOverlayBox {
 
     blockIconEvent(detail: any) {
         if (!this.plugin) return;
-        detail.menu.addItem({
-            iconHTML: "🍅🛡️🖼️",
-            label: this.plugin.i18n.addPicOverlay,
-            click: () => {
-                for (const element of detail.blockElements) {
-                    this.overlayEditor(element, detail.protyle);
-                    break;
+        const imgs = (detail.blockElements as HTMLElement[]).filter(e => e.querySelector(`span[data-type="img"]`))
+        if (imgs.length > 0) {
+            detail.menu.addItem({
+                iconHTML: "🍅🛡️🖼️",
+                label: this.plugin.i18n.addPicOverlay,
+                click: () => {
+                    for (const element of imgs) {
+                        this.overlayEditor(element, detail.protyle);
+                        break;
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     async overlayEditor(imgSpan: HTMLSpanElement, _protyle: IProtyle) {

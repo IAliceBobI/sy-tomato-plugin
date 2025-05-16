@@ -1,13 +1,19 @@
 import { Config, confirm, openTab } from "siyuan";
 import { events } from "./libs/Events";
-import { siyuan } from "./libs/utils";
-import { ClassActive } from "./libs/gconst";
+import { siyuan, } from "./libs/utils";
+import { ClassActive, SPACE } from "./libs/gconst";
 import { addIcon, createNumIcon } from "./libs/ui";
 import { locateDoc, tidyAssets } from "./libs/docUtils";
-import { toolbarBoxCheckbox, toolbarEN2CHBtn, toolbarTidy } from "./libs/stores";
+import { toolbarBoxCheckbox, toolbarEN2CHBtn, toolbarlocatedoc, toolbarrefreshVr, toolbarspacerepeat, toolbarTidy } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
+import { winHotkey } from "./libs/winHotkey";
+
+export const ToolBarBox间隔重复 = winHotkey("alt+backspace", "间隔重复 2025-5-12 19:34:21", "iconRiffCard", () => tomatoI18n.复习闪卡)
+export const ToolBarBox刷新虚拟引用 = winHotkey("alt+delete", "刷新虚拟引用 2025-5-12 19:34:22", "iconRef", () => tomatoI18n.刷新虚拟引用)
+export const ToolBarBox突出定位文档 = winHotkey("alt+enter", "突出定位文档 2025-5-12 19:34:24", "iconFocus", () => tomatoI18n.突出定位文档)
+export const ToolBarBox整理assets下的图片视频音频 = winHotkey("ctrl+alt+shift+F9", "整理assets下的图片视频音频 2025-5-12 19:34:26", "iconMove", () => tomatoI18n.整理assets下的图片视频音频)
 
 class ToolbarBox {
     public plugin: BaseTomatoPlugin;
@@ -32,37 +38,46 @@ class ToolbarBox {
         }
         this.plugin = plugin;
 
+
+        const tidy = () => {
+            confirm("⚠️" + ToolBarBox整理assets下的图片视频音频.langText(),
+                tomatoI18n.即将创建快照,
+                () => tidyAssets(tomatoI18n));
+        }
+
         if (!events.isMobile) {
-            plugin.addTopBar({
-                icon: "iconRiffCard",
-                title: plugin.i18n.spaceRepeat + "Alt+0",
-                position: "left",
-                callback: () => {
-                    openTab({ app: plugin.app, card: { type: "all" } });
-                }
-            })
-            plugin.addTopBar({
-                icon: "iconRef",
-                title: plugin.i18n.refreshVirRef + "ctrl+F8",
-                position: "left",
-                callback: refreshVirRef,
-            })
-            plugin.addTopBar({
-                icon: "iconFocus",
-                title: plugin.i18n.locateDoc + "Alt+1",
-                position: "left",
-                callback: () => { locateDoc(this.lastPart); },
-            })
-            if (toolbarTidy.get()) {
+            if (toolbarspacerepeat.get()) {
                 plugin.addTopBar({
-                    icon: "iconMove",
-                    title: tomatoI18n.整理assets下的图片视频音频,
+                    icon: ToolBarBox间隔重复.icon,
+                    title: ToolBarBox间隔重复.langText() + ToolBarBox间隔重复.w(),
                     position: "left",
                     callback: () => {
-                        confirm("⚠️" + tomatoI18n.整理assets下的图片视频音频,
-                            tomatoI18n.即将创建快照,
-                            () => tidyAssets(tomatoI18n));
+                        openTab({ app: plugin.app, card: { type: "all" } });
                     }
+                })
+            }
+            if (toolbarrefreshVr.get()) {
+                plugin.addTopBar({
+                    icon: ToolBarBox刷新虚拟引用.icon,
+                    title: ToolBarBox刷新虚拟引用.langText() + ToolBarBox刷新虚拟引用.w(),
+                    position: "left",
+                    callback: refreshVirRef,
+                })
+            }
+            if (toolbarlocatedoc.get()) {
+                plugin.addTopBar({
+                    icon: ToolBarBox突出定位文档.icon,
+                    title: ToolBarBox突出定位文档.langText() + ToolBarBox突出定位文档.w(),
+                    position: "left",
+                    callback: () => { locateDoc(this.lastPart); },
+                })
+            }
+            if (toolbarTidy.get()) {
+                plugin.addTopBar({
+                    icon: ToolBarBox整理assets下的图片视频音频.icon,
+                    title: ToolBarBox整理assets下的图片视频音频.langText() + SPACE + ToolBarBox整理assets下的图片视频音频.w(),
+                    position: "left",
+                    callback: tidy,
                 });
             }
         }
@@ -121,21 +136,28 @@ class ToolbarBox {
         });
 
         plugin.addCommand({
-            langKey: "spaceRepeat",
-            hotkey: "⌥0",
-            callback: () => {
-                openTab({ app: plugin.app, card: { type: "all" } });
-            }
+            langKey: ToolBarBox整理assets下的图片视频音频.langKey,
+            langText: ToolBarBox整理assets下的图片视频音频.langText(),
+            hotkey: ToolBarBox整理assets下的图片视频音频.m,
+            callback: tidy,
         });
         plugin.addCommand({
-            langKey: "refreshVirRef",
-            hotkey: "⌘F8",
+            langKey: ToolBarBox间隔重复.langKey,
+            langText: ToolBarBox间隔重复.langText(),
+            hotkey: ToolBarBox间隔重复.m,
+            callback: () => openTab({ app: plugin.app, card: { type: "all" } })
+        });
+        plugin.addCommand({
+            langKey: ToolBarBox刷新虚拟引用.langKey,
+            langText: ToolBarBox刷新虚拟引用.langText(),
+            hotkey: ToolBarBox刷新虚拟引用.m,
             callback: refreshVirRef,
         });
         plugin.addCommand({
-            langKey: "locateDoc",
-            hotkey: "⌥1",
-            callback: () => { locateDoc(this.lastPart); },
+            langKey: ToolBarBox突出定位文档.langKey,
+            langText: ToolBarBox突出定位文档.langText(),
+            hotkey: ToolBarBox突出定位文档.m,
+            callback: () => locateDoc(this.lastPart),
         });
 
         if (!events.isMobile) {

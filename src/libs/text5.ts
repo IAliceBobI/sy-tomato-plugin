@@ -162,29 +162,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "Synchronization Block";
         }
     }
-    public get 查看所有同步位置() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "查看所有同步位置";
-            case "es_ES":
-                return "Ver todas las ubicaciones sincronizadas";
-            case "fr_FR":
-                return "Voir tous les emplacements synchronisés";
-            case "ja_JP":
-                return "すべての同期位置を表示";
-            case "zh_CHT":
-                return "查看所有同步位置";
-            case "it_IT":
-                return "Visualizza tutte le posizioni sincronizzate";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "View all synchronized locations";
-        }
-    }
+
     public 已在x个地方同步(x: number) {
         switch (this.conf.appearance.lang) {
             case "zh_CN":

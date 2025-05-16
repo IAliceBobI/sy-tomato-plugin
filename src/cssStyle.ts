@@ -140,7 +140,7 @@ function load_cssRefSquareBrackets() {
 
 async function load_cssRefAsTags() {
     const TAG = "tomato-ref-as-tag"
-    if (! await verifyKeyTomato()) return;
+    if (!(await verifyKeyTomato())) return;
     const tags = cssRefAsTags.get()?.trim();
     if (!tags) return;
     const list = tags.trim().replaceAll("，", ",").split(",").map(i => i?.trim()).filter(i => !!i)

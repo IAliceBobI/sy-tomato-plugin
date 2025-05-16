@@ -607,7 +607,7 @@ export abstract class TomatoI18nABC8 extends TomatoI18nABC9 {
         }
     }
 
-  
+
     public get 给链接加文字(): string {
         switch (this.conf.appearance.lang) {
             case "zh_CN":
@@ -1049,28 +1049,6 @@ export abstract class TomatoI18nABC8 extends TomatoI18nABC9 {
             case "en_US":
             default:
                 return "Add blank line at the end";
-        }
-    }
-    public get 显示topbar() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "显示topbar";
-            case "es_ES":
-                return "Mostrar barra superior";
-            case "fr_FR":
-                return "Afficher la barre supérieure";
-            case "ja_JP":
-                return "トップバーを表示";
-            case "zh_CHT":
-                return "顯示topbar";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Show topbar";
         }
     }
     public get 简洁模式切换() {

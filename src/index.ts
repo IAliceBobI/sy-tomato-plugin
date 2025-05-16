@@ -30,19 +30,39 @@ import { aiBox } from "./AIBox";
 import { imgBox } from "./ImgBox";
 import { fastNoteBox } from "./FastNoteBox";
 import * as plugin from "siyuan";
-import { aiBoxCheckbox, aiBoxMenuShow, aiBoxPrompts, auto_card_priority, avoiding_cloud_synchronization_conflicts, awaysExitFocusStore, back_link_concept_fold, back_link_copy, back_link_dailynote_off, back_link_default_off, back_link_embed, back_link_goto_bottom_btn, back_link_max_size, back_link_mention_count, back_link_more_btns, back_link_move_here, back_link_move_to_dailynote, back_link_move_with_backlink, back_link_passup_heading, back_link_passup_quote, back_link_passup_super, back_link_protyle_height, back_link_ref, back_link_refresh_off, back_link_remove_refs, back_link_show_floatUI, back_link_show_path, backLinkBottomBoxCheckbox, card_priority_slider_hide, card_priority_stopBtn_hide, cardBoxAddConcepts, cardBoxBuildSupCard, cardBoxCheckbox, cardBoxSpradEvenlyPostpone, cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cardPriorityBoxPostponeCardMenu, cardPriorityBoxPriorityMenu, cardPriorityBoxSpradDelayMenu, commentBoxAddFlashCard, commentBoxAddUnderline, commentBoxBackwardRef, commentBoxCheckbox, commentBoxForwardRef, commentBoxMaxProtyleHeight, commentBoxMenu, commentBoxShowID, commentBoxStaticOutlink, commentBoxVirtualRef, cozeSearchAppID, cozeSearchBoxCheckbox, cozeSearchDoubaoID, cozeSearchKnowledgeID, cozeSearchMenuShow, cozeSearchOauthTokenID, cozeSearchSpaceID, cpBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefSquareBrackets, cssRefStyle, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, dailyNoteBoxCheckbox, dailyNoteCopy, dailyNoteCopyAnchorText, dailyNoteCopyComment, dailyNoteCopyFlashCard, dailyNoteCopyInsertPR, dailyNoteCopyShowPath, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteMoveToBottom, dbBkBoxCheckbox, dbBkBoxHideDatetime, dbBkBoxMaxBacklinkSize, dont_break_list, fastNoteBoxAdd2Flashcard, fastNoteBoxCheckbox, fastNoteBoxDelAfterCreating, fastNoteBoxDisableBK, flash_thoughts_2_top, flash_thoughts_target_file, flashThoughtUseDialog, graphBoxCheckbox, graphClick2Locate, graphMaxAllBlocks, graphMaxPBlocks, imgBoxCheckbox, imgBoxShowMenu, imgOverlayCheckbox, keepLazyLoadStore, linkBoxAttrIconOnHide, linkBoxCheckbox, linkBoxLnkTitle, linkBoxSyncBlock, linkBoxSyncBlockAuto, linkBoxSyncHref, linkBoxSyncRef, linkBoxUseLnkOrRef, listBoxCheckbox, mixBoxAddAlias, mixBoxCheckbox, mixBoxPinyin, noteBoxAllKinds, noteBoxCheckbox, readingAdd2Card, readingDialog, readingPointBoxCheckbox, readingPointWithEnv, readingSaveFile, readingShowAllFolders, readingTopBar, showDocAttrs, storeCopyStdMD, storeFillMemoMenu, storeInsertXml, storeMergeDoc, storeMoveDocContentHere, storeNoteBox_fastnote, storeNoteBox_keep, storeNoteBox_noteAreaText, storeNoteBox_pin, storeNoteBox_recentText, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType, storeOpenRefsClick, storeOpenRefsMenu, storeRefreshStaticBkLnk, tag2RefBoxCheckbox, tag_to_ref_add_card, tag_to_ref_add_pinyin, tomato_clocks, tomato_clocks_change_bg, tomato_clocks_change_bg_dark, tomato_clocks_force_dialog, tomato_clocks_force_notice, tomato_clocks_opacity, tomato_clocks_position_right, tomatoClockCheckbox, toolbarBoxCheckbox, toolbarEN2CHBtn, toolbarTidy, userID, userToken } from "./libs/stores";
+import { aiBoxCheckbox, aiBoxMenuShow, aiBoxPrompts, auto_card_priority, avoiding_cloud_synchronization_conflicts, awaysExitFocusStore, back_link_concept_fold, back_link_copy, back_link_dailynote_off, back_link_default_off, back_link_embed, back_link_goto_bottom_btn, back_link_max_size, back_link_mention_count, back_link_more_btns, back_link_move_here, back_link_move_to_dailynote, back_link_move_with_backlink, back_link_passup_heading, back_link_passup_quote, back_link_passup_super, back_link_protyle_height, back_link_ref, back_link_refresh_off, back_link_remove_refs, back_link_show_floatUI, back_link_show_path, backLinkBottomBoxCheckbox, bk启用禁用文档的底部反链menu, card_priority_slider_hide, card_priority_stopBtn_hide, cardBoxAddConcepts, cardBoxCheckbox, cardBoxSpradEvenlyPostpone, cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cardPriorityBoxPostponeCardMenu, cardPriorityBoxPriorityMenu, cardPriorityBoxSpradDelayMenu, commentBoxAddFlashCard, commentBoxAddUnderline, commentBoxBackwardRef, commentBoxCheckbox, commentBoxForwardRef, commentBoxMaxProtyleHeight, commentBoxMenu, commentBoxShowID, commentBoxStaticOutlink, commentBoxVirtualRef, cozeSearchAppID, cozeSearchBoxCheckbox, cozeSearchDoubaoID, cozeSearchKnowledgeID, cozeSearchMenuShow, cozeSearchOauthTokenID, cozeSearchSpaceID, cpBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefSquareBrackets, cssRefStyle, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyComment, dailyNoteCopyFlashCard, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopyShowPath, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveToBottom, dailyNotetopbarleft, dailyNotetopbarright, dbBkBoxCheckbox, dbBkBoxHideDatetime, dbBkBoxMaxBacklinkSize, dbBkBoxRefreshMenu, dont_break_list, fastNoteBoxAdd2Flashcard, fastNoteBoxCheckbox, fastNoteBoxDelAfterCreating, fastNoteBoxDisableBK, flash_thoughts_2_top, flash_thoughts_target_file, flashThoughtUseDialog, graphAddTopbarIcon, graphBoxCheckbox, graphClick2Locate, graphMaxAllBlocks, graphMaxPBlocks, graph定位到图中的节点Menu, graph打开块关系图Menu, imgBoxCheckbox, imgBoxShowMenu, imgOverlayCheckbox, keepLazyLoadStore, linkBoxAttrIconOnHide, linkBoxBilinkMenu, linkBoxCheckbox, linkBoxLnkTitle, linkBoxSyncBlock, linkBoxSyncBlockAuto, linkBoxSyncHref, linkBoxSyncRef, linkBoxUseLnkOrRef, listBoxCheckbox, mixBoxCheckbox, mixBoxPinyin, noteBoxAllKinds, noteBoxCheckbox, readingAdd2Card, readingAddDeleteMenu, readingAddJumpMenu, readingAddRPmenu, readingDialog, readingPointBoxCheckbox, readingPointWithEnv, readingSaveFile, readingShowAllFolders, readingTopBar, showDocAttrs, storeCopyStdMD, storeFillMemoMenu, storeInsertXml, storeMergeDoc, storeMoveDocContentHere, storeNoteBox_fastnote, storeNoteBox_keep, storeNoteBox_noteAreaText, storeNoteBox_pin, storeNoteBox_recentText, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType, storeOpenRefsClick, storeOpenRefsMenu, storeRefreshStaticBkLnk, tag2RefBoxCheckbox, tag2RefSearchLnk, tag2RefSearchRef, tag_to_ref_add_card, tag_to_ref_add_pinyin, tomato_clocks, tomato_clocks_change_bg, tomato_clocks_change_bg_dark, tomato_clocks_force_dialog, tomato_clocks_force_notice, tomato_clocks_opacity, tomato_clocks_position_right, tomatoClockCheckbox, toolbarBoxCheckbox, toolbarEN2CHBtn, toolbarlocatedoc, toolbarrefreshVr, toolbarspacerepeat, toolbarTidy, userID, userToken } from "./libs/stores";
 import { dbBkBox } from "./DbBkBox";
 import { graphBox } from "./GraphBox";
 import { resetKey, verifyKeyTomato } from "./libs/user";
 import { commentBox } from "./CommentBox";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cozeSearchBox } from "./CozeSearchBox";
-import { addFoldCmd, initMenuListener, mergeDocMenuListener } from "./exportFiles";
+import { initMenuListener, mergeDocMenuListener } from "./exportFiles";
 import { getDocTracer } from "./libs/docUtils";
+import { addFoldCmd } from "./fold";
+import { winHotkey } from "./libs/winHotkey";
 
 function loadStore(plugin: BaseTomatoPlugin) {
     userToken.load(plugin);
     userID.load(plugin);
+    dailyNotetopbarleft.load(plugin);
+    dailyNotetopbarright.load(plugin);
+    tag2RefSearchRef.load(plugin);
+    toolbarlocatedoc.load(plugin);
+    toolbarrefreshVr.load(plugin);
+    tag2RefSearchLnk.load(plugin);
+    toolbarspacerepeat.load(plugin);
+    dbBkBoxRefreshMenu.load(plugin);
+    readingAddDeleteMenu.load(plugin);
+    readingAddJumpMenu.load(plugin);
+    readingAddRPmenu.load(plugin);
+    bk启用禁用文档的底部反链menu.load(plugin);
+    linkBoxBilinkMenu.load(plugin);
+    graph定位到图中的节点Menu.load(plugin);
+    graph打开块关系图Menu.load(plugin);
+    graphAddTopbarIcon.load(plugin);
+    dailyNoteCopyMenu.load(plugin);
+    dailyNoteGoToBottomMenu.load(plugin);
     aiBoxMenuShow.load(plugin);
     cozeSearchMenuShow.load(plugin);
     imgBoxShowMenu.load(plugin);
@@ -86,7 +106,6 @@ function loadStore(plugin: BaseTomatoPlugin) {
     readingDialog.load(plugin);
     cardBoxCheckbox.load(plugin);
     cardBoxAddConcepts.load(plugin);
-    cardBoxBuildSupCard.load(plugin);
     cardBoxSpradEvenlyPostpone.load(plugin);
     cardPriorityBoxCheckbox.load(plugin);
     cardPriorityBoxAutoHide.load(plugin);
@@ -106,7 +125,6 @@ function loadStore(plugin: BaseTomatoPlugin) {
     dailyNoteGoToBottom.load(plugin);
     dailyNoteMoveToBottom.load(plugin);
     dailyNoteCopySimple.load(plugin);
-    dailyNoteCopy.load(plugin);
     dailyNoteCopyAnchorText.load(plugin);
     dailyNoteCopyUseRef.load(plugin);
     dailyNoteCopyUpdateBG.load(plugin);
@@ -143,7 +161,6 @@ function loadStore(plugin: BaseTomatoPlugin) {
     dbBkBoxHideDatetime.load(plugin);
     mixBoxCheckbox.load(plugin);
     mixBoxPinyin.load(plugin);
-    mixBoxAddAlias.load(plugin);
     storeMergeDoc.load(plugin);
     storeMoveDocContentHere.load(plugin);
     storeRefreshStaticBkLnk.load(plugin);
@@ -194,6 +211,8 @@ function loadStore(plugin: BaseTomatoPlugin) {
     storeNoteBox_selectedNotebook.load(plugin, plugin.settingCfg);
     storeNoteBox_fastnote.load(plugin, plugin.settingCfg);
 }
+
+export const tomatoSettingsOpenHK = winHotkey("ctrl+,", "tomato settings 2025-5-12 08:52:33", "", () => tomatoI18n.番茄工具箱配置)
 
 export default class ThePlugin extends BaseTomatoPlugin {
     constructor(options: any) {
@@ -392,6 +411,15 @@ export default class ThePlugin extends BaseTomatoPlugin {
                     this.openSettings();
                 });
                 return btnaElement;
+            },
+        });
+
+        this.addCommand({
+            langKey: tomatoSettingsOpenHK.langKey,
+            langText: tomatoSettingsOpenHK.langText(),
+            hotkey: tomatoSettingsOpenHK.m,
+            callback: () => {
+                this.openSettings();
             },
         });
 

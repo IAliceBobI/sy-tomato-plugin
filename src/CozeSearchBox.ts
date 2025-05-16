@@ -2,14 +2,15 @@ import { Dialog, IEventBusMap } from "siyuan";
 import { DestroyManager } from "./libs/destroyer";
 import { tomatoI18n } from "./tomatoI18n";
 import { events } from "./libs/Events";
-import { getAllText, newID, siyuan, winHotkey } from "./libs/utils";
+import { getAllText, newID, siyuan, } from "./libs/utils";
 import CozeSearchBoxMenu from "./CozeSearchBoxMenu.svelte"
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cozeSearchBoxCheckbox, cozeSearchMenuShow } from "./libs/stores";
+import { winHotkey } from "./libs/winHotkey";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
-export const CozeSearchBoxHotkey = winHotkey("⌘⇧S")
+export const CozeSearchBoxHotkey = winHotkey("⌘⇧o", "coze 2025-1-6 11:44:34",)
 class CozeSearchBox {
     private plugin: BaseTomatoPlugin;
 
@@ -18,7 +19,7 @@ class CozeSearchBox {
         this.plugin = plugin;
 
         this.plugin.addCommand({
-            langKey: "coze 2025-1-6 11:44:34",
+            langKey: CozeSearchBoxHotkey.langKey,
             langText: "coze" + tomatoI18n.知识库问答,
             hotkey: CozeSearchBoxHotkey.m,
             callback: async () => {

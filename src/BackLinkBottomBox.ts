@@ -5,16 +5,17 @@ import {
     disableBK, enableBK,
     icon,
 } from "./libs/bkUtils";
-import { isCardUI, isFloatUI, isSearchUI, newID, siyuan } from "./libs/utils";
+import { isCardUI, isFloatUI, isSearchUI, newID, siyuan, } from "./libs/utils";
 import { MarkKey, TEMP_CONTENT, TOMATO_BK_IGNORE } from "./libs/gconst";
 import BackLinkBottom from "./BackLinkBottom.svelte";
 import { DestroyManager } from "./libs/destroyer";
 import BKConTree from "./BackLinkBottomConTree.svelte";
 import { tomatoI18n } from "./tomatoI18n";
-import { back_link_dailynote_off, back_link_default_off, back_link_goto_bottom_btn, backLinkBottomBoxCheckbox, fastNoteBoxDisableBK, back_link_show_floatUI } from "./libs/stores";
+import { back_link_dailynote_off, back_link_default_off, back_link_goto_bottom_btn, backLinkBottomBoxCheckbox, fastNoteBoxDisableBK, back_link_show_floatUI, bk启用禁用文档的底部反链menu } from "./libs/stores";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
+import { winHotkey } from "./libs/winHotkey";
 
 const BKMAKER_ADD = "BKMAKER_ADD";
 
@@ -119,6 +120,8 @@ export class BKMaker {
     }
 }
 
+export const BK启用禁用文档的底部反链 = winHotkey("shift+alt+9", "BK启用禁用文档的底部反链 2025-5-12 14:05:47", "🍅📴🔗", () => tomatoI18n.enableBK启用禁用文档的底部反链,)
+
 class BackLinkBottomBox {
     public plugin: BaseTomatoPlugin;
     public settingCfg: TomatoSettings;
@@ -129,23 +132,33 @@ class BackLinkBottomBox {
         this.plugin = plugin;
         this.settingCfg = plugin.settingCfg;
 
-        this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
-            const menu = detail.menu;
-            menu.addItem({
-                label: tomatoI18n.enableBK启用禁用文档的底部反链,
-                iconHTML: "🍅📴🔗",
-                click: async () => {
-                    const docID = detail?.protyle?.block?.rootID;
-                    if (docID) {
-                        if (await isBkOff(docID)) {
-                            await enableBK(docID);
-                        } else {
-                            await disableBK(docID);
-                        }
-                    }
-                },
-            });
+        const editorCallback = async (protyle: IProtyle) => {
+            const docID = protyle?.block?.rootID;
+            if (docID) {
+                if (await isBkOff(docID)) {
+                    await enableBK(docID);
+                } else {
+                    await disableBK(docID);
+                }
+            }
+        };
+        this.plugin.addCommand({
+            langKey: BK启用禁用文档的底部反链.langKey,
+            langText: BK启用禁用文档的底部反链.langText(),
+            hotkey: BK启用禁用文档的底部反链.m,
+            editorCallback,
         });
+
+        if (bk启用禁用文档的底部反链menu.get()) {
+            this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
+                const menu = detail.menu;
+                menu.addItem({
+                    label: BK启用禁用文档的底部反链.langText(),
+                    iconHTML: BK启用禁用文档的底部反链.icon,
+                    click: () => editorCallback(detail.protyle),
+                });
+            });
+        }
 
         events.addListener("BackLinkBottomBox", (eventType, detail) => {
             if (eventType == EventType.loaded_protyle_static

@@ -1,16 +1,17 @@
-import { siyuan, winHotkey } from "./libs/utils";
+import { siyuan, } from "./libs/utils";
 import "./index.scss";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cpBoxCheckbox } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { events } from "./libs/Events";
+import { winHotkey } from "./libs/winHotkey";
 
 const LongContentOpsLock = "LongContentOpsLock";
 
-export const CpBox批量删除大量连续内容块 = winHotkey("⌘⇧L")
-export const CpBox批量移动大量连续内容块 = winHotkey("⌘L")
-export const CpBox批量复制大量连续内容块 = winHotkey("⌘O")
+export const CpBox批量删除大量连续内容块 = winHotkey("alt+shift+;", "deleteBlocks 2025-5-10 23:28:29")
+export const CpBox批量移动大量连续内容块 = winHotkey("alt+shift+'", "moveBlocks 2025-5-10 23:29:52")
+export const CpBox批量复制大量连续内容块 = winHotkey("alt+shift+q", "copyBlocks 2025-5-10 23:31:46")
 
 class CpBox {
     private plugin: BaseTomatoPlugin;
@@ -20,7 +21,7 @@ class CpBox {
 
         this.plugin = plugin;
         this.plugin.addCommand({
-            langKey: "deleteBlocks 2025-5-10 23:28:29",
+            langKey: CpBox批量删除大量连续内容块.langKey,
             langText: tomatoI18n.批量删除大量连续内容块,
             hotkey: CpBox批量删除大量连续内容块.m,
             callback: async () => {
@@ -34,7 +35,7 @@ class CpBox {
             },
         });
         this.plugin.addCommand({
-            langKey: "moveBlocks 2025-5-10 23:29:52",
+            langKey: CpBox批量移动大量连续内容块.langKey,
             langText: tomatoI18n.批量移动大量连续内容块,
             hotkey: CpBox批量移动大量连续内容块.m,
             callback: async () => {
@@ -48,7 +49,7 @@ class CpBox {
             },
         });
         this.plugin.addCommand({
-            langKey: "copyBlocks 2025-5-10 23:31:46",
+            langKey: CpBox批量复制大量连续内容块.langKey,
             langText: tomatoI18n.批量复制大量连续内容块,
             hotkey: CpBox批量复制大量连续内容块.m,
             callback: async () => {

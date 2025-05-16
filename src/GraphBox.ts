@@ -1,18 +1,22 @@
 import { Custom, Dock, IEventBusMap, IProtyle, openTab } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { graphBoxCheckbox } from "./libs/stores";
-import { newID, siyuan } from "./libs/utils";
+import { graphAddTopbarIcon, graphBoxCheckbox, graph定位到图中的节点Menu, graph打开块关系图Menu } from "./libs/stores";
+import { newID, siyuan, } from "./libs/utils";
 import { events, EventType } from "./libs/Events";
 import GraphBoxSvelte from "./GraphBox.svelte";
 import { tomatoI18n } from "./tomatoI18n";
 import { getDocBlocks } from "./libs/docUtils";
 import { DestroyManager } from "./libs/destroyer";
+import { winHotkey } from "./libs/winHotkey";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
 const DOCK_TYPE = "dock_GraphBox"
 
 const TAB_TYPE = "custom_tab_GraphBox"
+
+export const GraphBox定位到图中的节点 = winHotkey("⌘⌥E", "graphLocateNode2024-11-5 08:29:27", "", () => tomatoI18n.定位到图中的节点)
+export const GraphBox打开块关系图 = winHotkey("⇧⌥E", "graphLocateNode open 2024-12-16 14:56:28", "", () => tomatoI18n.打开块关系图)
 
 class GraphBox {
     plugin: BaseTomatoPlugin;
@@ -37,25 +41,28 @@ class GraphBox {
         if (!events.isMobile) {
             this.addDock(); // 添加后有 bug，手机端在文档数更新后，无法显示 topbar icons.
         }
+
         this.plugin.addCommand({
-            langText: tomatoI18n.定位到图中的节点,
-            langKey: "graphLocateNode2024-11-5 08:29:27",
-            hotkey: "⌘⌥E",
+            langText: GraphBox定位到图中的节点.langText(),
+            langKey: GraphBox定位到图中的节点.langKey,
+            hotkey: GraphBox定位到图中的节点.m,
             callback: this.locateNode.bind(this),
         });
         this.plugin.addCommand({
-            langText: tomatoI18n.打开块关系图,
-            langKey: "graphLocateNode open 2024-12-16 14:56:28",
-            hotkey: "⇧⌥E",
+            langText: GraphBox打开块关系图.langText(),
+            langKey: GraphBox打开块关系图.langKey,
+            hotkey: GraphBox打开块关系图.m,
             callback: () => this.openGraphTab(),
         });
         if (!events.isMobile) {
-            plugin.addTopBar({
-                icon: "iconGraphTomato",
-                title: tomatoI18n.打开块关系图,
-                position: "left",
-                callback: () => this.openGraphTab(),
-            });
+            if (graphAddTopbarIcon.get()) {
+                plugin.addTopBar({
+                    icon: "iconGraphTomato",
+                    title: tomatoI18n.打开块关系图,
+                    position: "left",
+                    callback: () => this.openGraphTab(),
+                });
+            }
         }
         events.addListener("tomato-graph-box-2024-07-01 17:16:01", (eventType, detail) => {
             if (eventType == EventType.loaded_protyle_static
@@ -114,18 +121,22 @@ class GraphBox {
     locateNodeMenu(detail: TomatoMenu) {
         const menu = detail.menu;
         if (!events.isMobile) {
-            menu.addItem({
-                label: tomatoI18n.定位到图中的节点,
-                icon: "iconGraphTomato",
-                accelerator: "⌘⌥E",
-                click: () => this.locateNode(detail.protyle),
-            });
-            menu.addItem({
-                label: tomatoI18n.打开块关系图,
-                icon: "iconGraphTomato",
-                accelerator: "⇧⌥E",
-                click: () => this.openGraphTab(),
-            });
+            if (graph定位到图中的节点Menu.get()) {
+                menu.addItem({
+                    label: GraphBox定位到图中的节点.langText(),
+                    icon: "iconGraphTomato",
+                    accelerator: GraphBox定位到图中的节点.m,
+                    click: () => this.locateNode(detail.protyle),
+                });
+            }
+            if (graph打开块关系图Menu.get()) {
+                menu.addItem({
+                    label: GraphBox打开块关系图.langText(),
+                    icon: "iconGraphTomato",
+                    accelerator: GraphBox打开块关系图.m,
+                    click: () => this.openGraphTab(),
+                });
+            }
         }
     }
 

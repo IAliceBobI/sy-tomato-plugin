@@ -1,4 +1,6 @@
 import { Plugin } from "siyuan"
+import { getChildElements } from "./utils";
+import { getDirectTextContent } from "./tools";
 
 export function removeStatusBar(removeTabBar = true) {
     const status = document.getElementById("status");
@@ -60,4 +62,32 @@ export function createNumIcon(num: number) {
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
         <text x="50%" y="60%" text-anchor="middle" dominant-baseline="middle" font-size="28" font-weight="bold">-n</text>
         </svg>`;
+}
+
+export function searchSettings(settingsDiv: HTMLElement, searchKey: string) {
+    const sk = searchKey.toLocaleLowerCase();
+    getChildElements(settingsDiv).forEach((e) => {
+        e.style.display = "";
+    });
+    settingsDiv.querySelectorAll(".highlight").forEach(e => {
+        e.classList.remove("highlight")
+    })
+    if (sk) {
+        getChildElements(settingsDiv).forEach((e) => {
+            if (e.hasAttribute("data-search")) return;
+            if (e.hasAttribute("data-hide")) {
+                e.style.display = "none";
+                return;
+            }
+            if (!e.textContent.toLocaleLowerCase().includes(sk)) {
+                e.style.display = "none";
+                return;
+            }
+        });
+        settingsDiv.querySelectorAll("div,strong").forEach(e => {
+            if (getDirectTextContent(e).toLocaleLowerCase().includes(sk)) {
+                e.classList.add("highlight")
+            }
+        })
+    }
 }

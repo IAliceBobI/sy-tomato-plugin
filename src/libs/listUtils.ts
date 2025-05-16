@@ -11,7 +11,7 @@ export async function delAllchecked(docID: string) {
     if (!docID) return;
     const kramdowns = await Promise.all((await siyuan.sql(`select id from blocks 
         where type='i' and subType='t' and root_id="${docID}"
-        and markdown like "* [X] %"
+        and (markdown like "* [X] %" or markdown like "- [X] %")
         limit 30000
     `)).map(b => siyuan.getBlockKramdown(b.id)));
     await siyuan.deleteBlocks(kramdowns.map(b => b.id));
@@ -22,7 +22,7 @@ export async function uncheckAll(docID: string) {
     if (!docID) return;
     const doms = await Promise.all((await siyuan.sql(`select id from blocks 
         where type='i' and subType='t' and root_id="${docID}"
-        and markdown like "* [X] %"
+        and (markdown like "* [X] %" or markdown like "- [X] %")
         limit 30000
     `)).map(b => siyuan.getBlockDOM(b.id)));
     await siyuan.updateBlocks(doms.map(({ id, dom }) => {

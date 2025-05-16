@@ -1,10 +1,10 @@
 import { Dialog, IEventBusMap, IProtyle, Plugin } from "siyuan";
 import { EventType, events } from "./libs/Events";
 import * as gconst from "./libs/gconst";
-import { bilinkWithInsertingRefs, clean_broken_href, extractLinksFromElement, getDoOperations, joinByComma, linkTwoElementsWithRef, setAttribute, siyuan } from "./libs/utils";
+import { bilinkWithInsertingRefs, clean_broken_href, extractLinksFromElement, getDoOperations, joinByComma, linkTwoElementsWithRef, setAttribute, siyuan, } from "./libs/utils";
 import * as utils from "./libs/utils";
 import { AttrBuilder, findElementByAttr, findListTypeByElement } from "./libs/listUtils";
-import { linkBoxAttrIconOnHide, linkBoxCheckbox, linkBoxLnkTitle, linkBoxSyncBlock, linkBoxSyncBlockAuto, linkBoxSyncHref, linkBoxSyncRef, linkBoxUseLnkOrRef } from "./libs/stores";
+import { linkBoxAttrIconOnHide, linkBoxBilinkMenu, linkBoxCheckbox, linkBoxLnkTitle, linkBoxSyncBlock, linkBoxSyncBlockAuto, linkBoxSyncHref, linkBoxSyncRef, linkBoxUseLnkOrRef } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { TOMATO_CONTROL_SYNC } from "./libs/gconst";
 import { OpenSyFile2 } from "./libs/docUtils";
@@ -13,9 +13,26 @@ import { DestroyManager } from "./libs/destroyer";
 import LinkBoxDialog from "./LinkBox.svelte";
 import LinkBoxBar from "./LinkBoxBar.svelte";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { verifyKeyTomato } from "./libs/user";
+import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
+import { winHotkey } from "./libs/winHotkey";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
+
+export const LinkBox查看所有同步位置 = winHotkey("F1", "list refs show all place 2025-5-11 22:11:31", "🍅🕒🔄", () => tomatoI18n.查看所有同步位置)
+export const LinkBox同步块选择 = winHotkey("⌘F1", "list refs 2025-5-11 22:11:26", "", () => tomatoI18n.同步块选择)
+export const LinkBox同步块创建 = winHotkey("⌘F2", "list refs 2025-5-11 22:11:22", "", () => tomatoI18n.同步块创建)
+export const LinkBoxbilink = winHotkey("⌥/", "bilink 2025-5-11 22:11:17", "🍅🔗", () => tomatoI18n.双向互链)
+export const LinkBox链接到块底部 = winHotkey("⌥F3", "lnk2bottom 2025-5-11 22:11:13", "", () => tomatoI18n.链接到块底部)
+export const LinkBox双向互链选择块 = winHotkey("⌥F1", "bilinkSelectBlock 2025-5-11 22:11:08", "", () => tomatoI18n.双向互链选择块)
+export const LinkBox双向互链创建往返链 = winHotkey("⌥F2", "bilinkSelectBlock 2025-5-11 22:11:04", "", () => tomatoI18n.双向互链创建往返链)
+export const LinkBox修复双向链接 = winHotkey("⌥⇧F1", "fixLnk 2025-5-11 22:10:56", "", () => tomatoI18n.修复双向链接)
+export const LinkBox嵌入互链选择 = winHotkey("⇧⌥1", "bilinkSelectBlock 2025-5-11 22:10:51", "", () => tomatoI18n.嵌入互链选择)
+export const LinkBox嵌入互链创建 = winHotkey("⇧⌥2", "bilinkCreateLnk 2025-5-11 22:10:47", "", () => tomatoI18n.嵌入互链创建)
+export const LinkBox关联两个块选择 = winHotkey("⌘⌥[", "bilinkSelectBlockRefOnly 2025-5-11 22:33:00", "", () => tomatoI18n.关联两个块选择)
+export const LinkBox关联两个块创建 = winHotkey("⌘⌥]", "bilinkCreateLnkRefOnly 2025-5-11 22:34:04", "", () => tomatoI18n.关联两个块创建)
+export const LinkBox互相插入引用于下方选择 = winHotkey("⌘⇧F1", "bidirection refs 2025-5-11 22:36:28", "", () => tomatoI18n.互相插入引用于下方选择)
+export const LinkBox互相插入引用于下方创建 = winHotkey("⌘⇧F2", "bidirection refs 2025-5-11 22:37:12", "", () => tomatoI18n.互相插入引用于下方创建)
+
 
 class LinkBox {
     plugin: BaseTomatoPlugin;
@@ -30,10 +47,11 @@ class LinkBox {
     async onload(plugin: BaseTomatoPlugin) {
         if (!linkBoxCheckbox.get()) return;
         this.plugin = plugin;
-
+        await verifyKeyTomato()
         this.plugin.addCommand({
-            langKey: "bilink",
-            hotkey: "⌥/",
+            langKey: LinkBoxbilink.langKey,
+            langText: LinkBoxbilink.langText(),
+            hotkey: LinkBoxbilink.m,
             editorCallback: async (protyle: IProtyle) => {
 
                 const { selected, docName, docID } = await events.selectedDivs(protyle);
@@ -57,21 +75,21 @@ class LinkBox {
         }
 
         this.plugin.addCommand({
-            langKey: "lnk2bottom2024年8月31日23:00:052",
-            langText: tomatoI18n.链接到块底部,
-            hotkey: "⌥F3",
+            langKey: LinkBox链接到块底部.langKey,
+            langText: LinkBox链接到块底部.langText(),
+            hotkey: LinkBox链接到块底部.m,
             editorCallback: async (protyle: IProtyle) => {
-
                 const { selected } = await events.selectedDivs(protyle);
                 if (selected.length > 0) {
                     await this.link2bottom(protyle, selected[0]);
                 }
             },
         });
+
         this.plugin.addCommand({
-            langKey: "fixLnk2024-08-11 12:40:14",
-            langText: tomatoI18n.修复双向链接,
-            hotkey: "⌥⇧F1",
+            langKey: LinkBox修复双向链接.langKey,
+            langText: LinkBox修复双向链接.langText(),
+            hotkey: LinkBox修复双向链接.m,
             editorCallback: async (protyle: IProtyle) => {
                 const { selected } = await events.selectedDivs(protyle);
                 if (selected.length > 0) {
@@ -83,15 +101,16 @@ class LinkBox {
             },
         });
         this.plugin.addCommand({
-            langKey: "bilinkSelectBlock",
-            hotkey: "⌥F1",
+            langKey: LinkBox双向互链选择块.langKey,
+            langText: LinkBox双向互链选择块.langText(),
+            hotkey: LinkBox双向互链选择块.m,
             editorCallback: markBlock,
         });
         this.plugin.addCommand({
-            langKey: "bilinkCreateLnk",
-            hotkey: "⌥F2",
+            langKey: LinkBox双向互链创建往返链.langKey,
+            langText: LinkBox双向互链创建往返链.langText(),
+            hotkey: LinkBox双向互链创建往返链.m,
             editorCallback: async (protyle: IProtyle) => {
-
                 const { selected } = await events.selectedDivs(protyle);
                 if (selected.length > 0 && this.selectedDivs?.length > 0) {
                     await this.addLnkTwoDivs(protyle, this.selectedDivs[0], selected[0]);
@@ -100,38 +119,42 @@ class LinkBox {
                 }
             },
         });
+
         this.plugin.addCommand({
-            langKey: "bilinkSelectBlock2024-10-31 17:55:32",
-            langText: tomatoI18n.嵌入互链选择,
-            hotkey: "⇧⌥1",
-            editorCallback: markBlock,
+            langKey: LinkBox嵌入互链选择.langKey,
+            langText: LinkBox嵌入互链选择.langText(),
+            hotkey: LinkBox嵌入互链选择.m,
+            editorCallback: (protyle: IProtyle) => {
+                if (lastVerifyResult()) markBlock(protyle)
+            }
         });
         this.plugin.addCommand({
-            langKey: "bilinkCreateLnk2024-10-31 17:55:33",
-            langText: tomatoI18n.嵌入互链创建,
-            hotkey: "⇧⌥2",
+            langKey: LinkBox嵌入互链创建.langKey,
+            langText: LinkBox嵌入互链创建.langText(),
+            hotkey: LinkBox嵌入互链创建.m,
             editorCallback: async (protyle: IProtyle) => {
-
-                const { selected } = await events.selectedDivs(protyle);
-                if (selected.length > 0 && this.selectedDivs?.length > 0) {
-                    await this.addEmbedLnkTwoDivs(protyle, this.selectedDivs, selected[0]);
-                } else {
-                    await siyuan.pushMsg(`【${tomatoI18n.双向互链}】${tomatoI18n.请先选中块}`);
+                if (lastVerifyResult()) {
+                    const { selected } = await events.selectedDivs(protyle);
+                    if (selected.length > 0 && this.selectedDivs?.length > 0) {
+                        await this.addEmbedLnkTwoDivs(protyle, this.selectedDivs, selected[0]);
+                    } else {
+                        await siyuan.pushMsg(`【${tomatoI18n.双向互链}】${tomatoI18n.请先选中块}`);
+                    }
                 }
             },
         });
+
         this.plugin.addCommand({
-            langKey: "bilinkSelectBlockRefOnly2024-11-5 20:18:22",
-            langText: tomatoI18n.关联两个块选择,
-            hotkey: "⌘⌥[",
+            langKey: LinkBox关联两个块选择.langKey,
+            langText: LinkBox关联两个块选择.langText(),
+            hotkey: LinkBox关联两个块选择.m,
             editorCallback: markBlock,
         });
         this.plugin.addCommand({
-            langKey: "bilinkCreateLnkRefOnly2024-11-5 20:18:22",
-            langText: tomatoI18n.关联两个块创建,
-            hotkey: "⌘⌥]",
+            langKey: LinkBox关联两个块创建.langKey,
+            langText: LinkBox关联两个块创建.langText(),
+            hotkey: LinkBox关联两个块创建.m,
             editorCallback: async (protyle: IProtyle) => {
-
                 const { selected } = await events.selectedDivs(protyle);
                 if (selected.length > 0 && this.selectedDivs?.length > 0) {
                     await linkTwoElementsWithRef(this.selectedDivs[0], selected[0], protyle);
@@ -140,18 +163,18 @@ class LinkBox {
                 }
             },
         });
+
         this.plugin.addCommand({
-            langKey: "bidirection refs 2024-11-30 21:43:11",
-            langText: tomatoI18n.互相插入引用于下方选择,
-            hotkey: "⌘⇧F1",
+            langKey: LinkBox互相插入引用于下方选择.langKey,
+            langText: LinkBox互相插入引用于下方选择.langText(),
+            hotkey: LinkBox互相插入引用于下方选择.m,
             editorCallback: markBlock,
         });
         this.plugin.addCommand({
-            langKey: "bidirection refs 2024-11-30 21:46:39",
-            langText: tomatoI18n.互相插入引用于下方创建,
-            hotkey: "⌘⇧F2",
+            langKey: LinkBox互相插入引用于下方创建.langKey,
+            langText: LinkBox互相插入引用于下方创建.langText(),
+            hotkey: LinkBox互相插入引用于下方创建.m,
             editorCallback: async (protyle: IProtyle) => {
-
                 const { selected } = await events.selectedDivs(protyle);
                 if (selected.length > 0 && this.selectedDivs?.length > 0) {
                     await bilinkWithInsertingRefs(this.selectedDivs[0], selected[0], protyle);
@@ -168,21 +191,21 @@ class LinkBox {
 
         if (linkBoxSyncBlock.get()) {
             this.plugin.addCommand({
-                langKey: "list refs show all place 2024-11-30 21:43:11",
-                langText: tomatoI18n.查看所有同步位置,
-                hotkey: "F1",
+                langText: LinkBox查看所有同步位置.langText(),
+                langKey: LinkBox查看所有同步位置.langKey,
+                hotkey: LinkBox查看所有同步位置.m,
                 editorCallback: (protyle) => showSyncBlocks(protyle, this.plugin),
             });
             this.plugin.addCommand({
-                langKey: "list refs 2024-11-30 21:43:11",
-                langText: tomatoI18n.同步块选择,
-                hotkey: "⌘F1",
+                langKey: LinkBox同步块选择.langKey,
+                langText: LinkBox同步块选择.langText(),
+                hotkey: LinkBox同步块选择.m,
                 editorCallback: markBlock,
             });
             this.plugin.addCommand({
-                langKey: "list refs 2024-11-30 21:46:39",
-                langText: tomatoI18n.同步块创建,
-                hotkey: "⌘F2",
+                langKey: LinkBox同步块创建.langKey,
+                langText: LinkBox同步块创建.langText(),
+                hotkey: LinkBox同步块创建.m,
                 editorCallback: async (protyle: IProtyle) => {
 
                     const { selected } = await events.selectedDivs(protyle);
@@ -403,26 +426,32 @@ class LinkBox {
     }
 
     private showSyncBlocksMenu(detail: TomatoMenu) {
-        detail.menu.addItem({
-            iconHTML: "🍅🕒🔄",
-            accelerator: "F1",
-            label: tomatoI18n.查看所有同步位置,
-            click: () => showSyncBlocks(detail.protyle, this.plugin)
-        });
+        const { selected } = events.selectedDivsSync(detail.protyle);
+        const element = selected?.at(0);
+        const { found } = findParentSuper(element)
+        if (found) {
+            detail.menu.addItem({
+                iconHTML: LinkBox查看所有同步位置.icon,
+                accelerator: LinkBox查看所有同步位置.m,
+                label: LinkBox查看所有同步位置.langText(),
+                click: () => showSyncBlocks(detail.protyle, this.plugin, found)
+            });
+        }
     }
 
     private addLnkByLnk(detail: TomatoMenu) {
-        detail.menu.addItem({
-            iconHTML: "🍅🔗",
-            accelerator: "⌥/",
-            label: this.plugin.i18n.bilink,
-            click: async () => {
-
-                const { selected, docName, docID } = await events.selectedDivs(detail.protyle as any);
-                for (const div of selected)
-                    await this.addLink(div, docID, docName);
-            }
-        });
+        if (linkBoxBilinkMenu.get()) {
+            detail.menu.addItem({
+                iconHTML: LinkBoxbilink.icon,
+                accelerator: LinkBoxbilink.m,
+                label: LinkBoxbilink.langText(),
+                click: async () => {
+                    const { selected, docName, docID } = await events.selectedDivs(detail.protyle as any);
+                    for (const div of selected)
+                        await this.addLink(div, docID, docName);
+                }
+            });
+        }
     }
 
     async addLink(element: HTMLElement, docID: string, docName: string) {

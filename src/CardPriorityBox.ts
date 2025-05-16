@@ -1,6 +1,6 @@
 import { confirm, ICardData, IEventBusMap, Protyle } from "siyuan";
 import "./index.scss";
-import { getAttribute, getID, isValidNumber, siyuan, stringToNumber, timeUtil, versionGreaterEqual, winHotkey } from "./libs/utils";
+import { getAttribute, getID, isValidNumber, siyuan, stringToNumber, timeUtil, versionGreaterEqual, } from "./libs/utils";
 import { CARD_PRIORITY_STOP, CUSTOM_RIFF_DECKS, TOMATO_CONTROL_ELEMENT } from "./libs/gconst";
 import { DialogText } from "./libs/DialogText";
 import { EventType, events } from "./libs/Events";
@@ -10,10 +10,11 @@ import { auto_card_priority, cardPriorityBoxCheckbox, cardPriorityBoxPostponeCar
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 
-export const CardPriorityBox修改文档中闪卡优先级 = winHotkey("F6")
-export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8")
-export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9")
-export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y")
+export const CardPriorityBox修改文档中闪卡优先级 = winHotkey("F6", "cardPrioritySet2025-5-10 11:18:36")
+export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8", "delay all cards spread on x days 2024-12-19 14:41:11", "🍅🌊🛑", () => tomatoI18n.分散推迟闪卡, true, cardPriorityBoxSpradDelayMenu)
+export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9", "delay all cards 2025-5-10 12:31:04")
+export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y", "resume all cards 2025-5-10 12:31:04")
+import { winHotkey } from "./libs/winHotkey";
 
 class CardPriorityBox {
     plugin: BaseTomatoPlugin;
@@ -70,7 +71,7 @@ class CardPriorityBox {
         }
 
         this.plugin.addCommand({
-            langKey: "cardPrioritySet2025-5-10 11:18:36",
+            langKey: CardPriorityBox修改文档中闪卡优先级.langKey,
             langText: tomatoI18n.修改文档中闪卡优先级,
             hotkey: CardPriorityBox修改文档中闪卡优先级.m,
             callback: cardPrioritySet,
@@ -87,14 +88,18 @@ class CardPriorityBox {
         }
 
         this.plugin.addCommand({
-            langKey: "delay all cards spread on x days 2024-12-19 14:41:11",
-            langText: tomatoI18n.分散推迟闪卡,
+            langKey: CardPriorityBox分散推迟闪卡.langKey,
+            langText: CardPriorityBox分散推迟闪卡.langText(),
             hotkey: CardPriorityBox分散推迟闪卡.m,
-            callback: () => delay(true),
+            callback: () => {
+                if (CardPriorityBox分散推迟闪卡.cmd()) {
+                    delay(true)
+                }
+            }
         });
 
         this.plugin.addCommand({
-            langKey: "delay all cards 2025-5-10 12:31:04",
+            langKey: CardPriorityBox推迟闪卡.langKey,
             langText: tomatoI18n.推迟闪卡,
             hotkey: CardPriorityBox推迟闪卡.m,
             callback: () => delay(),
@@ -113,7 +118,7 @@ class CardPriorityBox {
         }
 
         this.plugin.addCommand({
-            langKey: "resume all cards 2025-5-10 12:31:04",
+            langKey: CardPriority恢复所有暂停的闪卡.langKey,
             langText: tomatoI18n.恢复所有暂停的闪卡,
             hotkey: CardPriority恢复所有暂停的闪卡.m,
             callback: () => resumeAll(events.protyle),
@@ -121,10 +126,10 @@ class CardPriorityBox {
 
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
-            if (cardPriorityBoxSpradDelayMenu.get()) {
+            if (CardPriorityBox分散推迟闪卡.menu()) {
                 menu.addItem({
-                    label: tomatoI18n.分散推迟闪卡,
-                    iconHTML: "🍅🌊🛑",
+                    label: CardPriorityBox分散推迟闪卡.langText(),
+                    iconHTML: CardPriorityBox分散推迟闪卡.icon,
                     accelerator: CardPriorityBox分散推迟闪卡.m,
                     click: () => delay(true),
                 });

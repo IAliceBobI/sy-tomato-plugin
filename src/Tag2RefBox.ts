@@ -1,12 +1,16 @@
 import { IProtyle, Lute } from "siyuan";
 import { EventType, events } from "./libs/Events";
 import { BlockNodeEnum, DATA_NODE_ID, DATA_TYPE, SPACE } from "./libs/gconst";
-import { getAllContentEditableText, NewLute, siyuan } from "./libs/utils";
+import { getAllContentEditableText, NewLute, siyuan, } from "./libs/utils";
 import { createRefDoc } from "./libs/docUtils";
-import { tag2RefBoxCheckbox } from "./libs/stores";
+import { tag2RefBoxCheckbox, tag2RefSearchLnk, tag2RefSearchRef } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { domLnk, domRef } from "./libs/sydom";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
+import { winHotkey } from "./libs/winHotkey";
+
+export const Tag2RefBox模糊查找引用Ref = winHotkey("shift+alt+4", "模糊查找引用Ref 2025-5-12 18:46:16", "🍅🔍", () => tomatoI18n.模糊查找引用 + "(ref)")
+export const Tag2RefBox模糊查找引用Lnk = winHotkey("shift+alt+7", "模糊查找引用Lnk 2025-5-12 18:46:16", "🍅🔍", () => tomatoI18n.模糊查找链接 + "(lnk)")
 
 class Tag2RefBox {
     public plugin: BaseTomatoPlugin;
@@ -19,40 +23,42 @@ class Tag2RefBox {
         this.plugin = plugin;
 
         this.plugin.addCommand({
-            langKey: "相关的概念2024-10-1 19:06:16",
-            langText: tomatoI18n.模糊查找引用 + "(ref)",
-            hotkey: "⌘4",
+            langKey: Tag2RefBox模糊查找引用Ref.langKey,
+            langText: Tag2RefBox模糊查找引用Ref.langText(),
+            hotkey: Tag2RefBox模糊查找引用Ref.m,
             editorCallback: (protyle: IProtyle) => {
                 this.fuzzySearch(protyle, "ref");
             },
         });
         this.plugin.addCommand({
-            langKey: "相关的概念2024-10-1 19:06:17",
-            langText: tomatoI18n.模糊查找引用 + "(lnk)",
-            hotkey: "⌥6",
+            langKey: Tag2RefBox模糊查找引用Lnk.langKey,
+            langText: Tag2RefBox模糊查找引用Lnk.langText(),
+            hotkey: Tag2RefBox模糊查找引用Lnk.m,
             editorCallback: (protyle: IProtyle) => {
                 this.fuzzySearch(protyle, "lnk");
             },
         });
         this.plugin.eventBus.on(EventType.open_menu_content, ({ detail }) => {
-            detail.menu.addItem({
-                iconHTML: "🍅🔍🌀",
-                accelerator: "⌘4",
-                label: tomatoI18n.模糊查找引用 + "(ref)",
-                click: () => {
-                    this.fuzzySearch(detail.protyle, "ref");
-                }
-            });
-        });
-        this.plugin.eventBus.on(EventType.open_menu_content, ({ detail }) => {
-            detail.menu.addItem({
-                iconHTML: "🍅🔍🌀",
-                accelerator: "⌥6",
-                label: tomatoI18n.模糊查找引用 + "(lnk)",
-                click: () => {
-                    this.fuzzySearch(detail.protyle, "lnk");
-                }
-            });
+            if (tag2RefSearchRef.get()) {
+                detail.menu.addItem({
+                    iconHTML: Tag2RefBox模糊查找引用Ref.icon,
+                    accelerator: Tag2RefBox模糊查找引用Ref.m,
+                    label: Tag2RefBox模糊查找引用Ref.langText(),
+                    click: () => {
+                        this.fuzzySearch(detail.protyle, "ref");
+                    }
+                });
+            }
+            if (tag2RefSearchLnk.get()) {
+                detail.menu.addItem({
+                    iconHTML: Tag2RefBox模糊查找引用Lnk.icon,
+                    accelerator: Tag2RefBox模糊查找引用Lnk.m,
+                    label: Tag2RefBox模糊查找引用Lnk.langText(),
+                    click: () => {
+                        this.fuzzySearch(detail.protyle, "lnk");
+                    }
+                });
+            }
         });
 
         events.addListener("Tomato-Tag2RefBox", (eventType, detail) => {

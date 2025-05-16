@@ -1,6 +1,6 @@
 import { adaptHotkey, Custom, Dialog, Dock, IProtyle, openTab, openWindow } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { add_ref, convertMinutesToTimeFormat, doubleSupRows, isMainWin, newID, NewNodeID, setTimeouts, siyuan, sleep, timeUtil } from "./libs/utils";
+import { add_ref, convertMinutesToTimeFormat, doubleSupRows, isMainWin, newID, NewNodeID, setTimeouts, siyuan, sleep, timeUtil, } from "./libs/utils";
 import NoteBoxSvelte from "./NoteBox.svelte";
 import { TOMATO_IDEA_QUEUE } from "./libs/gconst";
 import { DestroyManager } from "./libs/destroyer";
@@ -11,6 +11,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
 import { DomSuperBlockBuilder, domNewLine } from "./libs/sydom";
+import { winHotkey } from "./libs/winHotkey";
 
 const DOCK_TYPE = "dock_NoteBox";
 const TAB_TYPE = "custom_tab_NoteBox";
@@ -36,6 +37,8 @@ function isNoteBox() {
     return document.getElementById(NoteBoxID) != null;
 }
 
+export const NoteBox拍照闪念全局 = winHotkey("ctrl+q", "拍照闪念全局 2025-5-12 13:50:14", "", () => tomatoI18n.拍照闪念全局)
+
 class NoteBox {
     plugin: BaseTomatoPlugin;
     private custom: () => Custom;
@@ -50,7 +53,7 @@ class NoteBox {
         } else {
             (async () => {
                 await plugin.taskCfg;
-                if (!await verifyKeyTomato()) {
+                if (!(await verifyKeyTomato())) {
                     avoiding_cloud_synchronization_conflicts.set(false);
                 }
                 this._onload(plugin);
@@ -257,8 +260,9 @@ class NoteBox {
     private addTab() {
         this.custom;
         this.plugin.addCommand({
-            langKey: "noteBoxGlobal",
-            hotkey: "⌘Q",
+            langKey: NoteBox拍照闪念全局.langKey,
+            langText: NoteBox拍照闪念全局.langText(),
+            hotkey: NoteBox拍照闪念全局.m,
             globalCallback: async () => {
                 if (flashThoughtUseDialog.get()) {
                     await this.showInDialog();

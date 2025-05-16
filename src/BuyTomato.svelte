@@ -6,16 +6,17 @@
     import { tomatoI18n } from "./tomatoI18n";
 
     export let isTomato = true;
-    const price = 99;
-    const nextPrice = 149;
+    const price = 72;
+    const nextPrice = 96;
 
     async function copyUserID() {
-        let txt = "";
+        const msg = { 名称: Siyuan?.user?.userName, 用户ID: $userID };
         if (isTomato) {
-            txt = `${tomatoI18n.购买番茄工具箱VIP版} Name(${Siyuan?.user?.userName}) ID(${$userID})`;
+            msg["插件"] = tomatoI18n.购买番茄工具箱VIP版;
         } else {
-            txt = `${tomatoI18n.购买渐进学习VIP版} Name(${Siyuan?.user?.userName}) ID(${$userID})`;
+            msg["插件"] = tomatoI18n.购买渐进学习VIP版;
         }
+        const txt = JSON.stringify(msg);
         await navigator.clipboard.writeText(txt);
         await siyuan.pushMsg(txt);
     }

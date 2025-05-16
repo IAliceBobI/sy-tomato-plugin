@@ -1,11 +1,16 @@
 import { IProtyle } from "siyuan";
 import "./index.scss";
-import { getContenteditableElement as getContentEditableElement, moveCursor2Tail, siyuan } from "./libs/utils";
+import { getContenteditableElement as getContentEditableElement, moveCursor2Tail, siyuan, } from "./libs/utils";
 import { EventType, events } from "./libs/Events";
 import { BlockNodeEnum, DATA_TYPE, WEB_ZERO_SPACE } from "./libs/gconst";
 import { delAllchecked, getDocListMd, uncheckAll } from "./libs/listUtils";
 import { dont_break_list, listBoxCheckbox } from "./libs/stores";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
+import { tomatoI18n } from "./tomatoI18n";
+import { winHotkey } from "./libs/winHotkey";
+
+export const ListBox取消勾选当前文档所有已完成的todo任务 = winHotkey("⌥⇧G", "uncheckall 2025-5-12 08:00:51", "", () => tomatoI18n.取消勾选当前文档所有已完成的todo任务)
+export const ListBox删除当前文档所有已完成的todo任务 = winHotkey("⌥⇧H", "delAllchecked 2025-5-12 08:00:52", "", () => tomatoI18n.删除当前文档所有已完成的todo任务)
 
 class ListBox {
     private plugin: BaseTomatoPlugin;
@@ -18,16 +23,18 @@ class ListBox {
         this.plugin = plugin;
 
         this.plugin.addCommand({
-            langKey: "uncheckAll",
-            hotkey: "",
+            langKey: ListBox取消勾选当前文档所有已完成的todo任务.langKey,
+            langText: ListBox取消勾选当前文档所有已完成的todo任务.langText(),
+            hotkey: ListBox取消勾选当前文档所有已完成的todo任务.m,
             callback: async () => {
                 await uncheckAll(events.docID);
             },
         });
 
         this.plugin.addCommand({
-            langKey: "delAllchecked",
-            hotkey: "",
+            langKey: ListBox删除当前文档所有已完成的todo任务.langKey,
+            langText: ListBox删除当前文档所有已完成的todo任务.langText(),
+            hotkey: ListBox删除当前文档所有已完成的todo任务.m,
             callback: async () => {
                 await delAllchecked(events.docID);
             },

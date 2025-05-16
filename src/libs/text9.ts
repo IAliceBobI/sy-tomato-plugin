@@ -591,31 +591,6 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
                 return "Custom Icon";
         }
     }
-    // TypeScript get property: translate and fill the rest langs on returns for me, give me typescript function. dont modify function name what i give you.
-    public get 模糊查找引用() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "模糊查找引用，并插入引用";
-            case "es_ES":
-                return "Texto en español para la función de búsqueda y referencia difusa";
-            case "fr_FR":
-                return "Recherche floue de référence et insertion de la référence";
-            case "ja_JP":
-                return "曖昧な参照検索と参照の挿入";
-            case "zh_CHT":
-                return "模糊查找引用，並插入引用";
-            case "it_IT":
-                return "Ricerca per riferimento vago e inserimento del riferimento";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
-                return "Fuzzy find reference and insert reference";
-        }
-    }
-    // TypeScript get property: translate and fill the rest langs on returns for me, give me typescript function. dont modify function name what i give you.
     public get 在悬浮窗内显示底部反链() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":
