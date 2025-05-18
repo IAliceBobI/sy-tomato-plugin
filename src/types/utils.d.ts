@@ -15,7 +15,9 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    digestAddReadingpoint: boolean,
     cardBoxSuperCard: boolean,
+    digestGlobalSigle: string,
     dailyNotetopbarright: boolean,
     dailyNotetopbarleft: boolean,
     ProgressiveViewAllMenu: boolean,

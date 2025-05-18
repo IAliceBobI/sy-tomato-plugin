@@ -733,14 +733,16 @@ export async function getDocTracer() {
     function set(x: DocTracer) {
         (globalThis as unknown as TomatoGlobal).tomato_zZmqus5PtYRi_doc_tracer = x
     }
-    return navigator.locks.request("doctracer2025年3月16日00:48:04", async () => {
-        if (get()) {
-            return get();
+    return navigator.locks.request("doctracer2025年3月16日00:48:04", async (lock) => {
+        if (lock) {
+            if (get()) {
+                return get();
+            }
+            const t = new DocTracer();
+            await t.init()
+            set(t)
+            return t;
         }
-        const t = new DocTracer();
-        await t.init()
-        set(t)
-        return t;
     });
 }
 

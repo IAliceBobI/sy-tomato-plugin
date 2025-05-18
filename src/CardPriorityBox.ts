@@ -209,8 +209,8 @@ class CardPriorityBox {
     }
 
     private addBtns(element: HTMLElement, isDoc = false) {
-        navigator.locks.request("card priority add btns 2024-12-8 11:18:07", () => {
-            this._addBtns(element, isDoc);
+        navigator.locks.request("card priority add btns 2024-12-8 11:18:07", (lock) => {
+            if (lock) this._addBtns(element, isDoc);
         })
     }
     private _addBtns(element: HTMLElement, isDoc = false) {

@@ -24,8 +24,8 @@ class FastNoteBox {
             langText: tomatoI18n.创建快速笔记,
             hotkey: FastNoteBox创建快速笔记.m,
             callback: () => {
-                navigator.locks.request("FastNoteBox2024-08-06 12:38:21", { mode: "exclusive" }, async () => {
-                    await createNote(this.plugin, events.protyle?.protyle);
+                navigator.locks.request("FastNoteBox2024-08-06 12:38:21", { mode: "exclusive" }, async (lock) => {
+                    if (lock) await createNote(this.plugin, events.protyle?.protyle);
                 })
             },
         });

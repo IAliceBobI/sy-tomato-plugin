@@ -356,7 +356,7 @@ export const readingAddRPmenu = settingFactory("readingAddRPmenu", true, STORAGE
 export const readingAddJumpMenu = settingFactory("readingAddJumpMenu", true, STORAGE_SETTINGS, null as TSK);
 export const readingAddDeleteMenu = settingFactory("readingAddDeleteMenu", true, STORAGE_SETTINGS, null as TSK);
 export const cardBoxCheckbox = settingFactory("cardBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
-export const cardBoxSuperCard= settingFactory("cardBoxSuperCard", false, STORAGE_SETTINGS, null as TSK);
+export const cardBoxSuperCard = settingFactory("cardBoxSuperCard", false, STORAGE_SETTINGS, null as TSK);
 export const cardBoxAddConcepts = settingFactory("cardBoxAddConcepts", true, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSpradEvenlyPostpone = settingFactory("cardBoxSpradEvenlyPostpone", true, STORAGE_SETTINGS, null as TSK);
 export const cardPriorityBoxCheckbox = settingFactory("cardPriorityBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
@@ -473,7 +473,9 @@ export const commentBoxStaticOutlink = settingFactory("commentBoxStaticOutlink",
 
 // ---------------
 
+export const digestGlobalSigle = settingFactory("digestGlobalSigle", "0", STORAGE_Prog_SETTINGS, null as TSK);
 export const digest2Trace = settingFactory("digest2Trace", false, STORAGE_Prog_SETTINGS, null as TSK);
+export const digestAddReadingpoint = settingFactory("digestAddReadingpoint", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const digest2dailycard = settingFactory("digest2dailycard", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const words2dailycard = settingFactory("words2dailycard", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const doubleClick2DigestMobile = settingFactory("doubleClick2Digest", true, STORAGE_Prog_SETTINGS, null as TSK);

@@ -164,6 +164,40 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 摘抄后加入阅读点() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "摘抄后，加入阅读点（需要番茄工具箱插件）";
+            case "es_ES": return "Después de copiar, agrega un punto de lectura (requiere el complemento Tomato Toolbox)";
+            case "fr_FR": return "Après avoir copié, ajoutez un point de lecture (nécessite l'extension Tomato Toolbox)";
+            case "ja_JP": return "要約後、読了ポイントを追加（トマトツールボックスプラグインが必要）";
+            case "zh_CHT": return "摘抄後，加入閱讀點（需要番茄工具箱插件）";
+            case "it_IT": return "Dopo aver copiato, aggiungi un punto di lettura (richiede l'estensione Tomato Toolbox)";
+            case "de_DE": return "Nach dem Kopieren einen Lesezeichenpunkt hinzufügen (erfordert die Erweiterung Tomato Toolbox)";
+            case "he_IL": return "לאחר העתקה, הוסף נקודת קריאה (דורש את תוספת כלי הטומטום)";
+            case "ru_RU": return "После копирования добавьте точку чтения (требуется расширение Tomato Toolbox)";
+            case "pl_PL": return "Po skopiowaniu dodaj punkt odczytu (wymaga rozszerzenia Tomato Toolbox)";
+            case "en_US":
+            default: return "After copying, add a reading point (requires Tomato Toolbox extension)";
+        }
+    }
+
+    public get 取消最后一次选择的内容() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "取消最后一次选择的内容";
+            case "es_ES": return "Cancelar el contenido de la última selección";
+            case "fr_FR": return "Annuler le contenu de la dernière sélection";
+            case "ja_JP": return "最後の選択内容をキャンセル";
+            case "zh_CHT": return "取消最後一次選擇的內容";
+            case "it_IT": return "Annulla il contenuto dell'ultima selezione";
+            case "de_DE": return "Inhalt der letzten Auswahl abbrechen";
+            case "he_IL": return "בטל את התוכן של הבחירה האחרונה";
+            case "ru_RU": return "Отменить содержимое последнего выбора";
+            case "pl_PL": return "Anuluj zawartość ostatniego wyboru";
+            case "en_US":
+            default: return "Cancel the content of the last selection";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
