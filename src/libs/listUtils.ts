@@ -4,8 +4,6 @@ import { BlockNodeEnum, CUSTOM_RIFF_DECKS, DATA_NODE_ID, DATA_TYPE } from "./gco
 import { NewNodeID, cloneCleanDiv, count, dom2div, getAttribute, pmap, prepend_refs, siyuan } from "./utils";
 import { domNewLine, DomSuperBlockBuilder, getSpans } from "./sydom";
 import { DocTracer, OpenSyFile2 } from "./docUtils";
-import { cardBoxAddConcepts } from "./stores";
-import { verifyKeyTomato } from "./user";
 
 export async function delAllchecked(docID: string) {
     if (!docID) return;
@@ -36,7 +34,7 @@ export async function uncheckAll(docID: string) {
     await siyuan.pushMsg(`unchecked ${doms.length} todos`);
 }
 
-export async function addFlashCard(protyle: IProtyle, docTracer: DocTracer, plugin: Plugin) {
+export async function addFlashCard(protyle: IProtyle, docTracer: DocTracer, plugin: Plugin, addRef: boolean) {
     if (!protyle) return;
     const { selected, ids } = await events.selectedDivs(protyle);
     if (!selected || selected.length <= 0) return;
@@ -59,19 +57,19 @@ export async function addFlashCard(protyle: IProtyle, docTracer: DocTracer, plug
                 await siyuan.addRiffCards([id]);
             }
         } else {
-            await convert2list(selected, ids, docTracer, protyle, plugin);
+            return await convert2list(selected, ids, docTracer, plugin, addRef);
         }
     } else {
-        await convert2list(selected, ids, docTracer, protyle, plugin);
+        return await convert2list(selected, ids, docTracer, plugin, addRef);
     }
 }
 
-async function convert2list(selected: HTMLElement[], ids: string[], docTracer: DocTracer, protyle: IProtyle, plugin: Plugin) {
+async function convert2list(selected: HTMLElement[], ids: string[], docTracer: DocTracer, plugin: Plugin, addRef: boolean) {
     if (!(selected.length > 0)) return;
 
     const { spans } = await (async () => {
         let spans: HTMLElement[] = []
-        if (cardBoxAddConcepts.get() && await verifyKeyTomato()) {
+        if (addRef) {
             spans = await getSpans(selected, docTracer)
         }
         return { spans };
@@ -80,16 +78,17 @@ async function convert2list(selected: HTMLElement[], ids: string[], docTracer: D
     const sup = new DomSuperBlockBuilder();
     sup.setAttr("custom-super-card-box", "1")
 
+    let firstID = "";
     if (spans.length > 0) {
         const ref = domNewLine();
+        firstID = getAttribute(ref, "data-node-id")
         prepend_refs(ref, spans)
         sup.append(ref)
     }
 
-    let lastID = "";
     selected.map((div,) => {
         const c = cloneCleanDiv(div);
-        lastID = c.newID
+        if (!firstID) firstID = c.newID
         sup.append(c.div)
     })
 
@@ -97,12 +96,12 @@ async function convert2list(selected: HTMLElement[], ids: string[], docTracer: D
     const ops = siyuan.transInsertBlocksAfter([domStr], ids[ids.length - 1])
     ops.push(...siyuan.transDeleteBlocks(ids))
     await siyuan.transactions(ops)
-    protyle.getInstance().reload(true);
     setTimeout(() => {
-        if (lastID) {
-            OpenSyFile2(plugin, lastID);
+        if (firstID) {
+            OpenSyFile2(plugin, firstID);
         }
     }, 200);
+    return sup.id
 }
 
 export function findElement(e: HTMLElement, outerMost: boolean, predict: (e: HTMLElement) => boolean) {
