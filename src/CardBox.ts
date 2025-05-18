@@ -1,4 +1,4 @@
-import { Dialog, IProtyle, } from "siyuan";
+import { Dialog, IEventBusMap, IProtyle, } from "siyuan";
 import { deleteBlock, getContenteditableElement, newID, siyuan, sleep, } from "./libs/utils";
 import "./index.scss";
 import { EventType, events } from "./libs/Events";
@@ -7,7 +7,7 @@ import { getIDFromCard, pressSkip, showCardAnswer, removeDocCards } from "./libs
 import { WEB_SPACE } from "./libs/gconst";
 import { addFlashCard } from "./libs/listUtils";
 import { DestroyManager } from "./libs/destroyer";
-import { cardBoxCheckbox } from "./libs/stores";
+import { cardBoxCheckbox, cardBoxSuperCard } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { getDocTracer, locTree, OpenSyFile2 } from "./libs/docUtils";
 import { closeAllDialog } from "./libs/keyboard";
@@ -15,7 +15,7 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { CardPriorityBox修改文档中闪卡优先级, CardPriorityBox分散推迟闪卡 } from "./CardPriorityBox";
 import { winHotkey } from "./libs/winHotkey";
 
-export const CardBox用选中的行创建超级块超级块制卡取消制卡 = winHotkey("shift+ctrl+1", "addFlashCard2025年5月4日13:53:52", "", () => tomatoI18n.用选中的行创建超级块超级块制卡取消制卡)
+export const CardBox用选中的行创建超级块超级块制卡取消制卡 = winHotkey("shift+ctrl+1", "addFlashCard2025年5月4日13:53:52", "🗃️", () => tomatoI18n.用选中的行创建超级块超级块制卡取消制卡, false, cardBoxSuperCard)
 export const CardBox复习时删除当前闪卡 = winHotkey("alt+F9", "delCard2025-5-10 12:40:25", "", () => tomatoI18n.复习时删除当前闪卡)
 export const CardBox闪卡复习时打开闪卡设置 = winHotkey("⇧⌥U", "opensettings2025-5-10 13:12:14", "", () => tomatoI18n.闪卡复习时打开闪卡设置)
 export const CardBox删除内容块 = winHotkey("⌘⇧9", "del card block 2024-12-19 00:24:07", "", () => tomatoI18n.删除内容块)
@@ -26,6 +26,19 @@ export const CardBox定位闪卡 = winHotkey("⌘⌥J", "jump to card 2024年12�
 
 class CardBox {
     private plugin: BaseTomatoPlugin;
+
+    blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
+        if (!this.plugin) return;
+        if (CardBox用选中的行创建超级块超级块制卡取消制卡.menu()) {
+            detail.menu.addItem({
+                accelerator: CardBox用选中的行创建超级块超级块制卡取消制卡.m,
+                iconHTML: CardBox用选中的行创建超级块超级块制卡取消制卡.icon,
+                label: CardBox用选中的行创建超级块超级块制卡取消制卡.langText(),
+                click: async () => addFlashCard(detail.protyle, await getDocTracer(), this.plugin),
+            });
+        }
+    }
+
     async onload(plugin: BaseTomatoPlugin) {
         if (!cardBoxCheckbox.get()) return;
         this.plugin = plugin;
@@ -100,6 +113,17 @@ class CardBox {
                     }
                 })
             },
+        });
+        this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
+            const menu = detail.menu;
+            if (CardBox用选中的行创建超级块超级块制卡取消制卡.menu()) {
+                menu.addItem({
+                    label: CardBox用选中的行创建超级块超级块制卡取消制卡.langText(),
+                    iconHTML: CardBox用选中的行创建超级块超级块制卡取消制卡.icon,
+                    accelerator: CardBox用选中的行创建超级块超级块制卡取消制卡.m,
+                    click: async () => addFlashCard(detail.protyle, await getDocTracer(), this.plugin),
+                });
+            }
         });
         events.addListener("CardBox2025-5-9 23:55:35", (eventType, detail) => {
             if (eventType == EventType.loaded_protyle_static
