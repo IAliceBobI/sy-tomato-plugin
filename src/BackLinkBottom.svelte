@@ -10,6 +10,7 @@
         getAllContentEditableText,
         getBlockDiv,
         htmlUnescape,
+        icon,
         isValidNumber,
         removeRefs,
         set_href,
@@ -18,7 +19,6 @@
     } from "./libs/utils";
     import {
         getConceptTrees,
-        icon,
         sortDiv,
         doGetBackLinks,
         insertConcepts,

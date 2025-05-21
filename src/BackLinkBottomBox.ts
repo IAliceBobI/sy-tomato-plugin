@@ -3,9 +3,8 @@ import { EventType, events } from "./libs/Events";
 import {
     ConTreeNode,
     disableBK, enableBK,
-    icon,
 } from "./libs/bkUtils";
-import { isCardUI, isFloatUI, isSearchUI, newID, siyuan, } from "./libs/utils";
+import { icon, isCardUI, isFloatUI, isSearchUI, newID, siyuan, } from "./libs/utils";
 import { MarkKey, TEMP_CONTENT, TOMATO_BK_IGNORE } from "./libs/gconst";
 import BackLinkBottom from "./BackLinkBottom.svelte";
 import { DestroyManager } from "./libs/destroyer";

@@ -312,6 +312,8 @@ const settingFactory = <T>(key: TSK, defaultValue: T, file: string, _void: TSK) 
 
 export const userToken = settingFactory("userToken", "", STORAGE_SETTINGS, null as TSK);
 export const userID = settingFactory("userID", "", STORAGE_SETTINGS, null as TSK);
+export const addSelectionBtnsMobile = settingFactory("addSelectionBtnsMobile", true, STORAGE_SETTINGS, null as TSK);
+export const addSelectionBtnsDesktop = settingFactory("addSelectionBtnsDesktop", true, STORAGE_SETTINGS, null as TSK);
 export const cssRefStyle = settingFactory("cssRefStyle", false, STORAGE_SETTINGS, null as TSK);
 export const showDocAttrs = settingFactory("showDocAttrs", false, STORAGE_SETTINGS, null as TSK);
 export const cssNattyList = settingFactory("cssNattyList", false, STORAGE_SETTINGS, null as TSK);

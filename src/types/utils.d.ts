@@ -15,6 +15,8 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    addSelectionBtnsDesktop: boolean,
+    addSelectionBtnsMobile: boolean,
     digestAddReadingpoint: boolean,
     cardBoxSuperCard: boolean,
     digestGlobalSigle: string,

@@ -1,11 +1,13 @@
-import { confirm, IProtyle, Plugin } from "siyuan";
-import { events } from "./libs/Events";
+import { confirm, IProtyle, Plugin, Protyle } from "siyuan";
+import { events, EventType } from "./libs/Events";
 import { cleanDivOnly, cloneCleanDiv, downloadStringAsFile, getAttribute, getBlocksByTrees, getMarkdownsByTrees, removeInvisibleChars, siyuan, } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
 import { TOMATO_LINE_THROUGH } from "./libs/gconst";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { DomSuperBlockBuilder } from "./libs/sydom";
 import { verifyKeyTomato } from "./libs/user";
+import { addSelectionBtnsDesktop, addSelectionBtnsMobile } from "./libs/stores";
+import { SelectionML } from "./libs/SelectionML";
 
 export function mergeDocMenuListener() {
     events.addListener_open_menu_doctree("2025-5-8 17:27:45合并文档", (detial) => {
@@ -115,3 +117,64 @@ export async function addComment2Sup(protyle: IProtyle, plugin: Plugin, comment 
     }, 200);
 }
 
+export function addSelectionButton() {
+    if (events.isMobile) {
+        if (addSelectionBtnsMobile.get()) {
+            _addSelectionButton()
+        }
+    } else {
+        if (addSelectionBtnsDesktop.get()) {
+            _addSelectionButton()
+        }
+    }
+}
+type Params = { s: SelectionML };
+function _addSelectionButton() {
+    const params = {} as Params;
+    events.addListener("selection btns 2025-5-19 21:37:49", (eventType, detail: Protyle) => {
+        if (eventType == EventType.loaded_protyle_static || eventType == EventType.loaded_protyle_dynamic || eventType == EventType.click_editorcontent || eventType == EventType.switch_protyle) {
+            navigator.locks.request("lock 2025-5-19 21:38:34", { mode: "exclusive" }, async (lock) => {
+                if (lock) {
+                    const protyle: IProtyle = detail.protyle;
+                    if (!protyle) return;
+                    params.s = new SelectionML(events.selectedDivsSync(protyle));
+                    addSelectPrevButton(protyle, params)
+                    addSelectNextButton(protyle, params)
+                    addCancelButton(protyle, params)
+                }
+            });
+        }
+    });
+}
+
+function addSelectPrevButton(protyle: IProtyle, s: Params) {
+    addCustomButton(protyle, 'tomato-prev', tomatoI18n.向上选择, "Up", () => {
+        s.s?.selectUp()
+    });
+}
+
+function addSelectNextButton(protyle: IProtyle, s: Params) {
+    addCustomButton(protyle, 'tomato-next', tomatoI18n.向下选择, "Down", () => {
+        s.s?.selectDown()
+    });
+}
+
+function addCancelButton(protyle: IProtyle, s: Params) {
+    addCustomButton(protyle, 'tomato-cancel', tomatoI18n.取消最后一次选择的内容, "Redo", () => {
+        s.s?.cancelLast();
+    });
+}
+
+function addCustomButton(protyle: IProtyle, dataType: string, ariaLabel: string, icon: string, clickHandler: () => void) {
+    const lockBtn = protyle.element.querySelector(`button[data-type="readonly"]`) as HTMLButtonElement;
+    if (!lockBtn) return;
+    const btn = protyle.element.querySelector(`button[data-type="${dataType}"]`);
+    if (btn) return;
+    const customBtn = document.createElement('button');
+    customBtn.setAttribute('data-type', dataType);
+    customBtn.setAttribute('aria-label', ariaLabel);
+    customBtn.classList.add('block__icon', 'fn__flex-center', 'ariaLabel');
+    customBtn.innerHTML = `<svg><use xlink:href="#icon${icon}"></use></svg>`;
+    customBtn.addEventListener('click', clickHandler);
+    lockBtn.parentNode?.insertBefore(customBtn, lockBtn);
+}

@@ -6,13 +6,6 @@ import { getHierarchyConcepts, OpenSyFile2 } from "./docUtils";
 import { back_link_passup_heading, back_link_passup_quote, back_link_passup_super, storeAttrManager } from "./stores";
 import { SortType } from "./types";
 
-export function icon(name: string, size?: number) {
-    if (size) {
-        return `<svg width="${size}px" height="${size}px"><use xlink:href="#icon${name}"></use></svg>`;
-    }
-    return `<svg><use xlink:href="#icon${name}"></use></svg>`;
-}
-
 // export async function shouldInsertDiv(lastID: string, docID: string) {
 //     const allIDs = await siyuan.getTailChildBlocks(docID, 5);
 //     if (isIterable(allIDs)) {

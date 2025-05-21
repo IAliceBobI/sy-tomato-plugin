@@ -151,16 +151,18 @@
         dailyNotetopbarleft,
         dailyNotetopbarright,
         cardBoxSuperCard,
+        addSelectionBtnsDesktop,
+        addSelectionBtnsMobile,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
     import NotebookSelect from "./NotebookSelect.svelte";
     import {
         cleanDataview,
+        icon,
         saveRestorePagePosition,
         siyuan,
     } from "./libs/utils";
-    import { icon } from "./libs/bkUtils";
     import { expStore, resetKey, verifyKeyTomato } from "./libs/user";
     import BuyTomato from "./BuyTomato.svelte";
     import { ImgBoxHotKey } from "./ImgBox";
@@ -370,6 +372,27 @@
         </div>
         <div>
             {addFoldCmd展开.langText()}<strong>{addFoldCmd展开.w()}</strong>
+        </div>
+    </div>
+    <!-- 多行选择 -->
+    <div class="settingBox">
+        <div>
+            <input
+                type="checkbox"
+                class="b3-switch"
+                bind:checked={$addSelectionBtnsMobile}
+            />
+            {tomatoI18n.移动端编辑器右上角添加多行选择按钮}
+        </div>
+    </div>
+    <div class="settingBox">
+        <div>
+            <input
+                type="checkbox"
+                class="b3-switch"
+                bind:checked={$addSelectionBtnsDesktop}
+            />
+            {tomatoI18n.桌面端编辑器右上角添加多行选择按钮}
         </div>
     </div>
     <!-- 显示文档属性 -->

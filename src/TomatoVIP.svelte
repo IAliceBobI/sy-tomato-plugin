@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { icon } from "./libs/bkUtils";
+    import { icon } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
     export let codeValid: boolean;
     const ICONS_SIZE = 14;

@@ -1286,6 +1286,19 @@ export const timeUtil = {
         const [h, m, s] = hms.split(":")
         return { y: y.padStart(2, "0"), M: M.padStart(2, "0"), d: d.padStart(2, "0"), h: h.padStart(2, "0"), m: m.padStart(2, "0"), s: s.padStart(2, "0") }
     },
+    nowYMDStr(secs = 0) {
+        const date = timeUtil.now(secs);
+        const [ymd, hms] = timeUtil.nowStr(date).split(" ")
+        const [y, M, d] = ymd.split("-")
+        const [h, m, s] = hms.split(":")
+        const y1 = y.padStart(2, "0");
+        const M1 = M.padStart(2, "0")
+        const d1 = d.padStart(2, "0")
+        const h1 = h.padStart(2, "0")
+        const m1 = m.padStart(2, "0")
+        const s1 = s.padStart(2, "0")
+        return { date: y1 + M1 + d1, time: h1 + m1 + s1, datesplit: `${y1}-${M1}-${d1}` }
+    },
     nowStr(d?: Date) {
         if (!d) d = new Date()
         return timeUtil.dateFormat(d)
@@ -2738,4 +2751,12 @@ export function saveRestorePagePosition(scrollPositionKey: string, dm: DestroyMa
     if (focus) {
         dialog.focus();
     }
+}
+
+export function icon(name: string, size = 20) {
+    if (name.startsWith("icon")) name = name.slice(4)
+    if (size) {
+        return `<svg width="${size}px" height="${size}px"><use xlink:href="#icon${name}"></use></svg>`;
+    }
+    return `<svg><use xlink:href="#icon${name}"></use></svg>`;
 }

@@ -2,11 +2,18 @@ export class DestroyManager {
     private destroied = false;
     private cbs = new Map<string, Func>();
     private actions: Func[] = [];
+    private data = new Map<string, any>();
     private showMsg: boolean;
     private prefix: string;
     constructor(showMsg = false, prefix: string = "DestroyManager") {
         this.prefix = prefix;
         this.showMsg = showMsg;
+    }
+    setData(key: string, value: any) {
+        this.data.set(key, value);
+    }
+    getData<T>(key: string) {
+        return this.data.get(key) as T;
     }
     action(cb: Func) {
         this.actions.push(cb);
