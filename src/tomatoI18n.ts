@@ -250,43 +250,39 @@ export class TomatoI18n extends TomatoI18nABC {
     }
 
     public get 移动端编辑器右上角添加多行选择按钮() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "移动端：编辑器右上角添加多行选择按钮";
-            case "es_ES":
-            case "fr_FR":
-            case "ja_JP":
-            case "zh_CHT":
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
+            case "es_ES": return "Móvil: Agregar botón de selección múltiple en la esquina superior derecha del editor";
+            case "fr_FR": return "Mobile : Ajouter un bouton de sélection multiple dans l'angle supérieur droit de l'éditeur";
+            case "ja_JP": return "モバイル：エディター右上に複数行選択ボタンを追加";
+            case "zh_CHT": return "移動端：編輯器右上角添加多行選擇按鈕";
+            case "it_IT": return "Mobile: Aggiungi pulsante selezione multipla nell'angolo in alto a destra dell'editor";
+            case "de_DE": return "Mobil: Mehrfachauswahlschaltfläche in der oberen rechten Ecke des Editors hinzufügen";
+            case "he_IL": return "נייד: הוסף כפתור בחירה מרובה בפינה העליונה ימין של העורך";
+            case "ru_RU": return "Мобильный: Добавить кнопку множественного выбора в правом верхнем углу редактора";
+            case "pl_PL": return "Mobilny: Dodaj przycisk wyboru wielokrotnego w prawym górnym rogu edytora";
+            case "en_US": return "Mobile: Add multi-line selection button to the top right corner of the editor";
+            default: return "Mobile: Add multi-line selection button to the top right corner of the editor";
         }
     }
+
     public get 桌面端编辑器右上角添加多行选择按钮() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "桌面端：编辑器右上角添加多行选择按钮";
-            case "es_ES":
-            case "fr_FR":
-            case "ja_JP":
-            case "zh_CHT":
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
-            default:
+            case "es_ES": return "Escritorio: Agregar botón de selección múltiple en la esquina superior derecha del editor";
+            case "fr_FR": return "Bureau : Ajouter un bouton de sélection multiple dans l'angle supérieur droit de l'éditeur";
+            case "ja_JP": return "デスクトップ：エディター右上に複数行選択ボタンを追加";
+            case "zh_CHT": return "桌面端：編輯器右上角添加多行選擇按鈕";
+            case "it_IT": return "Desktop: Aggiungi pulsante selezione multipla nell'angolo in alto a destra dell'editor";
+            case "de_DE": return "Desktop: Mehrfachauswahlschaltfläche in der oberen rechten Ecke des Editors hinzufügen";
+            case "he_IL": return "שולחן עבודה: הוסף כפתור בחירה מרובה בפינה העליונה ימין של העורך";
+            case "ru_RU": return "Настольный: Добавить кнопку множественного выбора в правый верхний угол редактора";
+            case "pl_PL": return "Stacjonarny: Dodaj przycisk wyboru wielokrotnego w prawym górnym rogu edytora";
+            case "en_US": return "Desktop: Add multi-line selection button to the top right corner of the editor";
+            default: return "Desktop: Add multi-line selection button to the top right corner of the editor";
         }
     }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
