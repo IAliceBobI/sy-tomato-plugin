@@ -20,6 +20,7 @@ export async function doStopCards(days: string, blocks: GetCardRetBlock[], sprea
         function spreadByDays(idx: number) {
             return (idx + 1) * (numDays / blocks.length)
         }
+        await siyuan.pushMsg(tomatoI18n.开始执行)
         await siyuan.batchSetBlockAttrs(blocks.map((b, idx) => {
             const newAttrs = {} as AttrType;
             if (numDays <= 0) {

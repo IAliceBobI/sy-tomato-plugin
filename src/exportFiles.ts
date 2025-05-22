@@ -165,7 +165,7 @@ function addCancelButton(protyle: IProtyle, s: Params) {
     });
 }
 
-function addCustomButton(protyle: IProtyle, dataType: string, ariaLabel: string, icon: string, clickHandler: () => void) {
+export function addCustomButton(protyle: IProtyle, dataType: string, ariaLabel: string, icon: string, clickHandler: () => void) {
     const lockBtn = protyle.element.querySelector(`button[data-type="readonly"]`) as HTMLButtonElement;
     if (!lockBtn) return;
     const btn = protyle.element.querySelector(`button[data-type="${dataType}"]`);

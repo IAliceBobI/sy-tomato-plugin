@@ -23,7 +23,7 @@
         commentBoxVirtualRef,
     } from "./libs/stores";
     import { tomatoI18n } from "./tomatoI18n";
-    import { getDocTracer, OpenSyFile2 } from "./libs/docUtils";
+    import { getDocBlocks, getDocTracer, OpenSyFile2 } from "./libs/docUtils";
     import { findElementByAttr } from "./libs/listUtils";
     import { zipNways } from "./libs/functional";
     import { verifyKeyTomato } from "./libs/user";
@@ -114,9 +114,26 @@
 
     async function _svelteCallback_doc() {
         if (refs.loaded) return;
-        const idContents = await siyuan.sqlRef(
-            `SELECT def_block_root_id,content FROM refs WHERE root_id ='${docID}' and def_block_id == def_block_root_id`,
+        const { div } = await getDocBlocks(docID, "", false, true, 1);
+        let idContents: Ref[] = [
+            ...div.querySelectorAll(`span[data-type="block-ref"][data-id]`),
+        ]
+            .reverse()
+            .map((span) => {
+                const def_block_root_id = getAttribute(span, "data-id");
+                const content = span.textContent;
+                return { def_block_root_id, content };
+            });
+        const rows = await siyuan.getRows(
+            idContents.map((i) => i.def_block_root_id),
+            "id",
+            true,
+            ["type='d'"],
+            true,
         );
+        idContents = zipNways(idContents, rows)
+            .filter(([a, b]) => !!a && !!b)
+            .map((a) => a[0]);
         await Promise.all(
             idContents.map((ref) =>
                 siyuan

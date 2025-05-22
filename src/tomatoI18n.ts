@@ -283,6 +283,74 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 移动端编辑器右上角添加多行选择菜单() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "移动端：编辑器右上角添加多行选择菜单";
+            case "es_ES": return "Móvil: Añadir menú de selección múltiple en la esquina superior derecha del editor";
+            case "fr_FR": return "Mobile : Ajouter un menu de sélection multiple dans l'angle supérieur droit de l'éditeur";
+            case "ja_JP": return "モバイル：エディター右上に複数行選択メニューを追加";
+            case "zh_CHT": return "移動端：編輯器右上角添加多行選擇菜單";
+            case "it_IT": return "Mobile: Aggiungi menu di selezione multipla nell'angolo in alto a destra dell'editor";
+            case "de_DE": return "Mobil: Mehrfachauswahldropdown oben rechts im Editor hinzufügen";
+            case "he_IL": return "נייד: הוסף תפריט בחירה מרובה בפינה העליונה ימין של העורך";
+            case "ru_RU": return "Мобильный: Добавить меню множественного выбора в правом верхнем углу редактора";
+            case "pl_PL": return "Mobilny: Dodaj menu wielokrotnego wyboru w prawym górnym rogu edytora";
+            case "en_US":
+            default: return "Mobile: Add multi-line selection menu to top-right corner of editor";
+        }
+    }
+
+    public get 桌面端编辑器右上角添加多行选择菜单() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "桌面端：编辑器右上角添加多行选择菜单";
+            case "es_ES": return "Escritorio: Añadir menú de selección múltiple en la esquina superior derecha del editor";
+            case "fr_FR": return "Bureau : Ajouter un menu de sélection multiple dans l'angle supérieur droit de l'éditeur";
+            case "ja_JP": return "デスクトップ：エディター右上に複数行選択メニューを追加";
+            case "zh_CHT": return "桌面端：編輯器右上角添加多行選擇菜單";
+            case "it_IT": return "Desktop: Aggiungi menu di selezione multipla nell'angolo in alto a destra dell'editor";
+            case "de_DE": return "Desktop: Mehrfachauswahldropdown oben rechts im Editor hinzufügen";
+            case "he_IL": return "שולחן עבודה: הוסף תפריט בחירה מרובה בפינה העליונה ימין של העורך";
+            case "ru_RU": return "Настольный: Добавить меню множественного выбора в правый верхний угол редактора";
+            case "pl_PL": return "Stacjonarny: Dodaj menu wielokrotnego wyboru w prawym górnym rogu edytora";
+            case "en_US":
+            default: return "Desktop: Add multi-line selection menu to top-right corner of editor";
+        }
+    }
+
+    public get 打开多行选择菜单() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "打开多行选择菜单";
+            case "es_ES": return "Abrir menú de selección múltiple";
+            case "fr_FR": return "Ouvrir le menu de sélection multiple";
+            case "ja_JP": return "複数行選択メニューを開く";
+            case "zh_CHT": return "打開多行選擇菜單";
+            case "it_IT": return "Apri menu selezione multipla";
+            case "de_DE": return "Mehrzeiliges Auswahlfeld öffnen";
+            case "he_IL": return "פתח תפריט בחירה מרובה";
+            case "ru_RU": return "Открыть меню множественного выбора";
+            case "pl_PL": return "Otwórz menu wyboru wielokrotnego";
+            case "en_US":
+            default: return "Open multi-line selection menu";
+        }
+    }
+
+    public get 开始执行() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "开始执行";
+            case "es_ES": return "Comenzar ejecución";
+            case "fr_FR": return "Démarrer l'exécution";
+            case "ja_JP": return "実行を開始";
+            case "zh_CHT": return "開始執行";
+            case "it_IT": return "Inizia esecuzione";
+            case "de_DE": return "Ausführung starten";
+            case "he_IL": return "התחל ביצוע";
+            case "ru_RU": return "Начать выполнение";
+            case "pl_PL": return "Rozpocznij wykonywanie";
+            case "en_US":
+            default: return "Start execution";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
