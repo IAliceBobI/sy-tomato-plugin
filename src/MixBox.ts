@@ -251,7 +251,7 @@ class MixBox {
                                 delete ial["custom-qf-doc-md5"];
                                 delete ial["custom-qf-knowledge-file-id"];
                                 delete ial["custom-qf-file-id"];
-                                delete ial["picgo-file-map-key"];
+                                delete ial["custom-picgo-file-map-key"];
                                 delete ial["icon"];
                                 delete ial["tags"];
                                 delete ial["title-img"];
