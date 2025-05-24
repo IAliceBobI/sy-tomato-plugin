@@ -154,6 +154,7 @@
         addSelectionBtnsDesktop,
         addSelectionBtnsMobile,
         mindWireCheckbox,
+        mindWireDynamicLine,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -260,6 +261,7 @@
     } from "./ToolbarBox";
     import { addFoldCmd折叠, addFoldCmd展开 } from "./fold";
     import { searchSettings } from "./libs/ui";
+    import { MindWire启用或禁用思维导线 } from "./MindWire";
     export let dm: DestroyManager;
     export let plugin: BaseTomatoPlugin;
     let buyDIV: HTMLElement;
@@ -741,6 +743,18 @@
         {#if $mindWireCheckbox}
             <div>
                 {tomatoI18n.思维导线帮助}
+            </div>
+            <div>
+                {MindWire启用或禁用思维导线.langText()}
+                <strong>{MindWire启用或禁用思维导线.w()}</strong>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$mindWireDynamicLine}
+                />
+                {tomatoI18n.流动线条效果}
             </div>
         {/if}
     </div>

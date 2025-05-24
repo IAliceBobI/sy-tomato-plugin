@@ -171,8 +171,14 @@
 }
 
 .tomato-mind-wire-connector {
-  stroke-dasharray: 5;
-  // animation: tomato-mind-wire-flow 1s linear infinite;
+  stroke-width: 0.7;
+  stroke-dasharray: 10;
+}
+
+.tomato-mind-wire-connector-animation {
+  stroke-width: 0.7;
+  stroke-dasharray: 10;
+  animation: tomato-mind-wire-flow 2s linear infinite;
 }
 
 @keyframes tomato-mind-wire-flow {

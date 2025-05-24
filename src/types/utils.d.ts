@@ -15,6 +15,8 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    mindWireEnable: boolean,
+    mindWireDynamicLine: boolean,
     mindWireCheckbox: boolean,
     add2piecesBtn2lockIcon: boolean,
     addSelectionBtnsDesktop: boolean,
