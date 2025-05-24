@@ -182,13 +182,17 @@ export async function bilinkWithInsertingRefs(div1: HTMLElement, div2: HTMLEleme
 }
 
 export async function linkTwoElementsWithRef(div1: HTMLElement, div2: HTMLElement, protyle?: IProtyle) {
+    return linkTwoElements(div1, div2, protyle, linkBoxUseLnkOrRef.get())
+}
+
+export async function linkTwoElements(div1: HTMLElement, div2: HTMLElement, protyle?: IProtyle, isLnk = false) {
     const id1 = div1?.getAttribute(gconst.DATA_NODE_ID)
     const id2 = div2?.getAttribute(gconst.DATA_NODE_ID)
     if (!id2 || !id1) return;
     const dev2Text = cleanText(div2.textContent)?.trim() ?? "";
     if (dev2Text) {
         const oldDiv1HTML = div1.outerHTML;
-        if (linkBoxUseLnkOrRef.get()) {
+        if (isLnk) {
             add_href(div1, id2, " * ");
         } else {
             add_ref(div1, id2, " * ");
@@ -201,7 +205,7 @@ export async function linkTwoElementsWithRef(div1: HTMLElement, div2: HTMLElemen
     } else {
         const divRefTxt = div1.textContent.replaceAll("'", "").replaceAll('"', '').replace("\n", "");
         const oldDiv2HTML = div2.outerHTML;
-        if (linkBoxUseLnkOrRef.get()) {
+        if (isLnk) {
             add_href(div2, id1, divRefTxt, false);
         } else {
             add_ref(div2, id1, divRefTxt, false);

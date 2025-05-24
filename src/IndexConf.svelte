@@ -153,6 +153,7 @@
         cardBoxSuperCard,
         addSelectionBtnsDesktop,
         addSelectionBtnsMobile,
+        mindWireCheckbox,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -724,6 +725,22 @@
                     bind:checked={$commentBoxShowID}
                 />
                 {tomatoI18n.显示ID}
+            </div>
+        {/if}
+    </div>
+    <!-- 思维导线 -->
+    <div class="settingBox">
+        <div>
+            <input
+                type="checkbox"
+                class="b3-switch"
+                bind:checked={$mindWireCheckbox}
+            />
+            {tomatoI18n.思维导线}
+        </div>
+        {#if $mindWireCheckbox}
+            <div>
+                {tomatoI18n.思维导线帮助}
             </div>
         {/if}
     </div>

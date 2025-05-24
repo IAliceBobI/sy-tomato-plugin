@@ -449,6 +449,7 @@ export const flash_thoughts_target_file = settingFactory("flash-thoughts-target-
 export const listBoxCheckbox = settingFactory("listBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const dont_break_list = settingFactory("dont-break-list", false, STORAGE_SETTINGS, null as TSK);
 export const aiBoxCheckbox = settingFactory("aiBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
+export const mindWireCheckbox = settingFactory("mindWireCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const aiBoxMenuShow = settingFactory("aiBoxMenuShow", true, STORAGE_SETTINGS, null as TSK);
 export const cozeSearchMenuShow = settingFactory("cozeSearchMenuShow", true, STORAGE_SETTINGS, null as TSK);
 export const aiBoxPrompts = settingFactory("aiBoxPrompts", [], STORAGE_SETTINGS, null as TSK);

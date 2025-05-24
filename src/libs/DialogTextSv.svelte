@@ -77,7 +77,7 @@
                 on:focus={() => input.select()}
                 placeholder={defaultValue}
                 type="text"
-                class="schedule-style__input-field block"
+                class="b3-text-field"
                 bind:value={inputText}
                 on:keypress={(event) => {
                     if (event instanceof KeyboardEvent) {
@@ -87,9 +87,7 @@
                     }
                 }}
             />
-            <button class="schedule-style__button block" on:click={btnClick}
-                >Enter</button
-            >
+            <button class="b3-button" on:click={btnClick}>Enter</button>
         {/if}
     </div>
 </div>

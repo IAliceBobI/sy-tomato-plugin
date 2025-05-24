@@ -368,6 +368,40 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 思维导线() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "思维导线";
+            case "es_ES": return "hilo de pensamiento";
+            case "fr_FR": return "fil de réflexion";
+            case "ja_JP": return "マインドワイヤー";
+            case "zh_CHT": return "思維導線";
+            case "it_IT": return "fili conduttori del pensiero";
+            case "de_DE": return "Gedankenfaden";
+            case "he_IL": return "חוטי מחשבה";
+            case "ru_RU": return "мыслительные провода";
+            case "pl_PL": return "przewody myśli";
+            case "en_US":
+            default: return "mindwire"
+        }
+    }
+
+    public get 思维导线帮助() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "引用渲染为连线。可根据引用，在段落块间添加连线";
+            case "es_ES": return "Las referencias se representan como conexiones. Puedes añadir conexiones entre bloques de párrafos según las referencias";
+            case "fr_FR": return "Les références sont rendues sous forme de connexions. Vous pouvez ajouter des connexions entre les blocs de paragraphes en fonction des références";
+            case "ja_JP": return "参照は接続線として描画されます。参照に応じて、段落ブロック間の接続線を追加できます";
+            case "zh_CHT": return "引用渲染為連線。可根據引用，在段落塊間添加連線";
+            case "it_IT": return "Le citazioni vengono rese come connessioni. È possibile aggiungere collegamenti tra blocchi di paragrafi in base alle citazioni";
+            case "de_DE": return "Referenzen werden als Verbindungen dargestellt. Anhand von Referenzen können Sie Verbindungen zwischen Absatzblöcken hinzufügen";
+            case "he_IL": return "הפניות מצוירות כקווים חיבור. ניתן להוסיף קווי חיבור בין בלוקי פסקאות על פי הפניות";
+            case "ru_RU": return "Ссылки отображаются в виде соединительных линий. Можно добавлять линии между блоками абзацев на основе ссылок";
+            case "pl_PL": return "Cytowania są renderowane jako połączenia. Możesz dodawać połączenia między blokami akapitów na podstawie cytowań";
+            case "en_US":
+            default: return "References are rendered as connections. You can add connections between paragraph blocks based on references"
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

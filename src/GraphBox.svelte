@@ -18,7 +18,7 @@
     import { getData } from "./GraphBox";
     import {
         getBlockDiv,
-        linkTwoElementsWithRef,
+        linkTwoElements,
         newID,
         pmapNullVO,
         removeRefs,
@@ -333,7 +333,7 @@
         const id2 = conn.target;
         if (id1 && id2) {
             const [div1, div2] = await pmapNullVO([id1, id2], getBlockDiv);
-            await linkTwoElementsWithRef(div1?.div, div2?.div);
+            await linkTwoElements(div1?.div, div2?.div);
             relayout();
         }
     }
