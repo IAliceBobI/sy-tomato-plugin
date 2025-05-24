@@ -33,6 +33,7 @@ export class OpenAIClient {
     private async do_completions(model: string, useInputTxt: string, anchorID: string, noSup: boolean) {
         let aiRespTxt: string;
         let texts: string[] = [];
+        let reasoning_texts: string[] = [];
         let stream: Stream<ChatCompletionChunk>;
         const messages: ChatCompletionMessageParam[] = [{ role: "user", content: useInputTxt }]
         try {
@@ -63,10 +64,17 @@ export class OpenAIClient {
 
         let i = 0;
         for await (const chunk of stream) {
-            texts.push(chunk.choices?.at(0)?.delta?.content ?? "");
+            const delta = chunk.choices?.at(0)?.delta;
+            texts.push(delta?.content ?? "");
+            reasoning_texts.push((delta as any)?.reasoning_content ?? "");
             aiRespTxt = texts.join("").trim();
             if (!aiRespTxt) {
-                aiRespTxt = `thinking ${i}...`
+                const reasoning = reasoning_texts.join("").trim();
+                if (reasoning) {
+                    aiRespTxt = reasoning;
+                } else {
+                    aiRespTxt = `thinking ${i}...`
+                }
             }
             if (i++ % 50 === 0) await write();
         }

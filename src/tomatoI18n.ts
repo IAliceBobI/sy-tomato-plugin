@@ -351,6 +351,23 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 在编辑器右上角添加加入渐进阅读分片模式按钮() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "在编辑器右上角添加加入渐进阅读分片模式按钮";
+            case "es_ES": return "Agregar botón para entrar en modo de fragmentos de lectura progresiva en la esquina superior derecha del editor";
+            case "fr_FR": return "Ajouter un bouton pour activer le mode fragments de lecture progressive dans le coin supérieur droit de l'éditeur";
+            case "ja_JP": return "エディター右上にプログレッシブリーディングフラグメントモードに入るボタンを追加";
+            case "zh_CHT": return "在編輯器右上角添加加入漸進閱讀分片模式按鈕";
+            case "it_IT": return "Aggiungi un pulsante per attivare la modalità frammenti di lettura progressiva nell'angolo in alto a destra dell'editor";
+            case "de_DE": return "Füge einen Schaltfläche hinzu, um im Editor rechts oben in den Modus für progressive Leseabschnitte zu wechseln";
+            case "he_IL": return "הוסף כפתור להפעלת מצב קריאה פרוגרסיבית במקטעים בפינה העליונה הימנית של העורך";
+            case "ru_RU": return "Добавить кнопку перехода в режим фрагментов прогрессивного чтения в правом верхнем углу редактора";
+            case "pl_PL": return "Dodaj przycisk uruchamiający tryb fragmentów czytania postępowego w prawym górnym rogu edytora";
+            case "en_US":
+            default: return "Add button to enter progressive reading fragment mode in the top right corner of the editor";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

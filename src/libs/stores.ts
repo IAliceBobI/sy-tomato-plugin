@@ -485,6 +485,7 @@ export const PieceSummaryBoxmenu = settingFactory("PieceSummaryBoxmenu", true, S
 export const digestmenu = settingFactory("digestmenu", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const piecesmenu = settingFactory("piecesmenu", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const doubleClick2DigestDesktop = settingFactory("doubleClick2DigestDesktop", false, STORAGE_Prog_SETTINGS, null as TSK);
+export const add2piecesBtn2lockIcon = settingFactory("add2piecesBtn2lockIcon", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const merg2newBookEnable = settingFactory("merg2newBookEnable", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const getAllPieceNotesEnable = settingFactory("getAllPieceNotesEnable", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const multilineMarkEnable = settingFactory("multilineMarkEnable", true, STORAGE_Prog_SETTINGS, null as TSK);

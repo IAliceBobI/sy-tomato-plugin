@@ -63,6 +63,7 @@ class AIBox {
             this.dm.run();
             this.dm.destroyBy();
         } else {
+            this.dm?.destroyBy();
             this.dm = new DestroyManager();
             const id = newID();
             const dialog = new Dialog({
@@ -71,7 +72,7 @@ class AIBox {
                 width: events.isMobile ? "90vw" : "700px",
                 height: events.isMobile ? "180svw" : null,
                 destroyCallback: () => {
-                    this.dm.destroyBy("1")
+                    this.dm?.destroyBy("1")
                 },
             });
             const d = new AIBoxMenu({
