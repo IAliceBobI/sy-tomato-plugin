@@ -470,6 +470,23 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 在编辑器右上角添加摘抄按钮() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "在编辑器右上角添加摘抄按钮";
+            case "es_ES": return "Añadir botón de citas en la esquina superior derecha del editor";
+            case "fr_FR": return "Ajouter un bouton de citation dans le coin supérieur droit de l'éditeur";
+            case "ja_JP": return "エディターの右上に引用ボタンを追加";
+            case "zh_CHT": return "在編輯器右上角添加摘抄按鈕";
+            case "it_IT": return "Aggiungi pulsante citazione nell'angolo in alto a destra dell'editor";
+            case "de_DE": return "Zitat-Button oben rechts im Editor hinzufügen";
+            case "he_IL": return "הוסף כפתור ציטוט בפינה הימנית העליונה של העורך";
+            case "ru_RU": return "Добавить кнопку цитирования в правом верхнем углу редактора";
+            case "pl_PL": return "Dodaj przycisk cytowania w prawym górnym rogu edytora";
+            case "en_US":
+            default: return "Add quote button in the upper right corner of the editor";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

@@ -19,6 +19,8 @@ class MindWire {
         if (!mindWireCheckbox.get()) return;
         this.plugin = plugin;
 
+        if (events.isMobile) return;
+
         this.plugin.addCommand({
             langKey: MindWire启用或禁用思维导线.langKey,
             langText: MindWire启用或禁用思维导线.langText(),

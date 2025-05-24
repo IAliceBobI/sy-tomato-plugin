@@ -15,6 +15,7 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    add2digBtn2lockIcon: boolean,
     mindWireEnable: boolean,
     mindWireDynamicLine: boolean,
     mindWireCheckbox: boolean,
