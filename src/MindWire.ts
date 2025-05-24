@@ -19,7 +19,7 @@ class MindWire {
             if (eventType == EventType.loaded_protyle_static || eventType == EventType.loaded_protyle_dynamic || eventType == EventType.click_editorcontent || eventType == EventType.switch_protyle) {
                 navigator.locks.request("lock 2025-5-24 17:24:27", { ifAvailable: true }, async (lock) => {
                     const element = detail?.protyle?.element;
-                    if (lock && element) {
+                    if (lock && element && getAttribute(element, "data-id")) {
                         getAllEditor().forEach(p => p.protyle.element.removeEventListener('wheel', listenWheel));
                         this.protyle = detail.protyle;
                         element.querySelectorAll(".tomato-mind-wire-content").forEach(e => e.classList.remove("tomato-mind-wire-content"));
