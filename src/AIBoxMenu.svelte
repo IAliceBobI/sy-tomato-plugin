@@ -32,7 +32,7 @@
         if ($aiBoxPrompts.length === 0) {
             $aiBoxPrompts.push("请续写");
             $aiBoxPrompts.push("请做个摘要");
-            $aiBoxPrompts.push("请修改通顺");
+            $aiBoxPrompts.push("用小学生可以理解的方式重写");
             $aiBoxPrompts.push("请进行头脑风暴");
             $aiBoxPrompts.push("请给上文改错修正语法等");
             $aiBoxPrompts.push("请将上面的内容制作为表格");
