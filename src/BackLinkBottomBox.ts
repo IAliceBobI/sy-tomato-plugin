@@ -119,7 +119,7 @@ export class BKMaker {
     }
 }
 
-export const BK启用禁用文档的底部反链 = winHotkey("shift+alt+9", "BK启用禁用文档的底部反链 2025-5-12 14:05:47", "🍅📴🔗", () => tomatoI18n.enableBK启用禁用文档的底部反链,)
+export const BK启用禁用文档的底部反链 = winHotkey("shift+alt+9", "BK启用禁用文档的底部反链 2025-5-12 14:05:47", "📴🔗", () => tomatoI18n.enableBK启用禁用文档的底部反链,)
 
 class BackLinkBottomBox {
     public plugin: BaseTomatoPlugin;

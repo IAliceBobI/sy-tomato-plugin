@@ -9,7 +9,7 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
-export const AIBoxHotkey = winHotkey("⌥⇧S", "人工智能2024-6-9 01:58:39", "🍅💻", () => tomatoI18n.人工智能)
+export const AIBoxHotkey = winHotkey("⌥⇧S", "人工智能2024-6-9 01:58:39", "💻", () => tomatoI18n.人工智能)
 class AIBox {
     private plugin: BaseTomatoPlugin;
     private dm: DestroyManager;

@@ -155,6 +155,8 @@
         addSelectionBtnsMobile,
         mindWireCheckbox,
         mindWireDynamicLine,
+        mindWireDocMenu,
+        mindWireGlobalMenu,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -261,7 +263,10 @@
     } from "./ToolbarBox";
     import { addFoldCmd折叠, addFoldCmd展开 } from "./fold";
     import { searchSettings } from "./libs/ui";
-    import { MindWire启用或禁用思维导线 } from "./MindWire";
+    import {
+        MindWire启用或禁用思维导线,
+        MindWire启用或禁用文档思维导线,
+    } from "./MindWire";
     export let dm: DestroyManager;
     export let plugin: BaseTomatoPlugin;
     let buyDIV: HTMLElement;
@@ -744,9 +749,26 @@
             <div>
                 {tomatoI18n.思维导线帮助}
             </div>
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$mindWireGlobalMenu}
+                />
+                {tomatoI18n.menu添加右键菜单}:
                 {MindWire启用或禁用思维导线.langText()}
                 <strong>{MindWire启用或禁用思维导线.w()}</strong>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$mindWireDocMenu}
+                />
+                {tomatoI18n.menu添加右键菜单}:
+                {MindWire启用或禁用文档思维导线.langText()}
+                <strong>{MindWire启用或禁用文档思维导线.w()}</strong>
             </div>
             <div>
                 <input

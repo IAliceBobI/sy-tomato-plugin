@@ -16,7 +16,7 @@ class ImgOverlayBox {
         this.plugin.eventBus.on(EventType.open_menu_image, ({ detail }) => {
             detail.menu.addItem({
                 label: this.plugin.i18n.addPicOverlay,
-                iconHTML: "🍅🛡️🖼️",
+                iconHTML: "🛡️🖼️",
                 click: () => { this.overlayEditor(detail.element, detail.protyle); }
             });
         });
@@ -43,7 +43,7 @@ class ImgOverlayBox {
         const imgs = (detail.blockElements as HTMLElement[]).filter(e => e.querySelector(`span[data-type="img"]`))
         if (imgs.length > 0) {
             detail.menu.addItem({
-                iconHTML: "🍅🛡️🖼️",
+                iconHTML: "🛡️🖼️",
                 label: this.plugin.i18n.addPicOverlay,
                 click: () => {
                     for (const element of imgs) {

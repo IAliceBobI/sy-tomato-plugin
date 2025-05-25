@@ -51,7 +51,7 @@ class CozeSearchBox {
         const menu = detail.menu;
         menu.addItem({
             label: "coze" + tomatoI18n.知识库问答,
-            iconHTML: "🍅🔍",
+            iconHTML: "🔍",
             accelerator: CozeSearchBoxHotkey.m,
             click: async () => {
                 const { selected, ids } = await events.selectedDivs(detail.protyle);

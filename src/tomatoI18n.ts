@@ -419,23 +419,6 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
-    public get 启用或禁用思维导线() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "启用或禁用思维导线";
-            case "es_ES": return "Habilitar o deshabilitar guía de pensamiento";
-            case "fr_FR": return "Activer ou désactiver le guide de pensée";
-            case "ja_JP": return "思考ガイドの有効化または無効化";
-            case "zh_CHT": return "啟用或禁用思維導線";
-            case "it_IT": return "Abilita o disabilita guida mentale";
-            case "de_DE": return "Denkführung aktivieren oder deaktivieren";
-            case "he_IL": return "הפעל או השבת מדריך חשיבה";
-            case "ru_RU": return "Включить или отключить направляющую мышления";
-            case "pl_PL": return "Włącz lub wyłącz przewodnik myślowy";
-            case "en_US":
-            default: return "Enable or disable thought guide";
-        }
-    }
-
     public get 启用思维导线() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "启用思维导线";
@@ -484,6 +467,46 @@ export class TomatoI18n extends TomatoI18nABC {
             case "pl_PL": return "Dodaj przycisk cytowania w prawym górnym rogu edytora";
             case "en_US":
             default: return "Add quote button in the upper right corner of the editor";
+        }
+    }
+
+    public get 启用或禁用全局思维导线() {
+        // tyepscript: 翻译为各国语言。写入case的return中。
+        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
+        // 最后删除注释。
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "启用或禁用全局思维导线";
+            case "es_ES":
+            case "fr_FR":
+            case "ja_JP":
+            case "zh_CHT":
+            case "it_IT":
+            case "de_DE":
+            case "he_IL":
+            case "ru_RU":
+            case "pl_PL":
+            case "en_US":
+            default:
+        }
+    }
+
+    public get 启用或禁用文档思维导线() {
+        // tyepscript: 翻译为各国语言。写入case的return中。
+        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
+        // 最后删除注释。
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "启用或禁用文档思维导线";
+            case "es_ES":
+            case "fr_FR":
+            case "ja_JP":
+            case "zh_CHT":
+            case "it_IT":
+            case "de_DE":
+            case "he_IL":
+            case "ru_RU":
+            case "pl_PL":
+            case "en_US":
+            default:
         }
     }
 

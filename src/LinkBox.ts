@@ -18,10 +18,10 @@ import { winHotkey } from "./libs/winHotkey";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
-export const LinkBox查看所有同步位置 = winHotkey("F1", "list refs show all place 2025-5-11 22:11:31", "🍅🕒🔄", () => tomatoI18n.查看所有同步位置)
+export const LinkBox查看所有同步位置 = winHotkey("F1", "list refs show all place 2025-5-11 22:11:31", "🕒🔄", () => tomatoI18n.查看所有同步位置)
 export const LinkBox同步块选择 = winHotkey("⌘F1", "list refs 2025-5-11 22:11:26", "", () => tomatoI18n.同步块选择)
 export const LinkBox同步块创建 = winHotkey("⌘F2", "list refs 2025-5-11 22:11:22", "", () => tomatoI18n.同步块创建)
-export const LinkBoxbilink = winHotkey("⌥/", "bilink 2025-5-11 22:11:17", "🍅🔗", () => tomatoI18n.双向互链)
+export const LinkBoxbilink = winHotkey("⌥/", "bilink 2025-5-11 22:11:17", "🔗", () => tomatoI18n.双向互链)
 export const LinkBox链接到块底部 = winHotkey("⌥F3", "lnk2bottom 2025-5-11 22:11:13", "", () => tomatoI18n.链接到块底部)
 export const LinkBox双向互链选择块 = winHotkey("⌥F1", "bilinkSelectBlock 2025-5-11 22:11:08", "", () => tomatoI18n.双向互链选择块)
 export const LinkBox双向互链创建往返链 = winHotkey("⌥F2", "bilinkSelectBlock 2025-5-11 22:11:04", "", () => tomatoI18n.双向互链创建往返链)

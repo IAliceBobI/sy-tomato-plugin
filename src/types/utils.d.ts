@@ -15,6 +15,8 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    mindWireDocMenu: boolean,
+    mindWireGlobalMenu: boolean,
     add2digBtn2lockIcon: boolean,
     mindWireEnable: boolean,
     mindWireDynamicLine: boolean,
@@ -364,6 +366,7 @@ type AttrType = {
     "custom-doc-notes"?: string,
     "custom-progref"?: string,
     "custom-prog-piece-previous"?: string,
+    "custom-mindwire-enable"?: string,
 };
 
 type AttrKey = keyof AttrType;

@@ -18,9 +18,9 @@ import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
 
 export type RPType = { dom: string, row?: Block, line?: string };
-export const ReadingPointBox设置阅读点 = winHotkey("F7", "addBookmark 2025-5-12 17:52:14", "🍅＋🔖", () => tomatoI18n.设置阅读点)
-export const ReadingPointBox跳到当前文档的阅读点 = winHotkey("alt+f5", "gotoBookmark 2025-5-12 18:12:44", "🍅🕊️🔖", () => tomatoI18n.跳到当前文档的阅读点)
-export const ReadingPointBox删除当前文档的阅读点 = winHotkey("⌘F7", "deleteBookmark 2025-5-12 18:25:42", "🍅🗑️🔖", () => tomatoI18n.删除当前文档的阅读点)
+export const ReadingPointBox设置阅读点 = winHotkey("F7", "addBookmark 2025-5-12 17:52:14", "＋🔖", () => tomatoI18n.设置阅读点)
+export const ReadingPointBox跳到当前文档的阅读点 = winHotkey("alt+f5", "gotoBookmark 2025-5-12 18:12:44", "🕊️🔖", () => tomatoI18n.跳到当前文档的阅读点)
+export const ReadingPointBox删除当前文档的阅读点 = winHotkey("⌘F7", "deleteBookmark 2025-5-12 18:25:42", "🗑️🔖", () => tomatoI18n.删除当前文档的阅读点)
 export const ReadingPointBox查看阅读点 = winHotkey("ctrl+shift+enter", "showBookmarks 2025-5-12 18:32:45", "", () => tomatoI18n.查看阅读点)
 
 class ReadingPointBox {

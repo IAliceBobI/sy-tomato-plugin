@@ -25,11 +25,11 @@ export const MixBox删除所有flag书签 = winHotkey("alt+shift+0", "del flags 
 export const MixBox空格隔开的所有内容都转为引用 = winHotkey("alt+shift+F3", "txt2ref 2025-5-12 12:15:11", "", () => tomatoI18n.空格隔开的所有内容都转为引用)
 export const MixBox收集当前文档与子文档所有的未完成任务 = winHotkey("⌘⇧w", "收集当前文档与子文档所有的未完成任务 2025-5-12 12:15:11", "", () => tomatoI18n.收集当前文档与子文档所有的未完成任务)
 export const MixBox列出当前文档与子文档中没被引用的文档 = winHotkey("⌘⇧q", "列出当前文档与子文档中没被引用的文档 2025-5-12 12:15:11", "", () => tomatoI18n.列出当前文档与子文档中没被引用的文档)
-export const MixBox将选择文字与其拼音加入文档的别名 = winHotkey("⌘⇧Y", "将选择文字与其拼音加入文档的别名 2025-5-12 12:15:11", "🍅🎵", () => tomatoI18n.将选择文字与其拼音加入文档的别名 + "(pinyin)")
+export const MixBox将选择文字与其拼音加入文档的别名 = winHotkey("⌘⇧Y", "将选择文字与其拼音加入文档的别名 2025-5-12 12:15:11", "🎵", () => tomatoI18n.将选择文字与其拼音加入文档的别名 + "(pinyin)")
 export const MixBox将选择文字加入文档的别名 = winHotkey("⌘⇧U", "MixBox将选择文字加入文档的别名 2025-5-12 12:15:11", "", () => tomatoI18n.将选择文字加入文档的别名)
-export const MixBox定位所有引用Menu = winHotkey("⌥⇧A", "定位所有引用Menu 2025-5-12 12:15:11", "🍅📍🔗", () => tomatoI18n.定位所有引用Menu)
-export const MixBox复制文档为标准Markdown = winHotkey("⌥⇧B", "复制文档为标准Markdown 2025-5-12 12:15:11", "🍅📜📋", () => tomatoI18n.复制文档为标准Markdown)
-export const MixBox锁定内容 = winHotkey("⌥⇧L", "锁定内容 2025-5-12 12:15:11", "🍅🔒/🔓", () => tomatoI18n.锁定内容)
+export const MixBox定位所有引用Menu = winHotkey("⌥⇧A", "定位所有引用Menu 2025-5-12 12:15:11", "📍🔗", () => tomatoI18n.定位所有引用Menu)
+export const MixBox复制文档为标准Markdown = winHotkey("⌥⇧B", "复制文档为标准Markdown 2025-5-12 12:15:11", "📜📋", () => tomatoI18n.复制文档为标准Markdown)
+export const MixBox锁定内容 = winHotkey("⌥⇧L", "锁定内容 2025-5-12 12:15:11", "🔒/🔓", () => tomatoI18n.锁定内容)
 export const MixBox复制文档为纯文本 = winHotkey("alt+ctrl+shift+B", "复制文档为纯文本 2025-5-12 12:15:11", "", () => tomatoI18n.复制文档为纯文本)
 
 class MixBox {
@@ -396,7 +396,7 @@ class MixBox {
         if (!storeMoveDocContentHere.get()) return;
         detail.menu.addItem({
             label: tomatoI18n.把文档内容移动到这里,
-            iconHTML: "🍅📃📩",
+            iconHTML: "📃📩",
             accelerator: "",
             click: async () => {
                 const { ids } = await events.selectedDivs(detail.protyle);
@@ -424,7 +424,7 @@ class MixBox {
         const menu = detail.menu;
         menu.addItem({
             label: tomatoI18n.合并文档到这里,
-            iconHTML: "🍅📃🈴",
+            iconHTML: "📃🈴",
             accelerator: "",
             click: async () => {
                 const { ids } = await events.selectedDivs(detail.protyle);
@@ -450,7 +450,7 @@ class MixBox {
         const menu = detail.menu;
         menu.addItem({
             label: tomatoI18n.刷新静态反链,
-            iconHTML: "🍅♻️🔗",
+            iconHTML: "♻️🔗",
             accelerator: "",
             click: async () => {
                 const { docID } = await events.selectedDivs(detail.protyle);
@@ -466,7 +466,7 @@ class MixBox {
         const menu = detail.menu;
         menu.addItem({
             label: tomatoI18n.删除静态反链,
-            iconHTML: "🍅🧹🔗",
+            iconHTML: "🧹🔗",
             accelerator: "",
             click: async () => {
                 const { docID } = await events.selectedDivs(detail.protyle);
@@ -481,7 +481,7 @@ class MixBox {
         const menu = detail.menu;
         menu.addItem({
             label: tomatoI18n.插入空的脑图流程图文件,
-            iconHTML: "🍅＋🧠",
+            iconHTML: "＋🧠",
             accelerator: "",
             click: async () => {
                 if (!events.isDesktop) {

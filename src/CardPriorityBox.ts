@@ -11,7 +11,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 
 export const CardPriorityBox修改文档中闪卡优先级 = winHotkey("F6", "cardPrioritySet2025-5-10 11:18:36")
-export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8", "delay all cards spread on x days 2024-12-19 14:41:11", "🍅🌊🛑", () => tomatoI18n.分散推迟闪卡, true, cardPriorityBoxSpradDelayMenu)
+export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8", "delay all cards spread on x days 2024-12-19 14:41:11", "🌊🛑", () => tomatoI18n.分散推迟闪卡, true, cardPriorityBoxSpradDelayMenu)
 export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9", "delay all cards 2025-5-10 12:31:04")
 export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y", "resume all cards 2025-5-10 12:31:04")
 import { winHotkey } from "./libs/winHotkey";
@@ -31,14 +31,14 @@ class CardPriorityBox {
         const cards = detail?.blockElements?.filter(e => getAttribute(e, "custom-riff-decks"))
         if (cards?.length > 0) {
             detail.menu.addItem({
-                iconHTML: "🍅🏆",
+                iconHTML: "🏆",
                 label: tomatoI18n.为闪卡设置优先级,
                 click: () => {
                     this.updatePrioritySelected(detail.blockElements);
                 }
             });
             detail.menu.addItem({
-                iconHTML: "🍅🛑",
+                iconHTML: "🛑",
                 label: tomatoI18n.推迟与取消推迟,
                 click: (_e, event) => {
                     for (const e of detail.blockElements) {
@@ -138,7 +138,7 @@ class CardPriorityBox {
             if (cardPriorityBoxPriorityMenu.get()) {
                 menu.addItem({
                     label: tomatoI18n.修改文档中闪卡优先级,
-                    iconHTML: "🍅🌊🏆",
+                    iconHTML: "🌊🏆",
                     accelerator: CardPriorityBox修改文档中闪卡优先级.m,
                     click: cardPrioritySet,
                 });
@@ -148,7 +148,7 @@ class CardPriorityBox {
                 menu.addItem({
                     label: tomatoI18n.推迟闪卡,
                     accelerator: CardPriorityBox推迟闪卡.m,
-                    iconHTML: "🍅🌊🛑",
+                    iconHTML: "🌊🛑",
                     click: () => delay(),
                 });
             }

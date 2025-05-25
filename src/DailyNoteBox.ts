@@ -15,10 +15,10 @@ import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 
 export const DailyNoteBox上一个日志 = winHotkey("⌥Q", "previousNote 2025-5-11 08:40:40", "iconLeft", () => tomatoI18n.上一个日志,)
 export const DailyNoteBox下一个日志 = winHotkey("⌥W", "nextNote 2025-5-11 08:42:17", "iconRight", () => tomatoI18n.下一个日志,)
-export const DailyNoteBox移动内容到dailynote = winHotkey("shift+alt+6", "moveBlock2today 2025-5-11 09:20:29", "🍅🏑", () => tomatoI18n.移动内容到dailynote, false, dailyNoteGoToBottomMenu)
+export const DailyNoteBox移动内容到dailynote = winHotkey("shift+alt+6", "moveBlock2today 2025-5-11 09:20:29", "🏑", () => tomatoI18n.移动内容到dailynote, false, dailyNoteGoToBottomMenu)
 
-export const DailyNoteBox复制到dailynote = winHotkey("⌘⇧6", "DailyNoteBox复制到dailynote2025-5-11 14:12:36", "🍅🌀", () => tomatoI18n.复制到dailynote)
-export const DailyNoteBox复制到dailynoteNewFile = winHotkey("⌥⇧C", "DailyNoteBox复制到dailynoteNewFile 2025-5-11 14:19:29", "🍅🌀📜", () => tomatoI18n.复制到dailynoteNewFile)
+export const DailyNoteBox复制到dailynote = winHotkey("⌘⇧6", "DailyNoteBox复制到dailynote2025-5-11 14:12:36", "🌀", () => tomatoI18n.复制到dailynote)
+export const DailyNoteBox复制到dailynoteNewFile = winHotkey("⌥⇧C", "DailyNoteBox复制到dailynoteNewFile 2025-5-11 14:19:29", "🌀📜", () => tomatoI18n.复制到dailynoteNewFile)
 
 class DailyNoteBox {
     private plugin: BaseTomatoPlugin;

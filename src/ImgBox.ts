@@ -114,7 +114,7 @@ class ImgBox {
             const menu = detail.menu;
             menu.addItem({
                 label: tomatoI18n.复制为图片,
-                iconHTML: "🍅🖼️📋",
+                iconHTML: "🖼️📋",
                 accelerator: ImgBoxHotKey.m,
                 click: async () => {
                     const { selected } = await events.selectedDivs(detail.protyle);
