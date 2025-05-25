@@ -336,23 +336,6 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
         }
     }
 
-    public get 豆包智能体ID() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "豆包智能体ID（可选）";
-            case "es_ES": return "ID del agente inteligente Dou+ (opcional)";
-            case "fr_FR": return "ID de l'agent intelligent Dou+ (facultatif)";
-            case "ja_JP": return "Dou+インテリジェントエージェントID（オプション）";
-            case "zh_CHT": return "豆包智能體ID（可選）";
-            case "it_IT": return "ID agente intelligente Dou+ (opzionale)";
-            case "de_DE": return "Dou+ Intelligenz-Agent-ID (optional)";
-            case "he_IL": return "מזהה סוכן אינטיליגנטי של Dou+ (אופציונלי)";
-            case "ru_RU": return "ID интеллектуального агента Dou+ (необязательно)";
-            case "pl_PL": return "ID inteligentnego agenta Dou+ (opcjonalne)";
-            case "en_US":
-            default: return "Dou+ Intelligent Agent ID (optional)";
-        }
-    }
-
     public get 规避云端同步冲突() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":

@@ -120,13 +120,13 @@
                         href="https://www.coze.cn/space/{$cozeSearchSpaceID}/bot/{$cozeSearchAppID}"
                         >{tomatoI18n.调试智能体}</a
                     >
-                    {#if $cozeSearchDoubaoID}
-                        <a
-                            class="b3-button divMargin"
-                            href="https://www.doubao.com/chat/{$cozeSearchDoubaoID}"
-                            >Doubao豆包</a
-                        >
-                    {/if}
+                    <a
+                        title={tomatoI18n.需要先发布到豆包再填写发布后的豆包智能体ID}
+                        class="b3-button divMargin"
+                        class:codeNotValid={!$cozeSearchDoubaoID}
+                        href="https://www.doubao.com/chat/{$cozeSearchDoubaoID}"
+                        >Doubao豆包</a
+                    >
                 </td>
             </tr>
             <tr>
@@ -195,5 +195,8 @@
     }
     .divMargin {
         margin: 10px;
+    }
+    .codeNotValid {
+        opacity: 30%;
     }
 </style>
