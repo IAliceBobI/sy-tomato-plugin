@@ -302,7 +302,7 @@ export function setAttribute(e: any, name: keyof AttrType, value: string) {
     if (e?.setAttribute) e.setAttribute(name, value);
 }
 
-export function getAttribute(e: any, name: keyof AttrType) {
+export function getAttribute(e: any, name: keyof AttrType): string {
     if (e?.getAttribute) return e.getAttribute(name)
 }
 

@@ -925,22 +925,6 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
         }
     }
 
-    public get 创建超级块时添加相关匹配到的引用() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "创建超级块时，添加相关匹配到的引用";
-            case "es_ES": return "Agregar referencias relacionadas coincidentes al crear un bloque superpuesto";
-            case "fr_FR": return "Ajouter des références correspondantes lors de la création d'un bloc superposé";
-            case "ja_JP": return "スーパーブロック作成時に一致した関連参照を追加する";
-            case "zh_CHT": return "創建超級塊時，添加相關匹配到的引用";
-            case "it_IT": return "Aggiungi riferimenti corrispondenti quando si crea un blocco superiore";
-            case "de_DE": return "Beim Erstellen eines Superblocks relevante übereinstimmende Referenzen hinzufügen";
-            case "he_IL": return "הוסף הפניות תואמות בעת יצירת בלוק סופר";
-            case "ru_RU": return "Добавлять соответствующие ссылки при создании суперблока";
-            case "pl_PL": return "Dodaj pasujące odniesienia przy tworzeniu nadbloku";
-            case "en_US":
-            default: return "Add relevant matching references when creating a super block";
-        }
-    }
 
 
 }

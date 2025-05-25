@@ -538,6 +538,56 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 帮助() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "帮助";
+            case "es_ES": return "Ayuda";
+            case "fr_FR": return "Aide";
+            case "ja_JP": return "ヘルプ";
+            case "zh_CHT": return "幫助";
+            case "it_IT": return "Aiuto";
+            case "de_DE": return "Hilfe";
+            case "he_IL": return "עזרה";
+            case "ru_RU": return "Помощь";
+            case "pl_PL": return "Pomoc";
+            case "en_US":
+            default: return "Help";
+        }
+    }
+
+    public get 创建超级块时添加相关匹配到的引用() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "创建闪卡时，添加相关匹配到的引用，到第一行";
+            case "es_ES": return "Al crear una tarjeta flash, agregue citas coincidentes relevantes a la primera línea";
+            case "fr_FR": return "Lors de la création d'une carte mémoire, ajoutez les citations correspondantes pertinentes à la première ligne";
+            case "ja_JP": return "フラッシュカード作成時、関連する一致した引用を最初の行に追加します";
+            case "zh_CHT": return "創建閃卡時，添加相關匹配到的引用，到第一行";
+            case "it_IT": return "Quando crei una flashcard, aggiungi le citazioni pertinenti corrispondenti alla prima riga";
+            case "de_DE": return "Beim Erstellen einer Lernkarte relevante übereinstimmende Zitate in die erste Zeile einfügen";
+            case "he_IL": return "בעת יצירת כרטיסיית פלאש, הוסף ציטוטים תואמים רלוונטיים לשורה הראשונה";
+            case "ru_RU": return "При создании карточки добавляйте соответствующие совпадения цитат в первую строку";
+            case "pl_PL": return "Podczas tworzenia fiszki dodaj pasujące cytaty do pierwszej linii";
+            case "en_US":
+            default: return "When creating a flashcard, add relevant matched quotes to the first line";
+        }
+    }
+    public get 文档树工具() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "文档树工具";
+            case "es_ES": return "Herramienta de árbol de documentos";
+            case "fr_FR": return "Outil d'arborescence de documents";
+            case "ja_JP": return "ドキュメントツリーツール";
+            case "zh_CHT": return "文檔樹工具";
+            case "it_IT": return "Strumento albero documenti";
+            case "de_DE": return "Dokumentenbaum-Tool";
+            case "he_IL": return "כלי עץ מסמכים";
+            case "ru_RU": return "Инструмент дерева документов";
+            case "pl_PL": return "Narzędzie drzewa dokumentów";
+            case "en_US":
+            default: return "Document tree tool";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

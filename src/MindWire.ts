@@ -127,17 +127,37 @@ async function toggleDocMindWire(protyle: IProtyle) {
 
 const svgID = "tomato-mind-wire-svg-container"
 
-function drawLines(e: HTMLElement) {
+function drawLines(elem: HTMLElement) {
     cleanWire();
-    [...e.querySelectorAll(`span[data-type="block-ref"]`)]
-        .map(s => {
-            const id1 = getID(s);
-            const id2 = getAttribute(s, "data-id");
+    const idPairs = [...elem.querySelectorAll(`span[data-type="block-ref"]`)]
+        .map(e => {
+            const id1 = getID(e);
+            const id2 = getAttribute(e, "data-id");
             if (id1 && id2 && id1 != id2) {
                 return [id1, id2];
             }
+        });
+
+    idPairs.push(...[...elem.querySelectorAll(`div[custom-lnk-my-id]`)]
+        .map(e => {
+            const id1 = getAttribute(e, "data-node-id");
+            const id2s = getAttribute(e, "custom-lnk-to-ids")
+                ?.split(",")
+                ?.map(lnk => {
+                    const e = elem.querySelector(`div[custom-lnk-my-id="${lnk}"]`)
+                    return getAttribute(e, "data-node-id")
+                })
+                ?.filter(i => !!i) ?? [];
+            return id2s.map(i => [id1, i])
         })
-        .forEach(([id1, id2]) => drawWire(id1, id2));
+        .flat())
+    const set = new Set<string>();
+    idPairs.forEach(([id1, id2]) => {
+        if (set.has(id1 + id2) || set.has(id2 + id1)) return;
+        set.add(id1 + id2)
+        set.add(id2 + id1)
+        drawWire(id1, id2)
+    });
 }
 
 function cleanWire() {
