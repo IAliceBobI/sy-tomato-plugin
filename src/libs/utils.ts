@@ -2764,3 +2764,7 @@ export function icon(name: string, size = 20) {
     }
     return `<svg><use xlink:href="#icon${name}"></use></svg>`;
 }
+
+export function getDocLastElement(protyle: IProtyle) {
+    return protyle?.wysiwyg?.element?.lastElementChild;
+}

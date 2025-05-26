@@ -157,6 +157,7 @@
         mindWireDynamicLine,
         mindWireDocMenu,
         mindWireGlobalMenu,
+        mindWireStarRefOnly,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -829,6 +830,14 @@
                 <input
                     type="checkbox"
                     class="b3-switch"
+                    bind:checked={$mindWireStarRefOnly}
+                />
+                {tomatoI18n.只关联星号引用}
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
                     bind:checked={$mindWireDynamicLine}
                 />
                 {tomatoI18n.流动线条效果}
@@ -965,30 +974,32 @@
                 {tomatoI18n.显示路径}
             </div>
 
-            <div>
-                <input
-                    type="checkbox"
-                    class="b3-switch"
-                    bind:checked={$back_link_move_here}
-                />
-                <span class="b3-label__text">
-                    {@html icon("Move", ICONS_SIZE)}</span
-                >
-                {tomatoI18n.移动到文档}
-            </div>
-            {#if $back_link_move_here}
+            <div class="softBox">
                 <div>
                     <input
                         type="checkbox"
                         class="b3-switch"
-                        bind:checked={$back_link_move_with_backlink}
+                        bind:checked={$back_link_move_here}
                     />
                     <span class="b3-label__text">
                         {@html icon("Move", ICONS_SIZE)}</span
                     >
-                    {tomatoI18n.移动内容后添加指向原来位置的链接}
+                    {tomatoI18n.移动到文档}
                 </div>
-            {/if}
+                {#if $back_link_move_here}
+                    <div>
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            bind:checked={$back_link_move_with_backlink}
+                        />
+                        <span class="b3-label__text">
+                            {@html icon("Move", ICONS_SIZE)}</span
+                        >
+                        {tomatoI18n.移动内容后添加指向原来位置的链接}
+                    </div>
+                {/if}
+            </div>
 
             <div>
                 <input
@@ -1618,83 +1629,93 @@
             </strong>
         </div>
         {#if $linkBoxCheckbox}
-            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
-            <div>
-                <input
-                    type="checkbox"
-                    class="b3-switch"
-                    bind:checked={$linkBoxBilinkMenu}
-                />
-                {tomatoI18n.menu添加右键菜单}: {LinkBoxbilink.langText()}
-                <strong>{LinkBoxbilink.w()}</strong>
+            <div class="softBox">
+                <div>
+                    {LinkBox链接到块底部.langText()}<strong
+                        >{LinkBox链接到块底部.w()}</strong
+                    >
+                </div>
             </div>
-            <div>
-                {LinkBox链接到块底部.langText()}<strong
-                    >{LinkBox链接到块底部.w()}</strong
-                >
+            <div class="softBox">
+                <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+                <div>
+                    <input
+                        type="checkbox"
+                        class="b3-switch"
+                        bind:checked={$linkBoxBilinkMenu}
+                    />
+                    {tomatoI18n.menu添加右键菜单}: {LinkBoxbilink.langText()}
+                    <strong>{LinkBoxbilink.w()}</strong>
+                </div>
             </div>
-            <div>
-                {LinkBox双向互链选择块.langText()}<strong
-                    >{LinkBox双向互链选择块.w()}</strong
-                >
+            <div class="softBox">
+                <div>
+                    {LinkBox双向互链选择块.langText()}<strong
+                        >{LinkBox双向互链选择块.w()}</strong
+                    >
+                </div>
+                <div>
+                    {LinkBox双向互链创建往返链.langText()}<strong
+                        >{LinkBox双向互链创建往返链.w()}</strong
+                    >
+                </div>
+                <div>
+                    <input
+                        type="checkbox"
+                        class="b3-switch"
+                        bind:checked={$linkBoxLnkTitle}
+                    />
+                    {tomatoI18n.给链接加文字}
+                </div>
+                <div>
+                    {LinkBox修复双向链接.langText()}<strong
+                        >{LinkBox修复双向链接.w()}</strong
+                    >
+                </div>
             </div>
-            <div>
-                {LinkBox双向互链创建往返链.langText()}<strong
-                    >{LinkBox双向互链创建往返链.w()}</strong
-                >
+            <div class="softBox">
+                <div class:codeNotValid>
+                    {LinkBox嵌入互链选择.langText()}<strong
+                        >{LinkBox嵌入互链选择.w()}</strong
+                    ><TomatoVIP {codeValid}></TomatoVIP>
+                </div>
+                <div class:codeNotValid>
+                    {LinkBox嵌入互链创建.langText()}<strong
+                        >{LinkBox嵌入互链创建.w()}</strong
+                    ><TomatoVIP {codeValid}></TomatoVIP>
+                </div>
             </div>
-            <div>
-                {LinkBox修复双向链接.langText()}<strong
-                    >{LinkBox修复双向链接.w()}</strong
-                >
+            <div class="softBox">
+                <div>
+                    {LinkBox互相插入引用于下方选择.langText()}<strong
+                        >{LinkBox互相插入引用于下方选择.w()}</strong
+                    >
+                </div>
+                <div>
+                    {LinkBox互相插入引用于下方创建.langText()}<strong
+                        >{LinkBox互相插入引用于下方创建.w()}</strong
+                    >
+                </div>
             </div>
-            <div class:codeNotValid>
-                {LinkBox嵌入互链选择.langText()}<strong
-                    >{LinkBox嵌入互链选择.w()}</strong
-                ><TomatoVIP {codeValid}></TomatoVIP>
-            </div>
-            <div class:codeNotValid>
-                {LinkBox嵌入互链创建.langText()}<strong
-                    >{LinkBox嵌入互链创建.w()}</strong
-                ><TomatoVIP {codeValid}></TomatoVIP>
-            </div>
-            <div>
-                {LinkBox关联两个块选择.langText()}<strong
-                    >{LinkBox关联两个块选择.w()}</strong
-                >
-            </div>
-            <div>
-                {LinkBox关联两个块创建.langText()}<strong
-                    >{LinkBox关联两个块创建.w()}</strong
-                >
-            </div>
-            <div>
-                {LinkBox互相插入引用于下方选择.langText()}<strong
-                    >{LinkBox互相插入引用于下方选择.w()}</strong
-                >
-            </div>
-            <div>
-                {LinkBox互相插入引用于下方创建.langText()}<strong
-                    >{LinkBox互相插入引用于下方创建.w()}</strong
-                >
-            </div>
-
-            <div>
-                <input
-                    type="checkbox"
-                    class="b3-switch"
-                    bind:checked={$linkBoxLnkTitle}
-                />
-                {tomatoI18n.给链接加文字}
-            </div>
-
-            <div>
-                <input
-                    type="checkbox"
-                    class="b3-switch"
-                    bind:checked={$linkBoxUseLnkOrRef}
-                />
-                {tomatoI18n.使用链接否则用引用}
+            <div class="softBox">
+                <div>
+                    {LinkBox关联两个块选择.langText()}<strong
+                        >{LinkBox关联两个块选择.w()}</strong
+                    >
+                </div>
+                <div>
+                    {LinkBox关联两个块创建.langText()}<strong
+                        >{LinkBox关联两个块创建.w()}</strong
+                    >
+                </div>
+                <div>
+                    <input
+                        type="checkbox"
+                        class="b3-switch"
+                        bind:checked={$linkBoxUseLnkOrRef}
+                    />
+                    {tomatoI18n.使用链接否则用引用}
+                </div>
             </div>
         {/if}
     </div>
@@ -2362,6 +2383,13 @@
 </div>
 
 <style>
+    .softBox {
+        padding: 5px;
+        background-color: rgba(200, 230, 255, 0.3);
+        border: 1px solid rgba(100, 150, 200, 0.2);
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
     .search-bar {
         position: sticky;
         top: 0;

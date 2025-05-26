@@ -588,6 +588,24 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 只关联星号引用() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "只关联星号*引用";
+            case "es_ES": return "Solo asociar referencias con asterisco*";
+            case "fr_FR": return "Associer uniquement les références avec astérisque*";
+            case "ja_JP": return "アスタリスク*付き参照のみ関連付け";
+            case "zh_CHT": return "只關聯星號*引用";
+            case "it_IT": return "Associa solo riferimenti con asterisco*";
+            case "de_DE": return "Nur Sternchen*-Referenzen verknüpfen";
+            case "he_IL": return "קשר רק הפניות עם כוכבית*";
+            case "ru_RU": return "Связывать только ссылки со звёздочкой*";
+            case "pl_PL": return "Powiązuj tylko odniesienia z gwiazdką*";
+            case "en_US":
+            default:
+                return "Only associate asterisk* references";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

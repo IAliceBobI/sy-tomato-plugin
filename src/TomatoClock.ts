@@ -72,7 +72,9 @@ class TomatoClock {
                             this.maintainBgImg();
                         }, due - now);
                     }
-                    this.maintainBgImg();
+                    setTimeout(() => {
+                        this.maintainBgImg();
+                    }, 2000);
                 }
             });
         this.addStatusIcons();

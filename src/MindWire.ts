@@ -1,5 +1,5 @@
 import { getAllEditor, IEventBusMap, IProtyle, Protyle } from "siyuan";
-import { mindWireCheckbox, mindWireDocMenu, mindWireDynamicLine, mindWireEnable, mindWireGlobalMenu, } from "./libs/stores";
+import { mindWireCheckbox, mindWireDocMenu, mindWireDynamicLine, mindWireEnable, mindWireGlobalMenu, mindWireStarRefOnly, } from "./libs/stores";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { events, EventType } from "./libs/Events";
 import { getAttribute, getID, siyuan } from "./libs/utils";
@@ -131,6 +131,10 @@ function drawLines(elem: HTMLElement) {
     cleanWire();
     const idPairs = [...elem.querySelectorAll(`span[data-type="block-ref"]`)]
         .map(e => {
+            if (mindWireStarRefOnly.get()) {
+                if (e.textContent.trim() != "*")
+                    return;
+            }
             const id2 = getAttribute(e, "data-id");
             const id1 = getID(e);
             if (id1 && id2 && id1 != id2) {

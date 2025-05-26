@@ -9,6 +9,7 @@
         cleanDivOnly,
         getAllContentEditableText,
         getBlockDiv,
+        getDocLastElement,
         htmlUnescape,
         icon,
         isValidNumber,
@@ -378,6 +379,7 @@
                     }
                 });
         }
+        go2Top();
     }
 
     function refClick(id: string) {
@@ -475,6 +477,7 @@
         if (backLink.parentID) targetID = backLink.parentID;
         const div = (await getBlockDiv(targetID)).div;
         const { id } = cleanDivOnly(div as any);
+        add_href(div, id, " * ");
         const md = lute.BlockDOM2Md(div.outerHTML);
         await siyuan.appendBlock(`${md}\n${attrNewLine()}`, maker.docID);
         await siyuan.pushMsg(tomatoI18n.copyBlock复制块成功, 2000);
@@ -581,6 +584,10 @@
         page = 0;
         siyuan.pushMsg("search: " + globalSearchText);
         await getBackLinks({ mode: "exclusive" }, "search");
+        go2Top();
+    }
+    function go2Top() {
+        getDocLastElement(protyle?.protyle).scrollIntoView();
     }
 </script>
 
@@ -610,327 +617,334 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <div>
-    <!-- <hr bind:this={splitHR} {...modeHide} /> -->
-    <!-- 简洁模式 -->
-    <button
-        bind:this={modeSwitchBtn}
-        title={tomatoI18n.简洁模式切换}
-        class="bk_label modeSwitchBtn"
-        on:click={modeSwitch}>🍀</button
-    >
-    <!-- 跳上去 -->
-    {#if !events.isMobile}
+    <div class="search-bar">
+        <!-- <hr bind:this={splitHR} {...modeHide} /> -->
+        <!-- 简洁模式 -->
         <button
-            title={tomatoI18n.跳转顶部}
-            class="bk_label goUpBtn b3-label__text"
-            on:click={() => {
-                const titleEle = document.querySelector(
-                    `div.protyle-wysiwyg--attr[data-node-id="${maker.docID}"]`,
-                );
-                titleEle?.scrollIntoView();
-            }}
+            bind:this={modeSwitchBtn}
+            title={tomatoI18n.简洁模式切换}
+            class="bk_label modeSwitchBtn"
+            on:click={modeSwitch}>🍀</button
         >
-            {@html icon("Up", ICONS_SIZE)}
-        </button>
-    {/if}
-    <!-- 概念栏 -->
-    <div class="bk_flex" {...modeHide}>
-        <!-- 最大展开的反链文件数 -->
-        <label
-            class="conceptMargin"
-            title={tomatoI18n.maxBkDocs最大展开的反链文件数}
-        >
-            <input
-                class="b3-text-field numInput"
-                bind:value={refDocCount}
-                on:focus={() => ($autoRefreshChecked = true)}
-                on:input={() => {
-                    page = 0;
-                    siyuan.setBlockAttrs(maker.docID, {
-                        "custom-bkRefDocCount": refDocCount.toString(),
-                    });
-                }}
-            />
-        </label>
-        <!-- 最大展开的提及文件数 -->
-        <label
-            class="conceptMargin"
-            title={tomatoI18n.mentionDocs最大展开的提及文件数}
-        >
-            <input
-                class="b3-text-field numInput"
-                bind:value={menDocCount}
-                on:focus={() => ($autoRefreshChecked = true)}
-                on:input={() => {
-                    page = 0;
-                    siyuan.setBlockAttrs(maker.docID, {
-                        "custom-bkMenDocCount": menDocCount.toString(),
-                    });
-                }}
-            />
-        </label>
-        <!-- 分页 -->
-        <label class="conceptMargin">
+        <!-- 跳上去 -->
+        {#if !events.isMobile}
             <button
-                title={tomatoI18n.上一页}
-                class="bk_label"
+                title={tomatoI18n.跳转顶部}
+                class="bk_label goUpBtn b3-label__text"
                 on:click={() => {
-                    page = Math.max(0, page - 1);
-                    refreshOnPage();
-                }}
-            >
-                ⏪</button
-            >
-            <strong
-                on:click={() => {
-                    page = 0;
-                    refreshOnPage();
-                }}
-                title={tomatoI18n.回到第一页}>{page + 1}/{maxPage}</strong
-            >
-            <button
-                title={tomatoI18n.下一页}
-                class="bk_label"
-                on:click={() => {
-                    page++;
-                    refreshOnPage();
-                }}>⏩</button
-            >
-        </label>
-        <!-- 收缩此双链栏 -->
-        <label class="conceptMargin">
-            <button
-                title={tomatoI18n.foldRefBar收缩此双链栏}
-                class="bk_label"
-                on:click={() => expand()}>{expandStatus ? "🔥" : "💧"}</button
-            >
-        </label>
-        <!-- 层级概念 -->
-        <label class="conceptMargin">
-            <button
-                title={tomatoI18n.openConceptForest打开层级概念}
-                class="bk_label"
-                on:click={() => {
-                    const roots = getConceptTrees(linkItemsHierarchy);
-                    showBkConTree(roots);
-                }}>🌲</button
-            >
-        </label>
-        <!-- 插入相关概念 -->
-        <label class="conceptMargin">
-            <button
-                title={tomatoI18n.插入相关的层级概念}
-                class="bk_label"
-                on:click={() => {
-                    insertConcepts(
-                        maker.plugin,
-                        maker.docID,
-                        hierarchyConcepts,
+                    const titleEle = document.querySelector(
+                        `div.protyle-wysiwyg--attr[data-node-id="${maker.docID}"]`,
                     );
-                }}>🔑</button
-            >
-        </label>
-        <!-- 暂时隐藏本文档链接 -->
-        <label class="conceptMargin">
-            <button
-                title={tomatoI18n.暂时隐藏本文档链接}
-                class="bk_label b3-label__text"
-                on:click={() => (hideThis = !hideThis)}
-            >
-                {hideThis ? "🙈" : "👀"}
-            </button>
-        </label>
-        <!-- 创建时间升序 -->
-        <label class="conceptMargin">
-            <select
-                class="b3-select"
-                bind:value={sortBy}
-                on:focus={() => ($autoRefreshChecked = false)}
-                on:change={() => {
-                    getBackLinks({ mode: "exclusive" }, "sort");
-                    siyuan.setBlockAttrs(maker.docID, {
-                        "custom-bkSortBy": sortBy,
-                    });
+                    titleEle?.scrollIntoView();
                 }}
             >
-                <option value={SortType.AlphanumASC}>
-                    {tomatoI18n.标题自然数升序}
-                </option>
-                <option value={SortType.AlphanumDESC}>
-                    {tomatoI18n.标题自然数降序}
-                </option>
-                <option value={SortType.NameASC}>
-                    {tomatoI18n.标题字母升序}
-                </option>
-                <option value={SortType.NameDESC}>
-                    {tomatoI18n.标题字母降序}
-                </option>
-                <option value={SortType.CreatedASC}>
-                    {tomatoI18n.创建时间升序}
-                </option>
-                <option value={SortType.CreatedDESC}>
-                    {tomatoI18n.创建时间降序}
-                </option>
-                <option value={SortType.UpdatedASC}>
-                    {tomatoI18n.修改时间升序}
-                </option>
-                <option value={SortType.UpdatedDESC}>
-                    {tomatoI18n.修改时间降序}
-                </option>
-            </select></label
-        >
-        <!-- 列数量 -->
-        <label title={tomatoI18n.列数量留空为自动计算} class="conceptMargin">
-            <input
-                placeholder="col"
-                class="b3-text-field numInput"
-                bind:value={colCount}
-                on:focus={() => ($autoRefreshChecked = false)}
-                on:input={() =>
-                    siyuan.setBlockAttrs(maker.docID, {
-                        "custom-bkColCount": colCount,
-                    })}
-            />
-        </label>
-        <!-- 高度 -->
-        <label title={tomatoI18n.高度} class="conceptMargin">
-            <input
-                placeholder="200"
-                class="b3-text-field numInput"
-                bind:value={$back_link_protyle_height}
-                on:input={() => {
-                    back_link_protyle_height.write();
-                }}
-            />
-        </label>
-        <!-- 概念 -->
-        {#if expandStatus}
-            {#each linkItems as { text, id, count, attrs } (id)}
-                {#if /\d{4}-\d{2}-\d{2}/.test(text)}
-                    <span></span>
-                {:else if hideThis && attrs.isThisDoc}
-                    <span></span>
-                {:else}
-                    <button
-                        {...{ "tomato-bk-ref": "1" }}
-                        {...attrs}
-                        title={`[[${text}]]: ${tomatoI18n.conceptBarTitle点击}`}
-                        {...attrs}
-                        class="bk_label b3-label__text"
-                        on:click={(event) => refConceptClick(event, text, id)}
-                        >[[ {text} ]]
-                        <span class="bk_ref_count">{count}</span></button
-                    >
-                {/if}
-            {/each}
-        {:else if linkItems.length > 0}
-            <!-- 展开此双链栏 -->
-            <button
-                title={tomatoI18n.foldRefBar收缩此双链栏}
-                class="bk_label b3-label__text"
-                on:click={() => {
-                    expand();
-                }}
-            >
-                [[ ··· ]]
+                {@html icon("Up", ICONS_SIZE)}
             </button>
         {/if}
-    </div>
-    <!-- 搜索精细过滤 -->
-    <div class="bk_flex" {...modeHide}>
-        <!-- 搜索 -->
-        <label title={tomatoI18n.搜索反链提及}>
-            <input
-                class="b3-text-field searchField"
-                placeholder={tomatoI18n.ctrl点击清空enter搜索}
-                on:blur={() => paddingBottom(false)}
-                on:focus={() => paddingBottom()}
-                on:focus={() => ($autoRefreshChecked = false)}
-                bind:value={globalSearchText}
-                on:click={(event) => {
-                    if (event.altKey || event.ctrlKey) {
-                        globalSearchText = "";
-                        doGlobalSearch();
-                    }
-                }}
-                on:keypress={(event) => {
-                    if (event.key === "Enter") {
-                        doGlobalSearch();
-                    }
-                }}
-            />
-        </label>
-        <!-- 精细过滤 -->
-        <label title={tomatoI18n.过滤下面显示的反链提及}>
-            <input
-                bind:this={searchFieldEle}
-                class="b3-text-field searchField"
-                placeholder={tomatoI18n.ctrl点击清空enter搜索}
-                on:click={(event) => {
-                    if (event.altKey || event.ctrlKey) {
-                        searchText = "";
-                        search();
-                    }
-                }}
-                on:blur={() => paddingBottom(false)}
-                on:focus={() => paddingBottom()}
-                on:click={() => {
-                    $autoRefreshChecked = false;
-                }}
-                on:focus={() => {
-                    $autoRefreshChecked = false;
-                }}
-                bind:value={searchText}
-                on:keypress={(event) => {
-                    if (event.key === "Enter") {
-                        search();
-                    }
-                }}
-            />
-            <button
-                class="bk_label b3-label__text"
-                title={tomatoI18n.点击查看搜索语法}
-                on:click={() =>
-                    new Dialog({
-                        width: events.isMobile ? "90vw" : "700px",
-                        height: events.isMobile ? "180svw" : null,
-                        title: tomatoI18n.搜索语法,
-                        content: tomatoI18n.SEARCH_HELP,
-                    })}>{@html icon("Help", ICONS_SIZE)}</button
+        <!-- 概念栏 -->
+        <div class="bk_flex" {...modeHide}>
+            <!-- 最大展开的反链文件数 -->
+            <label
+                class="conceptMargin"
+                title={tomatoI18n.maxBkDocs最大展开的反链文件数}
             >
-        </label>
-        <button
-            title={tomatoI18n.保存查询条件}
-            class="bk_label"
-            on:click={() => {
-                if (globalSearchText || searchText) {
-                    const item = {
-                        global: globalSearchText,
-                        local: searchText,
-                    };
-                    const idx = getSearchListIdx(item);
-                    if (idx < 0) {
-                        searchList.push(item);
-                        searchList = searchList;
-                        saveSearchList();
-                    }
-                }
-            }}
-        >
-            💾</button
-        >
-        {#each searchList as i}
-            <label title={tomatoI18n.点击查询ctrl点击删除}>
+                <input
+                    class="b3-text-field numInput"
+                    bind:value={refDocCount}
+                    on:focus={() => ($autoRefreshChecked = true)}
+                    on:input={() => {
+                        page = 0;
+                        siyuan.setBlockAttrs(maker.docID, {
+                            "custom-bkRefDocCount": refDocCount.toString(),
+                        });
+                    }}
+                />
+            </label>
+            <!-- 最大展开的提及文件数 -->
+            <label
+                class="conceptMargin"
+                title={tomatoI18n.mentionDocs最大展开的提及文件数}
+            >
+                <input
+                    class="b3-text-field numInput"
+                    bind:value={menDocCount}
+                    on:focus={() => ($autoRefreshChecked = true)}
+                    on:input={() => {
+                        page = 0;
+                        siyuan.setBlockAttrs(maker.docID, {
+                            "custom-bkMenDocCount": menDocCount.toString(),
+                        });
+                    }}
+                />
+            </label>
+            <!-- 分页 -->
+            <label class="conceptMargin">
                 <button
-                    class="bk_label b3-label__text"
-                    on:click={(e) => {
-                        clickSavedQuery(e, i);
+                    title={tomatoI18n.上一页}
+                    class="bk_label"
+                    on:click={() => {
+                        page = Math.max(0, page - 1);
+                        refreshOnPage();
                     }}
                 >
-                    {`${i.global}${i.local ? "#" + i.local : ""}`}</button
+                    ⏪</button
+                >
+                <strong
+                    on:click={() => {
+                        page = 0;
+                        refreshOnPage();
+                    }}
+                    title={tomatoI18n.回到第一页}>{page + 1}/{maxPage}</strong
+                >
+                <button
+                    title={tomatoI18n.下一页}
+                    class="bk_label"
+                    on:click={() => {
+                        page++;
+                        refreshOnPage();
+                    }}>⏩</button
                 >
             </label>
-        {/each}
+            <!-- 收缩此双链栏 -->
+            <label class="conceptMargin">
+                <button
+                    title={tomatoI18n.foldRefBar收缩此双链栏}
+                    class="bk_label"
+                    on:click={() => expand()}
+                    >{expandStatus ? "🔥" : "💧"}</button
+                >
+            </label>
+            <!-- 层级概念 -->
+            <label class="conceptMargin">
+                <button
+                    title={tomatoI18n.openConceptForest打开层级概念}
+                    class="bk_label"
+                    on:click={() => {
+                        const roots = getConceptTrees(linkItemsHierarchy);
+                        showBkConTree(roots);
+                    }}>🌲</button
+                >
+            </label>
+            <!-- 插入相关概念 -->
+            <label class="conceptMargin">
+                <button
+                    title={tomatoI18n.插入相关的层级概念}
+                    class="bk_label"
+                    on:click={() => {
+                        insertConcepts(
+                            maker.plugin,
+                            maker.docID,
+                            hierarchyConcepts,
+                        );
+                    }}>🔑</button
+                >
+            </label>
+            <!-- 暂时隐藏本文档链接 -->
+            <label class="conceptMargin">
+                <button
+                    title={tomatoI18n.暂时隐藏本文档链接}
+                    class="bk_label b3-label__text"
+                    on:click={() => (hideThis = !hideThis)}
+                >
+                    {hideThis ? "🙈" : "👀"}
+                </button>
+            </label>
+            <!-- 创建时间升序 -->
+            <label class="conceptMargin">
+                <select
+                    class="b3-select"
+                    bind:value={sortBy}
+                    on:focus={() => ($autoRefreshChecked = false)}
+                    on:change={() => {
+                        getBackLinks({ mode: "exclusive" }, "sort");
+                        siyuan.setBlockAttrs(maker.docID, {
+                            "custom-bkSortBy": sortBy,
+                        });
+                    }}
+                >
+                    <option value={SortType.AlphanumASC}>
+                        {tomatoI18n.标题自然数升序}
+                    </option>
+                    <option value={SortType.AlphanumDESC}>
+                        {tomatoI18n.标题自然数降序}
+                    </option>
+                    <option value={SortType.NameASC}>
+                        {tomatoI18n.标题字母升序}
+                    </option>
+                    <option value={SortType.NameDESC}>
+                        {tomatoI18n.标题字母降序}
+                    </option>
+                    <option value={SortType.CreatedASC}>
+                        {tomatoI18n.创建时间升序}
+                    </option>
+                    <option value={SortType.CreatedDESC}>
+                        {tomatoI18n.创建时间降序}
+                    </option>
+                    <option value={SortType.UpdatedASC}>
+                        {tomatoI18n.修改时间升序}
+                    </option>
+                    <option value={SortType.UpdatedDESC}>
+                        {tomatoI18n.修改时间降序}
+                    </option>
+                </select></label
+            >
+            <!-- 列数量 -->
+            <label
+                title={tomatoI18n.列数量留空为自动计算}
+                class="conceptMargin"
+            >
+                <input
+                    placeholder="col"
+                    class="b3-text-field numInput"
+                    bind:value={colCount}
+                    on:focus={() => ($autoRefreshChecked = false)}
+                    on:input={() =>
+                        siyuan.setBlockAttrs(maker.docID, {
+                            "custom-bkColCount": colCount,
+                        })}
+                />
+            </label>
+            <!-- 高度 -->
+            <label title={tomatoI18n.高度} class="conceptMargin">
+                <input
+                    placeholder="200"
+                    class="b3-text-field numInput"
+                    bind:value={$back_link_protyle_height}
+                    on:input={() => {
+                        back_link_protyle_height.write();
+                    }}
+                />
+            </label>
+            <!-- 概念 -->
+            {#if expandStatus}
+                {#each linkItems as { text, id, count, attrs } (id)}
+                    {#if /\d{4}-\d{2}-\d{2}/.test(text)}
+                        <span></span>
+                    {:else if hideThis && attrs.isThisDoc}
+                        <span></span>
+                    {:else}
+                        <button
+                            {...{ "tomato-bk-ref": "1" }}
+                            {...attrs}
+                            title={`[[${text}]]: ${tomatoI18n.conceptBarTitle点击}`}
+                            {...attrs}
+                            class="bk_label b3-label__text"
+                            on:click={(event) =>
+                                refConceptClick(event, text, id)}
+                            >[[ {text} ]]
+                            <span class="bk_ref_count">{count}</span></button
+                        >
+                    {/if}
+                {/each}
+            {:else if linkItems.length > 0}
+                <!-- 展开此双链栏 -->
+                <button
+                    title={tomatoI18n.foldRefBar收缩此双链栏}
+                    class="bk_label b3-label__text"
+                    on:click={() => {
+                        expand();
+                    }}
+                >
+                    [[ ··· ]]
+                </button>
+            {/if}
+        </div>
+        <!-- 搜索精细过滤 -->
+        <div class="bk_flex" {...modeHide}>
+            <!-- 搜索 -->
+            <label title={tomatoI18n.搜索反链提及}>
+                <input
+                    class="b3-text-field searchField"
+                    placeholder={tomatoI18n.ctrl点击清空enter搜索}
+                    on:blur={() => paddingBottom(false)}
+                    on:focus={() => paddingBottom()}
+                    on:focus={() => ($autoRefreshChecked = false)}
+                    bind:value={globalSearchText}
+                    on:click={(event) => {
+                        if (event.altKey || event.ctrlKey) {
+                            globalSearchText = "";
+                            doGlobalSearch();
+                        }
+                    }}
+                    on:keypress={(event) => {
+                        if (event.key === "Enter") {
+                            doGlobalSearch();
+                        }
+                    }}
+                />
+            </label>
+            <!-- 精细过滤 -->
+            <label title={tomatoI18n.过滤下面显示的反链提及}>
+                <input
+                    bind:this={searchFieldEle}
+                    class="b3-text-field searchField"
+                    placeholder={tomatoI18n.ctrl点击清空enter搜索}
+                    on:click={(event) => {
+                        if (event.altKey || event.ctrlKey) {
+                            searchText = "";
+                            search();
+                        }
+                    }}
+                    on:blur={() => paddingBottom(false)}
+                    on:focus={() => paddingBottom()}
+                    on:click={() => {
+                        $autoRefreshChecked = false;
+                    }}
+                    on:focus={() => {
+                        $autoRefreshChecked = false;
+                    }}
+                    bind:value={searchText}
+                    on:keypress={(event) => {
+                        if (event.key === "Enter") {
+                            search();
+                        }
+                    }}
+                />
+                <button
+                    class="bk_label b3-label__text"
+                    title={tomatoI18n.点击查看搜索语法}
+                    on:click={() =>
+                        new Dialog({
+                            width: events.isMobile ? "90vw" : "700px",
+                            height: events.isMobile ? "180svw" : null,
+                            title: tomatoI18n.搜索语法,
+                            content: tomatoI18n.SEARCH_HELP,
+                        })}>{@html icon("Help", ICONS_SIZE)}</button
+                >
+            </label>
+            <button
+                title={tomatoI18n.保存查询条件}
+                class="bk_label"
+                on:click={() => {
+                    if (globalSearchText || searchText) {
+                        const item = {
+                            global: globalSearchText,
+                            local: searchText,
+                        };
+                        const idx = getSearchListIdx(item);
+                        if (idx < 0) {
+                            searchList.push(item);
+                            searchList = searchList;
+                            saveSearchList();
+                        }
+                    }
+                }}
+            >
+                💾</button
+            >
+            {#each searchList as i}
+                <label title={tomatoI18n.点击查询ctrl点击删除}>
+                    <button
+                        class="bk_label b3-label__text"
+                        on:click={(e) => {
+                            clickSavedQuery(e, i);
+                        }}
+                    >
+                        {`${i.global}${i.local ? "#" + i.local : ""}`}</button
+                    >
+                </label>
+            {/each}
+        </div>
     </div>
     <!-- 反链、提及 -->
     <div class="bk_protyle" bind:clientWidth={bkWidth}>
@@ -1116,12 +1130,7 @@
                         <button
                             title={tomatoI18n.滑动到顶部}
                             class="b3-button b3-button--text"
-                            on:click={async () => {
-                                const id = await siyuan.getDocLastID(
-                                    maker.docID,
-                                );
-                                if (id) await OpenSyFile2(maker.plugin, id);
-                            }}
+                            on:click={go2Top}
                         >
                             ⬆️</button
                         >
@@ -1181,6 +1190,12 @@
 <div bind:this={keepHeight}></div>
 
 <style>
+    .search-bar {
+        position: sticky;
+        top: 0;
+        background-color: var(--b3-theme-background);
+        z-index: 1000;
+    }
     .modeSwitchBtn {
         margin-left: -20px;
         margin-bottom: -80px;
