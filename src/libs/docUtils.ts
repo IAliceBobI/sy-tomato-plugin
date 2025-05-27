@@ -812,6 +812,7 @@ export class DocTracer {
                         this.timestamp = row.updated;
                     }
                     row.attrs = parseIAL(row.ial)
+                    delete row.attrs["title-img"];
                     this.docMap.set(row.id, row);
                     this.setBlock(row);
                 });
