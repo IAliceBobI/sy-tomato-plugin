@@ -223,7 +223,7 @@ function loadStore(plugin: BaseTomatoPlugin) {
     storeNoteBox_fastnote.load(plugin, plugin.settingCfg);
 }
 
-export const tomatoSettingsOpenHK = winHotkey("ctrl+,", "tomato settings 2025-5-12 08:52:33", "", () => tomatoI18n.番茄工具箱配置)
+export const tomatoSettingsOpenHK = winHotkey("ctrl+;", "tomato settings 2025-5-27 14:02:33", "", () => tomatoI18n.番茄工具箱配置)
 
 export default class ThePlugin extends BaseTomatoPlugin {
     constructor(options: any) {

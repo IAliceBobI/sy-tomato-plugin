@@ -431,17 +431,6 @@
             {tomatoI18n.桌面端编辑器右上角添加多行选择按钮}
         </div>
     </div>
-    <!-- 显示文档属性 -->
-    <div class="settingBox">
-        <div>
-            <input
-                type="checkbox"
-                class="b3-switch"
-                bind:checked={$showDocAttrs}
-            />
-            {tomatoI18n.显示文档属性}
-        </div>
-    </div>
     <!-- 引用前后加上括号 -->
     <div class="settingBox">
         <div>
@@ -1975,6 +1964,15 @@
             </strong>
         </div>
         {#if $mixBoxCheckbox}
+            <!-- 显示文档属性 -->
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$showDocAttrs}
+                />
+                {tomatoI18n.显示文档属性}
+            </div>
             <div>
                 {MixBox删除块以及闪卡.langText()}
                 <strong>{MixBox删除块以及闪卡.w()}</strong>

@@ -10,6 +10,7 @@ import { linkBoxUseLnkOrRef } from "./stores";
 import { getDocBlocks } from "./docUtils";
 import { domRef, DomSuperBlockBuilder } from "./sydom";
 import { DestroyManager } from "./destroyer";
+import { parseCustomTag } from "./ial";
 
 export function closeTabByTitle(tabs: AttrType[], excludeDocID: string) {
     if (tabs?.length > 0) {
@@ -530,8 +531,10 @@ export function ial2str(ial: AttrType): string {
 export function parseIAL(ial: string) {
     const obj = {} as AttrType;
     if (ial) {
-        const attrs = ial.matchAll(/([^\s]+)="([^\s]+)"/g);
-        for (const attr of attrs) obj[attr[1]] = attr[2];
+        // const attrs = ial.matchAll(/([^\s]+)="([^\s]+)"/g);
+        // for (const attr of attrs) obj[attr[1]] = attr[2];
+        const attrs = parseCustomTag(ial)
+        return attrs;
     }
     return obj;
 }

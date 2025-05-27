@@ -807,18 +807,14 @@ export class DocTracer {
         await navigator.locks.request("DocTracer 2024-12-1 23:48:00", async (lock) => {
             if (lock) {
                 const rows = await siyuan.sql(`select * from blocks where type='d' and updated>'${this.timestamp}' limit 99999999999`)
-                const tasks = [];
                 rows.forEach(row => {
-                    if (row.updated > "23240927124216") {
-                        tasks.push(siyuan.setBlockAttrs(row.id, { updated: timeUtil.getYYYYMMDDHHmmss() }));
-                    } else if (row.updated > this.timestamp) {
+                    if (row.updated > this.timestamp) {
                         this.timestamp = row.updated;
                     }
                     row.attrs = parseIAL(row.ial)
                     this.docMap.set(row.id, row);
                     this.setBlock(row);
                 });
-                await Promise.all(tasks);
             }
         });
     }
