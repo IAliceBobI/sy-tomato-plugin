@@ -1192,9 +1192,9 @@
 <style>
     .search-bar {
         position: sticky;
-        top: 0;
+        top: 0px;
         background-color: var(--b3-theme-background);
-        z-index: 1000;
+        z-index: 1;
     }
     .modeSwitchBtn {
         margin-left: -20px;
