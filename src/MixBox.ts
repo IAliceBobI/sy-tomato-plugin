@@ -255,6 +255,7 @@ class MixBox {
                                 delete ial["icon"];
                                 delete ial["tags"];
                                 delete ial["title-img"];
+                                delete ial["tomato-dailynote"];
                                 const virAttrStr = Object.entries(ial)
                                     .sort((a, b) => a[0].localeCompare(b[0]))
                                     .map(([k, v]) => {

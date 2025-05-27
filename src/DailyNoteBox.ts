@@ -218,7 +218,7 @@ class DailyNoteBox {
             .filter(({ ial }) => {
                 for (const [k, v] of Object.entries(ial)) {
                     if (k.startsWith("custom-dailynote-")) {
-                        ial['tomato-dailynote'] = v
+                        ial["tomato-dailynote"] = v
                         return true
                     }
                 }
