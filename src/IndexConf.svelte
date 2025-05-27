@@ -2394,7 +2394,7 @@
         position: sticky;
         top: 0;
         background-color: var(--b3-theme-surface);
-        z-index: 1;
+        z-index: 10;
     }
     .settingBox {
         margin: 10px;
