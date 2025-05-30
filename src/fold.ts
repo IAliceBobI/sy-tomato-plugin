@@ -1,5 +1,5 @@
 import { IProtyle, Plugin } from "siyuan";
-import { getAttribute, removeAttribute, setAttribute, siyuan, } from "./libs/utils";
+import { getAttribute, removeAttribute, setAttribute, setFocusToEditableDiv, siyuan, } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { events } from "./libs/Events";
@@ -28,22 +28,47 @@ export function addFoldCmd(plugin: Plugin) {
         },
     });
 }
+
+function handleQuoteSuper(targetElement: HTMLElement, protyle: IProtyle, fold: boolean) {
+    const { found } = findElement(targetElement, false, (e) => {
+        const t = getAttribute(e, "data-type");
+        if (t === BlockNodeEnum.NODE_BLOCKQUOTE || t === BlockNodeEnum.NODE_SUPER_BLOCK)
+            return true
+    });
+    if (found) {
+        doFoldByElement(found, protyle, fold);
+        return true;
+    }
+}
+
+function handleList(targetElement: HTMLElement, protyle: IProtyle, fold: boolean) {
+    const doFind = (el: HTMLElement) => {
+        return findElement(el, false, (e) => {
+            const t = getAttribute(e, "data-type");
+            if (t === BlockNodeEnum.NODE_LIST_ITEM) return true
+        });
+    }
+    const { found } = doFind(targetElement);
+    if (found) {
+        if (found.querySelector(`div[data-type="NodeList"]`) || fold == false) {//has sub list
+            doFoldByElement(found, protyle, fold);
+            return true;
+        } else {
+            const { found: found_parent } = doFind(found.parentElement);
+            if (found_parent) {
+                doFoldByElement(found_parent, protyle, fold);
+                return true;
+            }
+        }
+    }
+}
+
 async function changeBlockFold(protyle: IProtyle, plugin: Plugin, fold: boolean) {
     const { selected, ids } = await events.selectedDivs(protyle)
     const targetElement = selected?.at(0);
     if (!targetElement) return;
-
-    const { found } = findElement(targetElement, false, (e) => {
-        const t = getAttribute(e, "data-type");
-        if (t === BlockNodeEnum.NODE_BLOCKQUOTE
-            || t === BlockNodeEnum.NODE_SUPER_BLOCK
-            || t === BlockNodeEnum.NODE_LIST
-        ) return true
-    });
-    if (found) {
-        doFoldByElement(found, protyle, fold);
-        return;
-    }
+    if (handleQuoteSuper(targetElement, protyle, fold)) return;
+    if (handleList(targetElement, protyle, fold)) return;
 
     const id = getAttribute(targetElement, "data-node-id")
     const t = getAttribute(targetElement, "data-type")
@@ -109,6 +134,7 @@ function doFoldByElement(e: HTMLElement, protyle: IProtyle, fold: boolean) {
             protyle.getInstance().updateTransaction(id, e.outerHTML, old)
         }
     }
+    setFocusToEditableDiv(e)
 }
 
 function findPreviousElementSibling(e: HTMLElement, f: (a: HTMLElement) => boolean) {

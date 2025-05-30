@@ -539,6 +539,16 @@ export function parseIAL(ial: string) {
     return obj;
 }
 
+export function setFocusToEditableDiv(editableDiv: HTMLElement) {
+    editableDiv.focus();
+    const range = document.createRange();
+    range.selectNodeContents(editableDiv);
+    range.collapse(false);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
 export function moveCursor2Tail(id: string) {
     const newDIV = document.querySelector(`div[${gconst.DATA_NODE_ID}="${id}"] div[contenteditable="true"]`);
     if (newDIV) document.getSelection().collapse(newDIV, 1);

@@ -188,36 +188,60 @@ function listenWheel(_event: WheelEvent) {
     }, 200);
 }
 
+function getAnchor(id: string) {
+    let rand = false
+    let anchor = document.querySelector(`div[data-node-id="${id}"] > div[contenteditable] > span[data-type="block-ref"]`)
+    if (!anchor) {
+        anchor = document.querySelector(`div[data-node-id="${id}"] > div[contenteditable] > span[data-type="a"]`)
+    }
+    if (!anchor) {
+        anchor = document.querySelector(`div[data-node-id="${id}"] > div[contenteditable] > span`)
+    }
+    if (!anchor) {
+        anchor = document.querySelector(`div[data-node-id="${id}"] > div[contenteditable]`)
+        rand = true
+    }
+    if (!anchor) {
+        anchor = document.querySelector(`div[data-node-id="${id}"]`)
+        rand = true
+    }
+    if (anchor) {
+        anchor.classList.add('tomato-mind-wire-content')
+        const rect = anchor.getBoundingClientRect();
+        let delta = 0;
+        if (rand) {
+            delta = murmurHash3(id) % 600;
+        }
+        const x = rect.right + window.scrollX - delta;
+        const y = rect.top + window.scrollY + rect.height / 2;
+        return { x, y }
+    }
+    return {}
+}
+
 function drawWire(id1: string, id2: string) {
     let svg = document.getElementById(svgID) as unknown as SVGSVGElement;
-
-    const node1 = document.querySelector(`div[data-node-id="${id1}"] > div[contenteditable]`)
-    const node2 = document.querySelector(`div[data-node-id="${id2}"] > div[contenteditable]`)
-    if (!node1 || !node2) return;
-
-    node1.classList.add('tomato-mind-wire-content')
-    node2.classList.add('tomato-mind-wire-content')
-
-    const rect1 = node1.getBoundingClientRect();
-    const rect2 = node2.getBoundingClientRect();
-
-    const slots = 200;
-    const hash1 = murmurHash3(id1) % slots
-    const hash2 = murmurHash3(id2) % slots
-
-    const x1 = rect1.left + window.scrollX + hash1;
-    const x2 = rect2.left + window.scrollX + hash2;
-
-    const y1 = rect1.top + window.scrollY + rect1.height / 2;
-    const y2 = rect2.top + window.scrollY + rect2.height / 2;
+    const { x: x1, y: y1 } = getAnchor(id1)
+    const { x: x2, y: y2 } = getAnchor(id2)
+    if (x1 == null) return
+    if (y1 == null) return
+    if (x2 == null) return
+    if (y2 == null) return
 
     // 创建曲线路径
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
     // 计算两点几何关系
+    // 选择连线的形状
+    const deltaY = Math.abs(y1 - y2)
+    const deltaX = Math.abs(x1 - x2)
+    const L1 = 50;
+    const L2 = 400;
     let pathData: string;
-    if (Math.abs(y1 - y2) < 500 && Math.abs(x1 - x2) < 500) {
-        pathData = calcCirclePathData(x2, x1, y2, y1);
+    if (deltaY < L1) {
+        pathData = calcCurvePathData(x2, x1, y2, y1, 0.01);
+    } else if (deltaY < L2 && deltaX < L2) {
+        pathData = calcCurvePathData(x2, x1, y2, y1, 0.1);
     } else {
         pathData = calcCurvePathData(x2, x1, y2, y1);
     }
@@ -239,8 +263,8 @@ function drawWire(id1: string, id2: string) {
 
 export const mindWire = new MindWire();
 
-function calcCurvePathData(x2: number, x1: number, y2: number, y1: number) {
-    const curveIntensity = Math.abs(x2 - x1) * 0.3; // 动态弯曲强度
+function calcCurvePathData(x2: number, x1: number, y2: number, y1: number, t = 0.3) {
+    const curveIntensity = Math.abs(x2 - x1) * t; // 动态弯曲强度
     const pathData = `M ${x1} ${y1} 
                     Q ${x1 + curveIntensity} ${y1},
                         ${(x1 + x2) / 2} ${(y1 + y2) / 2}
@@ -248,6 +272,7 @@ function calcCurvePathData(x2: number, x1: number, y2: number, y1: number) {
     return pathData;
 }
 
+calcCirclePathData
 function calcCirclePathData(x2: number, x1: number, y2: number, y1: number) {
     const dx = x2 - x1;
     const dy = y2 - y1;
