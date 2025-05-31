@@ -389,7 +389,7 @@ class DailyNoteBox {
             } else {
                 const ops = []
                 if (true) {
-                    const lnk = domLnk("", ids.at(0), getAllText(selected, "").replaceAll("\n", ""))
+                    const lnk = domLnk("", ids.at(0), getAllText(selected, "").replaceAll("\n", "").slice(0, 30))
                     ops.push(...siyuan.transInsertBlocksAfter([lnk], ids.at(0)));
                 }
                 if (dailyNoteMoveToBottom.get()) {
@@ -398,7 +398,7 @@ class DailyNoteBox {
                     ops.push(...siyuan.transMoveBlocksAsChild(ids, docID))
                 }
                 await siyuan.transactions(ops)
-                await OpenSyFile2(this.plugin, ids.at(-1));
+                // await OpenSyFile2(this.plugin, ids.at(-1));
             }
         } catch (_e) {
             await siyuan.pushMsg(tomatoI18n.您配置的笔记本x是否已经打开了(boxID));
