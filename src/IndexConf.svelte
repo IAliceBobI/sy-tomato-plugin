@@ -158,6 +158,7 @@
         mindWireDocMenu,
         mindWireGlobalMenu,
         mindWireStarRefOnly,
+        hideVIP,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -317,42 +318,44 @@
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->
 <div class="fn_flex fn_flex-column" bind:this={settingsDiv}>
-    <div class="alert contentCenter" data-hide>
-        <span>
-            {tomatoI18n.大部分功能不需要激活}
-        </span>
-    </div>
-    <!-- 激活码 -->
-    <div class="settingBox" data-hide>
-        <div>
-            {tomatoI18n.激活码}
-            <textarea
-                class="b3-text-field activeCode"
-                bind:value={$userToken}
-                placeholder="1656000000123_22000101_ldID_siyuanTomatoCode_3044022018c8d8bca......"
-                spellcheck="false"
-            />
-            <button class="b3-button" on:click={active}>
-                {tomatoI18n.激活}
-            </button>
-            <button
-                class="b3-button"
-                on:click={() => {
-                    if (buyDIV.style.display) buyDIV.style.display = "";
-                    else buyDIV.style.display = "none";
-                }}
-            >
-                {tomatoI18n.购买}
-            </button>
-            <TomatoVIP {codeValid}></TomatoVIP>
-            <span title={tomatoI18n.过期时间 + ": " + $expStore}>
-                {$expStore.replaceAll(" ", "")}
+    {#if codeNotValid || !$hideVIP}
+        <div class="alert contentCenter" data-hide>
+            <span>
+                {tomatoI18n.大部分功能不需要激活}
             </span>
-            <div bind:this={buyDIV} style="display: none;">
-                <BuyTomato></BuyTomato>
+        </div>
+        <!-- 激活码 -->
+        <div class="settingBox" data-hide>
+            <div>
+                {tomatoI18n.激活码}
+                <textarea
+                    class="b3-text-field activeCode"
+                    bind:value={$userToken}
+                    placeholder="1656000000123_22000101_ldID_siyuanTomatoCode_3044022018c8d8bca......"
+                    spellcheck="false"
+                />
+                <button class="b3-button" on:click={active}>
+                    {tomatoI18n.激活}
+                </button>
+                <button
+                    class="b3-button"
+                    on:click={() => {
+                        if (buyDIV.style.display) buyDIV.style.display = "";
+                        else buyDIV.style.display = "none";
+                    }}
+                >
+                    {tomatoI18n.购买}
+                </button>
+                <TomatoVIP {codeValid}></TomatoVIP>
+                <span title={tomatoI18n.过期时间 + ": " + $expStore}>
+                    {$expStore.replaceAll(" ", "")}
+                </span>
+                <div bind:this={buyDIV} style="display: none;">
+                    <BuyTomato></BuyTomato>
+                </div>
             </div>
         </div>
-    </div>
+    {/if}
     <!-- search -->
     <div class="settingBox search-bar" data-search>
         <input
@@ -388,6 +391,16 @@
         </div>
         <div>
             {addFoldCmd展开.langText()}<strong>{addFoldCmd展开.w()}</strong>
+        </div>
+        <div class:codeNotValid>
+            <input
+                type="checkbox"
+                disabled={codeNotValid}
+                class:codeNotValid
+                class="b3-switch"
+                bind:checked={$hideVIP}
+            />
+            {tomatoI18n.隐藏vip图标}<TomatoVIP {codeValid}></TomatoVIP>
         </div>
     </div>
     <!-- 文档树工具 -->

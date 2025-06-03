@@ -606,6 +606,23 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 隐藏vip图标() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "隐藏 VIP 图标";
+            case "es_ES": return "Ocultar icono VIP";
+            case "fr_FR": return "Masquer l'icône VIP";
+            case "ja_JP": return "VIPアイコンを非表示";
+            case "zh_CHT": return "隱藏 VIP 圖標";
+            case "it_IT": return "Nascondi icona VIP";
+            case "de_DE": return "VIP-Symbol ausblenden";
+            case "he_IL": return "הסתר סמל VIP";
+            case "ru_RU": return "Скрыть значок VIP";
+            case "pl_PL": return "Ukryj ikonę VIP";
+            case "en_US":
+            default: return "Hide VIP icon";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

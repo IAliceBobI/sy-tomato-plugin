@@ -1,4 +1,4 @@
-import { Plugin, getFrontend, Protyle, IProtyle, IEventBusMap } from "siyuan";
+import { Plugin, getFrontend, Protyle, IProtyle, IEventBusMap, getBackend } from "siyuan";
 import { getCursorElement, getID, siyuan } from "./utils";
 import { DATA_NODE_ID, PROTYLE_WYSIWYG_SELECT } from "./gconst";
 
@@ -60,6 +60,11 @@ class Events {
     private _isDesktop: boolean;
     public get isDesktop(): boolean {
         return this._isDesktop;
+    }
+
+    public get isMac(): boolean {
+        const b = getBackend();
+        return b == "darwin" || b == "ios";
     }
 
     private _isBrowser: boolean;

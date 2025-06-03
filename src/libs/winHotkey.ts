@@ -1,3 +1,4 @@
+import { events } from "./Events";
 import { lastVerifyResult } from "./user";
 import { Siyuan } from "./utils";
 
@@ -24,22 +25,19 @@ function getAllHotkeys(obj: any) {
     }
 }
 
-function toWin(k: string, mac = true, win = true) {
-    const w = k
-        .replaceAll("⌘", "Ctrl+")
-        .replaceAll("⇧", "Shift+")
-        .replaceAll("⌥", "Alt+")
-        .replaceAll("⇥", "Tab")
-        .replaceAll("⌫", "Backspace")
-        .replaceAll("⌦", "Delete")
-        .replaceAll("↩", "Enter");
-    if (mac && win) {
-        return `(${k})(${w})`
+function toWin(k: string) {
+    if (events.isMac) {
+        return k
+    } else {
+        return k
+            .replaceAll("⌘", "Ctrl+")
+            .replaceAll("⇧", "Shift+")
+            .replaceAll("⌥", "Alt+")
+            .replaceAll("⇥", "Tab")
+            .replaceAll("⌫", "Backspace")
+            .replaceAll("⌦", "Delete")
+            .replaceAll("↩", "Enter");
     }
-    if (mac) {
-        return `(${k})`
-    }
-    return `(${w})`
 }
 
 interface Get {
@@ -79,22 +77,22 @@ export function winHotkey(m: string, langKey: string, icon?: string, langText?: 
     // hotkeySet.set(m, langKey);
     // hotkeySet.set(langKey, m);
 
-    const w = (mac = true, win = true) => {
+    const w = () => {
         const a = Siyuan?.config?.keymap?.plugin?.['sy-tomato-plugin']?.[langKey]?.custom
-        if (a) return toWin(a, mac, win);
+        if (a) return toWin(a);
 
         const b = Siyuan?.config?.keymap?.plugin?.['sy-progressive-plugin']?.[langKey]?.custom
-        if (b) return toWin(b, mac, win);
+        if (b) return toWin(b);
 
         const c = Siyuan?.config?.keymap?.plugin?.['sy-my-plugin']?.[langKey]?.custom
-        if (c) return toWin(c, mac, win);
+        if (c) return toWin(c);
 
         const a1 = Siyuan?.config?.keymap?.plugin?.['sy-tomato-plugin']?.[langKey]?.default
         const b1 = Siyuan?.config?.keymap?.plugin?.['sy-progressive-plugin']?.[langKey]?.default
         const c1 = Siyuan?.config?.keymap?.plugin?.['sy-my-plugin']?.[langKey]?.default
         const invalid = !!a1 || !!b1 || !!c1;
 
-        return toWin(m, mac, win) + (invalid ? "🚫" : "");
+        return toWin(m) + (invalid ? "🚫" : "");
     }
 
     const menu = () => {

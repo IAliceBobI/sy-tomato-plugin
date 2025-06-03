@@ -78,7 +78,7 @@ class DailyNoteBox {
         if (dailyNotetopbarleft.get()) {
             plugin.addTopBar({
                 icon: DailyNoteBox上一个日志.icon,
-                title: DailyNoteBox上一个日志.langText() + DailyNoteBox上一个日志.w(false, true),
+                title: DailyNoteBox上一个日志.langText() + DailyNoteBox上一个日志.w(),
                 position: "left",
                 callback: () => {
                     this.openDailyNote(-1000 * 60 * 60 * 24);
@@ -89,7 +89,7 @@ class DailyNoteBox {
         if (dailyNotetopbarright.get()) {
             plugin.addTopBar({
                 icon: DailyNoteBox下一个日志.icon,
-                title: DailyNoteBox下一个日志.langText() + DailyNoteBox下一个日志.w(false, true),
+                title: DailyNoteBox下一个日志.langText() + DailyNoteBox下一个日志.w(),
                 position: "left",
                 callback: () => {
                     this.openDailyNote(1000 * 60 * 60 * 24);
