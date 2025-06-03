@@ -84,7 +84,10 @@ class MindWire {
                             getAllEditor().forEach(p => p.protyle.element.removeEventListener('wheel', listenWheel));
                             element
                                 .querySelectorAll("[tomato-mind-wire-content]")
-                                .forEach(e => e.removeAttribute('tomato-mind-wire-content'));
+                                .forEach((e: HTMLElement) => {
+                                    e.removeAttribute('tomato-mind-wire-content')
+                                    e.style.border = "none"
+                                });
 
                             drawLines(element);
                             element.removeEventListener('wheel', listenWheel);
@@ -93,7 +96,10 @@ class MindWire {
                             getAllEditor().forEach(p => p.protyle.element.removeEventListener('wheel', listenWheel));
                             element
                                 .querySelectorAll("[tomato-mind-wire-content]")
-                                .forEach(e => e.removeAttribute('tomato-mind-wire-content'));
+                                .forEach((e: HTMLElement) => {
+                                    e.removeAttribute('tomato-mind-wire-content')
+                                    e.style.border = "none"
+                                });
 
                             cleanWire()
                         }
