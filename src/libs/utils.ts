@@ -2781,3 +2781,7 @@ export function icon(name: string, size = 20) {
 export function getDocLastElement(protyle: IProtyle) {
     return protyle?.wysiwyg?.element?.lastElementChild;
 }
+
+export function isEditor(protyle: IProtyle) {
+    return !!getAttribute(protyle.element, "data-id") || events.isMobile
+}

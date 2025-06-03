@@ -156,10 +156,6 @@
   }
 }
 
-.tomato-mind-wire-content {
-  border: 0.3px dashed var(--b3-font-color5);
-}
-
 #tomato-mind-wire-svg-container {
   position: absolute;
   top: 0;
@@ -170,14 +166,7 @@
   z-index: 1;
 }
 
-.tomato-mind-wire-connector {
-  stroke-width: 0.7;
-  stroke-dasharray: 10;
-}
-
 .tomato-mind-wire-connector-animation {
-  stroke-width: 0.7;
-  stroke-dasharray: 10;
   animation: tomato-mind-wire-flow 2s linear infinite;
 }
 

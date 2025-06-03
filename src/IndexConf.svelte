@@ -159,6 +159,9 @@
         mindWireGlobalMenu,
         mindWireStarRefOnly,
         hideVIP,
+        mindWireLine,
+        mindWireColorfull,
+        mindWireWidth,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -169,7 +172,7 @@
         saveRestorePagePosition,
         siyuan,
     } from "./libs/utils";
-    import { expStore, resetKey, verifyKeyTomato } from "./libs/user";
+    import { expStore, lastVerifyResult, resetKey, verifyKeyTomato } from "./libs/user";
     import BuyTomato from "./BuyTomato.svelte";
     import { ImgBoxHotKey } from "./ImgBox";
     import { AIBoxHotkey } from "./AIBox";
@@ -836,13 +839,44 @@
                 />
                 {tomatoI18n.只关联星号引用}
             </div>
-            <div>
+            <div class:codeNotValid>
                 <input
+                    disabled={codeNotValid}
+                    class:codeNotValid
                     type="checkbox"
                     class="b3-switch"
-                    bind:checked={$mindWireDynamicLine}
+                    bind:checked={$mindWireLine}
                 />
-                {tomatoI18n.流动线条效果}
+                {tomatoI18n.使用实线}<TomatoVIP {codeValid}></TomatoVIP>
+            </div>
+            <div class:codeNotValid>
+                <input
+                    disabled={codeNotValid}
+                    class:codeNotValid
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$mindWireColorfull}
+                />
+                {tomatoI18n.使用多种颜色}<TomatoVIP {codeValid}></TomatoVIP>
+            </div>
+            {#if !($mindWireLine && lastVerifyResult())}
+                <div>
+                    <input
+                        type="checkbox"
+                        class="b3-switch"
+                        bind:checked={$mindWireDynamicLine}
+                    />
+                    {tomatoI18n.流动线条效果}
+                </div>
+            {/if}
+            <div>
+                <input
+                    class="b3-text-field"
+                    type="number"
+                    min="0.1"
+                    bind:value={$mindWireWidth}
+                />
+                {tomatoI18n.线条宽度}
             </div>
         {/if}
     </div>

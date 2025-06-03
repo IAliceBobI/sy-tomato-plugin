@@ -166,22 +166,26 @@
             >
             {@html whiteSpace}
         {/if}
-        <button
-            class="fontColor"
-            title={tomatoI18n.闪卡优先级 + "-1"}
-            on:click={subOne}>－</button
-        >
+        {#if !events.isMobile}
+            <button
+                class="fontColor"
+                title={tomatoI18n.闪卡优先级 + "-1"}
+                on:click={subOne}>－</button
+            >
+        {/if}
         <button
             class="fontColor"
             title={tomatoI18n.点击修改优先级}
             bind:this={priText}
             on:click={updateCardByInput}>{priority}</button
         >
-        <button
-            class="fontColor"
-            title={tomatoI18n.闪卡优先级 + "+1"}
-            on:click={addOne}>＋</button
-        >
+        {#if !events.isMobile}
+            <button
+                class="fontColor"
+                title={tomatoI18n.闪卡优先级 + "+1"}
+                on:click={addOne}>＋</button
+            >
+        {/if}
         {@html whiteSpace}
         {#if !isInSettings && !$card_priority_stopBtn_hide}
             <button title={tomatoI18n.推迟与取消推迟} on:click={stopCard}
@@ -190,25 +194,27 @@
             {@html whiteSpace}
         {/if}
         {#if isInSettings || !$card_priority_slider_hide}
-            <label>
-                <input
-                    class="slider"
-                    title={tomatoI18n.拖动闪卡优先级}
-                    type="range"
-                    on:click={updateCard}
-                    bind:value={priority}
-                    min="0"
-                    max="100"
-                    list={cardID + "-priority-labels"}
-                />
-                <datalist id={cardID + "-priority-labels"}>
-                    <option value="0"> </option>
-                    <option value="25"> </option>
-                    <option value="50"> </option>
-                    <option value="75"> </option>
-                    <option value="100"> </option>
-                </datalist>
-            </label>
+            {#if !events.isMobile}
+                <label>
+                    <input
+                        class="slider"
+                        title={tomatoI18n.拖动闪卡优先级}
+                        type="range"
+                        on:click={updateCard}
+                        bind:value={priority}
+                        min="0"
+                        max="100"
+                        list={cardID + "-priority-labels"}
+                    />
+                    <datalist id={cardID + "-priority-labels"}>
+                        <option value="0"> </option>
+                        <option value="25"> </option>
+                        <option value="50"> </option>
+                        <option value="75"> </option>
+                        <option value="100"> </option>
+                    </datalist>
+                </label>
+            {/if}
         {/if}
     </div>
 </div>

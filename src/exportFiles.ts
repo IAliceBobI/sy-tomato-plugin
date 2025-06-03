@@ -1,6 +1,6 @@
 import { confirm, IProtyle, Plugin, Protyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { cleanDivOnly, cloneCleanDiv, downloadStringAsFile, getAttribute, getBlocksByTrees, getMarkdownsByTrees, removeInvisibleChars, siyuan, } from "./libs/utils";
+import { cleanDivOnly, cloneCleanDiv, downloadStringAsFile, getAttribute, getBlocksByTrees, getMarkdownsByTrees, isEditor, removeInvisibleChars, siyuan, } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
 import { TOMATO_LINE_THROUGH } from "./libs/gconst";
 import { OpenSyFile2 } from "./libs/docUtils";
@@ -137,10 +137,12 @@ function _addSelectionButton() {
                 if (lock) {
                     const protyle: IProtyle = detail.protyle;
                     if (!protyle) return;
-                    params.s = new SelectionML(events.selectedDivsSync(protyle));
-                    addSelectPrevButton(protyle, params)
-                    addSelectNextButton(protyle, params)
-                    addCancelButton(protyle, params)
+                    if (isEditor(protyle)) {
+                        params.s = new SelectionML(events.selectedDivsSync(protyle));
+                        addSelectPrevButton(protyle, params)
+                        addSelectNextButton(protyle, params)
+                        addCancelButton(protyle, params)
+                    }
                 }
             });
         }
