@@ -135,26 +135,22 @@ class CommentBox {
             text.trim().split("\n").forEach(l => builder.append(domNewLine(l)))
 
             const heandingID = NewNodeID();
-            if (newDivs.length == 1) {
-                setAttribute(newDivs.at(0), "fold", "1");
-                builder.append(newDivs.at(0));
-            } else {
-                const txtLen = txt.length;
-                const maxLen = 32;
-                txt = txt.slice(0, maxLen)
-                if (txtLen > maxLen) {
-                    txt += "..."
-                }
-                const h = domNewHeading(txt, "h6", heandingID, true);
-                setAttribute(h, "custom-comment-heading", "1")
-                builder.append(h);
-                builder.append(...newDivs)
 
-                newDivs.forEach(div => {
-                    setAttribute(div, "fold", "1")
-                    setAttribute(div, "heading-fold", "1")
-                });
+            const txtLen = txt.length;
+            const maxLen = 32;
+            txt = txt.slice(0, maxLen)
+            if (txtLen > maxLen) {
+                txt += "..."
             }
+            const h = domNewHeading(txt, "h6", heandingID, true);
+            setAttribute(h, "custom-comment-heading", "1")
+            builder.append(h);
+            builder.append(...newDivs)
+
+            newDivs.forEach(div => {
+                setAttribute(div, "fold", "1")
+                setAttribute(div, "heading-fold", "1")
+            });
 
             const { id: docID } = await createDailyNoteTask;
             const tail = await siyuan.getDocLastID(docID);
@@ -184,17 +180,15 @@ class CommentBox {
                 }
             }
 
-            if (newDivs.length > 1) {
-                setTimeouts(() => {
-                    newDivs.forEach(div => {
-                        document
-                            .querySelectorAll(`div[data-node-id="${getAttribute(div, "data-node-id")}"]`)
-                            .forEach(e => {
-                                e?.parentElement?.removeChild(e);
-                            });
-                    });
-                }, 500, 3000, 800);
-            }
+            setTimeouts(() => {
+                newDivs.forEach(div => {
+                    document
+                        .querySelectorAll(`div[data-node-id="${getAttribute(div, "data-node-id")}"]`)
+                        .forEach(e => {
+                            e?.parentElement?.removeChild(e);
+                        });
+                });
+            }, 500, 3000, 800);
         });
     }
 
