@@ -16,6 +16,7 @@ type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
     mindWireWidth: number,
+    cssSuperBlockBorder: boolean,
     mindWireColorfull: boolean,
     mindWireLine: boolean,
     hideVIP: boolean,

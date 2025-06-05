@@ -162,6 +162,7 @@
         mindWireLine,
         mindWireColorfull,
         mindWireWidth,
+        cssSuperBlockBorder,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -172,7 +173,12 @@
         saveRestorePagePosition,
         siyuan,
     } from "./libs/utils";
-    import { expStore, lastVerifyResult, resetKey, verifyKeyTomato } from "./libs/user";
+    import {
+        expStore,
+        lastVerifyResult,
+        resetKey,
+        verifyKeyTomato,
+    } from "./libs/user";
     import BuyTomato from "./BuyTomato.svelte";
     import { ImgBoxHotKey } from "./ImgBox";
     import { AIBoxHotkey } from "./AIBox";
@@ -494,6 +500,15 @@
             />
             {tomatoI18n.显示备注}
         </div>
+    </div>
+    <!-- 给所有超级块加上边框 -->
+    <div class="settingBox">
+        <input
+            type="checkbox"
+            class="b3-switch"
+            bind:checked={$cssSuperBlockBorder}
+        />
+        {tomatoI18n.给所有超级块加上边框}
     </div>
     <!-- 极简无序列表样式 -->
     <div class="settingBox">

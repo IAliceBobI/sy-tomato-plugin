@@ -445,6 +445,7 @@ export const noteBoxAllKinds = settingFactory("noteBoxAllKinds", `📌,💡, �
 export const avoiding_cloud_synchronization_conflicts = settingFactory("avoiding-cloud-synchronization-conflicts", false, STORAGE_SETTINGS, null as TSK);
 export const flash_thoughts_2_top = settingFactory("flash-thoughts-2-top", false, STORAGE_SETTINGS, null as TSK);
 export const cssFlashThoughts = settingFactory("cssFlashThoughts", false, STORAGE_SETTINGS, null as TSK);
+export const cssSuperBlockBorder = settingFactory("cssSuperBlockBorder", false, STORAGE_SETTINGS, null as TSK);
 export const flashThoughtUseDialog = settingFactory("flashThoughtUseDialog", false, STORAGE_SETTINGS, null as TSK);
 export const flash_thoughts_target_file = settingFactory("flash-thoughts-target-file", "", STORAGE_SETTINGS, null as TSK);
 export const listBoxCheckbox = settingFactory("listBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);

@@ -1,5 +1,5 @@
 import { DATA_NODE_ID, DocAttrShowKey } from "./libs/gconst";
-import { cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefSquareBrackets, cssRefStyle, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, dailyNoteCopyShowPath, showDocAttrs } from "./libs/stores";
+import { cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefSquareBrackets, cssRefStyle, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, showDocAttrs } from "./libs/stores";
 import { verifyKeyTomato } from "./libs/user";
 import { getAttribute, Siyuan } from "./libs/utils";
 
@@ -21,6 +21,8 @@ function _loadCss() {
     load_cssRefStyle();
 
     load_cssRefSquareBrackets();
+
+    load_superblock_border();
 
     load_cssFlashThoughts();
 
@@ -250,6 +252,17 @@ function load_cssShowMemo() {
             content: attr(memo);
             color: var(--b3-font-color4);
             background-color: var(--b3-font-background4);
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function load_superblock_border() {
+    if (!cssSuperBlockBorder.get()) return;
+    let style = document.createElement('style');
+    style.innerText = `
+        .protyle-wysiwyg div[data-type="NodeSuperBlock"] {
+            border: 1px solid var(--b3-font-color7);
         }
     `;
     document.head.appendChild(style);
