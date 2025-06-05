@@ -26,7 +26,10 @@ export enum EventType {
     input_search = "input-search",
     paste = "paste",
     open_siyuan_url_plugin = "open-siyuan-url-plugin",
-    open_siyuan_url_block = "open-siyuan-url-block"
+    open_siyuan_url_block = "open-siyuan-url-block",
+    sync_start = "sync-start",
+    sync_end = "sync-end",
+    sync_fail = "sync-fail",
 }
 
 class Events {
@@ -164,12 +167,22 @@ class Events {
         this.plugin.eventBus.on(EventType.switch_protyle, ({ detail }: any) => {
             this.invokeCB(EventType.switch_protyle, detail);
         });
+        this.plugin.eventBus.on(EventType.sync_fail, ({ detail }: any) => {
+            this.invokeCB(EventType.sync_fail, detail);
+        });
+        this.plugin.eventBus.on(EventType.sync_start, ({ detail }: any) => {
+            this.invokeCB(EventType.sync_start, detail);
+        });
+        this.plugin.eventBus.on(EventType.sync_end, ({ detail }: any) => {
+            this.invokeCB(EventType.sync_end, detail);
+        });
         this.plugin.eventBus.on(EventType.ws_main, ({ detail }: { detail: WsMain }) => {
             if (detail?.cmd == null) return;
             if (detail.cmd === "backgroundtask") return;
             if (detail.cmd === "statusbar") return;
             if (detail.cmd === "reloadPlugin") return;
             if (detail.cmd === "databaseIndexCommit") return;
+            if (detail.cmd === "syncing") return;
             this.invokeWs(detail);
         });
     }

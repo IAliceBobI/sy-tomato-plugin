@@ -15,11 +15,12 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
-    mindWireWidth: number,
     cssSuperBlockBorder: boolean,
+    commentBoxAddTime: boolean,
     mindWireColorfull: boolean,
     mindWireLine: boolean,
     hideVIP: boolean,
+    mindWireWidth: number,
     mindWireStarRefOnly: boolean,
     mindWireDocMenu: boolean,
     mindWireGlobalMenu: boolean,

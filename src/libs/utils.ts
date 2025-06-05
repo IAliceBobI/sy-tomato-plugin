@@ -1,4 +1,4 @@
-import { Config, Constants, Lute, Protyle, fetchSyncPost, confirm, IProtyle, getAllEditor } from "siyuan";
+import { Config, Constants, Lute, Protyle, fetchSyncPost, confirm, IProtyle, getAllEditor, Dialog } from "siyuan";
 import { v4 as uuid } from "uuid";
 import * as gconst from "./gconst";
 import * as moment from "moment-timezone";
@@ -2784,4 +2784,8 @@ export function getDocLastElement(protyle: IProtyle) {
 
 export function isEditor(protyle: IProtyle) {
     return !!getAttribute(protyle.element, "data-id") || events.isMobile
+}
+
+export function getDialogContainer(dialog: Dialog) {
+    return dialog?.element?.querySelector("div.b3-dialog > div.b3-dialog__container")
 }

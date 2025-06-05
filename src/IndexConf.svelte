@@ -111,7 +111,6 @@
         linkBoxSyncRef,
         linkBoxAttrIconOnHide,
         commentBoxCheckbox,
-        commentBoxAddFlashCard,
         commentBoxAddUnderline,
         commentBoxShowID,
         back_link_show_path,
@@ -777,14 +776,6 @@
                 />
                 {tomatoI18n.menu添加右键菜单}
                 <strong>{CommentBox添加批注到日记.w()}</strong>
-            </div>
-            <div>
-                <input
-                    type="checkbox"
-                    class="b3-switch"
-                    bind:checked={$commentBoxAddFlashCard}
-                />
-                {tomatoI18n.加入闪卡}
             </div>
             <div>
                 <input

@@ -1,7 +1,7 @@
+const nop = () => { }
 export class DestroyManager {
     private destroied = false;
     private cbs = new Map<string, Func>();
-    private actions: Func[] = [];
     private data = new Map<string, any>();
     private showMsg: boolean;
     private prefix: string;
@@ -15,11 +15,10 @@ export class DestroyManager {
     getData<T>(key: string) {
         return this.data.get(key) as T;
     }
-    action(cb: Func) {
-        this.actions.push(cb);
-    }
-    run() {
-        this.actions.forEach(i => i());
+    getFn(key: string) {
+        const v = this.getData<Func>(key)
+        if (v) return v;
+        return nop;
     }
     add(name: string, cb: Func) {
         this.cbs.set(name.trim(), cb);

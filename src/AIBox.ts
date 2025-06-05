@@ -60,7 +60,7 @@ class AIBox {
     private async ai(anchorID: string, text: string) {
         if (!anchorID) return;
         if (this.dm) {
-            this.dm.run();
+            this.dm.getFn("run")()
             this.dm.destroyBy();
         } else {
             this.dm?.destroyBy();

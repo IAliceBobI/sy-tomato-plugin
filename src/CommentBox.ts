@@ -1,14 +1,14 @@
-import { adaptHotkey, Dock, IProtyle } from "siyuan";
+import { adaptHotkey, Dialog, Dock, IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { add_ref, cloneCleanDiv, extendMap, getAllText, getAttribute, getContextPath, newID, NewNodeID, setAttribute, setTimeouts, siyuan, } from "./libs/utils";
+import { getDialogContainer, newID, } from "./libs/utils";
 import CommentBoxSvelte from "./CommentBox.svelte";
-import { commentBoxAddFlashCard, commentBoxAddUnderline, commentBoxCheckbox, commentBoxMenu, storeNoteBox_selectedNotebook } from "./libs/stores";
+import { commentBoxCheckbox, commentBoxMenu, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { isReadonly } from "./libs/docUtils";
-import { DialogTextArea } from "./libs/DialogText";
-import { domNewHeading, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
 import { winHotkey } from "./libs/winHotkey";
+import { DestroyManager } from "./libs/destroyer";
+import CommentInput from "./CommentInput.svelte";
 
 const DOCK_TYPE = "dock_CommentBox";
 
@@ -20,9 +20,6 @@ class CommentBox {
     svelteCallback: (protyle: IProtyle) => void;
     svelteResize: () => void;
     svelte: CommentBoxSvelte;
-
-    onunload() {
-    }
 
     onload(plugin: BaseTomatoPlugin) {
         if (plugin.initCfg()) {
@@ -96,100 +93,38 @@ class CommentBox {
         if (!selected || selected.length == 0) return;
         let boxID = storeNoteBox_selectedNotebook.getOr();
         if (!boxID) boxID = events.boxID;
-        const createDailyNoteTask = siyuan.createDailyNote(boxID);
-        const rpath = getContextPath(ids[0]).then(a => a.getPathStr());
-        const ops: IOperation[] = [];
-        const newDivs: HTMLElement[] = [];
-        new DialogTextArea(tomatoI18n.添加批注, "", async (text) => {
-            const builder = new DomSuperBlockBuilder();
 
-            let txt = getAllText(selected, "")
-            if (rangeText) {
-                const div = domNewLine(rangeText.trim());
-                add_ref(div, ids[0], "*", true, false)
-                newDivs.push(div)
-            } else {
-                const new2old = new Map<string, string>();
-                const cloned = selected.map(s => {
-                    const { new2old: m, div } = cloneCleanDiv(s, true)
-                    extendMap(new2old, m);
-                    return div;
-                });
-                newDivs.push(...cloned);
-                cloned
-                    .map(div => {
-                        const all: HTMLElement[] = [...div.querySelectorAll(`div[data-node-id][data-type="NodeParagraph"]`)] as any;
-                        if (all.length == 0) return [div];
-                        return all;
-                    })
-                    .flat()
-                    .forEach((div) => {
-                        add_ref(div, new2old.get(getAttribute(div, "data-node-id")), "*", true, true)
-                        setAttribute(div, "custom-comment-bk-id", builder.id);
-                        div.style.backgroundColor = "";
-                    })
+        const id = newID();
+        const dm = new DestroyManager();
+        const dialog = new Dialog({
+            title: tomatoI18n.添加批注,
+            content: `<div id="${id}"></div>`,
+            width: events.isMobile ? "90vw" : null,
+            height: events.isMobile ? null : null,
+            hideCloseIcon: true,
+            transparent: true,
+            destroyCallback() {
+                dm.destroyBy("dialog");
+            },
+            resizeCallback(_type: string) {
+                dm.getFn("resizeCallback")(getDialogContainer(dialog));
             }
-
-            builder.setAttr("custom-lnk-bottom", "1");
-            builder.setAttr("custom-tomato-ref-hpath", await rpath);
-            text.trim().split("\n").forEach(l => builder.append(domNewLine(l)))
-
-            const heandingID = NewNodeID();
-
-            const txtLen = txt.length;
-            const maxLen = 32;
-            txt = txt.slice(0, maxLen)
-            if (txtLen > maxLen) {
-                txt += "..."
-            }
-            const h = domNewHeading(txt, "h6", heandingID, true);
-            setAttribute(h, "custom-comment-heading", "1")
-            builder.append(h);
-            builder.append(...newDivs)
-
-            newDivs.forEach(div => {
-                setAttribute(div, "fold", "1")
-                setAttribute(div, "heading-fold", "1")
-            });
-
-            const { id: docID } = await createDailyNoteTask;
-            const tail = await siyuan.getDocLastID(docID);
-            ops.push(...siyuan.transInsertBlocksAfter([builder.build().outerHTML], tail))
-            await siyuan.transactions(ops);
-
-            if (commentBoxAddFlashCard.get()) {
-                siyuan.addRiffCards([builder.id])
-            }
-
-            if (commentBoxAddUnderline.get() && await ro != "true" && newDivs.length == 1) {
-                const hasUnderline = (e: HTMLElement) => {
-                    if (e?.tagName === "SPAN") {
-                        if (getAttribute(e, "data-type") === "u") {
-                            return true;
-                        }
-                    }
-                }
-                try {
-                    const a = range?.startContainer?.parentElement;
-                    const b = range?.endContainer?.parentElement;
-                    protyle.toolbar.setInlineMark(protyle, "u", "range");
-                    if (hasUnderline(a) || hasUnderline(b)) {
-                        protyle.toolbar.setInlineMark(protyle, "u", "range");
-                    }
-                } catch (e) {
-                }
-            }
-
-            setTimeouts(() => {
-                newDivs.forEach(div => {
-                    document
-                        .querySelectorAll(`div[data-node-id="${getAttribute(div, "data-node-id")}"]`)
-                        .forEach(e => {
-                            e?.parentElement?.removeChild(e);
-                        });
-                });
-            }, 500, 3000, 800);
         });
+        dm.add("dialog", () => dialog.destroy());
+        const svelte = new CommentInput({
+            target: dialog.element.querySelector("#" + id),
+            props: {
+                dm,
+                protyle,
+                boxID,
+                ro,
+                ids,
+                selected,
+                rangeText,
+                range,
+            }
+        });
+        dm.add("svelte", () => svelte.$destroy());
     }
 
     private addDock() {

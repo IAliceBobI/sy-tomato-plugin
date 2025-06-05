@@ -73,14 +73,6 @@ class NoteBox {
         this.addTab();
         if (events.isMobile) {
             this.plugin.addTopBar({
-                icon: "iconCloudTomato",
-                title: tomatoI18n.同步数据,
-                position: "left",
-                callback: () => {
-                    siyuan.performSync(true);
-                },
-            });
-            this.plugin.addTopBar({
                 icon: "iconCameraTomato",
                 title: this.plugin.i18n.noteBox,
                 position: "left",
@@ -88,9 +80,24 @@ class NoteBox {
                     this.showInDialog();
                 },
             });
-            events.addWsListener("note-box ws 2024-12-15 09:11:50", (detail) => {
-                if (detail.cmd === "syncing") {
-                    siyuan.pushMsg(detail.msg, 1000);
+            const syncIcon = this.plugin.addTopBar({
+                icon: "iconCloudTomatoEnd",
+                title: tomatoI18n.同步数据,
+                position: "left",
+                callback: () => {
+                    siyuan.performSync(true);
+                },
+            });
+            events.addListener("note-box ws 2024-12-15 09:11:501", (eventType, detail) => {
+                if (eventType === EventType.sync_fail) {
+                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoFail")
+                    siyuan.pushMsg(detail.msg, 3000);
+                }
+                if (eventType === EventType.sync_start) {
+                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoStart")
+                }
+                if (eventType === EventType.sync_end) {
+                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoEnd")
                 }
             });
         }

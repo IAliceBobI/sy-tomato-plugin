@@ -41,7 +41,7 @@
         addNewPromptDiv.style.display = "none";
 
         text = textBK + "\n\n---\n\n";
-        dm.action(ai);
+        dm.setData("run", ai);
         window.addEventListener("keydown", handleEscapePress);
         dm.add("Key Lisener", () =>
             window.removeEventListener("keydown", handleEscapePress),
