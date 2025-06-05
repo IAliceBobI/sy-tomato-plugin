@@ -101,7 +101,6 @@ class CommentBox {
             content: `<div id="${id}"></div>`,
             width: events.isMobile ? "90vw" : null,
             height: events.isMobile ? null : null,
-            hideCloseIcon: true,
             transparent: true,
             destroyCallback() {
                 dm.destroyBy("dialog");
