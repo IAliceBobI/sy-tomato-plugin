@@ -624,157 +624,166 @@ export class TomatoI18n extends TomatoI18nABC {
     }
 
     public get 使用实线() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "使用实线";
-            case "es_ES":
-            case "fr_FR":
-            case "ja_JP":
-            case "zh_CHT":
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
+            case "es_ES": return "Usar línea sólida";
+            case "fr_FR": return "Utiliser une ligne pleine";
+            case "ja_JP": return "実線を使用";
+            case "zh_CHT": return "使用實線";
+            case "it_IT": return "Usa linea continua";
+            case "de_DE": return "Durchgezogene Linie verwenden";
+            case "he_IL": return "השתמש בקו מלא";
+            case "ru_RU": return "Использовать сплошную линию";
+            case "pl_PL": return "Użyj ciągłej linii";
             case "en_US":
-            default:
+            default: return "Use solid line";
         }
     }
     public get 使用多种颜色() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "使用多种颜色";
-            case "es_ES":
-            case "fr_FR":
-            case "ja_JP":
-            case "zh_CHT":
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
+            case "es_ES": return "Usar múltiples colores";
+            case "fr_FR": return "Utiliser plusieurs couleurs";
+            case "ja_JP": return "複数の色を使用";
+            case "zh_CHT": return "使用多種顏色";
+            case "it_IT": return "Usa più colori";
+            case "de_DE": return "Mehrere Farben verwenden";
+            case "he_IL": return "השתמש במספר צבעים";
+            case "ru_RU": return "Использовать несколько цветов";
+            case "pl_PL": return "Użyj wielu kolorów";
             case "en_US":
-            default:
+            default: return "Use multiple colors";
         }
     }
     public get 线条宽度() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "线条宽度";
-            case "es_ES":
-            case "fr_FR":
-            case "ja_JP":
-            case "zh_CHT":
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
+            case "es_ES": return "Ancho de línea";
+            case "fr_FR": return "Largeur de ligne";
+            case "ja_JP": return "線の幅";
+            case "zh_CHT": return "線條寬度";
+            case "it_IT": return "Larghezza linea";
+            case "de_DE": return "Linienbreite";
+            case "he_IL": return "רוחב קו";
+            case "ru_RU": return "Ширина линии";
+            case "pl_PL": return "Szerokość linii";
             case "en_US":
-            default:
+            default: return "Line width";
         }
     }
     public get 给所有超级块加上边框() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "给所有超级块加上边框";
-            case "es_ES":
-            case "fr_FR":
-            case "ja_JP":
-            case "zh_CHT":
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
+            case "es_ES": return "Añadir bordes a todos los superbloques";
+            case "fr_FR": return "Ajouter des bordures à tous les super blocs";
+            case "ja_JP": return "すべてのスーパーブロックに枠線を追加";
+            case "zh_CHT": return "給所有超級塊加上邊框";
+            case "it_IT": return "Aggiungi bordi a tutti i super blocchi";
+            case "de_DE": return "Rahmen zu allen Superblöcken hinzufügen";
+            case "he_IL": return "הוסף מסגרות לכל הבלוקים העל";
+            case "ru_RU": return "Добавить границы ко всем супер блокам";
+            case "pl_PL": return "Dodaj obramowania do wszystkich super bloków";
             case "en_US":
-            default:
+            default: return "Add borders to all super blocks";
         }
     }
     public get 取消() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "取消";
-            case "es_ES":
-            case "fr_FR":
-            case "ja_JP":
-            case "zh_CHT":
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
+            case "es_ES": return "Cancelar";
+            case "fr_FR": return "Annuler";
+            case "ja_JP": return "キャンセル";
+            case "zh_CHT": return "取消";
+            case "it_IT": return "Annulla";
+            case "de_DE": return "Abbrechen";
+            case "he_IL": return "ביטול";
+            case "ru_RU": return "Отмена";
+            case "pl_PL": return "Anuluj";
             case "en_US":
-            default:
+            default: return "Cancel";
         }
     }
     public get 闪卡() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "闪卡";
-            case "es_ES":
-            case "fr_FR":
-            case "ja_JP":
-            case "zh_CHT":
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
+            case "es_ES": return "Tarjeta de memoria";
+            case "fr_FR": return "Carte mémoire";
+            case "ja_JP": return "フラッシュカード";
+            case "zh_CHT": return "閃卡";
+            case "it_IT": return "Scheda didattica";
+            case "de_DE": return "Karteikarte";
+            case "he_IL": return "כרטיסיית פלאש";
+            case "ru_RU": return "Карточка";
+            case "pl_PL": return "Fiszka";
             case "en_US":
-            default:
+            default: return "Flashcard";
         }
     }
     public get 时间() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "时间";
-            case "es_ES":
-            case "fr_FR":
-            case "ja_JP":
-            case "zh_CHT":
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
+            case "es_ES": return "Tiempo";
+            case "fr_FR": return "Temps";
+            case "ja_JP": return "時間";
+            case "zh_CHT": return "時間";
+            case "it_IT": return "Tempo";
+            case "de_DE": return "Zeit";
+            case "he_IL": return "זמן";
+            case "ru_RU": return "Время";
+            case "pl_PL": return "Czas";
             case "en_US":
-            default:
+            default: return "Time";
         }
     }
     public get 记忆() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "记忆";
-            case "es_ES":
-            case "fr_FR":
-            case "ja_JP":
-            case "zh_CHT":
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
+            case "es_ES": return "Memoria";
+            case "fr_FR": return "Mémoire";
+            case "ja_JP": return "記憶";
+            case "zh_CHT": return "記憶";
+            case "it_IT": return "Memoria";
+            case "de_DE": return "Erinnerung";
+            case "he_IL": return "זיכרון";
+            case "ru_RU": return "Память";
+            case "pl_PL": return "Pamięć";
             case "en_US":
-            default:
+            default: return "Memory";
         }
     }
+    public get 加入时间() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "加入时间";
+            case "es_ES": return "Hora de unión";
+            case "fr_FR": return "Heure d'arrivée";
+            case "ja_JP": return "参加時間";
+            case "zh_CHT": return "加入時間";
+            case "it_IT": return "Ora di ingresso";
+            case "de_DE": return "Beitrittszeit";
+            case "he_IL": return "זמן הצטרפות";
+            case "ru_RU": return "Время присоединения";
+            case "pl_PL": return "Czas dołączenia";
+            case "en_US":
+            default: return "Join time";
+        }
+    }
+    public get 记忆上次的输入() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "记忆上次的输入";
+            case "es_ES": return "Recordar última entrada";
+            case "fr_FR": return "Se souvenir de la dernière entrée";
+            case "ja_JP": return "前回の入力を記憶";
+            case "zh_CHT": return "記憶上次的輸入";
+            case "it_IT": return "Ricorda ultimo input";
+            case "de_DE": return "Letzte Eingabe merken";
+            case "he_IL": return "זכור קלט אחרון";
+            case "ru_RU": return "Запомнить последний ввод";
+            case "pl_PL": return "Zapamiętaj ostatnie wprowadzenie";
+            case "en_US":
+            default: return "Remember last input";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

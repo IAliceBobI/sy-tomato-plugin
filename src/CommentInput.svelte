@@ -10,7 +10,7 @@
     import {
         DomSuperBlockBuilder,
         domNewLine,
-        domNewHeading,
+        DomListBuilder,
     } from "./libs/sydom";
     import {
         getAllText,
@@ -19,9 +19,7 @@
         extendMap,
         getAttribute,
         setAttribute,
-        NewNodeID,
         siyuan,
-        setTimeouts,
         getContextPath,
         timeUtil,
     } from "./libs/utils";
@@ -76,17 +74,21 @@
 
         const builder = new DomSuperBlockBuilder();
         let txt = getAllText(selected, "");
-        if (rangeText) {
-            const div = domNewLine(rangeText.trim());
-            add_ref(div, ids[0], "*", true, false);
-            newDivs.push(div);
-        } else {
+        // if (rangeText) {
+        //     const div = domNewLine(rangeText.trim());
+        //     add_ref(div, ids[0], "*", true, false);
+        //     newDivs.push(div);
+        // } else
+        {
             const new2old = new Map<string, string>();
             const cloned = selected.map((s) => {
                 const { new2old: m, div } = cloneCleanDiv(s, true);
                 extendMap(new2old, m);
                 return div;
             });
+            if (rangeText) {
+                newDivs.push(domNewLine("👉" + rangeText.trim() + "👈"));
+            }
             newDivs.push(...cloned);
             cloned
                 .map((div) => {
@@ -118,23 +120,22 @@
             .split("\n")
             .forEach((l) => builder.append(domNewLine(l)));
 
-        const heandingID = NewNodeID();
-
         const txtLen = txt.length;
         const maxLen = 32;
         txt = txt.slice(0, maxLen);
         if (txtLen > maxLen) {
             txt += "...";
         }
-        const h = domNewHeading(txt, "h6", heandingID, true);
-        setAttribute(h, "custom-comment-heading", "1");
-        builder.append(h);
-        builder.append(...newDivs);
 
-        newDivs.forEach((div) => {
-            setAttribute(div, "fold", "1");
-            setAttribute(div, "heading-fold", "1");
-        });
+        const list = new DomListBuilder();
+        const sublist = list.newList(domNewLine(txt));
+        sublist.append(...newDivs);
+        builder.append(list.container);
+        list.container.firstElementChild.setAttribute("fold", "1");
+        list.container.firstElementChild.setAttribute(
+            "custom-comment-heading",
+            "1",
+        );
 
         const { id: docID } = await createDailyNoteTask;
         const tail = await siyuan.getDocLastID(docID);
@@ -147,11 +148,7 @@
             siyuan.addRiffCards([builder.id]);
         }
 
-        if (
-            commentBoxAddUnderline.get() &&
-            (await ro) != "true" &&
-            newDivs.length == 1
-        ) {
+        if (commentBoxAddUnderline.get() && (await ro) != "true" && rangeText) {
             const hasUnderline = (e: HTMLElement) => {
                 if (e?.tagName === "SPAN") {
                     if (getAttribute(e, "data-type") === "u") {
@@ -168,29 +165,12 @@
                 }
             } catch (e) {}
         }
-
-        setTimeouts(
-            () => {
-                newDivs.forEach((div) => {
-                    document
-                        .querySelectorAll(
-                            `div[data-node-id="${getAttribute(div, "data-node-id")}"]`,
-                        )
-                        .forEach((e) => {
-                            e?.parentElement?.removeChild(e);
-                        });
-                });
-            },
-            500,
-            2000,
-            800,
-        );
     }
 </script>
 
 <div class="container">
     <div>
-        <label>
+        <label title={tomatoI18n.加入闪卡}>
             <input
                 type="checkbox"
                 class="b3-switch box"
@@ -199,7 +179,7 @@
             />
             {tomatoI18n.闪卡}
         </label>
-        <label>
+        <label title={tomatoI18n.加入时间}>
             <input
                 type="checkbox"
                 class="b3-switch box"
@@ -208,7 +188,7 @@
             />
             {tomatoI18n.时间}
         </label>
-        <label>
+        <label title={tomatoI18n.记忆上次的输入}>
             <input
                 type="checkbox"
                 class="b3-switch box"
@@ -218,6 +198,7 @@
             {tomatoI18n.记忆}
         </label>
         <button
+            title={tomatoI18n.清空}
             bind:this={btn}
             class="b3-button b3-button--text box"
             on:click={() => {
@@ -230,6 +211,16 @@
         spellcheck="false"
         class="b3-text-field box"
         bind:value={text}
+        on:keypress={(event) => {
+            if (event instanceof KeyboardEvent) {
+                if (event.key === "Enter") {
+                    if (event.shiftKey || event.ctrlKey || event.altKey) {
+                        saveComment();
+                        destroy();
+                    }
+                }
+            }
+        }}
     />
     <button
         bind:this={btn}
@@ -237,7 +228,7 @@
         on:click={() => {
             saveComment();
             destroy();
-        }}>{tomatoI18n.保存}</button
+        }}>Shift + Enter {tomatoI18n.保存}</button
     >
 </div>
 

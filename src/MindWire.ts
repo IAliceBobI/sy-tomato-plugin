@@ -206,7 +206,6 @@ function getAnchor(id: string) {
         anchor = document.querySelector(`div[data-node-id="${id}"]`)
     }
     if (anchor) {
-        anchor.setAttribute('tomato-mind-wire-content', "1")
         return { e: anchor as HTMLElement }
     }
     return {}
@@ -267,6 +266,9 @@ function drawWire(id1: string, id2: string) {
     if (!(x2 > 5)) return
     if (!(y1 > 5)) return
     if (!(y2 > 5)) return
+
+    anchor1.setAttribute('tomato-mind-wire-content', "1")
+    anchor2.setAttribute('tomato-mind-wire-content', "1")
 
     // 创建曲线路径
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
