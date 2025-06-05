@@ -78,9 +78,8 @@ class MindWire {
                     if (lock && element && isEditor(detail?.protyle)) {
                         const attr = await siyuan.getBlockAttrs(detail.protyle.block.rootID)
                         const en = attr["custom-mindwire-enable"]
-                        if (mindWireEnable.get() && (en != "di")) {
-                            this.protyle = detail.protyle;
 
+                        const clearBorder = () => {
                             getAllEditor().forEach(p => p.protyle.element.removeEventListener('wheel', listenWheel));
                             element
                                 .querySelectorAll("[tomato-mind-wire-content]")
@@ -88,19 +87,16 @@ class MindWire {
                                     e.removeAttribute('tomato-mind-wire-content')
                                     e.style.border = "none"
                                 });
+                        }
 
+                        if (mindWireEnable.get() && (en != "di")) {
+                            this.protyle = detail.protyle;
+                            clearBorder();
                             drawLines(element);
                             element.removeEventListener('wheel', listenWheel);
                             element.addEventListener('wheel', listenWheel);
                         } else {
-                            getAllEditor().forEach(p => p.protyle.element.removeEventListener('wheel', listenWheel));
-                            element
-                                .querySelectorAll("[tomato-mind-wire-content]")
-                                .forEach((e: HTMLElement) => {
-                                    e.removeAttribute('tomato-mind-wire-content')
-                                    e.style.border = "none"
-                                });
-
+                            clearBorder();
                             cleanWire()
                         }
                     }
@@ -134,9 +130,9 @@ async function toggleDocMindWire(protyle: IProtyle) {
 
 const svgID = "tomato-mind-wire-svg-container"
 
-function drawLines(elem: HTMLElement) {
+function drawLines(_elem: HTMLElement) {
     cleanWire();
-    const idPairs = [...elem.querySelectorAll(`span[data-type="block-ref"]`)]
+    const idPairs = [...document.querySelectorAll(`span[data-type="block-ref"]`)]
         .map(e => {
             if (mindWireStarRefOnly.get()) {
                 if (e.textContent.trim() != "*")
@@ -149,13 +145,13 @@ function drawLines(elem: HTMLElement) {
             }
         }).filter(i => i != null);
 
-    idPairs.push(...[...elem.querySelectorAll(`div[custom-lnk-my-id]`)]
+    idPairs.push(...[...document.querySelectorAll(`div[custom-lnk-my-id]`)]
         .map(e => {
             const id1 = getAttribute(e, "data-node-id");
             const id2s = getAttribute(e, "custom-lnk-to-ids")
                 ?.split(",")
                 ?.map(lnk => {
-                    const e = elem.querySelector(`div[custom-lnk-my-id="${lnk}"]`)
+                    const e = document.querySelector(`div[custom-lnk-my-id="${lnk}"]`)
                     return getAttribute(e, "data-node-id")
                 })
                 ?.filter(i => i != null) ?? [];
@@ -254,7 +250,7 @@ function getEdgePoint(source: DOMRect, target: DOMRect) {
 function getConnectPoint(anchor1: HTMLElement, anchor2: HTMLElement) {
     // const x = rect1.left + window.scrollX;
     // const y = rect1.top + window.scrollY + rect1.height / 2;
-    if (!anchor1 || !anchor2) return;
+    if (!anchor1 || !anchor2) return {};
     const rect1 = anchor1.getBoundingClientRect();
     const rect2 = anchor2.getBoundingClientRect();
     const { x: x1, y: y1 } = getEdgePoint(rect1, rect2);
@@ -267,10 +263,10 @@ function drawWire(id1: string, id2: string) {
     const { e: anchor1 } = getAnchor(id1)
     const { e: anchor2 } = getAnchor(id2)
     const { x1, y1, x2, y2 } = getConnectPoint(anchor1, anchor2)
-    if (x1 == null) return
-    if (y1 == null) return
-    if (x2 == null) return
-    if (y2 == null) return
+    if (!(x1 > 5)) return
+    if (!(x2 > 5)) return
+    if (!(y1 > 5)) return
+    if (!(y2 > 5)) return
 
     // 创建曲线路径
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
