@@ -481,6 +481,7 @@ export const commentBoxBackwardRef = settingFactory("commentBoxBackwardRef", tru
 export const commentBoxVirtualRef = settingFactory("commentBoxVirtualRef", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxAddFlashCard = settingFactory("commentBoxAddFlashCard", false, STORAGE_SETTINGS, null as TSK);
 export const commentBoxAddTime = settingFactory("commentBoxAddTime", false, STORAGE_SETTINGS, null as TSK);
+export const commentBoxAddKeepText = settingFactory("commentBoxAddKeepText", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxAddUnderline = settingFactory("commentBoxAddUnderline", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxShowID = settingFactory("commentBoxShowID", false, STORAGE_SETTINGS, null as TSK);
 export const commentBoxStaticOutlink = settingFactory("commentBoxStaticOutlink", false, STORAGE_SETTINGS, null as TSK);

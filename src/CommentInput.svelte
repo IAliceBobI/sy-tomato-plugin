@@ -3,6 +3,7 @@
     import { DestroyManager } from "./libs/destroyer";
     import {
         commentBoxAddFlashCard,
+        commentBoxAddKeepText,
         commentBoxAddTime,
         commentBoxAddUnderline,
     } from "./libs/stores";
@@ -41,12 +42,20 @@
     let text = "";
     let textField: HTMLTextAreaElement;
     let btn: HTMLButtonElement;
+    const key = "tomato comment text key 2025-6-5 21:37:27";
 
     onDestroy(destroy);
     function destroy() {
+        if (commentBoxAddKeepText.get()) {
+            localStorage.setItem(key, text);
+        }
         dm.destroyBy("svelte");
     }
     onMount(() => {
+        if (commentBoxAddKeepText.get()) {
+            text = localStorage.getItem(key) ?? "";
+        }
+
         dm.setData("resizeCallback", (element: HTMLElement) => {
             if (!element) return;
             let height = element.clientHeight;
@@ -188,7 +197,7 @@
                 bind:checked={$commentBoxAddFlashCard}
                 on:change={() => commentBoxAddFlashCard.write()}
             />
-            {tomatoI18n.加入闪卡}
+            {tomatoI18n.闪卡}
         </label>
         <label>
             <input
@@ -197,8 +206,24 @@
                 bind:checked={$commentBoxAddTime}
                 on:change={() => commentBoxAddTime.write()}
             />
-            {tomatoI18n.加入时间}
+            {tomatoI18n.时间}
         </label>
+        <label>
+            <input
+                type="checkbox"
+                class="b3-switch box"
+                bind:checked={$commentBoxAddKeepText}
+                on:change={() => commentBoxAddKeepText.write()}
+            />
+            {tomatoI18n.记忆}
+        </label>
+        <button
+            bind:this={btn}
+            class="b3-button b3-button--text box"
+            on:click={() => {
+                text = "";
+            }}>🗑️</button
+        >
     </div>
     <textarea
         bind:this={textField}
