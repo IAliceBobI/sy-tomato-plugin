@@ -279,6 +279,8 @@ type AttrType = {
     style?: string,
     md?: string,// for 'Writing' plugin
     content?: string,// for 'Writing' plugin
+    "custom-tomato-key-comment"?: string,
+    "custom-tomato-comment"?: string,
     "title-img"?: string,
     "custom-tomato-ref-hpath"?: string,
     "tomato-bk-ignore"?: string,

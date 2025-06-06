@@ -15,12 +15,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "フラッシュをDailynoteの先頭に挿入します。";
             case "zh_CHT":
                 return "閃念插入到Dailynote頂端。";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Insert flash at the top of Dailynote.";
         }
@@ -37,12 +32,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "フラッシュの時間とタイプを表示します。";
             case "zh_CHT":
                 return "顯示閃念的時間與類型。";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Display the time and type of the flash.";
         }
@@ -60,12 +50,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "フラッシュをファイルに挿入し、ファイル名を入力します（パスなし、拡張子なし）（空白の場合は今日のdailynoteに挿入します）";
             case "zh_CHT":
                 return "閃念插入到文件，填入文件名（無路徑，無後綴）（留空為插入到當天dailynote）";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Insert the flash into the file, enter the filename (no path, no suffix) (leave blank to insert into today's dailynote)";
         }
@@ -83,12 +68,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "リストツール";
             case "zh_CHT":
                 return "列表工具";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "List Tools";
         }
@@ -106,12 +86,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "連続したエンターキーでリストが切断されるのを防ぎます。(リストを途中で切断する場合：shift+tab)";
             case "zh_CHT":
                 return "阻止連續回車斷開列表。(若想從中間斷開列表：shift+tab)";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Prevent continuous enter from breaking the list. (If you want to break the list from the middle: shift+tab)";
         }
@@ -129,12 +104,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "Ernie AIに登録：登録後、アプリケーションを作成し、APIキーとシークレットキーをコピーします";
             case "zh_CHT":
                 return "註冊Ernie AI：註冊後，創建應用，複製API Key與Secret Key即可";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Register Ernie AI: After registering, create an application, copy the API Key and Secret Key";
         }
@@ -152,12 +122,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "Deepseekに登録し、APIキーを作成します";
             case "zh_CHT":
                 return "註冊 Deepseek，創建 API Key";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Register Deepseek, create API Key";
         }
@@ -175,12 +140,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "moonshotに登録し、APIキーを作成します";
             case "zh_CHT":
                 return "註冊 moonshot，創建 API Key";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Register moonshot, create API Key";
         }
@@ -199,11 +159,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "請先選中段落塊"; // 繁体中文：请先选中块  
             case "it_IT":
                 return "Per favore, selezionare prima un blocco"; // 意大利语：请先选中块  
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Please select a block first"; // 英语（美国）：请先选中块  
         }
@@ -221,12 +177,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "往復チェーンの作成に成功しました";
             case "zh_CHT":
                 return "創建往返鏈成功";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Successful creation of round trip chain";
         }
@@ -244,12 +195,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "静的逆リンク";
             case "zh_CHT":
                 return "靜態反鏈";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Static backlink";
         }
@@ -267,12 +213,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "下部の逆リンクを無効にする";
             case "zh_CHT":
                 return "禁用底部反鏈";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Disable bottom backlink";
         }
@@ -290,12 +231,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "下部の逆リンクを有効にする";
             case "zh_CHT":
                 return "啟用底部反鏈";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Enable bottom backlink";
         }
@@ -313,12 +249,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "ドキュメントの内容をここに移動する";
             case "zh_CHT":
                 return "把文檔內容移動到這裡";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Move the document content here";
         }
@@ -335,12 +266,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "空にする文書のIDを入力してください。文書内のブロックIDも可能です。最終的に文書IDを取得します";
             case "zh_CHT":
                 return "輸入要被清空的文件的ID，文件裡面的塊ID也行，會最終得到文件ID";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Enter the ID of the document to be emptied, you can also enter the block ID inside the document, you will ultimately get the document ID";
         }
@@ -358,12 +284,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "ここにドキュメントをマージ、コンテンツ属性の参照";
             case "zh_CHT":
                 return "合併文件到這裡，內容屬性引用";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Merge document here, content attribute reference";
         }
@@ -381,12 +302,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "静的バックリンクを更新";
             case "zh_CHT":
                 return "刷新靜態反鏈";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Refresh static backlinks";
         }
@@ -404,12 +320,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "静的バックリンクを削除";
             case "zh_CHT":
                 return "刪除靜態反鏈";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Delete static backlinks";
         }
@@ -426,12 +337,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "空のマインドマップ・フローチャートファイルを挿入";
             case "zh_CHT":
                 return "插入空的腦圖、流程圖文件";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Insert empty mind map/flowchart file";
         }
@@ -448,12 +354,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "ファイル名を入力してください。拡張子は '.xmind' または '.drawio'";
             case "zh_CHT":
                 return "填寫文件名。後綴為 '.xmind' 或 '.drawio'";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Enter file name. The extension is '.xmind' or '.drawio'";
         }
@@ -607,12 +508,7 @@ ni <span class="fn__code">Chef</span>.</p>
 <br>
 </div>
 `;
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return `
 <div class="b3-dialog__content tomato-style__centered-text">
@@ -660,12 +556,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "assetsの画像、ビデオ、オーディオを整理する";
             case "zh_CHT":
                 return "整理 assets 下的圖片、視頻、音頻";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Organizing images, videos, and audios under assets"
         }
@@ -683,12 +574,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "スナップショットを作成しようとしています。問題がある場合は、スナップショットから復元できます。（手動でalt+hを使用してスナップショットを作成することをお勧めします）";
             case "zh_CHT":
                 return "即將創建快照，如果有問題，可從快照恢復。（建議自己手動 alt+h 創建快照保險一些）";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "About to create a snapshot, if there's a problem, you can restore from the snapshot. (It's recommended to manually create a snapshot with alt+h for more security)"
         }
@@ -706,12 +592,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "仮想参照が更新されました";
             case "zh_CHT":
                 return "已經刷新虛擬引用";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Virtual references have been refreshed"
         }
@@ -729,12 +610,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "参照を移動しています...";
             case "zh_CHT":
                 return "正在轉移引用……";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Transferring references..."
         }
@@ -752,12 +628,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "フラッシュカードを削除しようとしています...";
             case "zh_CHT":
                 return "正在嘗試刪除閃卡……";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Trying to delete flashcards..."
         }
@@ -775,12 +646,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "古いファイルを削除しています...";
             case "zh_CHT":
                 return "正在刪除老文件……";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Deleting old files..."
         }
@@ -797,12 +663,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "assets: 整理はまだ進行中です...";
             case "zh_CHT":
                 return "assets: 整理仍在進行中...";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "assets: The organization is still in progress...";
         }
@@ -820,12 +681,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return `assets: [${filesCount}]つのファイルを整理しました`;
             case "zh_CHT":
                 return `assets: 整理了[${filesCount}]個文件`;
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return `assets: [${filesCount}] files have been organized`;
         }
@@ -843,12 +699,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return `[${count}/${filesCount}]つのファイル、[${blockCount}]つのブロックを処理しました。`;
             case "zh_CHT":
                 return `已經處理了[${count}/${filesCount}]個文件，[${blockCount}]個塊。`;
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return `Processed [${count}/${filesCount}] files, [${blockCount}] blocks.`;
         }
@@ -865,12 +716,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return `無効なフラッシュカード${x}枚を削除する準備ができています`;
             case "zh_CHT":
                 return `準備刪除失效閃卡${x}個`;
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return `Preparing to delete ${x} invalid flashcards`;
         }
@@ -887,12 +733,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "デフォルトで自動更新を無効にする";
             case "zh_CHT":
                 return "預設關閉自動刷新";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Disable auto-refresh by default";
         }
@@ -909,12 +750,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "自動的にノートを選択する";
             case "zh_CHT":
                 return "自動選擇一個筆記本";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Automatically select a notebook";
         }
@@ -931,12 +767,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "選択する";
             case "zh_CHT":
                 return "選擇";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Select";
         }
@@ -953,12 +784,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "知識ベースの質問と回答";
             case "zh_CHT":
                 return "知識庫問答";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Knowledge Base Q&A";
         }
@@ -975,12 +801,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "フラッシュカードのポーズボタンを非表示";
             case "zh_CHT":
                 return "隱藏閃卡暫停按鈕";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Hide Flashcard Pause Button";
         }
@@ -998,12 +819,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "優先度スライダーを非表示";
             case "zh_CHT":
                 return "隱藏優先級滑動塊";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Hide Priority Slider";
         }
@@ -1020,12 +836,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "コンテンツをぼやかす";
             case "zh_CHT":
                 return "使內容模糊";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Make content blurry";
         }
@@ -1042,12 +853,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "上の内容をテーブルにまとめます";
             case "zh_CHT":
                 return "請將上面的內容製成表格";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Please format the above content into a table";
         }
@@ -1064,12 +870,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "'|'で区切られた内容を表形式にします。複数行を選択できます";
             case "zh_CHT":
                 return "將有‘|’分隔的內容製成表格，可選擇多行";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Format the content separated by '|', multi-line selection is available";
         }
@@ -1086,12 +887,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "ドキュメントツリーで位置を特定";
             case "zh_CHT":
                 return "在文檔樹中定位";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Locate in the document tree";
         }
@@ -1108,12 +904,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "ステータスバーの右側にトマト時計があります";
             case "zh_CHT":
                 return "番茄鐘在狀態欄的右邊";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Pomodoro is on the right side of the status bar";
         }
@@ -1130,12 +921,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "画像としてコピー";
             case "zh_CHT":
                 return "複製為圖片";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Copy as Picture";
         }
@@ -1152,12 +938,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "画像としてコピー中です。お待ちください";
             case "zh_CHT":
                 return "正在複製為圖片請等待";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Copying as image, please wait";
         }
@@ -1174,12 +955,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "コピーが完了しました";
             case "zh_CHT":
                 return "複製完成";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Copy completed";
         }
@@ -1196,12 +972,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "内容の上にメモを表示";
             case "zh_CHT":
                 return "顯示備註Memo於內容上方";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Show memo notes above content";
         }
@@ -1218,12 +989,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "コンテンツをロック/ロック解除";
             case "zh_CHT":
                 return "鎖定內容/解鎖內容";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Lock Content/Unlock Content";
         }
@@ -1240,12 +1006,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "百度千帆転送器リスニングアドレス";
             case "zh_CHT":
                 return "百度千帆轉發器監聽地址";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Baidu Qianfan Transmitter Listening Address";
         }
@@ -1263,12 +1024,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "百度千帆のキーを追加";
             case "zh_CHT":
                 return "添加百度千帆的密鑰";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Add Baidu Qianfan Key";
         }
@@ -1286,12 +1042,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "知識ベースを追加してIDを取得";
             case "zh_CHT":
                 return "添加知識庫得到ID";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Add Knowledge Base to Get ID";
         }

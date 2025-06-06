@@ -22,6 +22,7 @@
         siyuan,
         getContextPath,
         timeUtil,
+        removeAttribute,
     } from "./libs/utils";
     import { onDestroy, onMount } from "svelte";
     import { tomatoI18n } from "./tomatoI18n";
@@ -72,18 +73,30 @@
             return a.getPathStr();
         });
 
+        await siyuan.batchSetBlockAttrs(
+            selected.map((div) => {
+                if (rangeText) {
+                    return {
+                        id: getAttribute(div, "data-node-id"),
+                        attrs: { "custom-tomato-key-comment": "1" },
+                    };
+                } else {
+                    return {
+                        id: getAttribute(div, "data-node-id"),
+                        attrs: { "custom-tomato-comment": "1" },
+                    };
+                }
+            }),
+        );
+
         const builder = new DomSuperBlockBuilder();
         let txt = getAllText(selected, "");
-        // if (rangeText) {
-        //     const div = domNewLine(rangeText.trim());
-        //     add_ref(div, ids[0], "*", true, false);
-        //     newDivs.push(div);
-        // } else
         {
             const new2old = new Map<string, string>();
             const cloned = selected.map((s) => {
                 const { new2old: m, div } = cloneCleanDiv(s, true);
                 extendMap(new2old, m);
+                removeAttribute(div, "custom-tomato-comment");
                 return div;
             });
             if (rangeText) {
@@ -151,17 +164,21 @@
         if (commentBoxAddUnderline.get() && (await ro) != "true" && rangeText) {
             const hasUnderline = (e: HTMLElement) => {
                 if (e?.tagName === "SPAN") {
-                    if (getAttribute(e, "data-type") === "u") {
+                    if (getAttribute(e, "data-type") === "text") {
                         return true;
                     }
                 }
             };
             try {
+                const bg = {
+                    type: "backgroundColor",
+                    color: "var(--b3-font-background-tomato-key-comment)",
+                };
                 const a = range?.startContainer?.parentElement;
                 const b = range?.endContainer?.parentElement;
-                protyle.toolbar.setInlineMark(protyle, "u", "range");
+                protyle.toolbar.setInlineMark(protyle, "text", "range", bg);
                 if (hasUnderline(a) || hasUnderline(b)) {
-                    protyle.toolbar.setInlineMark(protyle, "u", "range");
+                    protyle.toolbar.setInlineMark(protyle, "text", "range", bg);
                 }
             } catch (e) {}
         }

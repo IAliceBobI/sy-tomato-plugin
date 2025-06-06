@@ -15,11 +15,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "給無序清單加上背景色";
             case "it_IT":
                 return "Aggiungi colore di sfondo alla lista non ordinata";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Add background color to unordered list";
         }
@@ -38,11 +34,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "禁用強提醒"; // Traditional Chinese can be the same or a traditional version of zh_CN text.
             case "it_IT":
                 return "Disattiva promemoria forti";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Disable strong reminders";
         }
@@ -61,11 +53,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "用對話框的形式打開閱讀點";
             case "it_IT":
                 return "Aprire il punto di lettura in forma di dialogo";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Open reading point in dialog form";
         }
@@ -84,11 +72,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "觸發快捷鍵時彈出對話框(速度更快)";
             case "it_IT":
                 return "Mostra finestra di dialogo al premere del tasto di scelta rapida (più veloce)";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Show dialog when shortcut key is triggered (faster)";
         }
@@ -107,11 +91,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "同步塊-選擇";
             case "it_IT":
                 return "Blocco di sincronizzazione - Seleziona";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Sync Block - Select";
         }
@@ -130,11 +110,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "同步塊-創建";
             case "it_IT":
                 return "Blocco di sincronizzazione - Crea";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Sync Block - Create";
         }
@@ -153,11 +129,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "同步塊";
             case "it_IT":
                 return "Blocco di sincronizzazione";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Synchronization Block";
         }
@@ -177,11 +149,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return `已在${x}個地方同步`;
             case "it_IT":
                 return `Sincronizzato in ${x} luoghi`;
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return `Synchronized in ${x} places`;
         }
@@ -200,11 +168,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "保存";
             case "it_IT":
                 return "Salva";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Save";
         }
@@ -223,11 +187,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "自動";
             case "it_IT":
                 return "Automatico";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Auto";
         }
@@ -246,11 +206,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return `延遲${x}秒後執行，請勿修改`;
             case "it_IT":
                 return `Esegui dopo ${x} secondi, non modificare`;
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return `Execute after ${x} seconds, do not modify`;
         }
@@ -269,11 +225,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "全部打開";
             case "it_IT":
                 return "Apri tutto";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Open all";
         }
@@ -292,11 +244,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "自動隱藏";
             case "it_IT":
                 return "Nascondi automaticamente";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Auto hide";
         }
@@ -315,11 +263,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "添加到原始塊的連結";
             case "it_IT":
                 return "Collegamento al blocco originale";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Link to original block";
         }
@@ -338,11 +282,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "添加到原始塊的引用";
             case "it_IT":
                 return "Riferimento al blocco originale";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Reference to original block";
         }
@@ -361,11 +301,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "設為原始塊";
             case "it_IT":
                 return "Imposta come blocco originale";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Set as Original Block";
         }
@@ -384,11 +320,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "全部刪除";
             case "it_IT":
                 return "Elimina tutto";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Delete All";
         }
@@ -407,11 +339,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "刪除其他";
             case "it_IT":
                 return "Elimina altri";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Delete Others";
         }
@@ -430,11 +358,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "同步失敗";
             case "it_IT":
                 return "Sincronizzazione fallita";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Synchronization failed";
         }
@@ -453,11 +377,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "無複本塊";
             case "it_IT":
                 return "Nessun blocco di copia";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "No copy block";
         }
@@ -476,11 +396,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "重置版本";
             case "it_IT":
                 return "Versione di ripristino";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Reset Version";
         }
@@ -499,11 +415,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "打開塊關係圖";
             case "it_IT":
                 return "Aprire il diagramma dei blocchi";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Open block diagram";
         }
@@ -524,11 +436,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "註釋"; // 繁体中文：批注
             case "it_IT":
                 return "Annotazione"; // 意大利语：批注
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Annotation"; // 英语：批注
         }
@@ -547,11 +455,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "包含正反鏈";
             case "it_IT":
                 return "contiene sia collegamenti diretti che inversi";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "contains both forward and reverse links";
         }
@@ -570,11 +474,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "正引";
             case "it_IT":
                 return "forward link";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "forward link";
         }
@@ -594,11 +494,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "反引";
             case "it_IT":
                 return "collegamento inverso";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "backref";
         }
@@ -618,11 +514,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "虛引";
             case "it_IT":
                 return "collegamento virtuale";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "virref";
         }
@@ -642,11 +534,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "高度";
             case "it_IT":
                 return "altezza";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "height";
         }
@@ -665,11 +553,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "添加批注到日記";
             case "it_IT":
                 return "Aggiungi annotazione al diario";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Add annotation to journal";
         }
@@ -688,11 +572,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "添加批注到新檔案";
             case "it_IT":
                 return "Aggiungi annotazione a un nuovo file";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Add annotation to new file";
         }
@@ -711,11 +591,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "批注添加下劃線";
             case "it_IT":
                 return "Aggiungi sottolineatura all'annotazione";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Add underline to annotation";
         }
@@ -734,11 +610,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "定位";
             case "it_IT":
                 return "posizione";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "position";
         }
@@ -757,11 +629,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "引用已向上傳遞";
             case "it_IT":
                 return "Il riferimento è stato passato verso l'alto";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Reference has been passed upwards";
         }
@@ -780,11 +648,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "顯示ID";
             case "it_IT":
                 return "Mostra ID";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Show ID";
         }
@@ -804,11 +668,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "顯示路徑";
             case "it_IT":
                 return "Mostra percorso";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Show path";
         }
@@ -828,11 +688,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "向上傳遞引用到標題";
             case "it_IT":
                 return "Passa il riferimento al titolo";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Pass reference up to title";
         }
@@ -852,11 +708,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "向上傳遞引用到超級塊";
             case "it_IT":
                 return "Passa il riferimento al superblocco";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Pass reference up to superblock";
         }
@@ -876,11 +728,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "向上傳遞引用到引述塊";
             case "it_IT":
                 return "Passa il riferimento al blocco di citazione";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Pass reference up to quote block";
         }
@@ -900,11 +748,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "複製為引用";
             case "it_IT":
                 return "Copia come citazione";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Copy as citation";
         }
@@ -924,11 +768,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "展開與折疊";
             case "it_IT":
                 return "Espandi e comprimi";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Expand and collapse";
         }
@@ -947,11 +787,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "將選擇文字加入文件的別名";
             case "it_IT":
                 return "Alias per aggiungere il testo selezionato al documento";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Alias to add selected text to document";
         }
@@ -970,11 +806,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "回到第一頁";
             case "it_IT":
                 return "Torna alla prima pagina";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Back to the first page";
         }
@@ -993,11 +825,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "保存查詢條件";
             case "it_IT":
                 return "Salva i criteri di ricerca";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Save search conditions";
         }
@@ -1016,11 +844,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "點擊查詢，Ctrl + 點擊刪除";
             case "it_IT":
                 return "Clic per cercare, Ctrl + clic per eliminare";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Click to search, Ctrl + click to delete";
         }
@@ -1039,11 +863,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "添加空間ID";
             case "it_IT":
                 return "Aggiungi ID spazio";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Add Space ID";
         }
@@ -1063,11 +883,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "添加知識庫ID";
             case "it_IT":
                 return "Aggiungi ID knowledge base";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Add Knowledge Base ID";
         }
@@ -1087,11 +903,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "添加令牌";
             case "it_IT":
                 return "Aggiungi token";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Add Token";
         }
@@ -1111,11 +923,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "上傳當前文檔以及所有子文檔";
             case "it_IT":
                 return "Carica il documento corrente e tutti i sottodocumenti";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Upload current document and all subdocuments";
         }

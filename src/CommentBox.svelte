@@ -218,7 +218,20 @@
                     )
                     .then(async (refL1) => {
                         // refL1 不能直接用，需要再向上找父块。
-                        if (!(refL1?.length > 0)) return;
+                        if (!(refL1?.length > 0)) {
+                            // 如果没有反引，删除下划线
+                            if (getAttribute(e, "custom-tomato-key-comment")) {
+                                await siyuan.setBlockAttrs(id, {
+                                    "custom-tomato-key-comment": "",
+                                });
+                            }
+                            if (getAttribute(e, "custom-tomato-comment")) {
+                                await siyuan.setBlockAttrs(id, {
+                                    "custom-tomato-comment": "",
+                                });
+                            }
+                            return;
+                        }
                         for (const l1 of refL1) l1.attrs = parseIAL(l1.ial);
 
                         const commentBKs = await siyuan

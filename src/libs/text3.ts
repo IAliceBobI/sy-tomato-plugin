@@ -15,11 +15,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "添加智能體ID";
             case "it_IT":
                 return "Aggiungi ID agente";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Add Agent ID";
         }
@@ -39,11 +35,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "調試智能體";
             case "it_IT":
                 return "Debug agente";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Debug Agent";
         }
@@ -63,11 +55,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "清理Coze多餘文件";
             case "it_IT":
                 return "Pulizia file superflui di Coze";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Clean up unnecessary Coze files";
         }
@@ -86,11 +74,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "點擊(跳轉), shift+alt點擊(或者), ctrl點擊(並且), shift點擊(排除), alt點擊(單選)";
             case "it_IT":
                 return "Clic (salta), shift+alt clic (o), ctrl clic (e), shift clic (escludi), alt clic (selezione singola)";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Click (jump), shift+alt click (or), ctrl click (and), shift click (exclude), alt click (single select)";
         }
@@ -762,11 +746,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "超級塊制卡時，所選內容視作問題";
             case "it_IT":
                 return "Durante la creazione di carte con blocchi superiori, il contenuto selezionato viene considerato una domanda";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "When creating cards with super blocks, the selected content is treated as a question";
         }
@@ -785,11 +765,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "用超級塊來制卡";
             case "it_IT":
                 return "Crea carte con blocchi superiori";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Create cards with super blocks";
         }
@@ -808,11 +784,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "列表製卡時從第二行開始縮進";
             case "it_IT":
                 return "Indentazione dalla seconda riga durante la creazione di una lista";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Indent from the second line when creating a list";
         }
@@ -831,11 +803,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "製卡後，在卡片最上面添加相關概念";
             case "it_IT":
                 return "Dopo aver creato la carta, aggiungi concetti correlati nella parte superiore";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "After creating the card, add related concepts at the top";
         }
@@ -854,11 +822,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "製卡後，給閃卡添加底部邊框";
             case "it_IT":
                 return "Dopo aver creato la scheda, aggiungi un bordo inferiore alla scheda flash.";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "After creating the card, add a bottom border to the flashcard.";
         }
@@ -877,11 +841,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "上一頁";
             case "it_IT":
                 return "Precedente";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Previous";
         }
@@ -900,11 +860,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "下一頁";
             case "it_IT":
                 return "Successivo";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Next";
         }
@@ -923,11 +879,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "顯示上一個分片的最後一個塊";
             case "it_IT":
                 return "Mostra l'ultimo blocco del frammento precedente";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Show the last block of the previous fragment";
         }
@@ -947,11 +899,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "總字數　　";
             case "it_IT":
                 return "Numero totale di parole";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Total word count";
         }
@@ -971,11 +919,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return `平均每個標題下有　　: ${blockNum} 個塊`;
             case "it_IT":
                 return `Media di blocchi per titolo: ${blockNum} blocchi`;
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return `Average number of blocks per title: ${blockNum} blocks`;
         }
@@ -995,11 +939,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return `平均每個塊的字數　　: ${x} 個字`;
             case "it_IT":
                 return `Media di parole per blocco: ${x} parole`;
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return `Average number of words per block: ${x} words`;
         }
@@ -1019,11 +959,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return `平均每個塊的文本長度: ${x}`;
             case "it_IT":
                 return `Lunghezza media del testo per blocco: ${x}`;
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return `Average text length per block: ${x}`;
         }
@@ -1043,11 +979,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "總文本長度";
             case "it_IT":
                 return "Lunghezza totale del testo";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Total text length";
         }
@@ -1067,11 +999,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return `按文本長度拆分，留空為不拆分`;
             case "it_IT":
                 return `Dividi per lunghezza del testo, lascia vuoto per non dividere`;
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return `Split by text length, leave empty to not split`;
         }
@@ -1090,11 +1018,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "請稍等待";
             case "it_IT":
                 return "Attendere prego";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Please wait";
         }
@@ -1113,11 +1037,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "上網查詢所選內容";
             case "it_IT":
                 return "Cerca online il contenuto selezionato";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Search online for selected content";
         }
@@ -1136,11 +1056,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "在上方插入漢語拼音。";
             case "it_IT":
                 return "Inserisci il pinyin sopra.";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Insert pinyin above.";
         }
@@ -1159,11 +1075,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "在閃卡底部添加邊框";
             case "it_IT":
                 return "Aggiungi bordo in fondo alla scheda flash";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Add border at the bottom of the flashcard";
         }
@@ -1182,11 +1094,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "在閃卡末尾插上一條橫線";
             case "it_IT":
                 return "Inserisci una linea alla fine della flashcard";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Insert a horizontal line at the end of the flashcard";
         }
@@ -1205,11 +1113,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "新頁籤: 0不開啟，1開啟到前台，2開啟到後台，3開啟到右邊，4開啟到底部，5移動到新視窗，6開啟到前台1秒";
             case "it_IT":
                 return "Nuova scheda: 0 non aprire, 1 aprire in primo piano, 2 aprire in background, 3 aprire a destra, 4 aprire in basso, 5 spostare in una nuova finestra, 6 aprire in primo piano per 1 secondo";
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "New tab: 0 do not open, 1 open in foreground, 2 open in background, 3 open to the right, 4 open to the bottom, 5 move to new window, 6 open in foreground for 1 second";
         }
@@ -1226,12 +1130,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "分割されたカードについて、フラッシュカードは原文にリンクするだけでなく、分割にも追加でリンクします。";
             case "zh_CHT":
                 return "對分片制卡，閃卡除了鏈接到原文，還額外鏈接到分片。";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "For fragmented card making, flashcards are additionally linked to fragments in addition to being linked to the original text.";
         }
@@ -1248,12 +1147,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "フラッシュカードのリグレッションリンク、それ以外の場合は参照を使用します。";
             case "zh_CHT":
                 return "閃卡的回溯使用連結，否則用引用。";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Flashcard regression link, otherwise use reference.";
         }
@@ -1270,12 +1164,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "カード作成時に、末尾に空行を追加します";
             case "zh_CHT":
                 return "制卡時，在末尾添加空行";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "When creating a card, add a blank line at the end";
         }
@@ -1292,12 +1181,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "引用にリンクを含めない";
             case "zh_CHT":
                 return "摘抄不加入回溯鏈接";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Excerpt without backlink";
         }
@@ -1314,12 +1198,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "フラグメントを遡及リンクに含めない";
             case "zh_CHT":
                 return "分片不加入回溯鏈接";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Fragment not included in backtrace links";
         }
@@ -1336,12 +1215,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "すべてのフラグメントを新しいファイルにマージ";
             case "zh_CHT":
                 return "合併所有分片到新文件";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Merge all fragments into a new file";
         }
@@ -1358,12 +1232,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "単語を抜粋してフラッシュカードに追加し、AIによる説明を行う";
             case "zh_CHT":
                 return "摘錄單詞並加入閃卡並用AI解釋";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Extract words and add to flashcards with AI explanation";
         }
@@ -1380,12 +1249,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "単語を抜粋する";
             case "zh_CHT":
                 return "摘錄單詞";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Extract words";
         }
@@ -1403,12 +1267,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "単語を抜粋してフラッシュカードに追加";
             case "zh_CHT":
                 return "摘錄單詞並加入閃卡";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Extract words and add to flashcards";
         }
@@ -1425,12 +1284,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "段階的な学習の設定";
             case "zh_CHT":
                 return "漸進學習的設定";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Progressive Learning Settings";
         }
@@ -1447,12 +1301,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "句読点で区切り、リスト/アウトラインを作成する";
             case "zh_CHT":
                 return "按標點斷句，形成列表/大綱";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Segment by punctuation, form list/outline";
         }
@@ -1470,12 +1319,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "句読点で区切り、タスクリストを作成する(ctrl+enterでタスクをチェックできます)";
             case "zh_CHT":
                 return "按標點斷句，形成任務列表(可以ctrl+enter勾選任務)";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Segment by punctuation, form task list (you can check tasks with ctrl+enter)";
         }
@@ -1493,12 +1337,7 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "句読点で区切る";
             case "zh_CHT":
                 return "按標點斷句";
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "en_US":
+
             default:
                 return "Segment by punctuation";
         }
