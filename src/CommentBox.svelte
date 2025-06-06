@@ -24,7 +24,12 @@
         commentBoxVirtualRef,
     } from "./libs/stores";
     import { tomatoI18n } from "./tomatoI18n";
-    import { getDocBlocks, getDocTracer, OpenSyFile2 } from "./libs/docUtils";
+    import {
+        getDocBlocks,
+        getDocTracer,
+        isReadonly,
+        OpenSyFile2,
+    } from "./libs/docUtils";
     import { findElementByAttr } from "./libs/listUtils";
     import { zipNways } from "./libs/functional";
     import { verifyKeyTomato } from "./libs/user";
@@ -148,7 +153,9 @@
         refs.refs = idContents;
     }
 
-    async function removeUnderlines(e: HTMLElement) {
+    async function removeUnderlines(e: HTMLElement, protyle: IProtyle) {
+        const ro = await isReadonly(protyle);
+        if (ro == "true") return;
         const id = getAttribute(e, "data-node-id");
         if (getAttribute(e, "custom-tomato-key-comment")) {
             removeAttribute(e, "custom-tomato-key-comment");
@@ -243,7 +250,7 @@
                         // refL1 不能直接用，需要再向上找父块。
                         if (!(refL1?.length > 0)) {
                             // 如果没有反引，删除下划线
-                            await removeUnderlines(e);
+                            await removeUnderlines(e, protyle);
                             return;
                         }
                         for (const l1 of refL1) l1.attrs = parseIAL(l1.ial);
