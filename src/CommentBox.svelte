@@ -8,6 +8,7 @@
         getCursorElement,
         isStringNumber,
         parseIAL,
+        removeAttribute,
         removeInvisibleChars,
         siyuan,
         strIncludeAttr,
@@ -147,6 +148,28 @@
         refs.refs = idContents;
     }
 
+    async function removeUnderlines(e: HTMLElement) {
+        const id = getAttribute(e, "data-node-id");
+        if (getAttribute(e, "custom-tomato-key-comment")) {
+            removeAttribute(e, "custom-tomato-key-comment");
+            e.querySelectorAll(`span[data-type="text"]`).forEach((e) => {
+                const el = e as HTMLElement;
+                const str = el.style?.backgroundColor as string;
+                const k = "var(--b3-font-background-tomato-key-comment)";
+                if (str.includes(k)) {
+                    el.style.backgroundColor = "";
+                    removeAttribute(el, "data-type");
+                }
+            });
+            await siyuan.updateBlocks([{ id, domStr: e.outerHTML }]);
+        }
+        if (getAttribute(e, "custom-tomato-comment")) {
+            await siyuan.setBlockAttrs(id, {
+                "custom-tomato-comment": "",
+            });
+        }
+    }
+
     async function _svelteCallback_block(protyle: IProtyle) {
         const e = getCursorElement();
         if (!e) return;
@@ -220,16 +243,7 @@
                         // refL1 不能直接用，需要再向上找父块。
                         if (!(refL1?.length > 0)) {
                             // 如果没有反引，删除下划线
-                            if (getAttribute(e, "custom-tomato-key-comment")) {
-                                await siyuan.setBlockAttrs(id, {
-                                    "custom-tomato-key-comment": "",
-                                });
-                            }
-                            if (getAttribute(e, "custom-tomato-comment")) {
-                                await siyuan.setBlockAttrs(id, {
-                                    "custom-tomato-comment": "",
-                                });
-                            }
+                            await removeUnderlines(e);
                             return;
                         }
                         for (const l1 of refL1) l1.attrs = parseIAL(l1.ial);
