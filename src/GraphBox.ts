@@ -109,6 +109,7 @@ class GraphBox {
     async openGraphTab() {
         await openTab({
             app: this.plugin.app,
+            position: "right",
             custom: {
                 icon: "iconGraphTomato",
                 title: tomatoI18n.块关系图,

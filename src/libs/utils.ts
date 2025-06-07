@@ -293,6 +293,28 @@ export function pushNotNull<T>(arr: T[] | undefined, ...items: T[]): T[] {
     return arr;
 }
 
+export function removeFromArr<T>(arr: T[] | undefined, ...items: T[]): T[] {
+    if (!arr) arr = [];
+    for (let i = 0; i < items.length; i++) {
+        const idx = arr.indexOf(items.at(i))
+        if (idx >= 0) {
+            arr.splice(idx, 1)
+            i--
+        }
+    }
+    return arr;
+}
+
+export function pushUniq<T>(arr: T[] | undefined, ...items: T[]): T[] {
+    if (!arr) arr = [];
+    for (const i of items) {
+        const idx = arr.indexOf(i)
+        if (idx >= 0) continue
+        arr.push(i)
+    }
+    return arr;
+}
+
 export function push<T>(arr: T[] | undefined, ...items: T[]): T[] {
     if (!arr) arr = [];
     arr.push(...items);
@@ -2285,6 +2307,9 @@ export const siyuan = {
     async batchSetRiffCardsDueTimeByCardID(cardDues: { id: string, due: string }[]) {
         // "due": "20240224214412"
         return siyuan.call("/api/riff/batchSetRiffCardsDueTime", { cardDues });
+    },
+    async getRiffCardsAllFlat(pageSize = 1000) {
+        return [...(await siyuan.getRiffCardsAll(pageSize)).values()].flat()
     },
     async getRiffCardsAll(pageSize = 1000) {
         const total: Map<string, GetCardRetBlock[]> = new Map();

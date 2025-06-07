@@ -2,18 +2,14 @@
     import { IProtyle } from "siyuan";
     import { DestroyManager } from "./libs/destroyer";
     import {
+        commentAllBlockRef,
         commentBoxAddFlashCard,
         commentBoxAddKeepText,
         commentBoxAddTime,
         commentBoxAddUnderline,
     } from "./libs/stores";
+    import { DomSuperBlockBuilder, domNewLine } from "./libs/sydom";
     import {
-        DomSuperBlockBuilder,
-        domNewLine,
-        DomListBuilder,
-    } from "./libs/sydom";
-    import {
-        getAllText,
         add_ref,
         cloneCleanDiv,
         extendMap,
@@ -74,6 +70,7 @@
         });
 
         await siyuan.batchSetBlockAttrs(
+            // 处理原文
             selected.map((div) => {
                 if (rangeText) {
                     return {
@@ -90,7 +87,7 @@
         );
 
         const builder = new DomSuperBlockBuilder();
-        let txt = getAllText(selected, "");
+        // let txt = getAllText(selected, "");
         {
             const new2old = new Map<string, string>();
             const cloned = selected.map((s) => {
@@ -103,6 +100,11 @@
                 newDivs.push(domNewLine("👉" + rangeText.trim() + "👈"));
             }
             newDivs.push(...cloned);
+
+            let count = 1;
+            if (commentAllBlockRef.get()) {
+                count = cloned.length;
+            }
             cloned
                 .map((div) => {
                     const all: HTMLElement[] = [
@@ -114,6 +116,7 @@
                     return all;
                 })
                 .flat()
+                .slice(0, count)
                 .forEach((div) => {
                     add_ref(
                         div,
@@ -127,28 +130,19 @@
                 });
         }
 
-        builder.setAttr("custom-lnk-bottom", "1");
-        builder.setAttr("custom-tomato-ref-hpath", await rpath);
         text.trim()
             .split("\n")
             .forEach((l) => builder.append(domNewLine(l)));
 
-        const txtLen = txt.length;
-        const maxLen = 32;
-        txt = txt.slice(0, maxLen);
-        if (txtLen > maxLen) {
-            txt += "...";
-        }
+        builder.setAttr("custom-lnk-bottom", "1"); // 加边框
+        builder.setAttr("custom-tomato-ref-hpath", await rpath);
 
-        const list = new DomListBuilder();
-        const sublist = list.newList(domNewLine(txt));
-        sublist.append(...newDivs);
-        builder.append(list.container);
-        list.container.firstElementChild.setAttribute("fold", "1");
-        list.container.firstElementChild.setAttribute(
-            "custom-comment-heading",
-            "1",
-        );
+        const superBlock = new DomSuperBlockBuilder();
+
+        superBlock.append(...newDivs);
+        superBlock.setAttr("custom-comment-superblock-fold", "1");
+        superBlock.setAttr("fold", "1");
+        builder.append(superBlock.build());
 
         const { id: docID } = await createDailyNoteTask;
         const tail = await siyuan.getDocLastID(docID);

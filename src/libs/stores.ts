@@ -313,6 +313,11 @@ const settingFactory = <T>(key: TSK, defaultValue: T, file: string, _void: TSK) 
 export const userToken = settingFactory("userToken", "", STORAGE_SETTINGS, null as TSK);
 export const userID = settingFactory("userID", "", STORAGE_SETTINGS, null as TSK);
 export const hideVIP = settingFactory("hideVIP", true, STORAGE_SETTINGS, null as TSK);
+export const foldTypes = settingFactory("foldTypes", [], STORAGE_SETTINGS, null as TSK);
+export const foldTypesSuperBlock = settingFactory("foldTypesSuperBlock", false, STORAGE_SETTINGS, null as TSK);
+export const foldTypesBLOCKQUOTE = settingFactory("foldTypesBLOCKQUOTE", false, STORAGE_SETTINGS, null as TSK);
+export const foldTypesNODE_LIST = settingFactory("foldTypesNODE_LIST", false, STORAGE_SETTINGS, null as TSK);
+export const foldTypesNODE_TABLE = settingFactory("foldTypesNODE_TABLE", false, STORAGE_SETTINGS, null as TSK);
 export const addSelectionBtnsMobile = settingFactory("addSelectionBtnsMobile", true, STORAGE_SETTINGS, null as TSK);
 export const addSelectionBtnsDesktop = settingFactory("addSelectionBtnsDesktop", true, STORAGE_SETTINGS, null as TSK);
 export const cssRefStyle = settingFactory("cssRefStyle", false, STORAGE_SETTINGS, null as TSK);
@@ -363,6 +368,7 @@ export const cardBoxSuperCard = settingFactory("cardBoxSuperCard", false, STORAG
 export const cardBoxAddConcepts = settingFactory("cardBoxAddConcepts", true, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSpradEvenlyPostpone = settingFactory("cardBoxSpradEvenlyPostpone", true, STORAGE_SETTINGS, null as TSK);
 export const cardPriorityBoxCheckbox = settingFactory("cardPriorityBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
+export const cardPrioritySetPriInterval = settingFactory("cardPrioritySetPriInterval", "0", STORAGE_SETTINGS, null as TSK);
 export const cardPriorityBoxPostponeCardMenu = settingFactory("cardPriorityBoxPostponeCardMenu", true, STORAGE_SETTINGS, null as TSK);
 export const cardPriorityBoxSpradDelayMenu = settingFactory("cardPriorityBoxSpradDelayMenu", true, STORAGE_SETTINGS, null as TSK);
 export const cardPriorityBoxPriorityMenu = settingFactory("cardPriorityBoxPriorityMenu", true, STORAGE_SETTINGS, null as TSK);
@@ -485,6 +491,7 @@ export const commentBoxAddKeepText = settingFactory("commentBoxAddKeepText", tru
 export const commentBoxAddUnderline = settingFactory("commentBoxAddUnderline", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxShowID = settingFactory("commentBoxShowID", false, STORAGE_SETTINGS, null as TSK);
 export const commentBoxStaticOutlink = settingFactory("commentBoxStaticOutlink", false, STORAGE_SETTINGS, null as TSK);
+export const commentAllBlockRef = settingFactory("commentAllBlockRef", false, STORAGE_SETTINGS, null as TSK);
 
 // ---------------
 

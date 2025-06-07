@@ -623,24 +623,22 @@
         <button
             bind:this={modeSwitchBtn}
             title={tomatoI18n.简洁模式切换}
-            class="bk_label modeSwitchBtn"
+            class="bk_label"
             on:click={modeSwitch}>🍀</button
         >
         <!-- 跳上去 -->
-        {#if !events.isMobile}
-            <button
-                title={tomatoI18n.跳转顶部}
-                class="bk_label goUpBtn b3-label__text"
-                on:click={() => {
-                    const titleEle = document.querySelector(
-                        `div.protyle-wysiwyg--attr[data-node-id="${maker.docID}"]`,
-                    );
-                    titleEle?.scrollIntoView();
-                }}
-            >
-                {@html icon("Up", ICONS_SIZE)}
-            </button>
-        {/if}
+        <button
+            title={tomatoI18n.跳转顶部}
+            class="bk_label b3-label__text"
+            on:click={() => {
+                const titleEle = document.querySelector(
+                    `div.protyle-wysiwyg--attr[data-node-id="${maker.docID}"]`,
+                );
+                titleEle?.scrollIntoView();
+            }}
+        >
+            {@html icon("Up", ICONS_SIZE)}
+        </button>
         <!-- 概念栏 -->
         <div class="bk_flex" {...modeHide}>
             <!-- 最大展开的反链文件数 -->
@@ -1196,7 +1194,7 @@
         background-color: var(--b3-theme-background);
         z-index: 1;
     }
-    .modeSwitchBtn {
+    /* .modeSwitchBtn {
         margin-left: -20px;
         margin-bottom: -80px;
         float: left;
@@ -1205,7 +1203,7 @@
         margin-left: -40px;
         margin-bottom: -80px;
         float: left;
-    }
+    } */
     .numInput {
         width: 50px;
     }

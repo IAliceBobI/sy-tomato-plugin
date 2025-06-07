@@ -460,9 +460,9 @@ async function getContent2insert(text: string, isPic: boolean) {
         const id = await createRefDoc(boxID, icon);
         const L1 = new DomSuperBlockBuilder();
         const L2 = new DomSuperBlockBuilder();
-        L1.append(L2.container);
         const textDiv = domNewLine(text);
         L2.append(textDiv);
+        L1.append(L2.build());
         add_ref(textDiv, id, icon, false, false);
         L1.setAttr("custom-tomato-idea-time", getTime());
         const dayID = await getTargetDoc();

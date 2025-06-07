@@ -56,6 +56,8 @@ export class BKMaker {
             this.container.setAttribute(BKMAKER_ADD, BKMaker.getBkDivID(this.docID));
             this.container.id = this.id;
             this.insertBkPanel(this.container);
+            this.container.style.paddingLeft = "0px"
+            this.container.style.paddingRight = "0px"
 
             const sv = new BackLinkBottom({
                 target: this.container,

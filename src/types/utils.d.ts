@@ -15,7 +15,14 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    foldTypes: string[],
+    foldTypesNODE_TABLE: boolean,
+    foldTypesNODE_LIST: boolean,
+    foldTypesBLOCKQUOTE: boolean,
+    foldTypesSuperBlock: boolean,
+    commentAllBlockRef: boolean,
     commentBoxAddKeepText: boolean,
+    cardPrioritySetPriInterval: string,
     cssSuperBlockBorder: boolean,
     commentBoxAddTime: boolean,
     mindWireColorfull: boolean,
@@ -367,7 +374,6 @@ type AttrType = {
     "custom-super-card-box"?: string,
     "custom-super-card-question"?: string,
     "custom-super-card-answer"?: string,
-    "custom-comment-heading"?: string,
     "custom-comment-fold"?: string,
     "custom-comment-bk-id"?: string,
     "custom-lnk-bottom"?: string,
@@ -378,6 +384,7 @@ type AttrType = {
     "custom-progref"?: string,
     "custom-prog-piece-previous"?: string,
     "custom-mindwire-enable"?: string,
+    "custom-comment-superblock-fold"?: string,
 };
 
 type AttrKey = keyof AttrType;

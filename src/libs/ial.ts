@@ -87,14 +87,3 @@ export function parseCustomTag(s: string): ParseResult {
     return result;
 }
 
-
-// 测试用例
-// const testStr = '{: custom-tomatoUpdated="1748308949028" id="20250526082838-qq7xnww" title="2025-05-26-周一" }';
-// console.log(parseCustomTag(testStr));
-/* 输出:
-{
-  "custom-tomatoUpdated": "1748308949028",
-  "id": "20250526082838-qq7xnww",
-  "title": "2025-05-26-周一"
-}
-*/

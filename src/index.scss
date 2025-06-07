@@ -20,9 +20,9 @@
   padding-bottom: 1px !important;
 }
 
-.protyle-wysiwyg div[fold="1"][custom-comment-heading="1"] {
-  opacity: 0.7 !important;
-  font-size: 0.7em !important;
+.protyle-wysiwyg div[custom-comment-superblock-fold="1"] {
+  font-size: 0.9em !important;
+  color: var(--b3-font-color4);
 }
 
 .protyle-wysiwyg div[custom-card-priority-stop] {

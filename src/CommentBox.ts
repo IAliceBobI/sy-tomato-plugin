@@ -1,4 +1,4 @@
-import { adaptHotkey, Dialog, Dock, IProtyle } from "siyuan";
+import { adaptHotkey, Custom, Dialog, Dock, IProtyle, openTab, Tab } from "siyuan";
 import { events, EventType } from "./libs/Events";
 import { getDialogContainer, newID, } from "./libs/utils";
 import CommentBoxSvelte from "./CommentBox.svelte";
@@ -11,15 +11,20 @@ import { DestroyManager } from "./libs/destroyer";
 import CommentInput from "./CommentInput.svelte";
 
 const DOCK_TYPE = "dock_CommentBox";
+const TAB_TYPE = "custom_tab_CommentBox"
 
-export const CommentBox添加批注到日记 = winHotkey("⇧⌥F", "comment box 2024-12-20 12:01:14")
+export const CommentBox添加批注到日记 = winHotkey("⇧⌥F", "comment box 2024-12-20 12:01:14", "iconQuoteTomato", () => tomatoI18n.添加批注到日记, false)
+export const CommentBoxTab批注 = winHotkey("⇧⌥I", "comment tab 2025-6-7 12:24:11", "iconQuoteTomato", () => tomatoI18n.批注, false)
 
 class CommentBox {
     plugin: BaseTomatoPlugin;
     settingCfg: TomatoSettings;
     svelteCallback: (protyle: IProtyle) => void;
     svelteResize: () => void;
+    svelteCallbackTab: (protyle: IProtyle) => void;
+    svelteResizeTab: () => void;
     svelte: CommentBoxSvelte;
+    private customTab: () => Custom;
 
     onload(plugin: BaseTomatoPlugin) {
         if (plugin.initCfg()) {
@@ -39,7 +44,7 @@ class CommentBox {
 
         this.plugin.addCommand({
             langKey: CommentBox添加批注到日记.langKey,
-            langText: tomatoI18n.添加批注到日记,
+            langText: CommentBox添加批注到日记.langText(),
             hotkey: CommentBox添加批注到日记.m,
             callback: () => {
                 this.findDivs(events.protyle.protyle, false);
@@ -50,9 +55,9 @@ class CommentBox {
             const menu = detail.menu;
             if (commentBoxMenu.get()) {
                 menu.addItem({
-                    icon: "iconQuoteTomato",
+                    icon: CommentBox添加批注到日记.icon,
                     accelerator: CommentBox添加批注到日记.m,
-                    label: tomatoI18n.添加批注到日记,
+                    label: CommentBox添加批注到日记.langText(),
                     click: () => {
                         this.findDivs(detail.protyle, false);
                     },
@@ -67,7 +72,69 @@ class CommentBox {
                     if (this.svelteCallback) {
                         this.svelteCallback(detail.protyle);
                     }
+                    if (this.svelteCallbackTab) {
+                        this.svelteCallbackTab(detail.protyle);
+                    }
                 }
+            });
+
+            plugin.addTopBar({
+                icon: CommentBoxTab批注.icon,
+                title: CommentBoxTab批注.langText() + CommentBoxTab批注.w(),
+                position: "left",
+                callback: () => this.openCommentTab(),
+            });
+
+            this.plugin.addCommand({
+                langKey: CommentBoxTab批注.langKey,
+                langText: CommentBoxTab批注.langText(),
+                hotkey: CommentBoxTab批注.m,
+                callback: () => this.openCommentTab(),
+            });
+
+            this.customTab;
+            this.customTab = this.plugin.addTab({
+                type: TAB_TYPE,
+                resize() {
+                    if (commentBox.svelteResizeTab) commentBox.svelteResizeTab();
+                },
+                init(this) {
+                    const id = newID();
+                    this.element.innerHTML = `<div id="${id}"></div>`;
+                    this.data.sm = new DestroyManager();
+                    const svelte = new CommentBoxSvelte({
+                        target: this.element.querySelector("#" + id),
+                        props: {
+                            dock: this as any,
+                            isDock: false,
+                        }
+                    });
+                    this.data.sm.add("tab", () => { this.destroy(); });
+                    this.data.sm.add("svelte", () => { svelte.$destroy(); });
+                },
+                beforeDestroy() { },
+                destroy() {
+                    this.data.sm.destroyBy("tab");
+                }
+            });
+        }
+    }
+
+    private tab: Tab;
+    async openCommentTab() {
+        if (this.tab) {
+            this.tab.close();
+            this.tab = null;
+        } else {
+            this.tab = await openTab({
+                position: "right",
+                app: this.plugin.app,
+                custom: {
+                    icon: CommentBoxTab批注.icon,
+                    title: CommentBoxTab批注.langText(),
+                    data: { docID: events.docID, blockID: events.lastBlockID },
+                    id: this.plugin.name + TAB_TYPE
+                },
             });
         }
     }
@@ -77,9 +144,9 @@ class CommentBox {
         if (commentBoxMenu.get()) {
             const protyle: IProtyle = detail.protyle;
             detail.menu.addItem({
-                icon: "iconQuoteTomato",
+                icon: CommentBox添加批注到日记.icon,
                 accelerator: CommentBox添加批注到日记.m,
-                label: tomatoI18n.添加批注到日记,
+                label: CommentBox添加批注到日记.langText(),
                 click: () => {
                     this.findDivs(protyle, false);
                 }
@@ -133,7 +200,7 @@ class CommentBox {
             config: {
                 position: "RightBottom",
                 size: { width: 200, height: 0 },
-                icon: "iconQuoteTomato",
+                icon: CommentBox添加批注到日记.icon,
                 title,
                 hotkey: "⌥⌘S",
             },

@@ -174,7 +174,7 @@ export class DomListBuilder extends DomBuilder {
 
     newList(div: HTMLElement) {
         const sub = new DomListBuilder();
-        this.append(div, sub.container);
+        this.append(div, sub.container); // 需要build后，有了protyle-attr才能加入，这里为了方便就忽略了。
         return sub;
     }
 

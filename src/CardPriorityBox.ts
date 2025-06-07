@@ -6,7 +6,7 @@ import { DialogText } from "./libs/DialogText";
 import { EventType, events } from "./libs/Events";
 import CardPriorityBar from "./CardPriorityBar.svelte";
 import { doStopCards, getIDFromCard } from "./libs/cardUtils";
-import { auto_card_priority, cardPriorityBoxCheckbox, cardPriorityBoxPostponeCardMenu, cardPriorityBoxPriorityMenu, cardPriorityBoxSpradDelayMenu } from "./libs/stores";
+import { auto_card_priority, cardPriorityBoxCheckbox, cardPriorityBoxPostponeCardMenu, cardPriorityBoxPriorityMenu, cardPriorityBoxSpradDelayMenu, cardPrioritySetPriInterval } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 
@@ -15,6 +15,7 @@ export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8", "delay all
 export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9", "delay all cards 2025-5-10 12:31:04")
 export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y", "resume all cards 2025-5-10 12:31:04")
 import { winHotkey } from "./libs/winHotkey";
+import { setGlobal } from "./libs/globalUtils";
 
 class CardPriorityBox {
     plugin: BaseTomatoPlugin;
@@ -49,10 +50,31 @@ class CardPriorityBox {
         }
     }
 
+    private async scanCard2addPriority() {
+        return navigator.locks.request("lock scanCard2addPriority 2025-6-7 00:25:52", { ifAvailable: true }, async (lock) => {
+            if (lock) {
+                let cards = await siyuan.getRiffCardsAllFlat()
+                cards = cards.filter(c => c.ial != null && !c.ial["custom-card-priority"])
+                await siyuan.batchSetBlockAttrs(cards.map(c => {
+                    return { id: c.id, attrs: { "custom-card-priority": "50" } }
+                }))
+            }
+        })
+    }
+
     async onload(plugin: BaseTomatoPlugin) {
         if (!cardPriorityBoxCheckbox.get()) return;
         this.plugin = plugin;
         this.beforeReview = new Map();
+
+        const interval = parseInt(cardPrioritySetPriInterval.get())
+        if (interval > 0) {
+            const h = setInterval(() => {
+                this.scanCard2addPriority();
+            }, interval * 60 * 1000);
+            const old = setGlobal("scanCard2addPriority 2025-6-7 00:03:48", h)
+            clearInterval(old);
+        }
 
         const cardPrioritySet = async () => {
             const cardID = await getIDFromCard()

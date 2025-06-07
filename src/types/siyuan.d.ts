@@ -243,7 +243,7 @@ type GetCardRetBlock = {
     fcontent: string;
     // hash: string;
     hPath: string;
-    ial: Ial;
+    ial: AttrType;
     attrs?: AttrType;
     id: string;
     // length: number;
@@ -271,11 +271,11 @@ type GetCardRetBlock = {
     riffCard: RiffCard;
 }
 
-type Ial = {
-    id: string;
-    title: string;
-    updated: string;
-}
+// type Ial = {
+//     id: string;
+//     title: string;
+//     updated: string;
+// }
 
 type RiffCard = {
     due: string; // "2024-02-28"

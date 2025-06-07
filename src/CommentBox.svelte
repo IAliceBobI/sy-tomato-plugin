@@ -36,8 +36,8 @@
     import { events } from "./libs/Events";
 
     export let dock: Dock;
+    export let isDock = true;
     type LoadRefs = { refs: Ref[]; loaded: boolean };
-    dock;
     let backLinks: BacklinkSv<Protyle>[] = [];
     let refs: LoadRefs = { refs: [], loaded: false };
     let stop = false;
@@ -70,13 +70,23 @@
 
     onMount(() => {
         updateStop();
-        commentBox.svelteCallback = svelteCallback;
-        commentBox.svelteResize = updateStop;
-        return () => {
-            commentBox.svelteCallback = null;
-            commentBox.svelteResize = null;
-            release();
-        };
+        if (isDock) {
+            commentBox.svelteCallback = svelteCallback;
+            commentBox.svelteResize = updateStop;
+            return () => {
+                commentBox.svelteCallback = null;
+                commentBox.svelteResize = null;
+                release();
+            };
+        } else {
+            commentBox.svelteCallbackTab = svelteCallback;
+            commentBox.svelteResizeTab = updateStop;
+            return () => {
+                commentBox.svelteCallbackTab = null;
+                commentBox.svelteResizeTab = null;
+                release();
+            };
+        }
     });
 
     function release() {
