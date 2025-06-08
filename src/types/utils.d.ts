@@ -16,6 +16,7 @@ type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
     foldTypes: string[],
+    foldTypesNODE_HEADING: boolean,
     foldTypesNODE_TABLE: boolean,
     foldTypesNODE_LIST: boolean,
     foldTypesBLOCKQUOTE: boolean,

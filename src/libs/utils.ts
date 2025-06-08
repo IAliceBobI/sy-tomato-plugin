@@ -2814,3 +2814,11 @@ export function isEditor(protyle: IProtyle) {
 export function getDialogContainer(dialog: Dialog) {
     return dialog?.element?.querySelector("div.b3-dialog > div.b3-dialog__container")
 }
+
+export function getProtylesByID(id: string) {
+    return getAllEditor()
+        ?.filter(protyle => {
+            const e = protyle?.protyle?.element?.querySelector(`div[data-node-id="${id}"]`)
+            return e != null
+        }) ?? []
+}

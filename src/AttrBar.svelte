@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-    import { TOMATO_ATTR_BAR } from "./libs/gconst";
-    import { getAttribute, siyuan } from "./libs/utils";
+    import { BlockNodeEnum, TOMATO_ATTR_BAR } from "./libs/gconst";
+    import { getAttribute, getProtylesByID, siyuan } from "./libs/utils";
 
     export let plugin: BaseTomatoPlugin;
     export let element: HTMLElement;
@@ -10,6 +10,7 @@
     const ctrlAttr = {};
     let id: string;
     let fold: string;
+    let dataType: string;
 
     onMount(() => {
         ctrlAttr[TOMATO_ATTR_BAR] = "1";
@@ -18,6 +19,7 @@
         plugin;
         id = getAttribute(element, "data-node-id");
         fold = getAttribute(element, "fold");
+        dataType = getAttribute(element, "data-type");
     });
 
     async function toggleFold() {
@@ -25,6 +27,9 @@
             await siyuan.setBlockAttrs(id, { fold: "" });
         } else {
             await siyuan.setBlockAttrs(id, { fold: "1" });
+        }
+        if (dataType == BlockNodeEnum.NODE_HEADING) {
+            getProtylesByID(id).forEach((protyle) => protyle.reload(true));
         }
     }
 </script>

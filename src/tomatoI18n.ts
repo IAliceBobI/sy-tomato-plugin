@@ -154,6 +154,23 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 标题() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "标题";
+            case "es_ES": return "Título";
+            case "fr_FR": return "Titre";
+            case "ja_JP": return "タイトル";
+            case "zh_CHT": return "標題";
+            case "it_IT": return "Titolo";
+            case "de_DE": return "Titel";
+            case "he_IL": return "כותרת";
+            case "ru_RU": return "Заголовок";
+            case "pl_PL": return "Tytuł";
+            case "en_US":
+            default: return "Title";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
