@@ -185,6 +185,7 @@
                 "custom-tomato-comment": "",
             });
         }
+        removeAttribute(e, "custom-inline-comment");
     }
 
     async function _svelteCallback_block(protyle: IProtyle) {
@@ -289,6 +290,7 @@
                         for (const l1 of refL1) {
                             const bkid = l1.attrs["custom-comment-bk-id"];
                             if (commentBKs.find((c) => c.id == bkid) == null) {
+                                l1.attrs["custom-comment-bk-id"] = null;
                                 l1.attrs["custom-comment-bk-id"] = null;
                             }
                         }
