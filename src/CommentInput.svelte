@@ -2,7 +2,6 @@
     import { IProtyle } from "siyuan";
     import { DestroyManager } from "./libs/destroyer";
     import {
-        commentAllBlockRef,
         commentBoxAddFlashCard,
         commentBoxAddKeepText,
         commentBoxAddTime,
@@ -101,10 +100,6 @@
             }
             newDivs.push(...cloned);
 
-            let count = 1;
-            if (commentAllBlockRef.get()) {
-                count = cloned.length;
-            }
             cloned
                 .map((div) => {
                     const all: HTMLElement[] = [
@@ -116,7 +111,6 @@
                     return all;
                 })
                 .flat()
-                .slice(0, count)
                 .forEach((div) => {
                     add_ref(
                         div,

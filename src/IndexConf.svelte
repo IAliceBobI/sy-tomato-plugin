@@ -163,7 +163,6 @@
         mindWireWidth,
         cssSuperBlockBorder,
         cardPrioritySetPriInterval,
-        commentAllBlockRef,
         foldTypes,
         foldTypesSuperBlock,
         foldTypesNODE_LIST,
@@ -905,14 +904,6 @@
                     bind:checked={$commentBoxAddUnderline}
                 />
                 {tomatoI18n.批注添加下划线}
-            </div>
-            <div>
-                <input
-                    type="checkbox"
-                    class="b3-switch"
-                    bind:checked={$commentAllBlockRef}
-                />
-                {tomatoI18n.所有原文都加引用}
             </div>
             <div>
                 <input

@@ -492,7 +492,6 @@ export const commentBoxAddKeepText = settingFactory("commentBoxAddKeepText", tru
 export const commentBoxAddUnderline = settingFactory("commentBoxAddUnderline", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxShowID = settingFactory("commentBoxShowID", false, STORAGE_SETTINGS, null as TSK);
 export const commentBoxStaticOutlink = settingFactory("commentBoxStaticOutlink", false, STORAGE_SETTINGS, null as TSK);
-export const commentAllBlockRef = settingFactory("commentAllBlockRef", false, STORAGE_SETTINGS, null as TSK);
 
 // ---------------
 

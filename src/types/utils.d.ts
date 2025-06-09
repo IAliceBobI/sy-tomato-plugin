@@ -21,7 +21,6 @@ type TomatoSettings = {
     foldTypesNODE_LIST: boolean,
     foldTypesBLOCKQUOTE: boolean,
     foldTypesSuperBlock: boolean,
-    commentAllBlockRef: boolean,
     commentBoxAddKeepText: boolean,
     cardPrioritySetPriInterval: string,
     cssSuperBlockBorder: boolean,
