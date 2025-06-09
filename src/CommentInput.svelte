@@ -16,13 +16,11 @@
         getAttribute,
         setAttribute,
         siyuan,
-        getContextPath,
-        timeUtil,
         removeAttribute,
+        timeUtil,
     } from "./libs/utils";
     import { onDestroy, onMount } from "svelte";
     import { tomatoI18n } from "./tomatoI18n";
-    import { SPACE } from "./libs/gconst";
 
     export let dm: DestroyManager;
     export let protyle: IProtyle;
@@ -47,6 +45,7 @@
         dm.destroyBy("svelte");
     }
     onMount(() => {
+        ids;
         if (commentBoxAddKeepText.get()) {
             text = localStorage.getItem(key) ?? "";
         }
@@ -62,12 +61,13 @@
 
     async function saveComment() {
         const createDailyNoteTask = siyuan.createDailyNote(boxID);
-        const rpath = getContextPath(ids[0]).then((a) => {
-            if (commentBoxAddTime.get()) {
-                return timeUtil.nowStr() + SPACE + a.getPathStr();
-            }
-            return a.getPathStr();
-        });
+        const rpath = timeUtil.nowStr();
+        // const rpath = getContextPath(ids[0]).then((a) => {
+        //     if (commentBoxAddTime.get()) {
+        //         return timeUtil.nowStr() + SPACE + a.getPathStr();
+        //     }
+        //     return a.getPathStr();
+        // });
 
         await siyuan.batchSetBlockAttrs(
             // 处理原文

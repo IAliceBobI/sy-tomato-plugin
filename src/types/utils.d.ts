@@ -287,6 +287,7 @@ type AttrType = {
     style?: string,
     md?: string,// for 'Writing' plugin
     content?: string,// for 'Writing' plugin
+    "custom-inline-comment"?: string,
     "custom-tomato-key-comment"?: string,
     "custom-tomato-comment"?: string,
     "title-img"?: string,

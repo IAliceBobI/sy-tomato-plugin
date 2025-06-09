@@ -192,21 +192,26 @@ function listenWheel(_event: WheelEvent) {
 }
 
 function getAnchor(id: string) {
-    let anchor = document.querySelector(`div[data-node-id="${id}"] > div[contenteditable] > span[data-type="block-ref"]`)
-    if (!anchor) {
-        anchor = document.querySelector(`div[data-node-id="${id}"] > div[contenteditable] > span[data-type="a"]`)
-    }
-    if (!anchor) {
-        anchor = document.querySelector(`div[data-node-id="${id}"] > div[contenteditable] > span`)
-    }
-    if (!anchor) {
-        anchor = document.querySelector(`div[data-node-id="${id}"] > div[contenteditable]`)
-    }
-    if (!anchor) {
-        anchor = document.querySelector(`div[data-node-id="${id}"]`)
-    }
-    if (anchor) {
-        return { e: anchor as HTMLElement }
+    const es = getAllEditor()
+        .filter(p => p?.protyle?.element != null && isEditor(p.protyle))
+        .map(p => p.protyle.element);
+    for (const div of es) {
+        let anchor = div.querySelector(`div[data-node-id="${id}"] > div[contenteditable] > span[data-type="block-ref"]`)
+        if (!anchor) {
+            anchor = div.querySelector(`div[data-node-id="${id}"] > div[contenteditable] > span[data-type="a"]`)
+        }
+        if (!anchor) {
+            anchor = div.querySelector(`div[data-node-id="${id}"] > div[contenteditable] > span`)
+        }
+        if (!anchor) {
+            anchor = div.querySelector(`div[data-node-id="${id}"] > div[contenteditable]`)
+        }
+        if (!anchor) {
+            anchor = div.querySelector(`div[data-node-id="${id}"]`)
+        }
+        if (anchor) {
+            return { e: anchor as HTMLElement }
+        }
     }
     return {}
 }

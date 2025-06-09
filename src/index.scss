@@ -64,13 +64,6 @@
   content: attr(memo);
 }
 
-// settings search 
-.tomato-highlight {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  font-size: x-large;
-  color: var(--b3-font-color2);
-}
-
 .protyle-wysiwyg div[custom-tomato-readonly] {
   color: var(--b3-font-color4);
   background-color: var(--b3-font-background4);
@@ -82,6 +75,18 @@
   div.protyle-attr::after {
     content: "🔒";
   }
+}
+
+.protyle-wysiwyg div[custom-inline-comment]::before {
+  content: attr(custom-inline-comment);
+  background-color: var(--b3-font-background4);
+}
+
+// settings search 
+.tomato-highlight {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-size: x-large;
+  color: var(--b3-font-color2);
 }
 
 .protyle-wysiwyg div[custom-tomato-line-blur] {

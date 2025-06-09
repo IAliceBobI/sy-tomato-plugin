@@ -1,6 +1,6 @@
 import { adaptHotkey, Custom, Dialog, Dock, IProtyle, openTab, Tab } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { getDialogContainer, newID, } from "./libs/utils";
+import { getAttribute, getDialogContainer, isEditor, newID, setAttribute, siyuan, sleep, } from "./libs/utils";
 import CommentBoxSvelte from "./CommentBox.svelte";
 import { commentBoxCheckbox, commentBoxMenu, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
@@ -66,6 +66,16 @@ class CommentBox {
         });
 
         if (!events.isMobile) {
+            events.addListener("tomato comment inline 2025-6-9 18:28:36", (eventType, detail) => {
+                if (eventType == EventType.loaded_protyle_static
+                    || eventType == EventType.loaded_protyle_dynamic
+                    || eventType == EventType.switch_protyle
+                    || eventType == EventType.click_editorcontent
+                ) {
+                    this.inlineComment(detail.protyle);
+                }
+            });
+
             this.addDock(); // 添加后有 bug，手机端在文档数更新后，无法显示 topbar icons.
             events.addListener("tomato-comment-box-2024年12月19日21:48:42", (eventType, detail) => {
                 if (eventType == EventType.click_editorcontent) {
@@ -152,6 +162,58 @@ class CommentBox {
                 }
             });
         }
+    }
+
+    private async do_inlineComment(protyle: IProtyle) {
+        const divs = [...protyle.element.querySelectorAll(`div[data-node-id]`)];
+        const ids = divs.map(div => getAttribute(div, "data-node-id"))
+        let inField = ids.map(id => `'${id}'`).join(",");
+
+        // block_id ---> def_block_id。 comment box 中，1个block_id不会引用多个def_block_id。
+        let idMap = await siyuan
+            .sqlRef(`select block_id,def_block_id from refs where def_block_id in (${inField})`)
+            .then(rows => {
+                return new Map(rows.map(row => [row.block_id, row.def_block_id]));
+            });
+        inField = [...idMap.keys()].map(id => `'${id}'`).join(",");
+
+        idMap = await siyuan
+            .sqlAttr(`select value,block_id from attributes where name="custom-comment-bk-id" and block_id in (${inField})`)
+            .then(rows => {
+                return new Map(rows.map(row => {
+                    const def_block_id = idMap.get(row.block_id)
+                    return [row.value, def_block_id]
+                }));
+            });
+
+        inField = [...idMap.keys()].map(id => `'${id}'`).join(",");
+        idMap = await siyuan
+            .sql(`select id,markdown from blocks where id in (${inField})`)
+            .then(rows => {
+                return new Map(rows.map(row => {
+                    const md = (row.markdown ?? "").split("{{{row").at(1)?.trim();
+                    const def_block_id = idMap.get(row.id)
+                    return [def_block_id, md]
+                }));
+            });
+
+        for (const div of divs) {
+            const id = getAttribute(div, "data-node-id");
+            const md = idMap.get(id)
+            if (!md) continue;
+            setAttribute(div, "custom-inline-comment", md)
+        }
+    }
+
+    private inlineComment(protyle: IProtyle) {
+        if (!protyle || !protyle.element) return;
+        if (!isEditor(protyle)) return;
+        navigator.locks.request("inlineComment 2025-6-9 18:31:03", { ifAvailable: true }, async (lock) => {
+            if (lock) {
+                await this.do_inlineComment(protyle)
+                await sleep(800);
+            }
+        })
     }
 
     private async findDivs(protyle: IProtyle, _newFile: boolean) {
