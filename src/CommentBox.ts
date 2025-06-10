@@ -201,7 +201,7 @@ class CommentBox {
             const id = getAttribute(div, "data-node-id");
             const md = idMap.get(id)
             if (!md) continue;
-            setAttribute(div, "custom-inline-comment", md)
+            setAttribute(div, "data-inline-comment", md)
         }
     }
 

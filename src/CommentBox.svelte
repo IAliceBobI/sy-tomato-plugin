@@ -185,7 +185,7 @@
                 "custom-tomato-comment": "",
             });
         }
-        removeAttribute(e, "custom-inline-comment");
+        removeAttribute(e, "data-inline-comment");
     }
 
     async function _svelteCallback_block(protyle: IProtyle) {

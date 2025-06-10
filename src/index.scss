@@ -77,8 +77,8 @@
   }
 }
 
-.protyle-wysiwyg div[custom-inline-comment]::before {
-  content: attr(custom-inline-comment);
+.protyle-wysiwyg div[data-inline-comment]::before {
+  content: attr(data-inline-comment);
   background-color: var(--b3-font-background4);
 }
 
