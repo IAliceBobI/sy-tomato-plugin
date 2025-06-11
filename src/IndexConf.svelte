@@ -169,6 +169,7 @@
         foldTypesBLOCKQUOTE,
         foldTypesNODE_TABLE,
         foldTypesNODE_HEADING,
+        tomato_clocks_audio,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -741,6 +742,11 @@
             <div>
                 <input class="b3-text-field" bind:value={$tomato_clocks} />
                 {tomatoI18n.番茄钟时长多个间用逗号隔开}
+            </div>
+
+            <div>
+                <input class="b3-text-field" bind:value={$tomato_clocks_audio} />
+                {tomatoI18n.时间到播放声音}
             </div>
 
             <div>

@@ -171,6 +171,23 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 时间到播放声音() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "时间到播放声音（可以是网络url或者本地路径c:\\abc.mp3）";
+            case "es_ES": return "Reproducir sonido cuando termine el tiempo (puede ser una URL o una ruta local como c:\\abc.mp3)";
+            case "fr_FR": return "Jouer un son à la fin du temps (peut être une URL ou un chemin local comme c:\\abc.mp3)";
+            case "ja_JP": return "時間になったら音を再生（URLまたはローカルパスc:\\abc.mp3が使用可能）";
+            case "zh_CHT": return "時間到播放聲音（可以是網路url或本地路徑c:\\abc.mp3）";
+            case "it_IT": return "Riproduci suono allo scadere del tempo (può essere un URL o un percorso locale come c:\\abc.mp3)";
+            case "de_DE": return "Ton abspielen, wenn die Zeit abgelaufen ist (kann eine URL oder ein lokaler Pfad wie c:\\abc.mp3 sein)";
+            case "he_IL": return "נגן צליל כאשר הזמן נגמר (יכול להיות כתובת URL או נתיב מקומי כמו c:\\abc.mp3)";
+            case "ru_RU": return "Воспроизвести звук по окончании времени (может быть URL или локальный путь, например c:\\abc.mp3)";
+            case "pl_PL": return "Odtwórz dźwięk po upływie czasu (może to być adres URL lub lokalna ścieżka, np. c:\\abc.mp3)";
+            case "en_US":
+            default: return "Play sound when time is up (can be a URL or local path like c:\\abc.mp3)";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
