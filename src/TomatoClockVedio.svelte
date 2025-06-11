@@ -19,7 +19,11 @@
         // 播放声音
         if (tomato_clocks_audio.get()) {
             const audio = new Audio(tomato_clocks_audio.get());
-            audio.play();
+            try {
+                audio.play();
+            } catch (e) {
+                console.error("Failed to play audio:", e);
+            }
             dm?.add("close audio", () => {
                 audio.pause();
                 audio.currentTime = 0;
