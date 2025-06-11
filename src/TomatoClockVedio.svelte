@@ -17,7 +17,7 @@
 
     onMount(async () => {
         // 播放声音
-        if (!vedioID) {
+        if (tomato_clocks_audio.get()) {
             const audio = new Audio(tomato_clocks_audio.get());
             audio.play();
             dm?.add("close audio", () => {
