@@ -15,13 +15,14 @@ const TAB_TYPE = "custom_tab_CommentBox"
 
 export const CommentBox添加批注到日记 = winHotkey("⇧⌥F", "comment box 2024-12-20 12:01:14", "iconQuoteTomato", () => tomatoI18n.添加批注到日记, false)
 export const CommentBoxTab批注 = winHotkey("⇧⌥I", "comment tab 2025-6-7 12:24:11", "iconQuoteTomato", () => tomatoI18n.批注, false)
+export const CommentBox刷新文档正引 = winHotkey("F9", "comment refresh ref 2025年6月12日17:51:13", "iconQuoteTomato", () => tomatoI18n.刷新文档正引, true)
 
 class CommentBox {
     plugin: BaseTomatoPlugin;
     settingCfg: TomatoSettings;
-    svelteCallback: (protyle: IProtyle) => void;
+    svelteCallback: Func;
     svelteResize: () => void;
-    svelteCallbackTab: (protyle: IProtyle) => void;
+    svelteCallbackTab: Func;
     svelteResizeTab: () => void;
     svelte: CommentBoxSvelte;
     private customTab: () => Custom;
@@ -48,6 +49,19 @@ class CommentBox {
             hotkey: CommentBox添加批注到日记.m,
             callback: () => {
                 this.findDivs(events.protyle.protyle, false);
+            },
+        });
+
+        this.plugin.addCommand({
+            langKey: CommentBox刷新文档正引.langKey,
+            langText: CommentBox刷新文档正引.langText(),
+            hotkey: CommentBox刷新文档正引.m,
+            callback: () => {
+                if (this.svelteCallback) {
+                    this.svelteCallback(events.protyle.protyle, true);
+                } else if (this.svelteCallbackTab) {
+                    this.svelteCallbackTab(events.protyle.protyle, true);
+                }
             },
         });
 

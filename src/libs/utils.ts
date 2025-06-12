@@ -1698,6 +1698,15 @@ export const siyuan = {
         const notebook = notebookID;
         return siyuan.call("/api/notebook/openNotebook", { notebook });
     },
+    async getNotebookByName(name: string): Promise<LsNotebook> {
+        const resp = await siyuan.call("/api/notebook/lsNotebooks", {});
+        for (const book of resp?.["notebooks"] ?? []) {
+            if (book.name === name) {
+                return book;
+            }
+        }
+        return {} as LsNotebook;
+    },
     async lsNotebooks(closed?: boolean): Promise<LsNotebook[]> {
         const resp = await siyuan.call("/api/notebook/lsNotebooks", {});
         if (closed == null) {

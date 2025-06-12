@@ -1,7 +1,7 @@
 <script lang="ts">
     import { confirm, Dock, IProtyle, Protyle } from "siyuan";
     import { onMount } from "svelte";
-    import { commentBox } from "./CommentBox";
+    import { commentBox, CommentBox刷新文档正引 } from "./CommentBox";
     import {
         deleteBlock,
         getAttribute,
@@ -99,20 +99,20 @@
         if (stop) release();
     }
 
-    function svelteCallback(protyle: IProtyle) {
+    function svelteCallback(protyle: IProtyle, force = false) {
         if (stop) return;
         navigator.locks.request(
             "comment svelte 2024-12-19 23:29:21",
             async (lock) => {
                 if (lock) {
                     if (stop) return;
-                    return _svelteCallback(protyle);
+                    return _svelteCallback(protyle, force);
                 }
             },
         );
     }
 
-    async function _svelteCallback(protyle: IProtyle) {
+    async function _svelteCallback(protyle: IProtyle, force = false) {
         if (getAttribute(protyle.element, TOMATO_BK_IGNORE)) return;
         if (!(await verifyKeyTomato())) {
             if ($commentBoxStaticOutlink) commentBoxStaticOutlink.write(false);
@@ -120,7 +120,7 @@
 
         if ($commentBoxStaticOutlink) {
             const i = events.getInfo(protyle);
-            if (docID != i.docID) refs.loaded = false;
+            if (docID != i.docID || force) refs.loaded = false;
             docID = i.docID;
             return _svelteCallback_doc();
         } else {
@@ -493,11 +493,14 @@
         </label>
         {#if $commentBoxStaticOutlink}
             <button
+                title={tomatoI18n.刷新文档正引 +
+                    SPACE +
+                    CommentBox刷新文档正引.w()}
                 class="b3-button b3-button--text box font"
                 on:click={async () => {
                     refs.loaded = false;
                     await _svelteCallback_doc();
-                }}>🔄</button
+                }}>🔄{CommentBox刷新文档正引.w()}</button
             >
         {/if}
         {#if !$commentBoxStaticOutlink}

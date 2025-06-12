@@ -188,6 +188,23 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 刷新文档正引() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "刷新文档正引";
+            case "es_ES": return "Actualizar citas directas del documento";
+            case "fr_FR": return "Rafraîchir les citations directes du document";
+            case "ja_JP": return "ドキュメントのインライン引用を更新";
+            case "zh_CHT": return "刷新文件正引";
+            case "it_IT": return "Aggiorna citazioni dirette del documento";
+            case "de_DE": return "Direktzitate im Dokument aktualisieren";
+            case "he_IL": return "רענן ציטוטים ישירים במסמך";
+            case "ru_RU": return "Обновить прямые цитаты в документе";
+            case "pl_PL": return "Odśwież cytaty bezpośrednie w dokumencie";
+            case "en_US":
+            default: return "Refresh document direct citations";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
