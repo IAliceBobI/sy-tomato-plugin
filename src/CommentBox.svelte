@@ -12,6 +12,7 @@
         removeInvisibleChars,
         siyuan,
         strIncludeAttr,
+        uniqueFilter,
     } from "./libs/utils";
     import { closeProtyle, createProtyle } from "./libs/bkUtils";
     import { BlockNodeEnum, SPACE, TOMATO_BK_IGNORE } from "./libs/gconst";
@@ -135,6 +136,7 @@
             ...div.querySelectorAll(`span[data-type="block-ref"][data-id]`),
         ]
             .reverse()
+            .filter(uniqueFilter((span) => getAttribute(span, "data-id")))
             .map((span) => {
                 const def_block_root_id = getAttribute(span, "data-id");
                 const content = span.textContent;

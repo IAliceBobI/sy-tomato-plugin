@@ -2831,3 +2831,13 @@ export function getProtylesByID(id: string) {
             return e != null
         }) ?? []
 }
+
+export function uniqueFilter<T>(keySelector: (item: T) => any) {
+    const seen = new Set<any>();
+    return (item: T) => {
+        const key = keySelector(item);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    };
+};
