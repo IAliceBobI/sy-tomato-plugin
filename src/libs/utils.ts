@@ -464,13 +464,30 @@ export function downloadStringAsFile(content: string, filename: string, mimeType
     URL.revokeObjectURL(url);
 }
 
-export async function readAllFiles() {
-    const pathes1 = await getAllFileIDs().then(p => [...p.values()].map(i => "/data" + i));
-    const dbPath = "/data/storage/av";
-    const pathes2 = siyuan.readDir(dbPath).then(i => {
-        return i?.filter(i => i.name.endsWith(".json"))?.map(i => dbPath + "/" + i.name) ?? []
-    })
-    return Promise.all([pathes1, pathes2]).then(all => all.flat())
+export async function readAllFiles(av = true) {
+    const pathes1 = getAllFileIDs().then(p => [...p.values()].map(i => "/data" + i));
+    let pathes2: string[] = [];
+    if (av) {
+        const dbPath = "/data/storage/av";
+        pathes2 = await siyuan.readDir(dbPath).then(i => {
+            return i?.filter(i => i.name.endsWith(".json"))?.map(i => dbPath + "/" + i.name) ?? []
+        })
+    }
+    return [await pathes1, pathes2].flat()
+}
+
+export async function readAllFilePathIDs(av = true, fileOnly = false) {
+    const pathes = await readAllFiles(av);
+    const ids = pathes.map(path => {
+        const parts = path.replace("/data/storage/av/", "").replace("/data/", "").split("/")
+        const last = parts.pop().slice(0, -3)
+        if (fileOnly) {
+            return [last];
+        }
+        parts.push(last)
+        return parts
+    }).flat()
+    return new Set(ids);
 }
 
 export async function getPluginSpec(name: string): Promise<PluginSpec> {
@@ -2841,3 +2858,31 @@ export function uniqueFilter<T>(keySelector: (item: T) => any) {
         return true;
     };
 };
+
+const ILLEGAL_CHARS_REGEX = /[\x00\/\\:*?"<>|]/g;  // \x00 代表空字符 [5](@ref)[4](@ref)
+
+export function sanitizePathSegment(segment: string): string {
+    // 保留 Windows 驱动器标识（如 C:）
+    // if (segment.length === 2 && segment[1] === ':') {
+    //     return segment;
+    // }
+    return segment.replace(ILLEGAL_CHARS_REGEX, '_'); // 替换为下划线
+}
+
+export async function readDir(dirPath: string): Promise<string[]> {
+    const fs: typeof import('fs/promises') = require('fs/promises');
+    if (!fs) return;
+    const joiner = require('path');
+    if (!joiner) return;
+    const files: string[] = [];
+    const items = await fs.readdir(dirPath, { withFileTypes: true }); // 获取带类型的目录项
+    for (const item of items) {
+        const fullPath = joiner.join(dirPath, item.name);
+        if (item.isDirectory()) {
+            files.push(...await readDir(fullPath)); // 递归子目录
+        } else {
+            files.push(fullPath);
+        }
+    }
+    return files;
+}

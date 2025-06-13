@@ -15,6 +15,9 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    exportInterval: string,
+    exportCleanFiles: string,
+    exportPath: string,
     tomato_clocks_audio: string,
     foldTypes: string[],
     foldTypesNODE_HEADING: boolean,

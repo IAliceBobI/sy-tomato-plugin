@@ -170,6 +170,9 @@
         foldTypesNODE_TABLE,
         foldTypesNODE_HEADING,
         tomato_clocks_audio,
+        exportPath,
+        exportInterval,
+        exportCleanFiles,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -287,6 +290,7 @@
         MindWire启用或禁用思维导线,
         MindWire启用或禁用文档思维导线,
     } from "./MindWire";
+    import { exportMd2Dir } from "./exportFiles";
     export let dm: DestroyManager;
     export let plugin: BaseTomatoPlugin;
     let buyDIV: HTMLElement;
@@ -703,6 +707,51 @@
             </label>
         </div>
     </div>
+    <!-- 导出工作空间 -->
+    <div class="settingBox">
+        <div>
+            {tomatoI18n.导出工作空间}
+            <strong>
+                <a
+                    href="https://awx9773btw.feishu.cn/docx/UmNxds5JLo4m1qxc7j3cOvh4ncc?from=from_copylink"
+                >
+                    {tomatoI18n.帮助}</a
+                >
+            </strong>
+        </div>
+        <div>
+            <input class="b3-text-field space" bind:value={$exportPath} />
+            {tomatoI18n.导出工作空间到此文件夹}
+        </div>
+        {#if $exportPath}
+            <div>
+                <input
+                    class="b3-text-field space"
+                    bind:value={$exportInterval}
+                />
+                {tomatoI18n.每x分钟执行一次增量导出($exportInterval)}
+            </div>
+            <div>
+                <input
+                    class="b3-text-field space"
+                    bind:value={$exportCleanFiles}
+                />
+                {tomatoI18n.每x分钟清理已删除文档($exportCleanFiles)}
+            </div>
+            <div>
+                <button
+                    class="b3-button space"
+                    on:click={() => exportMd2Dir($exportPath, true)}
+                    >{tomatoI18n.全量导出}
+                </button>
+                <button
+                    class="b3-button space"
+                    on:click={() => exportMd2Dir($exportPath)}
+                    >{tomatoI18n.增量导出}
+                </button>
+            </div>
+        {/if}
+    </div>
     <!-- 状态栏番茄钟 -->
     <div class="settingBox">
         <div>
@@ -745,7 +794,10 @@
             </div>
 
             <div>
-                <input class="b3-text-field" bind:value={$tomato_clocks_audio} />
+                <input
+                    class="b3-text-field"
+                    bind:value={$tomato_clocks_audio}
+                />
                 {tomatoI18n.时间到播放声音}
             </div>
 
@@ -1674,7 +1726,12 @@
                     class="b3-text-field"
                     bind:value={$cardPrioritySetPriInterval}
                 />
-                {tomatoI18n.间隔x分钟检查所有闪卡加上默认优先级}
+                {tomatoI18n.间隔x分钟检查所有闪卡加上默认优先级(
+                    $cardPrioritySetPriInterval,
+                )}
+                {#if !$cardPrioritySetPriInterval || $cardPrioritySetPriInterval == "0"}
+                    （{tomatoI18n.不扫描优先级}）
+                {/if}
             </div>
         {/if}
     </div>

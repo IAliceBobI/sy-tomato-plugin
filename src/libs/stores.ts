@@ -312,6 +312,9 @@ const settingFactory = <T>(key: TSK, defaultValue: T, file: string, _void: TSK) 
 
 export const userToken = settingFactory("userToken", "", STORAGE_SETTINGS, null as TSK);
 export const userID = settingFactory("userID", "", STORAGE_SETTINGS, null as TSK);
+export const exportInterval = settingFactory("exportInterval", "1", STORAGE_SETTINGS, null as TSK);
+export const exportCleanFiles = settingFactory("exportCleanFiles", "10", STORAGE_SETTINGS, null as TSK);
+export const exportPath = settingFactory("exportPath", "", STORAGE_SETTINGS, null as TSK);
 export const hideVIP = settingFactory("hideVIP", true, STORAGE_SETTINGS, null as TSK);
 export const foldTypes = settingFactory("foldTypes", [], STORAGE_SETTINGS, null as TSK);
 export const foldTypesSuperBlock = settingFactory("foldTypesSuperBlock", false, STORAGE_SETTINGS, null as TSK);

@@ -9,6 +9,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
+import { setGlobal } from "./libs/globalUtils";
 
 export const ToolBarBox间隔重复 = winHotkey("alt+backspace", "间隔重复 2025-5-12 19:34:21", "iconRiffCard", () => tomatoI18n.复习闪卡)
 export const ToolBarBox刷新虚拟引用 = winHotkey("alt+delete", "刷新虚拟引用 2025-5-12 19:34:22", "iconRef", () => tomatoI18n.刷新虚拟引用)
@@ -18,7 +19,6 @@ export const ToolBarBox整理assets下的图片视频音频 = winHotkey("ctrl+al
 class ToolbarBox {
     public plugin: BaseTomatoPlugin;
     private ob: MutationObserver;
-    private inter: any;
     private lastPart: HTMLElement;
     private cardElement: HTMLElement;
 
@@ -174,23 +174,17 @@ class ToolbarBox {
             this.ob.observe(document.getElementById("layouts"), { attributes: true, childList: true, subtree: true });
         }
         if (!events.isMobile) {
-            const currentPluginID = this.plugin.id;
-            this.inter = setInterval(() => {
-                console.debug("toolbar interval: pluginID: " + this.plugin.id)
-                if (currentPluginID !== this.plugin.global.tomato_zZmqus5PtYRi.pluginID) {
-                    clearTimeout(this.inter)
-                } else {
+            clearInterval(setGlobal("tomato showCardNumber 2025-06-13 15:33:11",
+                setInterval(() => {
                     this.showCardNumber();
-                }
-            }, 20000);
+                }, 20000)
+            ));
         }
     }
 
     onunload() {
         this.ob?.disconnect();
         this.ob = null;
-        clearInterval(this.inter);
-        this.inter = null;
     }
 
     private showCardNumber() {

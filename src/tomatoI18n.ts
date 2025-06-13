@@ -1,22 +1,6 @@
 import { TomatoI18nABC } from "./libs/text1";
 
 export class TomatoI18n extends TomatoI18nABC {
-    public get 间隔x分钟检查所有闪卡加上默认优先级() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "每多少分钟，扫描所有闪卡，补上默认优先级，0为不扫描";
-            case "es_ES": return "Cada cuántos minutos, escanear todas las tarjetas flash y añadir prioridad predeterminada (0 para desactivar)";
-            case "fr_FR": return "Toutes les X minutes, scanner toutes les cartes mémoire et ajouter la priorité par défaut (0 pour désactiver)";
-            case "ja_JP": return "何分ごとにすべてのフラッシュカードをスキャンし、デフォルトの優先度を追加するか（0でスキャンしない）";
-            case "zh_CHT": return "每多少分鐘，掃描所有閃卡，補上默認優先級，0為不掃描";
-            case "it_IT": return "Ogni quanti minuti, scansiona tutte le flashcard e aggiungi la priorità predefinita (0 per disabilitare)";
-            case "de_DE": return "Alle X Minuten alle Karteikarten scannen und Standardpriorität hinzufügen (0 deaktiviert)";
-            case "he_IL": return "כל כמה דקות, סרוק את כל הכרטיסיות והוסף עדיפות ברירת מחדל (0 כדי לכבות)";
-            case "ru_RU": return "Каждые сколько минут сканировать все карточки и добавлять приоритет по умолчанию (0 для отключения)";
-            case "pl_PL": return "Co ile minut skanować wszystkie fiszki i dodawać domyślny priorytet (0 aby wyłączyć)";
-            case "en_US":
-            default: return "Scan all flashcards and add default priority every X minutes (0 to disable)";
-        }
-    }
 
     public get 打开批注页签() {
         switch (this.conf.appearance.lang) {
@@ -205,6 +189,174 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 导出工作空间() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "导出工作空间";
+            case "es_ES": return "Exportar espacio de trabajo";
+            case "fr_FR": return "Exporter l'espace de travail";
+            case "ja_JP": return "ワークスペースをエクスポート";
+            case "zh_CHT": return "導出工作空間";
+            case "it_IT": return "Esporta spazio di lavoro";
+            case "de_DE": return "Arbeitsbereich exportieren";
+            case "he_IL": return "ייצא סביבת עבודה";
+            case "ru_RU": return "Экспортировать рабочее пространство";
+            case "pl_PL": return "Eksportuj przestrzeń roboczą";
+            case "en_US":
+            default: return "Export workspace";
+        }
+    }
+
+    public get 全量导出() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "全量导出";
+            case "es_ES": return "Exportación completa";
+            case "fr_FR": return "Exportation complète";
+            case "ja_JP": return "全量エクスポート";
+            case "zh_CHT": return "全量導出";
+            case "it_IT": return "Esportazione completa";
+            case "de_DE": return "Vollständiger Export";
+            case "he_IL": return "ייצוא מלא";
+            case "ru_RU": return "Полный экспорт";
+            case "pl_PL": return "Eksport pełny";
+            case "en_US":
+            default: return "Full export";
+        }
+    }
+
+    public get 增量导出() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "增量导出";
+            case "es_ES": return "Exportación incremental";
+            case "fr_FR": return "Exportation incrémentielle";
+            case "ja_JP": return "増分エクスポート";
+            case "zh_CHT": return "增量導出";
+            case "it_IT": return "Esportazione incrementale";
+            case "de_DE": return "Inkrementeller Export";
+            case "he_IL": return "ייצוא הדרגתי";
+            case "ru_RU": return "Инкрементальный экспорт";
+            case "pl_PL": return "Eksport przyrostowy";
+            case "en_US":
+            default: return "Incremental export";
+        }
+    }
+
+    public get 没有需要导出的文档() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "没有需要导出的文档";
+            case "es_ES": return "No hay documentos para exportar";
+            case "fr_FR": return "Aucun document à exporter";
+            case "ja_JP": return "エクスポートするドキュメントがありません";
+            case "zh_CHT": return "沒有需要導出的文件";
+            case "it_IT": return "Nessun documento da esportare";
+            case "de_DE": return "Keine Dokumente zum Exportieren vorhanden";
+            case "he_IL": return "אין מסמכים לייצא";
+            case "ru_RU": return "Нет документов для экспорта";
+            case "pl_PL": return "Brak dokumentów do eksportu";
+            case "en_US":
+            default: return "No documents to export";
+        }
+    }
+
+    public 每x分钟执行一次增量导出(x: string) {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return `每${x}分钟执行一次增量导出`;
+            case "es_ES": return `Ejecutar exportación incremental cada ${x} minutos`;
+            case "fr_FR": return `Effectuer une exportation incrémentielle toutes les ${x} minutes`;
+            case "ja_JP": return `${x}分ごとに増分エクスポートを実行`;
+            case "zh_CHT": return `每${x}分鐘執行一次增量導出`;
+            case "it_IT": return `Esegui esportazione incrementale ogni ${x} minuti`;
+            case "de_DE": return `Alle ${x} Minuten inkrementellen Export ausführen`;
+            case "he_IL": return `בצע ייצוא הדרגתי כל ${x} דקות`;
+            case "ru_RU": return `Выполнять инкрементальный экспорт каждые ${x} минут`;
+            case "pl_PL": return `Wykonuj eksport przyrostowy co ${x} minut`;
+            case "en_US":
+            default: return `Perform incremental export every ${x} minutes`;
+        }
+    }
+
+    public get 导出工作空间正在进行中请稍后再试() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "导出工作空间正在进行中，请稍后再试";
+            case "es_ES": return "La exportación del espacio de trabajo está en curso, inténtalo de nuevo más tarde";
+            case "fr_FR": return "L'exportation de l'espace de travail est en cours, veuillez réessayer plus tard";
+            case "ja_JP": return "ワークスペースのエクスポートが進行中です。しばらくしてから再試行してください";
+            case "zh_CHT": return "導出工作空間正在進行中，請稍後再試";
+            case "it_IT": return "L'esportazione dello spazio di lavoro è in corso, riprova più tardi";
+            case "de_DE": return "Der Export des Arbeitsbereichs läuft, bitte versuche es später erneut";
+            case "he_IL": return "ייצוא סביבת העבודה מתבצע כעת, נסה שוב מאוחר יותר";
+            case "ru_RU": return "Экспорт рабочего пространства выполняется, попробуйте позже";
+            case "pl_PL": return "Trwa eksport przestrzeni roboczej, spróbuj ponownie później";
+            case "en_US":
+            default: return "Workspace export is in progress, please try again later";
+        }
+    }
+
+    public 间隔x分钟检查所有闪卡加上默认优先级(x: string) {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return `每间隔${x}分钟检查所有闪卡，并加上默认优先级`;
+            case "es_ES": return `Comprobar todas las tarjetas flash cada ${x} minutos y asignar la prioridad predeterminada`;
+            case "fr_FR": return `Vérifier toutes les flashcards toutes les ${x} minutes et attribuer la priorité par défaut`;
+            case "ja_JP": return `${x}分ごとにすべてのフラッシュカードをチェックし、デフォルトの優先度を付与`;
+            case "zh_CHT": return `每間隔${x}分鐘檢查所有閃卡，並加上預設優先級`;
+            case "it_IT": return `Controlla tutte le flashcard ogni ${x} minuti e assegna la priorità predefinita`;
+            case "de_DE": return `Alle ${x} Minuten alle Karteikarten überprüfen und Standardpriorität zuweisen`;
+            case "he_IL": return `בדוק את כל כרטיסי הברק כל ${x} דקות והוסף עדיפות ברירת מחדל`;
+            case "ru_RU": return `Проверять все флеш-карты каждые ${x} минут и назначать приоритет по умолчанию`;
+            case "pl_PL": return `Sprawdzaj wszystkie fiszki co ${x} minut i ustaw domyślny priorytet`;
+            case "en_US":
+            default: return `Check all flashcards every ${x} minutes and assign default priority`;
+        }
+    }
+
+    public get 不扫描优先级() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "不扫描优先级";
+            case "es_ES": return "No escanear prioridad";
+            case "fr_FR": return "Ne pas scanner la priorité";
+            case "ja_JP": return "優先度をスキャンしない";
+            case "zh_CHT": return "不掃描優先級";
+            case "it_IT": return "Non scansionare la priorità";
+            case "de_DE": return "Priorität nicht scannen";
+            case "he_IL": return "אל תסרוק עדיפות";
+            case "ru_RU": return "Не сканировать приоритет";
+            case "pl_PL": return "Nie skanuj priorytetu";
+            case "en_US":
+            default: return "Do not scan priority";
+        }
+    }
+    public 每x分钟清理已删除文档(x: string) {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return `每${x}分钟清理已删除文档`;
+            case "es_ES": return `Limpiar documentos eliminados cada ${x} minutos`;
+            case "fr_FR": return `Nettoyer les documents supprimés toutes les ${x} minutes`;
+            case "ja_JP": return `${x}分ごとに削除されたドキュメントをクリーンアップ`;
+            case "zh_CHT": return `每${x}分鐘清理已刪除文件`;
+            case "it_IT": return `Pulisci i documenti eliminati ogni ${x} minuti`;
+            case "de_DE": return `Alle ${x} Minuten gelöschte Dokumente bereinigen`;
+            case "he_IL": return `נקה מסמכים שנמחקו כל ${x} דקות`;
+            case "ru_RU": return `Очищать удалённые документы каждые ${x} минут`;
+            case "pl_PL": return `Czyść usunięte dokumenty co ${x} minut`;
+            case "en_US":
+            default: return `Clean up deleted documents every ${x} minutes`;
+        }
+    }
+
+    public get 导出工作空间到此文件夹() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "导出工作空间到此文件夹";
+            case "es_ES": return "Exportar espacio de trabajo a esta carpeta";
+            case "fr_FR": return "Exporter l'espace de travail dans ce dossier";
+            case "ja_JP": return "ワークスペースをこのフォルダーにエクスポート";
+            case "zh_CHT": return "導出工作空間到此資料夾";
+            case "it_IT": return "Esporta spazio di lavoro in questa cartella";
+            case "de_DE": return "Arbeitsbereich in diesen Ordner exportieren";
+            case "he_IL": return "ייצא סביבת עבודה לתיקיה זו";
+            case "ru_RU": return "Экспортировать рабочее пространство в эту папку";
+            case "pl_PL": return "Eksportuj przestrzeń roboczą do tego folderu";
+            case "en_US":
+            default: return "Export workspace to this folder";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

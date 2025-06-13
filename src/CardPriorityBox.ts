@@ -69,11 +69,9 @@ class CardPriorityBox {
 
         const interval = parseInt(cardPrioritySetPriInterval.get())
         if (interval > 0) {
-            const h = setInterval(() => {
+            clearInterval(setGlobal("scanCard2addPriority 2025-6-7 00:03:48", setInterval(() => {
                 this.scanCard2addPriority();
-            }, interval * 60 * 1000);
-            const old = setGlobal("scanCard2addPriority 2025-6-7 00:03:48", h)
-            clearInterval(old);
+            }, interval * 60 * 1000)));
         }
 
         const cardPrioritySet = async () => {

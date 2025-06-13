@@ -104,13 +104,11 @@ class MindWire {
             }
         });
 
-        const handle = setInterval(() => {
+        clearInterval(setGlobal("mind wire", setInterval(() => {
             if (getAllEditor().length == 0) {
                 cleanWire();
             }
-        }, 2000);
-        const old = setGlobal("mind wire", handle)
-        clearInterval(old);
+        }, 2000)));
     }
 }
 
