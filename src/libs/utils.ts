@@ -11,6 +11,9 @@ import { getDocBlocks } from "./docUtils";
 import { domRef, DomSuperBlockBuilder } from "./sydom";
 import { DestroyManager } from "./destroyer";
 import { parseCustomTag } from "./ial";
+import { TomatoPluginInstance } from "./gconst";
+import { getGlobal } from "./globalUtils";
+import { BaseTomatoPlugin } from "./BaseTomatoPlugin";
 
 export function closeTabByTitle(tabs: AttrType[], excludeDocID: string) {
     if (tabs?.length > 0) {
@@ -476,17 +479,19 @@ export async function readAllFiles(av = true) {
     return [await pathes1, pathes2].flat()
 }
 
-export async function readAllFilePathIDs(av = true, fileOnly = false) {
-    const pathes = await readAllFiles(av);
+export async function readAllFilePathIDs(filter: string[] = [], av = false) {
+    let pathes = await readAllFiles(av);
+    if (filter?.length > 0) {
+        pathes = pathes.filter(p => {
+            for (const v of filter) {
+                if (p.includes(v)) return true;
+            }
+        })
+    }
     const ids = pathes.map(path => {
-        const parts = path.replace("/data/storage/av/", "").replace("/data/", "").split("/")
-        const last = parts.pop().slice(0, -3)
-        if (fileOnly) {
-            return [last];
-        }
-        parts.push(last)
-        return parts
-    }).flat()
+        path = path.replace("/data/storage/av/", "").replace("/data/", "").slice(0, -3);
+        return path.split("/")
+    }).flat().filter(i => !!i)
     return new Set(ids);
 }
 
@@ -2869,20 +2874,56 @@ export function sanitizePathSegment(segment: string): string {
     return segment.replace(ILLEGAL_CHARS_REGEX, '_'); // 替换为下划线
 }
 
-export async function readDir(dirPath: string): Promise<string[]> {
-    const fs: typeof import('fs/promises') = require('fs/promises');
-    if (!fs) return;
-    const joiner = require('path');
-    if (!joiner) return;
-    const files: string[] = [];
-    const items = await fs.readdir(dirPath, { withFileTypes: true }); // 获取带类型的目录项
-    for (const item of items) {
-        const fullPath = joiner.join(dirPath, item.name);
-        if (item.isDirectory()) {
-            files.push(...await readDir(fullPath)); // 递归子目录
-        } else {
-            files.push(fullPath);
-        }
-    }
-    return files;
+// export async function readDir(dirPath: string): Promise<string[]> {
+//     const fs: typeof import('fs/promises') = require('fs/promises');
+//     if (!fs) return;
+//     const joiner = require('path');
+//     if (!joiner) return;
+//     const files: string[] = [];
+//     const items = await fs.readdir(dirPath, { withFileTypes: true }); // 获取带类型的目录项
+//     for (const item of items) {
+//         const fullPath = joiner.join(dirPath, item.name);
+//         if (item.isDirectory()) {
+//             files.push(...await readDir(fullPath)); // 递归子目录
+//         } else {
+//             files.push(fullPath);
+//         }
+//     }
+//     return files;
+// }
+
+export function getPlugin(): BaseTomatoPlugin {
+    return getGlobal(TomatoPluginInstance)
 }
+
+export function getNotebookByName(name: string) {
+    return Siyuan?.notebooks?.find(n => n.name == name)
+}
+
+export function getNotebookByID(id: string) {
+    return Siyuan?.notebooks?.find(n => n.id == id)
+}
+
+export function getNotebookFirstOne() {
+    return Siyuan?.notebooks?.find(n => n.closed != null && n.closed == false)
+}
+
+export function osFs() {
+    return require('fs/promises') as typeof import('fs/promises');
+}
+
+export function osPath() {
+    return require('path') as typeof import('path');
+}
+
+export async function getHpath(id: string) {
+    if (!id) return "";
+    const row = await siyuan.getRowByID(id);
+    if (row) {
+        let n = getNotebookByID(row.box)?.name ?? ""
+        n = n + (row.hpath ?? "");
+        if (n) return n;
+    }
+    return id;
+}
+

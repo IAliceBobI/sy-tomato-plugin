@@ -1,6 +1,6 @@
 import { IProtyle } from "siyuan";
 import { events } from "./libs/Events";
-import { add_href, add_ref, cloneCleanDiv, closeTabByTitle, getAllText, getContextPath, getOpenedEditors, Siyuan, siyuan, timeUtil, } from "./libs/utils";
+import { add_href, add_ref, cloneCleanDiv, closeTabByTitle, getAllText, getContextPath, getNotebookFirstOne, getOpenedEditors, Siyuan, siyuan, timeUtil, } from "./libs/utils";
 import { DATA_NODE_ID } from "./libs/gconst";
 import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyComment, dailyNoteCopyFlashCard, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveToBottom, dailyNotetopbarleft, dailyNotetopbarright, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
@@ -242,7 +242,7 @@ class DailyNoteBox {
     async openDailyNote(deltaMs: number) {
         if (deltaMs == 0) return;
         let boxID = storeNoteBox_selectedNotebook.getOr();
-        if (!boxID) boxID = Siyuan.notebooks?.find(i => !i.closed)?.id;
+        if (!boxID) boxID = getNotebookFirstOne()?.id;
         if (!boxID) {
             siyuan.pushMsg(tomatoI18n.请先打开笔记本);
             return;

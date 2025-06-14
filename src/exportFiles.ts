@@ -1,124 +1,14 @@
 import { confirm, IProtyle, Plugin, Protyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { chunks, cleanDivOnly, cloneCleanDiv, downloadStringAsFile, getAttribute, getBlocksByTrees, getMarkdownsByTrees, isEditor, readAllFilePathIDs, removeInvisibleChars, sanitizePathSegment, Siyuan, siyuan, } from "./libs/utils";
+import { cleanDivOnly, cloneCleanDiv, downloadStringAsFile, getAttribute, getBlocksByTrees, getMarkdownsByTrees, isEditor, removeInvisibleChars, siyuan, } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
 import { TOMATO_LINE_THROUGH } from "./libs/gconst";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { DomSuperBlockBuilder } from "./libs/sydom";
 import { verifyKeyTomato } from "./libs/user";
-import { addSelectionBtnsDesktop, addSelectionBtnsMobile, exportCleanFiles, exportPath } from "./libs/stores";
+import { addSelectionBtnsDesktop, addSelectionBtnsMobile } from "./libs/stores";
 import { SelectionML } from "./libs/SelectionML";
-import { zipNways } from "./libs/functional";
-import { setGlobal } from "./libs/globalUtils";
 
-
-export async function exportMd2Dir(dir: string, force = false, msg = true) {
-    if (!dir?.trim()) return;
-    navigator.locks.request("lock exportMd2Dir 2025-06-13 15:17:27", { ifAvailable: true }, async (lock) => {
-        if (lock) {
-            await _exportMd2Dir(dir, force, msg);
-        } else {
-            if (msg) await siyuan.pushMsg(tomatoI18n.导出工作空间正在进行中请稍后再试);
-        }
-    });
-}
-
-export async function cleanExportedMds() {
-    const i = parseInt(exportCleanFiles.get());
-    if (i > 0) {
-        clearInterval(setGlobal("cleanExportedMds 2025-06-13 16:06:30", setInterval(() => {
-            const dir = exportPath.get();
-            if (!dir?.trim()) return;
-            navigator.locks.request("lock cleanExportedMds 2025-06-13 15:17:27", { ifAvailable: true }, async (lock) => {
-                if (lock) {
-                    _cleanExportedMds(dir);
-                }
-            });
-        }, i * 60 * 1000)));
-    }
-}
-
-async function _cleanExportedMds(dir: string) {
-    const fs: typeof import('fs/promises') = require('fs/promises');
-    if (!fs) return;
-    const joiner: typeof import('path') = require('path');
-    if (!joiner) return;
-    const validIDs = await readAllFilePathIDs()
-    Siyuan.notebooks.map(n => n.id).forEach(i => validIDs.add(i));
-    await readAndDel(fs, joiner, dir, validIDs)
-}
-
-async function readAndDel(fs: typeof import('fs/promises'), joiner: typeof import('path'), dirPath: string, validIDs: Set<string>) {
-    const items = await fs.readdir(dirPath, { withFileTypes: true });
-    for (const item of items) {
-        const fullPath = joiner.join(dirPath, item.name);
-        const dirID = item.name.split("#").pop()
-        if (item.isDirectory()) {
-            if (!validIDs.has(dirID)) {
-                fs.rm(fullPath, { recursive: true, force: true })
-            } else {
-                await readAndDel(fs, joiner, fullPath, validIDs)
-            }
-        } else {
-            const fileID = dirID.split(".").slice(0, -1).join(".")
-            if (!validIDs.has(fileID)) {
-                fs.rm(fullPath, { force: true })
-            }
-        }
-    }
-}
-
-async function _exportMd2Dir(dir: string, force = false, msg = true) {
-    if (!dir?.trim()) return;
-    const joiner = require('path');
-    if (!joiner) return;
-    const fs = require('fs');
-    if (!fs) return;
-    const KEY = "tomato exportMd2Dir maxUpdated";
-    if (force) localStorage.setItem(KEY, "")
-    const maxUpdated = localStorage.getItem(KEY) ?? "";
-    const docs = await siyuan.sql(`select * from blocks where type='d' and updated>'${maxUpdated}' order by updated asc limit 99999999`)
-    if (docs.length == 0) {
-        if (msg) await siyuan.pushMsg(tomatoI18n.没有需要导出的文档);
-        return
-    }
-    let acc = 0;
-    for (const chunk of chunks(docs, 100)) {
-        if (chunk.length == 0) continue;
-        const fileNames = await parallelExport(fs, joiner, chunk, dir)
-
-        const updated = chunk.at(-1).updated;
-        if (updated) localStorage.setItem(KEY, updated);
-
-        if (msg) {
-            acc += fileNames.length;
-            await siyuan.pushMsg(`(${acc}/${docs.length})${tomatoI18n.导出工作空间}：${fileNames.join(", ")}`);
-        }
-    }
-}
-
-async function parallelExport(fs: typeof import('fs'), joiner: typeof import('path'), docs: Block[], dir: string) {
-    const tasks = docs.map(async doc => {
-        const hpathParts = doc.hpath.split("/").slice(1);
-        const pathParts = doc.path.split("/").slice(1);
-
-        hpathParts.splice(0, 0, Siyuan?.notebooks?.find(n => n.id == doc.box)?.name ?? "")
-        pathParts.splice(0, 0, doc.box)
-
-        const sypath = zipNways(hpathParts, pathParts)
-            .map(([h, p]) => h + "#" + p)
-            .filter(i => !!i && i != "#")
-            .map(i => sanitizePathSegment(i))
-
-        const docName = sypath.pop().slice(0, -3) + ".md"
-        const safePath = joiner.normalize(joiner.join(dir, ...sypath, docName))
-        fs.mkdirSync(joiner.dirname(safePath), { recursive: true });
-        const md = await siyuan.copyStdMarkdown(doc.id);
-        fs.writeFileSync(safePath, md, { encoding: 'utf8' });
-        return doc.content
-    });
-    return Promise.all(tasks);
-}
 
 export function mergeDocMenuListener() {
     events.addListener_open_menu_doctree("2025-5-8 17:27:45合并文档", (detial) => {

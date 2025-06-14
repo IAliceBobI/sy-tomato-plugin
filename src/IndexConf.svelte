@@ -171,14 +171,17 @@
         foldTypesNODE_HEADING,
         tomato_clocks_audio,
         exportPath,
-        exportInterval,
+        exportIntervalSec,
         exportCleanFiles,
+        markdownExportBoxCheckbox,
+        exportWhiteList,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
     import NotebookSelect from "./NotebookSelect.svelte";
     import {
         cleanDataview,
+        getHpath,
         icon,
         pushUniq,
         removeFromArr,
@@ -290,7 +293,7 @@
         MindWire启用或禁用思维导线,
         MindWire启用或禁用文档思维导线,
     } from "./MindWire";
-    import { exportMd2Dir } from "./exportFiles";
+    import { cleanExportedMds, exportMd2Dir } from "./MarkdownExportBox";
     export let dm: DestroyManager;
     export let plugin: BaseTomatoPlugin;
     let buyDIV: HTMLElement;
@@ -710,6 +713,11 @@
     <!-- 导出工作空间 -->
     <div class="settingBox">
         <div>
+            <input
+                type="checkbox"
+                class="b3-switch"
+                bind:checked={$markdownExportBoxCheckbox}
+            />
             {tomatoI18n.导出工作空间}
             <strong>
                 <a
@@ -719,20 +727,48 @@
                 >
             </strong>
         </div>
-        <div>
-            <input class="b3-text-field space" bind:value={$exportPath} />
-            {tomatoI18n.导出工作空间到此文件夹}
-        </div>
-        {#if $exportPath}
+        {#if $markdownExportBoxCheckbox}
             <div>
-                <input
-                    class="b3-text-field space"
-                    bind:value={$exportInterval}
-                />
-                {tomatoI18n.每x分钟执行一次增量导出($exportInterval)}
+                {#if $exportWhiteList.length === 0}
+                    <strong
+                        >⚠️{tomatoI18n.白名单为空请先在文档树中右键添加文档}⚠️</strong
+                    >
+                {:else}
+                    {#each $exportWhiteList as item, index}
+                        <div>
+                            <button
+                                class="b3-button b3-button--text space"
+                                on:click={() => {
+                                    $exportWhiteList.splice(index, 1);
+                                    $exportWhiteList = $exportWhiteList;
+                                }}
+                            >
+                                🗑️
+                            </button>
+                            {#await getHpath(item)}
+                                <span>{item}</span>
+                            {:then v}
+                                <span>{v}</span>
+                            {/await}
+                        </div>
+                    {/each}
+                {/if}
+            </div>
+            <div>
+                <input class="b3-text-field space" bind:value={$exportPath} />
+                {tomatoI18n.导出工作空间到此文件夹}
             </div>
             <div>
                 <input
+                    title={tomatoI18n.可以填写小数}
+                    class="b3-text-field space"
+                    bind:value={$exportIntervalSec}
+                />
+                {tomatoI18n.每x秒执行一次增量导出($exportIntervalSec)}
+            </div>
+            <div>
+                <input
+                    title={tomatoI18n.可以填写小数}
                     class="b3-text-field space"
                     bind:value={$exportCleanFiles}
                 />
@@ -741,13 +777,16 @@
             <div>
                 <button
                     class="b3-button space"
-                    on:click={() => exportMd2Dir($exportPath, true)}
+                    on:click={() => exportMd2Dir(true)}
                     >{tomatoI18n.全量导出}
+                </button>
+                <button class="b3-button space" on:click={() => exportMd2Dir()}
+                    >{tomatoI18n.增量导出}
                 </button>
                 <button
                     class="b3-button space"
-                    on:click={() => exportMd2Dir($exportPath)}
-                    >{tomatoI18n.增量导出}
+                    on:click={() => cleanExportedMds()}
+                    >{tomatoI18n.立即清理}
                 </button>
             </div>
         {/if}

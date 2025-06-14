@@ -257,23 +257,6 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
-    public 每x分钟执行一次增量导出(x: string) {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return `每${x}分钟执行一次增量导出`;
-            case "es_ES": return `Ejecutar exportación incremental cada ${x} minutos`;
-            case "fr_FR": return `Effectuer une exportation incrémentielle toutes les ${x} minutes`;
-            case "ja_JP": return `${x}分ごとに増分エクスポートを実行`;
-            case "zh_CHT": return `每${x}分鐘執行一次增量導出`;
-            case "it_IT": return `Esegui esportazione incrementale ogni ${x} minuti`;
-            case "de_DE": return `Alle ${x} Minuten inkrementellen Export ausführen`;
-            case "he_IL": return `בצע ייצוא הדרגתי כל ${x} דקות`;
-            case "ru_RU": return `Выполнять инкрементальный экспорт каждые ${x} минут`;
-            case "pl_PL": return `Wykonuj eksport przyrostowy co ${x} minut`;
-            case "en_US":
-            default: return `Perform incremental export every ${x} minutes`;
-        }
-    }
-
     public get 导出工作空间正在进行中请稍后再试() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "导出工作空间正在进行中，请稍后再试";
@@ -324,22 +307,6 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Do not scan priority";
         }
     }
-    public 每x分钟清理已删除文档(x: string) {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return `每${x}分钟清理已删除文档`;
-            case "es_ES": return `Limpiar documentos eliminados cada ${x} minutos`;
-            case "fr_FR": return `Nettoyer les documents supprimés toutes les ${x} minutes`;
-            case "ja_JP": return `${x}分ごとに削除されたドキュメントをクリーンアップ`;
-            case "zh_CHT": return `每${x}分鐘清理已刪除文件`;
-            case "it_IT": return `Pulisci i documenti eliminati ogni ${x} minuti`;
-            case "de_DE": return `Alle ${x} Minuten gelöschte Dokumente bereinigen`;
-            case "he_IL": return `נקה מסמכים שנמחקו כל ${x} דקות`;
-            case "ru_RU": return `Очищать удалённые документы каждые ${x} минут`;
-            case "pl_PL": return `Czyść usunięte dokumenty co ${x} minut`;
-            case "en_US":
-            default: return `Clean up deleted documents every ${x} minutes`;
-        }
-    }
 
     public get 导出工作空间到此文件夹() {
         switch (this.conf.appearance.lang) {
@@ -357,6 +324,122 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Export workspace to this folder";
         }
     }
+    public get 添加到导出工作空间的白名单() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "添加到导出工作空间的白名单";
+            case "es_ES": return "Agregar a la lista blanca del espacio de trabajo de exportación";
+            case "fr_FR": return "Ajouter à la liste blanche de l'espace de travail d'exportation";
+            case "ja_JP": return "エクスポートワークスペースのホワイトリストに追加";
+            case "zh_CHT": return "添加到導出工作空間的白名單";
+            case "it_IT": return "Aggiungere alla lista bianca dello spazio di lavoro di esportazione";
+            case "de_DE": return "Zur Whitelist des Export-Arbeitsbereichs hinzufügen";
+            case "he_IL": return "הוסף לרשימה הלבנה של סביבת העבודה לייצוא";
+            case "ru_RU": return "Добавить в белый список рабочего пространства экспорта";
+            case "pl_PL": return "Dodaj do białej listy przestrzeni roboczej eksportu";
+            case "en_US":
+            default: return "Add to export workspace whitelist";
+        }
+    }
+    public get 白名单为空请先在文档树中右键添加文档() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "白名单为空，请先在文档树中右键添加文档";
+            case "es_ES": return "La lista blanca está vacía. Por favor, agregue un documento haciendo clic derecho en el árbol de documentos.";
+            case "fr_FR": return "La liste blanche est vide. Veuillez ajouter un document en cliquant avec le bouton droit dans l'arborescence des documents.";
+            case "ja_JP": return "ホワイトリストが空です。まず文書ツリーで右クリックして文書を追加してください。";
+            case "zh_CHT": return "白名單為空，請先在文檔樹中右鍵添加文檔";
+            case "it_IT": return "L'elenco bianco è vuoto. Aggiungere un documento facendo clic con il pulsante destro del mouse nell'albero dei documenti.";
+            case "de_DE": return "Die Whitelist ist leer. Bitte fügen Sie ein Dokument hinzu, indem Sie mit der rechten Maustaste im Dokumentenbaum klicken.";
+            case "he_IL": return "רשימת הלבן ריקה. אנא הוסף מסמך על ידי לחיצה ימנית בעץ המסמכים.";
+            case "ru_RU": return "Белый список пуст. Пожалуйста, добавьте документ, щелкнув правой кнопкой мыши в дереве документов.";
+            case "pl_PL": return "Lista białej jest pusta. Proszę dodać dokument, klikając prawym przyciskiem myszy w drzewie dokumentów.";
+            case "en_US":
+            default: return "The whitelist is empty. Please add a document by right-clicking in the document tree.";
+        }
+    }
+    public get 立即清理() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "立即清理";
+            case "es_ES": return "Limpiar inmediatamente";
+            case "fr_FR": return "Nettoyer immédiatement";
+            case "ja_JP": return "今すぐクリーンアップ";
+            case "zh_CHT": return "立即清理";
+            case "it_IT": return "Pulisci immediatamente";
+            case "de_DE": return "Sofort bereinigen";
+            case "he_IL": return "נקה מיד";
+            case "ru_RU": return "Очистить немедленно";
+            case "pl_PL": return "Wyczyść natychmiast";
+            case "en_US":
+            default: return "Clean up immediately";
+        }
+    }
+    public get 可以填写小数() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "可以填写小数";
+            case "es_ES": return "Se pueden introducir decimales";
+            case "fr_FR": return "Les décimales peuvent être saisies";
+            case "ja_JP": return "小数を入力できます";
+            case "zh_CHT": return "可以填寫小數";
+            case "it_IT": return "È possibile inserire decimali";
+            case "de_DE": return "Dezimalzahlen können eingegeben werden";
+            case "he_IL": return "ניתן להזין מספרים עשרוניים";
+            case "ru_RU": return "Можно вводить десятичные числа";
+            case "pl_PL": return "Można wprowadzać liczby dziesiętne";
+            case "en_US":
+            default: return "Decimals can be entered";
+        }
+    }
+
+    public 每x秒执行一次增量导出(x: string) {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return `每${x}秒执行一次增量导出`;
+            case "es_ES": return `Realizar una exportación incremental cada ${x} segundos`;
+            case "fr_FR": return `Effectuer une exportation incrémentielle toutes les ${x} secondes`;
+            case "ja_JP": return `${x}秒ごとに増分エクスポートを実行`;
+            case "zh_CHT": return `每${x}秒執行一次增量導出`;
+            case "it_IT": return `Esegui un'esportazione incrementale ogni ${x} secondi`;
+            case "de_DE": return `Alle ${x} Sekunden einen inkrementellen Export durchführen`;
+            case "he_IL": return `בצע ייצוא הדרגתי כל ${x} שניות`;
+            case "ru_RU": return `Выполнять инкрементальный экспорт каждые ${x} секунд`;
+            case "pl_PL": return `Wykonuj eksport przyrostowy co ${x} sekund`;
+            case "en_US":
+            default: return `Perform incremental export every ${x} seconds`;
+        }
+    }
+
+    public 添加了x个文件夹(x: number) {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return `添加了 ${x} 个文件夹`;
+            case "es_ES": return `Se han añadido ${x} carpetas`;
+            case "fr_FR": return `${x} dossiers ajoutés`;
+            case "ja_JP": return `${x}個のフォルダーを追加しました`;
+            case "zh_CHT": return `已添加 ${x} 個資料夾`;
+            case "it_IT": return `Aggiunte ${x} cartelle`;
+            case "de_DE": return `${x} Ordner hinzugefügt`;
+            case "he_IL": return `נוספו ${x} תיקיות`;
+            case "ru_RU": return `Добавлено папок: ${x}`;
+            case "pl_PL": return `Dodano ${x} folderów`;
+            case "en_US":
+            default: return `Added ${x} folders`;
+        }
+    }
+
+    public 每x分钟清理已删除文档(x: string) {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return `每${x}分钟清理已删除文档，并确保文件同步了最新内容`;
+            case "es_ES": return `Limpiar documentos eliminados cada ${x} minutos y asegurarse de que los archivos estén sincronizados con el contenido más reciente`;
+            case "fr_FR": return `Nettoyer les documents supprimés toutes les ${x} minutes et s'assurer que les fichiers sont synchronisés avec le contenu le plus récent`;
+            case "ja_JP": return `${x}分ごとに削除済みドキュメントをクリーンアップし、ファイルが最新の内容と同期されていることを確認します`;
+            case "zh_CHT": return `每${x}分鐘清理已刪除文件，並確保檔案同步了最新內容`;
+            case "it_IT": return `Pulisci i documenti eliminati ogni ${x} minuti e assicurati che i file siano sincronizzati con il contenuto più recente`;
+            case "de_DE": return `Alle ${x} Minuten gelöschte Dokumente bereinigen und sicherstellen, dass die Dateien mit dem neuesten Inhalt synchronisiert sind`;
+            case "he_IL": return `נקה מסמכים שנמחקו כל ${x} דקות וודא שהקבצים מסונכרנים עם התוכן העדכני ביותר`;
+            case "ru_RU": return `Очищать удалённые документы каждые ${x} минут и убедиться, что файлы синхронизированы с самым последним содержимым`;
+            case "pl_PL": return `Czyść usunięte dokumenty co ${x} minut i upewnij się, że pliki są zsynchronizowane z najnowszą zawartością`;
+            case "en_US":
+            default: return `Clean up deleted documents every ${x} minutes and ensure files are synchronized with the latest content`;
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

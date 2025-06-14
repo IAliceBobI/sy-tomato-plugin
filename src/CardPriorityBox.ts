@@ -67,7 +67,7 @@ class CardPriorityBox {
         this.plugin = plugin;
         this.beforeReview = new Map();
 
-        const interval = parseInt(cardPrioritySetPriInterval.get())
+        const interval = parseFloat(cardPrioritySetPriInterval.get())
         if (interval > 0) {
             clearInterval(setGlobal("scanCard2addPriority 2025-6-7 00:03:48", setInterval(() => {
                 this.scanCard2addPriority();

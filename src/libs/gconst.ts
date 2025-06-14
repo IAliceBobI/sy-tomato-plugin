@@ -26,6 +26,7 @@ export const DocAttrShowKey = "tomato-virtual-doc-attr"
 export const DATA_AV_ID = "data-av-id"
 export const TOMATO_ATTR_BAR = "tomato_attr_bar"
 export const COMMENT_SUPERBLOCK_FOLD = "custom-comment-superblock-fold"
+export const TomatoPluginInstance = "TomatoPluginInstance 2025-06-14 16:33:26"
 
 export const settingStyle = (txt: string) => {
     return `<span style="color:var(--b3-font-color11)">${txt}</span>`;
