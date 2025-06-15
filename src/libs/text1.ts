@@ -342,23 +342,6 @@ export abstract class TomatoI18nABC extends TomatoI18nABC2 {
         }
     }
 
-    public get 空格隔开的所有内容都转为引用() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "空格隔开的所有内容都转为引用（忽略##后的内容)";
-            case "es_ES": return "Convertir en cita todo lo separado por espacios (ignorar contenido tras ##)";
-            case "fr_FR": return "Convertir en citation tout ce qui est séparé par des espaces (ignorer le contenu après ##)";
-            case "ja_JP": return "スペースで区切られたすべての内容を引用に変換（##以降は無視）";
-            case "zh_CHT": return "以空白分隔的所有內容轉為引用（忽略##後的內容）";
-            case "it_IT": return "Trasforma in citazione tutto ciò che è separato da spazi (ignora il contenuto dopo ##)";
-            case "de_DE": return "Alles, was durch Leerzeichen getrennt ist, in eine Anführungszeile umwandeln (Inhalte nach ## ignorieren)";
-            case "he_IL": return "הפוך כל מה שכתוב עם רווחיםcitation (התעלם ממה שיש אחרי ##)";
-            case "ru_RU": return "Преобразовать всё, разделённое пробелами, в цитату (игнорировать содержимое после ##)";
-            case "pl_PL": return "Przekształć wszystko oddzielone spacjami w cytaty (zignoruj zawartość po ##)";
-            case "en_US":
-            default: return "Convert all space-separated content into quotes (ignore content after ##)";
-        }
-    }
-
     public get 杂项许多小功能() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "杂项：许多小功能";

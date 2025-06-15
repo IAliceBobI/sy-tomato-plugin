@@ -496,11 +496,15 @@ export async function readAllFilePathIDs(whitelistIDs: string[], blacklistIDs: s
             return true;
         })
     }
+    pathes = pathes.map(p => p.replace("/data/storage/av/", "").replace("/data/", "")).filter(p => !!p);
     const ids = pathes.map(path => {
-        path = path.replace("/data/storage/av/", "").replace("/data/", "").slice(0, -3);
+        // if (!path.includes(".sy")) {
+        //     throw new Error(`Invalid file path: "${path}". Expected a path containing ".sy".`);
+        // }
+        path = path.slice(0, -3);
         return path.split("/")
     }).flat().filter(i => !!i)
-    return new Set(ids);
+    return { ids, pathes };
 }
 
 export async function getPluginSpec(name: string): Promise<PluginSpec> {

@@ -22,7 +22,7 @@ export const MixBox使内容模糊 = winHotkey("alt+shift+D", "blur 2025-5-12 12
 export const MixBox跳转到剪贴板中ID的块 = winHotkey("alt+shift+J", "jump 2025-5-12 12:15:09", "", () => tomatoI18n.跳转到剪贴板中ID的块)
 export const MixBox添加一个flag书签 = winHotkey("alt+shift+K", "flag 2025-5-12 12:15:11", "", () => tomatoI18n.添加一个flag书签)
 export const MixBox删除所有flag书签 = winHotkey("alt+shift+0", "del flags 2025-5-12 12:15:11", "", () => tomatoI18n.删除所有flag书签)
-export const MixBox空格隔开的所有内容都转为引用 = winHotkey("alt+shift+F3", "txt2ref 2025-5-12 12:15:11", "", () => tomatoI18n.空格隔开的所有内容都转为引用)
+export const MixBox空格隔开的所有内容都转为引用 = winHotkey("alt+shift+F3", "txt2ref 2025-5-12 12:15:11", "", () => tomatoI18n.将选中的内容转为引用)
 export const MixBox收集当前文档与子文档所有的未完成任务 = winHotkey("⌘⇧w", "收集当前文档与子文档所有的未完成任务 2025-5-12 12:15:11", "", () => tomatoI18n.收集当前文档与子文档所有的未完成任务)
 export const MixBox列出当前文档与子文档中没被引用的文档 = winHotkey("⌘⇧q", "列出当前文档与子文档中没被引用的文档 2025-5-12 12:15:11", "", () => tomatoI18n.列出当前文档与子文档中没被引用的文档)
 export const MixBox将选择文字与其拼音加入文档的别名 = winHotkey("⌘⇧Y", "将选择文字与其拼音加入文档的别名 2025-5-12 12:15:11", "🎵", () => tomatoI18n.将选择文字与其拼音加入文档的别名 + "(pinyin)")

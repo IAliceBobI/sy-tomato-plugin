@@ -470,6 +470,24 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return `Ensure export matches configuration every ${x} minutes`;
         }
     }
+
+    public get 将选中的内容转为引用() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "将选中的内容转为引用";
+            case "es_ES": return "Convertir el contenido seleccionado en cita";
+            case "fr_FR": return "Convertir le contenu sélectionné en citation";
+            case "ja_JP": return "選択した内容を引用に変換";
+            case "zh_CHT": return "將選中的內容轉為引用";
+            case "it_IT": return "Converti il contenuto selezionato in citazione";
+            case "de_DE": return "Ausgewählten Inhalt in Zitat umwandeln";
+            case "he_IL": return "הפוך את התוכן שנבחר לציטוט";
+            case "ru_RU": return "Преобразовать выбранное содержимое в цитату";
+            case "pl_PL": return "Zamień zaznaczoną treść na cytat";
+            case "en_US":
+            default: return "Convert selected content to quote";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

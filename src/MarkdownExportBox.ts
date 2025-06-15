@@ -161,9 +161,15 @@ export async function cleanExportedMds(msg = true) {
         if (lock) {
             const dir = exportPath.get()
             if (!dir?.trim()) return;
-            const validIDs = await readAllFilePathIDs(exportWhiteList.get(), lastVerifyResult() ? exportBlackList.get() : [], false);
+            const { ids, pathes } = await readAllFilePathIDs(exportWhiteList.get(), lastVerifyResult() ? exportBlackList.get() : [], false);
+            const validIDs = new Set(ids);
+            const patheSet = new Set(pathes);
+
+            // 因为导出的地方有笔记本目录，patheSet只有.sy文件。所以补充上，防止误删。
+            Siyuan.notebooks.forEach(n => patheSet.add(`${n.id}.sy`));
+
             Siyuan.notebooks.map(n => n.id).forEach(i => validIDs.add(i));
-            await readAndDel(dir, validIDs);
+            await readAndDel(dir, validIDs, patheSet);
             await checkSync(dir, validIDs);
             if (msg) {
                 await siyuan.pushMsg("✅" + tomatoI18n.确保导出符合配置)
@@ -199,26 +205,51 @@ async function checkSync(expDir: string, validIDs: Set<string>) {
     }
 }
 
-async function readAndDel(dirPath: string, validIDs: Set<string>) {
+async function readAndDel(dirPath: string, validIDs: Set<string>, pathes: Set<string>) {
     const fs = osFs();
-    const path = osPath();
-    const items = await fs.readdir(dirPath, { withFileTypes: true });
-    for (const item of items) {
-        const fullPath = path.join(dirPath, item.name);
-        const dirID = getIDFromPortion(item.name);
-        if (item.isDirectory()) {
-            if (!validIDs.has(dirID)) {
-                fs.rm(fullPath, { recursive: true, force: true })
+    const ospath = osPath();
+    try {
+        const items = await fs.readdir(dirPath, { withFileTypes: true });
+        for (const item of items) {
+            const fullPath = ospath.join(dirPath, item.name);
+            const dirID = getIDFromPortion(item.name);
+            if (item.isDirectory()) {
+                // no ".md"
+                if (!validIDs.has(dirID)) {
+                    fs.rm(fullPath, { recursive: true, force: true })
+                    continue;
+                }
+                if (!pathes.has(getSyPath(fullPath))) {
+                    fs.rm(fullPath, { recursive: true, force: true })
+                    continue;
+                }
+                await readAndDel(fullPath, validIDs, pathes)
             } else {
-                await readAndDel(fullPath, validIDs)
-            }
-        } else {
-            const fileID = path.basename(dirID, ".md");
-            if (!validIDs.has(fileID)) {
-                fs.rm(fullPath, { force: true })
+                // has ".md"
+                const fileID = ospath.basename(dirID, ".md");
+                if (!validIDs.has(fileID)) {
+                    fs.rm(fullPath, { force: true })
+                } else if (!pathes.has(getSyPath(fullPath))) {
+                    fs.rm(fullPath, { force: true })
+                }
             }
         }
-    }
+    } catch (e) { }
+}
+
+function getSyPath(fullPath: string) {
+    const dir = exportPath.get()
+    let syPath = fullPath
+        .replace(dir, "")
+        .split(/[\\/]/g) // windows or linux path
+        .map(i => i.split("#").at(-1))
+        .filter(i => !!i)
+        .join("/");
+    if (syPath.endsWith(".md"))
+        syPath = syPath.slice(0, -3) + ".sy"
+    else
+        syPath += ".sy"
+    return syPath
 }
 
 function getIDFromPortion(p: string) {
