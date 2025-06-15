@@ -1150,7 +1150,7 @@ ${SA()}`,m.docID),await E.pushMsg(D.copyBlock复制块成功,2e3),H1}async funct
         }
     `,document.head.appendChild(t)}function J20(){if(!Zh.get())return;let t=document.createElement("style");t.innerText=`
         .protyle-wysiwyg div[memo]:not([custom-prog-button]):not([custom-book-button])::before {
-            content: attr(memo);
+            content: "✒️" attr(memo);
             color: var(--b3-font-color4);
             background-color: var(--b3-font-background4);
         }

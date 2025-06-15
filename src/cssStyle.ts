@@ -249,7 +249,7 @@ function load_cssShowMemo() {
     let style = document.createElement('style');
     style.innerText = `
         .protyle-wysiwyg div[memo]:not([custom-prog-button]):not([custom-book-button])::before {
-            content: attr(memo);
+            content: "✒️" attr(memo);
             color: var(--b3-font-color4);
             background-color: var(--b3-font-background4);
         }
