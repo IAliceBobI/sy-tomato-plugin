@@ -804,7 +804,7 @@
                     class="b3-text-field space"
                     bind:value={$exportCleanFiles}
                 />
-                {tomatoI18n.每x分钟清理已删除文档($exportCleanFiles)}
+                {tomatoI18n.每x分钟确保导出符合配置($exportCleanFiles)}
             </div>
             <div>
                 <button
@@ -818,7 +818,7 @@
                 <button
                     class="b3-button space"
                     on:click={() => cleanExportedMds()}
-                    >{tomatoI18n.立即清理}
+                    >{tomatoI18n.确保导出符合配置}
                 </button>
             </div>
         {/if}

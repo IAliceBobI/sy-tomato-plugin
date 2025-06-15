@@ -356,22 +356,6 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "The whitelist is empty. Please add a document by right-clicking in the document tree.";
         }
     }
-    public get 立即清理() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "立即清理";
-            case "es_ES": return "Limpiar inmediatamente";
-            case "fr_FR": return "Nettoyer immédiatement";
-            case "ja_JP": return "今すぐクリーンアップ";
-            case "zh_CHT": return "立即清理";
-            case "it_IT": return "Pulisci immediatamente";
-            case "de_DE": return "Sofort bereinigen";
-            case "he_IL": return "נקה מיד";
-            case "ru_RU": return "Очистить немедленно";
-            case "pl_PL": return "Wyczyść natychmiast";
-            case "en_US":
-            default: return "Clean up immediately";
-        }
-    }
     public get 可以填写小数() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "可以填写小数";
@@ -422,23 +406,6 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return `Added ${x} folders`;
         }
     }
-
-    public 每x分钟清理已删除文档(x: string) {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return `每${x}分钟清理已删除文档，并确保文件同步了最新内容`;
-            case "es_ES": return `Limpiar documentos eliminados cada ${x} minutos y asegurarse de que los archivos estén sincronizados con el contenido más reciente`;
-            case "fr_FR": return `Nettoyer les documents supprimés toutes les ${x} minutes et s'assurer que les fichiers sont synchronisés avec le contenu le plus récent`;
-            case "ja_JP": return `${x}分ごとに削除済みドキュメントをクリーンアップし、ファイルが最新の内容と同期されていることを確認します`;
-            case "zh_CHT": return `每${x}分鐘清理已刪除文件，並確保檔案同步了最新內容`;
-            case "it_IT": return `Pulisci i documenti eliminati ogni ${x} minuti e assicurati che i file siano sincronizzati con il contenuto più recente`;
-            case "de_DE": return `Alle ${x} Minuten gelöschte Dokumente bereinigen und sicherstellen, dass die Dateien mit dem neuesten Inhalt synchronisiert sind`;
-            case "he_IL": return `נקה מסמכים שנמחקו כל ${x} דקות וודא שהקבצים מסונכרנים עם התוכן העדכני ביותר`;
-            case "ru_RU": return `Очищать удалённые документы каждые ${x} минут и убедиться, что файлы синхронизированы с самым последним содержимым`;
-            case "pl_PL": return `Czyść usunięte dokumenty co ${x} minut i upewnij się, że pliki są zsynchronizowane z najnowszą zawartością`;
-            case "en_US":
-            default: return `Clean up deleted documents every ${x} minutes and ensure files are synchronized with the latest content`;
-        }
-    }
     public get 黑名单为空可在文档树中右键添加() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "黑名单为空，可在文档树中右键添加";
@@ -469,6 +436,38 @@ export class TomatoI18n extends TomatoI18nABC {
             case "pl_PL": return "Dodaj do czarnej listy przestrzeni roboczej eksportu";
             case "en_US":
             default: return "Add to export workspace blacklist";
+        }
+    }
+    public get 确保导出符合配置() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "确保导出符合配置";
+            case "es_ES": return "Asegúrese de que la exportación cumpla con la configuración";
+            case "fr_FR": return "Assurez-vous que l'exportation est conforme à la configuration";
+            case "ja_JP": return "エクスポートが設定に準拠していることを確認してください";
+            case "zh_CHT": return "確保導出符合配置";
+            case "it_IT": return "Assicurati che l'esportazione sia conforme alla configurazione";
+            case "de_DE": return "Stellen Sie sicher, dass der Export den Einstellungen entspricht";
+            case "he_IL": return "ודא שהייצוא תואם את ההגדרות";
+            case "ru_RU": return "Убедитесь, что экспорт соответствует настройкам";
+            case "pl_PL": return "Upewnij się, że eksport jest zgodny z konfiguracją";
+            case "en_US":
+            default: return "Ensure export matches configuration";
+        }
+    }
+    public 每x分钟确保导出符合配置(x: string) {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return `每${x}分钟确保导出符合配置`;
+            case "es_ES": return `Asegúrese de que la exportación cumpla con la configuración cada ${x} minutos`;
+            case "fr_FR": return `Assurez-vous que l'exportation est conforme à la configuration toutes les ${x} minutes`;
+            case "ja_JP": return `${x}分ごとにエクスポートが設定に準拠していることを確認してください`;
+            case "zh_CHT": return `每${x}分鐘確保導出符合配置`;
+            case "it_IT": return `Assicurati che l'esportazione sia conforme alla configurazione ogni ${x} minuti`;
+            case "de_DE": return `Stellen Sie alle ${x} Minuten sicher, dass der Export den Einstellungen entspricht`;
+            case "he_IL": return `ודא שהייצוא תואם את ההגדרות כל ${x} דקות`;
+            case "ru_RU": return `Убедитесь, что экспорт соответствует настройкам каждые ${x} минут`;
+            case "pl_PL": return `Upewnij się, że eksport jest zgodny z konfiguracją co ${x} minut`;
+            case "en_US":
+            default: return `Ensure export matches configuration every ${x} minutes`;
         }
     }
     public get aaa() {

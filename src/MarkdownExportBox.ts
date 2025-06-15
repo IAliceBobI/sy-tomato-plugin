@@ -166,7 +166,7 @@ export async function cleanExportedMds(msg = true) {
             await readAndDel(dir, validIDs);
             await checkSync(dir, validIDs);
             if (msg) {
-                await siyuan.pushMsg("✅" + tomatoI18n.立即清理)
+                await siyuan.pushMsg("✅" + tomatoI18n.确保导出符合配置)
             }
         }
     });
