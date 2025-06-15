@@ -175,6 +175,7 @@
         exportCleanFiles,
         markdownExportBoxCheckbox,
         exportWhiteList,
+        exportBlackList,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -730,9 +731,11 @@
         {#if $markdownExportBoxCheckbox}
             <div>
                 {#if $exportWhiteList.length === 0}
-                    <strong
-                        >⚠️{tomatoI18n.白名单为空请先在文档树中右键添加文档}⚠️</strong
-                    >
+                    <div>
+                        <strong
+                            >⚠️{tomatoI18n.白名单为空请先在文档树中右键添加文档}⚠️</strong
+                        >
+                    </div>
                 {:else}
                     {#each $exportWhiteList as item, index}
                         <div>
@@ -750,6 +753,35 @@
                             {:then v}
                                 <span>{v}</span>
                             {/await}
+                            ✅
+                        </div>
+                    {/each}
+                {/if}
+            </div>
+            <div>
+                {#if $exportBlackList.length === 0}
+                    <div>
+                        {tomatoI18n.黑名单为空可在文档树中右键添加}
+                        <TomatoVIP {codeValid}></TomatoVIP>
+                    </div>
+                {:else}
+                    {#each $exportBlackList as item, index}
+                        <div>
+                            <button
+                                class="b3-button b3-button--text space"
+                                on:click={() => {
+                                    $exportBlackList.splice(index, 1);
+                                    $exportBlackList = $exportBlackList;
+                                }}
+                            >
+                                🗑️
+                            </button>
+                            {#await getHpath(item)}
+                                <span class:codeNotValid>{item}</span>
+                            {:then v}
+                                <span class:codeNotValid>{v}</span>
+                            {/await}
+                            🚫
                         </div>
                     {/each}
                 {/if}

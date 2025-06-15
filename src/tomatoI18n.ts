@@ -439,7 +439,38 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return `Clean up deleted documents every ${x} minutes and ensure files are synchronized with the latest content`;
         }
     }
-
+    public get 黑名单为空可在文档树中右键添加() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "黑名单为空，可在文档树中右键添加";
+            case "es_ES": return "La lista negra está vacía. Puede agregar haciendo clic derecho en el árbol de documentos.";
+            case "fr_FR": return "La liste noire est vide. Vous pouvez ajouter en cliquant avec le bouton droit dans l'arborescence des documents.";
+            case "ja_JP": return "ブラックリストが空です。ドキュメントツリーで右クリックして追加できます。";
+            case "zh_CHT": return "黑名單為空，可在文件樹中右鍵添加";
+            case "it_IT": return "La blacklist è vuota. Puoi aggiungere facendo clic con il tasto destro nell'albero dei documenti.";
+            case "de_DE": return "Die schwarze Liste ist leer. Sie können im Dokumentenbaum per Rechtsklick hinzufügen.";
+            case "he_IL": return "הרשימה השחורה ריקה. ניתן להוסיף על ידי לחיצה ימנית בעץ המסמכים.";
+            case "ru_RU": return "Черный список пуст. Можно добавить, щелкнув правой кнопкой мыши в дереве документов.";
+            case "pl_PL": return "Czarna lista jest pusta. Możesz dodać, klikając prawym przyciskiem myszy w drzewie dokumentów.";
+            case "en_US":
+            default: return "The blacklist is empty. You can add by right-clicking in the document tree.";
+        }
+    }
+    public get 添加到导出工作空间的黑名单() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "添加到导出工作空间的黑名单";
+            case "es_ES": return "Agregar a la lista negra del espacio de trabajo de exportación";
+            case "fr_FR": return "Ajouter à la liste noire de l'espace de travail d'exportation";
+            case "ja_JP": return "エクスポートワークスペースのブラックリストに追加";
+            case "zh_CHT": return "添加到導出工作空間的黑名單";
+            case "it_IT": return "Aggiungere alla blacklist dello spazio di lavoro di esportazione";
+            case "de_DE": return "Zur Blacklist des Export-Arbeitsbereichs hinzufügen";
+            case "he_IL": return "הוסף לרשימה השחורה של סביבת העבודה לייצוא";
+            case "ru_RU": return "Добавить в черный список рабочего пространства экспорта";
+            case "pl_PL": return "Dodaj do czarnej listy przestrzeni roboczej eksportu";
+            case "en_US":
+            default: return "Add to export workspace blacklist";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

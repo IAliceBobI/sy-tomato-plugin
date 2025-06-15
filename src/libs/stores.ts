@@ -326,6 +326,7 @@ export const addSelectionBtnsMobile = settingFactory("addSelectionBtnsMobile", t
 export const addSelectionBtnsDesktop = settingFactory("addSelectionBtnsDesktop", true, STORAGE_SETTINGS, null as TSK);
 export const cssRefStyle = settingFactory("cssRefStyle", false, STORAGE_SETTINGS, null as TSK);
 export const exportWhiteList = settingFactory("exportWhiteList", [], STORAGE_SETTINGS, null as TSK);
+export const exportBlackList = settingFactory("exportBlackList", [], STORAGE_SETTINGS, null as TSK);
 export const showDocAttrs = settingFactory("showDocAttrs", false, STORAGE_SETTINGS, null as TSK);
 export const cssNattyList = settingFactory("cssNattyList", false, STORAGE_SETTINGS, null as TSK);
 export const cssListBackgound = settingFactory("cssListBackgound", false, STORAGE_SETTINGS, null as TSK);

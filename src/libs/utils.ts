@@ -479,13 +479,21 @@ export async function readAllFiles(av = true) {
     return [await pathes1, pathes2].flat()
 }
 
-export async function readAllFilePathIDs(filter: string[] = [], av = false) {
+export async function readAllFilePathIDs(whitelistIDs: string[], blacklistIDs: string[], av: boolean) {
     let pathes = await readAllFiles(av);
-    if (filter?.length > 0) {
+    if (whitelistIDs?.length > 0) {
         pathes = pathes.filter(p => {
-            for (const v of filter) {
+            for (const v of whitelistIDs) {
                 if (p.includes(v)) return true;
             }
+        })
+    }
+    if (blacklistIDs?.length > 0) {
+        pathes = pathes.filter(p => {
+            for (const v of blacklistIDs) {
+                if (p.includes(v)) return false;
+            }
+            return true;
         })
     }
     const ids = pathes.map(path => {

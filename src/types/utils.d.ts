@@ -16,6 +16,7 @@ type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
     exportWhiteList: string[],
+    exportBlackList: string[],
     markdownExportBoxCheckbox: boolean,
     exportIntervalSec: string,
     exportCleanFiles: string,

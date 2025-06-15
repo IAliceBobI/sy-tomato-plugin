@@ -1,10 +1,11 @@
 import { IProtyle } from "siyuan";
-import { exportCleanFiles, exportIntervalSec, exportPath, exportWhiteList, markdownExportBoxCheckbox } from "./libs/stores";
+import { exportBlackList, exportCleanFiles, exportIntervalSec, exportPath, exportWhiteList, markdownExportBoxCheckbox } from "./libs/stores";
 import { setGlobal } from "./libs/globalUtils";
 import { zipNways } from "./libs/functional";
 import { siyuan, readAllFilePathIDs, Siyuan, chunks, sanitizePathSegment, getAttribute, pushUniq, getNotebookByID, osFs, osPath, timeUtil, sleep } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
 import { events } from "./libs/Events";
+import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 
 class MarkdownExportBox {
     protyle: IProtyle
@@ -12,6 +13,7 @@ class MarkdownExportBox {
     async onload() {
         if (!markdownExportBoxCheckbox.get()) return;
         if (!events.isDesktop) return;
+        await verifyKeyTomato();
 
         // export workspace
         if (exportIntervalSec.get()) {
@@ -31,7 +33,7 @@ class MarkdownExportBox {
                 clearInterval(setGlobal("cleanExportedMds 2025-06-13 16:06:30", setInterval(() => {
                     navigator.locks.request("lock cleanExportedMds 2025-06-13 15:17:27", { ifAvailable: true }, async (lock) => {
                         if (lock) {
-                            cleanExportedMds();
+                            cleanExportedMds(false);
                         }
                     });
                 }, i * 60 * 1000)));
@@ -45,14 +47,26 @@ class MarkdownExportBox {
             if (ids.length > 0) {
                 detial.menu.addItem({
                     label: tomatoI18n.添加到导出工作空间的白名单,
-                    icon: "iconEmail",
+                    iconHTML: "✅",
                     click: async () => {
                         const arr = pushUniq(null, ...exportWhiteList.get(), ...ids)
                         exportWhiteList.set(arr)
                         exportWhiteList.write();
                         await siyuan.pushMsg(tomatoI18n.添加了x个文件夹(ids.length))
                     }
-                })
+                });
+                if (lastVerifyResult()) {
+                    detial.menu.addItem({
+                        label: tomatoI18n.添加到导出工作空间的黑名单,
+                        iconHTML: "🚫",
+                        click: async () => {
+                            const arr = pushUniq(null, ...exportBlackList.get(), ...ids)
+                            exportBlackList.set(arr)
+                            exportBlackList.write();
+                            await siyuan.pushMsg(tomatoI18n.添加了x个文件夹(ids.length))
+                        }
+                    });
+                }
             }
         });
     }
@@ -76,11 +90,21 @@ async function _exportMd2Dir(dir: string, force = false, msg = true) {
     if (force) localStorage.setItem(KEY, "")
     const maxUpdated = localStorage.getItem(KEY) ?? "";
     let docs = await siyuan.sql(`select * from blocks where type='d' and updated>'${maxUpdated}' order by updated asc limit 99999999`)
+    // 白名单
     docs = docs.filter(d => {
         for (const w of exportWhiteList.get()) {
             if (d.path.indexOf(w) >= 0) return true;
         }
     });
+    if (lastVerifyResult()) {
+        // 黑名单
+        docs = docs.filter(d => {
+            for (const w of exportBlackList.get()) {
+                if (d.path.indexOf(w) >= 0) return false;
+            }
+            return true;
+        });
+    }
     if (docs.length == 0) {
         if (msg) await siyuan.pushMsg(tomatoI18n.没有需要导出的文档);
         return
@@ -132,15 +156,18 @@ function getExpPath(doc: Block, dir: string) {
     return safePath;
 }
 
-export async function cleanExportedMds() {
+export async function cleanExportedMds(msg = true) {
     navigator.locks.request("lock cleanExportedMds 2025-06-13 15:17:27", { ifAvailable: true }, async (lock) => {
         if (lock) {
             const dir = exportPath.get()
             if (!dir?.trim()) return;
-            const validIDs = await readAllFilePathIDs(exportWhiteList.get());
+            const validIDs = await readAllFilePathIDs(exportWhiteList.get(), lastVerifyResult() ? exportBlackList.get() : [], false);
             Siyuan.notebooks.map(n => n.id).forEach(i => validIDs.add(i));
             await readAndDel(dir, validIDs);
             await checkSync(dir, validIDs);
+            if (msg) {
+                await siyuan.pushMsg("✅" + tomatoI18n.立即清理)
+            }
         }
     });
 }
