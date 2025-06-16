@@ -176,6 +176,7 @@
         markdownExportBoxCheckbox,
         exportWhiteList,
         exportBlackList,
+        markdownExportPics,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -807,6 +808,13 @@
                 {tomatoI18n.每x分钟确保导出符合配置($exportCleanFiles)}
             </div>
             <div>
+                <label class="space">
+                    <input
+                        type="checkbox"
+                        class="b3-switch"
+                        bind:checked={$markdownExportPics}
+                    />{tomatoI18n.导出图片}
+                </label>
                 <button
                     class="b3-button space"
                     on:click={() => exportMd2Dir(true)}

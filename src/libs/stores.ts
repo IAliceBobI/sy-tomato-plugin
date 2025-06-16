@@ -465,6 +465,7 @@ export const listBoxCheckbox = settingFactory("listBoxCheckbox", false, STORAGE_
 export const dont_break_list = settingFactory("dont-break-list", false, STORAGE_SETTINGS, null as TSK);
 export const aiBoxCheckbox = settingFactory("aiBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const markdownExportBoxCheckbox = settingFactory("markdownExportBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
+export const markdownExportPics = settingFactory("markdownExportPics", false, STORAGE_SETTINGS, null as TSK);
 export const mindWireCheckbox = settingFactory("mindWireCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const mindWireEnable = settingFactory("mindWireEnable", true, STORAGE_SETTINGS, null as TSK);
 export const mindWireGlobalMenu = settingFactory("mindWireGlobalMenu", true, STORAGE_SETTINGS, null as TSK);

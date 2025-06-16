@@ -1,11 +1,12 @@
 import { IProtyle } from "siyuan";
-import { exportBlackList, exportCleanFiles, exportIntervalSec, exportPath, exportWhiteList, markdownExportBoxCheckbox } from "./libs/stores";
+import { exportBlackList, exportCleanFiles, exportIntervalSec, exportPath, exportWhiteList, markdownExportBoxCheckbox, markdownExportPics } from "./libs/stores";
 import { setGlobal } from "./libs/globalUtils";
 import { zipNways } from "./libs/functional";
-import { siyuan, readAllFilePathIDs, Siyuan, chunks, sanitizePathSegment, getAttribute, pushUniq, getNotebookByID, osFs, osPath, timeUtil, sleep } from "./libs/utils";
+import { siyuan, readAllFilePathIDs, Siyuan, chunks, sanitizePathSegment, getAttribute, pushUniq, getNotebookByID, osFs, osPath, timeUtil, sleep, NewLute, setAttribute, removeAttribute } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
 import { events } from "./libs/Events";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
+import { getDocBlocks } from "./libs/docUtils";
 
 class MarkdownExportBox {
     protyle: IProtyle
@@ -72,6 +73,13 @@ class MarkdownExportBox {
     }
 }
 
+function ref2lnk(span: HTMLElement) {
+    setAttribute(span, "data-type", "a")
+    setAttribute(span, "data-href", "siyuan://blocks/" + getAttribute(span, "data-id"))
+    removeAttribute(span, "data-subtype")
+    removeAttribute(span, "data-id")
+}
+
 export async function exportMd2Dir(force = false, msg = true) {
     const dir = exportPath.get()
     if (!dir?.trim()) return;
@@ -126,11 +134,63 @@ async function _exportMd2Dir(dir: string, force = false, msg = true) {
 
 async function parallelExport(docs: Block[], dir: string) {
     const fs = osFs();
-    const path = osPath();
+    const ospath = osPath();
     const tasks = docs.map(async doc => {
         const safePath = getExpPath(doc, dir);
-        await fs.mkdir(path.dirname(safePath), { recursive: true });
-        const md = await siyuan.copyStdMarkdown(doc.id);
+        await fs.mkdir(ospath.dirname(safePath), { recursive: true });
+        let md = ""
+        if (markdownExportPics.get()) {
+            const destMdDir = ospath.dirname(safePath);
+            const prefix = ospath.basename(safePath).replaceAll("-", "").replaceAll("#", "") + ".";
+
+            for (const f of await fs.readdir(destMdDir)) {
+                if (f.startsWith(prefix)) {
+                    try {
+                        await fs.unlink(ospath.join(destMdDir, f));
+                    } catch (e) { }
+                }
+            }
+
+            async function setSrcAndCopyPic(e: Element, attr: AttrKey) {
+                const dataFilePath = getAttribute(e, attr);
+                const fileName = prefix + ospath.basename(dataFilePath)
+                setAttribute(e, attr, fileName);
+                const destFile = ospath.join(destMdDir, fileName);
+                try {
+                    await fs.access(destFile);
+                    // File exists, do not copy
+                } catch {
+                    // File does not exist, copy it
+                    await fs.copyFile(
+                        ospath.join(Siyuan.config.system.dataDir, dataFilePath),
+                        destFile
+                    );
+                }
+            }
+            const { div } = await getDocBlocks(doc.id, doc.content, false, true, 1)
+            div.querySelectorAll(`span[data-type="block-ref"]`).forEach(e => {
+                ref2lnk(e as any);
+            })
+            for (const e of div.querySelectorAll(`[data-src^="assets/"]`)) {
+                await setSrcAndCopyPic(e, "data-src")
+            }
+
+            for (const e of div.querySelectorAll(`[src^="assets/"]`)) {
+                await setSrcAndCopyPic(e, "src")
+            }
+
+            for (const e of div.querySelectorAll(`[data-href^="assets/"]`)) {
+                await setSrcAndCopyPic(e, "data-href")
+            }
+
+            for (const e of div.querySelectorAll(`[href^="assets/"]`)) {
+                await setSrcAndCopyPic(e, "href")
+            }
+            const lute = NewLute()
+            md = lute.BlockDOM2StdMd(div.innerHTML);
+        } else {
+            md = await siyuan.copyStdMarkdown(doc.id);
+        }
         await fs.writeFile(safePath, md, { encoding: 'utf8' });
         return doc.content
     });
@@ -216,21 +276,27 @@ async function readAndDel(dirPath: string, validIDs: Set<string>, pathes: Set<st
             if (item.isDirectory()) {
                 // no ".md"
                 if (!validIDs.has(dirID)) {
-                    fs.rm(fullPath, { recursive: true, force: true })
+                    await fs.rm(fullPath, { recursive: true, force: true })
                     continue;
                 }
                 if (!pathes.has(getSyPath(fullPath))) {
-                    fs.rm(fullPath, { recursive: true, force: true })
+                    await fs.rm(fullPath, { recursive: true, force: true })
                     continue;
                 }
                 await readAndDel(fullPath, validIDs, pathes)
             } else {
                 // has ".md"
-                const fileID = ospath.basename(dirID, ".md");
-                if (!validIDs.has(fileID)) {
-                    fs.rm(fullPath, { force: true })
-                } else if (!pathes.has(getSyPath(fullPath))) {
-                    fs.rm(fullPath, { force: true })
+                const fileName = dirID;
+                const fileID = ospath.basename(fileName, ".md");
+                let allow = fileName.endsWith(".md")
+                if (!markdownExportPics.get()) {
+                    allow = true;
+                }
+                if (allow && !validIDs.has(fileID)) {
+                    await fs.rm(fullPath, { force: true })
+                }
+                if (allow && !pathes.has(getSyPath(fullPath))) {
+                    await fs.rm(fullPath, { force: true })
                 }
             }
         }

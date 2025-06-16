@@ -42,8 +42,8 @@ class ListBox {
 
         this.plugin.protyleSlash.push(...[{
             filter: ["item", "single", "list", "列表", "单项", "dxlb", "lb"],
-            html: '插入单项列表 item single list dxlb lb',
-            id: "insertSingleItemList",
+            html: tomatoI18n.插入单项列表,
+            id: "insertSingleItemList 2025-06-16 10:45:05",
             async callback() {
                 await insertItemList();
             }

@@ -488,6 +488,55 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 插入单项列表() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "插入单项列表";
+            case "es_ES": return "Insertar lista de un solo elemento";
+            case "fr_FR": return "Insérer une liste à un seul élément";
+            case "ja_JP": return "単一項目リストを挿入";
+            case "zh_CHT": return "插入單項列表";
+            case "it_IT": return "Inserisci elenco a voce singola";
+            case "de_DE": return "Einzelne Liste einfügen";
+            case "he_IL": return "הוסף רשימה של פריט אחד";
+            case "ru_RU": return "Вставить одноэлементный список";
+            case "pl_PL": return "Wstaw listę pojedynczego elementu";
+            case "en_US":
+            default: return "Insert single item list";
+        }
+    }
+
+    public get 计划提醒() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "计划提醒";
+            case "es_ES": return "Recordatorio de planificación";
+            case "fr_FR": return "Rappel de planification";
+            case "ja_JP": return "計画リマインダー";
+            case "zh_CHT": return "計劃提醒";
+            case "it_IT": return "Promemoria pianificazione";
+            case "de_DE": return "Planungserinnerung";
+            case "he_IL": return "תזכורת לתכנון";
+            case "ru_RU": return "Напоминание о плане";
+            case "pl_PL": return "Przypomnienie o planie";
+            case "en_US":
+            default: return "Plan reminder";
+        }
+    }
+    public get 导出图片() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "导出图片";
+            case "es_ES": return "Exportar imagen";
+            case "fr_FR": return "Exporter l'image";
+            case "ja_JP": return "画像をエクスポート";
+            case "zh_CHT": return "導出圖片";
+            case "it_IT": return "Esporta immagine";
+            case "de_DE": return "Bild exportieren";
+            case "he_IL": return "ייצא תמונה";
+            case "ru_RU": return "Экспортировать изображение";
+            case "pl_PL": return "Eksportuj obraz";
+            case "en_US":
+            default: return "Export image";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

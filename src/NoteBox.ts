@@ -308,7 +308,7 @@ class NoteBox {
             title: tomatoI18n.拍照闪念,
             content: `<div id="${id}"></div>`,
             width: events.isMobile ? "90vw" : "500px",
-            height: events.isMobile ? "100vw" : "500px",
+            height: events.isMobile ? "150vw" : "500px",
             destroyCallback: () => {
                 dm.destroyBy("1")
             },

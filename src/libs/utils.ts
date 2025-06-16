@@ -1478,6 +1478,10 @@ export const siyuan = {
         const response = await fetchSyncPost("/api/system/currentTime", {});
         return response.data + secs * 1000;
     },
+    async getWorkspaces() {
+        const response = await fetchSyncPost("/api/system/getWorkspaces", {});
+        return response.data
+    },
     async copyFile(src: string, dest: string) {
         return siyuan.call("/api/file/copyFile", { src, dest });
     },
@@ -2922,6 +2926,10 @@ export function getNotebookFirstOne() {
 
 export function osFs() {
     return require('fs/promises') as typeof import('fs/promises');
+}
+
+export function osFsSync() {
+    return require('fs') as typeof import('fs');
 }
 
 export function osPath() {

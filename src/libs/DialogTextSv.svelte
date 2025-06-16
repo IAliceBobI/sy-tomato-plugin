@@ -53,6 +53,7 @@
         </div>
         {#if useTextArea}
             <textarea
+                placeholder={defaultValue}
                 bind:this={area}
                 class="b3-text-field block area"
                 bind:value={inputText}

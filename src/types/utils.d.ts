@@ -17,6 +17,7 @@ type TSK = keyof TomatoSettings
 type TomatoSettings = {
     exportWhiteList: string[],
     exportBlackList: string[],
+    markdownExportPics: boolean,
     markdownExportBoxCheckbox: boolean,
     exportIntervalSec: string,
     exportCleanFiles: string,
@@ -293,6 +294,10 @@ type AttrType = {
     style?: string,
     md?: string,// for 'Writing' plugin
     content?: string,// for 'Writing' plugin
+    href?: string,
+    src?: string,
+    "data-src"?: string,
+    "data-href"?: string,
     "data-inline-comment"?: string,
     "custom-tomato-key-comment"?: string,
     "custom-tomato-comment"?: string,
