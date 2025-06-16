@@ -177,6 +177,8 @@
         exportWhiteList,
         exportBlackList,
         markdownExportPics,
+        exportIntervalSecOn,
+        exportCleanFilesOn,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -295,7 +297,13 @@
         MindWire启用或禁用思维导线,
         MindWire启用或禁用文档思维导线,
     } from "./MindWire";
-    import { cleanExportedMds, exportMd2Dir } from "./MarkdownExportBox";
+    import {
+        cleanExportedMds,
+        exportMd2Dir,
+        MarkdownExport全量导出,
+        MarkdownExport增量导出,
+        MarkdownExport确保导出符合配置,
+    } from "./MarkdownExportBox";
     export let dm: DestroyManager;
     export let plugin: BaseTomatoPlugin;
     let buyDIV: HTMLElement;
@@ -793,19 +801,37 @@
             </div>
             <div>
                 <input
-                    title={tomatoI18n.可以填写小数}
-                    class="b3-text-field space"
-                    bind:value={$exportIntervalSec}
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$exportIntervalSecOn}
                 />
-                {tomatoI18n.每x秒执行一次增量导出($exportIntervalSec)}
+                {#if $exportIntervalSecOn}
+                    <input
+                        title={tomatoI18n.可以填写小数}
+                        class="b3-text-field space"
+                        bind:value={$exportIntervalSec}
+                    />
+                    {tomatoI18n.每x秒执行一次增量导出($exportIntervalSec)}
+                {:else}
+                    {tomatoI18n.每x秒执行一次增量导出("0")}
+                {/if}
             </div>
             <div>
                 <input
-                    title={tomatoI18n.可以填写小数}
-                    class="b3-text-field space"
-                    bind:value={$exportCleanFiles}
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$exportCleanFilesOn}
                 />
-                {tomatoI18n.每x分钟确保导出符合配置($exportCleanFiles)}
+                {#if $exportCleanFilesOn}
+                    <input
+                        title={tomatoI18n.可以填写小数}
+                        class="b3-text-field space"
+                        bind:value={$exportCleanFiles}
+                    />
+                    {tomatoI18n.每x分钟确保导出符合配置($exportCleanFiles)}
+                {:else}
+                    {tomatoI18n.每x分钟确保导出符合配置("0")}
+                {/if}
             </div>
             <div>
                 <label class="space">
@@ -818,15 +844,18 @@
                 <button
                     class="b3-button space"
                     on:click={() => exportMd2Dir(true)}
-                    >{tomatoI18n.全量导出}
+                    >{MarkdownExport全量导出.langText() +
+                        MarkdownExport全量导出.w()}
                 </button>
                 <button class="b3-button space" on:click={() => exportMd2Dir()}
-                    >{tomatoI18n.增量导出}
+                    >{MarkdownExport增量导出.langText() +
+                        MarkdownExport增量导出.w()}
                 </button>
                 <button
                     class="b3-button space"
                     on:click={() => cleanExportedMds()}
-                    >{tomatoI18n.确保导出符合配置}
+                    >{MarkdownExport确保导出符合配置.langText() +
+                        MarkdownExport确保导出符合配置.w()}
                 </button>
             </div>
         {/if}

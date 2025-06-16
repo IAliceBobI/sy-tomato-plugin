@@ -1,12 +1,18 @@
 import { IProtyle } from "siyuan";
-import { exportBlackList, exportCleanFiles, exportIntervalSec, exportPath, exportWhiteList, markdownExportBoxCheckbox, markdownExportPics } from "./libs/stores";
+import { exportBlackList, exportCleanFiles, exportCleanFilesOn, exportIntervalSec, exportIntervalSecOn, exportPath, exportWhiteList, markdownExportBoxCheckbox, markdownExportPics } from "./libs/stores";
 import { setGlobal } from "./libs/globalUtils";
 import { zipNways } from "./libs/functional";
-import { siyuan, readAllFilePathIDs, Siyuan, chunks, sanitizePathSegment, getAttribute, pushUniq, getNotebookByID, osFs, osPath, timeUtil, sleep, NewLute, setAttribute, removeAttribute } from "./libs/utils";
+import { siyuan, readAllFilePathIDs, Siyuan, chunks, sanitizePathSegment, getAttribute, pushUniq, getNotebookByID, osFs, osPath, timeUtil, sleep, NewLute, setAttribute, removeAttribute, getPlugin } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
 import { events } from "./libs/Events";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { getDocBlocks } from "./libs/docUtils";
+import { winHotkey } from "./libs/winHotkey";
+
+export const MarkdownExport增量导出 = winHotkey("alt+f6", "增量导出 2025-06-16 19:15:06", "", () => tomatoI18n.增量导出)
+export const MarkdownExport确保导出符合配置 = winHotkey("alt+f7", "确保导出符合配置 2025-06-16 19:15:07", "", () => tomatoI18n.确保导出符合配置)
+export const MarkdownExport全量导出 = winHotkey("alt+f8", "全量导出 2025-06-16 19:15:05", "", () => tomatoI18n.全量导出)
+
 
 class MarkdownExportBox {
     protyle: IProtyle
@@ -16,29 +22,58 @@ class MarkdownExportBox {
         if (!events.isDesktop) return;
         await verifyKeyTomato();
 
+        getPlugin().addCommand({
+            langKey: MarkdownExport全量导出.langKey,
+            langText: MarkdownExport全量导出.langText(),
+            hotkey: MarkdownExport全量导出.m,
+            callback: () => {
+                exportMd2Dir(true, true);
+            },
+        });
+
+        getPlugin().addCommand({
+            langKey: MarkdownExport增量导出.langKey,
+            langText: MarkdownExport增量导出.langText(),
+            hotkey: MarkdownExport增量导出.m,
+            callback: () => {
+                exportMd2Dir(false, true);
+            },
+        });
+
+        getPlugin().addCommand({
+            langKey: MarkdownExport确保导出符合配置.langKey,
+            langText: MarkdownExport确保导出符合配置.langText(),
+            hotkey: MarkdownExport确保导出符合配置.m,
+            callback: () => {
+                cleanExportedMds(true);
+            },
+        });
+
         // export workspace
-        if (exportIntervalSec.get()) {
+        if (exportIntervalSecOn.get()) {
             let i = parseFloat(exportIntervalSec.get());
-            if (i > 0) {
-                if (i < 3) i = 3;
-                clearInterval(setGlobal("export workspace Handle", setInterval(() => {
-                    exportMd2Dir(false, false);
-                }, i * 1000)));
+            if (i < 3) {
+                i = 3;
+                exportIntervalSec.write(i.toString())
             }
+            clearInterval(setGlobal("export workspace Handle", setInterval(() => {
+                exportMd2Dir(false, false);
+            }, i * 1000)));
         }
 
-        if (exportCleanFiles.get()) {
+        if (exportCleanFilesOn.get()) {
             let i = parseFloat(exportCleanFiles.get());
-            if (i > 0) {
-                if (i < 3) i = 3;
-                clearInterval(setGlobal("cleanExportedMds 2025-06-13 16:06:30", setInterval(() => {
-                    navigator.locks.request("lock cleanExportedMds 2025-06-13 15:17:27", { ifAvailable: true }, async (lock) => {
-                        if (lock) {
-                            cleanExportedMds(false);
-                        }
-                    });
-                }, i * 60 * 1000)));
+            if (i < 3) {
+                i = 3;
+                exportCleanFiles.write(i.toString())
             }
+            clearInterval(setGlobal("cleanExportedMds 2025-06-13 16:06:30", setInterval(() => {
+                navigator.locks.request("lock cleanExportedMds 2025-06-13 15:17:27", { ifAvailable: true }, async (lock) => {
+                    if (lock) {
+                        cleanExportedMds(false);
+                    }
+                });
+            }, i * 60 * 1000)));
         }
 
         events.addListener_open_menu_doctree("2025-06-14 17:40:38 添加到导出列表", (detial) => {
