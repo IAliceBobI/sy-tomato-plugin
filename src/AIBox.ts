@@ -1,5 +1,5 @@
 import { Dialog, IEventBusMap } from "siyuan";
-import { getAllText, newID, } from "./libs/utils";
+import { getAllText } from "./libs/utils";
 import { events } from "./libs/Events";
 import { aiBoxCheckbox, aiBoxMenuShow, } from "./libs/stores";
 import AIBoxMenu from "./AIBoxMenu.svelte";
@@ -7,6 +7,7 @@ import { DestroyManager } from "./libs/destroyer";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { newID } from "stonev5-utils/lib/id";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 export const AIBoxHotkey = winHotkey("⌥⇧S", "人工智能2024-6-9 01:58:39", "💻", () => tomatoI18n.人工智能)

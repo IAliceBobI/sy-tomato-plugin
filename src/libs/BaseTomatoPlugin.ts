@@ -1,5 +1,5 @@
 import { Plugin } from "siyuan";
-import { newID } from "./utils";
+import { newID } from "stonev5-utils/lib/id";
 
 export class BaseTomatoPlugin extends Plugin {
     constructor(options: any) {

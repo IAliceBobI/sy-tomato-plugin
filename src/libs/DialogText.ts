@@ -1,8 +1,8 @@
-import { newID } from "./utils";
 import DialogTextSv from "./DialogTextSv.svelte";
 import { Dialog } from "siyuan";
 import { DestroyManager } from "./destroyer";
 import { events } from "./Events";
+import { newID } from "stonev5-utils/lib/id";
 
 export class DialogTextArea {
     private title: string;
@@ -83,5 +83,25 @@ export class DialogText {
             }
         });
         dm.add("svelte", () => svelte.$destroy());
+    }
+}
+
+export function dialog2floating(dialog: Dialog, _position: { x: string, y: string }) {
+    const b3Dialog = dialog?.element?.querySelector(".b3-dialog") as HTMLElement
+    if (b3Dialog) {
+        b3Dialog.style.width = "auto"
+        b3Dialog.style.height = "auto"
+        // b3Dialog.style.left = "10px"
+        // b3Dialog.style.top = (document.body.clientHeight / 2 - b3Dialog.clientHeight / 2) + "px"
+        // b3Dialog.style.pointerEvents = "none";
+
+        const scrim = b3Dialog.querySelector(".b3-dialog__scrim") as HTMLElement
+        if (scrim) {
+            scrim.style.width = "auto"
+            scrim.style.height = "auto"
+        }
+
+        // const container = b3Dialog.querySelector(".b3-dialog__container") as HTMLElement
+        // if (container) container.style.pointerEvents = "initial";
     }
 }

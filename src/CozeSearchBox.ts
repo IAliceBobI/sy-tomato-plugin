@@ -2,11 +2,12 @@ import { Dialog, IEventBusMap } from "siyuan";
 import { DestroyManager } from "./libs/destroyer";
 import { tomatoI18n } from "./tomatoI18n";
 import { events } from "./libs/Events";
-import { getAllText, newID, siyuan, } from "./libs/utils";
+import { getAllText, siyuan, } from "./libs/utils";
 import CozeSearchBoxMenu from "./CozeSearchBoxMenu.svelte"
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cozeSearchBoxCheckbox, cozeSearchMenuShow } from "./libs/stores";
 import { winHotkey } from "./libs/winHotkey";
+import { newID } from "stonev5-utils/lib/id";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 

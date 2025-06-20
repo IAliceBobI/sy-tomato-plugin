@@ -70,7 +70,7 @@
                 <span class="divMargin">{row.content}</span>
                 {#if row.exists}
                     <button
-                        class="b3-button divMargin"
+                        class="b3-button b3-button--outline divMargin"
                         title={tomatoI18n.上传当前文档以及所有子文档 +
                             " " +
                             row.content}
@@ -81,7 +81,7 @@
                         >⬆️
                     </button>
                     <button
-                        class="b3-button divMargin"
+                        class="b3-button b3-button--outline divMargin"
                         title={tomatoI18n.定位 + " " + row.content}
                         on:click={async () => {
                             await OpenSyFile2(plugin, row.id);
@@ -91,7 +91,7 @@
                     </button>
                 {/if}
                 <button
-                    class="b3-button divMargin"
+                    class="b3-button b3-button--outline divMargin"
                     title={tomatoI18n.删除Coze中当前文件以及子文件 +
                         " " +
                         row.content}
@@ -111,18 +111,18 @@
             <tr>
                 <td colspan="4">
                     <a
-                        class="b3-button divMargin"
+                        class="b3-button b3-button--outline divMargin"
                         href="https://www.coze.cn/space/{$cozeSearchSpaceID}/knowledge/{$cozeSearchKnowledgeID}"
                         >{tomatoI18n.打开知识库}</a
                     >
                     <a
-                        class="b3-button divMargin"
+                        class="b3-button b3-button--outline divMargin"
                         href="https://www.coze.cn/space/{$cozeSearchSpaceID}/bot/{$cozeSearchAppID}"
                         >{tomatoI18n.调试智能体}</a
                     >
                     <a
                         title={tomatoI18n.需要先发布到豆包再填写发布后的豆包智能体ID}
-                        class="b3-button divMargin"
+                        class="b3-button b3-button--outline divMargin"
                         class:codeNotValid={!$cozeSearchDoubaoID}
                         href="https://www.doubao.com/chat/{$cozeSearchDoubaoID}"
                         >Doubao豆包</a
@@ -132,7 +132,7 @@
             <tr>
                 <td>
                     <button
-                        class="b3-button divMargin"
+                        class="b3-button b3-button--outline divMargin"
                         on:click={async () => {
                             await cleanCozeDocs();
                             dm.destroyBy();
@@ -142,7 +142,7 @@
                 <td>
                     {#if events.boxID}
                         <button
-                            class="b3-button divMargin"
+                            class="b3-button b3-button--outline divMargin"
                             on:click={async () => {
                                 if (events.boxID) {
                                     await cozeAddDocTree("", events.boxID);
@@ -159,7 +159,7 @@
                     <td colspan="4">
                         <span class="divMargin">{docName}</span>
                         <button
-                            class="b3-button divMargin"
+                            class="b3-button b3-button--outline divMargin"
                             title={tomatoI18n.上传当前文档以及所有子文档 +
                                 " " +
                                 docName}
@@ -170,7 +170,7 @@
                             >⬆️
                         </button>
                         <button
-                            class="b3-button divMargin"
+                            class="b3-button b3-button--outline divMargin"
                             title={tomatoI18n.删除Coze中当前文件以及子文件 +
                                 " " +
                                 docName}

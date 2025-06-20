@@ -1,5 +1,5 @@
 import { Dialog, IEventBusMap, IProtyle, } from "siyuan";
-import { deleteBlock, getContenteditableElement, newID, siyuan, sleep, } from "./libs/utils";
+import { deleteBlock, getContenteditableElement, siyuan, sleep, } from "./libs/utils";
 import "./index.scss";
 import { EventType, events } from "./libs/Events";
 import CardBoxSettings from "./CardBoxSettings.svelte";
@@ -15,6 +15,7 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { CardPriorityBox修改文档中闪卡优先级, CardPriorityBox分散推迟闪卡 } from "./CardPriorityBox";
 import { winHotkey } from "./libs/winHotkey";
 import { verifyKeyTomato } from "./libs/user";
+import { newID } from "stonev5-utils/lib/id";
 
 export const CardBox用选中的行创建超级块超级块制卡取消制卡 = winHotkey("shift+ctrl+1", "addFlashCard2025年5月4日13:53:52", "🗃️", () => tomatoI18n.用选中的行创建超级块超级块制卡取消制卡, false, cardBoxSuperCard)
 export const CardBox复习时删除当前闪卡 = winHotkey("alt+F9", "delCard2025-5-10 12:40:25", "", () => tomatoI18n.复习时删除当前闪卡)

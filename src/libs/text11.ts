@@ -1,6 +1,6 @@
-import { TomatoI18nABCMAX } from "./gconst";
+import { TomatoI18nABC12 } from "./text12";
 
-export abstract class TomatoI18nABC11 extends TomatoI18nABCMAX {
+export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     public get 开始学习() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "开始学习";

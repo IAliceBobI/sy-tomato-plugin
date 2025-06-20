@@ -1,13 +1,14 @@
 import { Custom, Dock, IEventBusMap, IProtyle, openTab } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { graphAddTopbarIcon, graphBoxCheckbox, graph定位到图中的节点Menu, graph打开块关系图Menu } from "./libs/stores";
-import { newID, siyuan, } from "./libs/utils";
+import { siyuan, } from "./libs/utils";
 import { events, EventType } from "./libs/Events";
 import GraphBoxSvelte from "./GraphBox.svelte";
 import { tomatoI18n } from "./tomatoI18n";
 import { getDocBlocks } from "./libs/docUtils";
 import { DestroyManager } from "./libs/destroyer";
 import { winHotkey } from "./libs/winHotkey";
+import { newID } from "stonev5-utils/lib/id";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 

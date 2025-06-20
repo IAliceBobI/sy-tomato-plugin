@@ -1,4 +1,5 @@
-import { Siyuan, add_href, cleanText, getBlockDiv, getID, newID, removeSiyuanLnks, siyuan, siyuanCache, sleep, timeUtil, } from "./libs/utils";
+import { Siyuan, add_href, cleanText, getBlockDiv, getID, removeSiyuanLnks, siyuan, siyuanCache, sleep, timeUtil, } from "./libs/utils";
+import { newID } from "stonev5-utils/lib/id";
 import "./index.scss";
 import { events } from "./libs/Events";
 import { BlockNodeEnum, DATA_NODE_ID, DATA_SUBTYPE, DATA_TYPE, IN_BOOK_INDEX, MarkKey, PARAGRAPH_INDEX, READINGPOINT, RefIDKey, SiyuanNotebook } from "./libs/gconst";

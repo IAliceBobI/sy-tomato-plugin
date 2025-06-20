@@ -1,6 +1,6 @@
 import { adaptHotkey, Custom, Dialog, Dock, IProtyle, openTab, Tab } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { getAttribute, getDialogContainer, isEditor, newID, setAttribute, siyuan, sleep, } from "./libs/utils";
+import { getAttribute, getDialogContainer, isEditor, setAttribute, siyuan, sleep, } from "./libs/utils";
 import CommentBoxSvelte from "./CommentBox.svelte";
 import { commentBoxCheckbox, commentBoxMenu, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
@@ -9,6 +9,7 @@ import { isReadonly } from "./libs/docUtils";
 import { winHotkey } from "./libs/winHotkey";
 import { DestroyManager } from "./libs/destroyer";
 import CommentInput from "./CommentInput.svelte";
+import { newID } from "stonev5-utils/lib/id";
 
 const DOCK_TYPE = "dock_CommentBox";
 const TAB_TYPE = "custom_tab_CommentBox"

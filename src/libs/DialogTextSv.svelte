@@ -88,7 +88,9 @@
                     }
                 }}
             />
-            <button class="b3-button" on:click={btnClick}>Enter</button>
+            <button class="b3-button b3-button--outline" on:click={btnClick}
+                >Enter</button
+            >
         {/if}
     </div>
 </div>

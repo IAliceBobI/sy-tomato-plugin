@@ -179,6 +179,8 @@
         markdownExportPics,
         exportIntervalSecOn,
         exportCleanFilesOn,
+        floatingballEnable,
+        floatingballDocList,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -187,7 +189,6 @@
         cleanDataview,
         getHpath,
         icon,
-        pushUniq,
         removeFromArr,
         saveRestorePagePosition,
         siyuan,
@@ -304,11 +305,17 @@
         MarkdownExport增量导出,
         MarkdownExport确保导出符合配置,
     } from "./MarkdownExportBox";
+    import { pushUniq, pushUniqBy } from "stonev5-utils";
     export let dm: DestroyManager;
     export let plugin: BaseTomatoPlugin;
+    let addDocSettings: HTMLElement;
+    let addShortcutSettings: HTMLElement;
     let buyDIV: HTMLElement;
     let settingsDiv: HTMLElement;
     let searchInput: HTMLElement;
+    let addDoc_docName = "";
+    let addDoc_docIcon = "";
+    let addDoc_useDialog = true;
     let codeValid = false;
     $: codeNotValid = !codeValid;
     const ICONS_SIZE = 14;
@@ -334,6 +341,8 @@
             searchSettings(settingsDiv, searchKey);
         }
         searchInput.focus();
+        addDocSettings.style.display = "none";
+        addShortcutSettings.style.display = "none";
     });
 
     async function active() {
@@ -348,6 +357,14 @@
         dm.destroyBy();
         await plugin.saveData(STORAGE_SETTINGS, plugin.settingCfg);
         window.location.reload();
+    }
+
+    function toggleDiv(div: HTMLElement) {
+        if (div.style.display === "none" || div.style.display === "") {
+            div.style.display = "block";
+        } else {
+            div.style.display = "none";
+        }
     }
 </script>
 
@@ -369,11 +386,11 @@
                     placeholder="1656000000123_22000101_ldID_siyuanTomatoCode_3044022018c8d8bca......"
                     spellcheck="false"
                 />
-                <button class="b3-button" on:click={active}>
+                <button class="b3-button b3-button--outline" on:click={active}>
                     {tomatoI18n.激活}
                 </button>
                 <button
-                    class="b3-button"
+                    class="b3-button b3-button--outline"
                     on:click={() => {
                         if (buyDIV.style.display) buyDIV.style.display = "";
                         else buyDIV.style.display = "none";
@@ -720,6 +737,110 @@
             </label>
         </div>
     </div>
+    <!-- 悬浮球 -->
+    <div class="settingBox">
+        <div>
+            <input
+                type="checkbox"
+                class="b3-switch"
+                bind:checked={$floatingballEnable}
+            />
+            {tomatoI18n.悬浮球}
+            <strong>
+                <a
+                    href="https://awx9773btw.feishu.cn/docx/IFT9drxvSoYKVmxCcqncFOgknXg?from=from_copylink"
+                >
+                    {tomatoI18n.帮助}</a
+                >
+            </strong>
+        </div>
+        {#if $floatingballEnable}
+            <div>
+                {#if $floatingballDocList.length > 2 && !lastVerifyResult()}
+                    ⚠️📄{tomatoI18n.非VIP上限为两个}
+                {/if}
+            </div>
+            {#each $floatingballDocList as item, index}
+                <div>
+                    <button
+                        class="b3-button b3-button--text space"
+                        on:click={() => {
+                            $floatingballDocList.splice(index, 1);
+                            $floatingballDocList = $floatingballDocList;
+                        }}
+                    >
+                        🗑️
+                    </button>
+                    <span class="text space">📄{item.docName}</span>
+                    <input
+                        type="checkbox"
+                        class="b3-switch space"
+                        bind:checked={item.enable}
+                    />
+                </div>
+            {/each}
+            <div>
+                <button
+                    class="b3-button b3-button--outline space"
+                    on:click={() => {
+                        toggleDiv(addDocSettings);
+                    }}
+                    >➕{tomatoI18n.文档}
+                </button>
+                <button
+                    class="b3-button b3-button--outline space"
+                    on:click={() => {
+                        toggleDiv(addShortcutSettings);
+                    }}
+                    >➕{tomatoI18n.快捷键}
+                </button>
+            </div>
+            <div bind:this={addDocSettings}>
+                <div class="space">
+                    <input
+                        class="b3-text-field space"
+                        bind:value={addDoc_docName}
+                    />{tomatoI18n.文档名}
+                </div>
+                <div class="space">
+                    <input
+                        placeholder={addDoc_docName}
+                        class="b3-text-field space"
+                        bind:value={addDoc_docIcon}
+                    />{tomatoI18n.图标}
+                </div>
+                <div class="space">
+                    <input
+                        type="checkbox"
+                        class="b3-switch space"
+                        bind:checked={addDoc_useDialog}
+                    />{tomatoI18n.使用小窗打开}
+                </div>
+                <button
+                    class="b3-button b3-button--outline space"
+                    on:click={() => {
+                        if (addDoc_docName) {
+                            if (!addDoc_docIcon) {
+                                addDoc_docIcon = addDoc_docName;
+                            }
+                            $floatingballDocList = pushUniqBy(
+                                $floatingballDocList,
+                                {
+                                    docName: addDoc_docName,
+                                    docIcon: addDoc_docIcon,
+                                    useDialog: addDoc_useDialog,
+                                    enable: true,
+                                },
+                                (item) => item.docName,
+                            );
+                        }
+                    }}
+                    >{tomatoI18n.添加文档}
+                </button>
+            </div>
+            <div bind:this={addShortcutSettings}>开发中</div>
+        {/if}
+    </div>
     <!-- 导出工作空间 -->
     <div class="settingBox">
         <div>
@@ -758,11 +879,10 @@
                                 🗑️
                             </button>
                             {#await getHpath(item)}
-                                <span>{item}</span>
+                                <span class="text">{item} ✅</span>
                             {:then v}
-                                <span>{v}</span>
+                                <span class="text">{v} ✅</span>
                             {/await}
-                            ✅
                         </div>
                     {/each}
                 {/if}
@@ -786,11 +906,14 @@
                                 🗑️
                             </button>
                             {#await getHpath(item)}
-                                <span class:codeNotValid>{item}</span>
+                                <span class="text" class:codeNotValid
+                                    >{item} 🚫</span
+                                >
                             {:then v}
-                                <span class:codeNotValid>{v}</span>
+                                <span class="text" class:codeNotValid
+                                    >{v} 🚫</span
+                                >
                             {/await}
-                            🚫
                         </div>
                     {/each}
                 {/if}
@@ -842,17 +965,19 @@
                     />{tomatoI18n.导出图片}
                 </label>
                 <button
-                    class="b3-button space"
+                    class="b3-button b3-button--outline space"
                     on:click={() => exportMd2Dir(true)}
                     >{MarkdownExport全量导出.langText() +
                         MarkdownExport全量导出.w()}
                 </button>
-                <button class="b3-button space" on:click={() => exportMd2Dir()}
+                <button
+                    class="b3-button b3-button--outline space"
+                    on:click={() => exportMd2Dir()}
                     >{MarkdownExport增量导出.langText() +
                         MarkdownExport增量导出.w()}
                 </button>
                 <button
-                    class="b3-button space"
+                    class="b3-button b3-button--outline space"
                     on:click={() => cleanExportedMds()}
                     >{MarkdownExport确保导出符合配置.langText() +
                         MarkdownExport确保导出符合配置.w()}
@@ -1722,7 +1847,7 @@
         {/if}
         <div>
             <button
-                class="b3-button"
+                class="b3-button b3-button--outline"
                 on:click={() => {
                     siyuan.removeBrokenCards(tomatoI18n);
                 }}
@@ -2293,7 +2418,9 @@
             </div>
         {/if}
         <div>
-            <button class="b3-button" on:click={() => cleanDataview()}
+            <button
+                class="b3-button b3-button--outline"
+                on:click={() => cleanDataview()}
                 >🗑️
             </button>{tomatoI18n.删除失效的数据库}
         </div>
@@ -2728,11 +2855,17 @@
     </div>
     <!-- save -->
     <div class="settingBox">
-        <button class="b3-button" on:click={save}>{tomatoI18n.保存}</button>
+        <button class="b3-button b3-button--outline" on:click={save}
+            >{tomatoI18n.保存}</button
+        >
     </div>
 </div>
 
 <style>
+    .text {
+        display: inline-block;
+        vertical-align: middle;
+    }
     .softBox {
         padding: 5px;
         background-color: rgba(200, 230, 255, 0.3);
@@ -2748,6 +2881,7 @@
     }
     .space {
         margin-right: 10px;
+        margin-top: 5px;
     }
     .settingBox {
         margin: 10px;

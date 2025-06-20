@@ -69,7 +69,9 @@
         {#if $userID}
             <label>
                 ID: {$userID}
-                <button class="b3-button settingBox" on:click={copyUserID}
+                <button
+                    class="b3-button b3-button--outline settingBox"
+                    on:click={copyUserID}
                     >{tomatoI18n.复制}
                 </button>
             </label>
@@ -79,7 +81,7 @@
             </span>
         {/if}
         <a
-            class="b3-button settingBox"
+            class="b3-button b3-button--outline settingBox"
             href="https://item.taobao.com/item.htm?ft=t&id=914732195167"
             >{tomatoI18n.点击打开商品}</a
         >

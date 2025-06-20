@@ -4,7 +4,7 @@ import {
     ConTreeNode,
     disableBK, enableBK,
 } from "./libs/bkUtils";
-import { icon, isCardUI, isFloatUI, isSearchUI, newID, siyuan, } from "./libs/utils";
+import { icon, isCardUI, isFloatUI, isSearchUI, siyuan, } from "./libs/utils";
 import { MarkKey, TEMP_CONTENT, TOMATO_BK_IGNORE } from "./libs/gconst";
 import BackLinkBottom from "./BackLinkBottom.svelte";
 import { DestroyManager } from "./libs/destroyer";
@@ -15,6 +15,7 @@ import { OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
+import { newID } from "stonev5-utils/lib/id";
 
 const BKMAKER_ADD = "BKMAKER_ADD";
 

@@ -1,5 +1,4 @@
 import { Config, Constants, Lute, Protyle, fetchSyncPost, confirm, IProtyle, getAllEditor, Dialog } from "siyuan";
-import { v4 as uuid } from "uuid";
 import * as gconst from "./gconst";
 import * as moment from "moment-timezone";
 import { TomatoI18n } from "../tomatoI18n";
@@ -15,15 +14,24 @@ import { TomatoPluginInstance } from "./gconst";
 import { getGlobal } from "./globalUtils";
 import { BaseTomatoPlugin } from "./BaseTomatoPlugin";
 
+export function closeTab(title: string) {
+    return closeTabByTitle([{ title, id: "1" }], "2");
+}
+
 export function closeTabByTitle(tabs: AttrType[], excludeDocID: string) {
+    let closed = false;
     if (tabs?.length > 0) {
         const openedTabs = [...document.querySelectorAll(`span.item__text`)];
-        for (const t of tabs) {
-            if (t.id === excludeDocID) continue;
-            const f = openedTabs.find(o => o.textContent === t.title);
-            (f?.nextElementSibling as HTMLButtonElement)?.click();
+        for (const tab of tabs) {
+            if (tab.id === excludeDocID) continue;
+            const f = openedTabs.find(o => o.textContent === tab.title);
+            if (f) {
+                (f.nextElementSibling as HTMLButtonElement)?.click();
+                closed = true;
+            }
         }
     }
+    return closed;
 }
 
 export function getOpenedEditors() {
@@ -304,16 +312,6 @@ export function removeFromArr<T>(arr: T[] | undefined, ...items: T[]): T[] {
             arr.splice(idx, 1)
             i--
         }
-    }
-    return arr;
-}
-
-export function pushUniq<T>(arr: T[] | undefined, ...items: T[]): T[] {
-    if (!arr) arr = [];
-    for (const i of items) {
-        const idx = arr.indexOf(i)
-        if (idx >= 0) continue
-        arr.push(i)
     }
     return arr;
 }
@@ -1326,10 +1324,6 @@ export function findBookOpennedFirst(bookID: string, bookIDList: string[]): stri
         return bookIDList[0];
     }
     return bookID;
-}
-
-export function newID() {
-    return "ID" + uuid().replace(/-/g, "");
 }
 
 export function dir(path: string) {

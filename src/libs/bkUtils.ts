@@ -1,10 +1,11 @@
 import { IProtyleOptions, Lute, Plugin, Protyle } from "siyuan";
 import { BLOCK_REF, BlockNodeEnum, DATA_ID, DATA_NODE_ID, DATA_SUBTYPE, DATA_TYPE, IN_BOOK_INDEX, SPACE, STATICLINK, TOMATO_BK_IGNORE, TOMATO_BK_STATIC, UPDATED } from "./gconst";
-import { NewLute, NewNodeID, cleanDivOnly, dom2div, getAttribute, getID, get_siyuan_lnk_md, isValidNumber, newID, set_href, siyuan } from "./utils";
+import { NewLute, NewNodeID, cleanDivOnly, dom2div, getAttribute, getID, get_siyuan_lnk_md, isValidNumber, set_href, siyuan } from "./utils";
 import { tomatoI18n } from "../tomatoI18n";
 import { getHierarchyConcepts, OpenSyFile2 } from "./docUtils";
 import { back_link_passup_heading, back_link_passup_quote, back_link_passup_super, storeAttrManager } from "./stores";
 import { SortType } from "./types";
+import { newID } from "stonev5-utils/lib/id";
 
 // export async function shouldInsertDiv(lastID: string, docID: string) {
 //     const allIDs = await siyuan.getTailChildBlocks(docID, 5);

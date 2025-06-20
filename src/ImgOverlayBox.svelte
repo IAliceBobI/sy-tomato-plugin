@@ -189,10 +189,10 @@
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->
 <div class="b3-dialog__content">
-    <button class="b3-button" on:click={remove}
+    <button class="b3-button b3-button--outline" on:click={remove}
         >{tomatoI18n.删除最后一个遮挡层}</button
     >
-    <button class="b3-button" on:click={exit}>{tomatoI18n.保存并退出}</button>
+    <button class="b3-button b3-button--outline" on:click={exit}>{tomatoI18n.保存并退出}</button>
     <input
         title={tomatoI18n.缩放}
         type="range"

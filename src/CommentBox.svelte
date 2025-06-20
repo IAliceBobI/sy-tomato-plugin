@@ -413,7 +413,7 @@
 
     function renderDocContent(node: HTMLElement, ref: Ref) {
         node.style.maxHeight = $commentBoxMaxProtyleHeight + "px";
-        node.textContent = ref.docContent.replaceAll("\n\n", "\n");
+        node.innerHTML = ref.docContent.replaceAll("\n\n", "\n");
         node.style.fontSize = "large";
     }
 

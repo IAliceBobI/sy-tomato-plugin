@@ -229,7 +229,7 @@
     />
     <button
         bind:this={btn}
-        class="b3-button box"
+        class="b3-button b3-button--outline box"
         on:click={() => {
             saveComment();
             destroy();

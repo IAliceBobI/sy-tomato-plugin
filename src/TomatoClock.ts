@@ -1,6 +1,6 @@
 import { Custom, Dialog, openTab, openWindow } from "siyuan";
 import "./index.scss";
-import { count, isMainWin, isValidNumber, newID, setTimeouts, shuffleArray, siyuan, tryFixCfg } from "./libs/utils";
+import { count, isMainWin, isValidNumber, setTimeouts, shuffleArray, siyuan, tryFixCfg } from "./libs/utils";
 import { STORAGE_TOMATO_TIME } from "./constants";
 import { events } from "./libs/Events";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
@@ -10,6 +10,7 @@ import { addIcon, isPinned, removeStatusBar } from "./libs/ui";
 import { tomato_clocks, tomato_clocks_change_bg, tomato_clocks_change_bg_dark, tomato_clocks_force_dialog, tomato_clocks_force_notice, tomato_clocks_opacity, tomato_clocks_position_right, tomatoClockCheckbox } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { verifyKeyTomato } from "./libs/user";
+import { newID } from "stonev5-utils/lib/id";
 
 function formatDuration(milliseconds: number): { minutes: number, seconds: number } {
     const totalSeconds = Math.floor(milliseconds / 1000);

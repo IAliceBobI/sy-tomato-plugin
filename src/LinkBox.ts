@@ -14,6 +14,7 @@ import LinkBoxDialog from "./LinkBox.svelte";
 import LinkBoxBar from "./LinkBoxBar.svelte";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
+import { newID } from "stonev5-utils/lib/id";
 import { winHotkey } from "./libs/winHotkey";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
@@ -563,7 +564,7 @@ export async function showSyncBlocks(protyle: IProtyle, plugin: Plugin, element?
                     title = tomatoI18n.同步失败
                 }
                 const dm = new DestroyManager();
-                const id = utils.newID();
+                const id = newID();
                 const dialog = new Dialog({
                     title,
                     content: `<div id="${id}"></div>`,

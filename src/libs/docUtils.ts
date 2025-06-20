@@ -1,13 +1,14 @@
 import { Constants, IProtyle, openMobileFileById, openTab, openWindow, Plugin, Tab, TProtyleAction } from "siyuan";
 import { events } from "./Events";
 import { BLOCK_REF, BlockTypeContainer, BlockTypeContent, ClassActive, CUSTOM_RIFF_DECKS, DATA_ID, DATA_NODE_ID, DATA_NODE_INDEX, DATA_SUBTYPE, DATA_TYPE } from "./gconst";
-import { chunks, cleanText, getBlockDiv, getContenteditableElement, getDoOperations, newID, NewNodeID, notEmptyStrDo, parseIAL, readAllFiles, removeInvisibleChars, siyuan, siyuanCache, timeUtil } from "./utils";
+import { chunks, cleanText, getBlockDiv, getContenteditableElement, getDoOperations, NewNodeID, notEmptyStrDo, parseIAL, readAllFiles, removeInvisibleChars, siyuan, siyuanCache, timeUtil } from "./utils";
 import { pinyin } from "pinyin-pro";
 import { storeAttrManager, tag_to_ref_add_card, tag_to_ref_add_pinyin } from "./stores";
 import { tomatoI18n, TomatoI18n } from "../tomatoI18n";
 import { zipNways } from "./functional";
 import { DefaultMap } from "./cache";
 import { verifyKeyTomato } from "./user";
+import { newID } from "stonev5-utils/lib/id";
 
 export function isMultiLineElement(md: string) {
     return md.startsWith("```")

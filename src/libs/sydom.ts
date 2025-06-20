@@ -318,12 +318,12 @@ export class AvBuilder extends DomBuilder {
 </div>
             <div class="av__row--util">
                 <div class="av__colsticky">
-                    <button class="b3-button" data-type="av-add-bottom">
+                    <button class="b3-button b3-button--outline" data-type="av-add-bottom">
                         <svg><use xlink:href="#iconAdd"></use></svg>
                         添加
                     </button>
                     <span class="fn__space"></span>
-                    <button class="b3-button fn__none">
+                    <button class="b3-button b3-button--outline fn__none">
                         <svg data-type="av-load-more"><use xlink:href="#iconArrowDown"></use></svg>
                         <span data-type="av-load-more">
                             加载更多

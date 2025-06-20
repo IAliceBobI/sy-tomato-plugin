@@ -15,6 +15,8 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    floatingballEnable: boolean,
+    floatingballDocList: FloatingDocItem[],
     exportWhiteList: string[],
     exportBlackList: string[],
     exportCleanFilesOn: boolean,
@@ -608,3 +610,9 @@ type ClubeColumn = {
     new?: boolean;
 }
 
+type FloatingDocItem = {
+    enable: boolean;
+    docName: string;
+    docIcon: string;
+    useDialog: boolean;
+}

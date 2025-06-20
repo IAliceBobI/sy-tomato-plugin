@@ -2,12 +2,13 @@ import { IProtyle } from "siyuan";
 import { exportBlackList, exportCleanFiles, exportCleanFilesOn, exportIntervalSec, exportIntervalSecOn, exportPath, exportWhiteList, markdownExportBoxCheckbox, markdownExportPics } from "./libs/stores";
 import { setGlobal } from "./libs/globalUtils";
 import { zipNways } from "./libs/functional";
-import { siyuan, readAllFilePathIDs, Siyuan, chunks, sanitizePathSegment, getAttribute, pushUniq, getNotebookByID, osFs, osPath, timeUtil, sleep, NewLute, setAttribute, removeAttribute, getPlugin } from "./libs/utils";
+import { siyuan, readAllFilePathIDs, Siyuan, chunks, sanitizePathSegment, getAttribute, getNotebookByID, osFs, osPath, timeUtil, sleep, NewLute, setAttribute, removeAttribute, getPlugin } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
 import { events } from "./libs/Events";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { getDocBlocks } from "./libs/docUtils";
 import { winHotkey } from "./libs/winHotkey";
+import { pushUniq } from "stonev5-utils";
 
 export const MarkdownExport增量导出 = winHotkey("alt+f6", "增量导出 2025-06-16 19:15:06", "", () => tomatoI18n.增量导出)
 export const MarkdownExport确保导出符合配置 = winHotkey("alt+f7", "确保导出符合配置 2025-06-16 19:15:07", "", () => tomatoI18n.确保导出符合配置)

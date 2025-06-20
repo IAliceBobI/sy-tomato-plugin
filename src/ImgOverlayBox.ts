@@ -1,11 +1,12 @@
 import { Dialog, IProtyle } from "siyuan";
 import ImgOverlayEditor from "./ImgOverlayBox.svelte";
 import { EventType, events } from "./libs/Events";
-import { getID, isValidNumber, newID, siyuan } from "./libs/utils";
+import { getID, isValidNumber, siyuan } from "./libs/utils";
 import { ATTR_PIC_OVERLAY, OVERLAY_DIV } from "./constants";
 import { imgOverlayCheckbox } from "./libs/stores";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { tomatoI18n } from "./tomatoI18n";
+import { newID } from "stonev5-utils/lib/id";
 
 class ImgOverlayBox {
     private plugin: BaseTomatoPlugin;
