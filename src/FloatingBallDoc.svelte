@@ -5,7 +5,11 @@
     import { FloatingBallHelper } from "./libs/FloatingBallHelper";
     import ProtyleSv4Dialog from "./libs/ProtyleSv4Dialog.svelte";
     import { ClickHelper } from "./libs/ClickHelper";
-    import { SPACE } from "./libs/gconst";
+    import {
+        FloatingBallDocType_dialog,
+        FloatingBallDocType_tab,
+        SPACE,
+    } from "./libs/gconst";
     import { Dialog } from "siyuan";
     import { newID } from "stonev5-utils/lib/id";
     import { events } from "./libs/Events";
@@ -22,7 +26,7 @@
     export let key: string;
     export let docName: string;
     export let docIcon: string;
-    export let useDialog: boolean;
+    export let openDocType: number;
     let div: HTMLElement;
     let btnHelper = new ClickHelper();
     let dialog: Dialog = null;
@@ -33,12 +37,12 @@
     });
 
     async function toggleOpen(_event: MouseEvent) {
-        if (dialog != null) {
-            dialog.destroy();
-            dialog = null;
-            return;
-        }
         if (events.isMobile) {
+            if (dialog != null) {
+                dialog.destroy();
+                dialog = null;
+                return;
+            }
             openByDialog();
             return;
         }
@@ -53,17 +57,28 @@
         // );
         const docs = await siyuan.getDocRowsByName(docName);
         if (docs?.length > 0) {
-            if (useDialog) {
-                const dm = getFloatingBallProtyle(docs.at(0).id);
-                if (dm) {
-                    dm.destroyBy();
-                } else {
-                    newFloatingBallProtyle(docs.at(0).id);
-                }
-            } else {
-                if (!closeTab(docName)) {
-                    await OpenSyFile2(getPlugin(), docs.at(0).id);
-                }
+            switch (openDocType) {
+                case FloatingBallDocType_tab.id:
+                    if (!closeTab(docName)) {
+                        await OpenSyFile2(getPlugin(), docs.at(0).id);
+                    }
+                    break;
+                case FloatingBallDocType_dialog.id:
+                    if (dialog != null) {
+                        dialog.destroy();
+                        dialog = null;
+                        return;
+                    }
+                    openByDialog();
+                    break;
+                default:
+                    const dm = getFloatingBallProtyle(docs.at(0).id);
+                    if (dm) {
+                        dm.destroyBy();
+                    } else {
+                        newFloatingBallProtyle(docs.at(0).id);
+                    }
+                    break;
             }
         } else {
             await siyuan.pushMsg(tomatoI18n.找不到文档 + ": " + docName);
@@ -124,7 +139,7 @@
 
 <style>
     .floating-button {
-        z-index: 11;
+        z-index: 21;
         position: fixed;
         border-radius: 50%;
         display: flex;

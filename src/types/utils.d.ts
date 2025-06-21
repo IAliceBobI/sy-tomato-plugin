@@ -614,5 +614,5 @@ type FloatingDocItem = {
     enable: boolean;
     docName: string;
     docIcon: string;
-    useDialog: boolean;
+    openDocType: number;
 }

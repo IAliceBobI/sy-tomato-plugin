@@ -96,10 +96,7 @@ export function dialog2floating(dialog: Dialog, _position: { x: string, y: strin
         // b3Dialog.style.pointerEvents = "none";
 
         const scrim = b3Dialog.querySelector(".b3-dialog__scrim") as HTMLElement
-        if (scrim) {
-            scrim.style.width = "auto"
-            scrim.style.height = "auto"
-        }
+        scrim?.parentElement?.removeChild(scrim);
 
         // const container = b3Dialog.querySelector(".b3-dialog__container") as HTMLElement
         // if (container) container.style.pointerEvents = "initial";

@@ -40,11 +40,27 @@ export class FloatingBall {
     }
 }
 
+export function loadFloatingBall() {
+    if (floatingballEnable.get()) {
+        let arr = (floatingballDocList.get() ?? []).filter(item => item.enable);
+        if (!lastVerifyResult()) {
+            arr = arr.slice(0, 2);
+        }
+        for (const item of arr) {
+            if (item.enable) {
+                getFloatingBallDoc(item.docName, item.docIcon, item.openDocType);
+            }
+        }
+    }
+}
+
+// 悬浮文档
 export function getFloatingBallProtyle(id: string) {
     const address = `protyle#${id}`
     return globalThis[FloatingBall.key(address)] as DestroyManager
 }
 
+// 悬浮文档
 export function newFloatingBallProtyle(id: string) {
     const address = `protyle#${id}`
     const dm = FloatingBall.newProgFloatingDm(address);
@@ -60,23 +76,9 @@ export function newFloatingBallProtyle(id: string) {
     });
 }
 
-
-export function loadFloatingBall() {
-    if (floatingballEnable.get()) {
-        let arr = (floatingballDocList.get() ?? []).filter(item => item.enable);
-        if (!lastVerifyResult()) {
-            arr = arr.slice(0, 2);
-        }
-        for (const item of arr) {
-            if (item.enable) {
-                getFloatingBallDoc(item.docName, item.docIcon, item.useDialog);
-            }
-        }
-    }
-}
-
-export function getFloatingBallDoc(docName: string, docIcon: string, useDialog: boolean): HTMLElement {
-    const address = `doc#${docName}#${docIcon}${useDialog}`
+// 悬浮按钮
+export function getFloatingBallDoc(docName: string, docIcon: string, openDocType: number): HTMLElement {
+    const address = `doc#${docName}#${docIcon}${openDocType}`
     const dm = globalThis[FloatingBall.key(address)] as DestroyManager
     if (dm) {
         return dm.getData("e") as HTMLElement
@@ -90,7 +92,7 @@ export function getFloatingBallDoc(docName: string, docIcon: string, useDialog: 
                     key: FloatingBall.key(address),
                     docName,
                     docIcon,
-                    useDialog,
+                    openDocType,
                 }
             })
         });

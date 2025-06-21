@@ -27,6 +27,7 @@
     // 加载本地存储的尺寸
     onMount(() => {
         ballHelper = new FloatingBallHelper(key, div, dm);
+        ballHelper;
 
         const protyle = new Protyle(getPlugin().app, protyleTarget, {
             blockId: id,
@@ -148,7 +149,7 @@
         cursor: s-resize;
     }
     .floating-button {
-        z-index: 10;
+        z-index: 20;
         position: fixed;
         border-radius: 50%;
         display: flex;

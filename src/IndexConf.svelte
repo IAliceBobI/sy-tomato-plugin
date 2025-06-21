@@ -281,7 +281,13 @@
         ReadingPointBox跳到当前文档的阅读点,
     } from "./ReadingPointBox";
     import { ScheduleCopyID } from "./Schedule";
-    import { BlockNodeEnum, SPACE } from "./libs/gconst";
+    import {
+        BlockNodeEnum,
+        FloatingBallDocType_dialog,
+        FloatingBallDocType_float,
+        FloatingBallDocType_tab,
+        SPACE,
+    } from "./libs/gconst";
     import {
         Tag2RefBox模糊查找引用Lnk,
         Tag2RefBox模糊查找引用Ref,
@@ -315,7 +321,7 @@
     let searchInput: HTMLElement;
     let addDoc_docName = "";
     let addDoc_docIcon = "";
-    let addDoc_useDialog = true;
+    let addDoc_useDialog = FloatingBallDocType_float.id;
     let codeValid = false;
     $: codeNotValid = !codeValid;
     const ICONS_SIZE = 14;
@@ -810,11 +816,47 @@
                     />{tomatoI18n.图标}
                 </div>
                 <div class="space">
-                    <input
-                        type="checkbox"
-                        class="b3-switch space"
-                        bind:checked={addDoc_useDialog}
-                    />{tomatoI18n.使用小窗打开}
+                    <label>
+                        <input
+                            type="radio"
+                            name="addDoc_openType"
+                            value={FloatingBallDocType_tab.id}
+                            bind:group={addDoc_useDialog}
+                        />
+                        {FloatingBallDocType_tab.txt}
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="addDoc_openType"
+                            value={FloatingBallDocType_dialog.id}
+                            bind:group={addDoc_useDialog}
+                        />
+                        {FloatingBallDocType_dialog.txt}
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="addDoc_openType"
+                            value={FloatingBallDocType_float.id}
+                            bind:group={addDoc_useDialog}
+                        />
+                        {FloatingBallDocType_float.txt}
+                    </label>
+                    <!-- <select
+                        class="b3-select space"
+                        bind:value={addDoc_useDialog}
+                    >
+                        <option value={FloatingBallDocType_tab.id}
+                            >{FloatingBallDocType_tab.txt}</option
+                        >
+                        <option value={FloatingBallDocType_dialog.id}
+                            >{FloatingBallDocType_dialog.txt}</option
+                        >
+                        <option value={FloatingBallDocType_float.id}
+                            >{FloatingBallDocType_float.txt}</option
+                        >
+                    </select> -->
                 </div>
                 <button
                     class="b3-button b3-button--outline space"
@@ -828,7 +870,7 @@
                                 {
                                     docName: addDoc_docName,
                                     docIcon: addDoc_docIcon,
-                                    useDialog: addDoc_useDialog,
+                                    openDocType: addDoc_useDialog,
                                     enable: true,
                                 },
                                 (item) => item.docName,
