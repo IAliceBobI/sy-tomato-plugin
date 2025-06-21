@@ -312,7 +312,7 @@
         MarkdownExport增量导出,
         MarkdownExport确保导出符合配置,
     } from "./MarkdownExportBox";
-    import { pushUniq, pushUniqBy } from "stonev5-utils";
+    import { pushReplaceBy, pushUniq } from "stonev5-utils";
     import { events } from "./libs/Events";
     import { shortcut2string } from "./libs/keyboard";
     export let dm: DestroyManager;
@@ -380,6 +380,30 @@
         } else {
             div.style.display = "none";
         }
+    }
+
+    function showName(name: string, icon: string, docType?: number) {
+        let docTypeStr = "";
+        switch (docType) {
+            case FloatingBallDocType_tab.id:
+                docTypeStr = FloatingBallDocType_tab.txt;
+                break;
+            case FloatingBallDocType_dialog.id:
+                docTypeStr = FloatingBallDocType_dialog.txt;
+                break;
+            case FloatingBallDocType_float.id:
+                docTypeStr = FloatingBallDocType_float.txt;
+                break;
+            default:
+        }
+        if (docTypeStr) {
+            docTypeStr = `(${docTypeStr})`;
+        }
+
+        if (name.toLocaleLowerCase() == icon.toLocaleLowerCase()) {
+            return name + docTypeStr;
+        }
+        return `${name}(${icon})${docTypeStr}`;
     }
 
     function flatingkbchange() {
@@ -810,7 +834,13 @@
                     >
                         🗑️
                     </button>
-                    <span class="text space">📄{item.docName} </span>
+                    <span class="text space"
+                        >📄{showName(
+                            item.docName,
+                            item.docIcon,
+                            item.openDocType,
+                        )}
+                    </span>
                 </div>
             {/each}
             <!-- 列出快捷键绑定 -->
@@ -845,7 +875,9 @@
                     >
                         🗑️
                     </button>
-                    <span class="text space">⌨️{shortcut2string(item)} </span>
+                    <span class="text space"
+                        >⌨️{showName(shortcut2string(item), item.keyIcon)}
+                    </span>
                 </div>
             {/each}
             <!-- 添加按钮 -->
@@ -869,16 +901,16 @@
             <div bind:this={addDocSettings}>
                 <div class="spacetop">
                     <input
-                        class="b3-text-field space"
-                        bind:value={addDoc_docName}
-                    />{tomatoI18n.文档名}
-                </div>
-                <div class="spacetop">
-                    <input
                         placeholder={addDoc_docName}
                         class="b3-text-field space"
                         bind:value={addDoc_docIcon}
                     />{tomatoI18n.图标}
+                </div>
+                <div class="spacetop">
+                    <input
+                        class="b3-text-field space"
+                        bind:value={addDoc_docName}
+                    />{tomatoI18n.文档名}
                 </div>
                 <div class="spacetop">
                     <label class="space">
@@ -931,7 +963,7 @@
                             if (!icon) {
                                 icon = addDoc_docName;
                             }
-                            $floatingballDocList = pushUniqBy(
+                            $floatingballDocList = pushReplaceBy(
                                 $floatingballDocList,
                                 {
                                     docName: addDoc_docName,
@@ -946,6 +978,14 @@
                         }
                     }}
                     >{tomatoI18n.绑定文档到悬浮按钮}
+                </button>
+                <button
+                    class="b3-button b3-button--outline spacetop"
+                    on:click={() => {
+                        addDoc_docName = "$$dailynote";
+                        addDoc_docIcon = "🗓️📒";
+                    }}
+                    >{tomatoI18n.特殊绑定当天日志}
                 </button>
             </div>
             <!-- 绑定快捷键配置 -->
@@ -1000,7 +1040,7 @@
                             }
                             addDoc_keyboardKeyCode =
                                 addDoc_keyboardKeyCode.toLocaleUpperCase();
-                            $floatingballKeyboardList = pushUniqBy(
+                            $floatingballKeyboardList = pushReplaceBy(
                                 $floatingballKeyboardList,
                                 {
                                     enableMobile: true,

@@ -1,5 +1,5 @@
 import { Plugin, getFrontend, Protyle, IProtyle, IEventBusMap, getBackend } from "siyuan";
-import { getCursorElement, getID, siyuan } from "./utils";
+import { getCursorElement, getID, getNotebookFirstOne, siyuan } from "./utils";
 import { DATA_NODE_ID, PROTYLE_WYSIWYG_SELECT } from "./gconst";
 
 export enum EventType {
@@ -52,7 +52,8 @@ class Events {
 
     private _boxID: string;
     public get boxID(): string {
-        return this._boxID;
+        if (this._boxID) return this._boxID;
+        return getNotebookFirstOne()?.id ?? "";
     }
 
     private _protyle: Protyle;

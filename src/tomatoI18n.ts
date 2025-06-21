@@ -193,6 +193,22 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Mobile";
         }
     }
+    public get 特殊绑定当天日志() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "特殊：绑定当天日志";
+            case "es_ES": return "Especial: vincular el registro del día";
+            case "fr_FR": return "Spécial : lier le journal du jour";
+            case "ja_JP": return "特別：当日のログをバインド";
+            case "zh_CHT": return "特殊：綁定當天日誌";
+            case "it_IT": return "Speciale: associa il registro del giorno";
+            case "de_DE": return "Speziell: Tagesprotokoll binden";
+            case "he_IL": return "מיוחד: קישור יומן היום";
+            case "ru_RU": return "Особое: привязать журнал за день";
+            case "pl_PL": return "Specjalne: powiąż dziennik dnia";
+            case "en_US":
+            default: return "Special: bind today's log";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

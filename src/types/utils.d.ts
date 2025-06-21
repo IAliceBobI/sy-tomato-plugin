@@ -613,10 +613,11 @@ type ClubeColumn = {
 
 type FloatingDocItem = {
     enableMobile?: boolean;
-    enable: boolean;
-    docName: string;
-    docIcon: string;
-    openDocType: number;
+    enable?: boolean;
+    docName?: string;
+    docID?: string;
+    docIcon?: string;
+    openDocType?: number;
 }
 
 type FloatingKeyboardItem = {

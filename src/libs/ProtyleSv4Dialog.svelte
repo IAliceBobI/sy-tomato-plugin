@@ -5,7 +5,8 @@
     import { getPlugin, siyuan } from "./utils";
 
     export let dm: DestroyManager;
-    export let docName: string;
+    export let docName: string = "";
+    export let docID: string = "";
     let protyleTarget: HTMLElement;
 
     onDestroy(() => {
@@ -13,10 +14,13 @@
     });
 
     onMount(async () => {
-        const docs = await siyuan.getDocRowsByName(docName);
-        if (docs.length > 0) {
+        if (!docID) {
+            const docs = await siyuan.getDocRowsByName(docName);
+            docID = docs?.at(0)?.id;
+        }
+        if (docID) {
             const protyle = new Protyle(getPlugin().app, protyleTarget, {
-                blockId: docs.at(0).id,
+                blockId: docID,
                 action: ["cb-get-focus"],
                 render: {
                     background: false,

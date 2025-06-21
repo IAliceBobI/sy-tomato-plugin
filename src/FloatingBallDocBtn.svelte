@@ -35,6 +35,10 @@
     });
 
     async function toggleOpen(_event: MouseEvent) {
+        item.docID = "";
+        if (item.docName === "$$dailynote") {
+            item.docID = (await siyuan.createDailyNote(events.boxID)).id;
+        }
         if (events.isMobile) {
             if (dialog != null) {
                 dialog.destroy();
@@ -44,12 +48,15 @@
             openByDialog();
             return;
         }
-        const docs = await siyuan.getDocRowsByName(item.docName);
-        if (docs?.length > 0) {
+        if (!item.docID) {
+            const docs = await siyuan.getDocRowsByName(item.docName);
+            item.docID = docs?.at(0)?.id ?? "";
+        }
+        if (item.docID) {
             switch (item.openDocType) {
                 case FloatingBallDocType_tab.id:
                     if (!closeTab(item.docName)) {
-                        await OpenSyFile2(getPlugin(), docs.at(0).id);
+                        await OpenSyFile2(getPlugin(), item.docID);
                     }
                     break;
                 case FloatingBallDocType_dialog.id:
@@ -61,11 +68,11 @@
                     openByDialog();
                     break;
                 default:
-                    const dm = getFloatingBallProtyle(docs.at(0).id);
+                    const dm = getFloatingBallProtyle(item.docID);
                     if (dm) {
                         dm.destroyBy();
                     } else {
-                        newFloatingBallProtyle(docs.at(0).id);
+                        newFloatingBallProtyle(item.docID);
                     }
                     break;
             }
@@ -97,6 +104,7 @@
             props: {
                 dm,
                 docName: item.docName,
+                docID: item.docID,
             },
         });
         dm.add("dialog", () => {
