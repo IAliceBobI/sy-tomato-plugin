@@ -3,6 +3,7 @@ import FloatingBallKeyboardBtn from "./FloatingBallKeyboardBtn.svelte"
 import FloatingBallProtyle from "./FloatingBallProtyle.svelte"
 import { DestroyManager } from "./libs/destroyer";
 import { events } from "./libs/Events";
+import { FloatingBallNotVIPLimit } from "./libs/gconst";
 import { shortcut2string } from "./libs/keyboard";
 import { floatingballDocList, floatingballEnable, floatingballKeyboardList } from "./libs/stores";
 import { lastVerifyResult } from "./libs/user";
@@ -53,7 +54,7 @@ export function loadFloatingBall() {
                 return item.enable
             });
             if (!lastVerifyResult()) {
-                arr = arr.slice(0, 2);
+                arr = arr.slice(0, FloatingBallNotVIPLimit);
             }
             for (const item of arr) {
                 getFloatingBallDocBtn(item);
@@ -67,7 +68,7 @@ export function loadFloatingBall() {
                 return item.enable
             });
             if (!lastVerifyResult()) {
-                arr = arr.slice(0, 2);
+                arr = arr.slice(0, FloatingBallNotVIPLimit);
             }
             for (const item of arr) {
                 getFloatingBallKeyboardBtn(item);

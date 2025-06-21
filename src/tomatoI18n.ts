@@ -81,22 +81,6 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Shortcut key";
         }
     }
-    public get 非VIP上限为两个() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "非VIP上限为两个";
-            case "es_ES": return "El límite para no VIP es dos";
-            case "fr_FR": return "La limite pour les non VIP est de deux";
-            case "ja_JP": return "非VIPの上限は2つです";
-            case "zh_CHT": return "非VIP上限為兩個";
-            case "it_IT": return "Il limite per i non VIP è due";
-            case "de_DE": return "Das Limit für Nicht-VIPs beträgt zwei";
-            case "he_IL": return "המגבלה ללא VIP היא שניים";
-            case "ru_RU": return "Лимит для не-VIP — два";
-            case "pl_PL": return "Limit dla nie-VIP to dwa";
-            case "en_US":
-            default: return "Non-VIP limit is two";
-        }
-    }
     public get 找不到文档() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "找不到文档";
@@ -207,6 +191,22 @@ export class TomatoI18n extends TomatoI18nABC {
             case "pl_PL": return "Specjalne: powiąż dziennik dnia";
             case "en_US":
             default: return "Special: bind today's log";
+        }
+    }
+    public 非VIP上限为x个(x: number, unit: string) {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return `非VIP上限为${x}个${unit}`;
+            case "es_ES": return `El límite para no VIP es de ${x} ${unit}`;
+            case "fr_FR": return `La limite pour les non VIP est de ${x} ${unit}`;
+            case "ja_JP": return `非VIPの上限は${x}${unit}です`;
+            case "zh_CHT": return `非VIP上限為${x}個${unit}`;
+            case "it_IT": return `Il limite per i non VIP è di ${x} ${unit}`;
+            case "de_DE": return `Das Limit für Nicht-VIPs beträgt ${x} ${unit}`;
+            case "he_IL": return `המגבלה ללא VIP היא ${x} ${unit}`;
+            case "ru_RU": return `Лимит для не-VIP составляет ${x} ${unit}`;
+            case "pl_PL": return `Limit dla nie-VIP to ${x} ${unit}`;
+            case "en_US":
+            default: return `Non-VIP limit is ${x} ${unit}`;
         }
     }
     public get aaa() {

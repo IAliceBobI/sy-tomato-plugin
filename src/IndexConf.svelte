@@ -287,6 +287,7 @@
         FloatingBallDocType_dialog,
         FloatingBallDocType_float,
         FloatingBallDocType_tab,
+        FloatingBallNotVIPLimit,
         SPACE,
     } from "./libs/gconst";
     import {
@@ -805,8 +806,8 @@
         {#if $floatingballEnable}
             <!-- 列出文档绑定 -->
             <div>
-                {#if $floatingballDocList.length > 2 && !lastVerifyResult()}
-                    ⚠️{tomatoI18n.非VIP上限为两个}📄
+                {#if $floatingballDocList.length > FloatingBallNotVIPLimit && !lastVerifyResult()}
+                    ⚠️{tomatoI18n.非VIP上限为x个(FloatingBallNotVIPLimit, "📄")}
                 {/if}
             </div>
             {#each $floatingballDocList as item, index}
@@ -845,8 +846,8 @@
             {/each}
             <!-- 列出快捷键绑定 -->
             <div>
-                {#if $floatingballKeyboardList.length > 2 && !lastVerifyResult()}
-                    ⚠️{tomatoI18n.非VIP上限为两个}⌨️
+                {#if $floatingballKeyboardList.length > FloatingBallNotVIPLimit && !lastVerifyResult()}
+                    ⚠️{tomatoI18n.非VIP上限为x个(FloatingBallNotVIPLimit, "⌨️")}
                 {/if}
             </div>
             {#each $floatingballKeyboardList as item, index}
