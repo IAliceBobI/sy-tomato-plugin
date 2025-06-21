@@ -161,6 +161,38 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Key";
         }
     }
+    public get 桌面端() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "桌面端";
+            case "es_ES": return "Escritorio";
+            case "fr_FR": return "Bureau";
+            case "ja_JP": return "デスクトップ";
+            case "zh_CHT": return "桌面端";
+            case "it_IT": return "Desktop";
+            case "de_DE": return "Desktop";
+            case "he_IL": return "שולחן עבודה";
+            case "ru_RU": return "Десктоп";
+            case "pl_PL": return "Pulpit";
+            case "en_US":
+            default: return "Desktop";
+        }
+    }
+    public get 移动端() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "移动端";
+            case "es_ES": return "Móvil";
+            case "fr_FR": return "Mobile";
+            case "ja_JP": return "モバイル";
+            case "zh_CHT": return "移動端";
+            case "it_IT": return "Mobile";
+            case "de_DE": return "Mobil";
+            case "he_IL": return "נייד";
+            case "ru_RU": return "Мобильный";
+            case "pl_PL": return "Mobilny";
+            case "en_US":
+            default: return "Mobile";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

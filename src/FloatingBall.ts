@@ -2,6 +2,7 @@ import FloatingBallDocBtn from "./FloatingBallDocBtn.svelte"
 import FloatingBallKeyboardBtn from "./FloatingBallKeyboardBtn.svelte"
 import FloatingBallProtyle from "./FloatingBallProtyle.svelte"
 import { DestroyManager } from "./libs/destroyer";
+import { events } from "./libs/Events";
 import { shortcut2string } from "./libs/keyboard";
 import { floatingballDocList, floatingballEnable, floatingballKeyboardList } from "./libs/stores";
 import { lastVerifyResult } from "./libs/user";
@@ -45,7 +46,12 @@ export class FloatingBall {
 export function loadFloatingBall() {
     if (floatingballEnable.get()) {
         {
-            let arr = (floatingballDocList.get() ?? []).filter(item => item.enable);
+            let arr = (floatingballDocList.get() ?? []).filter(item => {
+                if (events.isMobile) {
+                    return item.enableMobile
+                }
+                return item.enable
+            });
             if (!lastVerifyResult()) {
                 arr = arr.slice(0, 2);
             }
@@ -54,7 +60,12 @@ export function loadFloatingBall() {
             }
         }
         {
-            let arr = (floatingballKeyboardList.get() ?? []).filter(item => item.enable);
+            let arr = (floatingballKeyboardList.get() ?? []).filter(item => {
+                if (events.isMobile) {
+                    return item.enableMobile
+                }
+                return item.enable
+            });
             if (!lastVerifyResult()) {
                 arr = arr.slice(0, 2);
             }

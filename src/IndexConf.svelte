@@ -787,6 +787,20 @@
             </div>
             {#each $floatingballDocList as item, index}
                 <div>
+                    <label class="space">
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            bind:checked={item.enable}
+                        />{tomatoI18n.桌面端}
+                    </label>
+                    <label class="space">
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            bind:checked={item.enableMobile}
+                        />{tomatoI18n.移动端}
+                    </label>
                     <button
                         class="b3-button b3-button--text space"
                         on:click={() => {
@@ -797,11 +811,6 @@
                         🗑️
                     </button>
                     <span class="text space">📄{item.docName} </span>
-                    <input
-                        type="checkbox"
-                        class="b3-switch space"
-                        bind:checked={item.enable}
-                    />
                 </div>
             {/each}
             <!-- 列出快捷键绑定 -->
@@ -812,6 +821,20 @@
             </div>
             {#each $floatingballKeyboardList as item, index}
                 <div>
+                    <label class="space">
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            bind:checked={item.enable}
+                        />{tomatoI18n.桌面端}
+                    </label>
+                    <label class="space">
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            bind:checked={item.enableMobile}
+                        />{tomatoI18n.移动端}
+                    </label>
                     <button
                         class="b3-button b3-button--text space"
                         on:click={() => {
@@ -823,11 +846,6 @@
                         🗑️
                     </button>
                     <span class="text space">⌨️{shortcut2string(item)} </span>
-                    <input
-                        type="checkbox"
-                        class="b3-switch space"
-                        bind:checked={item.enable}
-                    />
                 </div>
             {/each}
             <!-- 添加按钮 -->
@@ -920,6 +938,7 @@
                                     docIcon: icon,
                                     openDocType: addDoc_useDialog,
                                     enable: true,
+                                    enableMobile: true,
                                 },
                                 (item) => item.docName,
                             );
@@ -984,6 +1003,7 @@
                             $floatingballKeyboardList = pushUniqBy(
                                 $floatingballKeyboardList,
                                 {
+                                    enableMobile: true,
                                     enable: true,
                                     keyIcon: icon,
                                     key: addDoc_keyboardKeyCode,

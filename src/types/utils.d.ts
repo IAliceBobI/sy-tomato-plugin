@@ -612,6 +612,7 @@ type ClubeColumn = {
 }
 
 type FloatingDocItem = {
+    enableMobile?: boolean;
     enable: boolean;
     docName: string;
     docIcon: string;
@@ -619,6 +620,7 @@ type FloatingDocItem = {
 }
 
 type FloatingKeyboardItem = {
+    enableMobile?: boolean;
     enable?: boolean;
     keyIcon?: string;
     key?: string;
