@@ -1,3 +1,5 @@
+import { events } from "./Events";
+
 export function escOnElement(e: HTMLElement) {
     if (e) {
         const escEvent = new KeyboardEvent("keydown", {
@@ -34,4 +36,30 @@ export function preventKeyboard(event: KeyboardEvent) {
         return;
     }
     event.preventDefault();
+}
+
+export function shortcut2string(shortcut: FloatingKeyboardItem) {
+    let parts: string[] = [];
+    if (events.isMac) {
+        if (shortcut.ctrlKey) parts.push('⌘');
+        if (shortcut.altKey) parts.push('⌥');
+        if (shortcut.shiftKey) parts.push('⇧');
+    } else {
+        if (shortcut.ctrlKey) parts.push('Ctrl');
+        if (shortcut.altKey) parts.push('Alt');
+        if (shortcut.shiftKey) parts.push('Shift');
+    }
+    // 处理特殊键显示
+    let key = shortcut.key;
+    const keyMap: Record<string, string> = {
+        ArrowLeft: '←',
+        ArrowUp: '↑',
+        ArrowRight: '→',
+        ArrowDown: '↓',
+        Escape: 'Esc',
+        ' ': 'Space',
+    };
+    if (keyMap[key]) key = keyMap[key];
+    parts.push(key);
+    return parts.join('+');
 }

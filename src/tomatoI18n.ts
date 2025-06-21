@@ -33,22 +33,6 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Open in small window";
         }
     }
-    public get 添加文档() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "添加文档";
-            case "es_ES": return "Agregar documento";
-            case "fr_FR": return "Ajouter un document";
-            case "ja_JP": return "ドキュメントを追加";
-            case "zh_CHT": return "添加文件";
-            case "it_IT": return "Aggiungi documento";
-            case "de_DE": return "Dokument hinzufügen";
-            case "he_IL": return "הוסף מסמך";
-            case "ru_RU": return "Добавить документ";
-            case "pl_PL": return "Dodaj dokument";
-            case "en_US":
-            default: return "Add document";
-        }
-    }
     public get 图标() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "图标";
@@ -127,6 +111,54 @@ export class TomatoI18n extends TomatoI18nABC {
             case "pl_PL": return "Nie znaleziono dokumentu";
             case "en_US":
             default: return "Document not found";
+        }
+    }
+    public get 绑定文档到悬浮按钮() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "绑定文档到悬浮按钮";
+            case "es_ES": return "Vincular documento al botón flotante";
+            case "fr_FR": return "Lier le document au bouton flottant";
+            case "ja_JP": return "ドキュメントをフローティングボタンにバインド";
+            case "zh_CHT": return "綁定文件到懸浮按鈕";
+            case "it_IT": return "Associa documento al pulsante flottante";
+            case "de_DE": return "Dokument an Schwebeschaltfläche binden";
+            case "he_IL": return "קשר מסמך לכפתור הצף";
+            case "ru_RU": return "Привязать документ к плавающей кнопке";
+            case "pl_PL": return "Powiąż dokument z przyciskiem pływającym";
+            case "en_US":
+            default: return "Bind document to floating button";
+        }
+    }
+    public get 绑定快捷键到悬浮按钮() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "绑定快捷键到悬浮按钮";
+            case "es_ES": return "Vincular atajo al botón flotante";
+            case "fr_FR": return "Lier le raccourci au bouton flottant";
+            case "ja_JP": return "ショートカットキーをフローティングボタンにバインド";
+            case "zh_CHT": return "綁定快捷鍵到懸浮按鈕";
+            case "it_IT": return "Associa scorciatoia al pulsante flottante";
+            case "de_DE": return "Tastenkürzel an Schwebeschaltfläche binden";
+            case "he_IL": return "קשר קיצור מקשים לכפתור הצף";
+            case "ru_RU": return "Привязать горячую клавишу к плавающей кнопке";
+            case "pl_PL": return "Powiąż skrót z przyciskiem pływającym";
+            case "en_US":
+            default: return "Bind shortcut key to floating button";
+        }
+    }
+    public get 键() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "键";
+            case "es_ES": return "Tecla";
+            case "fr_FR": return "Touche";
+            case "ja_JP": return "キー";
+            case "zh_CHT": return "鍵";
+            case "it_IT": return "Tasto";
+            case "de_DE": return "Taste";
+            case "he_IL": return "מקש";
+            case "ru_RU": return "Клавиша";
+            case "pl_PL": return "Klawisz";
+            case "en_US":
+            default: return "Key";
         }
     }
     public get aaa() {

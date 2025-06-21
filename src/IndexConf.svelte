@@ -181,6 +181,7 @@
         exportCleanFilesOn,
         floatingballEnable,
         floatingballDocList,
+        floatingballKeyboardList,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -312,6 +313,8 @@
         MarkdownExport确保导出符合配置,
     } from "./MarkdownExportBox";
     import { pushUniq, pushUniqBy } from "stonev5-utils";
+    import { events } from "./libs/Events";
+    import { shortcut2string } from "./libs/keyboard";
     export let dm: DestroyManager;
     export let plugin: BaseTomatoPlugin;
     let addDocSettings: HTMLElement;
@@ -321,6 +324,12 @@
     let searchInput: HTMLElement;
     let addDoc_docName = "";
     let addDoc_docIcon = "";
+    let addDoc_keyboardIcon = "";
+    let addDoc_keyboardpreview = "";
+    let addDoc_keyboardKeyCode = "";
+    let addDoc_keyboardAlt = false;
+    let addDoc_keyboardShift = false;
+    let addDoc_keyboardCtrl = false;
     let addDoc_useDialog = FloatingBallDocType_float.id;
     let codeValid = false;
     $: codeNotValid = !codeValid;
@@ -371,6 +380,15 @@
         } else {
             div.style.display = "none";
         }
+    }
+
+    function flatingkbchange() {
+        addDoc_keyboardpreview = shortcut2string({
+            key: addDoc_keyboardKeyCode,
+            altKey: addDoc_keyboardAlt,
+            ctrlKey: addDoc_keyboardCtrl,
+            shiftKey: addDoc_keyboardShift,
+        });
     }
 </script>
 
@@ -761,9 +779,10 @@
             </strong>
         </div>
         {#if $floatingballEnable}
+            <!-- 列出文档绑定 -->
             <div>
                 {#if $floatingballDocList.length > 2 && !lastVerifyResult()}
-                    ⚠️📄{tomatoI18n.非VIP上限为两个}
+                    ⚠️{tomatoI18n.非VIP上限为两个}📄
                 {/if}
             </div>
             {#each $floatingballDocList as item, index}
@@ -777,7 +796,7 @@
                     >
                         🗑️
                     </button>
-                    <span class="text space">📄{item.docName}</span>
+                    <span class="text space">📄{item.docName} </span>
                     <input
                         type="checkbox"
                         class="b3-switch space"
@@ -785,6 +804,33 @@
                     />
                 </div>
             {/each}
+            <!-- 列出快捷键绑定 -->
+            <div>
+                {#if $floatingballKeyboardList.length > 2 && !lastVerifyResult()}
+                    ⚠️{tomatoI18n.非VIP上限为两个}⌨️
+                {/if}
+            </div>
+            {#each $floatingballKeyboardList as item, index}
+                <div>
+                    <button
+                        class="b3-button b3-button--text space"
+                        on:click={() => {
+                            $floatingballKeyboardList.splice(index, 1);
+                            $floatingballKeyboardList =
+                                $floatingballKeyboardList;
+                        }}
+                    >
+                        🗑️
+                    </button>
+                    <span class="text space">⌨️{shortcut2string(item)} </span>
+                    <input
+                        type="checkbox"
+                        class="b3-switch space"
+                        bind:checked={item.enable}
+                    />
+                </div>
+            {/each}
+            <!-- 添加按钮 -->
             <div>
                 <button
                     class="b3-button b3-button--outline space"
@@ -801,22 +847,23 @@
                     >➕{tomatoI18n.快捷键}
                 </button>
             </div>
+            <!-- 绑定文档配置 -->
             <div bind:this={addDocSettings}>
-                <div class="space">
+                <div class="spacetop">
                     <input
                         class="b3-text-field space"
                         bind:value={addDoc_docName}
                     />{tomatoI18n.文档名}
                 </div>
-                <div class="space">
+                <div class="spacetop">
                     <input
                         placeholder={addDoc_docName}
                         class="b3-text-field space"
                         bind:value={addDoc_docIcon}
                     />{tomatoI18n.图标}
                 </div>
-                <div class="space">
-                    <label>
+                <div class="spacetop">
+                    <label class="space">
                         <input
                             type="radio"
                             name="addDoc_openType"
@@ -825,7 +872,7 @@
                         />
                         {FloatingBallDocType_tab.txt}
                     </label>
-                    <label>
+                    <label class="space">
                         <input
                             type="radio"
                             name="addDoc_openType"
@@ -834,7 +881,7 @@
                         />
                         {FloatingBallDocType_dialog.txt}
                     </label>
-                    <label>
+                    <label class="space">
                         <input
                             type="radio"
                             name="addDoc_openType"
@@ -859,28 +906,100 @@
                     </select> -->
                 </div>
                 <button
-                    class="b3-button b3-button--outline space"
+                    class="b3-button b3-button--outline spacetop"
                     on:click={() => {
                         if (addDoc_docName) {
-                            if (!addDoc_docIcon) {
-                                addDoc_docIcon = addDoc_docName;
+                            let icon = addDoc_docIcon;
+                            if (!icon) {
+                                icon = addDoc_docName;
                             }
                             $floatingballDocList = pushUniqBy(
                                 $floatingballDocList,
                                 {
                                     docName: addDoc_docName,
-                                    docIcon: addDoc_docIcon,
+                                    docIcon: icon,
                                     openDocType: addDoc_useDialog,
                                     enable: true,
                                 },
                                 (item) => item.docName,
                             );
+                            floatingballDocList.write();
                         }
                     }}
-                    >{tomatoI18n.添加文档}
+                    >{tomatoI18n.绑定文档到悬浮按钮}
                 </button>
             </div>
-            <div bind:this={addShortcutSettings}>开发中</div>
+            <!-- 绑定快捷键配置 -->
+            <div bind:this={addShortcutSettings}>
+                <div class="spacetop">
+                    <input
+                        placeholder={addDoc_keyboardpreview}
+                        class="b3-text-field space"
+                        bind:value={addDoc_keyboardIcon}
+                    />{tomatoI18n.图标}
+                </div>
+                <div class="spacetop">
+                    <input
+                        class="b3-text-field space"
+                        bind:value={addDoc_keyboardKeyCode}
+                        on:input={flatingkbchange}
+                    />{tomatoI18n.键}
+                </div>
+                <div class="spacetop">
+                    <label class="space">
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            bind:checked={addDoc_keyboardAlt}
+                            on:change={flatingkbchange}
+                        />alt
+                    </label>
+                    <label class="space">
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            bind:checked={addDoc_keyboardShift}
+                            on:change={flatingkbchange}
+                        />shift
+                    </label>
+                    <label class="space">
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            bind:checked={addDoc_keyboardCtrl}
+                            on:change={flatingkbchange}
+                        />{events.isMac ? "cmd" : "ctrl"}
+                    </label>
+                </div>
+                <button
+                    class="b3-button b3-button--outline spacetop"
+                    on:click={() => {
+                        if (addDoc_keyboardKeyCode) {
+                            let icon = addDoc_keyboardIcon;
+                            if (!icon) {
+                                icon = addDoc_keyboardpreview;
+                            }
+                            addDoc_keyboardKeyCode =
+                                addDoc_keyboardKeyCode.toLocaleUpperCase();
+                            $floatingballKeyboardList = pushUniqBy(
+                                $floatingballKeyboardList,
+                                {
+                                    enable: true,
+                                    keyIcon: icon,
+                                    key: addDoc_keyboardKeyCode,
+                                    altKey: addDoc_keyboardAlt,
+                                    shiftKey: addDoc_keyboardShift,
+                                    ctrlKey: addDoc_keyboardCtrl,
+                                },
+                                (item) =>
+                                    `${item.key}#${item.altKey}#${item.ctrlKey}#${item.shiftKey}`,
+                            );
+                            floatingballKeyboardList.write();
+                        }
+                    }}
+                    >{tomatoI18n.绑定快捷键到悬浮按钮 + addDoc_keyboardpreview}
+                </button>
+            </div>
         {/if}
     </div>
     <!-- 导出工作空间 -->
@@ -2904,10 +3023,6 @@
 </div>
 
 <style>
-    .text {
-        display: inline-block;
-        vertical-align: middle;
-    }
     .softBox {
         padding: 5px;
         background-color: rgba(200, 230, 255, 0.3);
@@ -2923,6 +3038,8 @@
     }
     .space {
         margin-right: 10px;
+    }
+    .spacetop {
         margin-top: 5px;
     }
     .settingBox {

@@ -17,6 +17,7 @@ type TSK = keyof TomatoSettings
 type TomatoSettings = {
     floatingballEnable: boolean,
     floatingballDocList: FloatingDocItem[],
+    floatingballKeyboardList: FloatingKeyboardItem[],
     exportWhiteList: string[],
     exportBlackList: string[],
     exportCleanFilesOn: boolean,
@@ -615,4 +616,13 @@ type FloatingDocItem = {
     docName: string;
     docIcon: string;
     openDocType: number;
+}
+
+type FloatingKeyboardItem = {
+    enable?: boolean;
+    keyIcon?: string;
+    key?: string;
+    altKey?: boolean;
+    shiftKey?: boolean;
+    ctrlKey?: boolean;
 }

@@ -13,7 +13,6 @@
     let div: HTMLElement;
     let protyleTarget: HTMLElement;
     let btnHelper = new ClickHelper();
-    let ballHelper: FloatingBallHelper;
 
     let width = 500;
     let height = 500;
@@ -26,8 +25,7 @@
 
     // 加载本地存储的尺寸
     onMount(() => {
-        ballHelper = new FloatingBallHelper(key, div, dm);
-        ballHelper;
+        new FloatingBallHelper(key, div, dm);
 
         const protyle = new Protyle(getPlugin().app, protyleTarget, {
             blockId: id,

@@ -24,9 +24,7 @@
 
     export let dm: DestroyManager;
     export let key: string;
-    export let docName: string;
-    export let docIcon: string;
-    export let openDocType: number;
+    export let item: FloatingDocItem;
     let div: HTMLElement;
     let btnHelper = new ClickHelper();
     let dialog: Dialog = null;
@@ -46,20 +44,11 @@
             openByDialog();
             return;
         }
-        // document.dispatchEvent(
-        //     new KeyboardEvent("keydown", {
-        //         key: "0",
-        //         keyCode: 48,
-        //         altKey: true,
-        //         view: window,
-        //         bubbles: true,
-        //     }),
-        // );
-        const docs = await siyuan.getDocRowsByName(docName);
+        const docs = await siyuan.getDocRowsByName(item.docName);
         if (docs?.length > 0) {
-            switch (openDocType) {
+            switch (item.openDocType) {
                 case FloatingBallDocType_tab.id:
-                    if (!closeTab(docName)) {
+                    if (!closeTab(item.docName)) {
                         await OpenSyFile2(getPlugin(), docs.at(0).id);
                     }
                     break;
@@ -81,7 +70,7 @@
                     break;
             }
         } else {
-            await siyuan.pushMsg(tomatoI18n.找不到文档 + ": " + docName);
+            await siyuan.pushMsg(tomatoI18n.找不到文档 + ": " + item.docName);
         }
     }
 
@@ -89,7 +78,7 @@
         const dm = new DestroyManager();
         const id = newID();
         dialog = new Dialog({
-            title: docName,
+            title: item.docName,
             content: `<div id="${id}"></div>`,
             width: events.isMobile ? "90vw" : "700px",
             height: events.isMobile ? "180svw" : "700px",
@@ -107,7 +96,7 @@
             target: dialog.element.querySelector("#" + id),
             props: {
                 dm,
-                docName,
+                docName: item.docName,
             },
         });
         dm.add("dialog", () => {
@@ -129,10 +118,10 @@
         on:mouseup={(event) => {
             btnHelper.handleMouseUp(event, toggleOpen);
         }}
-        title={docName}
+        title={item.docName}
         class="b3-button b3-button--outline"
     >
-        {docIcon}
+        {item.docIcon}
     </button>
     {SPACE}
 </div>

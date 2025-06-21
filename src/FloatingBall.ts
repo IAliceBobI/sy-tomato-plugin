@@ -1,7 +1,9 @@
-import FloatingBallDoc from "./FloatingBallDoc.svelte"
+import FloatingBallDocBtn from "./FloatingBallDocBtn.svelte"
+import FloatingBallKeyboardBtn from "./FloatingBallKeyboardBtn.svelte"
 import FloatingBallProtyle from "./FloatingBallProtyle.svelte"
 import { DestroyManager } from "./libs/destroyer";
-import { floatingballDocList, floatingballEnable } from "./libs/stores";
+import { shortcut2string } from "./libs/keyboard";
+import { floatingballDocList, floatingballEnable, floatingballKeyboardList } from "./libs/stores";
 import { lastVerifyResult } from "./libs/user";
 
 export class FloatingBall {
@@ -42,13 +44,22 @@ export class FloatingBall {
 
 export function loadFloatingBall() {
     if (floatingballEnable.get()) {
-        let arr = (floatingballDocList.get() ?? []).filter(item => item.enable);
-        if (!lastVerifyResult()) {
-            arr = arr.slice(0, 2);
+        {
+            let arr = (floatingballDocList.get() ?? []).filter(item => item.enable);
+            if (!lastVerifyResult()) {
+                arr = arr.slice(0, 2);
+            }
+            for (const item of arr) {
+                getFloatingBallDocBtn(item);
+            }
         }
-        for (const item of arr) {
-            if (item.enable) {
-                getFloatingBallDoc(item.docName, item.docIcon, item.openDocType);
+        {
+            let arr = (floatingballKeyboardList.get() ?? []).filter(item => item.enable);
+            if (!lastVerifyResult()) {
+                arr = arr.slice(0, 2);
+            }
+            for (const item of arr) {
+                getFloatingBallKeyboardBtn(item);
             }
         }
     }
@@ -76,23 +87,43 @@ export function newFloatingBallProtyle(id: string) {
     });
 }
 
-// 悬浮按钮
-export function getFloatingBallDoc(docName: string, docIcon: string, openDocType: number): HTMLElement {
-    const address = `doc#${docName}#${docIcon}${openDocType}`
+// 悬浮文档的按钮
+export function getFloatingBallDocBtn(item: FloatingDocItem): HTMLElement {
+    const address = `doc#${item.docName}#${item.openDocType}`
     const dm = globalThis[FloatingBall.key(address)] as DestroyManager
     if (dm) {
         return dm.getData("e") as HTMLElement
     } else {
         const dm = FloatingBall.newProgFloatingDm(address);
         new FloatingBall(address, dm, (target) => {
-            return new FloatingBallDoc({
+            return new FloatingBallDocBtn({
                 target,
                 props: {
                     dm,
                     key: FloatingBall.key(address),
-                    docName,
-                    docIcon,
-                    openDocType,
+                    item,
+                }
+            })
+        });
+        return dm.getData("e") as HTMLElement
+    }
+}
+
+// 悬浮快捷键的按钮
+export function getFloatingBallKeyboardBtn(shortcut: FloatingKeyboardItem): HTMLElement {
+    const address = `keyboard#${shortcut2string(shortcut)}`
+    const dm = globalThis[FloatingBall.key(address)] as DestroyManager
+    if (dm) {
+        return dm.getData("e") as HTMLElement
+    } else {
+        const dm = FloatingBall.newProgFloatingDm(address);
+        new FloatingBall(address, dm, (target) => {
+            return new FloatingBallKeyboardBtn({
+                target,
+                props: {
+                    dm,
+                    key: FloatingBall.key(address),
+                    shortcut,
                 }
             })
         });

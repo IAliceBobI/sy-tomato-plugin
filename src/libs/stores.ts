@@ -469,6 +469,7 @@ export const aiBoxCheckbox = settingFactory("aiBoxCheckbox", false, STORAGE_SETT
 export const markdownExportBoxCheckbox = settingFactory("markdownExportBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const floatingballEnable = settingFactory("floatingballEnable", false, STORAGE_SETTINGS, null as TSK);
 export const floatingballDocList = settingFactory("floatingballDocList", [] as FloatingDocItem[], STORAGE_SETTINGS, null as TSK);
+export const floatingballKeyboardList = settingFactory("floatingballKeyboardList", [] as FloatingKeyboardItem[], STORAGE_SETTINGS, null as TSK);
 export const markdownExportPics = settingFactory("markdownExportPics", false, STORAGE_SETTINGS, null as TSK);
 export const mindWireCheckbox = settingFactory("mindWireCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const mindWireEnable = settingFactory("mindWireEnable", true, STORAGE_SETTINGS, null as TSK);
