@@ -9,7 +9,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
-import { setGlobal } from "./libs/globalUtils";
+import { setGlobal } from "stonev5-utils";
 
 export const ToolBarBox间隔重复 = winHotkey("alt+backspace", "间隔重复 2025-5-12 19:34:21", "iconRiffCard", () => tomatoI18n.复习闪卡)
 export const ToolBarBox刷新虚拟引用 = winHotkey("alt+delete", "刷新虚拟引用 2025-5-12 19:34:22", "iconRef", () => tomatoI18n.刷新虚拟引用)

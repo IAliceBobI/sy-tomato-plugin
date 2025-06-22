@@ -10,9 +10,8 @@ import { getDocBlocks } from "./docUtils";
 import { domRef, DomSuperBlockBuilder } from "./sydom";
 import { DestroyManager } from "./destroyer";
 import { parseCustomTag } from "./ial";
-import { TomatoPluginInstance } from "./gconst";
-import { getGlobal } from "./globalUtils";
 import { BaseTomatoPlugin } from "./BaseTomatoPlugin";
+import { getGlobal } from "stonev5-utils";
 
 export function closeTab(title: string) {
     return closeTabByTitle([{ title, id: "1" }], "2");
@@ -2902,8 +2901,20 @@ export function sanitizePathSegment(segment: string): string {
 //     return files;
 // }
 
-export function getPlugin(): BaseTomatoPlugin {
-    return getGlobal(TomatoPluginInstance)
+export function getTomatoPluginInstance(): BaseTomatoPlugin {
+    return getGlobal(gconst.TomatoPluginInstance)
+}
+
+export function getTomatoPluginConfig(): TomatoSettings {
+    return getGlobal(gconst.TomatoPluginConfig)
+}
+
+export function getProgressivePluginInstance(): BaseTomatoPlugin {
+    return getGlobal(gconst.ProgressivePluginInstance)
+}
+
+export function getProgressivePluginConfig(): TomatoSettings {
+    return getGlobal(gconst.ProgressivePluginConfig)
 }
 
 export function getNotebookByName(name: string) {

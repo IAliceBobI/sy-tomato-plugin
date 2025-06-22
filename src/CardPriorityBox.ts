@@ -15,7 +15,7 @@ export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8", "delay all
 export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9", "delay all cards 2025-5-10 12:31:04")
 export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y", "resume all cards 2025-5-10 12:31:04")
 import { winHotkey } from "./libs/winHotkey";
-import { setGlobal } from "./libs/globalUtils";
+import { setGlobal } from "stonev5-utils";
 
 class CardPriorityBox {
     plugin: BaseTomatoPlugin;

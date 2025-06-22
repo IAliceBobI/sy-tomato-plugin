@@ -1113,7 +1113,6 @@
                 {#if $exportBlackList.length === 0}
                     <div>
                         {tomatoI18n.黑名单为空可在文档树中右键添加}
-                        <TomatoVIP {codeValid}></TomatoVIP>
                     </div>
                 {:else}
                     {#each $exportBlackList as item, index}
@@ -1128,13 +1127,9 @@
                                 🗑️
                             </button>
                             {#await getHpath(item)}
-                                <span class="text" class:codeNotValid
-                                    >{item} 🚫</span
-                                >
+                                <span class="text">{item} 🚫</span>
                             {:then v}
-                                <span class="text" class:codeNotValid
-                                    >{v} 🚫</span
-                                >
+                                <span class="text">{v} 🚫</span>
                             {/await}
                         </div>
                     {/each}
@@ -1144,7 +1139,7 @@
                 <input class="b3-text-field space" bind:value={$exportPath} />
                 {tomatoI18n.导出工作空间到此文件夹}
             </div>
-            <div>
+            <div class:codeNotValid>
                 <input
                     type="checkbox"
                     class="b3-switch"
@@ -1160,8 +1155,9 @@
                 {:else}
                     {tomatoI18n.每x秒执行一次增量导出("0")}
                 {/if}
+                <TomatoVIP {codeValid}></TomatoVIP>
             </div>
-            <div>
+            <div class:codeNotValid>
                 <input
                     type="checkbox"
                     class="b3-switch"
@@ -1177,6 +1173,7 @@
                 {:else}
                     {tomatoI18n.每x分钟确保导出符合配置("0")}
                 {/if}
+                <TomatoVIP {codeValid}></TomatoVIP>
             </div>
             <div>
                 <label class="space">

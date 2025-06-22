@@ -2,7 +2,7 @@
     import { onDestroy, onMount } from "svelte";
     import { DestroyManager } from "./destroyer";
     import { Protyle } from "siyuan";
-    import { getPlugin, siyuan } from "./utils";
+    import { getTomatoPluginInstance, siyuan } from "./utils";
 
     export let dm: DestroyManager;
     export let docName: string = "";
@@ -19,18 +19,22 @@
             docID = docs?.at(0)?.id;
         }
         if (docID) {
-            const protyle = new Protyle(getPlugin().app, protyleTarget, {
-                blockId: docID,
-                action: ["cb-get-focus"],
-                render: {
-                    background: false,
-                    title: false,
-                    gutter: true,
-                    scroll: false,
-                    breadcrumb: true,
-                    breadcrumbDocName: false,
+            const protyle = new Protyle(
+                getTomatoPluginInstance().app,
+                protyleTarget,
+                {
+                    blockId: docID,
+                    action: ["cb-get-focus"],
+                    render: {
+                        background: false,
+                        title: false,
+                        gutter: true,
+                        scroll: true,
+                        breadcrumb: true,
+                        breadcrumbDocName: false,
+                    },
                 },
-            });
+            );
             dm.add("protyle", () => protyle.destroy());
         }
     });

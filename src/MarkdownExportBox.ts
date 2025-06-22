@@ -1,14 +1,13 @@
 import { IProtyle } from "siyuan";
 import { exportBlackList, exportCleanFiles, exportCleanFilesOn, exportIntervalSec, exportIntervalSecOn, exportPath, exportWhiteList, markdownExportBoxCheckbox, markdownExportPics } from "./libs/stores";
-import { setGlobal } from "./libs/globalUtils";
 import { zipNways } from "./libs/functional";
-import { siyuan, readAllFilePathIDs, Siyuan, chunks, sanitizePathSegment, getAttribute, getNotebookByID, osFs, osPath, timeUtil, sleep, NewLute, setAttribute, removeAttribute, getPlugin } from "./libs/utils";
+import { siyuan, readAllFilePathIDs, Siyuan, chunks, sanitizePathSegment, getAttribute, getNotebookByID, osFs, osPath, timeUtil, sleep, NewLute, setAttribute, removeAttribute, getTomatoPluginInstance, getTomatoPluginConfig } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
 import { events } from "./libs/Events";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { getDocBlocks } from "./libs/docUtils";
 import { winHotkey } from "./libs/winHotkey";
-import { pushUniq } from "stonev5-utils";
+import { pushUniq, setGlobal } from "stonev5-utils";
 
 export const MarkdownExport增量导出 = winHotkey("alt+f6", "增量导出 2025-06-16 19:15:06", "", () => tomatoI18n.增量导出)
 export const MarkdownExport确保导出符合配置 = winHotkey("alt+f7", "确保导出符合配置 2025-06-16 19:15:07", "", () => tomatoI18n.确保导出符合配置)
@@ -23,7 +22,7 @@ class MarkdownExportBox {
         if (!events.isDesktop) return;
         await verifyKeyTomato();
 
-        getPlugin().addCommand({
+        getTomatoPluginInstance().addCommand({
             langKey: MarkdownExport全量导出.langKey,
             langText: MarkdownExport全量导出.langText(),
             hotkey: MarkdownExport全量导出.m,
@@ -32,7 +31,7 @@ class MarkdownExportBox {
             },
         });
 
-        getPlugin().addCommand({
+        getTomatoPluginInstance().addCommand({
             langKey: MarkdownExport增量导出.langKey,
             langText: MarkdownExport增量导出.langText(),
             hotkey: MarkdownExport增量导出.m,
@@ -41,7 +40,7 @@ class MarkdownExportBox {
             },
         });
 
-        getPlugin().addCommand({
+        getTomatoPluginInstance().addCommand({
             langKey: MarkdownExport确保导出符合配置.langKey,
             langText: MarkdownExport确保导出符合配置.langText(),
             hotkey: MarkdownExport确保导出符合配置.m,
@@ -51,8 +50,11 @@ class MarkdownExportBox {
         });
 
         // export workspace
-        if (exportIntervalSecOn.get()) {
+        if (exportIntervalSecOn.get() && lastVerifyResult()) {
             let i = parseFloat(exportIntervalSec.get());
+            if (Number.isNaN(i)) {
+                i = 10;
+            }
             if (i < 3) {
                 i = 3;
                 exportIntervalSec.write(i.toString())
@@ -62,8 +64,11 @@ class MarkdownExportBox {
             }, i * 1000)));
         }
 
-        if (exportCleanFilesOn.get()) {
+        if (exportCleanFilesOn.get() && lastVerifyResult()) {
             let i = parseFloat(exportCleanFiles.get());
+            if (Number.isNaN(i)) {
+                i = 10;
+            }
             if (i < 3) {
                 i = 3;
                 exportCleanFiles.write(i.toString())
@@ -92,18 +97,16 @@ class MarkdownExportBox {
                         await siyuan.pushMsg(tomatoI18n.添加了x个文件夹(ids.length))
                     }
                 });
-                if (lastVerifyResult()) {
-                    detial.menu.addItem({
-                        label: tomatoI18n.添加到导出工作空间的黑名单,
-                        iconHTML: "🚫",
-                        click: async () => {
-                            const arr = pushUniq(null, ...exportBlackList.get(), ...ids)
-                            exportBlackList.set(arr)
-                            exportBlackList.write();
-                            await siyuan.pushMsg(tomatoI18n.添加了x个文件夹(ids.length))
-                        }
-                    });
-                }
+                detial.menu.addItem({
+                    label: tomatoI18n.添加到导出工作空间的黑名单,
+                    iconHTML: "🚫",
+                    click: async () => {
+                        const arr = pushUniq(null, ...exportBlackList.get(), ...ids)
+                        exportBlackList.set(arr)
+                        exportBlackList.write();
+                        await siyuan.pushMsg(tomatoI18n.添加了x个文件夹(ids.length))
+                    }
+                });
             }
         });
     }
@@ -122,6 +125,7 @@ export async function exportMd2Dir(force = false, msg = true) {
     navigator.locks.request("lock exportMd2Dir 2025-06-13 15:17:27", { ifAvailable: true }, async (lock) => {
         if (lock) {
             await _exportMd2Dir(dir, force, msg);
+            markdownExportBoxCheckbox.write();
         } else {
             if (msg) await siyuan.pushMsg(tomatoI18n.导出工作空间正在进行中请稍后再试);
         }
@@ -131,8 +135,10 @@ export async function exportMd2Dir(force = false, msg = true) {
 async function _exportMd2Dir(dir: string, force = false, msg = true) {
     if (!dir?.trim()) return;
     const KEY = "tomato exportMd2Dir maxUpdated";
-    if (force) localStorage.setItem(KEY, "")
-    const maxUpdated = localStorage.getItem(KEY) ?? "";
+    if (force) {
+        getTomatoPluginConfig()[KEY] = "";
+    }
+    const maxUpdated = getTomatoPluginConfig()[KEY] ?? "";
     let docs = await siyuan.sql(`select * from blocks where type='d' and updated>'${maxUpdated}' order by updated asc limit 99999999`)
     // 白名单
     docs = docs.filter(d => {
@@ -140,15 +146,13 @@ async function _exportMd2Dir(dir: string, force = false, msg = true) {
             if (d.path.indexOf(w) >= 0) return true;
         }
     });
-    if (lastVerifyResult()) {
-        // 黑名单
-        docs = docs.filter(d => {
-            for (const w of exportBlackList.get()) {
-                if (d.path.indexOf(w) >= 0) return false;
-            }
-            return true;
-        });
-    }
+    // 黑名单
+    docs = docs.filter(d => {
+        for (const w of exportBlackList.get()) {
+            if (d.path.indexOf(w) >= 0) return false;
+        }
+        return true;
+    });
     if (docs.length == 0) {
         if (msg) await siyuan.pushMsg(tomatoI18n.没有需要导出的文档);
         return
@@ -159,7 +163,9 @@ async function _exportMd2Dir(dir: string, force = false, msg = true) {
         const fileNames = await parallelExport(chunk, dir)
 
         const updated = chunk.at(-1).updated;
-        if (updated) localStorage.setItem(KEY, updated);
+        if (updated) {
+            getTomatoPluginConfig()[KEY] = updated
+        }
 
         if (msg) {
             acc += fileNames.length;
@@ -257,7 +263,7 @@ export async function cleanExportedMds(msg = true) {
         if (lock) {
             const dir = exportPath.get()
             if (!dir?.trim()) return;
-            const { ids, pathes } = await readAllFilePathIDs(exportWhiteList.get(), lastVerifyResult() ? exportBlackList.get() : [], false);
+            const { ids, pathes } = await readAllFilePathIDs(exportWhiteList.get(), exportBlackList.get(), false);
             const validIDs = new Set(ids);
             const patheSet = new Set(pathes);
 

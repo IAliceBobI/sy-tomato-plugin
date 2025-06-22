@@ -6,6 +6,7 @@
         commentBoxAddKeepText,
         commentBoxAddTime,
         commentBoxAddUnderline,
+        commentBoxCheckbox,
     } from "./libs/stores";
     import { DomSuperBlockBuilder, domNewLine } from "./libs/sydom";
     import {
@@ -17,6 +18,7 @@
         siyuan,
         removeAttribute,
         timeUtil,
+        getTomatoPluginConfig,
     } from "./libs/utils";
     import { onDestroy, onMount } from "svelte";
     import { tomatoI18n } from "./tomatoI18n";
@@ -39,14 +41,15 @@
     onDestroy(destroy);
     function destroy() {
         if (commentBoxAddKeepText.get()) {
-            localStorage.setItem(key, text);
+            getTomatoPluginConfig()[key] = text;
+            commentBoxCheckbox.write();
         }
         dm.destroyBy("svelte");
     }
     onMount(() => {
         ids;
         if (commentBoxAddKeepText.get()) {
-            text = localStorage.getItem(key) ?? "";
+            text = getTomatoPluginConfig()[key] ?? "";
         }
 
         dm.setData("resizeCallback", (element: HTMLElement) => {

@@ -14,7 +14,7 @@ import { dailyNoteBox } from "./DailyNoteBox";
 import { cardPriorityBox } from "./CardPriorityBox";
 import { siyuan, timeUtil } from "../../sy-tomato-plugin/src/libs/utils";
 import { mixBox } from "./MixBox";
-import { DATA_TYPE, TomatoPluginInstance } from "./libs/gconst";
+import { DATA_TYPE, TomatoPluginConfig, TomatoPluginInstance } from "./libs/gconst";
 import { tomatoI18n } from "./tomatoI18n";
 import IndexConf from "./IndexConf.svelte";
 import { DestroyManager } from "./libs/destroyer";
@@ -43,9 +43,9 @@ import { getDocTracer } from "./libs/docUtils";
 import { addFoldCmd, addAttrBarBtns } from "./fold";
 import { winHotkey } from "./libs/winHotkey";
 import { mindWire } from "./MindWire";
-import { setGlobal } from "./libs/globalUtils";
 import { markdownExportBox } from "./MarkdownExportBox";
 import { loadFloatingBall } from "./FloatingBall";
+import { setGlobal } from "stonev5-utils";
 
 function loadStore(plugin: BaseTomatoPlugin) {
     userToken.load(plugin);
@@ -281,10 +281,11 @@ export default class ThePlugin extends BaseTomatoPlugin {
             this.global.tomato_zZmqus5PtYRi.pluginID = this.id;
             this.global.tomato_zZmqus5PtYRi.pluginConfig = this.settingCfg;
             loadStore(this);
+            setGlobal(TomatoPluginConfig, this.settingCfg)
             return this.settingCfg;
         });
-        utils.tryFixCfg(this.name, STORAGE_SETTINGS);
         setGlobal(TomatoPluginInstance, this)
+        utils.tryFixCfg(this.name, STORAGE_SETTINGS);
     }
 
     private clean() {

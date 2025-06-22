@@ -209,6 +209,54 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return `Non-VIP limit is ${x} ${unit}`;
         }
     }
+    public get 文档正引说明() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "展示当前文档中所有正引内容";
+            case "es_ES": return "Mostrar todo el contenido citado positivamente en el documento actual";
+            case "fr_FR": return "Afficher tout le contenu cité positivement dans le document actuel";
+            case "ja_JP": return "現在のドキュメント内のすべての正引用内容を表示";
+            case "zh_CHT": return "展示當前文件中所有正引內容";
+            case "it_IT": return "Mostra tutti i contenuti citati positivamente nel documento corrente";
+            case "de_DE": return "Alle positiv zitierten Inhalte im aktuellen Dokument anzeigen";
+            case "he_IL": return "הצג את כל התוכן המצוטט באופן חיובי במסמך הנוכחי";
+            case "ru_RU": return "Показать все положительно цитируемое содержимое в текущем документе";
+            case "pl_PL": return "Pokaż całą pozytywnie cytowaną treść w bieżącym dokumencie";
+            case "en_US":
+            default: return "Show all positively cited content in the current document";
+        }
+    }
+    public get 在当前文档中定位() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "在当前文档中定位";
+            case "es_ES": return "Localizar en el documento actual";
+            case "fr_FR": return "Localiser dans le document actuel";
+            case "ja_JP": return "現在のドキュメントで位置を特定";
+            case "zh_CHT": return "在當前文件中定位";
+            case "it_IT": return "Individua nel documento corrente";
+            case "de_DE": return "Im aktuellen Dokument lokalisieren";
+            case "he_IL": return "אתר במסמך הנוכחי";
+            case "ru_RU": return "Найти в текущем документе";
+            case "pl_PL": return "Zlokalizuj w bieżącym dokumencie";
+            case "en_US":
+            default: return "Locate in current document";
+        }
+    }
+    public get vip功能() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "VIP功能";
+            case "es_ES": return "Función VIP";
+            case "fr_FR": return "Fonction VIP";
+            case "ja_JP": return "VIP機能";
+            case "zh_CHT": return "VIP功能";
+            case "it_IT": return "Funzione VIP";
+            case "de_DE": return "VIP-Funktion";
+            case "he_IL": return "פונקציית VIP";
+            case "ru_RU": return "Функция VIP";
+            case "pl_PL": return "Funkcja VIP";
+            case "en_US":
+            default: return "VIP feature";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

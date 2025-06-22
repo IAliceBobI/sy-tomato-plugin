@@ -5,7 +5,13 @@
     import { FloatingBallHelper } from "./libs/FloatingBallHelper";
     import { ClickHelper } from "./libs/ClickHelper";
     import { Protyle } from "siyuan";
-    import { getPlugin } from "./libs/utils";
+    import {
+        getTomatoPluginConfig,
+        getTomatoPluginInstance,
+    } from "./libs/utils";
+    import { floatingballEnable } from "./libs/stores";
+    import { OpenSyFile2 } from "./libs/docUtils";
+    import { getFloatingBallProtyle } from "./FloatingBall";
 
     export let dm: DestroyManager;
     export let key: string;
@@ -26,23 +32,25 @@
     // 加载本地存储的尺寸
     onMount(() => {
         new FloatingBallHelper(key, div, dm);
-
-        const protyle = new Protyle(getPlugin().app, protyleTarget, {
-            blockId: id,
-            action: ["cb-get-focus"],
-            render: {
-                background: false,
-                title: false,
-                gutter: true,
-                scroll: false,
-                breadcrumb: false,
-                breadcrumbDocName: false,
+        const protyle = new Protyle(
+            getTomatoPluginInstance().app,
+            protyleTarget,
+            {
+                blockId: id,
+                action: ["cb-get-focus"],
+                render: {
+                    background: false,
+                    title: false,
+                    gutter: true,
+                    scroll: true,
+                    breadcrumb: false,
+                    breadcrumbDocName: false,
+                },
             },
-        });
+        );
         dm.add("protyle", () => protyle.destroy());
-
-        const w = localStorage.getItem(`${key}-width`);
-        const h = localStorage.getItem(`${key}-height`);
+        const w = getTomatoPluginConfig()[`${key}-width`];
+        const h = getTomatoPluginConfig()[`${key}-height`];
         if (w) width = parseInt(w);
         if (h) height = parseInt(h);
     });
@@ -76,8 +84,9 @@
     function stopResize() {
         resizing = false;
         // 存储尺寸到 localStorage
-        localStorage.setItem(`${key}-width`, String(width));
-        localStorage.setItem(`${key}-height`, String(height));
+        getTomatoPluginConfig()[`${key}-width`] = String(width);
+        getTomatoPluginConfig()[`${key}-height`] = String(height);
+        floatingballEnable.write();
         window.removeEventListener("mousemove", onResize);
         window.removeEventListener("mouseup", stopResize);
     }
@@ -86,6 +95,33 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div>
     <div class="floating-button" bind:this={div}>
+        <div class="fn__flex-column">
+            <button
+                on:mousedown={(event) => {
+                    btnHelper.handleMouseDown(event);
+                }}
+                on:mouseup={(event) => {
+                    btnHelper.handleMouseUp(event, () => {
+                        OpenSyFile2(getTomatoPluginInstance(), id);
+                    });
+                }}
+                class="b3-button b3-button--outline space">🎯</button
+            >
+            <button
+                on:mousedown={(event) => {
+                    btnHelper.handleMouseDown(event);
+                }}
+                on:mouseup={(event) => {
+                    btnHelper.handleMouseUp(event, () => {
+                        const dm = getFloatingBallProtyle(id);
+                        if (dm) {
+                            dm.destroyBy();
+                        }
+                    });
+                }}
+                class="b3-button b3-button--outline space">🏃</button
+            >
+        </div>
         <div
             class="protyleClass"
             style="width: {width}px; height: {height}px; border: 3px solid;"
@@ -114,6 +150,9 @@
 </div>
 
 <style>
+    .space {
+        margin-top: 10px;
+    }
     .protyleClass {
         position: relative;
         box-sizing: border-box;
@@ -147,7 +186,7 @@
         cursor: s-resize;
     }
     .floating-button {
-        z-index: 20;
+        z-index: 11;
         position: fixed;
         border-radius: 50%;
         display: flex;

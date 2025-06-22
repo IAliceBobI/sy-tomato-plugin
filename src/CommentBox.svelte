@@ -6,6 +6,7 @@
         deleteBlock,
         getAttribute,
         getCursorElement,
+        getSyElement,
         isStringNumber,
         parseIAL,
         removeAttribute,
@@ -33,14 +34,14 @@
     } from "./libs/docUtils";
     import { findElementByAttr } from "./libs/listUtils";
     import { zipNways } from "./libs/functional";
-    import { verifyKeyTomato } from "./libs/user";
     import { events } from "./libs/Events";
+    import { lastVerifyResult } from "./libs/user";
+    import { getGlobal, setGlobal, sleep } from "stonev5-utils";
 
     export let dock: Dock;
     export let isDock = true;
-    type LoadRefs = { refs: Ref[]; loaded: boolean };
     let backLinks: BacklinkSv<Protyle>[] = [];
-    let refs: LoadRefs = { refs: [], loaded: false };
+    let refs: Ref[] = [];
     let stop = false;
     let currentID: string;
     let docID: string;
@@ -115,22 +116,36 @@
 
     async function _svelteCallback(protyle: IProtyle, force = false) {
         if (getAttribute(protyle.element, TOMATO_BK_IGNORE)) return;
-        if (!(await verifyKeyTomato())) {
-            if ($commentBoxStaticOutlink) commentBoxStaticOutlink.write(false);
-        }
+        // if (!(await verifyKeyTomato())) {
+        //     if ($commentBoxStaticOutlink) commentBoxStaticOutlink.write(false);
+        // }
 
         if ($commentBoxStaticOutlink) {
             const i = events.getInfo(protyle);
-            if (docID != i.docID || force) refs.loaded = false;
             docID = i.docID;
-            return _svelteCallback_doc();
+            return _svelteCallback_doc_lock(force);
         } else {
             return _svelteCallback_block(protyle);
         }
     }
 
+    async function _svelteCallback_doc_lock(force = false) {
+        if (force) _svelteCallback_doc();
+        else {
+            navigator.locks.request(
+                "_svelteCallback_doc_lock 2025-06-22 11:08:03",
+                { ifAvailable: true },
+                async (lock) => {
+                    if (lock) {
+                        await _svelteCallback_doc();
+                        await sleep(10 * 1000);
+                    }
+                },
+            );
+        }
+    }
+
     async function _svelteCallback_doc() {
-        if (refs.loaded) return;
         const { div } = await getDocBlocks(docID, "", false, true, 1);
         let idContents: Ref[] = [
             ...div.querySelectorAll(`span[data-type="block-ref"][data-id]`),
@@ -138,9 +153,13 @@
             .reverse()
             .filter(uniqueFilter((span) => getAttribute(span, "data-id")))
             .map((span) => {
+                const def_block_id = getAttribute(
+                    getSyElement(span),
+                    "data-node-id",
+                );
                 const def_block_root_id = getAttribute(span, "data-id");
                 const content = span.textContent;
-                return { def_block_root_id, content };
+                return { def_block_root_id, content, def_block_id };
             });
         const rows = await siyuan.getRows(
             idContents.map((i) => i.def_block_root_id),
@@ -161,8 +180,7 @@
                     ),
             ),
         );
-        refs.loaded = true;
-        refs.refs = idContents;
+        refs = idContents;
     }
 
     async function removeUnderlines(e: HTMLElement, protyle: IProtyle) {
@@ -404,11 +422,12 @@
     }
 
     function docRefVIP(node: HTMLInputElement) {
-        verifyKeyTomato().then((vip) => {
-            if (!vip) {
-                node.disabled = true;
-            }
-        });
+        node;
+        // verifyKeyTomato().then((vip) => {
+        //     if (!vip) {
+        //         node.disabled = true;
+        //     }
+        // });
     }
 
     function renderDocContent(node: HTMLElement, ref: Ref) {
@@ -501,8 +520,7 @@
                     CommentBox刷新文档正引.w()}
                 class="b3-button b3-button--text box font"
                 on:click={async () => {
-                    refs.loaded = false;
-                    await _svelteCallback_doc();
+                    await _svelteCallback_doc_lock(true);
                 }}>🔄{CommentBox刷新文档正引.w()}</button
             >
         {/if}
@@ -589,11 +607,34 @@
 
     {#if $commentBoxStaticOutlink}
         <div class="column">
-            {#each refs.refs as ref, index (ref.def_block_root_id)}
+            {#each refs as ref, index (ref.def_block_root_id)}
                 <div class="box">
                     <span style="display: none;">{index}</span>
                     <div>
                         <div>
+                            <button
+                                title={`${tomatoI18n.vip功能}: ${tomatoI18n.在当前文档中定位}`}
+                                class="b3-button b3-button--text horMargin"
+                                on:click={() => {
+                                    if (lastVerifyResult()) {
+                                        locate(ref.def_block_id);
+                                    } else {
+                                        const key =
+                                            "tomato comment locate limit 2025-06-22 10:41:02";
+                                        const count =
+                                            parseInt(getGlobal(key)) || 0;
+                                        setGlobal(key, (count + 1).toString());
+                                        if (count < 3) {
+                                            locate(ref.def_block_id);
+                                        } else {
+                                            siyuan.pushMsg(
+                                                `${tomatoI18n.vip功能}: ${tomatoI18n.在当前文档中定位}`,
+                                            );
+                                        }
+                                    }
+                                }}
+                                >🎯
+                            </button>
                             <button
                                 title={tomatoI18n.定位 + SPACE + ref.content}
                                 class="b3-button b3-button--text horMargin"

@@ -1,4 +1,4 @@
-import { getPlugin, siyuan, } from "./libs/utils";
+import { getTomatoPluginInstance, siyuan, } from "./libs/utils";
 import "./index.scss";
 import { events } from "./libs/Events";
 import { DATA_NODE_ID } from "./libs/gconst";
@@ -21,7 +21,7 @@ export const ScheduleCopyID = winHotkey("shift+alt+3", "copy id 2025-5-12 18:46:
 */
 class Schedule {
     async onload() {
-        getPlugin().addCommand({
+        getTomatoPluginInstance().addCommand({
             langKey: ScheduleCopyID.langKey,
             langText: ScheduleCopyID.langText(),
             hotkey: ScheduleCopyID.m,
@@ -29,7 +29,7 @@ class Schedule {
                 this.showScheduleDialog(events.lastBlockID);
             },
         });
-        // getPlugin().protyleSlash.push({
+        // getTomatoPlugin().protyleSlash.push({
         //     filter: ["schedule", "time", "cron", "daily", "plan", "date", "日期", "计划", "定期", "定时", "提醒", "日程", "dq", "tx", "ds", "rq", "jh", "rc"],
         //     html: tomatoI18n.计划提醒,
         //     id: "Schedule protyleSlash 2025-06-16 10:37:25",

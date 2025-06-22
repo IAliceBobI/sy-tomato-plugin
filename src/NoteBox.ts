@@ -302,7 +302,7 @@ class NoteBox {
         });
     }
 
-    private async showInDialog() {
+    async showInDialog() {
         const dm = new DestroyManager();
         const id = newID();
         const dialog = new Dialog({

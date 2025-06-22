@@ -1,4 +1,7 @@
 import { DestroyManager } from "./destroyer";
+import { events } from "./Events";
+import { floatingballEnable } from "./stores";
+import { getTomatoPluginConfig } from "./utils";
 
 
 export class FloatingBallHelper {
@@ -12,18 +15,17 @@ export class FloatingBallHelper {
     private div: HTMLElement;
 
     key(k: string) {
-        return this._key + "_" + k;
+        return `${this._key}_${events.isMobile}_${k}`
     }
 
     getPosition() {
-        let x = localStorage.getItem(this.key("offsetX"));
-        let y = localStorage.getItem(this.key("offsetY"));
+        let x = getTomatoPluginConfig()[this.key("offsetX")]
+        let y = getTomatoPluginConfig()[this.key("offsetY")]
         return { x, y }
     }
 
     private loadPosition() {
-        let x = localStorage.getItem(this.key("offsetX"));
-        let y = localStorage.getItem(this.key("offsetY"));
+        const { x, y } = this.getPosition();
         this.setPosition(x, y);
     }
 
@@ -104,8 +106,9 @@ export class FloatingBallHelper {
     private mouseup() {
         if (this.isDragging) {
             this.isDragging = false;
-            localStorage.setItem(this.key("offsetX"), this.div.style.left);
-            localStorage.setItem(this.key("offsetY"), this.div.style.top);
+            getTomatoPluginConfig()[this.key("offsetX")] = this.div.style.left;
+            getTomatoPluginConfig()[this.key("offsetY")] = this.div.style.top;
+            floatingballEnable.write(); // 任意一个key可以保存整体
         }
         this.inner_width = window.innerWidth;
         this.inner_height = window.innerHeight;

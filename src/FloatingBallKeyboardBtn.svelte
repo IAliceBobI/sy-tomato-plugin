@@ -90,7 +90,7 @@
 
 <style>
     .floating-button {
-        z-index: 21;
+        z-index: 12;
         position: fixed;
         border-radius: 50%;
         display: flex;

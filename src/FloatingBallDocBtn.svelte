@@ -14,7 +14,7 @@
     import { newID } from "stonev5-utils/lib/id";
     import { events } from "./libs/Events";
     import { OpenSyFile2 } from "./libs/docUtils";
-    import { closeTab, siyuan, getPlugin } from "./libs/utils";
+    import { closeTab, siyuan, getTomatoPluginInstance } from "./libs/utils";
     import { dialog2floating } from "./libs/DialogText";
     import {
         getFloatingBallProtyle,
@@ -56,7 +56,10 @@
             switch (item.openDocType) {
                 case FloatingBallDocType_tab.id:
                     if (!closeTab(item.docName)) {
-                        await OpenSyFile2(getPlugin(), item.docID);
+                        await OpenSyFile2(
+                            getTomatoPluginInstance(),
+                            item.docID,
+                        );
                     }
                     break;
                 case FloatingBallDocType_dialog.id:
@@ -98,6 +101,7 @@
         });
         if (!events.isMobile) {
             dialog2floating(dialog, ballHelper.getPosition());
+            dialog.element.style.zIndex = "10";
         }
         const sv = new ProtyleSv4Dialog({
             target: dialog.element.querySelector("#" + id),
@@ -136,7 +140,7 @@
 
 <style>
     .floating-button {
-        z-index: 21;
+        z-index: 12;
         position: fixed;
         border-radius: 50%;
         display: flex;

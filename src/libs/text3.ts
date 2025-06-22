@@ -474,23 +474,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
             default: return "Document";
         }
     }
-    public get 文档正引说明() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "VIP功能：展示当前文档中所有正引内容。";
-            case "es_ES": return "Función VIP: Muestra todas las citas directas en el documento actual.";
-            case "fr_FR": return "Fonction VIP : Affiche toutes les citations directes dans le document actuel.";
-            case "ja_JP": return "VIP機能：現在のドキュメント内のすべての直接引用内容を表示します。";
-            case "zh_CHT": return "VIP功能：顯示當前文件中所有正引內容。";
-            case "it_IT": return "Funzione VIP: Visualizza tutte le citazioni dirette nel documento attuale.";
-            case "de_DE": return "VIP-Funktion: Zeigt alle direkten Zitate im aktuellen Dokument an.";
-            case "he_IL": return "תכונת VIP: מציגה את כל תוכן הציטוטים הישירים במסמך הנוכחי.";
-            case "ru_RU": return "VIP - функция: отображает все прямые цитаты в текущем документе.";
-            case "pl_PL": return "Funkcja VIP: Wyświetla wszystkie bezpośrednie cytaty w aktualnym dokumencie.";
-            case "en_US":
-            default:
-                return "VIP feature: Displays all direct citations in the current document.";
-        }
-    }
     public get 隐藏同步块右上角菜单() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "隐藏同步块右上角菜单";

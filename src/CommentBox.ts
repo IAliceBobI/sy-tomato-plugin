@@ -10,6 +10,7 @@ import { winHotkey } from "./libs/winHotkey";
 import { DestroyManager } from "./libs/destroyer";
 import CommentInput from "./CommentInput.svelte";
 import { newID } from "stonev5-utils/lib/id";
+import { verifyKeyTomato } from "./libs/user";
 
 const DOCK_TYPE = "dock_CommentBox";
 const TAB_TYPE = "custom_tab_CommentBox"
@@ -43,6 +44,7 @@ class CommentBox {
         if (!commentBoxCheckbox.get()) return;
         this.plugin = plugin;
         this.settingCfg = plugin.settingCfg;
+        verifyKeyTomato();
 
         this.plugin.addCommand({
             langKey: CommentBox添加批注到日记.langKey,

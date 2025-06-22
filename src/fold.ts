@@ -6,10 +6,10 @@ import { events } from "./libs/Events";
 import { BlockNodeEnum, COMMENT_SUPERBLOCK_FOLD, TOMATO_ATTR_BAR } from "./libs/gconst";
 import { findElement } from "./libs/listUtils";
 import { winHotkey } from "./libs/winHotkey";
-import { setGlobal } from "./libs/globalUtils";
 import AttrBar from "./AttrBar.svelte";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { commentBoxCheckbox, foldTypes } from "./libs/stores";
+import { setGlobal } from "stonev5-utils";
 
 export const addFoldCmd折叠 = winHotkey("alt+↑", "2025-5-11 16:00:08折叠", "", () => tomatoI18n.折叠)
 export const addFoldCmd展开 = winHotkey("alt+↓", "2025-5-11 16:00:04展开", "", () => tomatoI18n.展开)
