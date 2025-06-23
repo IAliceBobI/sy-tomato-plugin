@@ -15,6 +15,7 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    floatingballDocMenu: boolean,
     floatingballEnable: boolean,
     floatingballDocList: FloatingDocItem[],
     floatingballKeyboardList: FloatingKeyboardItem[],
@@ -618,6 +619,7 @@ type FloatingDocItem = {
     docID?: string;
     docIcon?: string;
     openDocType?: number;
+    openOnCreate?: boolean;
 }
 
 type FloatingKeyboardItem = {

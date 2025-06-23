@@ -1,12 +1,16 @@
+import { pushReplaceBy } from "stonev5-utils";
 import FloatingBallDocBtn from "./FloatingBallDocBtn.svelte"
 import FloatingBallKeyboardBtn from "./FloatingBallKeyboardBtn.svelte"
 import FloatingBallProtyle from "./FloatingBallProtyle.svelte"
 import { DestroyManager } from "./libs/destroyer";
 import { events } from "./libs/Events";
-import { FloatingBallNotVIPLimit } from "./libs/gconst";
+import { FloatingBallDocType_float, FloatingBallNotVIPLimit } from "./libs/gconst";
 import { shortcut2string } from "./libs/keyboard";
-import { floatingballDocList, floatingballEnable, floatingballKeyboardList } from "./libs/stores";
+import { floatingballDocList, floatingballDocMenu, floatingballEnable, floatingballKeyboardList } from "./libs/stores";
 import { lastVerifyResult } from "./libs/user";
+import { getTomatoPluginInstance } from "./libs/utils";
+import { winHotkey } from "./libs/winHotkey";
+import { tomatoI18n } from "./tomatoI18n";
 
 export class FloatingBall {
     static readonly DMKey = "TomatoFloatingBtnDMKey";
@@ -44,8 +48,61 @@ export class FloatingBall {
     }
 }
 
+export const FloatingBall添加文档 = winHotkey("shift+alt+h", "绑定文档到悬浮按钮 2025-06-23 11:22:43", "🔗", () => tomatoI18n.绑定文档到悬浮按钮, false, floatingballDocMenu)
+
+export function linkDoc2floatBall(addDoc_docName: string, addDoc_docIcon: string, addDoc_useDialog: number) {
+    if (addDoc_docName) {
+        let icon = addDoc_docIcon;
+        if (!icon) {
+            icon = addDoc_docName;
+        }
+        pushReplaceBy(
+            floatingballDocList.get(),
+            {
+                docName: addDoc_docName,
+                docIcon: icon,
+                openDocType: addDoc_useDialog,
+                enable: true,
+                enableMobile: true,
+            },
+            (item) => item.docName,
+        );
+        floatingballDocList.write();
+        getFloatingBallDocBtn({
+            docName: addDoc_docName,
+            docIcon: icon,
+            openDocType: addDoc_useDialog,
+        })
+    }
+}
+
 export function loadFloatingBall() {
     if (floatingballEnable.get()) {
+        {
+            getTomatoPluginInstance().addCommand({
+                langKey: FloatingBall添加文档.langKey,
+                langText: FloatingBall添加文档.langText(),
+                hotkey: FloatingBall添加文档.m,
+                editorCallback: (protyle) => {
+                    const { name } = events.getInfo(protyle)
+                    linkDoc2floatBall(name, "", FloatingBallDocType_float.id);
+                },
+            });
+            getTomatoPluginInstance().eventBus.on("open-menu-content", ({ detail }) => {
+                const menu = detail.menu;
+                if (FloatingBall添加文档.menu()) {
+                    menu.addItem({
+                        iconHTML: FloatingBall添加文档.icon,
+                        accelerator: FloatingBall添加文档.m,
+                        label: FloatingBall添加文档.langText(),
+                        click: () => {
+                            const { name } = events.getInfo(detail.protyle)
+                            linkDoc2floatBall(name, "", FloatingBallDocType_float.id);
+                        },
+                    });
+                }
+            });
+        }
         {
             let arr = (floatingballDocList.get() ?? []).filter(item => {
                 if (events.isMobile) {
@@ -78,37 +135,15 @@ export function loadFloatingBall() {
 }
 
 // 悬浮文档
-export function getFloatingBallProtyle(id: string) {
-    const address = `protyle#${id}`
-    return globalThis[FloatingBall.key(address)] as DestroyManager
-}
-
-// 悬浮文档
-export function newFloatingBallProtyle(id: string) {
-    const address = `protyle#${id}`
-    const dm = FloatingBall.newProgFloatingDm(address);
-    new FloatingBall(address, dm, (target) => {
-        return new FloatingBallProtyle({
-            target,
-            props: {
-                dm,
-                key: FloatingBall.key(address),
-                id,
-            }
-        })
-    });
-}
-
-// 悬浮文档的按钮
-export function getFloatingBallDocBtn(item: FloatingDocItem): HTMLElement {
-    const address = `doc#${item.docName}#${item.openDocType}`
-    const dm = globalThis[FloatingBall.key(address)] as DestroyManager
+export function getFloatingBallProtyle(item: FloatingDocItem) {
+    const address = `protyle#${item.docID}`
+    const dm = globalThis[FloatingBall.key(address)] as DestroyManager;
     if (dm) {
-        return dm.getData("e") as HTMLElement
+        return dm;
     } else {
         const dm = FloatingBall.newProgFloatingDm(address);
         new FloatingBall(address, dm, (target) => {
-            return new FloatingBallDocBtn({
+            return new FloatingBallProtyle({
                 target,
                 props: {
                     dm,
@@ -117,16 +152,41 @@ export function getFloatingBallDocBtn(item: FloatingDocItem): HTMLElement {
                 }
             })
         });
-        return dm.getData("e") as HTMLElement
+        return dm;
+    }
+}
+
+// 悬浮文档的按钮
+export function getFloatingBallDocBtn(item: FloatingDocItem): DestroyManager {
+    if (!item) return;
+    const address = `doc#${item.docName}#${item.openDocType}`
+    const dm = globalThis[FloatingBall.key(address)] as DestroyManager
+    if (dm) {
+        return dm
+    } else {
+        const dm = FloatingBall.newProgFloatingDm(address);
+        new FloatingBall(address, dm, (target) => {
+            const sv = new FloatingBallDocBtn({
+                target,
+                props: {
+                    dm,
+                    key: FloatingBall.key(address),
+                    item,
+                }
+            });
+            if (item.openOnCreate && !events.isMobile) sv.toggleOpen(null);
+            return sv;
+        });
+        return dm
     }
 }
 
 // 悬浮快捷键的按钮
-export function getFloatingBallKeyboardBtn(shortcut: FloatingKeyboardItem): HTMLElement {
+export function getFloatingBallKeyboardBtn(shortcut: FloatingKeyboardItem): DestroyManager {
     const address = `keyboard#${shortcut2string(shortcut)}`
     const dm = globalThis[FloatingBall.key(address)] as DestroyManager
     if (dm) {
-        return dm.getData("e") as HTMLElement
+        return dm
     } else {
         const dm = FloatingBall.newProgFloatingDm(address);
         new FloatingBall(address, dm, (target) => {
@@ -139,6 +199,6 @@ export function getFloatingBallKeyboardBtn(shortcut: FloatingKeyboardItem): HTML
                 }
             })
         });
-        return dm.getData("e") as HTMLElement
+        return dm
     }
 }

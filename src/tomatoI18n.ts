@@ -257,6 +257,22 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "VIP feature";
         }
     }
+    public get 解除悬浮球与文档之间的绑定() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "解除悬浮球与文档之间的绑定";
+            case "es_ES": return "Desvincular la bola flotante del documento";
+            case "fr_FR": return "Dissocier la boule flottante du document";
+            case "ja_JP": return "フローティングボールとドキュメントの関連付けを解除";
+            case "zh_CHT": return "解除懸浮球與文件之間的綁定";
+            case "it_IT": return "Scollega la sfera fluttuante dal documento";
+            case "de_DE": return "Verbindung zwischen schwebender Kugel und Dokument aufheben";
+            case "he_IL": return "בטל קישור בין הכדור הצף למסמך";
+            case "ru_RU": return "Отвязать плавающий шар от документа";
+            case "pl_PL": return "Odłącz pływającą kulę od dokumentu";
+            case "en_US":
+            default: return "Unbind floating ball from document";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

@@ -4,18 +4,23 @@
     import { DestroyManager } from "./libs/destroyer";
     import { FloatingBallHelper } from "./libs/FloatingBallHelper";
     import { ClickHelper } from "./libs/ClickHelper";
-    import { Protyle } from "siyuan";
+    import { confirm, Protyle } from "siyuan";
     import {
         getTomatoPluginConfig,
         getTomatoPluginInstance,
     } from "./libs/utils";
-    import { floatingballEnable } from "./libs/stores";
+    import { floatingballDocList, floatingballEnable } from "./libs/stores";
     import { OpenSyFile2 } from "./libs/docUtils";
-    import { getFloatingBallProtyle } from "./FloatingBall";
+    import {
+        getFloatingBallDocBtn,
+        getFloatingBallProtyle,
+    } from "./FloatingBall";
+    import { arrayDeleteFromLeft } from "stonev5-utils";
+    import { tomatoI18n } from "./tomatoI18n";
 
     export let dm: DestroyManager;
     export let key: string;
-    export let id: string;
+    export let item: FloatingDocItem;
     let div: HTMLElement;
     let protyleTarget: HTMLElement;
     let btnHelper = new ClickHelper();
@@ -36,7 +41,7 @@
             getTomatoPluginInstance().app,
             protyleTarget,
             {
-                blockId: id,
+                blockId: item.docID,
                 action: ["cb-get-focus"],
                 render: {
                     background: false,
@@ -97,12 +102,39 @@
     <div class="floating-button" bind:this={div}>
         <div class="fn__flex-column">
             <button
+                title={tomatoI18n.解除悬浮球与文档之间的绑定}
                 on:mousedown={(event) => {
                     btnHelper.handleMouseDown(event);
                 }}
                 on:mouseup={(event) => {
                     btnHelper.handleMouseUp(event, () => {
-                        OpenSyFile2(getTomatoPluginInstance(), id);
+                        confirm(
+                            tomatoI18n.解除悬浮球与文档之间的绑定,
+                            "⚠️",
+                            () => {
+                                item.openOnCreate = false;
+                                arrayDeleteFromLeft(
+                                    $floatingballDocList,
+                                    (i) => {
+                                        return i.docID != item.docID;
+                                    },
+                                );
+                                floatingballDocList.write();
+                                getFloatingBallProtyle(item)?.destroyBy();
+                                getFloatingBallDocBtn(item)?.destroyBy();
+                            },
+                        );
+                    });
+                }}
+                class="b3-button b3-button--outline space">⛓️‍💥</button
+            >
+            <button
+                on:mousedown={(event) => {
+                    btnHelper.handleMouseDown(event);
+                }}
+                on:mouseup={(event) => {
+                    btnHelper.handleMouseUp(event, () => {
+                        OpenSyFile2(getTomatoPluginInstance(), item.docID);
                     });
                 }}
                 class="b3-button b3-button--outline space">🎯</button
@@ -113,10 +145,10 @@
                 }}
                 on:mouseup={(event) => {
                     btnHelper.handleMouseUp(event, () => {
-                        const dm = getFloatingBallProtyle(id);
-                        if (dm) {
-                            dm.destroyBy();
-                        }
+                        item.openOnCreate = false;
+                        floatingballDocList.write();
+                        getFloatingBallDocBtn(item);
+                        getFloatingBallProtyle(item)?.destroyBy();
                     });
                 }}
                 class="b3-button b3-button--outline space">🏃</button

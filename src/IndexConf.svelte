@@ -182,6 +182,7 @@
         floatingballEnable,
         floatingballDocList,
         floatingballKeyboardList,
+        floatingballDocMenu,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -316,6 +317,7 @@
     import { pushReplaceBy, pushUniq } from "stonev5-utils";
     import { events } from "./libs/Events";
     import { shortcut2string } from "./libs/keyboard";
+    import { FloatingBall添加文档, linkDoc2floatBall } from "./FloatingBall";
     export let dm: DestroyManager;
     export let plugin: BaseTomatoPlugin;
     let addDocSettings: HTMLElement;
@@ -804,6 +806,16 @@
             </strong>
         </div>
         {#if $floatingballEnable}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$floatingballDocMenu}
+                />
+                {tomatoI18n.menu添加右键菜单}: {FloatingBall添加文档.langText()}
+                <strong>{FloatingBall添加文档.w()}</strong>
+            </div>
             <!-- 列出文档绑定 -->
             <div>
                 {#if $floatingballDocList.length > FloatingBallNotVIPLimit && !lastVerifyResult()}
@@ -941,42 +953,16 @@
                         />
                         {FloatingBallDocType_float.txt}
                     </label>
-                    <!-- <select
-                        class="b3-select space"
-                        bind:value={addDoc_useDialog}
-                    >
-                        <option value={FloatingBallDocType_tab.id}
-                            >{FloatingBallDocType_tab.txt}</option
-                        >
-                        <option value={FloatingBallDocType_dialog.id}
-                            >{FloatingBallDocType_dialog.txt}</option
-                        >
-                        <option value={FloatingBallDocType_float.id}
-                            >{FloatingBallDocType_float.txt}</option
-                        >
-                    </select> -->
                 </div>
                 <button
                     class="b3-button b3-button--outline spacetop"
                     on:click={() => {
-                        if (addDoc_docName) {
-                            let icon = addDoc_docIcon;
-                            if (!icon) {
-                                icon = addDoc_docName;
-                            }
-                            $floatingballDocList = pushReplaceBy(
-                                $floatingballDocList,
-                                {
-                                    docName: addDoc_docName,
-                                    docIcon: icon,
-                                    openDocType: addDoc_useDialog,
-                                    enable: true,
-                                    enableMobile: true,
-                                },
-                                (item) => item.docName,
-                            );
-                            floatingballDocList.write();
-                        }
+                        linkDoc2floatBall(
+                            addDoc_docName,
+                            addDoc_docIcon,
+                            addDoc_useDialog,
+                        );
+                        $floatingballDocList = $floatingballDocList;
                     }}
                     >{tomatoI18n.绑定文档到悬浮按钮}
                 </button>

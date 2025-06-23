@@ -17,10 +17,11 @@
     import { closeTab, siyuan, getTomatoPluginInstance } from "./libs/utils";
     import { dialog2floating } from "./libs/DialogText";
     import {
+        getFloatingBallDocBtn,
         getFloatingBallProtyle,
-        newFloatingBallProtyle,
     } from "./FloatingBall";
     import { tomatoI18n } from "./tomatoI18n";
+    import { floatingballDocList } from "./libs/stores";
 
     export let dm: DestroyManager;
     export let key: string;
@@ -34,7 +35,7 @@
         ballHelper = new FloatingBallHelper(key, div, dm);
     });
 
-    async function toggleOpen(_event: MouseEvent) {
+    export async function toggleOpen(_event: MouseEvent) {
         item.docID = "";
         if (item.docName === "$$dailynote") {
             item.docID = (await siyuan.createDailyNote(events.boxID)).id;
@@ -43,9 +44,9 @@
             if (dialog != null) {
                 dialog.destroy();
                 dialog = null;
-                return;
+            } else {
+                openByDialog();
             }
-            openByDialog();
             return;
         }
         if (!item.docID) {
@@ -55,7 +56,9 @@
         if (item.docID) {
             switch (item.openDocType) {
                 case FloatingBallDocType_tab.id:
-                    if (!closeTab(item.docName)) {
+                    if (closeTab(item.docName)) {
+                        //
+                    } else {
                         await OpenSyFile2(
                             getTomatoPluginInstance(),
                             item.docID,
@@ -66,17 +69,15 @@
                     if (dialog != null) {
                         dialog.destroy();
                         dialog = null;
-                        return;
+                    } else {
+                        openByDialog();
                     }
-                    openByDialog();
                     break;
                 default:
-                    const dm = getFloatingBallProtyle(item.docID);
-                    if (dm) {
-                        dm.destroyBy();
-                    } else {
-                        newFloatingBallProtyle(item.docID);
-                    }
+                    getFloatingBallProtyle(item);
+                    item.openOnCreate = true;
+                    floatingballDocList.write();
+                    getFloatingBallDocBtn(item)?.destroyBy();
                     break;
             }
         } else {

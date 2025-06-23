@@ -33,6 +33,10 @@ export function closeTabByTitle(tabs: AttrType[], excludeDocID: string) {
     return closed;
 }
 
+export function getProtyleByDocID(docID: string) {
+    return getAllEditor().filter(protyle => protyle.protyle.block.rootID === docID)
+}
+
 export function getOpenedEditors() {
     return getAllEditor().map(p => {
         return {
@@ -118,16 +122,6 @@ export function joinArray<T>(array: T[], factory: () => T): T[] {
         }
         return [value, factory()];
     });
-}
-
-export function arrayDeleteFromLeft<T>(list: T[], keep: (i: T, idx: number, arr: T[]) => boolean) {
-    for (let i = 0; i < list.length; i++) {
-        if (!keep(list[i], i, list)) {
-            list.splice(i, 1);
-            i--;
-        }
-    }
-    return list;
 }
 
 export async function removeRefs(domStr: string, refID: string, turn2href = true) {
