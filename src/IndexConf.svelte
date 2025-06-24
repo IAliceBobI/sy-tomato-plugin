@@ -285,6 +285,7 @@
     import { ScheduleCopyID } from "./Schedule";
     import {
         BlockNodeEnum,
+        FloatingBallDocType_autoclose,
         FloatingBallDocType_dialog,
         FloatingBallDocType_float,
         FloatingBallDocType_tab,
@@ -393,6 +394,9 @@
                 break;
             case FloatingBallDocType_dialog.id:
                 docTypeStr = FloatingBallDocType_dialog.txt;
+                break;
+            case FloatingBallDocType_autoclose.id:
+                docTypeStr = FloatingBallDocType_autoclose.txt;
                 break;
             case FloatingBallDocType_float.id:
                 docTypeStr = FloatingBallDocType_float.txt;
@@ -943,6 +947,15 @@
                             bind:group={addDoc_useDialog}
                         />
                         {FloatingBallDocType_dialog.txt}
+                    </label>
+                    <label class="space">
+                        <input
+                            type="radio"
+                            name="addDoc_openType"
+                            value={FloatingBallDocType_autoclose.id}
+                            bind:group={addDoc_useDialog}
+                        />
+                        {FloatingBallDocType_autoclose.txt}
                     </label>
                     <label class="space">
                         <input

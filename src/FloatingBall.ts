@@ -65,7 +65,7 @@ export function linkDoc2floatBall(addDoc_docName: string, addDoc_docIcon: string
                 enable: true,
                 enableMobile: true,
             },
-            (item) => item.docName,
+            (item) => item.docName + "#" + item.openDocType,
         );
         floatingballDocList.write();
         getFloatingBallDocBtn({

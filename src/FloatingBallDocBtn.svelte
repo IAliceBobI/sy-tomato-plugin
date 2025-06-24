@@ -6,6 +6,7 @@
     import ProtyleSv4Dialog from "./libs/ProtyleSv4Dialog.svelte";
     import { ClickHelper } from "./libs/ClickHelper";
     import {
+        FloatingBallDocType_autoclose,
         FloatingBallDocType_dialog,
         FloatingBallDocType_tab,
         SPACE,
@@ -73,6 +74,14 @@
                         openByDialog();
                     }
                     break;
+                case FloatingBallDocType_autoclose.id:
+                    if (dialog != null) {
+                        dialog.destroy();
+                        dialog = null;
+                    } else {
+                        openByDialog(true);
+                    }
+                    break;
                 default:
                     getFloatingBallProtyle(item);
                     item.openOnCreate = true;
@@ -85,7 +94,7 @@
         }
     }
 
-    function openByDialog() {
+    function openByDialog(autoclose = false) {
         const dm = new DestroyManager();
         const id = newID();
         dialog = new Dialog({
@@ -97,10 +106,10 @@
                 dm.destroyBy();
             },
             transparent: true,
-            disableClose: events.isMobile ? false : true,
+            disableClose: events.isMobile || autoclose ? false : true,
             hideCloseIcon: false,
         });
-        if (!events.isMobile) {
+        if (!events.isMobile && !autoclose) {
             dialog2floating(dialog, ballHelper.getPosition());
             dialog.element.style.zIndex = "10";
         }

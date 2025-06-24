@@ -83,6 +83,7 @@ export const FloatingBallNotVIPLimit = 3;
 export const FloatingBallDocType_tab = { txt: "页签tab", id: 1 };
 export const FloatingBallDocType_dialog = { txt: "对话框dialog", id: 2 };
 export const FloatingBallDocType_float = { txt: "悬浮窗float", id: 3 };
+export const FloatingBallDocType_autoclose = { txt: "对话框2dialog2", id: 4 };
 
 export enum BlockNodeEnum {
     DATA_HREF = "data-href",
