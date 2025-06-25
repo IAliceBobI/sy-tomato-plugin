@@ -15,14 +15,22 @@
     import { newID } from "stonev5-utils/lib/id";
     import { events } from "./libs/Events";
     import { OpenSyFile2 } from "./libs/docUtils";
-    import { closeTab, siyuan, getTomatoPluginInstance } from "./libs/utils";
+    import {
+        closeTab,
+        siyuan,
+        getTomatoPluginInstance,
+        getNotebookFirstOne,
+    } from "./libs/utils";
     import { dialog2floating } from "./libs/DialogText";
     import {
         getFloatingBallDocBtn,
         getFloatingBallProtyle,
     } from "./FloatingBall";
     import { tomatoI18n } from "./tomatoI18n";
-    import { floatingballDocList } from "./libs/stores";
+    import {
+        floatingballDocList,
+        storeNoteBox_selectedNotebook,
+    } from "./libs/stores";
 
     export let dm: DestroyManager;
     export let key: string;
@@ -39,7 +47,19 @@
     export async function toggleOpen(_event: MouseEvent) {
         item.docID = "";
         if (item.docName === "$$dailynote") {
-            item.docID = (await siyuan.createDailyNote(events.boxID)).id;
+            if (storeNoteBox_selectedNotebook.get()) {
+                item.docID = (
+                    await siyuan.createDailyNote(
+                        storeNoteBox_selectedNotebook.get(),
+                    )
+                ).id;
+            } else {
+                item.docID = (
+                    await siyuan.createDailyNote(
+                        getNotebookFirstOne()?.id ?? events.boxID,
+                    )
+                ).id;
+            }
         }
         if (events.isMobile) {
             if (dialog != null) {
