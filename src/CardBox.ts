@@ -37,7 +37,7 @@ class CardBox {
                 iconHTML: CardBox用选中的行创建超级块超级块制卡取消制卡.icon,
                 label: CardBox用选中的行创建超级块超级块制卡取消制卡.langText(),
                 click: async () => {
-                    await addFlashCard(detail.protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get() && await verifyKeyTomato())
+                    await addFlashCard(detail.protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get())
                 },
             });
         }
@@ -45,13 +45,14 @@ class CardBox {
 
     async onload(plugin: BaseTomatoPlugin) {
         if (!cardBoxCheckbox.get()) return;
+        await verifyKeyTomato();
         this.plugin = plugin;
         this.plugin.addCommand({
             langKey: CardBox用选中的行创建超级块超级块制卡取消制卡.langKey,
             langText: CardBox用选中的行创建超级块超级块制卡取消制卡.langText(),
             hotkey: CardBox用选中的行创建超级块超级块制卡取消制卡.m,
             editorCallback: async (protyle: IProtyle) => {
-                addFlashCard(protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get() && await verifyKeyTomato());
+                addFlashCard(protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get());
             },
         });
         this.plugin.addCommand({
@@ -126,7 +127,7 @@ class CardBox {
                     iconHTML: CardBox用选中的行创建超级块超级块制卡取消制卡.icon,
                     accelerator: CardBox用选中的行创建超级块超级块制卡取消制卡.m,
                     click: async () => {
-                        await addFlashCard(detail.protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get() && await verifyKeyTomato())
+                        await addFlashCard(detail.protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get())
                     },
                 });
             }

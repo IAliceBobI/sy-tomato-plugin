@@ -228,6 +228,10 @@ async function parallelExport(docs: Block[], dir: string) {
             for (const e of div.querySelectorAll(`[href^="assets/"]`)) {
                 await setSrcAndCopyPic(e, "href")
             }
+
+            for (const e of div.querySelectorAll(`span[data-type="text"]`)) {
+                e.outerHTML = e.textContent;
+            }
             const lute = NewLute()
             md = lute.BlockDOM2StdMd(div.innerHTML);
         } else {

@@ -2039,15 +2039,13 @@
                     >{CardBox用选中的行创建超级块超级块制卡取消制卡.w()}</strong
                 >
             </div>
-            <div class:codeNotValid>
+            <div>
                 <input
-                    disabled={codeNotValid}
-                    class:codeNotValid
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$cardBoxAddConcepts}
                 />
-                {tomatoI18n.创建超级块时添加相关匹配到的引用}<TomatoVIP
+                {tomatoI18n.创建闪卡时添加所有虚拟引用到第一行}<TomatoVIP
                     {codeValid}
                 ></TomatoVIP>
             </div>

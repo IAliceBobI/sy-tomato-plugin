@@ -554,23 +554,6 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
             default: return "Help";
         }
     }
-
-    public get 创建超级块时添加相关匹配到的引用() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "创建闪卡时，添加相关匹配到的引用，到第一行";
-            case "es_ES": return "Al crear una tarjeta flash, agregue citas coincidentes relevantes a la primera línea";
-            case "fr_FR": return "Lors de la création d'une carte mémoire, ajoutez les citations correspondantes pertinentes à la première ligne";
-            case "ja_JP": return "フラッシュカード作成時、関連する一致した引用を最初の行に追加します";
-            case "zh_CHT": return "創建閃卡時，添加相關匹配到的引用，到第一行";
-            case "it_IT": return "Quando crei una flashcard, aggiungi le citazioni pertinenti corrispondenti alla prima riga";
-            case "de_DE": return "Beim Erstellen einer Lernkarte relevante übereinstimmende Zitate in die erste Zeile einfügen";
-            case "he_IL": return "בעת יצירת כרטיסיית פלאש, הוסף ציטוטים תואמים רלוונטיים לשורה הראשונה";
-            case "ru_RU": return "При создании карточки добавляйте соответствующие совпадения цитат в первую строку";
-            case "pl_PL": return "Podczas tworzenia fiszki dodaj pasujące cytaty do pierwszej linii";
-            case "en_US":
-            default: return "When creating a flashcard, add relevant matched quotes to the first line";
-        }
-    }
     public get 文档树工具() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "文档树工具";

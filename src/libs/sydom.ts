@@ -210,7 +210,7 @@ export async function getSpans(divs: HTMLElement[], docTracer?: DocTracer) {
             })
         )
     }
-    spans.push(...await cloneRefSpans(divs));
+    spans.push(...await cloneRefSpans(divs, false));
     const map = new Map<string, HTMLElement>();
     spans.forEach(s => {
         if (s?.getAttribute) {

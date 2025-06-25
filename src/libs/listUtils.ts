@@ -4,6 +4,7 @@ import { BlockNodeEnum, CUSTOM_RIFF_DECKS, DATA_NODE_ID, DATA_TYPE } from "./gco
 import { NewNodeID, cloneCleanDiv, count, dom2div, getAttribute, pmap, prepend_refs, siyuan } from "./utils";
 import { domNewLine, DomSuperBlockBuilder, getSpans } from "./sydom";
 import { DocTracer, OpenSyFile2 } from "./docUtils";
+import { lastVerifyResult } from "./user";
 
 export async function delAllchecked(docID: string) {
     if (!docID) return;
@@ -64,12 +65,16 @@ export async function addFlashCard(protyle: IProtyle, docTracer: DocTracer, plug
     }
 }
 
+let convert2listNotVIPLimit = 3;
 async function convert2list(selected: HTMLElement[], ids: string[], docTracer: DocTracer, plugin: Plugin, addRef: boolean) {
     if (!(selected.length > 0)) return;
 
     const { spans } = await (async () => {
         let spans: HTMLElement[] = []
-        if (addRef) {
+        if (!lastVerifyResult()) {
+            convert2listNotVIPLimit--;
+        }
+        if (addRef && convert2listNotVIPLimit > 0) {
             spans = await getSpans(selected, docTracer)
         }
         return { spans };

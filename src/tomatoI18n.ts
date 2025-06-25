@@ -273,6 +273,22 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Unbind floating ball from document";
         }
     }
+    public get 创建闪卡时添加所有虚拟引用到第一行() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "创建闪卡时，添加所有虚拟引用，到第一行";
+            case "es_ES": return "Al crear una tarjeta, añade todas las referencias virtuales a la primera línea";
+            case "fr_FR": return "Lors de la création d'une carte, ajoutez toutes les références virtuelles à la première ligne";
+            case "ja_JP": return "フラッシュカード作成時、すべての仮想参照を最初の行に追加します";
+            case "zh_CHT": return "建立閃卡時，將所有虛擬引用添加到第一行";
+            case "it_IT": return "Quando crei una flashcard, aggiungi tutti i riferimenti virtuali alla prima riga";
+            case "de_DE": return "Beim Erstellen einer Karte alle virtuellen Verweise in die erste Zeile einfügen";
+            case "he_IL": return "בעת יצירת כרטיס פלאש, הוסף את כל ההפניות הווירטואליות לשורה הראשונה";
+            case "ru_RU": return "При создании карточки добавьте все виртуальные ссылки в первую строку";
+            case "pl_PL": return "Podczas tworzenia fiszki dodaj wszystkie wirtualne odnośniki do pierwszego wiersza";
+            case "en_US":
+            default: return "When creating a flashcard, add all virtual references to the first line";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
