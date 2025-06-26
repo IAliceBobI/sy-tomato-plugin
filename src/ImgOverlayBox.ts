@@ -40,7 +40,7 @@ class ImgOverlayBox {
     }
 
     blockIconEvent(detail: any) {
-        if (!this.plugin) return;
+        if (!imgOverlayCheckbox.get()) return;
         const imgs = (detail.blockElements as HTMLElement[]).filter(e => e.querySelector(`span[data-type="img"]`))
         if (imgs.length > 0) {
             detail.menu.addItem({

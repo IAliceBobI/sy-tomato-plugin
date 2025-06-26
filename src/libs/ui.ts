@@ -91,3 +91,32 @@ export function searchSettings(settingsDiv: HTMLElement, searchKey: string) {
         })
     }
 }
+
+export function removeTopBarIcon(icon: string) {
+    document.querySelectorAll(`div[data-menu="true"][id^="plugin_sy-tomato-plugin_"]`)
+        .forEach(div => {
+            const use = div.querySelector("svg > use")
+            if (use.getAttribute("xlink:href") === "#" + icon) {
+                div.parentElement.removeChild(div);
+            }
+        })
+}
+
+export function hideElement(e: any) {
+    if (e?.style) {
+        e.style.display = "none"
+    }
+}
+export function showElement(e: any) {
+    if (e?.style) {
+        e.style.display = "block"
+    }
+}
+
+export function removeDockIcon(dockType: string) {
+    document.querySelectorAll(`span[data-type="${dockType}"]`)
+        .forEach(span => {
+            hideElement(span);
+            // span.parentElement.removeChild(span);
+        });
+}

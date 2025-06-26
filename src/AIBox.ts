@@ -38,7 +38,7 @@ class AIBox {
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
-        if (!this.plugin) return;
+        if (!aiBoxCheckbox.get()) return;
         if (aiBoxMenuShow.get()) {
             this.aiMenu(detail as any);
         }

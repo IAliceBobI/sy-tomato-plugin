@@ -2,7 +2,7 @@ import { IProtyle } from "siyuan";
 import { events } from "./libs/Events";
 import { add_href, add_ref, cloneCleanDiv, closeTabByTitle, getAllText, getContextPath, getNotebookFirstOne, getOpenedEditors, getProtyleByDocID, Siyuan, siyuan, timeUtil, } from "./libs/utils";
 import { DATA_NODE_ID } from "./libs/gconst";
-import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyComment, dailyNoteCopyFlashCard, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveToBottom, dailyNotetopbarleft, dailyNotetopbarright, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
+import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyComment, dailyNoteCopyFlashCard, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveLeaveLnk, dailyNoteMoveToBottom, dailyNotetopbarleft, dailyNotetopbarright, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { readingPointBox } from "./ReadingPointBox";
 import { domLnk, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
@@ -12,6 +12,8 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { createAndOpenFastNote } from "./libs/switchDraft";
 import { winHotkey } from "./libs/winHotkey";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
+import { setGlobal, setTimeouts } from "stonev5-utils";
+import { removeTopBarIcon } from "./libs/ui";
 
 export const DailyNoteBox上一个日志 = winHotkey("⌥Q", "previousNote 2025-5-11 08:40:40", "iconLeft", () => tomatoI18n.上一个日志,)
 export const DailyNoteBox下一个日志 = winHotkey("⌥W", "nextNote 2025-5-11 08:42:17", "iconRight", () => tomatoI18n.下一个日志,)
@@ -24,7 +26,7 @@ class DailyNoteBox {
     private plugin: BaseTomatoPlugin;
 
     blockIconEvent(detail: any) {
-        if (!this.plugin) return;
+        if (!dailyNoteBoxCheckbox.get()) return;
         const protyle: IProtyle = detail.protyle;
 
         if (DailyNoteBox移动内容到dailynote.menu()) {
@@ -59,44 +61,55 @@ class DailyNoteBox {
     }
 
     onload(plugin: BaseTomatoPlugin) {
-        if (plugin.initCfg()) {
-            this._onload(plugin)
-        } else {
-            (async () => {
-                await plugin.taskCfg;
-                await verifyKeyTomato()
-                this._onload(plugin);
-            })();
-        }
+        this.plugin = plugin;
+
+        removeTopBarIcon(DailyNoteBox上一个日志.icon)
+        plugin.addTopBar({
+            icon: DailyNoteBox上一个日志.icon,
+            title: DailyNoteBox上一个日志.langText() + DailyNoteBox上一个日志.w(),
+            position: "left",
+            callback: () => {
+                this.openDailyNote(-1000 * 60 * 60 * 24);
+            }
+        });
+
+        removeTopBarIcon(DailyNoteBox下一个日志.icon)
+        plugin.addTopBar({
+            icon: DailyNoteBox下一个日志.icon,
+            title: DailyNoteBox下一个日志.langText() + DailyNoteBox下一个日志.w(),
+            position: "left",
+            callback: () => {
+                this.openDailyNote(1000 * 60 * 60 * 24);
+            }
+        });
+
+        (async () => {
+            await plugin.taskCfg;
+            await verifyKeyTomato()
+            if (dailyNoteBoxCheckbox.get()) {
+                this._onload();
+                clearInterval(setGlobal("dailynote 2025-06-26 16:32:14", setInterval(() => {
+                    if (!dailyNotetopbarleft.get()) {
+                        setTimeouts(() => {
+                            removeTopBarIcon(DailyNoteBox上一个日志.icon)
+                        }, 300, 4000, 500)
+                    }
+                    if (!dailyNotetopbarright.get()) {
+                        setTimeouts(() => {
+                            removeTopBarIcon(DailyNoteBox下一个日志.icon)
+                        }, 300, 4000, 500)
+                    }
+                }, 3000)));
+            } else {
+                setTimeouts(() => {
+                    removeTopBarIcon(DailyNoteBox上一个日志.icon)
+                    removeTopBarIcon(DailyNoteBox下一个日志.icon)
+                }, 300, 4000, 500)
+            }
+        })();
     }
 
-    _onload(plugin: BaseTomatoPlugin) {
-        if (!dailyNoteBoxCheckbox.get()) {
-            return;
-        }
-        this.plugin = plugin;
-        if (dailyNotetopbarleft.get()) {
-            plugin.addTopBar({
-                icon: DailyNoteBox上一个日志.icon,
-                title: DailyNoteBox上一个日志.langText() + DailyNoteBox上一个日志.w(),
-                position: "left",
-                callback: () => {
-                    this.openDailyNote(-1000 * 60 * 60 * 24);
-                }
-            });
-        }
-
-        if (dailyNotetopbarright.get()) {
-            plugin.addTopBar({
-                icon: DailyNoteBox下一个日志.icon,
-                title: DailyNoteBox下一个日志.langText() + DailyNoteBox下一个日志.w(),
-                position: "left",
-                callback: () => {
-                    this.openDailyNote(1000 * 60 * 60 * 24);
-                }
-            });
-        }
-
+    _onload() {
         this.plugin.addCommand({
             langText: DailyNoteBox上一个日志.langText(),
             langKey: DailyNoteBox上一个日志.langKey,
@@ -388,7 +401,7 @@ class DailyNoteBox {
                 }
             } else {
                 const ops = []
-                if (true) {
+                if (dailyNoteMoveLeaveLnk.get()) {
                     const lnk = domLnk("", ids.at(0), getAllText(selected, "").replaceAll("\n", "").slice(0, 30))
                     ops.push(...siyuan.transInsertBlocksAfter([lnk], ids.at(0)));
                 }

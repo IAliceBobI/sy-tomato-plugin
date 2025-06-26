@@ -183,6 +183,9 @@
         floatingballDocList,
         floatingballKeyboardList,
         floatingballDocMenu,
+        prefixArticlesEnable,
+        prefixArticlesMenu,
+        dailyNoteMoveLeaveLnk,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -319,6 +322,7 @@
     import { events } from "./libs/Events";
     import { shortcut2string } from "./libs/keyboard";
     import { FloatingBall添加文档, linkDoc2floatBall } from "./FloatingBall";
+    import { PrefixArticles前缀文档树 } from "./PrefixArticles";
     export let dm: DestroyManager;
     export let plugin: BaseTomatoPlugin;
     let addDocSettings: HTMLElement;
@@ -360,8 +364,12 @@
             searchSettings(settingsDiv, searchKey);
         }
         searchInput.focus();
-        addDocSettings.style.display = "none";
-        addShortcutSettings.style.display = "none";
+        if (addDocSettings?.style?.display) {
+            addDocSettings.style.display = "none";
+        }
+        if (addShortcutSettings?.style?.display) {
+            addShortcutSettings.style.display = "none";
+        }
     });
 
     async function active() {
@@ -791,6 +799,36 @@
                 {tomatoI18n.标题}
             </label>
         </div>
+    </div>
+    <!-- 前缀文档树 -->
+    <div class="settingBox">
+        <div>
+            <input
+                type="checkbox"
+                class="b3-switch"
+                bind:checked={$prefixArticlesEnable}
+            />
+            {tomatoI18n.前缀文档树}
+            <strong>
+                <a
+                    href="https://awx9773btw.feishu.cn/docx/WD3Nd8WCxozzE4xXIJucpFBPn9a?from=from_copylink"
+                >
+                    {tomatoI18n.帮助}</a
+                >
+            </strong>
+        </div>
+        {#if $prefixArticlesEnable}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$prefixArticlesMenu}
+                />
+                {tomatoI18n.menu添加右键菜单}: {PrefixArticles前缀文档树.langText()}
+                <strong>{PrefixArticles前缀文档树.w()}</strong>
+            </div>
+        {/if}
     </div>
     <!-- 悬浮球 -->
     <div class="settingBox">
@@ -2448,6 +2486,14 @@
                 />
                 {tomatoI18n.menu添加右键菜单}： {DailyNoteBox移动内容到dailynote.langText()}
                 <strong>{DailyNoteBox移动内容到dailynote.w()}</strong>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$dailyNoteMoveLeaveLnk}
+                />
+                {tomatoI18n.移动内容到dailynote后原文改为链接}
             </div>
             <div class:codeNotValid>
                 <input

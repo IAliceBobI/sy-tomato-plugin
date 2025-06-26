@@ -300,7 +300,8 @@ class MixBox {
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
-        if (!this.plugin) return;
+        if (!mixBoxCheckbox.get()) return;
+
         this.mergeDoc(detail as any);
         this.moveDocContentHere(detail as any);
         this.refreshStaticBkLnk(detail as any);

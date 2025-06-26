@@ -30,7 +30,7 @@ class CardBox {
     private plugin: BaseTomatoPlugin;
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
-        if (!this.plugin) return;
+        if (!cardBoxCheckbox.get()) return;
         if (CardBox用选中的行创建超级块超级块制卡取消制卡.menu()) {
             detail.menu.addItem({
                 accelerator: CardBox用选中的行创建超级块超级块制卡取消制卡.m,

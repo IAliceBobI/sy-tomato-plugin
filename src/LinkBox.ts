@@ -253,7 +253,7 @@ class LinkBox {
     }
 
     blockIconEvent(detail: any) {
-        if (!this.plugin) return;
+        if (!linkBoxCheckbox.get()) return;
         this.addLnkByLnk(detail);
         this.showSyncBlocksMenu(detail);
     }

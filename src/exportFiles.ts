@@ -72,7 +72,7 @@ async function mergeDocs(ids: string[], isCopy = false) {
     }
 }
 
-export function initMenuListener() {
+export function exportAsOneFile() {
     events.addListener_open_menu_doctree("2025年2月18日21:03:56 导出菜单", (detial) => {
         const ids = [...detial.elements]
             .map(e => getAttribute(e, "data-node-id"))

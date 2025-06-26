@@ -196,11 +196,12 @@ class Events {
     }
 
     public getInfo(protyle?: IProtyle) {
-        if (protyle == null) protyle = this.protyle.protyle;
+        if (protyle == null) protyle = this?.protyle?.protyle;
+        if (protyle == null) return {}
         return {
-            blockID: (protyle.breadcrumb as any).id,
+            blockID: (protyle.breadcrumb as any)?.id,
             breadcrumb: protyle.breadcrumb,
-            docID: protyle.block.rootID,
+            docID: protyle.block?.rootID,
             notebookId: protyle.notebookId,
             lute: protyle.lute,
             path: protyle.path,

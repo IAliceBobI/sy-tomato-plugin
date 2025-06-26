@@ -28,7 +28,7 @@ class CardPriorityBox {
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
-        if (!this.plugin) return;
+        if (!cardPriorityBoxCheckbox.get()) return;
         const cards = detail?.blockElements?.filter(e => getAttribute(e, "custom-riff-decks"))
         if (cards?.length > 0) {
             detail.menu.addItem({

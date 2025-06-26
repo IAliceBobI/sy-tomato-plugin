@@ -17,12 +17,14 @@ import { Dialog } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
+import { removeTopBarIcon } from "./libs/ui";
+import { setTimeouts } from "stonev5-utils";
 
 export type RPType = { dom: string, row?: Block, line?: string };
 export const ReadingPointBox设置阅读点 = winHotkey("F7", "addBookmark 2025-5-12 17:52:14", "＋🔖", () => tomatoI18n.设置阅读点)
 export const ReadingPointBox跳到当前文档的阅读点 = winHotkey("alt+f5", "gotoBookmark 2025-5-12 18:12:44", "🕊️🔖", () => tomatoI18n.跳到当前文档的阅读点)
 export const ReadingPointBox删除当前文档的阅读点 = winHotkey("⌘F7", "deleteBookmark 2025-5-12 18:25:42", "🗑️🔖", () => tomatoI18n.删除当前文档的阅读点)
-export const ReadingPointBox查看阅读点 = winHotkey("ctrl+shift+enter", "showBookmarks 2025-5-12 18:32:45", "", () => tomatoI18n.查看阅读点)
+export const ReadingPointBox查看阅读点 = winHotkey("ctrl+shift+enter", "showBookmarks 2025-5-12 18:32:45", "iconBookmark", () => tomatoI18n.查看阅读点)
 
 class ReadingPointBox {
     private plugin: BaseTomatoPlugin;
@@ -30,32 +32,35 @@ class ReadingPointBox {
     private lastDocID: string;
 
     onload(plugin: BaseTomatoPlugin) {
-        if (plugin.initCfg()) {
-            this._onload(plugin)
-        } else {
-            (async () => {
-                await plugin.taskCfg;
-                this._onload(plugin);
-            })();
-        }
-    }
-    _onload(plugin: BaseTomatoPlugin) {
-        if (!readingPointBoxCheckbox.get()) {
-            return;
-        }
         this.plugin = plugin;
+        removeTopBarIcon(ReadingPointBox查看阅读点.icon)
+        plugin.addTopBar({
+            icon: ReadingPointBox查看阅读点.icon,
+            title: ReadingPointBox查看阅读点.langText(),
+            position: "left",
+            callback: async () => {
+                await this.showContentsWithLock();
+            }
+        });
 
-        if (readingTopBar.get()) {
-            plugin.addTopBar({
-                icon: "iconBookmark",
-                title: plugin.i18n.topBarTitleShowContents,
-                position: "left",
-                callback: async () => {
-                    await this.showContentsWithLock();
+        (async () => {
+            await plugin.taskCfg;
+            if (readingPointBoxCheckbox.get()) {
+                this._onload();
+                if (!readingTopBar.get()) {
+                    setTimeouts(() => {
+                        removeTopBarIcon(ReadingPointBox查看阅读点.icon)
+                    }, 300, 4000, 500)
                 }
-            });
-        }
+            } else {
+                setTimeouts(() => {
+                    removeTopBarIcon(ReadingPointBox查看阅读点.icon)
+                }, 300, 4000, 500)
+            }
+        })();
+    }
 
+    _onload() {
         if (readingSaveFile.get() && !readingDialog.get()) { // 统一保存到文件
             siyuan
                 .sqlOne(`select id from blocks where type='d' and content="${readingSaveFile.get()}" limit 1`)
@@ -142,7 +147,7 @@ class ReadingPointBox {
     }
 
     blockIconEvent(detail: any) {
-        if (!this.plugin) return;
+        if (!readingPointBoxCheckbox.get()) return;
         if (readingAddRPmenu.get()) {
             detail.menu.addItem({
                 label: ReadingPointBox设置阅读点.langText(),

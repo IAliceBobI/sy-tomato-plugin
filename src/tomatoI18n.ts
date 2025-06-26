@@ -289,6 +289,38 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "When creating a flashcard, add all virtual references to the first line";
         }
     }
+    public get 移动内容到dailynote后原文改为链接() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "移动内容到 dailynote 后，原文改为链接";
+            case "es_ES": return "Después de mover el contenido a dailynote, el texto original se convierte en un enlace";
+            case "fr_FR": return "Après avoir déplacé le contenu vers dailynote, le texte original devient un lien";
+            case "ja_JP": return "内容をdailynoteに移動した後、元のテキストはリンクに変更されます";
+            case "zh_CHT": return "移動內容到 dailynote 後，原文改為連結";
+            case "it_IT": return "Dopo aver spostato il contenuto su dailynote, il testo originale viene trasformato in un link";
+            case "de_DE": return "Nach dem Verschieben des Inhalts zu dailynote wird der Originaltext zu einem Link";
+            case "he_IL": return "לאחר העברת התוכן ל-dailynote, הטקסט המקורי הופך לקישור";
+            case "ru_RU": return "После перемещения содержимого в dailynote исходный текст становится ссылкой";
+            case "pl_PL": return "Po przeniesieniu treści do dailynote oryginalny tekst zostaje zamieniony na link";
+            case "en_US":
+            default: return "After moving content to dailynote, the original text becomes a link";
+        }
+    }
+    public get 前缀文档树() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "前缀文档树";
+            case "es_ES": return "Árbol de documentos de prefijo";
+            case "fr_FR": return "Arbre de documents préfixés";
+            case "ja_JP": return "プレフィックスドキュメントツリー";
+            case "zh_CHT": return "前綴文件樹";
+            case "it_IT": return "Albero dei documenti prefisso";
+            case "de_DE": return "Präfix-Dokumentbaum";
+            case "he_IL": return "עץ מסמכים עם קידומת";
+            case "ru_RU": return "Дерево документов с префиксом";
+            case "pl_PL": return "Drzewo dokumentów z prefiksem";
+            case "en_US":
+            default: return "Prefix document tree";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

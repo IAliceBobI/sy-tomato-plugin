@@ -2,6 +2,12 @@ import { Plugin } from "siyuan";
 import { newID } from "stonev5-utils/lib/id";
 
 export class BaseTomatoPlugin extends Plugin {
+    getDocks(): SyDock {
+        return (this as any).docks
+    }
+    getTopBarIcons(): HTMLElement[] {
+        return (this as any).topBarIcons
+    }
     constructor(options: any) {
         super(options)
     }

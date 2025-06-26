@@ -727,7 +727,7 @@ export function calcWords(content: string) {
     return count;
 }
 
-export async function getDocTracer() {
+export async function getDocTracer(): Promise<DocTracer> {
     function get() {
         return (globalThis as unknown as TomatoGlobal).tomato_zZmqus5PtYRi_doc_tracer;
     }
@@ -752,6 +752,9 @@ export class DocTracer {
     private timestamp = "";
     private docMap: Map<string, Block> = new Map(); // id->block
     private contentMap: DefaultMap<string, Set<string>> = new DefaultMap(() => new Set()); // content->ids
+    getDocMap(): ReadonlyMap<string, Block> {
+        return this.docMap as ReadonlyMap<string, Block>;
+    }
     match(text: string) {
         const matched = new Map<string, Block>()
         text = text?.trim()?.toLocaleLowerCase();

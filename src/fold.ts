@@ -150,7 +150,7 @@ function findPreviousElementSibling(e: HTMLElement, f: (a: HTMLElement) => boole
     }
 }
 
-export function addAttrBarBtns(plugin: BaseTomatoPlugin) {
+export function addFoldingAttrBarBtns(plugin: BaseTomatoPlugin) {
     if (commentBoxCheckbox.get() || foldTypes.get().length > 0) {
         const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {

@@ -42,7 +42,7 @@ class CozeSearchBox {
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
-        if (!this.plugin) return;
+        if (!cozeSearchBoxCheckbox.get()) return;
         if (cozeSearchMenuShow.get()) {
             this.aiMenu(detail as any);
         }

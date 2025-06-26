@@ -32,7 +32,7 @@ class ImgBox {
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
-        if (!this.plugin) return;
+        if (!imgBoxCheckbox.get()) return;
         this.copyDivMenu(detail as any);
     }
 

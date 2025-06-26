@@ -5,11 +5,11 @@ import NoteBoxSvelte from "./NoteBox.svelte";
 import { TOMATO_IDEA_QUEUE } from "./libs/gconst";
 import { DestroyManager } from "./libs/destroyer";
 import { avoiding_cloud_synchronization_conflicts, flash_thoughts_2_top, flash_thoughts_target_file, flashThoughtUseDialog, noteBoxCheckbox, storeNoteBox_fastnote, storeNoteBox_pin, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType } from "./libs/stores";
-import { isPinned, removeStatusBar } from "./libs/ui";
+import { isPinned, removeStatusBar, removeTopBarIcon } from "./libs/ui";
 import { createRefDoc, OpenSyFile2 } from "./libs/docUtils";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { verifyKeyTomato } from "./libs/user";
+import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { DomSuperBlockBuilder, domNewLine } from "./libs/sydom";
 import { winHotkey } from "./libs/winHotkey";
 import { newID } from "stonev5-utils/lib/id";
@@ -49,30 +49,10 @@ class NoteBox {
     mobilePinnedDailynoteID: string;
 
     onload(plugin: BaseTomatoPlugin) {
-        if (plugin.initCfg()) {
-            this._onload(plugin)
-        } else {
-            (async () => {
-                await plugin.taskCfg;
-                if (!(await verifyKeyTomato())) {
-                    avoiding_cloud_synchronization_conflicts.set(false);
-                }
-                this._onload(plugin);
-            })();
-        }
-    }
-    _onload(plugin: BaseTomatoPlugin) {
-        if (!noteBoxCheckbox.get()) return;
-
         this.plugin = plugin;
-        this.settingCfg = plugin.settingCfg;
-
-        if (!events.isMobile) {
-            this.addDock(); // 添加后有 bug，手机端在文档数更新后，无法显示 topbar icons.
-        }
-
-        this.addTab();
+        let syncIcon: HTMLElement
         if (events.isMobile) {
+            removeTopBarIcon("iconCameraTomato")
             this.plugin.addTopBar({
                 icon: "iconCameraTomato",
                 title: this.plugin.i18n.noteBox,
@@ -81,7 +61,8 @@ class NoteBox {
                     this.showInDialog();
                 },
             });
-            const syncIcon = this.plugin.addTopBar({
+            removeTopBarIcon("iconCloudTomatoEnd")
+            syncIcon = this.plugin.addTopBar({
                 icon: "iconCloudTomatoEnd",
                 title: tomatoI18n.同步数据,
                 position: "left",
@@ -89,19 +70,43 @@ class NoteBox {
                     siyuan.performSync(true);
                 },
             });
-            events.addListener("note-box ws 2024-12-15 09:11:501", (eventType, detail) => {
-                if (eventType === EventType.sync_fail) {
-                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoFail")
-                    siyuan.pushMsg(detail.msg, 3000);
-                }
-                if (eventType === EventType.sync_start) {
-                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoStart")
-                }
-                if (eventType === EventType.sync_end) {
-                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoEnd")
-                }
-            });
         }
+
+        (async () => {
+            await plugin.taskCfg;
+            this.settingCfg = plugin.settingCfg;
+            await verifyKeyTomato()
+            if (noteBoxCheckbox.get()) {
+                this.addDock();
+                if (!lastVerifyResult()) {
+                    avoiding_cloud_synchronization_conflicts.set(false);
+                }
+                events.addListener("note-box ws 2024-12-15 09:11:501", (eventType, detail) => {
+                    if (syncIcon) {
+                        if (eventType === EventType.sync_fail) {
+                            syncIcon?.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoFail")
+                            siyuan.pushMsg(detail.msg, 3000);
+                        }
+                        if (eventType === EventType.sync_start) {
+                            syncIcon?.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoStart")
+                        }
+                        if (eventType === EventType.sync_end) {
+                            syncIcon?.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoEnd")
+                        }
+                    }
+                });
+                this._onload();
+            } else {
+                setTimeouts(() => {
+                    syncIcon = null;
+                    removeTopBarIcon("iconCameraTomato")
+                    removeTopBarIcon("iconCloudTomatoEnd")
+                }, 300, 4000, 500)
+            }
+        })();
+    }
+    _onload() {
+        this.addTab();
 
         events.addListener("tomato-note-box-2024-11-29 10:40:12", (eventType, detail) => {
             if (eventType == EventType.loaded_protyle_static

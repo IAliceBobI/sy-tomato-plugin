@@ -43,7 +43,7 @@ class DbBkBox {
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
-        if (!this.plugin) return;
+        if (!dbBkBoxCheckbox.get()) return;
         this.refreshDBBKMenu(detail as any);
     }
 

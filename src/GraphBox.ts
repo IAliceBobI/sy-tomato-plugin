@@ -9,6 +9,8 @@ import { getDocBlocks } from "./libs/docUtils";
 import { DestroyManager } from "./libs/destroyer";
 import { winHotkey } from "./libs/winHotkey";
 import { newID } from "stonev5-utils/lib/id";
+import { removeTopBarIcon } from "./libs/ui";
+import { setTimeouts } from "stonev5-utils";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -17,7 +19,7 @@ const DOCK_TYPE = "dock_GraphBox"
 const TAB_TYPE = "custom_tab_GraphBox"
 
 export const GraphBox定位到图中的节点 = winHotkey("⌘⌥E", "graphLocateNode2024-11-5 08:29:27", "", () => tomatoI18n.定位到图中的节点)
-export const GraphBox打开块关系图 = winHotkey("⇧⌥E", "graphLocateNode open 2024-12-16 14:56:28", "", () => tomatoI18n.打开块关系图)
+export const GraphBox打开块关系图 = winHotkey("⇧⌥E", "graphLocateNode open 2024-12-16 14:56:28", "iconGraphTomato", () => tomatoI18n.打开块关系图)
 
 class GraphBox {
     plugin: BaseTomatoPlugin;
@@ -25,24 +27,37 @@ class GraphBox {
     private dock: Dock;
 
     onload(plugin: BaseTomatoPlugin) {
-        if (plugin.initCfg()) {
-            this._onload(plugin)
-        } else {
-            (async () => {
-                await plugin.taskCfg;
-                this._onload(plugin);
-            })();
-        }
-    }
-    _onload(plugin: BaseTomatoPlugin) {
-        if (!graphBoxCheckbox.get()) return;
-
-        this.customTab;
         this.plugin = plugin;
         if (!events.isMobile) {
-            this.addDock(); // 添加后有 bug，手机端在文档数更新后，无法显示 topbar icons.
+            removeTopBarIcon(GraphBox打开块关系图.icon)
+            plugin.addTopBar({
+                icon: GraphBox打开块关系图.icon,
+                title: GraphBox打开块关系图.langText(),
+                position: "left",
+                callback: () => this.openGraphTab(),
+            });
         }
-
+        (async () => {
+            await plugin.taskCfg;
+            if (graphBoxCheckbox.get()) {
+                this.addDock();
+                this._onload(plugin);
+                if (!graphAddTopbarIcon.get()) {
+                    setTimeouts(() => {
+                        removeTopBarIcon(GraphBox打开块关系图.icon)
+                    }, 300, 4000, 500)
+                }
+            } else {
+                setTimeouts(() => {
+                    // delete plugin.getDocks()[plugin.name + DOCK_TYPE]
+                    // removeDockIcon(plugin.name + DOCK_TYPE)
+                    removeTopBarIcon(GraphBox打开块关系图.icon)
+                }, 300, 4000, 500)
+            }
+        })();
+    }
+    _onload(plugin: BaseTomatoPlugin) {
+        this.customTab;
         this.plugin.addCommand({
             langText: GraphBox定位到图中的节点.langText(),
             langKey: GraphBox定位到图中的节点.langKey,
@@ -55,16 +70,6 @@ class GraphBox {
             hotkey: GraphBox打开块关系图.m,
             callback: () => this.openGraphTab(),
         });
-        if (!events.isMobile) {
-            if (graphAddTopbarIcon.get()) {
-                plugin.addTopBar({
-                    icon: "iconGraphTomato",
-                    title: tomatoI18n.打开块关系图,
-                    position: "left",
-                    callback: () => this.openGraphTab(),
-                });
-            }
-        }
         events.addListener("tomato-graph-box-2024-07-01 17:16:01", (eventType, detail) => {
             if (eventType == EventType.loaded_protyle_static
                 || eventType == EventType.loaded_protyle_dynamic
@@ -103,7 +108,7 @@ class GraphBox {
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
-        if (!this.plugin) return;
+        if (!graphBoxCheckbox.get()) return;
         this.locateNodeMenu(detail as any);
     }
 
