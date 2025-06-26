@@ -11,8 +11,6 @@ import { DestroyManager } from "./libs/destroyer";
 import CommentInput from "./CommentInput.svelte";
 import { newID } from "stonev5-utils/lib/id";
 import { verifyKeyTomato } from "./libs/user";
-import { setTimeouts } from "stonev5-utils";
-import { removeTopBarIcon } from "./libs/ui";
 
 const DOCK_TYPE = "dock_CommentBox";
 const TAB_TYPE = "custom_tab_CommentBox"
@@ -32,35 +30,22 @@ class CommentBox {
     private customTab: () => Custom;
 
     onload(plugin: BaseTomatoPlugin) {
-        this.plugin = plugin;
-        if (!events.isMobile) {
-            removeTopBarIcon(CommentBoxTab批注.icon)
-            plugin.addTopBar({
-                icon: CommentBoxTab批注.icon,
-                title: CommentBoxTab批注.langText() + CommentBoxTab批注.w(),
-                position: "left",
-                callback: () => this.openCommentTab(),
-            });
+        if (plugin.initCfg()) {
+            this._onload(plugin)
+        } else {
+            (async () => {
+                await plugin.taskCfg;
+                this._onload(plugin);
+            })();
         }
-
-        (async () => {
-            await plugin.taskCfg;
-            this.settingCfg = plugin.settingCfg;
-            await verifyKeyTomato();
-            if (commentBoxCheckbox.get()) {
-                if (!events.isMobile) {
-                    this.addDock();
-                }
-                this._onload();
-            } else {
-                setTimeouts(() => {
-                    removeTopBarIcon(CommentBoxTab批注.icon)
-                }, 300, 4000, 500)
-            }
-        })();
     }
 
-    _onload() {
+    _onload(plugin: BaseTomatoPlugin) {
+        if (!commentBoxCheckbox.get()) return;
+        this.plugin = plugin;
+        this.settingCfg = plugin.settingCfg;
+        verifyKeyTomato();
+
         this.plugin.addCommand({
             langKey: CommentBox添加批注到日记.langKey,
             langText: CommentBox添加批注到日记.langText(),
@@ -108,6 +93,7 @@ class CommentBox {
                 }
             });
 
+            this.addDock(); // 添加后有 bug，手机端在文档数更新后，无法显示 topbar icons.
             events.addListener("tomato-comment-box-2024年12月19日21:48:42", (eventType, detail) => {
                 if (eventType == EventType.click_editorcontent) {
                     if (this.svelteCallback) {
@@ -117,6 +103,13 @@ class CommentBox {
                         this.svelteCallbackTab(detail.protyle);
                     }
                 }
+            });
+
+            plugin.addTopBar({
+                icon: CommentBoxTab批注.icon,
+                title: CommentBoxTab批注.langText() + CommentBoxTab批注.w(),
+                position: "left",
+                callback: () => this.openCommentTab(),
             });
 
             this.plugin.addCommand({

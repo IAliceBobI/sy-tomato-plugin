@@ -11,41 +11,50 @@ import { prefixArticlesEnable, prefixArticlesMenu } from "./libs/stores";
 export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树 2025-06-26 00:20:18", "📖", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock 2025-06-26 00:20:18", "iconFilesTomato", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 
-export function initPrefixArticles() {
-    (async () => {
-        const plugin = getTomatoPluginInstance();
-        await plugin.taskCfg
-        if (prefixArticlesEnable.get()) {
-            if (!events.isMobile) {
-                addDock();
-            }
-            plugin.addCommand({
-                langKey: PrefixArticles前缀文档树.langKey,
-                langText: PrefixArticles前缀文档树.langText(),
-                hotkey: PrefixArticles前缀文档树.m,
-                editorCallback: (protyle) => {
-                    const { name, docID } = events.getInfo(protyle)
-                    findArticlesByPrefix(name, docID);
-                },
-            });
-            plugin.eventBus.on("open-menu-content", ({ detail }) => {
-                const menu = detail.menu;
-                if (PrefixArticles前缀文档树.menu()) {
-                    menu.addItem({
-                        iconHTML: PrefixArticles前缀文档树.icon,
-                        accelerator: PrefixArticles前缀文档树.m,
-                        label: PrefixArticles前缀文档树.langText(),
-                        click: () => {
-                            const { name, docID } = events.getInfo(detail.protyle)
-                            findArticlesByPrefix(name, docID);
-                        },
-                    });
-                }
-            });
-        } else {
-            dm?.destroyBy();
+function __initPrefixArticles() {
+    const plugin = getTomatoPluginInstance();
+    if (prefixArticlesEnable.get()) {
+        if (!events.isMobile) {
+            addDock();
         }
-    })();
+        plugin.addCommand({
+            langKey: PrefixArticles前缀文档树.langKey,
+            langText: PrefixArticles前缀文档树.langText(),
+            hotkey: PrefixArticles前缀文档树.m,
+            editorCallback: (protyle) => {
+                const { name, docID } = events.getInfo(protyle)
+                findArticlesByPrefix(name, docID);
+            },
+        });
+        plugin.eventBus.on("open-menu-content", ({ detail }) => {
+            const menu = detail.menu;
+            if (PrefixArticles前缀文档树.menu()) {
+                menu.addItem({
+                    iconHTML: PrefixArticles前缀文档树.icon,
+                    accelerator: PrefixArticles前缀文档树.m,
+                    label: PrefixArticles前缀文档树.langText(),
+                    click: () => {
+                        const { name, docID } = events.getInfo(detail.protyle)
+                        findArticlesByPrefix(name, docID);
+                    },
+                });
+            }
+        });
+    } else {
+        dm?.destroyBy();
+    }
+}
+
+export function initPrefixArticles() {
+    const plugin = getTomatoPluginInstance();
+    if (plugin.initCfg()) {
+        __initPrefixArticles()
+    } else {
+        (async () => {
+            await plugin.taskCfg;
+            __initPrefixArticles()
+        })();
+    }
 }
 
 let dm: DestroyManager;

@@ -9,8 +9,6 @@ import { getDocBlocks } from "./libs/docUtils";
 import { DestroyManager } from "./libs/destroyer";
 import { winHotkey } from "./libs/winHotkey";
 import { newID } from "stonev5-utils/lib/id";
-import { removeTopBarIcon } from "./libs/ui";
-import { setTimeouts } from "stonev5-utils";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -25,39 +23,25 @@ class GraphBox {
     plugin: BaseTomatoPlugin;
     private customTab: () => Custom;
     private dock: Dock;
-
     onload(plugin: BaseTomatoPlugin) {
-        this.plugin = plugin;
-        if (!events.isMobile) {
-            removeTopBarIcon(GraphBox打开块关系图.icon)
-            plugin.addTopBar({
-                icon: GraphBox打开块关系图.icon,
-                title: GraphBox打开块关系图.langText(),
-                position: "left",
-                callback: () => this.openGraphTab(),
-            });
-        }
-        (async () => {
-            await plugin.taskCfg;
-            if (graphBoxCheckbox.get()) {
-                this.addDock();
+        if (plugin.initCfg()) {
+            this._onload(plugin)
+        } else {
+            (async () => {
+                await plugin.taskCfg;
                 this._onload(plugin);
-                if (!graphAddTopbarIcon.get()) {
-                    setTimeouts(() => {
-                        removeTopBarIcon(GraphBox打开块关系图.icon)
-                    }, 300, 4000, 500)
-                }
-            } else {
-                setTimeouts(() => {
-                    // delete plugin.getDocks()[plugin.name + DOCK_TYPE]
-                    // removeDockIcon(plugin.name + DOCK_TYPE)
-                    removeTopBarIcon(GraphBox打开块关系图.icon)
-                }, 300, 4000, 500)
-            }
-        })();
+            })();
+        }
     }
     _onload(plugin: BaseTomatoPlugin) {
+        if (!graphBoxCheckbox.get()) return;
+
         this.customTab;
+        this.plugin = plugin;
+        if (!events.isMobile) {
+            this.addDock(); // 添加后有 bug，手机端在文档数更新后，无法显示 topbar icons.
+        }
+
         this.plugin.addCommand({
             langText: GraphBox定位到图中的节点.langText(),
             langKey: GraphBox定位到图中的节点.langKey,
@@ -70,6 +54,16 @@ class GraphBox {
             hotkey: GraphBox打开块关系图.m,
             callback: () => this.openGraphTab(),
         });
+        if (!events.isMobile) {
+            if (graphAddTopbarIcon.get()) {
+                plugin.addTopBar({
+                    icon: "iconGraphTomato",
+                    title: tomatoI18n.打开块关系图,
+                    position: "left",
+                    callback: () => this.openGraphTab(),
+                });
+            }
+        }
         events.addListener("tomato-graph-box-2024-07-01 17:16:01", (eventType, detail) => {
             if (eventType == EventType.loaded_protyle_static
                 || eventType == EventType.loaded_protyle_dynamic
