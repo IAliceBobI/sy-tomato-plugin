@@ -807,19 +807,26 @@ export class DocTracer {
             b.titles.forEach(c => this.contentMap.get(c).add(b.id))
         }
     }
+    async tryGetDocs(docID: string) {
+        const rows = await siyuan.sql(`select * from blocks where type='d' and id="${docID}"`)
+        this.update(rows);
+    }
+    private async update(rows: Block[]) {
+        rows.forEach(row => {
+            if (row.updated > this.timestamp) {
+                this.timestamp = row.updated;
+            }
+            row.attrs = parseIAL(row.ial)
+            delete row.attrs["title-img"];
+            this.docMap.set(row.id, row);
+            this.setBlock(row);
+        });
+    }
     private async getDocs() {
         await navigator.locks.request("DocTracer 2024-12-1 23:48:00", async (lock) => {
             if (lock) {
                 const rows = await siyuan.sql(`select * from blocks where type='d' and updated>'${this.timestamp}' limit 99999999999`)
-                rows.forEach(row => {
-                    if (row.updated > this.timestamp) {
-                        this.timestamp = row.updated;
-                    }
-                    row.attrs = parseIAL(row.ial)
-                    delete row.attrs["title-img"];
-                    this.docMap.set(row.id, row);
-                    this.setBlock(row);
-                });
+                this.update(rows);
             }
         });
     }

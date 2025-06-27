@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
-    import { OpenSyFile2 } from "./libs/docUtils";
+    import { getDocTracer, OpenSyFile2 } from "./libs/docUtils";
     import { getTomatoPluginInstance } from "./libs/utils";
     import { events, EventType } from "./libs/Events";
     import { getPrefixDocs } from "./PrefixArticles";
@@ -14,6 +14,7 @@
     export let currentDocID: string = "";
     export let currentDocName: string = "";
     export let prefixDocs: ArticlesPrefix[] = [];
+    export let missDoc = false;
 
     onMount(() => {
         if (isDock) {
@@ -30,6 +31,11 @@
             ) as HTMLButtonElement;
             if (btn) {
                 btn.scrollIntoView();
+            } else {
+                getDocTracer().then((tracer) => {
+                    tracer.tryGetDocs(currentDocID);
+                    missDoc = true;
+                });
             }
         }
     }
@@ -61,9 +67,14 @@
                 if (lock) {
                     const { docID, name } = events.getInfo(detail.protyle);
                     if (!docID || !name) return;
-                    if (docID != currentDocID || name != currentDocName) {
+                    if (
+                        docID != currentDocID ||
+                        name != currentDocName ||
+                        missDoc
+                    ) {
                         currentDocID = docID;
                         currentDocName = name;
+                        missDoc = false;
                         prefixDocs = await getPrefixDocs(docID, name);
                     }
                     initDialog();
