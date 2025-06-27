@@ -811,9 +811,9 @@ export class DocTracer {
         const rows = await siyuan.sql(`select * from blocks where type='d' and id="${docID}"`)
         this.update(rows);
     }
-    private async update(rows: Block[]) {
+    private async update(rows: Block[], updateTime = false) {
         rows.forEach(row => {
-            if (row.updated > this.timestamp) {
+            if (updateTime && row.updated > this.timestamp) {
                 this.timestamp = row.updated;
             }
             row.attrs = parseIAL(row.ial)
@@ -825,8 +825,8 @@ export class DocTracer {
     private async getDocs() {
         await navigator.locks.request("DocTracer 2024-12-1 23:48:00", async (lock) => {
             if (lock) {
-                const rows = await siyuan.sql(`select * from blocks where type='d' and updated>'${this.timestamp}' limit 99999999999`)
-                this.update(rows);
+                const rows = await siyuan.sql(`select * from blocks where type='d' and updated>'${this.timestamp}' limit 999999999`)
+                this.update(rows, true);
             }
         });
     }
