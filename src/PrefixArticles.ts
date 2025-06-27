@@ -160,10 +160,9 @@ export async function getPrefixDocs(docID: string, name: string) {
                 }
             }
         }
-        prefixDocs = prefixDocs
+        return prefixDocs
             .filter(uniqueFilter(i => i.id))
             .sort((a, b) => a.docName.localeCompare(b.docName));
-        return prefixDocs;
     } else {
         for (const [id, block] of tracer.getDocMap().entries()) {
             const docName = block.content;
@@ -186,19 +185,21 @@ export async function getPrefixDocs(docID: string, name: string) {
 
 function prune(prefixDocs: ArticlesPrefix[], docID: string, MAX_RESULTS: number) {
     const result: ArticlesPrefix[] = [];
-    let left = prefixDocs.findIndex(d => d.id === docID)
-    let right = left + 1
+    let idx = prefixDocs.findIndex(d => d.id === docID)
+    let left = idx - 1
+    let right = idx + 1
+    result.push(prefixDocs.at(idx))
     let count = prefixDocs.length;
     while (count-- > 0) {
-        const l = prefixDocs.at(left);
-        if (l != null) {
+        if (left >= 0) {
+            const l = prefixDocs.at(left);
             result.push(l)
             if (result.length >= MAX_RESULTS) break;
             left--;
         }
 
-        const r = prefixDocs.at(right);
-        if (r != null) {
+        if (right < prefixDocs.length) {
+            const r = prefixDocs.at(right);
             result.push(r)
             if (result.length >= MAX_RESULTS) break;
             right++;
