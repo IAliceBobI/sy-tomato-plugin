@@ -78,20 +78,22 @@
         {tomatoI18n.文档数量}：{prefixDocs.length}
     </div>
     {#each prefixDocs as doc}
-        <div>
-            <button
-                id={`prefixDoc#${isDock}#${doc.id}`}
-                class:current-doc={doc.id === currentDocID}
-                on:click={() => {
-                    OpenSyFile2(getTomatoPluginInstance(), doc.id);
-                    if (!isDock) {
-                        dm.destroyBy();
-                    }
-                }}
-            >
-                {doc.docName}
-            </button>
-        </div>
+        {#if doc}
+            <div>
+                <button
+                    id={`prefixDoc#${isDock}#${doc.id}`}
+                    class:current-doc={doc.id === currentDocID}
+                    on:click={() => {
+                        OpenSyFile2(getTomatoPluginInstance(), doc.id);
+                        if (!isDock) {
+                            dm.destroyBy();
+                        }
+                    }}
+                >
+                    {doc.docName}
+                </button>
+            </div>
+        {/if}
     {/each}
     <div class="kbd">
         {tomatoI18n.文档数量}：{prefixDocs.length}
