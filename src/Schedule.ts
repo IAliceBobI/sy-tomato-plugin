@@ -38,7 +38,7 @@ class Schedule {
         //             // 示例：每分钟的第30秒执行
         //             const cron = '30 * * * * *';
         //             const nextTimestamps = getNextCronTimestamps(prompt, 2);
-        //             console.log(nextTimestamps.map(t => timeUtil.getYYYYMMDDHHmmss(t)));
+        //             console.11(nextTimestamps.map(t => timeUtil.getYYYYMMDDHHmmss(t)));
         //         });
         //     }
         // });

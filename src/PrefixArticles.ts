@@ -7,7 +7,8 @@ import { tomatoI18n } from "./tomatoI18n";
 import PrefixArticles from "./PrefixArticles.svelte"
 import { newID } from "stonev5-utils/lib/id";
 import { adaptHotkey, Dialog, Dock } from "siyuan";
-import { prefixArticlesEnable, prefixArticlesMenu } from "./libs/stores";
+import { prefixArticlesEnable, prefixArticlesMenu, prefixArticlesSoftLimit } from "./libs/stores";
+import { uniqueFilter } from "stonev5-utils";
 export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树 2025-06-26 00:20:18", "📖", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock 2025-06-26 00:20:18", "iconFilesTomato", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 
@@ -60,7 +61,6 @@ export function initPrefixArticles() {
 let dm: DestroyManager;
 const DOCK_TYPE = "dock_PrefixArticles";
 function addDock() {
-
     dm?.destroyBy()
     dm = new DestroyManager();
     let svelte: PrefixArticles
@@ -78,7 +78,6 @@ function addDock() {
         data: {
         },
         resize() {
-            svelte?.resize()
         },
         update() {
         },
@@ -111,18 +110,18 @@ function addDock() {
                 props: {
                     dm,
                     isDock: true,
+                    dockElement: dock.element,
                 }
             });
         },
     });
-    // dm.add("log", () => console.log("destroy 11111111"));
     dm.add("dock", () => dock);
     dm.add("svelte", () => svelte?.$destroy())
 }
 
 async function findArticlesByPrefix(name: string, docID: string) {
     if (!name) return
-    const prefixDocs: ArticlesPrefix[] = await getPrefixDocs(name);
+    const prefixDocs: ArticlesPrefix[] = await getPrefixDocs(docID, name);
     const id = newID();
     const dm = new DestroyManager()
     const dialog = new Dialog({
@@ -148,20 +147,86 @@ async function findArticlesByPrefix(name: string, docID: string) {
     dm.add("2", () => d.$destroy())
 }
 
-export async function getPrefixDocs(name: string) {
+export async function getPrefixDocs(docID: string, name: string) {
     if (!name) return [];
     const tracer = await getDocTracer();
-    const prefixDocs: ArticlesPrefix[] = [];
+    let prefixDocs: ArticlesPrefix[] = [];
+    if (name.includes("|")) {
+        for (const part of name.split("|").map(i => i.trim())) {
+            for (const [id, block] of tracer.getDocMap().entries()) {
+                const docName = block.content.trim();
+                if (docName.includes(part)) {
+                    prefixDocs.push({ id, docName, prefix: part });
+                }
+            }
+        }
+        prefixDocs = prefixDocs
+            .filter(uniqueFilter(i => i.id))
+            .sort((a, b) => a.docName.localeCompare(b.docName));
+        return prefixDocs;
+    } else {
+        for (const [id, block] of tracer.getDocMap().entries()) {
+            const docName = block.content;
+            const prefix = getCommonPrefix(name, docName);
+            if (prefix.length > 0) {
+                prefixDocs.push({ id, docName, prefix });
+            }
+        }
+        let max = parseInt(prefixArticlesSoftLimit.get());
+        if (typeof max !== "number" || isNaN(max) || max < 1) {
+            max = 50;
+        }
+        prefixDocs = getNearest(prefixDocs, max)
+        prefixDocs = prefixDocs.sort((a, b) => a.docName.localeCompare(b.docName));
+        prefixDocs = prune(prefixDocs, docID, max)
+        prefixDocs = prefixDocs.sort((a, b) => a.docName.localeCompare(b.docName));
+        return prefixDocs;
+    }
+}
 
-    for (const [id, block] of tracer.getDocMap().entries()) {
-        const docName = block.content;
-        const prefix = getCommonPrefix(name, docName);
-        if (prefix.length > 0) {
-            prefixDocs.push({ id, docName, prefix });
+function prune(prefixDocs: ArticlesPrefix[], docID: string, MAX_RESULTS: number) {
+    const result: ArticlesPrefix[] = [];
+    let left = prefixDocs.findIndex(d => d.id === docID)
+    let right = left + 1
+    let count = prefixDocs.length;
+    while (count-- > 0) {
+        const l = prefixDocs.at(left);
+        if (l != null) {
+            result.push(l)
+            if (result.length >= MAX_RESULTS) break;
+            left--;
+        }
+
+        const r = prefixDocs.at(right);
+        if (r != null) {
+            result.push(r)
+            if (result.length >= MAX_RESULTS) break;
+            right++;
         }
     }
-    prefixDocs.sort((a, b) => a.docName.localeCompare(b.docName));
-    return prefixDocs;
+    return result
+}
+
+function getNearest(prefixDocs: ArticlesPrefix[], MAX_RESULTS: number) {
+    if (prefixDocs.length <= MAX_RESULTS) {
+        return prefixDocs;
+    }
+    const groups: Map<number, ArticlesPrefix[]> = new Map();
+    for (const doc of prefixDocs) {
+        const len = doc.prefix.length;
+        if (!groups.has(len)) {
+            groups.set(len, []);
+        }
+        groups.get(len)?.push(doc);
+    }
+    const sortedKeys = Array.from(groups.keys()).sort((a, b) => b - a);
+    const result: ArticlesPrefix[] = [];
+    for (const key of sortedKeys) {
+        if (result.length >= MAX_RESULTS) break;
+        let group = groups.get(key)
+        result.push(...group);
+    }
+    return result;
 }
 
 function getCommonPrefix(a: string, b: string): string {
@@ -171,3 +236,35 @@ function getCommonPrefix(a: string, b: string): string {
     }
     return a.slice(0, i);
 }
+
+// if (group.length <= remaining) {
+//     result.push(...group);
+//     remaining -= group.length;
+// } else {
+//     group = groups.get(key).sort((a, b) => a.docName.localeCompare(b.docName));
+//     const toRemove = group.length - remaining;
+//     // result.push(...group.slice(toRemove, undefined));
+//     let left = 0;
+//     let right = group.length - 1;
+//     let removed = 0;
+//     while (removed < toRemove && left < right) {
+//         if (group[left].docName != name) {
+//             group[left].mark = true;
+//             removed++;
+//         }
+//         left++;
+//         if (removed >= toRemove) break;
+//         if (group[right].docName != name) {
+//             group[right].mark = true;
+//             removed++;
+//         }
+//         right--;
+//         if (removed >= toRemove) break;
+//     }
+//     for (let i = 0; i < group.length; i++) {
+//         if (group[i].mark == null) {
+//             result.push(group[i]);
+//         }
+//     }
+//     remaining = 0;
+// }

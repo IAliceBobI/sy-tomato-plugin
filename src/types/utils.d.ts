@@ -15,6 +15,7 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    prefixArticlesSoftLimit: string,
     dailyNoteMoveLeaveLnk: boolean,
     prefixArticlesMenu: boolean,
     prefixArticlesEnable: boolean,
@@ -28,6 +29,7 @@ type TomatoSettings = {
     exportIntervalSecOn: boolean,
     markdownExportPics: boolean,
     markdownExportBoxCheckbox: boolean,
+    readingAdd2DocName: string,
     exportIntervalSec: string,
     exportCleanFiles: string,
     exportPath: string,
@@ -635,7 +637,7 @@ type FloatingKeyboardItem = {
     ctrlKey?: boolean;
 }
 
-type ArticlesPrefix = { id: string; docName: string; prefix: string; }
+type ArticlesPrefix = { id: string; docName: string; prefix: string }
 
 type SyDock = Record<string, SyDockItem>;
 

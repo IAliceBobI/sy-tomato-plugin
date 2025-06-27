@@ -6,13 +6,15 @@
     import { events, EventType } from "./libs/Events";
     import { getPrefixDocs } from "./PrefixArticles";
     import { Protyle } from "siyuan";
+    import { tomatoI18n } from "./tomatoI18n";
 
+    export let dockElement: HTMLElement = null;
     export let dm: DestroyManager;
     export let isDock = false;
     export let currentDocID: string = "";
     export let currentDocName: string = "";
     export let prefixDocs: ArticlesPrefix[] = [];
-    export function resize() {}
+
     onMount(() => {
         if (isDock) {
             initDock();
@@ -24,7 +26,7 @@
     function initDialog() {
         if (currentDocID) {
             const btn = document.getElementById(
-                `prefixDoc#${currentDocID}`,
+                `prefixDoc#${isDock}#${currentDocID}`,
             ) as HTMLButtonElement;
             if (btn) {
                 btn.scrollIntoView();
@@ -42,13 +44,16 @@
                     eventType == EventType.click_editorcontent ||
                     eventType == EventType.switch_protyle
                 ) {
-                    _initDock(detail);
+                    clickEvent(detail);
                 }
             },
         );
     }
 
-    async function _initDock(detail: Protyle) {
+    async function clickEvent(detail: Protyle) {
+        const stop =
+            dockElement.clientWidth < 10 || dockElement.clientHeight < 10;
+        if (stop) return;
         navigator.locks.request(
             "preffix svelte lock 2025-06-26 23:13:52",
             { ifAvailable: true },
@@ -59,7 +64,7 @@
                     if (docID != currentDocID || name != currentDocName) {
                         currentDocID = docID;
                         currentDocName = name;
-                        prefixDocs = await getPrefixDocs(name);
+                        prefixDocs = await getPrefixDocs(docID, name);
                     }
                     initDialog();
                 }
@@ -69,10 +74,13 @@
 </script>
 
 <div class="protyle-wysiwyg">
+    <div class="kbd">
+        {tomatoI18n.文档数量}：{prefixDocs.length}
+    </div>
     {#each prefixDocs as doc}
         <div>
             <button
-                id={"prefixDoc#" + doc.id}
+                id={`prefixDoc#${isDock}#${doc.id}`}
                 class:current-doc={doc.id === currentDocID}
                 on:click={() => {
                     OpenSyFile2(getTomatoPluginInstance(), doc.id);
@@ -85,6 +93,9 @@
             </button>
         </div>
     {/each}
+    <div class="kbd">
+        {tomatoI18n.文档数量}：{prefixDocs.length}
+    </div>
 </div>
 
 <style>
@@ -104,5 +115,19 @@
     }
     button.current-doc {
         cursor: default;
+    }
+    .kbd {
+        padding: 2px 4px;
+        font:
+            100% Consolas,
+            "Liberation Mono",
+            Menlo,
+            Courier,
+            monospace,
+            var(--b3-font-family);
+        line-height: 1;
+        color: var(--b3-theme-on-surface);
+        vertical-align: middle;
+        background-color: var(--b3-theme-surface);
     }
 </style>

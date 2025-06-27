@@ -321,6 +321,54 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Prefix document tree";
         }
     }
+    public get 阅读点保存到指定文档() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "阅读点保存到指定文档";
+            case "es_ES": return "Guardar punto de lectura en el documento especificado";
+            case "fr_FR": return "Enregistrer le point de lecture dans le document spécifié";
+            case "ja_JP": return "読書ポイントを指定したドキュメントに保存";
+            case "zh_CHT": return "閱讀點保存到指定文件";
+            case "it_IT": return "Salva il punto di lettura nel documento specificato";
+            case "de_DE": return "Lesepunkt im angegebenen Dokument speichern";
+            case "he_IL": return "שמור נקודת קריאה במסמך שצוין";
+            case "ru_RU": return "Сохранить точку чтения в указанном документе";
+            case "pl_PL": return "Zapisz punkt czytania w wybranym dokumencie";
+            case "en_US":
+            default: return "Save reading point to specified document";
+        }
+    }
+    public get 文档数量() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "文档数量";
+            case "es_ES": return "Cantidad de documentos";
+            case "fr_FR": return "Nombre de documents";
+            case "ja_JP": return "ドキュメント数";
+            case "zh_CHT": return "文件數量";
+            case "it_IT": return "Numero di documenti";
+            case "de_DE": return "Anzahl der Dokumente";
+            case "he_IL": return "כמות מסמכים";
+            case "ru_RU": return "Количество документов";
+            case "pl_PL": return "Liczba dokumentów";
+            case "en_US":
+            default: return "Document count";
+        }
+    }
+    public get 最大列出的文件数量() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "最大列出的文件数量";
+            case "es_ES": return "Cantidad máxima de archivos listados";
+            case "fr_FR": return "Nombre maximal de fichiers listés";
+            case "ja_JP": return "一覧表示されるファイルの最大数";
+            case "zh_CHT": return "最大列出的檔案數量";
+            case "it_IT": return "Numero massimo di file elencati";
+            case "de_DE": return "Maximal aufgelistete Dateianzahl";
+            case "he_IL": return "המספר המרבי של קבצים שמוצגים";
+            case "ru_RU": return "Максимальное количество перечисленных файлов";
+            case "pl_PL": return "Maksymalna liczba wyświetlanych plików";
+            case "en_US":
+            default: return "Maximum number of listed files";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

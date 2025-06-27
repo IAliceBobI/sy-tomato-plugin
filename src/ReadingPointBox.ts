@@ -9,7 +9,7 @@ import { gotoBookmark, removeReadingPoint } from "./libs/bookmark";
 import { Md5 } from "ts-md5";
 import { domBlankLine, domHdeading, domLnk, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
 import { OpenSyFile2 } from "./libs/docUtils";
-import { readingAdd2Card, readingAddDeleteMenu, readingAddJumpMenu, readingAddRPmenu, readingDialog, readingPointBoxCheckbox, readingPointWithEnv, readingSaveFile, readingTopBar, storeNoteBox_selectedNotebook } from "./libs/stores";
+import { readingAdd2Card, readingAdd2DocName, readingAddDeleteMenu, readingAddJumpMenu, readingAddRPmenu, readingDialog, readingPointBoxCheckbox, readingPointWithEnv, readingSaveFile, readingTopBar, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import ReadingPoint from "./ReadingPoint.svelte"
 import { DestroyManager } from "./libs/destroyer";
@@ -333,15 +333,24 @@ class ReadingPointBox {
         if (readingPointWithEnv.get() && await verifyKeyTomato()) {
             await addEnv(docInfo, contentsName, list);
         }
+
+        let destID = ""
+        if (readingAdd2DocName.get()) {
+            destID = await siyuan.getDocRowsByName(readingAdd2DocName.get()).then(rows => rows?.at(0)?.id)
+        }
         if (oldIDs && oldIDs.length > 0) {
             const id = oldIDs.pop();
             const domStr = await getDomStr(id, list);
             const ops = siyuan.transDeleteBlocks(oldIDs);
 
-            if (this.rpDocID) {
-                ops.push(...siyuan.transMoveBlocksAsChild([id], this.rpDocID));
+            if (destID) {
+                //
             } else {
-                ops.push(...siyuan.transMoveBlocksAfter([id], blockID));
+                if (this.rpDocID) {
+                    ops.push(...siyuan.transMoveBlocksAsChild([id], this.rpDocID));
+                } else {
+                    ops.push(...siyuan.transMoveBlocksAfter([id], blockID));
+                }
             }
 
             ops.push(...siyuan.transUpdateBlocks([{ id, domStr }]));
@@ -373,10 +382,14 @@ class ReadingPointBox {
             const div = list.build()
             div.setAttribute("bookmark", title)
             div.setAttribute(READINGPOINT, bookID)
-            if (this.rpDocID) {
-                await siyuan.insertBlocksAsChildOf([div.outerHTML], this.rpDocID);
+            if (destID) {
+                await siyuan.insertBlocksAsChildOf([div.outerHTML], destID);
             } else {
-                await siyuan.insertBlocksAfter([div.outerHTML], blockID);
+                if (this.rpDocID) {
+                    await siyuan.insertBlocksAsChildOf([div.outerHTML], this.rpDocID);
+                } else {
+                    await siyuan.insertBlocksAfter([div.outerHTML], blockID);
+                }
             }
             if (readingAdd2Card.get()) {
                 setTimeout(() => siyuan.addRiffCards([list.id]), 800);

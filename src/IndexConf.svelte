@@ -67,6 +67,7 @@
         noteBoxAllKinds,
         noteBoxCheckbox,
         readingAdd2Card,
+        readingAdd2DocName,
         readingPointBoxCheckbox,
         readingPointWithEnv,
         readingSaveFile,
@@ -186,6 +187,7 @@
         prefixArticlesEnable,
         prefixArticlesMenu,
         dailyNoteMoveLeaveLnk,
+        prefixArticlesSoftLimit,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -828,6 +830,13 @@
                 {tomatoI18n.menu添加右键菜单}: {PrefixArticles前缀文档树.langText()}
                 <strong>{PrefixArticles前缀文档树.w()}</strong>
             </div>
+            <div>
+                <input
+                    class="b3-text-field"
+                    bind:value={$prefixArticlesSoftLimit}
+                />
+                {tomatoI18n.最大列出的文件数量}
+            </div>
         {/if}
     </div>
     <!-- 悬浮球 -->
@@ -953,7 +962,7 @@
                 </button>
             </div>
             <!-- 绑定文档配置 -->
-            <div bind:this={addDocSettings}>
+            <div bind:this={addDocSettings} style="display: none;">
                 <div class="spacetop">
                     <input
                         placeholder={addDoc_docName}
@@ -1027,7 +1036,7 @@
                 </button>
             </div>
             <!-- 绑定快捷键配置 -->
-            <div bind:this={addShortcutSettings}>
+            <div bind:this={addShortcutSettings} style="display: none;">
                 <div class="spacetop">
                     <input
                         placeholder={addDoc_keyboardpreview}
@@ -2004,6 +2013,11 @@
                     bind:checked={$readingAdd2Card}
                 />
                 {tomatoI18n.阅读点加入闪卡}
+            </div>
+
+            <div>
+                <input class="b3-text-field" bind:value={$readingAdd2DocName} />
+                {tomatoI18n.阅读点保存到指定文档}
             </div>
         {/if}
     </div>
