@@ -84,16 +84,19 @@
     }
 </script>
 
-<div class="protyle-wysiwyg">
+<div>
     <div class="kbd">
         {tomatoI18n.文档数量}：{prefixDocs.length}
     </div>
-    {#each prefixDocs as doc}
+    {#each prefixDocs as doc, i}
         {#if doc}
             <div>
                 <button
+                    class="doc-button"
                     id={`prefixDoc#${isDock}#${doc.id}`}
                     class:current-doc={doc.id === currentDocID}
+                    class:doc-even={i % 2 === 0}
+                    class:doc-odd={i % 2 !== 0}
                     on:click={() => {
                         OpenSyFile2(getTomatoPluginInstance(), doc.id);
                         if (!isDock) {
@@ -101,7 +104,7 @@
                         }
                     }}
                 >
-                    {doc.docName}
+                    📄{doc.docName}
                 </button>
             </div>
         {/if}
@@ -112,22 +115,30 @@
 </div>
 
 <style>
+    .doc-even {
+        color: var(--b3-font-color2);
+        background-color: var(--b3-theme-surface);
+    }
+    .doc-odd {
+        background-color: var(--b3-theme-surface);
+        color: var(--b3-font-color4);
+    }
     .current-doc {
         font-weight: bold;
-        color: var(--b3-font-color4);
-        cursor: default;
+        background-color: var(--b3-font-background6);
     }
-    button {
+    .doc-button {
         border: none;
-        background: none;
         padding: 0;
-        margin: 0;
-        color: inherit;
-        font: inherit;
+        margin-left: 0;
+        margin-right: 0;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        font-size: calc(var(--b3-font-size-editor) * 0.7);
         cursor: pointer;
-    }
-    button.current-doc {
-        cursor: default;
+        text-align: left;
+        display: block;
+        width: 100%;
     }
     .kbd {
         padding: 2px 4px;
