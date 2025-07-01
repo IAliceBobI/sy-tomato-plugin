@@ -188,7 +188,7 @@
             await idsFilter
                 .loadList(maker.docID, "custom-bkDisabledIDs")
                 .then(() => getBackLinks({ mode: "exclusive" }, ON_LOAD));
-            idsFilter.syIDClean();
+            // idsFilter.syIDClean(); 先不用了，防止与手机同步时冲突。
 
             if ($back_link_refresh_off) {
                 $autoRefreshChecked = false;
