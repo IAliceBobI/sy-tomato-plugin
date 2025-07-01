@@ -1,7 +1,7 @@
 import { IProtyle, Plugin } from "siyuan";
 import { OpenSyFile2, isReadonly } from "./docUtils";
 import { events } from "./Events";
-import { storeNoteBox_fastnote, fastNoteBoxDelAfterCreating, fastNoteBoxAdd2Flashcard } from "./stores";
+import { storeNoteBox_fastnote, fastNoteBoxDelAfterCreating, fastNoteBoxAdd2Flashcard, fastNoteBoxDocPrefix } from "./stores";
 import { verifyKeyTomato } from "./user";
 import { siyuan, getContextPath, cloneCleanDiv, NewLute, NewNodeID, timeUtil } from "./utils";
 
@@ -50,7 +50,7 @@ export async function createNote(plugin: Plugin, protyle: IProtyle, allowFlashca
         return lute.BlockDOM2Md(d.outerHTML);
     });
     const taskRo = isReadonly(protyle)
-    const id = await createAndOpenFastNote(boxID, plugin, attrs, title, path + content.join("\n"));
+    const id = await createAndOpenFastNote(protyle, boxID, plugin, attrs, title, path + content.join("\n"));
     if (await verifyKeyTomato() && fastNoteBoxDelAfterCreating.get() && await taskRo === "false" && !cursorOnly) await siyuan.transactions(siyuan.transDeleteBlocks(ids));
     if (fastNoteBoxAdd2Flashcard.get() && allowFlashcard) {
         setTimeout(() => {
@@ -60,9 +60,13 @@ export async function createNote(plugin: Plugin, protyle: IProtyle, allowFlashca
     return id;
 }
 
-export async function createAndOpenFastNote(boxID: string, plugin: Plugin, attrs: AttrType = {}, title: string = "", md = "") {
+export async function createAndOpenFastNote(protyle: IProtyle, boxID: string, plugin: Plugin, attrs: AttrType = {}, title: string = "", md = "") {
     const { y, M, d, h, m, s } = timeUtil.nowYMDStrPad();
     if (!title) title = `f${y}-${M}-${d} ${h}:${m}:${s}`;
+    if (fastNoteBoxDocPrefix.get()) {
+        const { name } = events.getInfo(protyle)
+        title = `${name} | ${title}`
+    }
     const hpath = `/fast note/f${y}/f${y}-${M}/${title}`;
     const id = await siyuan.createDocWithMdIfNotExists(boxID, hpath, md, { ...attrs, "custom-fastnote": y + M + d + h + m + s });
     await OpenSyFile2(plugin, id);

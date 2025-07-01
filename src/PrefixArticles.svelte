@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
     import { getDocTracer, OpenSyFile2 } from "./libs/docUtils";
-    import { getTomatoPluginInstance } from "./libs/utils";
+    import { getTomatoPluginInstance, siyuan } from "./libs/utils";
     import { events, EventType } from "./libs/Events";
     import { getPrefixDocs } from "./PrefixArticles";
     import { Protyle } from "siyuan";
@@ -14,7 +14,6 @@
     export let currentDocID: string = "";
     export let currentDocName: string = "";
     export let prefixDocs: ArticlesPrefix[] = [];
-    export let missDoc = false;
 
     onMount(() => {
         if (isDock) {
@@ -24,7 +23,7 @@
         }
     });
 
-    function initDialog() {
+    async function initDialog() {
         if (currentDocID) {
             const btn = document.getElementById(
                 `prefixDoc#${isDock}#${currentDocID}`,
@@ -32,10 +31,9 @@
             if (btn) {
                 btn.scrollIntoView();
             } else {
-                getDocTracer().then((tracer) => {
-                    tracer.tryGetDocs(currentDocID);
-                    missDoc = true;
-                });
+                const tracer = await getDocTracer();
+                tracer.tryGetDocs(currentDocID);
+                currentDocID = "";
             }
         }
     }
@@ -67,17 +65,12 @@
                 if (lock) {
                     const { docID, name } = events.getInfo(detail.protyle);
                     if (!docID || !name) return;
-                    if (
-                        docID != currentDocID ||
-                        name != currentDocName ||
-                        missDoc
-                    ) {
+                    if (docID != currentDocID || name != currentDocName) {
                         currentDocID = docID;
                         currentDocName = name;
-                        missDoc = false;
                         prefixDocs = await getPrefixDocs(docID, name);
                     }
-                    initDialog();
+                    await initDialog();
                 }
             },
         );
@@ -97,8 +90,14 @@
                     class:current-doc={doc.id === currentDocID}
                     class:doc-even={i % 2 === 0}
                     class:doc-odd={i % 2 !== 0}
-                    on:click={() => {
-                        OpenSyFile2(getTomatoPluginInstance(), doc.id);
+                    on:click={async () => {
+                        if (await siyuan.checkBlockExist(doc.id)) {
+                            OpenSyFile2(getTomatoPluginInstance(), doc.id);
+                        } else {
+                            const tracer = await getDocTracer();
+                            tracer.removeDoc(doc.id);
+                            currentDocID = "";
+                        }
                         if (!isDock) {
                             dm.destroyBy();
                         }

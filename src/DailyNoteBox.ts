@@ -293,15 +293,15 @@ class DailyNoteBox {
         const { ids, selected } = await events.selectedDivs(protyle);
         const ro = await isReadonly(protyle)
         if (!dailyNoteCopyComment.get() || !copy || dailyNoteCopySimple.get()) {
-            return this.doFindDivs(ids, selected, ro, copy, "", newFile);
+            return this.doFindDivs(protyle, ids, selected, ro, copy, "", newFile);
         } else {
             new DialogText(tomatoI18n.添加批注, "", (text) => {
-                this.doFindDivs(ids, selected, ro, copy, text, newFile);
+                this.doFindDivs(protyle, ids, selected, ro, copy, text, newFile);
             }, true);
         }
     }
 
-    private async doFindDivs(ids: string[], selected: HTMLElement[], ro: string, copy = false, text = "", newFile: boolean) {
+    private async doFindDivs(protyle: IProtyle, ids: string[], selected: HTMLElement[], ro: string, copy = false, text = "", newFile: boolean) {
         let boxID = storeNoteBox_selectedNotebook.getOr();
         if (!boxID) boxID = events.boxID;
         try {
@@ -352,7 +352,7 @@ class DailyNoteBox {
                 let cardID = "";
 
                 if (newFile) {
-                    const fileID = await createAndOpenFastNote(boxID, this.plugin)
+                    const fileID = await createAndOpenFastNote(protyle, boxID, this.plugin)
                     cardID = fileID;
                     const ref = domNewLine();
                     if (dailyNoteCopyUseRef.get()) {

@@ -188,6 +188,8 @@
         prefixArticlesMenu,
         dailyNoteMoveLeaveLnk,
         prefixArticlesSoftLimit,
+        fastNoteBoxDocPrefix,
+        commentBoxSaveUnderDoc,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -1460,6 +1462,14 @@
                     bind:checked={$commentBoxAddUnderline}
                 />
                 {tomatoI18n.批注添加下划线}
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$commentBoxSaveUnderDoc}
+                />
+                {tomatoI18n.把批注保存在子文档否则保存在日记中}
             </div>
             <div>
                 <input
@@ -3126,6 +3136,15 @@
                 />
                 {tomatoI18n.删除所选段落}
                 <TomatoVIP {codeValid}></TomatoVIP>
+            </div>
+
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$fastNoteBoxDocPrefix}
+                />
+                {tomatoI18n.使用当前文档名字的前缀}
             </div>
         {/if}
     </div>

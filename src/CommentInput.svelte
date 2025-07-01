@@ -7,6 +7,7 @@
         commentBoxAddTime,
         commentBoxAddUnderline,
         commentBoxCheckbox,
+        commentBoxSaveUnderDoc,
     } from "./libs/stores";
     import { DomSuperBlockBuilder, domNewLine } from "./libs/sydom";
     import {
@@ -22,6 +23,7 @@
     } from "./libs/utils";
     import { onDestroy, onMount } from "svelte";
     import { tomatoI18n } from "./tomatoI18n";
+    import { events } from "./libs/Events";
 
     export let dm: DestroyManager;
     export let protyle: IProtyle;
@@ -141,11 +143,33 @@
         superBlock.setAttr("fold", "1");
         builder.append(superBlock.build());
 
-        const { id: docID } = await createDailyNoteTask;
-        const tail = await siyuan.getDocLastID(docID);
-        ops.push(
-            ...siyuan.transInsertBlocksAfter([builder.build().outerHTML], tail),
-        );
+        if ($commentBoxSaveUnderDoc) {
+            const { docID, name } = events.getInfo(protyle);
+            const row = await siyuan.getRowByID(docID);
+            if (row) {
+                const path = `${row.hpath}/comments-${name}`;
+                const id = await siyuan.createDocWithMdIfNotExists(
+                    boxID,
+                    path,
+                    "",
+                );
+                ops.push(
+                    ...siyuan.transInsertBlocksAsChildOf(
+                        [builder.build().outerHTML],
+                        id,
+                    ),
+                );
+            }
+        } else {
+            const { id: docID } = await createDailyNoteTask;
+            const tail = await siyuan.getDocLastID(docID);
+            ops.push(
+                ...siyuan.transInsertBlocksAfter(
+                    [builder.build().outerHTML],
+                    tail,
+                ),
+            );
+        }
         await siyuan.transactions(ops);
 
         if (commentBoxAddFlashCard.get()) {

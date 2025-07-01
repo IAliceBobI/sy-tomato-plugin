@@ -1,5 +1,4 @@
 import { IProtyle } from "siyuan";
-import "./index.scss";
 import { getContenteditableElement as getContentEditableElement, moveCursor2Tail, siyuan, } from "./libs/utils";
 import { EventType, events } from "./libs/Events";
 import { BlockNodeEnum, DATA_TYPE, WEB_ZERO_SPACE } from "./libs/gconst";

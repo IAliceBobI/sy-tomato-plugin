@@ -1,5 +1,4 @@
 import { Custom, Dialog, openTab, openWindow } from "siyuan";
-import "./index.scss";
 import { count, isMainWin, isValidNumber, setTimeouts, shuffleArray, siyuan, tryFixCfg } from "./libs/utils";
 import { STORAGE_TOMATO_TIME } from "./constants";
 import { events } from "./libs/Events";

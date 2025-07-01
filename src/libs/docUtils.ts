@@ -850,7 +850,7 @@ export class DocTracer {
             }
             switch (detail.cmd) {
                 case "removeDoc":
-                    detail.data?.ids?.forEach(id => this.docMap.delete(id))
+                    detail.data?.ids?.forEach(id => this.removeDoc(id))
                     break;
                 case "create":
                     setTimeout(() => {
@@ -868,6 +868,9 @@ export class DocTracer {
                     break;
             }
         });
+    }
+    removeDoc(id: string) {
+        return this.docMap.delete(id);
     }
 }
 

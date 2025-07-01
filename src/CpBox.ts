@@ -1,5 +1,4 @@
 import { siyuan, } from "./libs/utils";
-import "./index.scss";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cpBoxCheckbox } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";

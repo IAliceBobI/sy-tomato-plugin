@@ -369,6 +369,38 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Maximum number of listed files";
         }
     }
+    public get 使用当前文档名字的前缀() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "使用当前文档名字的前缀";
+            case "es_ES": return "Usar el prefijo del nombre del documento actual";
+            case "fr_FR": return "Utiliser le préfixe du nom du document actuel";
+            case "ja_JP": return "現在のドキュメント名のプレフィックスを使用";
+            case "zh_CHT": return "使用當前文件名字的前綴";
+            case "it_IT": return "Usa il prefisso del nome del documento corrente";
+            case "de_DE": return "Präfix des aktuellen Dokumentnamens verwenden";
+            case "he_IL": return "השתמש בקידומת שם המסמך הנוכחי";
+            case "ru_RU": return "Использовать префикс имени текущего документа";
+            case "pl_PL": return "Użyj prefiksu nazwy bieżącego dokumentu";
+            case "en_US":
+            default: return "Use the prefix of the current document name";
+        }
+    }
+    public get 把批注保存在子文档否则保存在日记中() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "把批注保存在子文档，否则保存在日记中";
+            case "es_ES": return "Guarda las anotaciones en el subdocumento, de lo contrario en el diario";
+            case "fr_FR": return "Enregistrez les annotations dans le sous-document, sinon dans le journal";
+            case "ja_JP": return "注釈はサブドキュメントに保存し、そうでなければ日記に保存します";
+            case "zh_CHT": return "將批註保存在子文件，否則保存在日誌中";
+            case "it_IT": return "Salva le annotazioni nel sottodocumento, altrimenti nel diario";
+            case "de_DE": return "Speichere Anmerkungen im Unterdokument, sonst im Tagebuch";
+            case "he_IL": return "שמור הערות במסמך המשנה, אחרת ביומן";
+            case "ru_RU": return "Сохраняйте аннотации в поддокументе, иначе в дневнике";
+            case "pl_PL": return "Zapisz adnotacje w poddokumencie, w przeciwnym razie w dzienniku";
+            case "en_US":
+            default: return "Save annotations in the subdocument, otherwise in the journal";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

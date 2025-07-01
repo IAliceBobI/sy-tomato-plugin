@@ -499,6 +499,7 @@ export const fastNoteBoxCheckbox = settingFactory("fastNoteBoxCheckbox", false, 
 export const fastNoteBoxDisableBK = settingFactory("fastNoteBoxDisableBK", true, STORAGE_SETTINGS, null as TSK);
 export const fastNoteBoxAdd2Flashcard = settingFactory("fastNoteBoxAdd2Flashcard", false, STORAGE_SETTINGS, null as TSK);
 export const fastNoteBoxDelAfterCreating = settingFactory("fastNoteBoxDelAfterCreating", false, STORAGE_SETTINGS, null as TSK);
+export const fastNoteBoxDocPrefix = settingFactory("fastNoteBoxDocPrefix", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxCheckbox = settingFactory("commentBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const commentBoxMenu = settingFactory("commentBoxMenu", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxMaxProtyleHeight = settingFactory("commentBoxMaxProtyleHeight", 300, STORAGE_SETTINGS, null as TSK);
@@ -509,6 +510,7 @@ export const commentBoxAddFlashCard = settingFactory("commentBoxAddFlashCard", f
 export const commentBoxAddTime = settingFactory("commentBoxAddTime", false, STORAGE_SETTINGS, null as TSK);
 export const commentBoxAddKeepText = settingFactory("commentBoxAddKeepText", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxAddUnderline = settingFactory("commentBoxAddUnderline", true, STORAGE_SETTINGS, null as TSK);
+export const commentBoxSaveUnderDoc = settingFactory("commentBoxSaveUnderDoc", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxShowID = settingFactory("commentBoxShowID", false, STORAGE_SETTINGS, null as TSK);
 export const commentBoxStaticOutlink = settingFactory("commentBoxStaticOutlink", false, STORAGE_SETTINGS, null as TSK);
 

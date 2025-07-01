@@ -1,5 +1,4 @@
 import { getTomatoPluginInstance, siyuan, } from "./libs/utils";
-import "./index.scss";
 import { events } from "./libs/Events";
 import { DATA_NODE_ID } from "./libs/gconst";
 import { findListTypeByElement } from "./libs/listUtils";
