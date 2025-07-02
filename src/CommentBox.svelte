@@ -39,17 +39,21 @@
     import { getGlobal, setGlobal, sleep } from "stonev5-utils";
     export function destroy() {}
 
-    export let dock: Dock;
-    export let isDock = true;
-    let backLinks: BacklinkSv<Protyle>[] = [];
-    let refs: Ref[] = [];
+    interface Props {
+        dock: Dock;
+        isDock?: boolean;
+    }
+
+    let { dock, isDock = true }: Props = $props();
+    let backLinks: BacklinkSv<Protyle>[] = $state([]);
+    let refs: Ref[] = $state([]);
     let stop = false;
-    let currentID: string;
-    let docID: string;
-    let notebookId: string;
-    let listID: string;
-    let superID: string;
-    let quoteID: string;
+    let currentID: string = $state();
+    let docID: string = $state();
+    let notebookId: string = $state();
+    let listID: string = $state();
+    let superID: string = $state();
+    let quoteID: string = $state();
 
     const IDPREFIX = "dNMTNxcqNbWsyJoxSzqvfbnplk";
     function getButtonID(backLink: BacklinkSv<Protyle>) {
@@ -510,7 +514,7 @@
                 type="checkbox"
                 class="b3-switch"
                 bind:checked={$commentBoxStaticOutlink}
-                on:change={() => commentBoxStaticOutlink.write()}
+                onchange={() => commentBoxStaticOutlink.write()}
                 use:docRefVIP
             />
         </label>
@@ -520,7 +524,7 @@
                     SPACE +
                     CommentBox刷新文档正引.w()}
                 class="b3-button b3-button--text box font"
-                on:click={async () => {
+                onclick={async () => {
                     await _svelteCallback_doc_lock(true);
                 }}>🔄{CommentBox刷新文档正引.w()}</button
             >
@@ -532,7 +536,7 @@
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$commentBoxForwardRef}
-                    on:change={() => commentBoxForwardRef.write()}
+                    onchange={() => commentBoxForwardRef.write()}
                 />
             </label>
             <label class="checkboxMargin" title={tomatoI18n.反引}>
@@ -541,7 +545,7 @@
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$commentBoxBackwardRef}
-                    on:change={() => commentBoxBackwardRef.write()}
+                    onchange={() => commentBoxBackwardRef.write()}
                 />
             </label>
             <label class="checkboxMargin" title={tomatoI18n.虚引}>
@@ -550,7 +554,7 @@
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$commentBoxVirtualRef}
-                    on:change={() => commentBoxVirtualRef.write()}
+                    onchange={() => commentBoxVirtualRef.write()}
                 />
             </label>
         {/if}
@@ -558,7 +562,7 @@
             <input
                 class="b3-text-field numInput"
                 bind:value={$commentBoxMaxProtyleHeight}
-                on:input={() => {
+                oninput={() => {
                     commentBoxMaxProtyleHeight.write();
                     onCommentBoxMaxProtyleHeightChange();
                 }}
@@ -570,38 +574,38 @@
         <div class:hide={!notebookId}>
             <button
                 class="b3-button b3-button--text box font"
-                on:click={() => copyText(notebookId)}>Box: {notebookId}</button
+                onclick={() => copyText(notebookId)}>Box: {notebookId}</button
             >
         </div>
         <div class:hide={!docID}>
             <button
                 class="b3-button b3-button--text box font"
-                on:click={() => copyText(docID)}>Doc: {docID}</button
+                onclick={() => copyText(docID)}>Doc: {docID}</button
             >
         </div>
 
         <div class:hide={!listID}>
             <button
                 class="b3-button b3-button--text box font"
-                on:click={() => copyText(listID)}>List: {listID}</button
+                onclick={() => copyText(listID)}>List: {listID}</button
             >
         </div>
         <div class:hide={!superID}>
             <button
                 class="b3-button b3-button--text box font"
-                on:click={() => copyText(superID)}>Super: {superID}</button
+                onclick={() => copyText(superID)}>Super: {superID}</button
             >
         </div>
         <div class:hide={!quoteID}>
             <button
                 class="b3-button b3-button--text box font"
-                on:click={() => copyText(quoteID)}>Quote: {quoteID}</button
+                onclick={() => copyText(quoteID)}>Quote: {quoteID}</button
             >
         </div>
         <div class:hide={!currentID}>
             <button
                 class="b3-button b3-button--text box font"
-                on:click={() => copyText(currentID)}>Block: {currentID}</button
+                onclick={() => copyText(currentID)}>Block: {currentID}</button
             >
         </div>
     {/if}
@@ -616,7 +620,7 @@
                             <button
                                 title={`${tomatoI18n.vip功能}: ${tomatoI18n.在当前文档中定位}`}
                                 class="b3-button b3-button--text horMargin"
-                                on:click={() => {
+                                onclick={() => {
                                     if (lastVerifyResult()) {
                                         locate(ref.def_block_id);
                                     } else {
@@ -639,7 +643,7 @@
                             <button
                                 title={tomatoI18n.定位 + SPACE + ref.content}
                                 class="b3-button b3-button--text horMargin"
-                                on:click={() => locate(ref.def_block_root_id)}
+                                onclick={() => locate(ref.def_block_root_id)}
                                 >🔍 {ref.content?.slice(0, 10)}</button
                             >
                         </div>
@@ -663,7 +667,7 @@
                                     SPACE +
                                     backLink.row?.content}
                                 class="b3-button b3-button--text horMargin"
-                                on:click={() => locate(backLink.blockID)}
+                                onclick={() => locate(backLink.blockID)}
                                 >🔍 {backLink.row?.content?.slice(0, 10) ??
                                     tomatoI18n.定位}</button
                             >
@@ -674,17 +678,17 @@
                                     tomatoI18n.展开与折叠}
                                 id={getButtonID(backLink)}
                                 class="b3-button b3-button--text horMargin"
-                                on:click={() => toggle(backLink)}
+                                onclick={() => toggle(backLink)}
                             ></button>
                             <button
                                 title={tomatoI18n.复制为引用}
                                 class="b3-button b3-button--text horMargin"
-                                on:click={() => copyRef(backLink)}>📋</button
+                                onclick={() => copyRef(backLink)}>📋</button
                             >
                             <button
                                 title={tomatoI18n.删除}
                                 class="b3-button b3-button--text horMargin"
-                                on:click={() => deleteRef(backLink)}>🗑️</button
+                                onclick={() => deleteRef(backLink)}>🗑️</button
                             >
                         </div>
                         <div

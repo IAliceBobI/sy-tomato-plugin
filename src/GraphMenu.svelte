@@ -1,23 +1,34 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import { Node } from "@xyflow/svelte";
     import { tomatoI18n } from "./tomatoI18n";
     import { Writable } from "svelte/store";
     import { OpenSyFile2 } from "./libs/docUtils";
     import { Plugin } from "siyuan";
 
-    export let onClick: () => void;
-    export let menuOpt: Writable<NodeMenu<Node>>;
-    export let plugin: Plugin;
-    export let dock: { element: HTMLElement; data: any };
+    interface Props {
+        onClick: () => void;
+        menuOpt: Writable<NodeMenu<Node>>;
+        plugin: Plugin;
+        dock: { element: HTMLElement; data: any };
+    }
+
+    let {
+        onClick,
+        menuOpt,
+        plugin,
+        dock
+    }: Props = $props();
     dock;
     // const nodes = useNodes();
     // const edges = useEdges();
-    let height: number;
-    let width: number;
-    let top: number;
-    let left: number;
-    let text: string;
-    $: {
+    let height: number = $state();
+    let width: number = $state();
+    let top: number = $state();
+    let left: number = $state();
+    let text: string = $state();
+    run(() => {
         top = $menuOpt.y - height;
         left = $menuOpt.x - width;
         if (top + 200 > $menuOpt.canvasHeight) {
@@ -27,19 +38,19 @@
             ($menuOpt?.node?.data?.text as string) ??
             ($menuOpt?.node?.data?.label as string) ??
             "";
-    }
+    });
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
     bind:clientHeight={height}
     bind:clientWidth={width}
     style="top: {top}px; left: {left}px;"
     class="context-menu"
-    on:click={onClick}
+    onclick={onClick}
 >
     {#if text}
         <p style="margin: 0.5em;" class="font">
@@ -47,7 +58,7 @@
         </p>
     {/if}
     <button
-        on:click={() => {
+        onclick={() => {
             OpenSyFile2(plugin, $menuOpt.node.id);
         }}>{@html tomatoI18n.定位到文档}</button
     >

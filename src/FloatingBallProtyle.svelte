@@ -18,15 +18,19 @@
     import { arrayDeleteFromLeft } from "stonev5-utils";
     import { tomatoI18n } from "./tomatoI18n";
 
-    export let dm: DestroyManager;
-    export let key: string;
-    export let item: FloatingDocItem;
-    let div: HTMLElement;
-    let protyleTarget: HTMLElement;
+    interface Props {
+        dm: DestroyManager;
+        key: string;
+        item: FloatingDocItem;
+    }
+
+    let { dm, key, item = $bindable() }: Props = $props();
+    let div: HTMLElement = $state();
+    let protyleTarget: HTMLElement = $state();
     let btnHelper = new ClickHelper();
 
-    let width = 500;
-    let height = 500;
+    let width = $state(500);
+    let height = $state(500);
     let resizing = false;
     let resizeDir = "";
     let startX = 0;
@@ -97,16 +101,16 @@
     }
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div>
     <div class="floating-button" bind:this={div}>
         <div class="fn__flex-column">
             <button
                 title={tomatoI18n.解除悬浮球与文档之间的绑定}
-                on:mousedown={(event) => {
+                onmousedown={(event) => {
                     btnHelper.handleMouseDown(event);
                 }}
-                on:mouseup={(event) => {
+                onmouseup={(event) => {
                     btnHelper.handleMouseUp(event, () => {
                         confirm(
                             tomatoI18n.解除悬浮球与文档之间的绑定,
@@ -129,10 +133,10 @@
                 class="b3-button b3-button--outline space">⛓️‍💥</button
             >
             <button
-                on:mousedown={(event) => {
+                onmousedown={(event) => {
                     btnHelper.handleMouseDown(event);
                 }}
-                on:mouseup={(event) => {
+                onmouseup={(event) => {
                     btnHelper.handleMouseUp(event, () => {
                         OpenSyFile2(getTomatoPluginInstance(), item.docID);
                     });
@@ -140,10 +144,10 @@
                 class="b3-button b3-button--outline space">🎯</button
             >
             <button
-                on:mousedown={(event) => {
+                onmousedown={(event) => {
                     btnHelper.handleMouseDown(event);
                 }}
-                on:mouseup={(event) => {
+                onmouseup={(event) => {
                     btnHelper.handleMouseUp(event, () => {
                         item.openOnCreate = false;
                         floatingballDocList.write();
@@ -157,10 +161,10 @@
         <div
             class="protyleClass"
             style="width: {width}px; height: {height}px; border: 3px solid;"
-            on:mousedown={(event) => {
+            onmousedown={(event) => {
                 btnHelper.handleMouseDown(event);
             }}
-            on:mouseup={(event) => {
+            onmouseup={(event) => {
                 btnHelper.handleMouseUp(event, toggleOpen);
             }}
             bind:this={protyleTarget}
@@ -168,15 +172,15 @@
         <!-- 拖拽手柄 -->
         <div
             class="resize-handle resize-handle-se"
-            on:mousedown={(e) => startResize(e, "se")}
+            onmousedown={(e) => startResize(e, "se")}
         ></div>
         <div
             class="resize-handle resize-handle-e"
-            on:mousedown={(e) => startResize(e, "e")}
+            onmousedown={(e) => startResize(e, "e")}
         ></div>
         <div
             class="resize-handle resize-handle-s"
-            on:mousedown={(e) => startResize(e, "s")}
+            onmousedown={(e) => startResize(e, "s")}
         ></div>
     </div>
 </div>

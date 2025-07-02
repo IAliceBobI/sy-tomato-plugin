@@ -7,10 +7,14 @@
     import { events } from "./libs/Events";
     import { shortcut2string } from "./libs/keyboard";
 
-    export let dm: DestroyManager;
-    export let key: string;
-    export let shortcut: FloatingKeyboardItem;
-    let div: HTMLElement;
+    interface Props {
+        dm: DestroyManager;
+        key: string;
+        shortcut: FloatingKeyboardItem;
+    }
+
+    let { dm, key, shortcut }: Props = $props();
+    let div: HTMLElement = $state();
     let btnHelper = new ClickHelper();
     export function destroy() {}
     onMount(() => {
@@ -76,10 +80,10 @@
         {SPACE.repeat(2)}
     {/if}
     <button
-        on:mousedown={(event) => {
+        onmousedown={(event) => {
             btnHelper.handleMouseDown(event);
         }}
-        on:mouseup={(event) => {
+        onmouseup={(event) => {
             btnHelper.handleMouseUp(event, toggleOpen);
         }}
         title={shortcut2string(shortcut)}

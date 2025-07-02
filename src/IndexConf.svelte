@@ -327,26 +327,30 @@
     import { shortcut2string } from "./libs/keyboard";
     import { FloatingBall添加文档, linkDoc2floatBall } from "./FloatingBall";
     import { PrefixArticles前缀文档树 } from "./PrefixArticles";
-    export let dm: DestroyManager;
-    export let plugin: BaseTomatoPlugin;
-    let addDocSettings: HTMLElement;
-    let addShortcutSettings: HTMLElement;
-    let buyDIV: HTMLElement;
-    let settingsDiv: HTMLElement;
-    let searchInput: HTMLElement;
-    let addDoc_docName = "";
-    let addDoc_docIcon = "";
-    let addDoc_keyboardIcon = "";
-    let addDoc_keyboardpreview = "";
-    let addDoc_keyboardKeyCode = "";
-    let addDoc_keyboardAlt = false;
-    let addDoc_keyboardShift = false;
-    let addDoc_keyboardCtrl = false;
-    let addDoc_useDialog = FloatingBallDocType_float.id;
-    let codeValid = false;
-    $: codeNotValid = !codeValid;
+    interface Props {
+        dm: DestroyManager;
+        plugin: BaseTomatoPlugin;
+    }
+
+    let { dm, plugin = $bindable() }: Props = $props();
+    let addDocSettings: HTMLElement = $state();
+    let addShortcutSettings: HTMLElement = $state();
+    let buyDIV: HTMLElement = $state();
+    let settingsDiv: HTMLElement = $state();
+    let searchInput: HTMLElement = $state();
+    let addDoc_docName = $state("");
+    let addDoc_docIcon = $state("");
+    let addDoc_keyboardIcon = $state("");
+    let addDoc_keyboardpreview = $state("");
+    let addDoc_keyboardKeyCode = $state("");
+    let addDoc_keyboardAlt = $state(false);
+    let addDoc_keyboardShift = $state(false);
+    let addDoc_keyboardCtrl = $state(false);
+    let addDoc_useDialog = $state(FloatingBallDocType_float.id);
+    let codeValid = $state(false);
+    let codeNotValid = $derived(!codeValid);
     const ICONS_SIZE = 14;
-    let searchKey = "";
+    let searchKey = $state("");
     const SearchKeyItemKey =
         "tomato_settings_SearchKeyItemKey_RfrUm9VLS4GehTzg5ygRrNT";
     onDestroy(() => {
@@ -453,12 +457,12 @@
                     placeholder="1656000000123_22000101_ldID_siyuanTomatoCode_3044022018c8d8bca......"
                     spellcheck="false"
                 ></textarea>
-                <button class="b3-button b3-button--outline" on:click={active}>
+                <button class="b3-button b3-button--outline" onclick={active}>
                     {tomatoI18n.激活}
                 </button>
                 <button
                     class="b3-button b3-button--outline"
-                    on:click={() => {
+                    onclick={() => {
                         if (buyDIV.style.display) buyDIV.style.display = "";
                         else buyDIV.style.display = "none";
                     }}
@@ -481,7 +485,7 @@
             bind:this={searchInput}
             class="b3-text-field"
             bind:value={searchKey}
-            on:input={() => searchSettings(settingsDiv, searchKey)}
+            oninput={() => searchSettings(settingsDiv, searchKey)}
         />
         {tomatoI18n.search搜索配置}
     </div>
@@ -716,7 +720,7 @@
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$foldTypesSuperBlock}
-                    on:change={() => {
+                    onchange={() => {
                         if ($foldTypesSuperBlock) {
                             pushUniq(
                                 $foldTypes,
@@ -738,7 +742,7 @@
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$foldTypesBLOCKQUOTE}
-                    on:change={() => {
+                    onchange={() => {
                         if ($foldTypesBLOCKQUOTE) {
                             pushUniq($foldTypes, BlockNodeEnum.NODE_BLOCKQUOTE);
                         } else {
@@ -757,7 +761,7 @@
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$foldTypesNODE_LIST}
-                    on:change={() => {
+                    onchange={() => {
                         if ($foldTypesNODE_LIST) {
                             pushUniq($foldTypes, BlockNodeEnum.NODE_LIST);
                         } else {
@@ -773,7 +777,7 @@
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$foldTypesNODE_TABLE}
-                    on:change={() => {
+                    onchange={() => {
                         if ($foldTypesNODE_TABLE) {
                             pushUniq($foldTypes, BlockNodeEnum.NODE_TABLE);
                         } else {
@@ -789,7 +793,7 @@
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$foldTypesNODE_HEADING}
-                    on:change={() => {
+                    onchange={() => {
                         if ($foldTypesNODE_HEADING) {
                             pushUniq($foldTypes, BlockNodeEnum.NODE_HEADING);
                         } else {
@@ -893,7 +897,7 @@
                     </label>
                     <button
                         class="b3-button b3-button--text space"
-                        on:click={() => {
+                        onclick={() => {
                             $floatingballDocList.splice(index, 1);
                             $floatingballDocList = $floatingballDocList;
                         }}
@@ -933,7 +937,7 @@
                     </label>
                     <button
                         class="b3-button b3-button--text space"
-                        on:click={() => {
+                        onclick={() => {
                             $floatingballKeyboardList.splice(index, 1);
                             $floatingballKeyboardList =
                                 $floatingballKeyboardList;
@@ -950,14 +954,14 @@
             <div>
                 <button
                     class="b3-button b3-button--outline space"
-                    on:click={() => {
+                    onclick={() => {
                         toggleDiv(addDocSettings);
                     }}
                     >➕{tomatoI18n.文档}
                 </button>
                 <button
                     class="b3-button b3-button--outline space"
-                    on:click={() => {
+                    onclick={() => {
                         toggleDiv(addShortcutSettings);
                     }}
                     >➕{tomatoI18n.快捷键}
@@ -1018,7 +1022,7 @@
                 </div>
                 <button
                     class="b3-button b3-button--outline spacetop"
-                    on:click={() => {
+                    onclick={() => {
                         linkDoc2floatBall(
                             addDoc_docName,
                             addDoc_docIcon,
@@ -1030,7 +1034,7 @@
                 </button>
                 <button
                     class="b3-button b3-button--outline spacetop"
-                    on:click={() => {
+                    onclick={() => {
                         addDoc_docName = "$$dailynote";
                         addDoc_docIcon = "🗓️📒";
                     }}
@@ -1050,7 +1054,7 @@
                     <input
                         class="b3-text-field space"
                         bind:value={addDoc_keyboardKeyCode}
-                        on:input={flatingkbchange}
+                        oninput={flatingkbchange}
                     />{tomatoI18n.键}
                 </div>
                 <div class="spacetop">
@@ -1059,7 +1063,7 @@
                             type="checkbox"
                             class="b3-switch"
                             bind:checked={addDoc_keyboardAlt}
-                            on:change={flatingkbchange}
+                            onchange={flatingkbchange}
                         />alt
                     </label>
                     <label class="space">
@@ -1067,7 +1071,7 @@
                             type="checkbox"
                             class="b3-switch"
                             bind:checked={addDoc_keyboardShift}
-                            on:change={flatingkbchange}
+                            onchange={flatingkbchange}
                         />shift
                     </label>
                     <label class="space">
@@ -1075,13 +1079,13 @@
                             type="checkbox"
                             class="b3-switch"
                             bind:checked={addDoc_keyboardCtrl}
-                            on:change={flatingkbchange}
+                            onchange={flatingkbchange}
                         />{events.isMac ? "cmd" : "ctrl"}
                     </label>
                 </div>
                 <button
                     class="b3-button b3-button--outline spacetop"
-                    on:click={() => {
+                    onclick={() => {
                         if (addDoc_keyboardKeyCode) {
                             let icon = addDoc_keyboardIcon;
                             if (!icon) {
@@ -1141,7 +1145,7 @@
                         <div>
                             <button
                                 class="b3-button b3-button--text space"
-                                on:click={() => {
+                                onclick={() => {
                                     $exportWhiteList.splice(index, 1);
                                     $exportWhiteList = $exportWhiteList;
                                 }}
@@ -1167,7 +1171,7 @@
                         <div>
                             <button
                                 class="b3-button b3-button--text space"
-                                on:click={() => {
+                                onclick={() => {
                                     $exportBlackList.splice(index, 1);
                                     $exportBlackList = $exportBlackList;
                                 }}
@@ -1233,19 +1237,19 @@
                 </label>
                 <button
                     class="b3-button b3-button--outline space"
-                    on:click={() => exportMd2Dir(true)}
+                    onclick={() => exportMd2Dir(true)}
                     >{MarkdownExport全量导出.langText() +
                         MarkdownExport全量导出.w()}
                 </button>
                 <button
                     class="b3-button b3-button--outline space"
-                    on:click={() => exportMd2Dir()}
+                    onclick={() => exportMd2Dir()}
                     >{MarkdownExport增量导出.langText() +
                         MarkdownExport增量导出.w()}
                 </button>
                 <button
                     class="b3-button b3-button--outline space"
-                    on:click={() => cleanExportedMds()}
+                    onclick={() => cleanExportedMds()}
                     >{MarkdownExport确保导出符合配置.langText() +
                         MarkdownExport确保导出符合配置.w()}
                 </button>
@@ -2126,7 +2130,7 @@
         <div>
             <button
                 class="b3-button b3-button--outline"
-                on:click={() => {
+                onclick={() => {
                     siyuan.removeBrokenCards(tomatoI18n);
                 }}
                 >🗑️
@@ -2291,7 +2295,7 @@
                 type="checkbox"
                 class="b3-switch"
                 bind:checked={$linkBoxSyncBlock}
-                on:change={() => {
+                onchange={() => {
                     if ($linkBoxSyncBlock) $linkBoxCheckbox = true;
                 }}
             />
@@ -2359,7 +2363,7 @@
                 type="checkbox"
                 class="b3-switch"
                 bind:checked={$linkBoxCheckbox}
-                on:change={() => {
+                onchange={() => {
                     if (!$linkBoxCheckbox) $linkBoxSyncBlock = false;
                 }}
             />
@@ -2706,7 +2710,7 @@
         <div>
             <button
                 class="b3-button b3-button--outline"
-                on:click={() => cleanDataview()}
+                onclick={() => cleanDataview()}
                 >🗑️
             </button>{tomatoI18n.删除失效的数据库}
         </div>
@@ -3150,7 +3154,7 @@
     </div>
     <!-- save -->
     <div class="settingBox">
-        <button class="b3-button b3-button--outline" on:click={save}
+        <button class="b3-button b3-button--outline" onclick={save}
             >{tomatoI18n.保存}</button
         >
     </div>

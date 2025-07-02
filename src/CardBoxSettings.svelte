@@ -12,17 +12,21 @@
     import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
     import TomatoVIP from "./TomatoVIP.svelte";
 
-    export let protyle: IProtyle;
-    protyle;
-    export let dm: DestroyManager;
-    export let dialogDiv: HTMLElement;
-    dialogDiv;
-    export let plugin: Plugin;
-    export let msg: string;
-    export let id: string;
+    interface Props {
+        protyle: IProtyle;
+        dm: DestroyManager;
+        dialogDiv: HTMLElement;
+        plugin: Plugin;
+        msg: string;
+        id: string;
+    }
 
-    let delayDays = 0.1;
-    $: hours = delayDays * 24;
+    let { protyle, dm, dialogDiv, plugin, msg, id }: Props = $props();
+
+    protyle;
+    dialogDiv;
+    let delayDays = $state(0.1);
+    let hours = $derived(delayDays * 24);
 
     onDestroy(() => {
         dm.destroyBy("svelte");
@@ -90,18 +94,18 @@
         <div>
             <button
                 class="b3-button b3-button--outline"
-                on:click={deleteCardDeleteContent}
+                onclick={deleteCardDeleteContent}
                 >🗑️{tomatoI18n.删除内容块}</button
             >
             <button
                 title="ctrl+9"
                 class="b3-button b3-button--outline"
-                on:click={deleteCard}>🔕{tomatoI18n.取消制卡}</button
+                onclick={deleteCard}>🔕{tomatoI18n.取消制卡}</button
             >
-            <button class="b3-button b3-button--outline" on:click={gotoCard}
+            <button class="b3-button b3-button--outline" onclick={gotoCard}
                 >🔍{tomatoI18n.定位闪卡}</button
             >
-            <button class="b3-button b3-button--outline" on:click={setPri}
+            <button class="b3-button b3-button--outline" onclick={setPri}
                 >🔴🟡🟢{tomatoI18n.闪卡优先级}</button
             >
         </div>
@@ -126,14 +130,14 @@
                 {tomatoI18n.天}
             </label>
             <br />
-            <button class="b3-button b3-button--outline" on:click={delayCard}
+            <button class="b3-button b3-button--outline" onclick={delayCard}
                 >📅{tomatoI18n.推迟x小时(hours)}</button
             >
             <br />
             <button
                 title={tomatoI18n.没处理过的闪卡都被推迟}
                 class="b3-button b3-button--outline"
-                on:click={() => delayRestCards(false)}
+                onclick={() => delayRestCards(false)}
                 >🌊📅{tomatoI18n.推迟余下闪卡x小时(hours)}</button
             >
             {#if $cardBoxSpradEvenlyPostpone}
@@ -141,7 +145,7 @@
                 <button
                     disabled={!lastVerifyResult()}
                     class="b3-button b3-button--outline"
-                    on:click={async () => {
+                    onclick={async () => {
                         if (await verifyKeyTomato()) {
                             await delayRestCards(true);
                         }

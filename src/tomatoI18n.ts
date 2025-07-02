@@ -444,6 +444,102 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Locate in document<br><br>backspace deletes nodes or connections<br><br>dragging to create a connection also creates a reference<br><br>alt-click to locate the document";
         }
     }
+    public get 批量改前缀() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "批量改前缀";
+            case "es_ES": return "Cambiar prefijo por lotes";
+            case "fr_FR": return "Modifier le préfixe en lot";
+            case "ja_JP": return "プレフィックスを一括変更";
+            case "zh_CHT": return "批量改前綴";
+            case "it_IT": return "Modifica prefisso in blocco";
+            case "de_DE": return "Präfix stapelweise ändern";
+            case "he_IL": return "שנה קידומת בכמות";
+            case "ru_RU": return "Массовое изменение префикса";
+            case "pl_PL": return "Zmień prefiks zbiorczo";
+            case "en_US":
+            default: return "Batch change prefix";
+        }
+    }
+    public get 确定() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "确定";
+            case "es_ES": return "Confirmar";
+            case "fr_FR": return "Confirmer";
+            case "ja_JP": return "確定";
+            case "zh_CHT": return "確定";
+            case "it_IT": return "Conferma";
+            case "de_DE": return "Bestätigen";
+            case "he_IL": return "אישור";
+            case "ru_RU": return "Подтвердить";
+            case "pl_PL": return "Potwierdź";
+            case "en_US":
+            default: return "Confirm";
+        }
+    }
+    public get 请输入新前缀() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "请输入新前缀";
+            case "es_ES": return "Por favor, introduzca el nuevo prefijo";
+            case "fr_FR": return "Veuillez saisir le nouveau préfixe";
+            case "ja_JP": return "新しいプレフィックスを入力してください";
+            case "zh_CHT": return "請輸入新前綴";
+            case "it_IT": return "Inserisci il nuovo prefisso";
+            case "de_DE": return "Bitte neuen Präfix eingeben";
+            case "he_IL": return "הזן קידומת חדשה";
+            case "ru_RU": return "Пожалуйста, введите новый префикс";
+            case "pl_PL": return "Wprowadź nowy prefiks";
+            case "en_US":
+            default: return "Please enter the new prefix";
+        }
+    }
+    public get 请输入原前缀() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "请输入原前缀";
+            case "es_ES": return "Por favor, introduzca el prefijo original";
+            case "fr_FR": return "Veuillez saisir l'ancien préfixe";
+            case "ja_JP": return "元のプレフィックスを入力してください";
+            case "zh_CHT": return "請輸入原前綴";
+            case "it_IT": return "Inserisci il prefisso originale";
+            case "de_DE": return "Bitte ursprünglichen Präfix eingeben";
+            case "he_IL": return "הזן קידומת מקורית";
+            case "ru_RU": return "Пожалуйста, введите исходный префикс";
+            case "pl_PL": return "Wprowadź oryginalny prefiks";
+            case "en_US":
+            default: return "Please enter the original prefix";
+        }
+    }
+    public get 重命名完成() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "重命名完成";
+            case "es_ES": return "Renombrado completado";
+            case "fr_FR": return "Renommage terminé";
+            case "ja_JP": return "名前の変更が完了しました";
+            case "zh_CHT": return "重命名完成";
+            case "it_IT": return "Rinomina completata";
+            case "de_DE": return "Umbenennung abgeschlossen";
+            case "he_IL": return "השם שונה בהצלחה";
+            case "ru_RU": return "Переименование завершено";
+            case "pl_PL": return "Zmieniono nazwę";
+            case "en_US":
+            default: return "Rename completed";
+        }
+    }
+    public get 已经创建快照() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "已经创建快照，如果有问题，可以从快照回滚";
+            case "es_ES": return "Se ha creado una instantánea, si hay algún problema, puede restaurar desde la instantánea";
+            case "fr_FR": return "Une capture d'écran a été créée, en cas de problème, vous pouvez revenir à la capture";
+            case "ja_JP": return "スナップショットが作成されました。問題があればスナップショットからロールバックできます";
+            case "zh_CHT": return "已經建立快照，如果有問題，可以從快照回滾";
+            case "it_IT": return "È stato creato uno snapshot, in caso di problemi puoi ripristinare dallo snapshot";
+            case "de_DE": return "Snapshot wurde erstellt. Bei Problemen können Sie auf den Snapshot zurücksetzen";
+            case "he_IL": return "נוצרה תמונת מצב, אם יש בעיה ניתן לשחזר מהתמונה";
+            case "ru_RU": return "Снимок создан, при возникновении проблем можно откатиться к снимку";
+            case "pl_PL": return "Utworzono migawkę, w razie problemów możesz przywrócić z migawki";
+            case "en_US":
+            default: return "Snapshot has been created. If there are any issues, you can roll back from the snapshot";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import { Plugin } from "siyuan";
     import {
         DATA_NODE_ID,
@@ -16,28 +17,35 @@
     import { linkBoxSyncBlockAuto } from "./libs/stores";
     import { OpenSyFile2 } from "./libs/docUtils";
 
-    export let plugin: Plugin;
-    export let syncBlock: HTMLElement;
-    export let verMap: Map<string, number>;
-    let saveBtn: HTMLElement;
+    interface Props {
+        plugin: Plugin;
+        syncBlock: HTMLElement;
+        verMap: Map<string, number>;
+    }
+
+    let { plugin, syncBlock, verMap }: Props = $props();
+    let saveBtn: HTMLElement = $state();
     let saveBtnDisabled = false;
     const syncID = getAttribute(syncBlock, "custom-sync-block-id");
     const originID = getAttribute(syncBlock, "custom-sync-origin-id");
     const cursorPosID = syncBlock.getAttribute(DATA_NODE_ID);
-    let syncVersion = stringToNumber(
-        getAttribute(syncBlock, "custom-sync-version"),
-    );
-    if (!syncVersion) {
-        const v = verMap.get(syncID);
-        if (v != null) {
-            syncVersion = v;
+    let syncVersion = $state(0);
+    onMount(() => {
+        let syncVersion = stringToNumber(
+            getAttribute(syncBlock, "custom-sync-version"),
+        );
+        if (!syncVersion) {
+            const v = verMap.get(syncID);
+            if (v != null) {
+                syncVersion = v;
+            }
         }
-    }
+    });
 
     let syncCount = stringToNumber(
         getAttribute(syncBlock, "custom-sync-block-count"),
     );
-    const ctrlAttr = {};
+    const ctrlAttr = $state({});
     ctrlAttr[TOMATO_CONTROL_SYNC] = "1";
 
     function save() {
@@ -82,11 +90,11 @@
     }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div {...ctrlAttr}>
     {#if syncVersion}
-        <span class="space btn" on:click={openOrigin}>
+        <span class="space btn" onclick={openOrigin}>
             {#if cursorPosID === originID}
                 <svg><use xlink:href="#iconStar"></use></svg>
             {/if}
@@ -94,19 +102,17 @@
         </span>
     {/if}
     {#if !$linkBoxSyncBlockAuto}
-        <span bind:this={saveBtn} class="space btn" on:click={save}
+        <span bind:this={saveBtn} class="space btn" onclick={save}
             >{tomatoI18n.保存}</span
         >
     {/if}
-    <span bind:this={saveBtn} class="space btn" on:click={openAll}
+    <span bind:this={saveBtn} class="space btn" onclick={openAll}
         >{tomatoI18n.全部打开}</span
     >
     {#if syncCount < 0}
-        <span class="space fail" on:click={showAll}
-            >{tomatoI18n.同步失败}
-        </span>
+        <span class="space fail" onclick={showAll}>{tomatoI18n.同步失败} </span>
     {:else}
-        <span class="space btn" on:click={showAll}
+        <span class="space btn" onclick={showAll}
             >{tomatoI18n.已在x个地方同步(syncCount)}
         </span>
     {/if}

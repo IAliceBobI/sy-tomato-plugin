@@ -4,12 +4,16 @@
     import { BlockNodeEnum, TOMATO_ATTR_BAR } from "./libs/gconst";
     import { getAttribute, getProtylesByID, siyuan } from "./libs/utils";
 
-    export let plugin: BaseTomatoPlugin;
-    export let element: HTMLElement;
-    export let attrElement: HTMLElement;
-    const ctrlAttr = {};
+    interface Props {
+        plugin: BaseTomatoPlugin;
+        element: HTMLElement;
+        attrElement: HTMLElement;
+    }
+
+    let { plugin, element, attrElement = $bindable() }: Props = $props();
+    const ctrlAttr = $state({});
     let id: string;
-    let fold: string;
+    let fold: string = $state();
     let dataType: string;
 
     onMount(() => {
@@ -34,10 +38,10 @@
     }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div {...ctrlAttr} class="container">
-    <span class="space btn" on:click={toggleFold}>
+    <span class="space btn" onclick={toggleFold}>
         <svg class:foldIcon={fold !== "1"}
             ><use xlink:href="#iconPlay"></use></svg
         >

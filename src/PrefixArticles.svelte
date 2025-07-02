@@ -1,22 +1,37 @@
 <script lang="ts">
+    import DialogSvelte from "./libs/DialogSvelte.svelte";
     import { onMount } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
     import { getDocTracer, OpenSyFile2 } from "./libs/docUtils";
-    import { getTomatoPluginInstance, siyuan } from "./libs/utils";
+    import { getTomatoPluginInstance, Siyuan, siyuan } from "./libs/utils";
     import { events, EventType } from "./libs/Events";
     import { getPrefixDocs } from "./PrefixArticles";
     import { Protyle } from "siyuan";
     import { tomatoI18n } from "./tomatoI18n";
     import { setGlobal } from "stonev5-utils";
 
-    export let dockElement: HTMLElement = null;
-    export let dm: DestroyManager;
-    export let isDock = false;
-    export let currentDocID: string = "";
-    export let currentDocName: string = "";
-    export let prefixDocs: ArticlesPrefix[] = [];
+    interface Props {
+        dockElement?: HTMLElement;
+        dm: DestroyManager;
+        isDock?: boolean;
+        currentDocID?: string;
+        currentDocName?: string;
+        prefixDocs?: ArticlesPrefix[];
+    }
+
+    let {
+        dockElement = null,
+        dm,
+        isDock = false,
+        currentDocID = "",
+        currentDocName = "",
+        prefixDocs = [],
+    }: Props = $props();
     export function destroy() {}
     let forceRefresh = false;
+    let showPrefixDialog = $state(false);
+    let newPrefix = $state("");
+    let oldPrefix = $state("");
 
     onMount(() => {
         if (isDock) {
@@ -84,6 +99,15 @@
                         currentDocID = docID;
                         currentDocName = name;
                         forceRefresh = false;
+
+                        {
+                            let oldName = currentDocName.replaceAll("丨", "|");
+                            if (oldName.includes("|")) {
+                                oldName = oldName.split("|").at(0).trim();
+                            }
+                            oldPrefix = oldName;
+                        }
+
                         prefixDocs = await getPrefixDocs(docID, name);
                     }
                     await initDialog();
@@ -91,12 +115,77 @@
             },
         );
     }
+
+    async function cancel() {
+        showPrefixDialog = false;
+    }
+    async function batchRenamePrefix() {
+        showPrefixDialog = false;
+        newPrefix = newPrefix.trim();
+        oldPrefix = oldPrefix.trim();
+        if (!newPrefix || !oldPrefix) return;
+        if (!Siyuan.config?.repo?.key) {
+            await siyuan.pushMsg(
+                tomatoI18n.你还没秘钥插件无法为您创建本地快照,
+                0,
+            );
+            return;
+        }
+        await siyuan.createSnapshot("tomato-prefix-rename");
+        const rows = await siyuan.sql(
+            `select id,content,box,path from blocks where type='d' and content like "${oldPrefix}%" limit 999999`,
+        );
+        for (const row of rows) {
+            const title = row.content.replace(oldPrefix, newPrefix);
+            await siyuan.renameDoc(row.box, row.path, title);
+            await siyuan.pushMsg(`${row.content}  ->  ${title}`);
+        }
+        siyuan.pushMsg(tomatoI18n.重命名完成);
+        siyuan.pushMsg(tomatoI18n.已经创建快照, 1000 * 20);
+    }
 </script>
 
-<div>
+{#snippet count_and_btn()}
     <div class="kbd">
         {tomatoI18n.文档数量}：{prefixDocs.length}
+        <button
+            class="b3-button b3-button--outline"
+            onclick={() => {
+                showPrefixDialog = !showPrefixDialog;
+            }}
+        >
+            {tomatoI18n.批量改前缀}
+        </button>
     </div>
+{/snippet}
+
+<div>
+    {@render count_and_btn()}
+    <DialogSvelte title={tomatoI18n.批量改前缀} bind:show={showPrefixDialog}>
+        {#snippet dialogInner()}
+            <div style="margin-bottom:8px;">{tomatoI18n.请输入原前缀}:</div>
+            <input
+                class="b3-text-field"
+                bind:value={oldPrefix}
+                style="width:100%;margin-bottom:8px;"
+            />
+            <div style="margin-bottom:8px;">{tomatoI18n.请输入新前缀}:</div>
+            <input
+                class="b3-text-field"
+                bind:value={newPrefix}
+                style="width:100%;margin-bottom:12px;"
+            />
+            <div style="display:flex;justify-content:flex-end;gap:8px;">
+                <button class="b3-button b3-button--outline" onclick={cancel}
+                    >{tomatoI18n.取消}</button
+                >
+                <button
+                    class="b3-button b3-button--outline"
+                    onclick={batchRenamePrefix}>{tomatoI18n.确定}</button
+                >
+            </div>
+        {/snippet}
+    </DialogSvelte>
     {#each prefixDocs as doc, i}
         {#if doc}
             <div>
@@ -106,7 +195,7 @@
                     class:current-doc={doc.id === currentDocID}
                     class:doc-even={i % 2 === 0}
                     class:doc-odd={i % 2 !== 0}
-                    on:click={async () => {
+                    onclick={async () => {
                         if (await siyuan.checkBlockExist(doc.id)) {
                             OpenSyFile2(getTomatoPluginInstance(), doc.id);
                         } else {
@@ -124,9 +213,7 @@
             </div>
         {/if}
     {/each}
-    <div class="kbd">
-        {tomatoI18n.文档数量}：{prefixDocs.length}
-    </div>
+    {@render count_and_btn()}
 </div>
 
 <style>

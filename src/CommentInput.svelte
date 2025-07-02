@@ -25,19 +25,32 @@
     import { tomatoI18n } from "./tomatoI18n";
     import { events } from "./libs/Events";
 
-    export let dm: DestroyManager;
-    export let protyle: IProtyle;
-    export let boxID: string;
-    export let ro: Promise<string>;
-    export let ids: string[];
-    export let selected: HTMLElement[];
-    export let rangeText: string;
-    export let range: Range;
+    interface Props {
+        dm: DestroyManager;
+        protyle: IProtyle;
+        boxID: string;
+        ro: Promise<string>;
+        ids: string[];
+        selected: HTMLElement[];
+        rangeText: string;
+        range: Range;
+    }
+
+    let {
+        dm,
+        protyle,
+        boxID,
+        ro,
+        ids,
+        selected,
+        rangeText,
+        range
+    }: Props = $props();
     const ops: IOperation[] = [];
     const newDivs: HTMLElement[] = [];
-    let text = "";
-    let textField: HTMLTextAreaElement;
-    let btn: HTMLButtonElement;
+    let text = $state("");
+    let textField: HTMLTextAreaElement = $state();
+    let btn: HTMLButtonElement = $state();
     const key = "tomato comment text key 2025-6-5 21:37:27";
 
     onDestroy(destroy);
@@ -207,7 +220,7 @@
                 type="checkbox"
                 class="b3-switch box"
                 bind:checked={$commentBoxAddFlashCard}
-                on:change={() => commentBoxAddFlashCard.write()}
+                onchange={() => commentBoxAddFlashCard.write()}
             />
             {tomatoI18n.闪卡}
         </label>
@@ -216,7 +229,7 @@
                 type="checkbox"
                 class="b3-switch box"
                 bind:checked={$commentBoxAddTime}
-                on:change={() => commentBoxAddTime.write()}
+                onchange={() => commentBoxAddTime.write()}
             />
             {tomatoI18n.时间}
         </label>
@@ -225,7 +238,7 @@
                 type="checkbox"
                 class="b3-switch box"
                 bind:checked={$commentBoxAddKeepText}
-                on:change={() => commentBoxAddKeepText.write()}
+                onchange={() => commentBoxAddKeepText.write()}
             />
             {tomatoI18n.记忆}
         </label>
@@ -233,7 +246,7 @@
             title={tomatoI18n.清空}
             bind:this={btn}
             class="b3-button b3-button--text box"
-            on:click={() => {
+            onclick={() => {
                 text = "";
             }}>🗑️</button
         >
@@ -243,7 +256,7 @@
         spellcheck="false"
         class="b3-text-field box"
         bind:value={text}
-        on:keypress={(event) => {
+        onkeypress={(event) => {
             if (event instanceof KeyboardEvent) {
                 if (event.key === "Enter") {
                     if (event.shiftKey || event.ctrlKey || event.altKey) {
@@ -257,7 +270,7 @@
     <button
         bind:this={btn}
         class="b3-button b3-button--outline box"
-        on:click={() => {
+        onclick={() => {
             saveComment();
             destroy();
         }}>Shift + Enter {tomatoI18n.保存}</button

@@ -5,21 +5,34 @@
     import { linkBoxSyncBlockAuto } from "./libs/stores";
     import { getAttribute, siyuan, stringToNumber } from "./libs/utils";
     import { onMount } from "svelte";
-    export let plugin: Plugin;
-    export let rows: Block[];
-    export let dm: DestroyManager;
-    export let dialog: Dialog;
-    export let cursorPosID: string;
-    export let syncID: string;
-    export let syncDiv: HTMLElement;
-    export let verMap: Map<string, number>;
-    let singleList: Block[] = [];
+    interface Props {
+        plugin: Plugin;
+        rows: Block[];
+        dm: DestroyManager;
+        dialog: Dialog;
+        cursorPosID: string;
+        syncID: string;
+        syncDiv: HTMLElement;
+        verMap: Map<string, number>;
+    }
+
+    let {
+        plugin,
+        rows,
+        dm,
+        dialog,
+        cursorPosID,
+        syncID,
+        syncDiv,
+        verMap
+    }: Props = $props();
+    let singleList: Block[] = $state([]);
     syncID;
     dialog;
     plugin;
-    let originID = getAttribute(syncDiv, "custom-sync-origin-id");
+    let originID = $state(getAttribute(syncDiv, "custom-sync-origin-id"));
     const version = getAttribute(syncDiv, "custom-sync-version");
-    let oriVer = version;
+    let oriVer = $state(version);
     export function destroy() {}
 
     onMount(() => {
@@ -119,25 +132,25 @@
     <div class="space asRow">
         <button
             class="b3-button b3-button--outline"
-            on:click={() => deleteAll(tomatoI18n.删除其他, cursorPosID)}
+            onclick={() => deleteAll(tomatoI18n.删除其他, cursorPosID)}
             >{tomatoI18n.删除其他}</button
         >
         <button
             class="b3-button b3-button--outline"
-            on:click={() => deleteAll(tomatoI18n.全部删除)}
+            onclick={() => deleteAll(tomatoI18n.全部删除)}
             >{tomatoI18n.全部删除}</button
         >
     </div>
     <div class="space asRow">
-        <button class="b3-button b3-button--outline" on:click={setAsOrigin}
+        <button class="b3-button b3-button--outline" onclick={setAsOrigin}
             >{tomatoI18n.设为原始块}</button
         >
-        <button class="b3-button b3-button--outline" on:click={resetVersion}
+        <button class="b3-button b3-button--outline" onclick={resetVersion}
             >{tomatoI18n.重置版本}</button
         >
     </div>
     <div class="space asRow">
-        <button class="b3-button b3-button--outline" on:click={findSingle}
+        <button class="b3-button b3-button--outline" onclick={findSingle}
             >{tomatoI18n.无复本块}</button
         >
         <label>
@@ -145,7 +158,7 @@
                 class="b3-switch"
                 type="checkbox"
                 bind:checked={$linkBoxSyncBlockAuto}
-                on:change={() => linkBoxSyncBlockAuto.write()}
+                onchange={() => linkBoxSyncBlockAuto.write()}
             />
             {tomatoI18n.自动}
         </label>

@@ -25,15 +25,19 @@
     } from "./libs/stores";
     import { closeAllDialog } from "./libs/keyboard";
 
-    export let cardElement: HTMLElement;
-    export let isInSettings = false;
-    export let plugin: Plugin;
+    interface Props {
+        cardElement: HTMLElement;
+        isInSettings?: boolean;
+        plugin: Plugin;
+    }
 
-    let priText: HTMLElement;
-    let controlAttr: AttrType;
-    let cardID: string;
-    let priority: number = 0;
-    let whiteSpace = WEB_SPACE;
+    let { cardElement, isInSettings = false, plugin }: Props = $props();
+
+    let priText: HTMLElement = $state();
+    let controlAttr: AttrType = $state();
+    let cardID: string = $state();
+    let priority: number = $state(0);
+    let whiteSpace = $state(WEB_SPACE);
     let textContent: string;
     export function destroy() {}
 
@@ -160,10 +164,10 @@
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->
 <div {...controlAttr} class="container">
     <div {...{ cardPriBar: "1" }}>
-        <button title={tomatoI18n.定位闪卡} on:click={locate}>🔍</button>
+        <button title={tomatoI18n.定位闪卡} onclick={locate}>🔍</button>
         {@html whiteSpace}
         {#if !isInSettings}
-            <button title={tomatoI18n.取消制卡} on:click={removeCard}>🚫</button
+            <button title={tomatoI18n.取消制卡} onclick={removeCard}>🚫</button
             >
             {@html whiteSpace}
         {/if}
@@ -171,25 +175,25 @@
             <button
                 class="fontColor"
                 title={tomatoI18n.闪卡优先级 + "-1"}
-                on:click={subOne}>－</button
+                onclick={subOne}>－</button
             >
         {/if}
         <button
             class="fontColor"
             title={tomatoI18n.点击修改优先级}
             bind:this={priText}
-            on:click={updateCardByInput}>{priority}</button
+            onclick={updateCardByInput}>{priority}</button
         >
         {#if !events.isMobile}
             <button
                 class="fontColor"
                 title={tomatoI18n.闪卡优先级 + "+1"}
-                on:click={addOne}>＋</button
+                onclick={addOne}>＋</button
             >
         {/if}
         {@html whiteSpace}
         {#if !isInSettings && !$card_priority_stopBtn_hide}
-            <button title={tomatoI18n.推迟与取消推迟} on:click={stopCard}
+            <button title={tomatoI18n.推迟与取消推迟} onclick={stopCard}
                 >🛑</button
             >
             {@html whiteSpace}
@@ -201,7 +205,7 @@
                         class="slider"
                         title={tomatoI18n.拖动闪卡优先级}
                         type="range"
-                        on:click={updateCard}
+                        onclick={updateCard}
                         bind:value={priority}
                         min="0"
                         max="100"

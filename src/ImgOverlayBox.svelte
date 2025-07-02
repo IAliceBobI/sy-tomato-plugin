@@ -5,13 +5,22 @@
     import { Dialog } from "siyuan";
     import { tomatoI18n } from "./tomatoI18n";
 
-    export let imgSpan: HTMLSpanElement;
-    export let nextOverlays: Overlays;
-    export let originOverlays: Overlays;
-    export let dialog: Dialog;
+    interface Props {
+        imgSpan: HTMLSpanElement;
+        nextOverlays: Overlays;
+        originOverlays: Overlays;
+        dialog: Dialog;
+    }
+
+    let {
+        imgSpan,
+        nextOverlays = $bindable(),
+        originOverlays = $bindable(),
+        dialog
+    }: Props = $props();
     let canvas: fabric.Canvas;
     let drawingRect: fabric.Rect = null;
-    let scaleValue: number = 1;
+    let scaleValue: number = $state(1);
     export function destroy() {}
 
     onMount(async () => {
@@ -190,17 +199,17 @@
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->
 <div class="b3-dialog__content">
-    <button class="b3-button b3-button--outline" on:click={remove}
+    <button class="b3-button b3-button--outline" onclick={remove}
         >{tomatoI18n.删除最后一个遮挡层}</button
     >
-    <button class="b3-button b3-button--outline" on:click={exit}
+    <button class="b3-button b3-button--outline" onclick={exit}
         >{tomatoI18n.保存并退出}</button
     >
     <input
         title={tomatoI18n.缩放}
         type="range"
         bind:value={scaleValue}
-        on:input={() => updateScale()}
+        oninput={() => updateScale()}
         min="0"
         max="2"
         step="0.1"

@@ -4,9 +4,12 @@
     import { siyuan } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
 
-    export let store: typeof storeNoteBox_selectedNotebook =
-        storeNoteBox_selectedNotebook;
-    let notebooksPromise: Promise<LsNotebook[]>;
+    interface Props {
+        store?: typeof storeNoteBox_selectedNotebook;
+    }
+
+    let { store = storeNoteBox_selectedNotebook }: Props = $props();
+    let notebooksPromise: Promise<LsNotebook[]> = $state();
     onMount(() => {
         notebooksPromise = siyuan.lsNotebooks(false);
     });
@@ -21,7 +24,7 @@
             <select
                 bind:value={$store}
                 class="b3-select"
-                on:change={() => {
+                onchange={() => {
                     store.save();
                 }}
             >

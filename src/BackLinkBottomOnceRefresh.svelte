@@ -1,6 +1,10 @@
 <script lang="ts">
     import { tomatoI18n } from "./tomatoI18n";
-    export let callback: Func;
+    interface Props {
+        callback: Func;
+    }
+
+    let { callback }: Props = $props();
 </script>
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->
@@ -8,7 +12,7 @@
     <button
         title={tomatoI18n.立即刷新}
         class:bk_label={true}
-        on:click={callback}>👋</button
+        onclick={callback}>👋</button
     >
 </label>
 

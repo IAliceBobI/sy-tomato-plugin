@@ -163,10 +163,10 @@
     {SPACE}
     <!-- svelte-ignore event_directive_deprecated -->
     <button
-        on:mousedown={(event) => {
+        onmousedown={(event) => {
             btnHelper.handleMouseDown(event);
         }}
-        on:mouseup={(event) => {
+        onmouseup={(event) => {
             btnHelper.handleMouseUp(event, toggleOpen);
         }}
         title={item.docName}

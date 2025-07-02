@@ -5,10 +5,19 @@
     import { OpenSyFile2 } from "./libs/docUtils";
     import { RPType } from "./ReadingPointBox";
 
-    export let plugin: Plugin;
-    export let dialog: Dialog;
-    export let dm: DestroyManager;
-    export let doms: RPType[];
+    interface Props {
+        plugin: Plugin;
+        dialog: Dialog;
+        dm: DestroyManager;
+        doms: RPType[];
+    }
+
+    let {
+        plugin,
+        dialog,
+        dm,
+        doms
+    }: Props = $props();
     onMount(() => {
         plugin;
         dialog;
@@ -23,7 +32,7 @@
         {#if row}
             <button
                 class="b3-button b3-button--text"
-                on:click={() => {
+                onclick={() => {
                     OpenSyFile2(plugin, row.id);
                     dm.destroyBy();
                 }}>{@html line}</button

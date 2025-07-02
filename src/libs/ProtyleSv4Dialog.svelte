@@ -1,13 +1,18 @@
+<!-- 专门放到思源 dialog 内的 protyle 组件 -->
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
     import { DestroyManager } from "./destroyer";
     import { Protyle } from "siyuan";
     import { getTomatoPluginInstance, siyuan } from "./utils";
 
-    export let dm: DestroyManager;
-    export let docName: string = "";
-    export let docID: string = "";
-    let protyleTarget: HTMLElement;
+    interface Props {
+        dm: DestroyManager;
+        docName?: string;
+        docID?: string;
+    }
+
+    let { dm, docName = "", docID = $bindable("") }: Props = $props();
+    let protyleTarget: HTMLElement = $state();
     export function destroy() {}
 
     onDestroy(() => {

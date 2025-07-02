@@ -1,11 +1,15 @@
-<script>
+<script lang="ts">
     import { SPACE } from "./libs/gconst";
     import { userID } from "./libs/stores";
     import { taobaoStore } from "./libs/taobaocode";
     import { siyuan, Siyuan } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
 
-    export let isTomato = true;
+    interface Props {
+        isTomato?: boolean;
+    }
+
+    let { isTomato = true }: Props = $props();
     const price = 72;
     const nextPrice = 96;
 
@@ -71,7 +75,7 @@
                 ID: {$userID}
                 <button
                     class="b3-button b3-button--outline settingBox"
-                    on:click={copyUserID}
+                    onclick={copyUserID}
                     >{tomatoI18n.复制}
                 </button>
             </label>

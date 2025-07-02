@@ -20,13 +20,22 @@
     import { events } from "./libs/Events";
     import { OpenSyFile2 } from "./libs/docUtils";
 
-    export let dm: DestroyManager;
-    export let text: string;
-    export let anchorID: string;
-    export let plugin: Plugin;
-    let docID: string;
-    let docName: string;
-    let cozeFileRows: Block[] = [];
+    interface Props {
+        dm: DestroyManager;
+        text: string;
+        anchorID: string;
+        plugin: Plugin;
+    }
+
+    let {
+        dm,
+        text = $bindable(),
+        anchorID,
+        plugin
+    }: Props = $props();
+    let docID: string = $state();
+    let docName: string = $state();
+    let cozeFileRows: Block[] = $state([]);
     export function destroy() {}
 
     onMount(async () => {
@@ -75,7 +84,7 @@
                         title={tomatoI18n.上传当前文档以及所有子文档 +
                             " " +
                             row.content}
-                        on:click={async () => {
+                        onclick={async () => {
                             await cozeAddDocTree(row.id, "");
                             dm.destroyBy();
                         }}
@@ -84,7 +93,7 @@
                     <button
                         class="b3-button b3-button--outline divMargin"
                         title={tomatoI18n.定位 + " " + row.content}
-                        on:click={async () => {
+                        onclick={async () => {
                             await OpenSyFile2(plugin, row.id);
                             dm.destroyBy();
                         }}
@@ -96,7 +105,7 @@
                     title={tomatoI18n.删除Coze中当前文件以及子文件 +
                         " " +
                         row.content}
-                    on:click={async () => {
+                    onclick={async () => {
                         await cozeDeleteFromKnowledgeByName(
                             getCozeName(row.content, row.id),
                         );
@@ -134,7 +143,7 @@
                 <td>
                     <button
                         class="b3-button b3-button--outline divMargin"
-                        on:click={async () => {
+                        onclick={async () => {
                             await cleanCozeDocs();
                             dm.destroyBy();
                         }}>{tomatoI18n.清理所有文件}</button
@@ -144,7 +153,7 @@
                     {#if events.boxID}
                         <button
                             class="b3-button b3-button--outline divMargin"
-                            on:click={async () => {
+                            onclick={async () => {
                                 if (events.boxID) {
                                     await cozeAddDocTree("", events.boxID);
                                     dm.destroyBy();
@@ -164,7 +173,7 @@
                             title={tomatoI18n.上传当前文档以及所有子文档 +
                                 " " +
                                 docName}
-                            on:click={async () => {
+                            onclick={async () => {
                                 await cozeAddDocTree(docID, "");
                                 dm.destroyBy();
                             }}
@@ -175,7 +184,7 @@
                             title={tomatoI18n.删除Coze中当前文件以及子文件 +
                                 " " +
                                 docName}
-                            on:click={async () => {
+                            onclick={async () => {
                                 await cozeDeleteFromKnowledgeByName(
                                     getCozeName(docName, docID),
                                 );

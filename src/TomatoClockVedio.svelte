@@ -5,9 +5,13 @@
     import { TomatoClockID, tomatoClock } from "./TomatoClock";
     import { tomato_clocks_audio } from "./libs/stores";
 
-    export let vedioID: BlockID;
-    export let dm: DestroyManager;
-    let protyleTarget: HTMLDivElement;
+    interface Props {
+        vedioID: BlockID;
+        dm: DestroyManager;
+    }
+
+    let { vedioID, dm }: Props = $props();
+    let protyleTarget: HTMLDivElement = $state();
 
     let handleEscapePress = (event: KeyboardEvent) => {
         if (event.key === "Escape") {

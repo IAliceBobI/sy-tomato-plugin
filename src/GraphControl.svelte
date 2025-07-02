@@ -5,8 +5,12 @@
 
     const { setCenter, getNodes } = useSvelteFlow();
 
-    export let plugin: Plugin;
-    export let dock: { element: HTMLElement; data: any };
+    interface Props {
+        plugin: Plugin;
+        dock: { element: HTMLElement; data: any };
+    }
+
+    let { plugin, dock }: Props = $props();
 
     onMount(() => {
         plugin;

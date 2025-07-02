@@ -2,7 +2,11 @@
     import { hideVIP } from "./libs/stores";
     import { icon } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
-    export let codeValid: boolean;
+    interface Props {
+        codeValid: boolean;
+    }
+
+    let { codeValid }: Props = $props();
     const ICONS_SIZE = 14;
 </script>
 

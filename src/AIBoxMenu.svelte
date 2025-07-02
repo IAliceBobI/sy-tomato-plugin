@@ -4,13 +4,17 @@
     import { setTimeouts, siyuan } from "./libs/utils";
     import { OpenAIClient } from "./libs/openAI";
     import { aiBoxPrompts } from "./libs/stores";
-    export let dm: DestroyManager;
-    export let text: string;
-    export let anchorID: string;
-    let inputArea: HTMLTextAreaElement;
+    interface Props {
+        dm: DestroyManager;
+        text: string;
+        anchorID: string;
+    }
+
+    let { dm, text = $bindable(), anchorID }: Props = $props();
+    let inputArea: HTMLTextAreaElement = $state();
     let cleaned = false;
-    let addNewPromptDiv: HTMLDivElement;
-    let newPrompt: string;
+    let addNewPromptDiv: HTMLDivElement = $state();
+    let newPrompt: string = $state();
     const textBK = text;
 
     let handleEscapePress = (event: KeyboardEvent) => {
@@ -111,7 +115,7 @@
         ></textarea>
         <button
             class="margin b3-button"
-            on:click={() => {
+            onclick={() => {
                 toggleAddNewPromptDiv();
                 $aiBoxPrompts.push(newPrompt);
                 $aiBoxPrompts = $aiBoxPrompts;
@@ -123,17 +127,17 @@
         <button
             title="添加新提示词"
             class="margin b3-button"
-            on:click={toggleAddNewPromptDiv}>＋</button
+            onclick={toggleAddNewPromptDiv}>＋</button
         >
         {#each $aiBoxPrompts as item}
             <button
                 title="shift点击为删除提示词"
                 class="margin b3-button"
-                on:click={(event) => clickBtn(event, item)}>{item}</button
+                onclick={(event) => clickBtn(event, item)}>{item}</button
             >
         {/each}
     </div>
-    <button title="Send" class="margin b3-button" on:click={ai}
+    <button title="Send" class="margin b3-button" onclick={ai}
         >📡直接发送(Alt+Shift+S 或者 Alt+X 或者 F10)</button
     >
 </div>
