@@ -99,6 +99,13 @@
         window.removeEventListener("mousemove", onResize);
         window.removeEventListener("mouseup", stopResize);
     }
+
+    function exitProtyle() {
+        item.openOnCreate = false;
+        floatingballDocList.write();
+        getFloatingBallDocBtn(item);
+        getFloatingBallProtyle(item)?.destroyBy();
+    }
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -137,11 +144,9 @@
                     btnHelper.handleMouseDown(event);
                 }}
                 onmouseup={(event) => {
-                    btnHelper.handleMouseUp(event, () => {
-                        OpenSyFile2(getTomatoPluginInstance(), item.docID);
-                    });
+                    btnHelper.handleMouseUp(event, exitProtyle);
                 }}
-                class="b3-button b3-button--outline space">🎯</button
+                class="b3-button b3-button--outline space">🏃</button
             >
             <button
                 onmousedown={(event) => {
@@ -149,13 +154,11 @@
                 }}
                 onmouseup={(event) => {
                     btnHelper.handleMouseUp(event, () => {
-                        item.openOnCreate = false;
-                        floatingballDocList.write();
-                        getFloatingBallDocBtn(item);
-                        getFloatingBallProtyle(item)?.destroyBy();
+                        OpenSyFile2(getTomatoPluginInstance(), item.docID);
+                        exitProtyle();
                     });
                 }}
-                class="b3-button b3-button--outline space">🏃</button
+                class="b3-button b3-button--outline space">🎯</button
             >
         </div>
         <div
