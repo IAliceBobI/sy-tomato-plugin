@@ -247,6 +247,7 @@ class ConTree {
     constructor(linkItems: LinkItem[]) {
         this.linkItems = linkItems.map((i) => {
             i.text = i.text
+            .replaceAll("丨", "|")
                 .split("|")
                 .map((i) => i.trim())
                 .join("|");
@@ -433,7 +434,7 @@ export async function doGetBackLinks(
     });
     backLinks.sort(sortDiv);
     linkItems.forEach(i => {
-        i.conceptTree = i.text?.split("|")?.map(i => i.trim()) ?? []
+        i.conceptTree = i.text?.replaceAll("丨", "|").split("|")?.map(i => i.trim()) ?? []
     })
     // for database backlink
     const { block2mSelect, block2lnks } = (() => {

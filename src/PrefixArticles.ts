@@ -153,7 +153,7 @@ export async function getPrefixDocs(docID: string, name: string) {
     const tracer = await getDocTracer();
     let prefixDocs: ArticlesPrefix[] = [];
     if (name.includes("|")) {
-        for (const part of name.split("|").map(i => i.trim())) {
+        for (const part of name.replaceAll("丨", "|").split("|").map(i => i.trim())) {
             for (const [id, block] of tracer.getDocMap().entries()) {
                 const docName = block.content.trim();
                 if (docName.includes(part)) {

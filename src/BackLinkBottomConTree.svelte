@@ -23,7 +23,7 @@
                     OpenSyFile2(backLinkBottomBox.plugin, v.value.id);
                 }}
             >
-                {SPACE.repeat(depth)} [[ {k.split("|").join(" | ")} ]]</button
+                {SPACE.repeat(depth)} [[ {k.replaceAll("丨", "|").split("|").join(" | ")} ]]</button
             >
             <svelte:self trees={v.children} {dm} depth={depth + 1} />
         {/each}

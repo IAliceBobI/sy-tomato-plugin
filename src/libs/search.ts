@@ -25,7 +25,7 @@ export class SearchEngine {
         this.conditions = query.trim().replace(/[！!]+/g, "!").replace(/\s+/, " ")
             .replace(/ ?\| ?/g, "|").split(" ").filter(c => c.length > 0)
             .filter(c => c != "!").filter(c => c != "|").map(c => {
-                const con = c.split("|").map(c => c.trim()).filter(c => c.length > 0);
+                const con = c.replaceAll("丨", "|").split("|").map(c => c.trim()).filter(c => c.length > 0);
                 const ret = {} as SearchEngineCondition;
                 if (con.length == 1) {
                     const s = con[0];

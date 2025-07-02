@@ -222,11 +222,11 @@ export function text2tab(text: string) {
     for (let line of text.split("\n")) {
         line = line.trim()
         if (!line) continue;
-        const row = line.split("|");
+        const row = line.replaceAll("丨", "|").split("|");
         const rowList = []
         tabList.push(rowList)
         if (maxCol < row.length) maxCol = row.length
-        for (const item of line.split("|")) {
+        for (const item of line.replaceAll("丨", "|").split("|")) {
             rowList.push(item)
         }
     }

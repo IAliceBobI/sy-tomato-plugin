@@ -125,6 +125,7 @@ class Tag2RefBox {
             if (selectedText) {
                 const select = "select id,content from blocks where type='d'";
                 const cons = selectedText
+                    .replaceAll("丨", "|")
                     .replaceAll(" ", "|")
                     .split("|")
                     .map(i => i.trim())
@@ -163,7 +164,7 @@ class Tag2RefBox {
             if (refText.startsWith("@")) {
                 return siyuan.sql(`select id,content from blocks where type='d' and content like "%${refText.slice(1)}%"`);
             } else {
-                refText = refText.split("|").map(i => i.trim()).filter(i => i.length > 0).join(" | ");
+                refText = refText.replaceAll("丨", "|").split("|").map(i => i.trim()).filter(i => i.length > 0).join(" | ");
                 const id = await createRefDoc(notebookId, refText);
                 return [{ id, content: refText }]
             }
