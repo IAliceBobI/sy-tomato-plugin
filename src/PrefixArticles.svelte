@@ -7,6 +7,7 @@
     import { getPrefixDocs } from "./PrefixArticles";
     import { Protyle } from "siyuan";
     import { tomatoI18n } from "./tomatoI18n";
+    import { setGlobal } from "stonev5-utils";
 
     export let dockElement: HTMLElement = null;
     export let dm: DestroyManager;
@@ -15,6 +16,7 @@
     export let currentDocName: string = "";
     export let prefixDocs: ArticlesPrefix[] = [];
     export function destroy() {}
+    let forceRefresh = false;
 
     onMount(() => {
         if (isDock) {
@@ -22,6 +24,14 @@
         } else {
             initDialog();
         }
+        clearInterval(
+            setGlobal(
+                "间隔刷新前缀 2025-07-02 14:19:05",
+                setInterval(() => {
+                    forceRefresh = true;
+                }, 5000),
+            ),
+        );
     });
 
     async function initDialog() {
@@ -66,9 +76,14 @@
                 if (lock) {
                     const { docID, name } = events.getInfo(detail.protyle);
                     if (!docID || !name) return;
-                    if (docID != currentDocID || name != currentDocName) {
+                    if (
+                        docID != currentDocID ||
+                        name != currentDocName ||
+                        forceRefresh
+                    ) {
                         currentDocID = docID;
                         currentDocName = name;
+                        forceRefresh = false;
                         prefixDocs = await getPrefixDocs(docID, name);
                     }
                     await initDialog();

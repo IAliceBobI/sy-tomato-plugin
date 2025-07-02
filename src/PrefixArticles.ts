@@ -1,7 +1,7 @@
 import { DestroyManager } from "./libs/destroyer";
 import { getDocTracer } from "./libs/docUtils";
 import { events } from "./libs/Events";
-import { getTomatoPluginInstance } from "./libs/utils";
+import { getTomatoPluginInstance, siyuan } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
 import { tomatoI18n } from "./tomatoI18n";
 import PrefixArticles from "./PrefixArticles.svelte"
@@ -148,12 +148,28 @@ async function findArticlesByPrefix(name: string, docID: string) {
     dm.add("2", () => d.destroy())
 }
 
+async function tryFixTracerByLike(like: string) {
+    navigator.locks.request("tryFixTracerByLike 2025-07-02 14:07:26", { ifAvailable: true }, async (locks) => {
+        if (locks) {
+            const rows = await siyuan.sql(`select * from blocks where type='d' and ( ${like} ) limit 9999999`)
+            const tracer = await getDocTracer();
+            tracer.update(rows, false)
+        }
+    })
+}
+
+function titleSort(a: ArticlesPrefix, b: ArticlesPrefix) {
+    return a.docName.localeCompare(b.docName, undefined, { numeric: true, sensitivity: 'base' });
+}
+
 export async function getPrefixDocs(docID: string, name: string) {
     if (!name) return [];
     const tracer = await getDocTracer();
     let prefixDocs: ArticlesPrefix[] = [];
     if (name.includes("|")) {
-        for (const part of name.replaceAll("丨", "|").split("|").map(i => i.trim())) {
+        const parts = name.replaceAll("丨", "|").split("|").map(i => i.trim());
+        tryFixTracerByLike(parts.map(p => `content like "%${p}%"`).join(" or "))
+        for (const part of parts) {
             for (const [id, block] of tracer.getDocMap().entries()) {
                 const docName = block.content.trim();
                 if (docName.includes(part)) {
@@ -163,7 +179,7 @@ export async function getPrefixDocs(docID: string, name: string) {
         }
         return prefixDocs
             .filter(uniqueFilter(i => i.id))
-            .sort((a, b) => a.docName.localeCompare(b.docName));
+            .sort(titleSort);
     } else {
         for (const [id, block] of tracer.getDocMap().entries()) {
             const docName = block.content;
@@ -177,9 +193,10 @@ export async function getPrefixDocs(docID: string, name: string) {
             max = 50;
         }
         prefixDocs = getNearest(prefixDocs, max)
-        prefixDocs = prefixDocs.sort((a, b) => a.docName.localeCompare(b.docName));
+        prefixDocs = prefixDocs.sort(titleSort);
         prefixDocs = prune(prefixDocs, docID, max)
-        prefixDocs = prefixDocs.sort((a, b) => a.docName.localeCompare(b.docName));
+        prefixDocs = prefixDocs.sort(titleSort);
+        tryFixTracerByLike(prefixDocs.map(p => `content like "${p.prefix.trim()}%"`).join(" or "))
         return prefixDocs;
     }
 }
@@ -238,35 +255,3 @@ function getCommonPrefix(a: string, b: string): string {
     }
     return a.slice(0, i);
 }
-
-// if (group.length <= remaining) {
-//     result.push(...group);
-//     remaining -= group.length;
-// } else {
-//     group = groups.get(key).sort((a, b) => a.docName.localeCompare(b.docName));
-//     const toRemove = group.length - remaining;
-//     // result.push(...group.slice(toRemove, undefined));
-//     let left = 0;
-//     let right = group.length - 1;
-//     let removed = 0;
-//     while (removed < toRemove && left < right) {
-//         if (group[left].docName != name) {
-//             group[left].mark = true;
-//             removed++;
-//         }
-//         left++;
-//         if (removed >= toRemove) break;
-//         if (group[right].docName != name) {
-//             group[right].mark = true;
-//             removed++;
-//         }
-//         right--;
-//         if (removed >= toRemove) break;
-//     }
-//     for (let i = 0; i < group.length; i++) {
-//         if (group[i].mark == null) {
-//             result.push(group[i]);
-//         }
-//     }
-//     remaining = 0;
-// }

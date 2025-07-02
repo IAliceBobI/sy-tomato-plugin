@@ -811,7 +811,7 @@ export class DocTracer {
         const rows = await siyuan.sql(`select * from blocks where type='d' and id="${docID}"`)
         this.update(rows);
     }
-    private async update(rows: Block[], updateTime = false) {
+    async update(rows: Block[], updateTime = false) {
         rows.forEach(row => {
             if (updateTime && row.updated > this.timestamp) {
                 this.timestamp = row.updated;
