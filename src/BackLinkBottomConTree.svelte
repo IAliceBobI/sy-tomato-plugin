@@ -9,6 +9,7 @@
     export let dm: DestroyManager;
     export let depth = 0;
     onMount(() => {});
+    export function destroy() {}
 </script>
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->

@@ -702,44 +702,6 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
                 return "Maximum node count";
         }
     }
-    public get 块关系图帮助() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "（图中：按住ctrl可以多选节点与连线；backspace可删除节点与连线；可创建连线；alt点击可以定位到文档）（文档中：右键菜单可以定位到图中。快速创建引用可以用双向互链功能）";
-            case "es_ES":
-                return "（Gráfico: mantén presionado ctrl para seleccionar múltiples nodos y conexiones; backspace para eliminar nodos y conexiones; puedes crear conexiones; clic con alt para ir al documento）（En el documento: menú derecho para ir al gráfico. Crea referencias rápidamente usando enlaces bidireccionales）";
-            case "fr_FR":
-                return "（Graphique: maintenez ctrl enfoncé pour sélectionner plusieurs nœuds et connexions; backspace pour supprimer des nœuds et connexions; vous pouvez créer des connexions; clic avec alt pour accéder au document）（Dans le document: menu contextuel pour accéder au graphique. Créez rapidement des références avec la fonction de lien bidirectionnel）";
-            case "ja_JP":
-                return "（図中：Ctrlキーを押しながらノードと線を複数選択、バックスペースでノードと線を削除、線を作成可能、Altクリックでドキュメントにジャンプ）（ドキュメント内：右クリックメニューで図にジャンプ。双方向リンク機能で素早く参照を作成可能）";
-            case "zh_CHT":
-                return "（圖中：按住 Ctrl 可多選節點與連線；Backspace 可刪除節點與連線；可創建連線；Alt 點擊可定位到文檔）（文檔中：右鍵菜單可定位到圖中。快速創建引用可用雙向互鏈功能）";
-            case "it_IT":
-                return "（Grafico: tenere premuto ctrl per selezionare più nodi e connessioni; backspace per eliminare nodi e connessioni; puoi creare connessioni; clic con alt per posizionarsi nel documento）（Nel documento: menu con il tasto destro per posizionarsi nel grafico. Crea riferimenti rapidamente usando il collegamento bidirezionale）";
-
-            default:
-                return "（Graph: hold ctrl to multi-select nodes and connections; backspace to delete nodes and connections; you can create connections; alt-click to navigate to document）（In document: right-click menu to navigate to graph. Quickly create references using bidirectional linking feature）";
-        }
-    }
-    public get 定位到文档() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "定位到文档";
-            case "es_ES":
-                return "Ir al documento";
-            case "fr_FR":
-                return "Aller au document";
-            case "ja_JP":
-                return "ドキュメントに移動";
-            case "zh_CHT":
-                return "定位到文檔";
-            case "it_IT":
-                return "Vai al documento";
-
-            default:
-                return "Go to document";
-        }
-    }
     public get 定位到图中的节点() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":

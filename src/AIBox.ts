@@ -8,6 +8,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
 import { newID } from "stonev5-utils/lib/id";
+import { mount } from "svelte";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 export const AIBoxHotkey = winHotkey("⌥⇧S", "人工智能2024-6-9 01:58:39", "💻", () => tomatoI18n.人工智能)
@@ -76,7 +77,7 @@ class AIBox {
                     this.dm?.destroyBy("1")
                 },
             });
-            const d = new AIBoxMenu({
+            const d = mount(AIBoxMenu, {
                 target: dialog.element.querySelector("#" + id),
                 props: {
                     dm: this.dm,
@@ -85,7 +86,7 @@ class AIBox {
                 }
             });
             this.dm.add("1", () => { dialog.destroy() })
-            this.dm.add("2", () => { d.$destroy() })
+            this.dm.add("2", () => { d.destroy() })
             this.dm.add("dm", () => { this.dm = null; })
         }
     }

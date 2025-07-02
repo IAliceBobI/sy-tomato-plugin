@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { afterUpdate, onDestroy, onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import { DestroyManager } from "./destroyer";
 
     export let dm: DestroyManager;
@@ -16,9 +16,7 @@
     let input: HTMLInputElement;
     let area: HTMLTextAreaElement;
 
-    onMount(async () => {});
-
-    afterUpdate(() => {
+    onMount(async () => {
         if (useTextArea) {
             area.focus();
         } else {
@@ -26,12 +24,14 @@
         }
     });
 
-    onDestroy(() => {
+    export function destroy() {
         dm.destroyBy("svelte");
         if (alwaysConfirm) {
             if (!fired) callback(inputText);
         }
-    });
+    }
+
+    onDestroy(destroy);
 
     async function btnClick() {
         fired = true;

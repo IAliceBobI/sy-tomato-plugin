@@ -7,6 +7,7 @@ import { imgOverlayCheckbox } from "./libs/stores";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { tomatoI18n } from "./tomatoI18n";
 import { newID } from "stonev5-utils/lib/id";
+import { mount } from "svelte";
 
 class ImgOverlayBox {
     private plugin: BaseTomatoPlugin;
@@ -58,7 +59,7 @@ class ImgOverlayBox {
 
     async overlayEditor(imgSpan: HTMLSpanElement, _protyle: IProtyle) {
         const id = newID();
-        let editor: ImgOverlayEditor = null;
+        let editor: ReturnType<typeof mount>;
         const nextOverlays: Overlays = { originWidth: 0, overlays: [] };
         const imgID = getID(imgSpan);
         let size = "600px";
@@ -69,7 +70,7 @@ class ImgOverlayBox {
             width: size,
             height: size,
             destroyCallback() {
-                if (editor) editor.$destroy();
+                if (editor) editor.destroy();
                 let value = JSON.stringify(nextOverlays);
                 if (value == "{}") value = "";
                 const attrs = {};
@@ -81,7 +82,7 @@ class ImgOverlayBox {
         const attr = await siyuan.getBlockAttrs(imgID);
         const fm = tryFromOldFormat(attr[ATTR_PIC_OVERLAY]);
         const originOverlays: Overlays = JSON.parse(fm);
-        editor = new ImgOverlayEditor({
+        editor = mount(ImgOverlayEditor, {
             target: dialog.element.querySelector("#" + id),
             props: {
                 imgSpan,

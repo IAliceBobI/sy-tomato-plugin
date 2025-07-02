@@ -15,6 +15,7 @@ export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9", "delay all cards 2
 export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y", "resume all cards 2025-5-10 12:31:04")
 import { winHotkey } from "./libs/winHotkey";
 import { setGlobal } from "stonev5-utils";
+import { mount } from "svelte";
 
 class CardPriorityBox {
     plugin: BaseTomatoPlugin;
@@ -244,7 +245,7 @@ class CardPriorityBox {
                 element.lastElementChild.querySelectorAll(`div[${TOMATO_CONTROL_ELEMENT}]`)
                     .forEach(e => e.parentElement.removeChild(e));
             }
-            new CardPriorityBar({
+            mount(CardPriorityBar, {
                 target: element.lastElementChild,
                 props: {
                     cardElement: element,

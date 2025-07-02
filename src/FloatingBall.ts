@@ -11,6 +11,7 @@ import { lastVerifyResult } from "./libs/user";
 import { getTomatoPluginInstance } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
 import { tomatoI18n } from "./tomatoI18n";
+import { mount } from "svelte";
 
 export class FloatingBall {
     static readonly DMKey = "TomatoFloatingBtnDMKey";
@@ -42,7 +43,7 @@ export class FloatingBall {
         this.target.setAttribute("floating-ball-key", this.key);
         this.sv = svFactory(this.target);
         this.dm.add("global", () => delete globalThis[FloatingBall.key(address)]);
-        this.dm.add("sv", () => this.sv.$destroy());
+        this.dm.add("sv", () => this.sv.destroy());
         this.dm.add("div", () => this.target.parentElement?.removeChild(this.target));
         this.dm.setData("e", this.target);
     }
@@ -143,14 +144,14 @@ export function getFloatingBallProtyle(item: FloatingDocItem) {
     } else {
         const dm = FloatingBall.newProgFloatingDm(address);
         new FloatingBall(address, dm, (target) => {
-            return new FloatingBallProtyle({
+            return mount(FloatingBallProtyle, {
                 target,
                 props: {
                     dm,
                     key: FloatingBall.key(address),
                     item,
                 }
-            })
+            });
         });
         return dm;
     }
@@ -166,7 +167,7 @@ export function getFloatingBallDocBtn(item: FloatingDocItem): DestroyManager {
     } else {
         const dm = FloatingBall.newProgFloatingDm(address);
         new FloatingBall(address, dm, (target) => {
-            const sv = new FloatingBallDocBtn({
+            const sv = mount(FloatingBallDocBtn, {
                 target,
                 props: {
                     dm,
@@ -190,14 +191,14 @@ export function getFloatingBallKeyboardBtn(shortcut: FloatingKeyboardItem): Dest
     } else {
         const dm = FloatingBall.newProgFloatingDm(address);
         new FloatingBall(address, dm, (target) => {
-            return new FloatingBallKeyboardBtn({
+            return mount(FloatingBallKeyboardBtn, {
                 target,
                 props: {
                     dm,
                     key: FloatingBall.key(address),
                     shortcut,
                 }
-            })
+            });
         });
         return dm
     }

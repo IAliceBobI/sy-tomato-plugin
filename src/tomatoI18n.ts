@@ -401,6 +401,49 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Save annotations in the subdocument, otherwise in the journal";
         }
     }
+    public get 块关系图帮助() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN":
+                return "图中：backspace删节点或连线；  拖拽创建连线则相应创建引用；  alt点击定位到文档<br>文档中：右键菜单可以定位到图中。若要快速创建引用，用双向互链功能";
+            case "es_ES":
+                return "En el gráfico: backspace elimina nodos o conexiones; arrastrar para crear una conexión también crea una referencia; alt-clic para localizar el documento<br>En el documento: el menú contextual permite localizar en el gráfico. Para crear referencias rápidamente, use la función de enlace bidireccional";
+            case "fr_FR":
+                return "Dans le graphique : backspace supprime les nœuds ou les liens ; faire glisser pour créer un lien crée également une référence ; alt-clic pour localiser le document<br>Dans le document : le menu contextuel permet de localiser dans le graphique. Pour créer rapidement une référence, utilisez la fonction de liaison bidirectionnelle";
+            case "ja_JP":
+                return "グラフ内：backspaceでノードやリンクを削除；ドラッグでリンクを作成すると参照も作成されます；altクリックでドキュメントに移動<br>ドキュメント内：右クリックメニューでグラフ内に移動できます。素早く参照を作成するには双方向リンク機能を使ってください";
+            case "zh_CHT":
+                return "圖中：backspace 刪除節點或連線；拖曳建立連線則相應建立引用；alt 點擊定位到文件<br>文件中：右鍵選單可以定位到圖中。若要快速建立引用，請用雙向互鏈功能";
+            case "it_IT":
+                return "Nel grafico: backspace elimina nodi o collegamenti; trascinando per creare un collegamento si crea anche un riferimento; alt-clic per localizzare il documento<br>Nel documento: il menu contestuale consente di localizzare nel grafico. Per creare rapidamente riferimenti, usa la funzione di collegamento bidirezionale";
+            case "de_DE":
+                return "Im Diagramm: Backspace löscht Knoten oder Verbindungen; Ziehen zum Erstellen einer Verbindung erstellt auch eine Referenz; Alt-Klick, um das Dokument zu lokalisieren<br>Im Dokument: Das Kontextmenü ermöglicht das Lokalisieren im Diagramm. Um schnell Referenzen zu erstellen, verwenden Sie die bidirektionale Verknüpfungsfunktion";
+            case "he_IL":
+                return "בגרף: backspace מוחק צמתים או קישורים; גרירה ליצירת קישור יוצרת גם הפניה; alt+קליק ממקם למסמך<br>במסמך: תפריט לחיצה ימנית מאפשר מיקום בגרף. ליצירת הפניות במהירות, השתמש בפונקציית קישור דו-כיווני";
+            case "ru_RU":
+                return "В графе: backspace удаляет узлы или связи; перетаскивание для создания связи также создаёт ссылку; alt-клик для перехода к документу<br>В документе: контекстное меню позволяет найти в графе. Для быстрого создания ссылок используйте функцию двусторонней связи";
+            case "pl_PL":
+                return "Na wykresie: backspace usuwa węzły lub połączenia; przeciągnięcie w celu utworzenia połączenia tworzy również odniesienie; alt-klik, aby zlokalizować dokument<br>W dokumencie: menu kontekstowe pozwala zlokalizować na wykresie. Aby szybko utworzyć odniesienia, użyj funkcji dwukierunkowego łączenia";
+            case "en_US":
+            default:
+                return "In the graph: backspace deletes nodes or connections; dragging to create a connection also creates a reference; alt-click to locate the document<br>In the document: right-click menu allows locating in the graph. To quickly create references, use the bidirectional link feature";
+        }
+    }
+    public get 定位到文档() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "定位到文档<br><br>backspace删节点或连线<br><br>拖拽创建连线则相应创建引用<br><br>alt点击定位到文档";
+            case "es_ES": return "Localizar en el documento<br><br>backspace elimina nodos o conexiones<br><br>arrastrar para crear una conexión también crea una referencia<br><br>alt-clic para localizar el documento";
+            case "fr_FR": return "Localiser dans le document<br><br>backspace supprime les nœuds ou les liens<br><br>faire glisser pour créer un lien crée également une référence<br><br>alt-clic pour localiser le document";
+            case "ja_JP": return "ドキュメントに移動<br><br>backspaceでノードやリンクを削除<br><br>ドラッグでリンクを作成すると参照も作成されます<br><br>altクリックでドキュメントに移動";
+            case "zh_CHT": return "定位到文件<br><br>backspace 刪除節點或連線<br><br>拖曳建立連線則相應建立引用<br><br>alt 點擊定位到文件";
+            case "it_IT": return "Individua nel documento<br><br>backspace elimina nodi o collegamenti<br><br>trascinando per creare un collegamento si crea anche un riferimento<br><br>alt-clic per localizzare il documento";
+            case "de_DE": return "Im Dokument lokalisieren<br><br>Backspace löscht Knoten oder Verbindungen<br><br>Ziehen zum Erstellen einer Verbindung erstellt auch eine Referenz<br><br>Alt-Klick, um das Dokument zu lokalisieren";
+            case "he_IL": return "אתר במסמך<br><br>backspace מוחק צמתים או קישורים<br><br>גרירה ליצירת קישור יוצרת גם הפניה<br><br>alt+קליק ממקם למסמך";
+            case "ru_RU": return "Найти в документе<br><br>backspace удаляет узлы или связи<br><br>перетаскивание для создания связи также создаёт ссылку<br><br>alt-клик для перехода к документу";
+            case "pl_PL": return "Zlokalizuj w dokumencie<br><br>backspace usuwa węzły lub połączenia<br><br>przeciągnięcie w celu utworzenia połączenia tworzy również odniesienie<br><br>alt-klik, aby zlokalizować dokument";
+            case "en_US":
+            default: return "Locate in document<br><br>backspace deletes nodes or connections<br><br>dragging to create a connection also creates a reference<br><br>alt-click to locate the document";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

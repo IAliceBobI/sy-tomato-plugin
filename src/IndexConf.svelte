@@ -353,7 +353,7 @@
         dm.destroyBy("2");
         localStorage.setItem(SearchKeyItemKey, searchKey);
     });
-
+    export function destroy() {}
     onMount(async () => {
         plugin.global.tomato_zZmqus5PtYRi.save = save;
         codeValid = await verifyKeyTomato();
@@ -452,7 +452,7 @@
                     bind:value={$userToken}
                     placeholder="1656000000123_22000101_ldID_siyuanTomatoCode_3044022018c8d8bca......"
                     spellcheck="false"
-                />
+                ></textarea>
                 <button class="b3-button b3-button--outline" on:click={active}>
                     {tomatoI18n.激活}
                 </button>
@@ -597,7 +597,7 @@
                 bind:value={$cssRefAsTags}
                 placeholder="@,tag,label"
                 spellcheck="false"
-            />
+            ></textarea>
         </div>
     </div>
     <!-- 显示备注 -->
@@ -1371,7 +1371,7 @@
                     spellcheck="false"
                     class="b3-text-field"
                     bind:value={$noteBoxAllKinds}
-                />
+                ></textarea>
                 {tomatoI18n.自定义图标}
             </div>
 
@@ -1639,7 +1639,7 @@
                 {tomatoI18n.最大节点数量}
             </div>
             <div>
-                {tomatoI18n.块关系图帮助}
+                {@html tomatoI18n.块关系图帮助}
             </div>
         {/if}
     </div>

@@ -1,6 +1,6 @@
 <!-- FloatingActionButton.svelte -->
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { mount, onMount } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
     import { FloatingBallHelper } from "./libs/FloatingBallHelper";
     import ProtyleSv4Dialog from "./libs/ProtyleSv4Dialog.svelte";
@@ -32,17 +32,24 @@
         storeNoteBox_selectedNotebook,
     } from "./libs/stores";
 
-    export let dm: DestroyManager;
-    export let key: string;
-    export let item: FloatingDocItem;
+    interface Props {
+        dm: DestroyManager;
+        key: string;
+        item: FloatingDocItem;
+        // rest: any[];
+    }
+    let { dm, key, item /*...rest*/ }: Props = $props();
     let div: HTMLElement;
     let btnHelper = new ClickHelper();
     let dialog: Dialog = null;
     let ballHelper: FloatingBallHelper;
 
     onMount(() => {
+        // rest;
         ballHelper = new FloatingBallHelper(key, div, dm);
     });
+
+    export function destroy() {}
 
     export async function toggleOpen(_event: MouseEvent) {
         item.docID = "";
@@ -133,7 +140,8 @@
             dialog2floating(dialog, ballHelper.getPosition());
             dialog.element.style.zIndex = "10";
         }
-        const sv = new ProtyleSv4Dialog({
+
+        const sv = mount(ProtyleSv4Dialog, {
             target: dialog.element.querySelector("#" + id),
             props: {
                 dm,
@@ -146,13 +154,14 @@
             dialog = null;
         });
         dm.add("svelte", () => {
-            sv.$destroy();
+            sv.destroy();
         });
     }
 </script>
 
 <div class="floating-button" bind:this={div}>
     {SPACE}
+    <!-- svelte-ignore event_directive_deprecated -->
     <button
         on:mousedown={(event) => {
             btnHelper.handleMouseDown(event);

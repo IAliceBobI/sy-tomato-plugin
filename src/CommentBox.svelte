@@ -37,6 +37,7 @@
     import { events } from "./libs/Events";
     import { lastVerifyResult } from "./libs/user";
     import { getGlobal, setGlobal, sleep } from "stonev5-utils";
+    export function destroy() {}
 
     export let dock: Dock;
     export let isDock = true;
@@ -666,6 +667,7 @@
                                 >🔍 {backLink.row?.content?.slice(0, 10) ??
                                     tomatoI18n.定位}</button
                             >
+                            <!-- svelte-ignore a11y_consider_explicit_label -->
                             <button
                                 title={backLink.row.data +
                                     SPACE +

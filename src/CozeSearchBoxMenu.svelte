@@ -27,6 +27,7 @@
     let docID: string;
     let docName: string;
     let cozeFileRows: Block[] = [];
+    export function destroy() {}
 
     onMount(async () => {
         if (anchorID) {

@@ -28,7 +28,7 @@
         dm.destroyBy("svelte");
     });
 
-    function destroy() {
+    export function destroy() {
         dm.destroyBy();
     }
 

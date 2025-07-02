@@ -13,6 +13,7 @@ import { verifyKeyTomato } from "./libs/user";
 import { DomSuperBlockBuilder, domNewLine } from "./libs/sydom";
 import { winHotkey } from "./libs/winHotkey";
 import { newID } from "stonev5-utils/lib/id";
+import { mount } from "svelte";
 
 const DOCK_TYPE = "dock_NoteBox";
 const TAB_TYPE = "custom_tab_NoteBox";
@@ -257,7 +258,7 @@ class NoteBox {
                         <div id="${eleID}"></div>
                     </div>`;
                 }
-                dock.data.svelte = new NoteBoxSvelte({
+                dock.data.svelte = mount(NoteBoxSvelte, {
                     target: dock.element.querySelector("#" + eleID),
                     props: {}
                 }) as any;
@@ -287,11 +288,11 @@ class NoteBox {
                 this.data.sm = new DestroyManager();
                 this.data.sm.add("custom-tab", () => { this.destroy(); });
                 if (!isMainWin()) {
-                    this.data.sv = new NoteBoxSvelte({
+                    this.data.sv = mount(NoteBoxSvelte,{
                         target: this.element.querySelector("#" + id),
                         props: { sm: this.data.sm }
                     });
-                    this.data.sm.add("svelte", () => { this.data.sv.$destroy(); });
+                    this.data.sm.add("svelte", () => { this.data.sv.destroy(); });
                 }
             },
             beforeDestroy() { },
@@ -314,7 +315,7 @@ class NoteBox {
                 dm.destroyBy("1")
             },
         });
-        const d = new NoteBoxSvelte({
+        const d = mount(NoteBoxSvelte, {
             target: dialog.element.querySelector("#" + id),
             props: {
                 sm: dm,
@@ -322,7 +323,7 @@ class NoteBox {
             }
         });
         dm.add("1", () => { dialog.destroy() })
-        dm.add("2", () => { d.$destroy() })
+        dm.add("2", () => { d.destroy() })
     }
 
     private async showInput() {

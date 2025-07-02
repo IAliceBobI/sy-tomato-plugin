@@ -14,6 +14,7 @@
         dialog;
         dm;
     });
+    export function destroy() {}
 </script>
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->

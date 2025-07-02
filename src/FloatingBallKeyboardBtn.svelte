@@ -12,7 +12,7 @@
     export let shortcut: FloatingKeyboardItem;
     let div: HTMLElement;
     let btnHelper = new ClickHelper();
-
+    export function destroy() {}
     onMount(() => {
         new FloatingBallHelper(key, div, dm);
     });

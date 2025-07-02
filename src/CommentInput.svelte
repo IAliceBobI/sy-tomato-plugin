@@ -41,7 +41,7 @@
     const key = "tomato comment text key 2025-6-5 21:37:27";
 
     onDestroy(destroy);
-    function destroy() {
+    export function destroy() {
         if (commentBoxAddKeepText.get()) {
             getTomatoPluginConfig()[key] = text;
             commentBoxCheckbox.write();
@@ -253,7 +253,7 @@
                 }
             }
         }}
-    />
+    ></textarea>
     <button
         bind:this={btn}
         class="b3-button b3-button--outline box"

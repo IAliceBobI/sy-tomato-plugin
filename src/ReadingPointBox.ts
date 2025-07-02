@@ -16,6 +16,7 @@ import { Dialog } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
+import { mount } from "svelte";
 
 export type RPType = { dom: string, row?: Block, line?: string };
 export const ReadingPointBox设置阅读点 = winHotkey("F7", "addBookmark 2025-5-12 17:52:14", "＋🔖", () => tomatoI18n.设置阅读点)
@@ -277,7 +278,7 @@ class ReadingPointBox {
                 dm.destroyBy("1")
             },
         });
-        const d = new ReadingPoint({
+        const d = mount(ReadingPoint, {
             target: dialog.element.querySelector("#" + id),
             props: {
                 plugin: this.plugin,
@@ -287,7 +288,7 @@ class ReadingPointBox {
             }
         });
         dm.add("1", () => { dialog.destroy() })
-        dm.add("2", () => { d.$destroy() })
+        dm.add("2", () => { d.destroy() })
     }
 
     private async addReadPoint(blockID: string, div: HTMLElement) {

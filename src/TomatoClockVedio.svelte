@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Protyle } from "siyuan";
-    import { onDestroy, afterUpdate, onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
     import { TomatoClockID, tomatoClock } from "./TomatoClock";
     import { tomato_clocks_audio } from "./libs/stores";
@@ -35,9 +35,6 @@
                 window.removeEventListener("keydown", handleEscapePress),
             );
         }
-    });
-
-    afterUpdate(async () => {
         if (vedioID) {
             const protyle = new Protyle(tomatoClock.plugin.app, protyleTarget, {
                 blockId: vedioID,
@@ -54,10 +51,10 @@
             dm.add("protyle", () => protyle.destroy());
         }
     });
-
-    onDestroy(() => {
+    export function destroy() {
         dm.destroyBy("svelte");
-    });
+    }
+    onDestroy(destroy);
 </script>
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->

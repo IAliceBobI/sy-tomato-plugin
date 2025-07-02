@@ -10,6 +10,7 @@ import AttrBar from "./AttrBar.svelte";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { commentBoxCheckbox, foldTypes } from "./libs/stores";
 import { setGlobal } from "stonev5-utils";
+import { mount } from "svelte";
 
 export const addFoldCmd折叠 = winHotkey("alt+↑", "2025-5-11 16:00:08折叠", "", () => tomatoI18n.折叠)
 export const addFoldCmd展开 = winHotkey("alt+↓", "2025-5-11 16:00:04展开", "", () => tomatoI18n.展开)
@@ -190,14 +191,14 @@ function findTarget2addBar(plugin: BaseTomatoPlugin, e: HTMLElement) {
     if (ts.includes(getAttribute(e, "data-type")) || e.hasAttribute(COMMENT_SUPERBLOCK_FOLD)) {
         if (e.lastElementChild.classList.contains("protyle-attr")) {
             e.lastElementChild.querySelectorAll(`div[${TOMATO_ATTR_BAR}]`).forEach(e => e.parentElement.removeChild(e));
-            new AttrBar({
+            mount(AttrBar, {
                 target: e.lastElementChild,
                 props: {
                     element: e,
                     plugin,
                     attrElement: e.lastElementChild as any,
                 }
-            });
+            })
         }
     }
 }

@@ -152,6 +152,7 @@
     }
     const idsFilter = storeAttrManager();
     onDestroy(() => {});
+    export function destroy() {}
 
     $: if (refDocCount < 0) refDocCount = 0;
     $: if (menDocCount < 0) menDocCount = 0;

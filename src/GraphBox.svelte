@@ -26,7 +26,6 @@
         Siyuan,
         sleep,
     } from "./libs/utils";
-    import GraphNode from "./GraphNode.svelte";
     import dagre from "@dagrejs/dagre";
     import GraphControl from "./GraphControl.svelte";
     import GraphMenu from "./GraphMenu.svelte";
@@ -40,25 +39,26 @@
     import { verifyKeyTomato } from "./libs/user";
     import { events } from "./libs/Events";
 
-    export let plugin: Plugin;
-    export let dock: { element: HTMLElement; data: any };
-    export let landscapeSwitchBtnID: string;
-    let colorMode: ColorMode = "system";
+    interface ProposType {
+        plugin: Plugin;
+        dock: { element: HTMLElement; data: any };
+        landscapeSwitchBtnID: string;
+    }
+    let { plugin, dock, landscapeSwitchBtnID }: ProposType = $props();
+    let colorMode: ColorMode = $state("system");
     let canvas: HTMLElement;
     const nodes = writable<Node[]>([]);
     const edges = writable<Edge[]>([]);
     const snapGrid: [number, number] = [25, 25];
-    const nodeTypes = {
-        block: GraphNode,
-    };
     const nodeWidth = 172;
     const nodeHeight = 36;
-    let canvasHeight: number;
-    let canvasWidth: number;
-    let menuOpt: NodeMenu<Node>;
+    let canvasHeight: number = $state();
+    let canvasWidth: number = $state();
+    let menuOpt: NodeMenu<Node> = $state();
     let lastDocID = "";
     let stop = false;
     let isVertical = false;
+    export function destroy() {}
 
     // https://svelteflow.dev/examples/nodes/easy-connect
     onMount(() => {
@@ -165,13 +165,7 @@
             }
             $nodes.push({
                 id: row.id,
-                type: "default",
-                // type: "block",
-                data: {
-                    label,
-                    // text: label,
-                    // color: nodeColors.getColorForRootID(row.root_id),
-                } as GraphNodeData,
+                data: { label },
                 position: { x: 0, y: idx * 100 },
             });
         });
@@ -207,14 +201,11 @@
         const id = link.block_id + "-" + link.def_block_id;
         let label = link.content?.trim() ?? "";
         if (label === "*") label = "";
-        // const style = `stroke:var(--b3-font-color1);`;
         $edges.push({
             id,
             source: link.block_id,
             target: link.def_block_id,
-            // type: "default",
             label,
-            // style,
         });
     }
 
@@ -294,7 +285,7 @@
         return dock.data as unknown as GraphDockData<any>;
     }
 
-    function handleContextMenu({ detail: { event, node } }) {
+    function handleContextMenu({ event, node }) {
         menuOpt = null;
         event.preventDefault();
         menuOpt = {
@@ -337,9 +328,8 @@
             relayout();
         }
     }
-    async function nodeclick({ detail }: any) {
-        const pointer = detail?.event as PointerEvent;
-        const node = detail?.node as Node;
+    async function nodeclick({ node, event }) {
+        const pointer = event as PointerEvent;
         if (pointer.altKey) {
             OpenSyFile2(plugin, node.id);
         } else if (graphClick2Locate.get()) {
@@ -358,21 +348,20 @@
 >
     <SvelteFlowProvider>
         <SvelteFlow
+            bind:nodes={$nodes}
+            bind:edges={$edges}
             id={newID()}
-            {nodeTypes}
             {colorMode}
-            {nodes}
-            {edges}
             {snapGrid}
             fitView
             {ondelete}
             {onconnect}
-            on:nodecontextmenu={handleContextMenu}
-            on:paneclick={handlePaneClick}
-            on:edgeclick={(event) => {
+            onnodecontextmenu={handleContextMenu}
+            onpaneclick={handlePaneClick}
+            onedgeclick={(event) => {
                 event;
             }}
-            on:nodeclick={nodeclick}
+            onnodeclick={nodeclick}
         >
             <Controls showLock={true} />
             <Background />

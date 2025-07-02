@@ -16,6 +16,7 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { newID } from "stonev5-utils/lib/id";
 import { winHotkey } from "./libs/winHotkey";
+import { mount } from "svelte";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -574,7 +575,7 @@ export async function showSyncBlocks(protyle: IProtyle, plugin: Plugin, element?
                         dm.destroyBy("1")
                     },
                 });
-                const d = new LinkBoxDialog({
+                const d = mount(  LinkBoxDialog,{
                     target: dialog.element.querySelector("#" + id),
                     props: {
                         plugin,
@@ -588,7 +589,7 @@ export async function showSyncBlocks(protyle: IProtyle, plugin: Plugin, element?
                     }
                 });
                 dm.add("1", () => { dialog.destroy() })
-                dm.add("2", () => { d.$destroy() })
+                dm.add("2", () => { d.destroy() })
             }
         }
     }
@@ -737,7 +738,7 @@ function addBar(element: HTMLElement) {
         if (element.lastElementChild.classList.contains("protyle-attr")) {
             element.lastElementChild.querySelectorAll(`div[${TOMATO_CONTROL_SYNC}]`)
                 .forEach(e => e.parentElement.removeChild(e))
-            new LinkBoxBar({
+            mount(LinkBoxBar, {
                 target: element.lastElementChild, // <-- 给 protyleAttrElement 加个子元素。
                 props: {
                     syncBlock: element,

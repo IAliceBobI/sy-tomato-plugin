@@ -9,6 +9,7 @@ import { newID } from "stonev5-utils/lib/id";
 import { adaptHotkey, Dialog, Dock } from "siyuan";
 import { prefixArticlesEnable, prefixArticlesMenu, prefixArticlesSoftLimit } from "./libs/stores";
 import { uniqueFilter } from "stonev5-utils";
+import { mount } from "svelte";
 export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树 2025-06-26 00:20:18", "📖", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock 2025-06-26 00:20:18", "iconFilesTomato", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 
@@ -63,7 +64,7 @@ const DOCK_TYPE = "dock_PrefixArticles";
 function addDock() {
     dm?.destroyBy()
     dm = new DestroyManager();
-    let svelte: PrefixArticles
+    let svelte: any
     const title = PrefixArticles前缀文档树.langText()
     const dock = getTomatoPluginInstance().addDock({
         type: DOCK_TYPE,
@@ -105,7 +106,7 @@ function addDock() {
                         <div id="${eleID}"></div>
                     </div>`;
             }
-            svelte = new PrefixArticles({
+            svelte = mount(PrefixArticles, {
                 target: dock.element.querySelector("#" + eleID),
                 props: {
                     dm,
@@ -116,7 +117,7 @@ function addDock() {
         },
     });
     dm.add("dock", () => dock);
-    dm.add("svelte", () => svelte?.$destroy())
+    dm.add("svelte", () => svelte?.destroy())
 }
 
 async function findArticlesByPrefix(name: string, docID: string) {
@@ -135,7 +136,7 @@ async function findArticlesByPrefix(name: string, docID: string) {
         },
         transparent: true,
     });
-    const d = new PrefixArticles({
+    const d = mount(PrefixArticles, {
         target: dialog.element.querySelector("#" + id),
         props: {
             dm,
@@ -144,7 +145,7 @@ async function findArticlesByPrefix(name: string, docID: string) {
         }
     });
     dm.add("1", () => dialog.destroy())
-    dm.add("2", () => d.$destroy())
+    dm.add("2", () => d.destroy())
 }
 
 export async function getPrefixDocs(docID: string, name: string) {

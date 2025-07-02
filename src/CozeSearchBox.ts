@@ -8,6 +8,7 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cozeSearchBoxCheckbox, cozeSearchMenuShow } from "./libs/stores";
 import { winHotkey } from "./libs/winHotkey";
 import { newID } from "stonev5-utils/lib/id";
+import { mount } from "svelte";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -78,7 +79,7 @@ class CozeSearchBox {
                 dm.destroyBy("1")
             },
         });
-        const d = new CozeSearchBoxMenu({
+        const d = mount(CozeSearchBoxMenu, {
             target: dialog.element.querySelector("#" + id),
             props: {
                 dm,
@@ -88,7 +89,7 @@ class CozeSearchBox {
             }
         });
         dm.add("1", () => { dialog.destroy() })
-        dm.add("2", () => { d.$destroy() })
+        dm.add("2", () => { d.destroy() })
     }
 }
 

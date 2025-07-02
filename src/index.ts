@@ -47,6 +47,7 @@ import { markdownExportBox } from "./MarkdownExportBox";
 import { loadFloatingBall } from "./FloatingBall";
 import { setGlobal } from "stonev5-utils";
 import { initPrefixArticles } from "./PrefixArticles";
+import { mount } from "svelte";
 
 function loadStore(plugin: BaseTomatoPlugin) {
     userToken.load(plugin);
@@ -370,7 +371,7 @@ export default class ThePlugin extends BaseTomatoPlugin {
             },
             hideCloseIcon: true,
         });
-        const d = new IndexConf({
+        const d = mount(IndexConf, {
             target: dialog.element.querySelector("#" + id),
             props: {
                 plugin: this,
@@ -378,7 +379,7 @@ export default class ThePlugin extends BaseTomatoPlugin {
             }
         });
         dm.add("1", () => { dialog.destroy() })
-        dm.add("2", () => { d.$destroy() })
+        dm.add("2", () => { d.destroy() })
     }
 
     async onLayoutReady() {

@@ -10,6 +10,7 @@ import { tomato_clocks, tomato_clocks_change_bg, tomato_clocks_change_bg_dark, t
 import { tomatoI18n } from "./tomatoI18n";
 import { verifyKeyTomato } from "./libs/user";
 import { newID } from "stonev5-utils/lib/id";
+import { mount } from "svelte";
 
 function formatDuration(milliseconds: number): { minutes: number, seconds: number } {
     const totalSeconds = Math.floor(milliseconds / 1000);
@@ -87,14 +88,14 @@ class TomatoClock {
                 this.data.dm = new DestroyManager();
                 this.data.dm.add("custom-tab", () => { this.destroy(); });
                 if (!isMainWin()) {
-                    this.data.sv = new TomatoVedio({
+                    this.data.sv = mount(TomatoVedio, {
                         target: this.element.querySelector("#" + id),
                         props: {
                             vedioID: this.data.vedioID,
                             dm: this.data.dm,
                         }
                     });
-                    this.data.dm.add("svelte", () => { this.data?.sv?.$destroy(); });
+                    this.data.dm.add("svelte", () => { this.data?.sv?.destroy(); });
                     this.data.dm.add("close svg btn", () => document.getElementById("closeWindow").click());
                 }
             },
@@ -232,12 +233,12 @@ class TomatoClock {
                     dm.destroyBy("1")
                 },
             });
-            const d = new TomatoVedio({
+            const d = mount(TomatoVedio, {
                 target: dialog.element.querySelector("#" + id),
                 props: { vedioID, dm }
             });
             dm.add("1", () => { dialog.destroy() })
-            dm.add("2", () => { d.$destroy() })
+            dm.add("2", () => { d.destroy() })
         } else {
             const tab = await openTab({ // custom
                 app: this.plugin.app,

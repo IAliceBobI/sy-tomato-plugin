@@ -16,6 +16,7 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
 import { newID } from "stonev5-utils/lib/id";
+import { mount } from "svelte";
 
 const BKMAKER_ADD = "BKMAKER_ADD";
 
@@ -60,7 +61,7 @@ export class BKMaker {
             this.container.style.paddingLeft = "0px"
             this.container.style.paddingRight = "0px"
 
-            const sv = new BackLinkBottom({
+            const sv = mount(BackLinkBottom, {
                 target: this.container,
                 props: {
                     maker: this,
@@ -76,7 +77,7 @@ export class BKMaker {
                     this.refreshBacklinks();
                 }
             }, 5000);
-            this.dm.add("maker del sv", () => sv.$destroy())
+            this.dm.add("maker del sv", () => sv.destroy())
             this.dm.add("maker del interval", () => clearInterval(handler))
         })
     }
@@ -287,7 +288,7 @@ export async function showBkConTree(trees: Map<string, ConTreeNode>) {
             dm.destroyBy("1")
         },
     });
-    const d = new BKConTree({
+    const d = mount(BKConTree, {
         target: dialog.element.querySelector("#" + id),
         props: {
             trees,
@@ -295,7 +296,7 @@ export async function showBkConTree(trees: Map<string, ConTreeNode>) {
         }
     });
     dm.add("1", () => { dialog.destroy() })
-    dm.add("2", () => { d.$destroy() })
+    dm.add("2", () => { d.destroy() })
 }
 
 export const backLinkBottomBox = new BackLinkBottomBox();

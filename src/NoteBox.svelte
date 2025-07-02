@@ -24,6 +24,7 @@
 
     export let sm: DestroyManager = null;
     export let isDialog = false;
+    export function destroy() {}
 
     let NoteTypes = ["💡"];
     let inputArea: HTMLTextAreaElement;
@@ -204,8 +205,9 @@ https://learn.svelte.dev/tutorial/if-blocks
 
     {#if events.isMobile && isDialog}
         <div class="margin">
-            <button class="b3-button b3-button--outline" on:click={() => saveExit(true)}
-                >{tomatoI18n.保存}</button
+            <button
+                class="b3-button b3-button--outline"
+                on:click={() => saveExit(true)}>{tomatoI18n.保存}</button
             >
         </div>
     {/if}
@@ -233,8 +235,9 @@ https://learn.svelte.dev/tutorial/if-blocks
 
     {#if events.isMobile && isDialog}
         <div class="margin">
-            <button class="b3-button b3-button--outline" on:click={() => saveExit(true)}
-                >{tomatoI18n.保存}</button
+            <button
+                class="b3-button b3-button--outline"
+                on:click={() => saveExit(true)}>{tomatoI18n.保存}</button
             >
         </div>
     {/if}

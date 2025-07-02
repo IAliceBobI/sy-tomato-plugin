@@ -14,6 +14,7 @@
     export let currentDocID: string = "";
     export let currentDocName: string = "";
     export let prefixDocs: ArticlesPrefix[] = [];
+    export function destroy() {}
 
     onMount(() => {
         if (isDock) {

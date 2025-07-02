@@ -8,6 +8,7 @@
     export let docName: string = "";
     export let docID: string = "";
     let protyleTarget: HTMLElement;
+    export function destroy() {}
 
     onDestroy(() => {
         dm.destroyBy();

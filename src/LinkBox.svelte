@@ -20,6 +20,8 @@
     let originID = getAttribute(syncDiv, "custom-sync-origin-id");
     const version = getAttribute(syncDiv, "custom-sync-version");
     let oriVer = version;
+    export function destroy() {}
+
     onMount(() => {
         const count = stringToNumber(
             getAttribute(syncDiv, "custom-sync-block-count"),

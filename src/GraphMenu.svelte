@@ -49,7 +49,7 @@
     <button
         on:click={() => {
             OpenSyFile2(plugin, $menuOpt.node.id);
-        }}>{tomatoI18n.定位到文档}</button
+        }}>{@html tomatoI18n.定位到文档}</button
     >
 </div>
 

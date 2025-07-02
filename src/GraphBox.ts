@@ -9,6 +9,7 @@ import { getDocBlocks } from "./libs/docUtils";
 import { DestroyManager } from "./libs/destroyer";
 import { winHotkey } from "./libs/winHotkey";
 import { newID } from "stonev5-utils/lib/id";
+import { mount } from "svelte";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -83,7 +84,7 @@ class GraphBox {
                 const id = newID();
                 this.element.innerHTML = `<div id="${id}"></div>`;
                 this.data.sm = new DestroyManager();
-                const svelte = new GraphBoxSvelte({
+                const svelte = mount(GraphBoxSvelte, {
                     target: this.element.querySelector("#" + id),
                     props: {
                         dock: this as any,
@@ -92,7 +93,7 @@ class GraphBox {
                     }
                 });
                 this.data.sm.add("custom", () => { this.destroy(); });
-                this.data.sm.add("svelte", () => { svelte.$destroy(); });
+                this.data.sm.add("svelte", () => { svelte.destroy(); });
             },
             beforeDestroy() { },
             destroy() {
@@ -172,7 +173,7 @@ class GraphBox {
                 // graphBox.getData(this).setCanvasSize() 这里会在同步时，更新文档树时，自动弹出dock框。
             },
             destroy(this: Dock) {
-                graphBox.getData(this).svelte.$destroy();
+                graphBox.getData(this).svelte.destroy();
             },
             init: (dock: Dock) => {
                 const eleID = newID();
@@ -200,14 +201,14 @@ class GraphBox {
                 }
                 this.dock = dock;
                 try {
-                    graphBox.getData(dock).svelte = new GraphBoxSvelte({
+                    graphBox.getData(dock).svelte = mount(GraphBoxSvelte, {
                         target: dock.element.querySelector("#" + eleID),
                         props: {
                             dock,
                             plugin: this.plugin,
                             landscapeSwitchBtnID,
                         }
-                    });
+                    }) as any;
                 } catch (e) {
                     console.error(e);
                 }

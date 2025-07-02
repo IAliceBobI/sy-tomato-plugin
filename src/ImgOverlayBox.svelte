@@ -12,6 +12,7 @@
     let canvas: fabric.Canvas;
     let drawingRect: fabric.Rect = null;
     let scaleValue: number = 1;
+    export function destroy() {}
 
     onMount(async () => {
         const imgID = getID(imgSpan);
@@ -192,7 +193,9 @@
     <button class="b3-button b3-button--outline" on:click={remove}
         >{tomatoI18n.删除最后一个遮挡层}</button
     >
-    <button class="b3-button b3-button--outline" on:click={exit}>{tomatoI18n.保存并退出}</button>
+    <button class="b3-button b3-button--outline" on:click={exit}
+        >{tomatoI18n.保存并退出}</button
+    >
     <input
         title={tomatoI18n.缩放}
         type="range"

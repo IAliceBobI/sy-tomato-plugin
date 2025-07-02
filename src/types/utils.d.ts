@@ -510,14 +510,6 @@ interface NodeMenu<T> {
     canvasWidth?: number;
 }
 
-interface GraphNodeData extends Record<string, unknown> {
-    text?: string;
-    color?: string;
-    // id?: string;
-    // docID?: string;
-    // plugin?: any;
-}
-
 interface WsMain {
     cmd: string;
     reqId: number;

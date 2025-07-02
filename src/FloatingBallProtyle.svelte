@@ -33,7 +33,7 @@
     let startY = 0;
     let startWidth = 0;
     let startHeight = 0;
-
+    export function destroy() {}
     // 加载本地存储的尺寸
     onMount(() => {
         new FloatingBallHelper(key, div, dm);

@@ -11,6 +11,7 @@ import { DestroyManager } from "./libs/destroyer";
 import CommentInput from "./CommentInput.svelte";
 import { newID } from "stonev5-utils/lib/id";
 import { verifyKeyTomato } from "./libs/user";
+import { mount } from "svelte";
 
 const DOCK_TYPE = "dock_CommentBox";
 const TAB_TYPE = "custom_tab_CommentBox"
@@ -129,7 +130,7 @@ class CommentBox {
                     const id = newID();
                     this.element.innerHTML = `<div id="${id}"></div>`;
                     this.data.sm = new DestroyManager();
-                    const svelte = new CommentBoxSvelte({
+                    const svelte = mount(CommentBoxSvelte, {
                         target: this.element.querySelector("#" + id),
                         props: {
                             dock: this as any,
@@ -137,7 +138,7 @@ class CommentBox {
                         }
                     });
                     this.data.sm.add("tab", () => { this.destroy(); });
-                    this.data.sm.add("svelte", () => { svelte.$destroy(); });
+                    this.data.sm.add("svelte", () => { svelte.destroy(); });
                 },
                 beforeDestroy() { },
                 destroy() {
@@ -256,7 +257,7 @@ class CommentBox {
             }
         });
         dm.add("dialog", () => dialog.destroy());
-        const svelte = new CommentInput({
+        const svelte = mount(CommentInput, {
             target: dialog.element.querySelector("#" + id),
             props: {
                 dm,
@@ -269,7 +270,7 @@ class CommentBox {
                 range,
             }
         });
-        dm.add("svelte", () => svelte.$destroy());
+        dm.add("svelte", () => svelte.destroy());
     }
 
     private addDock() {
@@ -291,7 +292,7 @@ class CommentBox {
             update() {
             },
             destroy() {
-                commentBox.svelte.$destroy();
+                commentBox.svelte.destroy();
             },
             init: (dock: Dock) => {
                 const eleID = newID();
@@ -314,7 +315,7 @@ class CommentBox {
                         <div id="${eleID}"></div>
                     </div>`;
                 }
-                commentBox.svelte = new CommentBoxSvelte({
+                commentBox.svelte = mount(CommentBoxSvelte, {
                     target: dock.element.querySelector("#" + eleID),
                     props: {
                         dock,

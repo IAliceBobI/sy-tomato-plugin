@@ -1,10 +1,9 @@
 <script lang="ts">
-    import { useSvelteFlow, useNodes } from "@xyflow/svelte";
+    import { useSvelteFlow } from "@xyflow/svelte";
     import { Plugin } from "siyuan";
     import { onMount } from "svelte";
 
-    const { setCenter } = useSvelteFlow();
-    const nodes = useNodes();
+    const { setCenter, getNodes } = useSvelteFlow();
 
     export let plugin: Plugin;
     export let dock: { element: HTMLElement; data: any };
@@ -13,7 +12,7 @@
         plugin;
         getData().locateID = async (id: string) => {
             if (!id) return;
-            const n = $nodes.find((n) => n.id === id);
+            const n = getNodes().find((n) => n.id === id);
             if (n) {
                 setCenter(n.position.x, n.position.y);
                 document
