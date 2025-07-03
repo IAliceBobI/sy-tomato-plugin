@@ -149,7 +149,7 @@
     <div class="kbd">
         {tomatoI18n.文档数量}：{prefixDocs.length}
         <button
-            class="b3-button b3-button--outline"
+            class="b3-button b3-button--text"
             onclick={() => {
                 showPrefixDialog = !showPrefixDialog;
             }}
