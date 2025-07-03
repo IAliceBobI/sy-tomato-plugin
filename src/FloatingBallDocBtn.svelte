@@ -12,7 +12,7 @@
         FloatingBallDocType_tab,
         SPACE,
     } from "./libs/gconst";
-    import { Dialog } from "siyuan";
+    import { confirm, Dialog } from "siyuan";
     import { newID } from "stonev5-utils/lib/id";
     import { events } from "./libs/Events";
     import { OpenSyFile2 } from "./libs/docUtils";
@@ -33,6 +33,7 @@
         floatingballDocList,
         storeNoteBox_selectedNotebook,
     } from "./libs/stores";
+    import { arrayDeleteFromLeft } from "stonev5-utils";
 
     interface Props {
         dm: DestroyManager;
@@ -53,7 +54,27 @@
 
     export function destroy() {}
 
-    export async function toggleOpen(_event: MouseEvent) {
+    export async function toggleOpen(event: MouseEvent) {
+        if (event) {
+            if (
+                event.ctrlKey ||
+                event.altKey ||
+                event.shiftKey ||
+                event.metaKey
+            ) {
+                confirm(tomatoI18n.解除悬浮球与文档之间的绑定, "⚠️", () => {
+                    arrayDeleteFromLeft($floatingballDocList, (i) => {
+                        return i.docID != item.docID;
+                    });
+                    item.openOnCreate = false;
+                    floatingballDocList.write();
+                    getFloatingBallProtyle(item)?.destroyBy();
+                    getFloatingBallProtyleDialog(item)?.destroyBy();
+                    getFloatingBallDocBtn(item)?.destroyBy();
+                    return;
+                });
+            }
+        }
         item.docID = "";
         if (item.docName === "$$dailynote") {
             if (storeNoteBox_selectedNotebook.get()) {
