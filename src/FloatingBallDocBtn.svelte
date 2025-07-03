@@ -73,6 +73,7 @@
                     getFloatingBallDocBtn(item)?.destroyBy();
                     return;
                 });
+                return;
             }
         }
         item.docID = "";
