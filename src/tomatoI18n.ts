@@ -556,6 +556,22 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Bind document to tab";
         }
     }
+    public get ctrl点击删除按钮() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "ctrl点击删除按钮";
+            case "es_ES": return "Ctrl clic para eliminar el botón";
+            case "fr_FR": return "Ctrl-clic pour supprimer le bouton";
+            case "ja_JP": return "Ctrlクリックでボタンを削除";
+            case "zh_CHT": return "ctrl點擊刪除按鈕";
+            case "it_IT": return "Ctrl clic per eliminare il pulsante";
+            case "de_DE": return "Strg-Klick, um die Schaltfläche zu löschen";
+            case "he_IL": return "Ctrl קליק למחיקת הכפתור";
+            case "ru_RU": return "Ctrl-клик для удаления кнопки";
+            case "pl_PL": return "Ctrl kliknij, aby usunąć przycisk";
+            case "en_US":
+            default: return "Ctrl click to delete button";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
