@@ -200,7 +200,7 @@
             btnHelper.handleMouseUp(event, toggleOpen);
         }}
         title={tomatoI18n.ctrl点击删除按钮 + "@" + item.docName}
-        class="b3-button b3-button--outline"
+        class="b3-button b3-button--outline tomato-button"
     >
         {item.docIcon}
     </button>

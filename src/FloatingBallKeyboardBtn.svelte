@@ -87,7 +87,7 @@
             btnHelper.handleMouseUp(event, toggleOpen);
         }}
         title={shortcut2string(shortcut)}
-        class="b3-button b3-button--outline"
+        class="b3-button b3-button--outline tomato-button"
     >
         {shortcut.keyIcon}
     </button>

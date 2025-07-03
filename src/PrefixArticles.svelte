@@ -55,7 +55,7 @@
                 `prefixDoc#${isDock}#${currentDocID}`,
             ) as HTMLButtonElement;
             if (btn) {
-                btn.scrollIntoView();
+                btn.scrollIntoView({ block: "center", behavior: "auto" });
             } else {
                 const tracer = await getDocTracer();
                 tracer.tryGetDocs(currentDocID);
