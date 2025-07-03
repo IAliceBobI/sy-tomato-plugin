@@ -167,13 +167,15 @@
             <input
                 class="b3-text-field"
                 bind:value={oldPrefix}
-                style="width:100%;margin-bottom:8px;"
+                maxlength="25"
+                style="width:25em;margin-bottom:8px;"
             />
             <div style="margin-bottom:8px;">{tomatoI18n.请输入新前缀}:</div>
             <input
                 class="b3-text-field"
                 bind:value={newPrefix}
-                style="width:100%;margin-bottom:12px;"
+                maxlength="25"
+                style="width:25em;margin-bottom:12px;"
             />
             <div style="display:flex;justify-content:flex-end;gap:8px;">
                 <button class="b3-button b3-button--outline" onclick={cancel}

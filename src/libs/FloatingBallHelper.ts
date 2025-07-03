@@ -32,8 +32,20 @@ export class FloatingBallHelper {
     private setPosition(x?: string, y?: string) {
         if (!x) x = "200px";
         if (!y) y = "200px";
-        this.div.style.left = x;
-        this.div.style.top = y;
+        let left = parseInt(x, 10);
+        let top = parseInt(y, 10);
+
+        // 限制 left 和 top 在窗口范围内
+        const minLeft = 0;
+        const minTop = 0;
+        const maxLeft = window.innerWidth - this.div.offsetWidth;
+        const maxTop = window.innerHeight - this.div.offsetHeight;
+
+        left = Math.max(minLeft, Math.min(left, maxLeft));
+        top = Math.max(minTop, Math.min(top, maxTop));
+
+        this.div.style.left = `${left}px`;
+        this.div.style.top = `${top}px`;
         this.inner_width = window.innerWidth;
         this.inner_height = window.innerHeight;
     }

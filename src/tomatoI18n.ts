@@ -540,6 +540,22 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Snapshot has been created. If there are any issues, you can roll back from the snapshot";
         }
     }
+    public get 绑定文档到Tab() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "绑定文档到Tab";
+            case "es_ES": return "Vincular documento a la pestaña";
+            case "fr_FR": return "Lier le document à l'onglet";
+            case "ja_JP": return "ドキュメントをタブにバインド";
+            case "zh_CHT": return "綁定文件到Tab";
+            case "it_IT": return "Associa documento alla scheda";
+            case "de_DE": return "Dokument an Tab binden";
+            case "he_IL": return "קשר מסמך ללשונית";
+            case "ru_RU": return "Привязать документ к вкладке";
+            case "pl_PL": return "Powiąż dokument z kartą";
+            case "en_US":
+            default: return "Bind document to tab";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

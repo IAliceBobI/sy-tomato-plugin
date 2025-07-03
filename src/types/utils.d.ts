@@ -16,6 +16,7 @@ type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
     prefixArticlesSoftLimit: string,
+    floatingballDocTabMenu: boolean,
     fastNoteBoxDocPrefix: boolean,
     commentBoxSaveUnderDoc: boolean,
     dailyNoteMoveLeaveLnk: boolean,

@@ -2,8 +2,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
-    import { FloatingBallHelper } from "./libs/FloatingBallHelper";
-    import { ClickHelper } from "./libs/ClickHelper";
     import { confirm, Protyle } from "siyuan";
     import {
         getTomatoPluginConfig,
@@ -13,10 +11,11 @@
     import { OpenSyFile2 } from "./libs/docUtils";
     import {
         getFloatingBallDocBtn,
-        getFloatingBallProtyle,
+        getFloatingBallProtyleDialog,
     } from "./FloatingBall";
     import { arrayDeleteFromLeft } from "stonev5-utils";
     import { tomatoI18n } from "./tomatoI18n";
+    import DialogSvelte from "./libs/DialogSvelte.svelte";
 
     interface Props {
         dm: DestroyManager;
@@ -25,9 +24,7 @@
     }
 
     let { dm, key, item = $bindable() }: Props = $props();
-    let div: HTMLElement = $state();
     let protyleTarget: HTMLElement = $state();
-    let btnHelper = new ClickHelper();
 
     let width = $state(500);
     let height = $state(500);
@@ -37,10 +34,9 @@
     let startY = 0;
     let startWidth = 0;
     let startHeight = 0;
+    let show = $state(true);
     export function destroy() {}
-    // 加载本地存储的尺寸
     onMount(() => {
-        new FloatingBallHelper(key, div, dm);
         const protyle = new Protyle(
             getTomatoPluginInstance().app,
             protyleTarget,
@@ -102,92 +98,68 @@
         item.openOnCreate = false;
         floatingballDocList.write();
         getFloatingBallDocBtn(item);
-        getFloatingBallProtyle(item)?.destroyBy();
+        getFloatingBallProtyleDialog(item)?.destroyBy();
     }
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div>
-    <div class="floating-button" bind:this={div}>
-        <div class="fn__flex-column">
+    <DialogSvelte
+        bind:show
+        title={item.docName}
+        savePositionKey={`${item.docID}#floatingDialog`}
+    >
+        {#snippet dialogInner()}
             <button
                 title={tomatoI18n.解除悬浮球与文档之间的绑定}
-                onmousedown={(event) => {
-                    btnHelper.handleMouseDown(event);
-                }}
-                onmouseup={(event) => {
-                    btnHelper.handleMouseUp(event, () => {
-                        confirm(
-                            tomatoI18n.解除悬浮球与文档之间的绑定,
-                            "⚠️",
-                            () => {
-                                item.openOnCreate = false;
-                                arrayDeleteFromLeft(
-                                    $floatingballDocList,
-                                    (i) => {
-                                        return i.docID != item.docID;
-                                    },
-                                );
-                                floatingballDocList.write();
-                                getFloatingBallProtyle(item)?.destroyBy();
-                                getFloatingBallDocBtn(item)?.destroyBy();
-                            },
-                        );
+                onclick={() => {
+                    confirm(tomatoI18n.解除悬浮球与文档之间的绑定, "⚠️", () => {
+                        item.openOnCreate = false;
+                        arrayDeleteFromLeft($floatingballDocList, (i) => {
+                            return i.docID != item.docID;
+                        });
+                        floatingballDocList.write();
+                        getFloatingBallProtyleDialog(item)?.destroyBy();
+                        getFloatingBallDocBtn(item)?.destroyBy();
                     });
                 }}
                 class="b3-button b3-button--outline space">⛓️‍💥</button
             >
             <button
-                onmousedown={(event) => {
-                    btnHelper.handleMouseDown(event);
-                }}
-                onmouseup={(event) => {
-                    btnHelper.handleMouseUp(event, exitProtyle);
-                }}
+                onclick={exitProtyle}
                 class="b3-button b3-button--outline space">🏃</button
             >
             <button
-                onmousedown={(event) => {
-                    btnHelper.handleMouseDown(event);
-                }}
-                onmouseup={(event) => {
-                    btnHelper.handleMouseUp(event, () => {
-                        OpenSyFile2(getTomatoPluginInstance(), item.docID);
-                        exitProtyle();
-                    });
+                onclick={() => {
+                    OpenSyFile2(getTomatoPluginInstance(), item.docID);
+                    exitProtyle();
                 }}
                 class="b3-button b3-button--outline space">🎯</button
             >
-        </div>
-        <div
-            class="protyleClass"
-            style="width: {width}px; height: {height}px; border: 3px solid;"
-            bind:this={protyleTarget}
-        ></div>
-        <!-- 拖拽手柄 -->
-        <div
-            class="resize-handle resize-handle-se"
-            onmousedown={(e) => startResize(e, "se")}
-        ></div>
-        <div
-            class="resize-handle resize-handle-e"
-            onmousedown={(e) => startResize(e, "e")}
-        ></div>
-        <div
-            class="resize-handle resize-handle-s"
-            onmousedown={(e) => startResize(e, "s")}
-        ></div>
-    </div>
+            <div
+                class="protyleClass"
+                style="width: {width}px; height: {height}px; border: 3px solid;"
+                bind:this={protyleTarget}
+            ></div>
+            <div
+                class="resize-handle resize-handle-se"
+                onmousedown={(e) => startResize(e, "se")}
+            ></div>
+            <div
+                class="resize-handle resize-handle-e"
+                onmousedown={(e) => startResize(e, "e")}
+            ></div>
+            <div
+                class="resize-handle resize-handle-s"
+                onmousedown={(e) => startResize(e, "s")}
+            ></div>
+        {/snippet}
+    </DialogSvelte>
 </div>
 
 <style>
     .space {
         margin-top: 10px;
-    }
-    .protyleClass {
-        position: relative;
-        box-sizing: border-box;
-        border-color: var(--b3-font-color3);
     }
     .resize-handle {
         position: absolute;
@@ -215,14 +187,5 @@
         bottom: -7px;
         transform: translateX(-50%);
         cursor: s-resize;
-    }
-    .floating-button {
-        z-index: 11;
-        position: fixed;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
     }
 </style>

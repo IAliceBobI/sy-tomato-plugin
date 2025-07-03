@@ -475,6 +475,7 @@ export const markdownExportBoxCheckbox = settingFactory("markdownExportBoxCheckb
 export const floatingballEnable = settingFactory("floatingballEnable", false, STORAGE_SETTINGS, null as TSK);
 export const floatingballDocList = settingFactory("floatingballDocList", [] as FloatingDocItem[], STORAGE_SETTINGS, null as TSK);
 export const floatingballDocMenu = settingFactory("floatingballDocMenu", true, STORAGE_SETTINGS, null as TSK);
+export const floatingballDocTabMenu = settingFactory("floatingballDocTabMenu", true, STORAGE_SETTINGS, null as TSK);
 export const floatingballKeyboardList = settingFactory("floatingballKeyboardList", [] as FloatingKeyboardItem[], STORAGE_SETTINGS, null as TSK);
 export const markdownExportPics = settingFactory("markdownExportPics", false, STORAGE_SETTINGS, null as TSK);
 export const mindWireCheckbox = settingFactory("mindWireCheckbox", false, STORAGE_SETTINGS, null as TSK);

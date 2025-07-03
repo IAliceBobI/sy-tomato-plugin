@@ -2,11 +2,12 @@ import { pushReplaceBy } from "stonev5-utils";
 import FloatingBallDocBtn from "./FloatingBallDocBtn.svelte"
 import FloatingBallKeyboardBtn from "./FloatingBallKeyboardBtn.svelte"
 import FloatingBallProtyle from "./FloatingBallProtyle.svelte"
+import FloatingBallProtyleDialog from "./FloatingBallProtyleDialog.svelte"
 import { DestroyManager } from "./libs/destroyer";
 import { events } from "./libs/Events";
-import { FloatingBallDocType_float, FloatingBallNotVIPLimit } from "./libs/gconst";
+import { FloatingBallDocType_float2, FloatingBallDocType_tab, FloatingBallNotVIPLimit } from "./libs/gconst";
 import { shortcut2string } from "./libs/keyboard";
-import { floatingballDocList, floatingballDocMenu, floatingballEnable, floatingballKeyboardList } from "./libs/stores";
+import { floatingballDocList, floatingballDocMenu, floatingballDocTabMenu, floatingballEnable, floatingballKeyboardList } from "./libs/stores";
 import { lastVerifyResult } from "./libs/user";
 import { getTomatoPluginInstance } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
@@ -50,6 +51,7 @@ export class FloatingBall {
 }
 
 export const FloatingBall添加文档 = winHotkey("shift+alt+h", "绑定文档到悬浮按钮 2025-06-23 11:22:43", "🔗", () => tomatoI18n.绑定文档到悬浮按钮, false, floatingballDocMenu)
+export const FloatingBallTab添加文档 = winHotkey("shift+alt+f5", "FloatingBallTab添加文档 2025-06-23 11:22:42", "🔗", () => tomatoI18n.绑定文档到Tab, false, floatingballDocTabMenu)
 
 export function linkDoc2floatBall(addDoc_docName: string, addDoc_docIcon: string, addDoc_useDialog: number) {
     if (addDoc_docName) {
@@ -81,12 +83,21 @@ export function loadFloatingBall() {
     if (floatingballEnable.get()) {
         {
             getTomatoPluginInstance().addCommand({
+                langKey: FloatingBallTab添加文档.langKey,
+                langText: FloatingBallTab添加文档.langText(),
+                hotkey: FloatingBallTab添加文档.m,
+                editorCallback: (protyle) => {
+                    const { name } = events.getInfo(protyle)
+                    linkDoc2floatBall(name, "", FloatingBallDocType_tab.id);
+                },
+            });
+            getTomatoPluginInstance().addCommand({
                 langKey: FloatingBall添加文档.langKey,
                 langText: FloatingBall添加文档.langText(),
                 hotkey: FloatingBall添加文档.m,
                 editorCallback: (protyle) => {
                     const { name } = events.getInfo(protyle)
-                    linkDoc2floatBall(name, "", FloatingBallDocType_float.id);
+                    linkDoc2floatBall(name, "", FloatingBallDocType_float2.id);
                 },
             });
             getTomatoPluginInstance().eventBus.on("open-menu-content", ({ detail }) => {
@@ -98,7 +109,18 @@ export function loadFloatingBall() {
                         label: FloatingBall添加文档.langText(),
                         click: () => {
                             const { name } = events.getInfo(detail.protyle)
-                            linkDoc2floatBall(name, "", FloatingBallDocType_float.id);
+                            linkDoc2floatBall(name, "", FloatingBallDocType_float2.id);
+                        },
+                    });
+                }
+                if (FloatingBallTab添加文档.menu()) {
+                    menu.addItem({
+                        iconHTML: FloatingBallTab添加文档.icon,
+                        accelerator: FloatingBallTab添加文档.m,
+                        label: FloatingBallTab添加文档.langText(),
+                        click: () => {
+                            const { name } = events.getInfo(detail.protyle)
+                            linkDoc2floatBall(name, "", FloatingBallDocType_tab.id);
                         },
                     });
                 }
@@ -137,7 +159,7 @@ export function loadFloatingBall() {
 
 // 悬浮文档
 export function getFloatingBallProtyle(item: FloatingDocItem) {
-    const address = `protyle#${item.docID}`
+    const address = `protyle#1#${item.docID}`
     const dm = globalThis[FloatingBall.key(address)] as DestroyManager;
     if (dm) {
         return dm;
@@ -145,6 +167,28 @@ export function getFloatingBallProtyle(item: FloatingDocItem) {
         const dm = FloatingBall.newProgFloatingDm(address);
         new FloatingBall(address, dm, (target) => {
             return mount(FloatingBallProtyle, {
+                target,
+                props: {
+                    dm,
+                    key: FloatingBall.key(address),
+                    item,
+                }
+            });
+        });
+        return dm;
+    }
+}
+
+// 悬浮文档 dialog
+export function getFloatingBallProtyleDialog(item: FloatingDocItem) {
+    const address = `protyle#2#${item.docID}`
+    const dm = globalThis[FloatingBall.key(address)] as DestroyManager;
+    if (dm) {
+        return dm;
+    } else {
+        const dm = FloatingBall.newProgFloatingDm(address);
+        new FloatingBall(address, dm, (target) => {
+            return mount(FloatingBallProtyleDialog, {
                 target,
                 props: {
                     dm,

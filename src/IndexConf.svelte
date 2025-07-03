@@ -190,6 +190,7 @@
         prefixArticlesSoftLimit,
         fastNoteBoxDocPrefix,
         commentBoxSaveUnderDoc,
+        floatingballDocTabMenu,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -295,6 +296,7 @@
         FloatingBallDocType_autoclose,
         FloatingBallDocType_dialog,
         FloatingBallDocType_float,
+        FloatingBallDocType_float2,
         FloatingBallDocType_tab,
         FloatingBallNotVIPLimit,
         SPACE,
@@ -325,7 +327,11 @@
     import { pushReplaceBy, pushUniq } from "stonev5-utils";
     import { events } from "./libs/Events";
     import { shortcut2string } from "./libs/keyboard";
-    import { FloatingBall添加文档, linkDoc2floatBall } from "./FloatingBall";
+    import {
+        FloatingBallTab添加文档,
+        FloatingBall添加文档,
+        linkDoc2floatBall,
+    } from "./FloatingBall";
     import { PrefixArticles前缀文档树 } from "./PrefixArticles";
     interface Props {
         dm: DestroyManager;
@@ -346,7 +352,7 @@
     let addDoc_keyboardAlt = $state(false);
     let addDoc_keyboardShift = $state(false);
     let addDoc_keyboardCtrl = $state(false);
-    let addDoc_useDialog = $state(FloatingBallDocType_float.id);
+    let addDoc_useDialog = $state(FloatingBallDocType_float2.id);
     let codeValid = $state(false);
     let codeNotValid = $derived(!codeValid);
     const ICONS_SIZE = 14;
@@ -416,6 +422,9 @@
                 break;
             case FloatingBallDocType_float.id:
                 docTypeStr = FloatingBallDocType_float.txt;
+                break;
+            case FloatingBallDocType_float2.id:
+                docTypeStr = FloatingBallDocType_float2.txt;
                 break;
             default:
         }
@@ -873,6 +882,15 @@
                 {tomatoI18n.menu添加右键菜单}: {FloatingBall添加文档.langText()}
                 <strong>{FloatingBall添加文档.w()}</strong>
             </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$floatingballDocTabMenu}
+                />
+                {tomatoI18n.menu添加右键菜单}: {FloatingBallTab添加文档.langText()}
+                <strong>{FloatingBallTab添加文档.w()}</strong>
+            </div>
             <!-- 列出文档绑定 -->
             <div>
                 {#if $floatingballDocList.length > FloatingBallNotVIPLimit && !lastVerifyResult()}
@@ -1018,6 +1036,15 @@
                             bind:group={addDoc_useDialog}
                         />
                         {FloatingBallDocType_float.txt}
+                    </label>
+                    <label class="space">
+                        <input
+                            type="radio"
+                            name="addDoc_openType"
+                            value={FloatingBallDocType_float2.id}
+                            bind:group={addDoc_useDialog}
+                        />
+                        {FloatingBallDocType_float2.txt}
                     </label>
                 </div>
                 <button

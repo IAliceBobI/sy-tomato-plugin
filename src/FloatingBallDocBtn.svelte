@@ -8,6 +8,7 @@
     import {
         FloatingBallDocType_autoclose,
         FloatingBallDocType_dialog,
+        FloatingBallDocType_float2,
         FloatingBallDocType_tab,
         SPACE,
     } from "./libs/gconst";
@@ -25,6 +26,7 @@
     import {
         getFloatingBallDocBtn,
         getFloatingBallProtyle,
+        getFloatingBallProtyleDialog,
     } from "./FloatingBall";
     import { tomatoI18n } from "./tomatoI18n";
     import {
@@ -108,6 +110,12 @@
                     } else {
                         openByDialog(true);
                     }
+                    break;
+                case FloatingBallDocType_float2.id:
+                    getFloatingBallProtyleDialog(item);
+                    item.openOnCreate = true;
+                    floatingballDocList.write();
+                    getFloatingBallDocBtn(item)?.destroyBy();
                     break;
                 default:
                     getFloatingBallProtyle(item);
