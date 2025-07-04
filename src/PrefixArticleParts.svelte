@@ -26,13 +26,21 @@
                     ?.replaceAll("丨", "|")
                     ?.split("|")
                     ?.slice(0, -1)
-                    ?.forEach((p) => {
-                        map.delete(p);
-                        map.set(p, {
-                            part: p,
+                    ?.forEach((pStr) => {
+                        const old = map.get(pStr);
+                        const obj = {
+                            part: pStr,
                             updated: block.updated,
                             docID: block.id,
-                        });
+                        };
+                        if (!old) {
+                            map.set(pStr, obj);
+                        } else {
+                            const u = old.updated ?? "";
+                            if (block.updated > u) {
+                                map.set(pStr, obj);
+                            }
+                        }
                     });
             }
         }
