@@ -12,6 +12,18 @@ import { uniqueFilter } from "stonev5-utils";
 import { mount } from "svelte";
 export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树 2025-06-26 00:20:18", "📖", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock 2025-06-26 00:20:18", "iconFilesTomato", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
+// export const PrefixArticlesAllParts = winHotkey("shift+alt+F6", "PrefixArticlesAllParts 2025-06-26 00:20:18", "iconFilesTomato", () => tomatoI18n.aaa, false)
+
+// function openParts() {
+//     const dm = new DestroyManager();
+//     const sv = mount(PrefixArticleParts, {
+//         target: document.body,
+//         props: {
+//             dm,
+//         }
+//     });
+//     dm.add("sv", () => unmount(sv))
+// }
 
 function __initPrefixArticles() {
     const plugin = getTomatoPluginInstance();
@@ -19,6 +31,14 @@ function __initPrefixArticles() {
         if (!events.isMobile) {
             addDock();
         }
+        // plugin.addCommand({
+        //     langKey: PrefixArticlesAllParts.langKey,
+        //     langText: PrefixArticlesAllParts.langText(),
+        //     hotkey: PrefixArticlesAllParts.m,
+        //     callback: () => {
+        //         openParts();
+        //     },
+        // });
         plugin.addCommand({
             langKey: PrefixArticles前缀文档树.langKey,
             langText: PrefixArticles前缀文档树.langText(),
@@ -166,6 +186,11 @@ export async function getPrefixDocs(docID: string, name: string) {
     if (!name) return [];
     const tracer = await getDocTracer();
     let prefixDocs: ArticlesPrefix[] = [];
+
+    let max = parseInt(prefixArticlesSoftLimit.get());
+    if (typeof max !== "number" || isNaN(max) || max < 1) {
+        max = 50;
+    }
     if (name.includes("|")) {
         const parts = name.replaceAll("丨", "|").split("|").map(i => i.trim());
         tryFixTracerByLike(parts.map(p => `content like "%${p}%"`).join(" or "))
@@ -177,9 +202,12 @@ export async function getPrefixDocs(docID: string, name: string) {
                 }
             }
         }
+        prefixDocs = prefixDocs.filter(uniqueFilter(i => i.id))
+        prefixDocs = getNearest(prefixDocs, max)
+        prefixDocs = prefixDocs.sort(titleSort);
+        prefixDocs = prune(prefixDocs, docID, max)
+        prefixDocs = prefixDocs.sort(titleSort);
         return prefixDocs
-            .filter(uniqueFilter(i => i.id))
-            .sort(titleSort);
     } else {
         for (const [id, block] of tracer.getDocMap().entries()) {
             const docName = block.content;
@@ -187,10 +215,6 @@ export async function getPrefixDocs(docID: string, name: string) {
             if (prefix.length > 0) {
                 prefixDocs.push({ id, docName, prefix });
             }
-        }
-        let max = parseInt(prefixArticlesSoftLimit.get());
-        if (typeof max !== "number" || isNaN(max) || max < 1) {
-            max = 50;
         }
         prefixDocs = getNearest(prefixDocs, max)
         prefixDocs = prefixDocs.sort(titleSort);

@@ -471,6 +471,7 @@ export const aiBoxCheckbox = settingFactory("aiBoxCheckbox", false, STORAGE_SETT
 export const prefixArticlesEnable = settingFactory("prefixArticlesEnable", false, STORAGE_SETTINGS, null as TSK);
 export const prefixArticlesSoftLimit = settingFactory("prefixArticlesSoftLimit", "50", STORAGE_SETTINGS, null as TSK);
 export const prefixArticlesMenu = settingFactory("prefixArticlesMenu", true, STORAGE_SETTINGS, null as TSK);
+export const prefixArticlesTagsShow = settingFactory("prefixArticlesTagsShow", false, STORAGE_SETTINGS, null as TSK);
 export const markdownExportBoxCheckbox = settingFactory("markdownExportBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const floatingballEnable = settingFactory("floatingballEnable", false, STORAGE_SETTINGS, null as TSK);
 export const floatingballDocList = settingFactory("floatingballDocList", [] as FloatingDocItem[], STORAGE_SETTINGS, null as TSK);

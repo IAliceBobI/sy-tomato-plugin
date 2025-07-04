@@ -7,7 +7,8 @@ import { imgOverlayCheckbox } from "./libs/stores";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { tomatoI18n } from "./tomatoI18n";
 import { newID } from "stonev5-utils/lib/id";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
+import { DestroyManager } from "./libs/destroyer";
 
 class ImgOverlayBox {
     private plugin: BaseTomatoPlugin;
@@ -59,38 +60,46 @@ class ImgOverlayBox {
 
     async overlayEditor(imgSpan: HTMLSpanElement, _protyle: IProtyle) {
         const id = newID();
-        let editor: ReturnType<typeof mount>;
         const nextOverlays: Overlays = { originWidth: 0, overlays: [] };
         const imgID = getID(imgSpan);
         let size = "600px";
         if (events.isMobile) size = "92vw";
+        const dm = new DestroyManager();
         const dialog = new Dialog({
             title: tomatoI18n.图片制卡支持拖拽画矩形,
             content: `<div id="${id}"></div>`,
             width: size,
             height: size,
             destroyCallback() {
-                if (editor) editor.destroy();
+                dm.destroyBy("dialog");
+            },
+        });
+        const attr = await siyuan.getBlockAttrs(imgID);
+        const fm = tryFromOldFormat(attr[ATTR_PIC_OVERLAY]);
+        const originOverlays: Overlays = JSON.parse(fm);
+        const svelte = mount(ImgOverlayEditor, {
+            target: dialog.element.querySelector("#" + id),
+            props: {
+                imgSpan,
+                nextOverlays,
+                originOverlays,
+                dm,
+            }
+        });
+        dm.add("svelte", () => {
+            svelte.destroy();
+            try {
                 let value = JSON.stringify(nextOverlays);
                 if (value == "{}") value = "";
                 const attrs = {};
                 attrs[ATTR_PIC_OVERLAY] = value;
                 siyuan.setBlockAttrs(imgID, attrs);
                 showOverlayStyle(nextOverlays, imgSpan?.querySelector("img"));
-            },
-        });
-        const attr = await siyuan.getBlockAttrs(imgID);
-        const fm = tryFromOldFormat(attr[ATTR_PIC_OVERLAY]);
-        const originOverlays: Overlays = JSON.parse(fm);
-        editor = mount(ImgOverlayEditor, {
-            target: dialog.element.querySelector("#" + id),
-            props: {
-                imgSpan,
-                nextOverlays,
-                originOverlays,
-                dialog,
+            } finally {
+                unmount(svelte);
             }
-        });
+        })
+        dm.add("dialog", () => dialog.destroy())
     }
 }
 

@@ -9,6 +9,8 @@
     import { Protyle } from "siyuan";
     import { tomatoI18n } from "./tomatoI18n";
     import { setGlobal } from "stonev5-utils";
+    import PrefixArticleParts from "./PrefixArticleParts.svelte";
+    import { prefixArticlesTagsShow } from "./libs/stores";
 
     interface Props {
         dockElement?: HTMLElement;
@@ -105,7 +107,7 @@
                             if (oldName.includes("|")) {
                                 oldName = oldName.split("|").at(0).trim();
                             }
-                            oldPrefix = oldName;
+                            if (!oldPrefix) oldPrefix = oldName;
                         }
 
                         prefixDocs = await getPrefixDocs(docID, name);
@@ -147,21 +149,37 @@
 
 {#snippet count_and_btn()}
     <div class="kbd">
-        {tomatoI18n.文档数量}：{prefixDocs.length}
+        <span title={tomatoI18n.文档数量}>#{prefixDocs.length}</span>
         <button
+            title={tomatoI18n.批量改前缀}
             class="b3-button b3-button--text"
             onclick={() => {
                 showPrefixDialog = !showPrefixDialog;
             }}
         >
-            {tomatoI18n.批量改前缀}
+            {tomatoI18n.改前缀}
+        </button>
+        <button
+            title={tomatoI18n.标题内竖线分割出来的标签}
+            class="b3-button b3-button--text"
+            onclick={() => {
+                prefixArticlesTagsShow.write(!$prefixArticlesTagsShow);
+            }}
+        >
+            Tags
         </button>
     </div>
 {/snippet}
 
 <div>
     {@render count_and_btn()}
-    <DialogSvelte title={tomatoI18n.批量改前缀} bind:show={showPrefixDialog}>
+    <PrefixArticleParts bind:show={$prefixArticlesTagsShow}
+    ></PrefixArticleParts>
+    <DialogSvelte
+        title={tomatoI18n.批量改前缀}
+        bind:show={showPrefixDialog}
+        savePositionKey="prefix batch modify 2025-07-04 12:06:06"
+    >
         {#snippet dialogInner()}
             <div style="margin-bottom:8px;">{tomatoI18n.请输入原前缀}:</div>
             <input

@@ -1,27 +1,26 @@
 <script lang="ts">
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
     import { fabric } from "fabric";
     import { getID } from "./libs/utils";
-    import { Dialog } from "siyuan";
     import { tomatoI18n } from "./tomatoI18n";
+    import { DestroyManager } from "./libs/destroyer";
 
     interface Props {
         imgSpan: HTMLSpanElement;
         nextOverlays: Overlays;
         originOverlays: Overlays;
-        dialog: Dialog;
+        dm: DestroyManager;
     }
 
     let {
         imgSpan,
         nextOverlays = $bindable(),
         originOverlays = $bindable(),
-        dialog
+        dm,
     }: Props = $props();
     let canvas: fabric.Canvas;
     let drawingRect: fabric.Rect = null;
     let scaleValue: number = $state(1);
-    export function destroy() {}
 
     onMount(async () => {
         const imgID = getID(imgSpan);
@@ -104,7 +103,7 @@
         }
     });
 
-    onDestroy(() => {
+    export function destroy() {
         canvas?.getObjects().forEach((obj) => {
             nextOverlays.overlays.push({
                 left: obj.left,
@@ -116,7 +115,7 @@
             });
         });
         canvas?.dispose();
-    });
+    }
 
     function createOverlayFromRect(rect: fabric.Rect, id: number) {
         let txt = "#";
@@ -125,7 +124,7 @@
         } else if (id >= 10 && id < 10 + 26) {
             txt = String.fromCharCode(65 + id - 10);
         }
-        return createOverlay(
+        const o = createOverlay(
             txt,
             rect.left + rect.width / 2,
             rect.top + rect.height / 2,
@@ -133,6 +132,7 @@
             rect.height,
             rect.angle,
         );
+        return o;
     }
 
     function createOverlay(
@@ -188,7 +188,7 @@
     }
 
     function exit() {
-        dialog?.destroy();
+        dm.destroyBy();
     }
 
     function updateScale() {

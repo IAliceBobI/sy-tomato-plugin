@@ -8,7 +8,7 @@
     import {
         FloatingBallDocType_autoclose,
         FloatingBallDocType_dialog,
-        FloatingBallDocType_float2,
+        FloatingBallDocType_float,
         FloatingBallDocType_tab,
         SPACE,
     } from "./libs/gconst";
@@ -25,7 +25,6 @@
     import { dialog2floating } from "./libs/DialogText";
     import {
         getFloatingBallDocBtn,
-        getFloatingBallProtyle,
         getFloatingBallProtyleDialog,
     } from "./FloatingBall";
     import { tomatoI18n } from "./tomatoI18n";
@@ -68,7 +67,6 @@
                     });
                     item.openOnCreate = false;
                     floatingballDocList.write();
-                    getFloatingBallProtyle(item)?.destroyBy();
                     getFloatingBallProtyleDialog(item)?.destroyBy();
                     getFloatingBallDocBtn(item)?.destroyBy();
                     return;
@@ -133,14 +131,9 @@
                         openByDialog(true);
                     }
                     break;
-                case FloatingBallDocType_float2.id:
-                    getFloatingBallProtyleDialog(item);
-                    item.openOnCreate = true;
-                    floatingballDocList.write();
-                    getFloatingBallDocBtn(item)?.destroyBy();
-                    break;
+                case FloatingBallDocType_float.id:
                 default:
-                    getFloatingBallProtyle(item);
+                    getFloatingBallProtyleDialog(item);
                     item.openOnCreate = true;
                     floatingballDocList.write();
                     getFloatingBallDocBtn(item)?.destroyBy();

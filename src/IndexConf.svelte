@@ -296,7 +296,6 @@
         FloatingBallDocType_autoclose,
         FloatingBallDocType_dialog,
         FloatingBallDocType_float,
-        FloatingBallDocType_float2,
         FloatingBallDocType_tab,
         FloatingBallNotVIPLimit,
         SPACE,
@@ -352,7 +351,7 @@
     let addDoc_keyboardAlt = $state(false);
     let addDoc_keyboardShift = $state(false);
     let addDoc_keyboardCtrl = $state(false);
-    let addDoc_useDialog = $state(FloatingBallDocType_float2.id);
+    let addDoc_useDialog = $state(FloatingBallDocType_float.id);
     let codeValid = $state(false);
     let codeNotValid = $derived(!codeValid);
     const ICONS_SIZE = 14;
@@ -422,9 +421,6 @@
                 break;
             case FloatingBallDocType_float.id:
                 docTypeStr = FloatingBallDocType_float.txt;
-                break;
-            case FloatingBallDocType_float2.id:
-                docTypeStr = FloatingBallDocType_float2.txt;
                 break;
             default:
         }
@@ -1036,15 +1032,6 @@
                             bind:group={addDoc_useDialog}
                         />
                         {FloatingBallDocType_float.txt}
-                    </label>
-                    <label class="space">
-                        <input
-                            type="radio"
-                            name="addDoc_openType"
-                            value={FloatingBallDocType_float2.id}
-                            bind:group={addDoc_useDialog}
-                        />
-                        {FloatingBallDocType_float2.txt}
                     </label>
                 </div>
                 <button

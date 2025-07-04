@@ -337,22 +337,6 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Save reading point to specified document";
         }
     }
-    public get 文档数量() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "文档数量";
-            case "es_ES": return "Cantidad de documentos";
-            case "fr_FR": return "Nombre de documents";
-            case "ja_JP": return "ドキュメント数";
-            case "zh_CHT": return "文件數量";
-            case "it_IT": return "Numero di documenti";
-            case "de_DE": return "Anzahl der Dokumente";
-            case "he_IL": return "כמות מסמכים";
-            case "ru_RU": return "Количество документов";
-            case "pl_PL": return "Liczba dokumentów";
-            case "en_US":
-            default: return "Document count";
-        }
-    }
     public get 最大列出的文件数量() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "最大列出的文件数量";
@@ -570,6 +554,103 @@ export class TomatoI18n extends TomatoI18nABC {
             case "pl_PL": return "Ctrl kliknij, aby usunąć przycisk";
             case "en_US":
             default: return "Ctrl click to delete button";
+        }
+    }
+    public get 如果块很多请放到超级块内否则会很慢() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "如果块很多，请放到超级块内，否则会很慢";
+            case "es_ES": return "Si hay muchos bloques, colóquelos dentro de un super bloque, de lo contrario será muy lento";
+            case "fr_FR": return "S'il y a beaucoup de blocs, placez-les dans un super bloc, sinon cela sera très lent";
+            case "ja_JP": return "ブロックが多い場合は、スーパーブロック内に入れてください。そうしないと非常に遅くなります";
+            case "zh_CHT": return "如果區塊很多，請放到超級區塊內，否則會很慢";
+            case "it_IT": return "Se ci sono molti blocchi, inseriscili in un superblocco, altrimenti sarà molto lento";
+            case "de_DE": return "Wenn es viele Blöcke gibt, legen Sie sie in einen Superblock, sonst wird es sehr langsam";
+            case "he_IL": return "אם יש הרבה בלוקים, שים אותם בתוך בלוק-על, אחרת זה יהיה איטי מאוד";
+            case "ru_RU": return "Если блоков много, поместите их в суперблок, иначе будет очень медленно";
+            case "pl_PL": return "Jeśli jest dużo bloków, umieść je w superbloku, w przeciwnym razie będzie bardzo wolno";
+            case "en_US":
+            default: return "If there are many blocks, please put them inside a super block, otherwise it will be very slow";
+        }
+    }
+
+    public get 刷新() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "刷新";
+            case "es_ES": return "Actualizar";
+            case "fr_FR": return "Rafraîchir";
+            case "ja_JP": return "リフレッシュ";
+            case "zh_CHT": return "刷新";
+            case "it_IT": return "Aggiorna";
+            case "de_DE": return "Aktualisieren";
+            case "he_IL": return "רענן";
+            case "ru_RU": return "Обновить";
+            case "pl_PL": return "Odśwież";
+            case "en_US":
+            default: return "Refresh";
+        }
+    }
+    public get 退出() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "退出";
+            case "es_ES": return "Salir";
+            case "fr_FR": return "Quitter";
+            case "ja_JP": return "終了";
+            case "zh_CHT": return "退出";
+            case "it_IT": return "Esci";
+            case "de_DE": return "Beenden";
+            case "he_IL": return "צא";
+            case "ru_RU": return "Выйти";
+            case "pl_PL": return "Wyjdź";
+            case "en_US":
+            default: return "Exit";
+        }
+    }
+    public get 标题内竖线分割出来的标签() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "标题内竖线，分割出来的标签，不含最后一部分";
+            case "es_ES": return "Etiqueta separada por barra vertical en el título, sin la última parte";
+            case "fr_FR": return "Étiquette séparée par une barre verticale dans le titre, sans la dernière partie";
+            case "ja_JP": return "タイトル内の縦線で区切られたラベル（最後の部分を除く）";
+            case "zh_CHT": return "標題內豎線，分割出來的標籤，不含最後一部分";
+            case "it_IT": return "Etichetta separata da barra verticale nel titolo, esclusa l'ultima parte";
+            case "de_DE": return "Im Titel durch senkrechten Strich getrenntes Label, ohne den letzten Teil";
+            case "he_IL": return "תגית שמופרדת בקו אנכי בכותרת, ללא החלק האחרון";
+            case "ru_RU": return "Метка, разделённая вертикальной чертой в заголовке, без последней части";
+            case "pl_PL": return "Etykieta wydzielona pionową kreską w tytule, bez ostatniej części";
+            case "en_US":
+            default: return "Label separated by vertical bar in title, excluding the last part";
+        }
+    }
+    public get 文档数量() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "文档数量";
+            case "es_ES": return "Cantidad de documentos";
+            case "fr_FR": return "Nombre de documents";
+            case "ja_JP": return "ドキュメント数";
+            case "zh_CHT": return "文件數量";
+            case "it_IT": return "Numero di documenti";
+            case "de_DE": return "Anzahl der Dokumente";
+            case "he_IL": return "כמות מסמכים";
+            case "ru_RU": return "Количество документов";
+            case "pl_PL": return "Liczba dokumentów";
+            case "en_US":
+            default: return "Document count";
+        }
+    }
+    public get 改前缀() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "改前缀";
+            case "es_ES": return "Cambiar prefijo";
+            case "fr_FR": return "Modifier le préfixe";
+            case "ja_JP": return "プレフィックスを変更";
+            case "zh_CHT": return "改前綴";
+            case "it_IT": return "Modifica prefisso";
+            case "de_DE": return "Präfix ändern";
+            case "he_IL": return "שנה קידומת";
+            case "ru_RU": return "Изменить префикс";
+            case "pl_PL": return "Zmień prefiks";
+            case "en_US":
+            default: return "Change prefix";
         }
     }
     public get aaa() {

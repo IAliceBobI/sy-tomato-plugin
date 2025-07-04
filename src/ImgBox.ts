@@ -1,4 +1,4 @@
-import { IEventBusMap } from "siyuan";
+import { confirm, IEventBusMap } from "siyuan";
 import { events } from "./libs/Events";
 import { CUSTOM_RIFF_DECKS, PROTYLE_WYSIWYG_SELECT } from "./libs/gconst";
 import { imgBoxCheckbox, imgBoxShowMenu } from "./libs/stores";
@@ -37,6 +37,16 @@ class ImgBox {
     }
 
     private async copyDiv(divs: HTMLElement[]) {
+        if (divs?.length > 2) {
+            confirm("⚠️", tomatoI18n.如果块很多请放到超级块内否则会很慢, () => {
+                this._copyDiv(divs)
+            })
+        } else {
+            this._copyDiv(divs)
+        }
+    }
+    private async _copyDiv(divs: HTMLElement[]) {
+        if (!(divs?.length > 0)) return
         const canvases: HTMLCanvasElement[] = [];
 
         for (const element of divs) {
