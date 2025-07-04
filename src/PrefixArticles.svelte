@@ -8,7 +8,6 @@
     import { getPrefixDocs } from "./PrefixArticles";
     import { Protyle } from "siyuan";
     import { tomatoI18n } from "./tomatoI18n";
-    import { setGlobal } from "stonev5-utils";
     import PrefixArticleParts from "./PrefixArticleParts.svelte";
     import { prefixArticlesTagsShow } from "./libs/stores";
 
@@ -30,7 +29,6 @@
         prefixDocs = [],
     }: Props = $props();
     export function destroy() {}
-    let forceRefresh = false;
     let showPrefixDialog = $state(false);
     let newPrefix = $state("");
     let oldPrefix = $state("");
@@ -41,14 +39,14 @@
         } else {
             initDialog();
         }
-        clearInterval(
-            setGlobal(
-                "间隔刷新前缀 2025-07-02 14:19:05",
-                setInterval(() => {
-                    forceRefresh = true;
-                }, 5000),
-            ),
-        );
+        // clearInterval(
+        //     setGlobal(
+        //         "间隔刷新前缀 2025-07-02 14:19:05",
+        //         setInterval(() => {
+        //             forceRefresh = true;
+        //         }, 5000),
+        //     ),
+        // );
     });
 
     async function initDialog() {
@@ -93,15 +91,9 @@
                 if (lock) {
                     const { docID, name } = events.getInfo(detail.protyle);
                     if (!docID || !name) return;
-                    if (
-                        docID != currentDocID ||
-                        name != currentDocName ||
-                        forceRefresh
-                    ) {
+                    if (docID != currentDocID || name != currentDocName) {
                         currentDocID = docID;
                         currentDocName = name;
-                        forceRefresh = false;
-
                         {
                             let oldName = currentDocName.replaceAll("丨", "|");
                             if (oldName.includes("|")) {
@@ -109,7 +101,6 @@
                             }
                             if (!oldPrefix) oldPrefix = oldName;
                         }
-
                         prefixDocs = await getPrefixDocs(docID, name);
                     }
                     await initDialog();
@@ -145,6 +136,11 @@
         siyuan.pushMsg(tomatoI18n.重命名完成);
         siyuan.pushMsg(tomatoI18n.已经创建快照, 1000 * 20);
     }
+
+    async function refresh() {
+        prefixDocs = await getPrefixDocs(currentDocID, currentDocName);
+        await siyuan.pushMsg(tomatoI18n.刷新, 1000);
+    }
 </script>
 
 {#snippet count_and_btn()}
@@ -167,6 +163,13 @@
             }}
         >
             Tags
+        </button>
+        <button
+            title={tomatoI18n.刷新}
+            class="b3-button b3-button--text"
+            onclick={refresh}
+        >
+            🔄
         </button>
     </div>
 {/snippet}
