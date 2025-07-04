@@ -8,15 +8,27 @@
     interface PropsType {
         dm?: DestroyManager;
         show?: boolean;
+        docID: string;
+        docName: string;
     }
     interface PartDate {
         part: string;
         updated: string;
         docID: string;
     }
-    let { dm, show = $bindable(true) }: PropsType = $props();
+    let {
+        dm,
+        show = $bindable(true),
+        docID = $bindable(),
+        docName = $bindable(),
+    }: PropsType = $props();
     let tracer: DocTracer;
     let targets: PartDate[] = $state([]);
+    onMount(async () => {
+        dm.setData("refresh2", () => readParts());
+        tracer = await getDocTracer();
+        readParts();
+    });
 
     async function readParts() {
         const map = new Map<string, PartDate>();
@@ -50,21 +62,13 @@
     }
 
     async function refresh() {
+        dm.getFn("refresh1")();
         await readParts();
         await siyuan.pushMsg(tomatoI18n.刷新, 1000);
     }
 
-    onMount(async () => {
-        tracer = await getDocTracer();
-        readParts();
-    });
-
     function exit() {
-        if (dm) {
-            dm.destroyBy();
-        } else {
-            show = false;
-        }
+        show = false;
     }
     async function goto(block: PartDate) {
         await OpenSyFile2(getTomatoPluginInstance(), block.docID);

@@ -39,14 +39,13 @@
         } else {
             initDialog();
         }
-        // clearInterval(
-        //     setGlobal(
-        //         "间隔刷新前缀 2025-07-02 14:19:05",
-        //         setInterval(() => {
-        //             forceRefresh = true;
-        //         }, 5000),
-        //     ),
-        // );
+        dm.setData("refresh1", async () => {
+            prefixDocs = await getPrefixDocs(
+                currentDocID,
+                currentDocName,
+                true,
+            );
+        });
     });
 
     async function initDialog() {
@@ -138,7 +137,8 @@
     }
 
     async function refresh() {
-        prefixDocs = await getPrefixDocs(currentDocID, currentDocName);
+        prefixDocs = await getPrefixDocs(currentDocID, currentDocName, true);
+        dm.getFn("refresh2")();
         await siyuan.pushMsg(tomatoI18n.刷新, 1000);
     }
 </script>
@@ -176,7 +176,11 @@
 
 <div>
     {@render count_and_btn()}
-    <PrefixArticleParts bind:show={$prefixArticlesTagsShow}
+    <PrefixArticleParts
+        {dm}
+        bind:show={$prefixArticlesTagsShow}
+        bind:docID={currentDocID}
+        bind:docName={currentDocName}
     ></PrefixArticleParts>
     <DialogSvelte
         title={tomatoI18n.批量改前缀}

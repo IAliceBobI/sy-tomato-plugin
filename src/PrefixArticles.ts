@@ -182,7 +182,7 @@ function titleSort(a: ArticlesPrefix, b: ArticlesPrefix) {
     return a.docName.localeCompare(b.docName, undefined, { numeric: true, sensitivity: 'base' });
 }
 
-export async function getPrefixDocs(docID: string, name: string) {
+export async function getPrefixDocs(docID: string, name: string, force = false) {
     if (!name) return [];
     const tracer = await getDocTracer();
     let prefixDocs: ArticlesPrefix[] = [];
@@ -193,7 +193,9 @@ export async function getPrefixDocs(docID: string, name: string) {
     }
     if (name.includes("|")) {
         const parts = name.replaceAll("丨", "|").split("|").map(i => i.trim());
-        tryFixTracerByLike(parts.map(p => `content like "%${p}%"`).join(" or "))
+        if (force) {
+            await tryFixTracerByLike(parts.map(p => `content like "%${p}%"`).join(" or "))
+        }
         for (const part of parts) {
             for (const [id, block] of tracer.getDocMap().entries()) {
                 const docName = block.content.trim();
@@ -209,6 +211,9 @@ export async function getPrefixDocs(docID: string, name: string) {
         prefixDocs = prefixDocs.sort(titleSort);
         return prefixDocs
     } else {
+        if (force) {
+            await tryFixTracerByLike(prefixDocs.map(p => `content like "${p.prefix.trim()}%"`).join(" or "))
+        }
         for (const [id, block] of tracer.getDocMap().entries()) {
             const docName = block.content;
             const prefix = getCommonPrefix(name, docName);
@@ -220,7 +225,6 @@ export async function getPrefixDocs(docID: string, name: string) {
         prefixDocs = prefixDocs.sort(titleSort);
         prefixDocs = prune(prefixDocs, docID, max)
         prefixDocs = prefixDocs.sort(titleSort);
-        tryFixTracerByLike(prefixDocs.map(p => `content like "${p.prefix.trim()}%"`).join(" or "))
         return prefixDocs;
     }
 }
