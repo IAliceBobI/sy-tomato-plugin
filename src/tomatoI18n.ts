@@ -637,20 +637,20 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Document count";
         }
     }
-    public get 改前缀() {
+    public get 切换笔记本() {
         switch (this.conf.appearance.lang) {
-            case "zh_CN": return "改前缀";
-            case "es_ES": return "Cambiar prefijo";
-            case "fr_FR": return "Modifier le préfixe";
-            case "ja_JP": return "プレフィックスを変更";
-            case "zh_CHT": return "改前綴";
-            case "it_IT": return "Modifica prefisso";
-            case "de_DE": return "Präfix ändern";
-            case "he_IL": return "שנה קידומת";
-            case "ru_RU": return "Изменить префикс";
-            case "pl_PL": return "Zmień prefiks";
+            case "zh_CN": return "切换笔记本，需要刷新";
+            case "es_ES": return "Cambiar de cuaderno, es necesario actualizar";
+            case "fr_FR": return "Changer de carnet, il est nécessaire de rafraîchir";
+            case "ja_JP": return "ノートブックを切り替えるには、更新が必要です";
+            case "zh_CHT": return "切換筆記本，需要刷新";
+            case "it_IT": return "Cambia quaderno, è necessario aggiornare";
+            case "de_DE": return "Notizbuch wechseln, Aktualisierung erforderlich";
+            case "he_IL": return "לחליף מחברת, יש צורך לרענן";
+            case "ru_RU": return "Переключить блокнот, требуется обновление";
+            case "pl_PL": return "Zmień notes, wymagane jest odświeżenie";
             case "en_US":
-            default: return "Change prefix";
+            default: return "Switch notebooks, need to refresh";
         }
     }
     public get aaa() {

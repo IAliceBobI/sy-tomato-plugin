@@ -169,6 +169,7 @@ async function findArticlesByPrefix(name: string, docID: string) {
 }
 
 async function tryFixTracerByLike(like: string) {
+    if (!like || like.trim() === "") return
     navigator.locks.request("tryFixTracerByLike 2025-07-02 14:07:26", { ifAvailable: true }, async (locks) => {
         if (locks) {
             const rows = await siyuan.sql(`select * from blocks where type='d' and ( ${like} ) limit 9999999`)

@@ -38,6 +38,7 @@
                     ?.replaceAll("丨", "|")
                     ?.split("|")
                     ?.slice(0, -1)
+                    ?.map((i) => i.trim())
                     ?.forEach((pStr) => {
                         const old = map.get(pStr);
                         const obj = {
@@ -77,11 +78,26 @@
 
 {#snippet buttons()}
     <div class="action-btns">
-        <button class="b3-button b3-button--outline tomato-button" onclick={refresh}>
-            {tomatoI18n.刷新}
+        <button
+            title={tomatoI18n.切换笔记本}
+            class="b3-button b3-button--outline tomato-button"
+            onclick={() => window.location.reload()}
+        >
+            📒
         </button>
-        <button class="b3-button b3-button--outline tomato-button" onclick={exit}>
-            {tomatoI18n.退出}
+        <button
+            title={tomatoI18n.刷新}
+            class="b3-button b3-button--outline tomato-button"
+            onclick={refresh}
+        >
+            🔄
+        </button>
+        <button
+            title={tomatoI18n.退出}
+            class="b3-button b3-button--outline tomato-button"
+            onclick={exit}
+        >
+            🏃
         </button>
     </div>
 {/snippet}

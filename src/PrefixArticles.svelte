@@ -147,13 +147,20 @@
     <div class="kbd">
         <span title={tomatoI18n.文档数量}>#{prefixDocs.length}</span>
         <button
+            title={tomatoI18n.切换笔记本}
+            class="b3-button b3-button--text tomato-button"
+            onclick={() => window.location.reload()}
+        >
+            📒
+        </button>
+        <button
             title={tomatoI18n.批量改前缀}
             class="b3-button b3-button--text tomato-button"
             onclick={() => {
                 showPrefixDialog = !showPrefixDialog;
             }}
         >
-            {tomatoI18n.改前缀}
+            ✍️
         </button>
         <button
             title={tomatoI18n.标题内竖线分割出来的标签}
@@ -162,7 +169,7 @@
                 prefixArticlesTagsShow.write(!$prefixArticlesTagsShow);
             }}
         >
-            Tags
+            🏷️
         </button>
         <button
             title={tomatoI18n.刷新}
@@ -203,8 +210,9 @@
                 style="width:25em;margin-bottom:12px;"
             />
             <div style="display:flex;justify-content:flex-end;gap:8px;">
-                <button class="b3-button b3-button--outline tomato-button" onclick={cancel}
-                    >{tomatoI18n.取消}</button
+                <button
+                    class="b3-button b3-button--outline tomato-button"
+                    onclick={cancel}>{tomatoI18n.取消}</button
                 >
                 <button
                     class="b3-button b3-button--outline tomato-button"
