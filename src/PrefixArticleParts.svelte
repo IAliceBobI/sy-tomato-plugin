@@ -77,10 +77,10 @@
 
 {#snippet buttons()}
     <div class="action-btns">
-        <button class="b3-button b3-button--outline" onclick={refresh}>
+        <button class="b3-button b3-button--outline tomato-button" onclick={refresh}>
             {tomatoI18n.刷新}
         </button>
-        <button class="b3-button b3-button--outline" onclick={exit}>
+        <button class="b3-button b3-button--outline tomato-button" onclick={exit}>
             {tomatoI18n.退出}
         </button>
     </div>
@@ -98,7 +98,7 @@
                 {#each targets as block}
                     <button
                         title={block.part}
-                        class="b3-button b3-button--text"
+                        class="b3-button b3-button--text tomato-button"
                         onclick={() => goto(block)}>{block.part}</button
                     >
                 {/each}

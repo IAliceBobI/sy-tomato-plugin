@@ -1145,7 +1145,7 @@
                         <!-- 滑动到顶部 -->
                         <button
                             title={tomatoI18n.滑动到顶部}
-                            class="b3-button b3-button--text"
+                            class="b3-button b3-button--text tomato-button"
                             onclick={go2Top}
                         >
                             ⬆️</button

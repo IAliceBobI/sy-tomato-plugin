@@ -191,7 +191,7 @@ class GraphBox {
                                 <svg class="block__logoicon"><use xlink:href="#iconGraphTomato"></use></svg>${tomatoI18n.块关系图}
                             </div>
                             <div class="block__logo">
-                                <button id="${landscapeSwitchBtnID}" class="b3-button b3-button--outline">${tomatoI18n.切换横向与纵向}</button>
+                                <button id="${landscapeSwitchBtnID}" class="b3-button b3-button--outline tomato-button">${tomatoI18n.切换横向与纵向}</button>
                             </div>
                             <span class="fn__flex-1 fn__space"></span>
                             <span data-type="min" class="block__icon b3-tooltips b3-tooltips__sw" aria-label="Min"><svg><use xlink:href="#iconMin"></use></svg></span>

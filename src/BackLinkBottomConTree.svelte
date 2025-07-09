@@ -22,7 +22,7 @@
     {#if trees?.size > 0}
         {#each trees as [k, v]}
             <button
-                class="b3-button b3-button--text"
+                class="b3-button b3-button--text tomato-button"
                 onclick={(_event) => {
                     dm.destroyBy();
                     OpenSyFile2(backLinkBottomBox.plugin, v.value.id);

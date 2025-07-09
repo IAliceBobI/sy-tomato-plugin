@@ -318,7 +318,7 @@ export class AvBuilder extends DomBuilder {
 </div>
             <div class="av__row--util">
                 <div class="av__colsticky">
-                    <button class="b3-button b3-button--outline" data-type="av-add-bottom">
+                    <button class="b3-button b3-button--outline tomato-button" data-type="av-add-bottom">
                         <svg><use xlink:href="#iconAdd"></use></svg>
                         添加
                     </button>

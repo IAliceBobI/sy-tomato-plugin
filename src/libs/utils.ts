@@ -2771,7 +2771,7 @@ export class TabBuilder {
         if (!colSize || colSize < 2) colSize = 2;
         this.colSize = colSize;
         this.md = [];
-        this.docName = docName;
+        this.docName = docName.replaceAll(/[\s\|]/g, "");
     }
     addRows(...heads: string[]) {
         for (const row of chunks(heads, this.colSize)) {

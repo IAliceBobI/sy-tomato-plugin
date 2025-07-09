@@ -93,19 +93,19 @@
 
         <div>
             <button
-                class="b3-button b3-button--outline"
+                class="b3-button b3-button--outline tomato-button"
                 onclick={deleteCardDeleteContent}
                 >🗑️{tomatoI18n.删除内容块}</button
             >
             <button
                 title="ctrl+9"
-                class="b3-button b3-button--outline"
+                class="b3-button b3-button--outline tomato-button"
                 onclick={deleteCard}>🔕{tomatoI18n.取消制卡}</button
             >
-            <button class="b3-button b3-button--outline" onclick={gotoCard}
+            <button class="b3-button b3-button--outline tomato-button" onclick={gotoCard}
                 >🔍{tomatoI18n.定位闪卡}</button
             >
-            <button class="b3-button b3-button--outline" onclick={setPri}
+            <button class="b3-button b3-button--outline tomato-button" onclick={setPri}
                 >🔴🟡🟢{tomatoI18n.闪卡优先级}</button
             >
         </div>
@@ -130,13 +130,13 @@
                 {tomatoI18n.天}
             </label>
             <br />
-            <button class="b3-button b3-button--outline" onclick={delayCard}
+            <button class="b3-button b3-button--outline tomato-button" onclick={delayCard}
                 >📅{tomatoI18n.推迟x小时(hours)}</button
             >
             <br />
             <button
                 title={tomatoI18n.没处理过的闪卡都被推迟}
-                class="b3-button b3-button--outline"
+                class="b3-button b3-button--outline tomato-button"
                 onclick={() => delayRestCards(false)}
                 >🌊📅{tomatoI18n.推迟余下闪卡x小时(hours)}</button
             >
@@ -144,7 +144,7 @@
                 <br />
                 <button
                     disabled={!lastVerifyResult()}
-                    class="b3-button b3-button--outline"
+                    class="b3-button b3-button--outline tomato-button"
                     onclick={async () => {
                         if (await verifyKeyTomato()) {
                             await delayRestCards(true);

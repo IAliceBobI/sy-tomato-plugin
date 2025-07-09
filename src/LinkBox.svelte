@@ -131,26 +131,26 @@
 <div class="protyle-wysiwyg">
     <div class="space asRow">
         <button
-            class="b3-button b3-button--outline"
+            class="b3-button b3-button--outline tomato-button"
             onclick={() => deleteAll(tomatoI18n.删除其他, cursorPosID)}
             >{tomatoI18n.删除其他}</button
         >
         <button
-            class="b3-button b3-button--outline"
+            class="b3-button b3-button--outline tomato-button"
             onclick={() => deleteAll(tomatoI18n.全部删除)}
             >{tomatoI18n.全部删除}</button
         >
     </div>
     <div class="space asRow">
-        <button class="b3-button b3-button--outline" onclick={setAsOrigin}
+        <button class="b3-button b3-button--outline tomato-button" onclick={setAsOrigin}
             >{tomatoI18n.设为原始块}</button
         >
-        <button class="b3-button b3-button--outline" onclick={resetVersion}
+        <button class="b3-button b3-button--outline tomato-button" onclick={resetVersion}
             >{tomatoI18n.重置版本}</button
         >
     </div>
     <div class="space asRow">
-        <button class="b3-button b3-button--outline" onclick={findSingle}
+        <button class="b3-button b3-button--outline tomato-button" onclick={findSingle}
             >{tomatoI18n.无复本块}</button
         >
         <label>

@@ -101,10 +101,9 @@
 .protyle-wysiwyg div[data-inline-comment]:hover::before {
   content: attr(data-inline-comment);
   color: var(--b3-font-color2);
-  background-color: var(--b3-font-background2);
-  font-size: 1em;
+  font-size: smaller;
   padding: 4px 8px;
-  left: -35px; // 悬停时加大左偏移
+  left: -50px;
   top: 0;
   transform: translateY(-50%);
 }

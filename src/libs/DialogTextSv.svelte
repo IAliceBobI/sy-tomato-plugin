@@ -97,7 +97,7 @@
                     }
                 }}
             />
-            <button class="b3-button b3-button--outline" onclick={btnClick}
+            <button class="b3-button b3-button--outline tomato-button" onclick={btnClick}
                 >Enter</button
             >
         {/if}

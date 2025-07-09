@@ -130,7 +130,7 @@ https://learn.svelte.dev/tutorial/if-blocks
     <div><NotebookSelect></NotebookSelect></div>
 
     <div class="tomatoflexRow">
-        <label class="b3-button b3-button--outline">
+        <label class="b3-button b3-button--outline tomato-button">
             📸
             <input
                 title={tomatoI18n.拍照后插入图片}
@@ -141,7 +141,7 @@ https://learn.svelte.dev/tutorial/if-blocks
                 hidden
             />
         </label>
-        <label class="b3-button b3-button--outline">
+        <label class="b3-button b3-button--outline tomato-button">
             🖼️
             <input
                 title={tomatoI18n.从图库插入图片}
@@ -154,7 +154,7 @@ https://learn.svelte.dev/tutorial/if-blocks
         </label>
         <button
             title={tomatoI18n.清理列表清理输入框}
-            class="b3-button b3-button--outline"
+            class="b3-button b3-button--outline tomato-button"
             on:click={() => {
                 clearText();
                 storeNoteBox_recentText.clean();
@@ -162,7 +162,7 @@ https://learn.svelte.dev/tutorial/if-blocks
         >
         <button
             title="open dailynote"
-            class="b3-button b3-button--outline"
+            class="b3-button b3-button--outline tomato-button"
             on:click={async () => {
                 const id = await getTargetID(
                     storeNoteBox_selectedNotebook.getOr(),
@@ -173,7 +173,7 @@ https://learn.svelte.dev/tutorial/if-blocks
         >
         <button
             title={tomatoI18n.同步数据}
-            class="b3-button b3-button--outline"
+            class="b3-button b3-button--outline tomato-button"
             on:click={() => {
                 siyuan.performSync(true);
             }}>☁️</button
@@ -195,7 +195,7 @@ https://learn.svelte.dev/tutorial/if-blocks
     <div class="tomatoflexRow">
         {#each NoteTypes as t}
             <button
-                class="b3-button b3-button--text"
+                class="b3-button b3-button--text tomato-button"
                 class:b3-button--outline={$storeNoteBox_selectedNoteType == t}
                 on:click={() => {
                     storeNoteBox_selectedNoteType.save(t);
@@ -207,7 +207,7 @@ https://learn.svelte.dev/tutorial/if-blocks
     {#if events.isMobile && isDialog}
         <div class="margin">
             <button
-                class="b3-button b3-button--outline"
+                class="b3-button b3-button--outline tomato-button"
                 on:click={() => saveExit(true)}>{tomatoI18n.保存}</button
             >
         </div>
@@ -237,7 +237,7 @@ https://learn.svelte.dev/tutorial/if-blocks
     {#if events.isMobile && isDialog}
         <div class="margin">
             <button
-                class="b3-button b3-button--outline"
+                class="b3-button b3-button--outline tomato-button"
                 on:click={() => saveExit(true)}>{tomatoI18n.保存}</button
             >
         </div>

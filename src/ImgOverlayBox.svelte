@@ -199,10 +199,10 @@
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->
 <div class="b3-dialog__content">
-    <button class="b3-button b3-button--outline" onclick={remove}
+    <button class="b3-button b3-button--outline tomato-button" onclick={remove}
         >{tomatoI18n.删除最后一个遮挡层}</button
     >
-    <button class="b3-button b3-button--outline" onclick={exit}
+    <button class="b3-button b3-button--outline tomato-button" onclick={exit}
         >{tomatoI18n.保存并退出}</button
     >
     <input

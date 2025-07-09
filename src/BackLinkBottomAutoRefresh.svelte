@@ -19,7 +19,7 @@
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->
 <button
     bind:this={refreshInput}
-    class="b3-button b3-button--text"
+    class="b3-button b3-button--text tomato-button"
     onclick={async () => ($autoRefreshChecked = !$autoRefreshChecked)}
 >
     {#if !$autoRefreshChecked}
