@@ -50,6 +50,7 @@
     let stop = false;
     let currentID: string = $state();
     let docID: string = $state();
+    let lastDocID: string = $state();
     let notebookId: string = $state();
     let listID: string = $state();
     let superID: string = $state();
@@ -121,14 +122,16 @@
 
     async function _svelteCallback(protyle: IProtyle, force = false) {
         if (getAttribute(protyle.element, TOMATO_BK_IGNORE)) return;
-        // if (!(await verifyKeyTomato())) {
-        //     if ($commentBoxStaticOutlink) commentBoxStaticOutlink.write(false);
-        // }
 
         if ($commentBoxStaticOutlink) {
             const i = events.getInfo(protyle);
             docID = i.docID;
-            return _svelteCallback_doc_lock(force);
+            if (lastDocID != docID) {
+                lastDocID = docID;
+                return _svelteCallback_doc_lock(true);
+            } else {
+                return _svelteCallback_doc_lock(force);
+            }
         } else {
             return _svelteCallback_block(protyle);
         }
@@ -136,7 +139,6 @@
 
     async function _svelteCallback_doc_lock(force = false) {
         if (force) {
-            siyuan.pushMsg(tomatoI18n.刷新);
             _svelteCallback_doc();
         } else {
             navigator.locks.request(
