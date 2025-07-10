@@ -355,21 +355,23 @@
     }
 
     // protyle
-    function mountProtyle(node: HTMLElement, backLink: BacklinkSv<Protyle>) {
-        node.style.minHeight = "auto";
-        node.addEventListener("click", () => {
-            $autoRefreshChecked = false;
-        });
-        if (backLink.protyle == null && backLink.ob == null) {
-            let id = backLink.blockID;
-            if (backLink.parentID) id = backLink.parentID;
-            const pob = createProtyle(id, maker.plugin);
-            backLink.ob = pob.ob;
-            backLink.protyle = pob.p;
-            backLink.protyle.protyle.element.style.maxHeight =
-                $back_link_protyle_height + "px"; // set height
-        }
-        node.appendChild(backLink.protyle.protyle.element);
+    function mountProtyle(backLink: BacklinkSv<Protyle>) {
+        return (node: HTMLElement) => {
+            node.style.minHeight = "auto";
+            node.addEventListener("click", () => {
+                $autoRefreshChecked = false;
+            });
+            if (backLink.protyle == null && backLink.ob == null) {
+                let id = backLink.blockID;
+                if (backLink.parentID) id = backLink.parentID;
+                const pob = createProtyle(id, maker.plugin);
+                backLink.ob = pob.ob;
+                backLink.protyle = pob.p;
+                backLink.protyle.protyle.element.style.maxHeight =
+                    $back_link_protyle_height + "px"; // set height
+            }
+            node.appendChild(backLink.protyle.protyle.element);
+        };
     }
 
     async function search() {
@@ -1181,7 +1183,7 @@
 
                     {#if backLink.edit === true}
                         <!-- 可以编辑 -->
-                        <div use:mountProtyle={backLink}></div>
+                        <div {@attach mountProtyle(backLink)}></div>
                     {:else}
                         <!-- 不能编辑 -->
                         <div

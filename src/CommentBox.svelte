@@ -135,8 +135,10 @@
     }
 
     async function _svelteCallback_doc_lock(force = false) {
-        if (force) _svelteCallback_doc();
-        else {
+        if (force) {
+            siyuan.pushMsg(tomatoI18n.刷新);
+            _svelteCallback_doc();
+        } else {
             navigator.locks.request(
                 "_svelteCallback_doc_lock 2025-06-22 11:08:03",
                 { ifAvailable: true },
@@ -180,9 +182,9 @@
             idContents.map((ref) =>
                 siyuan
                     .copyStdMarkdownWithoutTitle(ref.def_block_root_id)
-                    .then(
-                        (c) => (ref.docContent = removeInvisibleChars(c, true)),
-                    ),
+                    .then((c) => {
+                        ref.docContent = removeInvisibleChars(c, true);
+                    }),
             ),
         );
         refs = idContents;
@@ -426,33 +428,28 @@
         btn.textContent = "⬇️";
     }
 
-    function docRefVIP(node: HTMLInputElement) {
-        node;
-        // verifyKeyTomato().then((vip) => {
-        //     if (!vip) {
-        //         node.disabled = true;
-        //     }
-        // });
+    function renderDocContent(ref: Ref) {
+        return (node: HTMLElement) => {
+            node.style.maxHeight = $commentBoxMaxProtyleHeight + "px";
+            node.innerHTML = ref.docContent.replaceAll("\n\n", "\n");
+            node.style.fontSize = "large";
+        };
     }
 
-    function renderDocContent(node: HTMLElement, ref: Ref) {
-        node.style.maxHeight = $commentBoxMaxProtyleHeight + "px";
-        node.innerHTML = ref.docContent.replaceAll("\n\n", "\n");
-        node.style.fontSize = "large";
-    }
+    function mountProtyle(backLink: BacklinkSv<Protyle>) {
+        return (node: HTMLElement) => {
+            node.style.minHeight = "auto";
+            node.appendChild(backLink.protyle.protyle.element);
 
-    function mountProtyle(node: HTMLElement, backLink: BacklinkSv<Protyle>) {
-        node.style.minHeight = "auto";
-        node.appendChild(backLink.protyle.protyle.element);
+            const protyleDiv = document.getElementById(getProtyleID(backLink));
+            const btn = document.getElementById(getButtonID(backLink));
 
-        const protyleDiv = document.getElementById(getProtyleID(backLink));
-        const btn = document.getElementById(getButtonID(backLink));
-
-        if (backLink.isFold === true) {
-            doFold(btn, protyleDiv);
-        } else {
-            doUnFold(btn, protyleDiv);
-        }
+            if (backLink.isFold === true) {
+                doFold(btn, protyleDiv);
+            } else {
+                doUnFold(btn, protyleDiv);
+            }
+        };
     }
 
     function toggle(backLink: BacklinkSv<Protyle>) {
@@ -515,7 +512,6 @@
                 class="b3-switch"
                 bind:checked={$commentBoxStaticOutlink}
                 onchange={() => commentBoxStaticOutlink.write()}
-                use:docRefVIP
             />
         </label>
         {#if $commentBoxStaticOutlink}
@@ -649,7 +645,7 @@
                         </div>
                         <div
                             class="docContent"
-                            use:renderDocContent={ref}
+                            {@attach renderDocContent(ref)}
                         ></div>
                     </div>
                 </div>
@@ -693,7 +689,7 @@
                         </div>
                         <div
                             id={getProtyleID(backLink)}
-                            use:mountProtyle={backLink}
+                            {@attach mountProtyle(backLink)}
                         ></div>
                     </div>
                 </div>
