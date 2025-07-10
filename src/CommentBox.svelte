@@ -432,7 +432,7 @@
         return (node: HTMLElement) => {
             node.style.maxHeight = $commentBoxMaxProtyleHeight + "px";
             node.innerHTML = ref.docContent.replaceAll("\n\n", "\n");
-            node.style.fontSize = "large";
+            // node.style.fontSize = "large";
         };
     }
 
