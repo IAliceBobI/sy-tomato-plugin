@@ -156,50 +156,6 @@
 //   animation: tomatoFadeIn 0.3s forwards 3;
 // }
 
-.tomato-style {
-  &__bkContainer {
-    font-size: larger;
-  }
-
-  &__bkContent {
-    padding-left: 30px;
-
-    ul {
-      padding-left: 20px;
-    }
-
-    ul ul {
-      padding-left: 40px;
-    }
-
-    ul ul ul {
-      padding-left: 60px;
-    }
-  }
-
-  &__container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  &__centered-text {
-    text-align: center;
-    font-size: 30px;
-  }
-
-  &__code {
-    background-color: var(--b3-protyle-code-linenumber-hl);
-    color: var(--b3-font-color5);
-    font-size: small;
-    padding: 2px 4px;
-    border-radius: 4px;
-    font-family: "Courier New", monospace;
-    vertical-align: top;
-  }
-}
-
 #tomato-mind-wire-svg-container {
   position: absolute;
   top: 0;

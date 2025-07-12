@@ -363,7 +363,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
         switch (this.conf.appearance.lang) {
             case "zh_CN":
                 return `
-<div class="b3-dialog__content tomato-style__centered-text">
+<div class="b3-dialog__content">
 <p>
     <strong>输入的<span class="fn__code">关键词</span>之间用
     <span class="fn__code">空格</span>隔开，
@@ -396,7 +396,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
 `;
             case "es_ES":
                 return `
-<div class="b3-dialog__content tomato-style__centered-text">
+<div class="b3-dialog__content">
 <p>
     <strong>Introduce las <span class="fn__code">palabras clave</span> separadas por
     <span class="fn__code">espacios</span>,
@@ -425,7 +425,7 @@ ni <span class="fn__code">Jefe</span>.</p>
 `;
             case "fr_FR":
                 return `
-<div class="b3-dialog__content tomato-style__centered-text">
+<div class="b3-dialog__content">
 <p>
     <strong>Entrez les <span class="fn__code">mots clés</span> séparés par des
     <span class="fn__code">espaces</span>,
@@ -454,7 +454,7 @@ ni <span class="fn__code">Chef</span>.</p>
 `;
             case "ja_JP":
                 return `
-<div class="b3-dialog__content tomato-style__centered-text">
+<div class="b3-dialog__content">
 <p>
     <strong><span class="fn__code">キーワード</span>を
     <span class="fn__code">スペース</span>で区切って入力してください。
@@ -477,7 +477,7 @@ ni <span class="fn__code">Chef</span>.</p>
 `;
             case "zh_CHT":
                 return `
-<div class="b3-dialog__content tomato-style__centered-text">
+<div class="b3-dialog__content">
 <p>
     <strong>輸入的<span class="fn__code">關鍵詞</span>之間用
     <span class="fn__code">空格</span>隔開，
@@ -511,7 +511,7 @@ ni <span class="fn__code">Chef</span>.</p>
 
             default:
                 return `
-<div class="b3-dialog__content tomato-style__centered-text">
+<div class="b3-dialog__content">
 <p>
     <strong>Separate the entered <span class="fn__code">keywords</span> with
     <span class="fn__code">spaces</span>. If a keyword is preceded by a <span class="fn__code">!</span>,

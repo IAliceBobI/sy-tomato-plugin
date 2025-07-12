@@ -1,8 +1,10 @@
 <script lang="ts">
     import { onMount, Snippet } from "svelte";
-    import { getTomatoPluginConfig } from "./utils";
+    import { getTomatoPluginConfig, icon } from "./utils";
     import { events } from "./Events";
     import { floatingballEnable } from "./stores";
+    import { DestroyManager } from "./destroyer";
+    import { tomatoI18n } from "../tomatoI18n";
 
     interface PropsType {
         savePositionKey?: string;
@@ -10,8 +12,14 @@
         hideScrollbar?: boolean;
         title: string;
         dialogInner: Snippet;
-        minWidth?: number; // 新增：最小宽度
-        minHeight?: number; // 新增：最小高度
+        minWidth?: number;
+        minHeight?: number;
+        maxWidth?: number;
+        maxHeight?: number;
+        dm?: DestroyManager;
+        width?: number;
+        height?: number;
+        useBrowserStorage?: boolean;
     }
 
     let {
@@ -20,8 +28,14 @@
         hideScrollbar = false,
         title = $bindable("dialog"),
         dialogInner,
-        minWidth = 200, // 默认最小宽度
-        minHeight = 150, // 默认最小高度
+        minWidth = 200,
+        minHeight = 150,
+        maxWidth = null,
+        maxHeight = null,
+        width = null,
+        height = null,
+        dm = null,
+        useBrowserStorage = false,
     }: PropsType = $props();
 
     let dialogElement: HTMLElement = $state();
@@ -39,6 +53,26 @@
     });
 
     onMount(() => {
+        if (dialogElement) {
+            if (width != null) {
+                dialogElement.style.width = `${width}px`;
+            }
+            if (height != null) {
+                dialogElement.style.height = `${height}px`;
+            }
+            if (maxWidth != null) {
+                dialogElement.style.maxWidth = `${maxWidth}px`;
+            }
+            if (maxHeight != null) {
+                dialogElement.style.maxHeight = `${maxHeight}px`;
+            }
+            if (minWidth != null) {
+                dialogElement.style.minWidth = `${minWidth}px`;
+            }
+            if (minHeight != null) {
+                dialogElement.style.minHeight = `${minHeight}px`;
+            }
+        }
         // 初始设置位置
         if (show && savePositionKey) {
             loadPosition();
@@ -201,22 +235,50 @@
     }
 
     function loadPosition() {
-        let x = getTomatoPluginConfig()[key("offsetX")];
-        let y = getTomatoPluginConfig()[key("offsetY")];
-        let width = getTomatoPluginConfig()[key("width")];
-        let height = getTomatoPluginConfig()[key("height")];
-        setPosition(x, y, width, height);
+        if (!dialogElement) return;
+        if (!savePositionKey) return;
+        if (useBrowserStorage) {
+            let x = localStorage.getItem(key("offsetX"));
+            let y = localStorage.getItem(key("offsetY"));
+            let width = localStorage.getItem(key("width"));
+            let height = localStorage.getItem(key("height"));
+            setPosition(x, y, width, height);
+        } else {
+            let x = getTomatoPluginConfig()[key("offsetX")];
+            let y = getTomatoPluginConfig()[key("offsetY")];
+            let width = getTomatoPluginConfig()[key("width")];
+            let height = getTomatoPluginConfig()[key("height")];
+            setPosition(x, y, width, height);
+        }
     }
 
     function savePosition() {
         if (!dialogElement) return;
-
-        getTomatoPluginConfig()[key("offsetX")] = dialogElement.style.left;
-        getTomatoPluginConfig()[key("offsetY")] = dialogElement.style.top;
-        getTomatoPluginConfig()[key("width")] = dialogElement.style.width;
-        getTomatoPluginConfig()[key("height")] = dialogElement.style.height;
-
-        floatingballEnable.write(); // 任意一个key可以保存整体
+        if (!savePositionKey) return;
+        if (useBrowserStorage) {
+            if (dialogElement.style.left)
+                localStorage.setItem(key("offsetX"), dialogElement.style.left);
+            if (dialogElement.style.top)
+                localStorage.setItem(key("offsetY"), dialogElement.style.top);
+            if (dialogElement.style.width)
+                localStorage.setItem(key("width"), dialogElement.style.width);
+            if (dialogElement.style.height)
+                localStorage.setItem(key("height"), dialogElement.style.height);
+        } else {
+            if (dialogElement.style.left)
+                getTomatoPluginConfig()[key("offsetX")] =
+                    dialogElement.style.left;
+            if (dialogElement.style.top)
+                getTomatoPluginConfig()[key("offsetY")] =
+                    dialogElement.style.top;
+            if (dialogElement.style.width)
+                getTomatoPluginConfig()[key("width")] =
+                    dialogElement.style.width;
+            if (dialogElement.style.height)
+                getTomatoPluginConfig()[key("height")] =
+                    dialogElement.style.height;
+            floatingballEnable.write(); // 任意一个key可以保存整体
+        }
     }
 
     function setPosition(
@@ -227,8 +289,9 @@
     ) {
         if (!dialogElement) return;
 
-        if (!x) x = "200px";
-        if (!y) y = "200px";
+        if (!x) x = (window.innerWidth - dialogElement.offsetWidth) / 2 + "px";
+        if (!y)
+            y = (window.innerHeight - dialogElement.offsetHeight) / 2 + "px";
 
         // 解析像素值
         let left = parseInt(x, 10);
@@ -249,8 +312,12 @@
 
         dialogElement.style.left = `${left}px`;
         dialogElement.style.top = `${top}px`;
-        dialogElement.style.width = `${dialogWidth}px`;
-        dialogElement.style.height = `${dialogHeight}px`;
+        if (width) {
+            dialogElement.style.width = `${dialogWidth}px`;
+        }
+        if (height) {
+            dialogElement.style.height = `${dialogHeight}px`;
+        }
     }
 </script>
 
@@ -266,6 +333,15 @@
             >
                 <div class="grabber-icon">≡</div>
                 <div class="grabber-title">{showTitle}</div>
+                {#if dm}
+                    <button
+                        title={tomatoI18n.退出}
+                        class="close-button"
+                        onclick={() => dm.destroyBy()}
+                    >
+                        {@html icon("iconClose", 15)}
+                    </button>
+                {/if}
             </div>
 
             <!-- 调整大小手柄 -->
@@ -364,6 +440,24 @@
         user-select: none;
         color: var(--b3-theme-on-background);
         font-weight: 500;
+    }
+
+    .close-button {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: var(--b3-theme-on-background);
+        font-size: 16px;
+        padding: 0 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+    .close-button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
     }
 
     .dialog-content {

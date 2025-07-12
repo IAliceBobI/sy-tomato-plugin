@@ -1,6 +1,6 @@
-import { TomatoI18nABCMAX } from "./gconst";
+import { TomatoI18nABC13 } from "./text13";
 
-export abstract class TomatoI18nABC12 extends TomatoI18nABCMAX {
+export abstract class TomatoI18nABC12 extends TomatoI18nABC13 {
     public get 打开批注页签() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "打开批注页签";

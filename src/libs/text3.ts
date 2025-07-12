@@ -358,60 +358,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "Activate";
         }
     }
-    public get 已经激活() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": // 简体中文
-                return "已经激活";
-            case "es_ES": // 西班牙语
-                return "Ya activado";
-            case "fr_FR": // 法语
-                return "Déjà activé";
-            case "ja_JP": // 日语
-                return "すでにアクティブ化されています";
-            case "zh_CHT": // 繁体中文
-                return "已經激活";
-            case "it_IT": // 意大利语
-                return "Già attivato";
-            case "de_DE": // 德语
-                return "Bereits aktiviert";
-            case "he_IL": // 希伯来语
-                return "כבר מופעל";
-            case "ru_RU": // 俄语
-                return "Уже активировано";
-            case "pl_PL": // 波兰语
-                return "Już aktywowany";
-            case "en_US": // 英语（美国）
-            default: // 默认语言
-                return "Already activated";
-        }
-    }
-    public get 没有激活() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": // 简体中文
-                return "没有激活";
-            case "es_ES": // 西班牙语
-                return "No activado";
-            case "fr_FR": // 法语
-                return "Non activé";
-            case "ja_JP": // 日语
-                return "アクティブ化されていません";
-            case "zh_CHT": // 繁体中文
-                return "沒有激活";
-            case "it_IT": // 意大利语
-                return "Non attivato";
-            case "de_DE": // 德语
-                return "Nicht aktiviert";
-            case "he_IL": // 希伯来语
-                return "לא מופעל";
-            case "ru_RU": // 俄语
-                return "Не активировано";
-            case "pl_PL": // 波兰语
-                return "Nie aktywowany";
-            case "en_US": // 英语（美国）
-            default: // 默认语言
-                return "Not activated";
-        }
-    }
     public get 复制() {
         // 补充缺失语言。
         switch (this.conf.appearance.lang) {
@@ -965,26 +911,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
 
             default:
                 return "Total text length";
-        }
-    }
-
-    public get 按文本长度拆分() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return `按文本长度拆分，留空为不拆分`;
-            case "es_ES":
-                return `Dividir por longitud de texto, dejar en blanco para no dividir`;
-            case "fr_FR":
-                return `Diviser par longueur de texte, laisser vide pour ne pas diviser`;
-            case "ja_JP":
-                return `テキスト長で分割、空白の場合は分割しません`;
-            case "zh_CHT":
-                return `按文本長度拆分，留空為不拆分`;
-            case "it_IT":
-                return `Dividi per lunghezza del testo, lascia vuoto per non dividere`;
-
-            default:
-                return `Split by text length, leave empty to not split`;
         }
     }
     public get 请耐心等待() {

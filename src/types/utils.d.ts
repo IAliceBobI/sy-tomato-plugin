@@ -470,6 +470,8 @@ interface Funding {
 
 interface TomatoGlobal {
     prog_zZmqus5PtYRi: {
+        timeUtil: any;
+        siyuan: any;
         pluginConfig: TomatoSettings;
         save?: () => void;
     },

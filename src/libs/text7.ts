@@ -580,40 +580,6 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
                 return "Sentence segmentation";
         }
     }
-    public get 末尾() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "末尾块";
-            case "es_ES":
-                return "último bloque";
-            case "fr_FR":
-                return "dernier bloc";
-            case "ja_JP":
-                return "最後のブロック";
-            case "zh_CHT":
-                return "最後一個塊";
-
-            default:
-                return "last block";
-        }
-    }
-    public get 标号() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "添加标号";
-            case "es_ES":
-                return "Agregar etiqueta";
-            case "fr_FR":
-                return "Ajouter une étiquette";
-            case "ja_JP":
-                return "ラベルを追加";
-            case "zh_CHT":
-                return "添加標號";
-
-            default:
-                return "Add label";
-        }
-    }
 
     public get 忽略() {
         switch (this.conf.appearance.lang) {
@@ -950,25 +916,6 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
                 return "when creating a new fragment, number the paragraphs";
         }
     }
-    public get 把阅读到的分片设置为闪卡() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "把阅读到的分片设置为闪卡";
-            case "es_ES":
-                return "Establecer el fragmento leído como tarjeta de memoria";
-            case "fr_FR":
-                return "Définir le fragment lu comme flashcard";
-            case "ja_JP":
-                return "読んだフラグメントをフラッシュカードに設定する";
-            case "zh_CHT":
-                return "將讀到的片段設置為閃卡";
-
-            default:
-                return "Set the read fragment as flashcard";
-        }
-    }
-
-
 
     public get 移动到下一分片内() {
         switch (this.conf.appearance.lang) {

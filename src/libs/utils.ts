@@ -271,11 +271,13 @@ export async function findDuplicatedDocs() {
 export function addCardSetDueTime(cardID: string, sleepMs = 1000, deltaSecs = 0) {
     setTimeout(async () => {
         await siyuan.addRiffCards([cardID]);
-        setTimeout(async () => {
-            await siyuan.reviewRiffCardByBlockID(cardID, 2);
-            const due = timeUtil.getYYYYMMDDHHmmss(timeUtil.nowts() + deltaSecs);
-            await siyuan.batchSetRiffCardsDueTimeByBlockID([{ id: cardID, due }]);
-        }, sleepMs);
+        if (deltaSecs > 0) {
+            setTimeout(async () => {
+                await siyuan.reviewRiffCardByBlockID(cardID, 2);
+                const due = timeUtil.getYYYYMMDDHHmmss(timeUtil.nowts() + deltaSecs);
+                await siyuan.batchSetRiffCardsDueTimeByBlockID([{ id: cardID, due }]);
+            }, sleepMs);
+        }
     }, sleepMs);
 }
 
@@ -1461,9 +1463,12 @@ export const siyuan = {
     async currentTime(secs = 0) {
         return timeUtil.dateFormat(new Date(await siyuan.currentTimeMs(secs)));
     },
-    async currentTimeMs(secs = 0) {
+    async currentTimeMs(secs = 0): Promise<number> {
         const response = await fetchSyncPost("/api/system/currentTime", {});
         return response.data + secs * 1000;
+    },
+    async currentTimeSec(secs = 0): Promise<number> {
+        return siyuan.currentTimeMs(secs).then(ms => Math.ceil(ms / 1000))
     },
     async getWorkspaces() {
         const response = await fetchSyncPost("/api/system/getWorkspaces", {});
@@ -1697,6 +1702,7 @@ export const siyuan = {
         return siyuan.call("/api/av/getAttributeView", { id });
     },
     async renderAttributeView(id: string, pageSize = 50, page = 1, query = "", viewID = ""): Promise<RenderAttributeView> {
+        if (page <= 0) throw Error("页码必须大于等于1")
         return siyuan.call("/api/av/renderAttributeView", { id, pageSize, query, page, viewID });
     },
     async removeUnusedAsset(path: string): Promise<{ path: string }> {
@@ -2283,7 +2289,25 @@ export const siyuan = {
         return total;
     },
     async getTreeRiffCards(id: string, page: number, pageSize = 10000): Promise<GetCardRet> {
+        if (page <= 0) throw Error("页码必须大于等于1")
         return siyuan.call("/api/riff/getTreeRiffCards", { id, page, pageSize });
+    },
+    async getTreeRiffDueCards(rootID: string): Promise<GetDueCardRet> {
+        return siyuan.call("/api/riff/getTreeRiffDueCards", { rootID });
+    },
+    async getNotebookRiffDueCards(notebook: string): Promise<GetDueCardRet> {
+        return siyuan.call("/api/riff/getNotebookRiffDueCards", { notebook });
+    },
+    async getNotebookRiffCards(id: string, page: number, pageSize = 10000): Promise<GetCardRet> {
+        if (page <= 0) throw Error("页码必须大于等于1")
+        return siyuan.call("/api/riff/getNotebookRiffCards", { id, page, pageSize });
+    },
+    async resetRiffCards(type: "notebook" | "tree" | "deck", id: string, blockIDs: string[] = [], deckID = Constants.QUICK_DECK_ID): Promise<GetCardRet> {
+        // typ := arg["type"].(string)      // notebook, tree, deck
+        // id := arg["id"].(string)         // notebook ID, root ID, deck ID
+        // deckID := arg["deckID"].(string) // deck ID
+        // blockIDsArg := arg["blockIDs"]   // 如果不传入 blockIDs （或者传入实参为空数组），则重置所有卡片
+        return siyuan.call("/api/riff/resetRiffCards", { type, id, blockIDs, deckID });
     },
     transAddRiffCards(blockIDs: string[]) {
         const op = {} as IOperation;
@@ -2318,6 +2342,7 @@ export const siyuan = {
         }
     },
     async getRiffCards(page = 1, pageSize = 1000, deckID = ""): Promise<GetCardRet> {
+        if (page <= 0) throw Error("页码必须大于等于1")
         return siyuan.call("/api/riff/getRiffCards", { "id": deckID, page, pageSize });
     },
     async getRiffCardsByBlockIDs(blockIDs: string[]) {

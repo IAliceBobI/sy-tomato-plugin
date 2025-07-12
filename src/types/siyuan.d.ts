@@ -130,11 +130,113 @@ type GetBlocksWordCount = {
 type GetBlockKramdown = { id: string, kramdown: string }
 
 type DueCard = {
+    // {
+    //     "deckID": "20230218211946-2kw8jgx",
+    //     "cardID": "20250109104922-pco9447",
+    //     "blockID": "20250109104921-jjggbpc",
+    //     "lapses": 1,
+    //     "reps": 6,
+    //     "state": 2,
+    //     "lastReview": 1751334972653,
+    //     "nextDues": {
+    //         "1": "5 分钟",
+    //         "2": "19 天",
+    //         "3": "1 个月 10 天",
+    //         "4": "2 个月 30 天"
+    //     }
+    // }
     deckID: string;
     cardID: string;
     blockID: string;
     state: number;
+    lapses: number;
+    lastReview: number;
+    reps: number;
     nextDues: { "1": string, "2": string, "3": string, "4": string };
+}
+
+type GetCardRet = { blocks: GetCardRetBlock[], total: number, pageCount: number };
+
+type GetCardRetBlock = {
+    // "box": "20250219094350-3vkl29a",
+    box: string;
+    // "path": "/20231218022724-v23ym97/20250103135032-mus0zgr/20250701094625-euwt4uo/20250705154201-8z1vngp.sy",
+    path: string;
+    // "hPath": "/daily card/c2025/c2025-07/c2025-07-05",
+    hPath: string;
+    // "id": "20250705154201-7lla2gl",
+    id: string;
+    // "rootID": "20250705154201-8z1vngp",
+    rootID: string;
+    // "parentID": "20250705154201-8z1vngp",
+    parentID: string;
+    // "name": "",
+    name: string;
+    // "alias": "",
+    alias: string;
+    // "memo": "",
+    memo: string;
+    // "tag": "",
+    tag: string;
+    // "content": "bb",
+    content: string;
+    // "fcontent": "xx",
+    fcontent: string;
+    // "markdown": "xx",
+    markdown: string;
+    // "folded": false,
+    folded: boolean;
+    // "type": "NodeSuperBlock",
+    type: string;
+    // "subType": "",
+    subType: string;
+    // "refText": "",
+    refText: string;
+    // "refs": null,
+    refs: null;
+    // "defID": "",
+    defID: string;
+    // "defPath": "",
+    defPath: string;
+    // "ial": {
+    //     "custom-ref-hpath": "",
+    //     "custom-riff-decks": "20230218211946-2kw8jgx",
+    //     "custom-super-card-box": "1",
+    //     "id": "20250705154201-7lla2gl",
+    //     "updated": "20250705154615"
+    // },
+    ial: AttrType;
+    // "children": null,
+    children: null;
+    // "depth": 0,
+    depth: number;
+    // "count": 0,
+    count: number;
+    // "sort": 30,
+    sort: number;
+    // "created": "",
+    created: string;
+    // "updated": "",
+    updated: string;
+    // "riffCardID": "20250705154202-21j1g1l",
+    riffCardID: string;
+    // "riffCard": {
+    //     "due": "2025-07-11T15:43:17.0492134+08:00",
+    //     "reps": 1,
+    //     "lapses": 0,
+    //     "state": 2,
+    //     "lastReview": "2025-07-05T15:43:17.0492134+08:00"
+    // }
+    riffCard: RiffCard;
+    attrs?: AttrType;
+}
+
+type RiffCard = {
+    due: string; // "2024-02-28"
+    lapses: number  // 遗忘次数
+    lastReview: number  // 最后复习时间
+    reps: number  // 复习次数
+    state: number   // 卡片状态 0：新卡
 }
 
 type GetDueCardRet = {
@@ -231,58 +333,6 @@ type GetBlockInfo = {
     rootID: string;
     rootIcon: string;
     rootTitle: string;
-}
-
-type GetCardRet = { blocks: GetCardRetBlock[], total: number, pageCount: number };
-
-type GetCardRetBlock = {
-    alias: string;
-    box: string;
-    content: string;
-    created: string;
-    fcontent: string;
-    // hash: string;
-    hPath: string;
-    ial: AttrType;
-    attrs?: AttrType;
-    id: string;
-    // length: number;
-    markdown: string;
-    memo: string;
-    name: string;
-    parentID: string;
-    path: string;
-    rootID: string;
-    sort: number;
-    subType: string;
-    tag: string;
-    updated: string;
-
-    folded: boolean;
-    type: string;
-    refText: string;
-    refs: null;
-    defID: string;
-    defPath: string;
-    children: null;
-    depth: number;
-    count: number;
-    riffCardID: string;
-    riffCard: RiffCard;
-}
-
-// type Ial = {
-//     id: string;
-//     title: string;
-//     updated: string;
-// }
-
-type RiffCard = {
-    due: string; // "2024-02-28"
-    lapses: number  // 遗忘次数
-    lastReview: number  // 最后复习时间
-    reps: number  // 复习次数
-    state: number   // 卡片状态 0：新卡
 }
 
 type RetListDocTree = {

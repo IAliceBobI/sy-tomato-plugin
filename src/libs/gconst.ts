@@ -170,7 +170,11 @@ export enum WsActionTypes {
 }
 
 export abstract class TomatoI18nABCMAX {
-    conf: Config.IConf;
+    conf: Config.IConf | {
+        appearance: {
+            lang: "ar_SA" | "pt_BR"
+        }
+    };
     init() {
         this.conf = Siyuan.config
     }
