@@ -103,3 +103,17 @@ export function dialog2floating(dialog: Dialog, _position: { x: string, y: strin
         // if (container) container.style.pointerEvents = "initial";
     }
 }
+
+export function showDialog(mount: (target: HTMLElement, dm: DestroyManager) => any, opt: Partial<ConstructorParameters<typeof Dialog>[0]>) {
+    if (!opt.width) opt.width = events.isMobile ? "90vw" : "700px";
+    if (!opt.height) opt.height = events.isMobile ? "180vw" : "700px";
+    if (!opt.title) opt.title = "💬"
+    const id = newID()
+    opt.content = `<div id="${id}"></div>`
+    const dm = new DestroyManager()
+    const dialog = new Dialog(opt as any);
+    const svelte = mount(dialog.element.querySelector("#" + id), dm);
+    dm.add("svelte", () => svelte.destroy())
+    dm.add("dialog", () => dialog.destroy())
+    return dm;
+}

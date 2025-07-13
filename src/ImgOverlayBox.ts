@@ -7,7 +7,7 @@ import { imgOverlayCheckbox } from "./libs/stores";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { tomatoI18n } from "./tomatoI18n";
 import { newID } from "stonev5-utils/lib/id";
-import { mount, unmount } from "svelte";
+import { mount } from "svelte";
 import { DestroyManager } from "./libs/destroyer";
 
 class ImgOverlayBox {
@@ -88,16 +88,12 @@ class ImgOverlayBox {
         });
         dm.add("svelte", () => {
             svelte.destroy();
-            try {
-                let value = JSON.stringify(nextOverlays);
-                if (value == "{}") value = "";
-                const attrs = {};
-                attrs[ATTR_PIC_OVERLAY] = value;
-                siyuan.setBlockAttrs(imgID, attrs);
-                showOverlayStyle(nextOverlays, imgSpan?.querySelector("img"));
-            } finally {
-                unmount(svelte);
-            }
+            let value = JSON.stringify(nextOverlays);
+            if (value == "{}") value = "";
+            const attrs = {};
+            attrs[ATTR_PIC_OVERLAY] = value;
+            siyuan.setBlockAttrs(imgID, attrs);
+            showOverlayStyle(nextOverlays, imgSpan?.querySelector("img"));
         })
         dm.add("dialog", () => dialog.destroy())
     }

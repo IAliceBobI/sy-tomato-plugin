@@ -14,11 +14,11 @@
         dialogInner: Snippet;
         minWidth?: number;
         minHeight?: number;
-        maxWidth?: number;
-        maxHeight?: number;
+        maxWidth?: string;
+        maxHeight?: string;
+        width?: string;
+        height?: string;
         dm?: DestroyManager;
-        width?: number;
-        height?: number;
         useBrowserStorage?: boolean;
     }
 
@@ -30,11 +30,11 @@
         dialogInner,
         minWidth = 200,
         minHeight = 150,
-        maxWidth = null,
-        maxHeight = null,
-        width = null,
-        height = null,
-        dm = null,
+        maxWidth = undefined,
+        maxHeight = undefined,
+        width = undefined,
+        height = undefined,
+        dm = undefined,
         useBrowserStorage = false,
     }: PropsType = $props();
 
@@ -54,17 +54,19 @@
 
     onMount(() => {
         if (dialogElement) {
-            if (width != null) {
-                dialogElement.style.width = `${width}px`;
-            }
-            if (height != null) {
-                dialogElement.style.height = `${height}px`;
+            if (maxHeight != null) {
+                dialogElement.style.height = maxHeight;
+                dialogElement.style.maxHeight = maxHeight;
             }
             if (maxWidth != null) {
-                dialogElement.style.maxWidth = `${maxWidth}px`;
+                dialogElement.style.width = maxWidth;
+                dialogElement.style.maxWidth = maxWidth;
             }
-            if (maxHeight != null) {
-                dialogElement.style.maxHeight = `${maxHeight}px`;
+            if (height != null) {
+                dialogElement.style.height = height;
+            }
+            if (width != null) {
+                dialogElement.style.width = width;
             }
             if (minWidth != null) {
                 dialogElement.style.minWidth = `${minWidth}px`;
@@ -235,6 +237,11 @@
     }
 
     function loadPosition() {
+        if (events.isMobile) {
+            dialogElement.style.left = "10px";
+            dialogElement.style.top = "10px";
+            return;
+        }
         if (!dialogElement) return;
         if (!savePositionKey) return;
         if (useBrowserStorage) {
@@ -253,6 +260,7 @@
     }
 
     function savePosition() {
+        if (events.isMobile) return;
         if (!dialogElement) return;
         if (!savePositionKey) return;
         if (useBrowserStorage) {
@@ -287,6 +295,7 @@
         width?: string,
         height?: string,
     ) {
+        if (events.isMobile) return;
         if (!dialogElement) return;
 
         if (!x) x = (window.innerWidth - dialogElement.offsetWidth) / 2 + "px";

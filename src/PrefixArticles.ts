@@ -12,18 +12,6 @@ import { uniqueFilter } from "stonev5-utils";
 import { mount } from "svelte";
 export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树 2025-06-26 00:20:18", "📖", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock 2025-06-26 00:20:18", "iconFilesTomato", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
-// export const PrefixArticlesAllParts = winHotkey("shift+alt+F6", "PrefixArticlesAllParts 2025-06-26 00:20:18", "iconFilesTomato", () => tomatoI18n.aaa, false)
-
-// function openParts() {
-//     const dm = new DestroyManager();
-//     const sv = mount(PrefixArticleParts, {
-//         target: document.body,
-//         props: {
-//             dm,
-//         }
-//     });
-//     dm.add("sv", () => unmount(sv))
-// }
 
 function __initPrefixArticles() {
     const plugin = getTomatoPluginInstance();

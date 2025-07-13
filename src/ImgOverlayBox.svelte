@@ -198,7 +198,7 @@
 </script>
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->
-<div class="b3-dialog__content">
+<div >
     <button class="b3-button b3-button--outline tomato-button" onclick={remove}
         >{tomatoI18n.删除最后一个遮挡层}</button
     >
