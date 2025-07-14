@@ -524,6 +524,7 @@ export const digestAddReadingpoint = settingFactory("digestAddReadingpoint", fal
 export const digest2dailycard = settingFactory("digest2dailycard", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const words2dailycard = settingFactory("words2dailycard", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const doubleClick2DigestMobile = settingFactory("doubleClick2Digest", true, STORAGE_Prog_SETTINGS, null as TSK);
+export const finishPieceCreateAt = settingFactory("finishPieceCreateAt", "desktop", STORAGE_Prog_SETTINGS, null as TSK);
 export const PieceSummaryBoxmenu = settingFactory("PieceSummaryBoxmenu", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const digestmenu = settingFactory("digestmenu", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const piecesmenu = settingFactory("piecesmenu", true, STORAGE_Prog_SETTINGS, null as TSK);

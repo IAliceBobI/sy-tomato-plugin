@@ -219,6 +219,24 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return `Non-VIP users can activate up to ${x} books with planned study days`;
         }
     }
+    public get 计划读书的分片由哪个前端自动创建() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "计划读书的分片由哪个前端自动创建";
+            case "es_ES": return "¿Qué frontend crea automáticamente las particiones de lectura programadas?";
+            case "fr_FR": return "Quel frontend crée automatiquement les partitions de lecture planifiées ?";
+            case "ja_JP": return "計画された読書のシャードはどのフロントエンドによって自動的に作成されますか？";
+            case "zh_CHT": return "計劃讀書的分片由哪個前端自動創建？";
+            case "it_IT": return "Quale frontend crea automaticamente le partizioni della lettura programmata?";
+            case "de_DE": return "Welches Frontend erstellt automatisch die Partitionen für geplantes Lesen?";
+            case "he_IL": return "איזה פרונט-אנד יוצר אוטומטית את פיסות הקריאה המתוכננות?";
+            case "ru_RU": return "Какой фронтенд автоматически создает фрагменты запланированного чтения?";
+            case "pl_PL": return "Który frontend automatycznie tworzy partycje zaplanowanej czytania?";
+            case "ar_SA": return "أي واجهة أمامية تقوم بإنشاء أجزاء القراءة المخطط لها تلقائيًا؟";
+            case "pt_BR": return "Qual frontend cria automaticamente as partições de leitura planejadas?";
+            case "en_US": return "Which frontend automatically creates the shards for scheduled reading?";
+            default: return "Which frontend automatically creates the shards for scheduled reading?";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

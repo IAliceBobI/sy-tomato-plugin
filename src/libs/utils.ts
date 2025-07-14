@@ -282,6 +282,7 @@ export function addCardSetDueTime(cardID: string, sleepMs = 1000, deltaSecs = 0)
 }
 
 export function getMd5(str: string) {
+    if (str == null) str = "";
     const md5 = new Md5();
     md5.appendStr(str);
     return md5.end().toString();

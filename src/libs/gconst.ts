@@ -149,6 +149,7 @@ export const DATABASE_BACKLINK_mSelectID = "custom-database-backlink-mSelectID";
 export const DATABASE_BACKLINK_viewID = "custom-database-backlink-viewID";
 export const DATABASE_BACKLINK_updatedID = "custom-database-backlink-updatedID" as AttrKey;
 export const DATABASE_BACKLINK_createdID = "custom-database-backlink-createdID";
+export const FrontEnds = Object.freeze(["all", "desktop", "desktop-window", "mobile", "browser-desktop", "browser-mobile"])
 
 export enum WsActionTypes {
     transactions = "transactions",

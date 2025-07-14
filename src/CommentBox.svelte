@@ -421,13 +421,13 @@
     }
 
     function doFold(btn: HTMLElement, div: HTMLElement) {
-        div.style.display = "none";
-        btn.textContent = "⬆️";
+        if (div) div.style.display = "none";
+        if (btn) btn.textContent = "⬆️";
     }
 
     function doUnFold(btn: HTMLElement, div: HTMLElement) {
-        div.style.display = "";
-        btn.textContent = "⬇️";
+        if (div) div.style.display = "";
+        if (btn) btn.textContent = "⬇️";
     }
 
     function renderDocContent(ref: Ref) {

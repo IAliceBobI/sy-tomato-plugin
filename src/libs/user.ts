@@ -88,11 +88,13 @@ async function verifyUserSign(tokenSign: string, included: string) {
 
     if ([
         "",
-        // "402f82671ae66425e07eaa0a47c5128723383ff0",
-        // "9d07cd325209e7739fe04da41b2b7887e097b268",
-        // "5f6df12238cfea797f8c73309dfcf3445fd99d28",
-        // "1e4b90d2e70cc02b29ad5232094d6ca6a4853366",
     ].includes(getMd5(userPartShort))) signValid = false;
+    if ([
+        "",
+        "9fac2fca1710a5a38eac53df8cddb9bd",
+        // "9d9158dbee60ee0a960c4fa080221700",
+        // "34df19cf16c16723059f187350043986",
+    ].includes(getMd5(userPartShort.split("_").at(0)))) signValid = false;
 
     if (included && !tokenSign.includes(included)) signValid = false;
     return { exp, valid: signValid };
