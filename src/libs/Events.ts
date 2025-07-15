@@ -206,6 +206,7 @@ class Events {
             lute: protyle.lute,
             path: protyle.path,
             name: protyle.title?.editElement?.textContent,
+            attrs: (protyle.background?.ial ?? {}) as AttrType,
         }
     }
 
