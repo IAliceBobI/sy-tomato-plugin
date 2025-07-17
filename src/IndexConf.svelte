@@ -1209,10 +1209,12 @@
                 {#if events.isWindows}
                     <input
                         class="b3-text-field space"
+                        placeholder={$exportPath}
                         bind:value={$exportPathWin}
                     />
                 {:else}
                     <input
+                        placeholder="D:\\backup"
                         class="b3-text-field space"
                         bind:value={$exportPath}
                     />

@@ -120,7 +120,11 @@ function ref2lnk(span: HTMLElement) {
 }
 
 function getPath() {
-    return events.isWindows ? exportPathWin.get() : exportPath.get()
+    let path = exportPath.get()
+    if (events.isWindows && exportPathWin.get()) {
+        path = exportPathWin.get();
+    }
+    return path;
 }
 
 export async function exportMd2Dir(force = false, msg = true) {
