@@ -25,6 +25,7 @@
         dm?: DestroyManager;
         useBrowserStorage?: boolean;
         isProgressive?: boolean;
+        zIndexPlus?: boolean;
     }
 
     let {
@@ -42,6 +43,7 @@
         dm = undefined,
         useBrowserStorage = false,
         isProgressive = false,
+        zIndexPlus = false,
     }: PropsType = $props();
 
     let dialogElement: HTMLElement = $state();
@@ -394,7 +396,10 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 {#if show}
-    <div class="prefix-dialog-overlay">
+    <div
+        class="prefix-dialog-overlay"
+        class:prefix-dialog-overlay-up={zIndexPlus}
+    >
         <div class="prefix-dialog" bind:this={dialogElement}>
             <!-- 拖动区域 -->
             <div
@@ -481,6 +486,10 @@
         align-items: center;
         justify-content: center;
         pointer-events: none;
+    }
+
+    .prefix-dialog-overlay-up {
+        z-index: 999 !important;
     }
 
     .prefix-dialog {

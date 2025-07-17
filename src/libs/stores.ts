@@ -317,6 +317,7 @@ export const exportIntervalSecOn = settingFactory("exportIntervalSecOn", true, S
 export const exportCleanFiles = settingFactory("exportCleanFiles", "60", STORAGE_SETTINGS, null as TSK);
 export const exportCleanFilesOn = settingFactory("exportCleanFilesOn", true, STORAGE_SETTINGS, null as TSK);
 export const exportPath = settingFactory("exportPath", "", STORAGE_SETTINGS, null as TSK);
+export const exportPathWin = settingFactory("exportPathWin", "", STORAGE_SETTINGS, null as TSK);
 export const hideVIP = settingFactory("hideVIP", true, STORAGE_SETTINGS, null as TSK);
 export const foldTypes = settingFactory("foldTypes", [], STORAGE_SETTINGS, null as TSK);
 export const foldTypesSuperBlock = settingFactory("foldTypesSuperBlock", false, STORAGE_SETTINGS, null as TSK);

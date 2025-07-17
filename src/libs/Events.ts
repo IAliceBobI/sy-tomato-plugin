@@ -71,6 +71,11 @@ class Events {
         return b == "darwin" || b == "ios";
     }
 
+    public get isWindows(): boolean {
+        const b = getBackend();
+        return b == "windows";
+    }
+
     private _isBrowser: boolean;
     public get isBrowser(): boolean {
         return this._isBrowser;
@@ -161,6 +166,9 @@ class Events {
         });
         this.plugin.eventBus.on(EventType.loaded_protyle_static, ({ detail }: any) => {
             this.invokeCB(EventType.loaded_protyle_static, detail);
+        });
+        this.plugin.eventBus.on(EventType.destroy_protyle, ({ detail }: any) => {
+            this.invokeCB(EventType.destroy_protyle, detail);
         });
         this.plugin.eventBus.on(EventType.loaded_protyle_dynamic, ({ detail }: any) => {
             this.invokeCB(EventType.loaded_protyle_dynamic, detail);

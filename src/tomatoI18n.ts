@@ -237,6 +237,24 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Which frontend automatically creates the shards for scheduled reading?";
         }
     }
+    public get 复习闪卡时隐藏分片按钮组() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "复习闪卡时隐藏分片按钮组";
+            case "es_ES": return "Ocultar grupo de botones de fragmentos al revisar flashcards";
+            case "fr_FR": return "Masquer le groupe de boutons de fractionnement lors de la révision des cartes mémoire";
+            case "ja_JP": return "フラッシュカード復習時に分割ボタングループを非表示にする";
+            case "zh_CHT": return "複習閃卡時隱藏分片按鈕組";
+            case "it_IT": return "Nascondi il gruppo di pulsanti di suddivisione durante la revisione delle flashcard";
+            case "de_DE": return "Gruppierung von Fragmentierungsschaltflächen beim Wiederholen von Lernkarten ausblenden";
+            case "he_IL": return "הסתר את קבוצת כפתורי החלוקה בזמן סקירת כרטיסיות הלימוד";
+            case "ru_RU": return "Скрывать группу кнопок фрагментации при повторении карточек";
+            case "pl_PL": return "Ukryj grupę przycisków fragmentacji podczas powtarzania fiszek";
+            case "ar_SA": return "إخفاء مجموعة أزرار التجزئة أثناء مراجعة البطاقات التعليمية";
+            case "pt_BR": return "Ocultar grupo de botões de fragmentação ao revisar cartões";
+            case "en_US":
+            default: return "Hide fragment buttons group when reviewing flashcards";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

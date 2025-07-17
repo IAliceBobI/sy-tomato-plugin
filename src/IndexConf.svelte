@@ -191,6 +191,7 @@
         fastNoteBoxDocPrefix,
         commentBoxSaveUnderDoc,
         floatingballDocTabMenu,
+        exportPathWin,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -462,7 +463,10 @@
                     placeholder="1656000000123_22000101_ldID_siyuanTomatoCode_3044022018c8d8bca......"
                     spellcheck="false"
                 ></textarea>
-                <button class="b3-button b3-button--outline tomato-button" onclick={active}>
+                <button
+                    class="b3-button b3-button--outline tomato-button"
+                    onclick={active}
+                >
                     {tomatoI18n.激活}
                 </button>
                 <button
@@ -1202,7 +1206,17 @@
                 {/if}
             </div>
             <div>
-                <input class="b3-text-field space" bind:value={$exportPath} />
+                {#if events.isWindows}
+                    <input
+                        class="b3-text-field space"
+                        bind:value={$exportPathWin}
+                    />
+                {:else}
+                    <input
+                        class="b3-text-field space"
+                        bind:value={$exportPath}
+                    />
+                {/if}
                 {tomatoI18n.导出工作空间到此文件夹}
             </div>
             <div class:codeNotValid>
@@ -3168,8 +3182,9 @@
     </div>
     <!-- save -->
     <div class="settingBox">
-        <button class="b3-button b3-button--outline tomato-button" onclick={save}
-            >{tomatoI18n.保存}</button
+        <button
+            class="b3-button b3-button--outline tomato-button"
+            onclick={save}>{tomatoI18n.保存}</button
         >
     </div>
 </div>

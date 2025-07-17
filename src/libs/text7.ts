@@ -353,23 +353,6 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
                 return "Open cards document while opening the fragment";
         }
     }
-    public get 在闪卡内复习整个分片时隐藏分片下方按钮() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN":
-                return "在闪卡内复习整个分片时，隐藏分片下方按钮";
-            case "es_ES":
-                return "Al revisar todo el fragmento dentro de la tarjeta, ocultar el botón debajo del fragmento";
-            case "fr_FR":
-                return "Lors de la révision de l'ensemble du fragment à l'intérieur de la carte, cacher le bouton sous le fragment";
-            case "ja_JP":
-                return "フラッシュカード内でフラグメント全体を復習する際、フラグメント下のボタンを隠す";
-            case "zh_CHT":
-                return "在閃卡內復習整個分片時，隱藏分片下方按鈕";
-
-            default:
-                return "When reviewing the entire fragment within the flashcard, hide the button under the fragment";
-        }
-    }
     public get 切换单卡多卡模式() {
         switch (this.conf.appearance.lang) {
             case "zh_CN":

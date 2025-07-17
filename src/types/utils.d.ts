@@ -38,6 +38,7 @@ type TomatoSettings = {
     exportIntervalSec: string,
     exportCleanFiles: string,
     exportPath: string,
+    exportPathWin: string,
     tomato_clocks_audio: string,
     foldTypes: string[],
     foldTypesNODE_HEADING: boolean,

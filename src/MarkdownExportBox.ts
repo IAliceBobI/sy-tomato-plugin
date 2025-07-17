@@ -1,5 +1,5 @@
 import { IProtyle } from "siyuan";
-import { exportBlackList, exportCleanFiles, exportCleanFilesOn, exportIntervalSec, exportIntervalSecOn, exportPath, exportWhiteList, markdownExportBoxCheckbox, markdownExportPics } from "./libs/stores";
+import { exportBlackList, exportCleanFiles, exportCleanFilesOn, exportIntervalSec, exportIntervalSecOn, exportPath, exportPathWin, exportWhiteList, markdownExportBoxCheckbox, markdownExportPics } from "./libs/stores";
 import { zipNways } from "./libs/functional";
 import { siyuan, readAllFilePathIDs, Siyuan, chunks, sanitizePathSegment, getAttribute, getNotebookByID, osFs, osPath, timeUtil, sleep, NewLute, setAttribute, removeAttribute, getTomatoPluginInstance, getTomatoPluginConfig } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
@@ -119,8 +119,12 @@ function ref2lnk(span: HTMLElement) {
     removeAttribute(span, "data-id")
 }
 
+function getPath() {
+    return events.isWindows ? exportPathWin.get() : exportPath.get()
+}
+
 export async function exportMd2Dir(force = false, msg = true) {
-    const dir = exportPath.get()
+    const dir = getPath()
     if (!dir?.trim()) return;
     navigator.locks.request("lock exportMd2Dir 2025-06-13 15:17:27", { ifAvailable: true }, async (lock) => {
         if (lock) {
@@ -265,7 +269,7 @@ function getExpPath(doc: Block, dir: string) {
 export async function cleanExportedMds(msg = true) {
     navigator.locks.request("lock cleanExportedMds 2025-06-13 15:17:27", { ifAvailable: true }, async (lock) => {
         if (lock) {
-            const dir = exportPath.get()
+            const dir = getPath()
             if (!dir?.trim()) return;
             const { ids, pathes } = await readAllFilePathIDs(exportWhiteList.get(), exportBlackList.get(), false);
             const validIDs = new Set(ids);
@@ -350,7 +354,7 @@ async function readAndDel(dirPath: string, validIDs: Set<string>, pathes: Set<st
 }
 
 function getSyPath(fullPath: string) {
-    const dir = exportPath.get()
+    const dir = getPath()
     let syPath = fullPath
         .replace(dir, "")
         .split(/[\\/]/g) // windows or linux path

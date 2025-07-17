@@ -294,7 +294,7 @@ export class SingleTab {
     constructor(plugin: Plugin) {
         this.plugin = plugin;
     }
-    async open(id: string, position?: WindowOpenStyle) {
+    async open(id: string, position?: WindowOpenStyle, lastID?: string) {
         if (!id) return;
         this.openedTab?.close();
         // const arg = {
@@ -305,7 +305,7 @@ export class SingleTab {
         //         action: ["cb-get-hl", "cb-get-context"],
         //     },
         // } as Parameters<typeof openTab>[0];
-        this.openedTab = await OpenSyFile2(this.plugin, id, position);
+        this.openedTab = await OpenSyFile2(this.plugin, id, position, null, null, lastID);
     }
 }
 
