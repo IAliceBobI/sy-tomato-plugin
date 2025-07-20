@@ -285,6 +285,7 @@ export default class ThePlugin extends BaseTomatoPlugin {
                 this.settingCfg = {} as TomatoSettings;
             }
 
+            this.global.tomato_zZmqus5PtYRi['cardPriorityBox'] = cardPriorityBox;
             this.global.tomato_zZmqus5PtYRi.utils = utils;
             this.global.tomato_zZmqus5PtYRi.siyuan = siyuan;
             this.global.tomato_zZmqus5PtYRi.timeUtil = timeUtil;

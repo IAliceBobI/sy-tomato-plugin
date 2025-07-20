@@ -14,7 +14,7 @@ export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8", "delay all
 export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9", "delay all cards 2025-5-10 12:31:04")
 export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y", "resume all cards 2025-5-10 12:31:04")
 import { winHotkey } from "./libs/winHotkey";
-import { setGlobal } from "stonev5-utils";
+import { setGlobal, shuffleArray } from "stonev5-utils";
 import { mount } from "svelte";
 
 class CardPriorityBox {
@@ -438,6 +438,7 @@ class CardPriorityBox {
         await Promise.all([...stop.values()].map(c => siyuan.skipReviewRiffCard(c.card.cardID)));
 
         options.cards = [...review.values()].map((c) => c.card);
+        options.cards = shuffleArray(options.cards)
         options.cards.sort((a, b) => review.get(b.blockID).p - review.get(a.blockID).p);
         // const len = options.cards.length;
         // const n = Math.floor(len * 5 / 100);
