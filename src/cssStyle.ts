@@ -1,4 +1,4 @@
-import { DATA_NODE_ID, DocAttrShowKey } from "./libs/gconst";
+import { DATA_NODE_ID, DocAttrShowKey, SPACE } from "./libs/gconst";
 import { cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefSquareBrackets, cssRefStyle, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, showDocAttrs } from "./libs/stores";
 import { verifyKeyTomato } from "./libs/user";
 import { getAttribute, Siyuan } from "./libs/utils";
@@ -238,7 +238,7 @@ function load_cssShowFlashCardBlank() {
             font-size: ${Siyuan.config.editor.fontSize}px !important;
         }
         .card__block--hidemark span[data-type~=mark]:hover::before {
-            content: "🙋➡️";
+            content: "${SPACE + SPACE}";
         }
     `;
     document.head.appendChild(style);

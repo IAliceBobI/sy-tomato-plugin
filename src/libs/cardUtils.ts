@@ -14,6 +14,11 @@ export async function removeDocCards(docID: string) {
 }
 
 export async function doStopCards(days: string, blocks: GetCardRetBlock[], spread = false) {
+    // if (spread) { // 通过代码使用的同学可以不用VIP
+    //     if (!lastVerifyResult()) {
+    //         await siyuan.pushMsg(tomatoI18n.此功能需要激活VIP)
+    //     }
+    // }
     if (!(blocks && blocks.length)) return;
     const numDays = Number(days);
     if (isValidNumber(numDays)) {

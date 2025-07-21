@@ -255,6 +255,24 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Hide fragment buttons group when reviewing flashcards";
         }
     }
+    public get 恢复笔记颜色() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "恢复笔记颜色";
+            case "es_ES": return "Restaurar color de nota";
+            case "fr_FR": return "Restaurer la couleur de la note";
+            case "ja_JP": return "ノートの色を復元";
+            case "zh_CHT": return "恢復筆記顏色";
+            case "it_IT": return "Ripristina colore nota";
+            case "de_DE": return "Notizfarbe wiederherstellen";
+            case "he_IL": return "שחזר צבע הערה";
+            case "ru_RU": return "Восстановить цвет заметки";
+            case "pl_PL": return "Przywróć kolor notatki";
+            case "ar_SA": return "استعادة لون الملاحظة";
+            case "pt_BR": return "Restaurar cor da nota";
+            case "en_US":
+            default: return "Restore note color";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
