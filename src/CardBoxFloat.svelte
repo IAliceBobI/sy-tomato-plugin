@@ -31,11 +31,11 @@
 
     let { element, id, show }: Props = $props();
     let msg = $derived.by(() => {
-        const text = $element.textContent;
-        return text.slice(0, 50);
+        return $element?.textContent ?? "";
     });
     let delayDays = $state(0.1);
     let hours = $derived(delayDays * 24);
+    let showMsg = $state(false);
 
     const title = tomatoI18n.复习时的快捷键(
         CardBox删除内容块.w(),
@@ -81,13 +81,14 @@
     }
 
     async function deleteCardDeleteContent() {
-        confirm("⚠️", "🗑️" + tomatoI18n.删除内容块, async () => {
+        confirm("🗑️" + tomatoI18n.删除内容块, msg.slice(0, 50), async () => {
             await deleteBlock($id);
             await deleteCard();
         });
     }
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <DialogSvelte
     maxWidth="200"
     show={$show}
@@ -97,13 +98,19 @@
 >
     {#snippet dialogInner()}
         <div class="tomatoflexCol">
+            <div
+                onmouseenter={() => (showMsg = true)}
+                onmouseleave={() => (showMsg = false)}
+                class="msg-container"
+            >
+                💁‍♀️
+                {#if showMsg}
+                    <p>{msg.slice(0, 500)}</p>
+                {/if}
+            </div>
             <div>
                 {title}
             </div>
-            <div>
-                {@html msg}
-            </div>
-
             <div>
                 <button
                     class="b3-button b3-button--outline tomato-button"
@@ -124,7 +131,6 @@
                     onclick={setPri}>🔴🟡🟢{tomatoI18n.闪卡优先级}</button
                 >
             </div>
-
             <div>
                 <label>
                     <input
@@ -185,5 +191,14 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+    }
+    /* 可以添加一些样式让交互更明显 */
+    .msg-container {
+        padding: 4px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+    .msg-container:hover {
+        background-color: rgba(0, 0, 0, 0.05);
     }
 </style>

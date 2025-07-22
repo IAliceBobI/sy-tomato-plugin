@@ -1,5 +1,5 @@
 import { IEventBusMap, IProtyle, } from "siyuan";
-import { deleteBlock, getContenteditableElement, siyuan, sleep, } from "./libs/utils";
+import { deleteBlock, siyuan, sleep, } from "./libs/utils";
 import "./index.scss";
 import { EventType, events } from "./libs/Events";
 import { getIDFromCard, pressSkip, showCardAnswer, removeDocCards } from "./libs/cardUtils";
@@ -151,11 +151,11 @@ class CardBox {
     private cardID = writableWithGet("")
     private addBtns(protyle: IProtyle) {
         const id = protyle.block.id;
-        const e = getContenteditableElement(protyle.contentElement);
+        const cardElement = protyle.contentElement.querySelector(`div[data-node-id] > div[contenteditable="true"]`)
         if (!id) return;
         this.initSkipBtn();
         this.initSettingsBtn();
-        this.cardElement.set(e)
+        this.cardElement.set(cardElement)
         this.cardID.set(id)
         const cardSvID = document.getElementById(CardSettingsID)
         if (!cardSvID) {
