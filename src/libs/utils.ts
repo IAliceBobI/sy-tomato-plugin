@@ -2702,7 +2702,11 @@ export async function cleanDataview(bigText?: string) {
             }
         }))
         .then(i => i.filter(j => !!j))
-    avIDs = avIDs.filter(id => !bigText.includes(`"AttributeViewID":"${id}"`))
+    avIDs = avIDs.filter(id => {
+        const v1 = bigText.includes(`"AttributeViewID":"${id}"`)
+        const v2 = bigText.includes(`"AttributeViewID": "${id}"`)
+        return !(v1 || v2)
+    });
     for (const id of avIDs) {
         await siyuan.removeFile(`/data/storage/av/${id}.json`);
         siyuan.pushMsg("delete database: " + id)
