@@ -11,10 +11,10 @@
     import { tomatoI18n } from "../tomatoI18n";
 
     interface PropsType {
-        savePositionKey?: string;
         show: boolean;
-        hideScrollbar?: boolean;
         title: string;
+        savePositionKey?: string;
+        hideScrollbar?: boolean;
         dialogInner: Snippet;
         minWidth?: number;
         minHeight?: number;

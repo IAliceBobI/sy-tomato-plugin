@@ -30,6 +30,7 @@ export const TomatoPluginInstance = "TomatoPluginInstance 2025-06-14 16:33:26"
 export const TomatoPluginConfig = "TomatoPluginConfig 2025-06-22 09:33:00"
 export const ProgressivePluginInstance = "ProgressivePluginInstance 2025-06-14 16:33:21"
 export const ProgressivePluginConfig = "ProgressivePluginConfig 2025-06-22 09:33:04"
+export const CardSettingsID = "CardSettingsID 2025-07-22 10:26:11"
 
 export const settingStyle = (txt: string) => {
     return `<span style="color:var(--b3-font-color11)">${txt}</span>`;

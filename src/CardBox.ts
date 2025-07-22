@@ -1,13 +1,11 @@
-import { Dialog, IEventBusMap, IProtyle, } from "siyuan";
+import { IEventBusMap, IProtyle, } from "siyuan";
 import { deleteBlock, getContenteditableElement, siyuan, sleep, } from "./libs/utils";
 import "./index.scss";
 import { EventType, events } from "./libs/Events";
-import CardBoxSettingsSvelte from "./CardBoxSettings.svelte";
 import { getIDFromCard, pressSkip, showCardAnswer, removeDocCards } from "./libs/cardUtils";
-import { WEB_SPACE } from "./libs/gconst";
+import { CardSettingsID, WEB_SPACE } from "./libs/gconst";
 import { addFlashCard } from "./libs/listUtils";
-import { DestroyManager } from "./libs/destroyer";
-import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxSuperCard } from "./libs/stores";
+import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxSettingsShow, cardBoxSuperCard, writableWithGet } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { getDocTracer, locTree, OpenSyFile2 } from "./libs/docUtils";
 import { closeAllDialog } from "./libs/keyboard";
@@ -15,8 +13,8 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { CardPriorityBox修改文档中闪卡优先级, CardPriorityBox分散推迟闪卡 } from "./CardPriorityBox";
 import { winHotkey } from "./libs/winHotkey";
 import { verifyKeyTomato } from "./libs/user";
-import { newID } from "stonev5-utils/lib/id";
 import { mount } from "svelte";
+import CardBoxFloatSvelte from "./CardBoxFloat.svelte";
 
 export const CardBox用选中的行创建超级块超级块制卡取消制卡 = winHotkey("shift+ctrl+1", "addFlashCard2025年5月4日13:53:52", "🗃️", () => tomatoI18n.用选中的行创建超级块超级块制卡取消制卡, false, cardBoxSuperCard)
 export const CardBox复习时删除当前闪卡 = winHotkey("alt+F9", "delCard2025-5-10 12:40:25", "", () => tomatoI18n.复习时删除当前闪卡)
@@ -87,8 +85,7 @@ class CardBox {
             callback: async () => {
                 const cardID = await getIDFromCard();
                 if (cardID) {
-                    const { id, msg } = this.getMsgAndID(events.protyle.protyle);
-                    this.openSettings(events.protyle.protyle, msg, id)
+                    this.openSettings()
                 }
             },
         });
@@ -142,23 +139,38 @@ class CardBox {
                 const protyle = detail.protyle as IProtyle;
                 if (!protyle) return;
                 if (protyle?.element?.classList?.contains("card__block")) {
-                    const { id, msg } = this.getMsgAndID(protyle);
-                    if (!id) return;
-                    this.initSkipBtn();
-                    this.initSettingsBtn(msg, id, protyle);
+                    navigator.locks.request("cardbox lock 2025-07-22 10:29:30", { ifAvailable: true }, (lock) => {
+                        if (lock) this.addBtns(protyle)
+                    })
                 }
             }
         });
     }
 
-    private getMsgAndID(protyle: IProtyle) {
+    private cardElement = writableWithGet(null)
+    private cardID = writableWithGet("")
+    private addBtns(protyle: IProtyle) {
         const id = protyle.block.id;
-        let msg = "";
-        {
-            const e = getContenteditableElement(protyle.contentElement);
-            msg = `block ID：${id}<br>${tomatoI18n.请确认原文内容}：<br>` + e?.textContent?.slice(0, 50);
+        const e = getContenteditableElement(protyle.contentElement);
+        if (!id) return;
+        this.initSkipBtn();
+        this.initSettingsBtn();
+        this.cardElement.set(e)
+        this.cardID.set(id)
+        const cardSvID = document.getElementById(CardSettingsID)
+        if (!cardSvID) {
+            const target = document.querySelector(`[data-type="count"]`);
+            if (target) {
+                mount(CardBoxFloatSvelte, {
+                    target,
+                    props: {
+                        element: this.cardElement,
+                        id: this.cardID,
+                        show: cardBoxSettingsShow,
+                    }
+                });
+            }
         }
-        return { id, msg };
     }
 
     private async delCard(delBlock: boolean) {
@@ -206,34 +218,11 @@ class CardBox {
         }
     }
 
-    private openSettings(protyle: IProtyle, msg: string, id: string) {
-        const dm = new DestroyManager();
-        const btnId = newID();
-        const dialog = new Dialog({
-            title: this.getHK(),
-            content: `<div id="${btnId}"></div>`,
-            width: events.isMobile ? "90vw" : "700px",
-            height: events.isMobile ? "180svw" : null,
-            destroyCallback: () => {
-                dm.destroyBy("dialog")
-            }
-        });
-        dm.add("dialog", () => dialog.destroy())
-        const sv = mount(CardBoxSettingsSvelte, {
-            target: dialog.element.querySelector("#" + btnId),
-            props: {
-                protyle,
-                dm,
-                plugin: this.plugin,
-                dialogDiv: document.querySelector(".b3-dialog__container"),
-                msg,
-                id,
-            }
-        });
-        dm.add("svelte", () => sv.destroy());
+    private openSettings() {
+        cardBoxSettingsShow.write(!cardBoxSettingsShow.get())
     }
 
-    private initSettingsBtn(msg: string, id: string, protyle: IProtyle) {
+    private initSettingsBtn() {
         const btnPrevious = document.body.querySelector(
             'button[data-type="-3"]'
         ) as HTMLButtonElement;
@@ -249,7 +238,7 @@ class CardBox {
             btn.title = this.getHK();
             btn.setAttribute("data-type", "-100");
             btn.classList.add(...btnPrevious.classList);
-            btn.addEventListener("click", () => this.openSettings(protyle, msg, id));
+            btn.addEventListener("click", () => this.openSettings());
         }
     }
 }
