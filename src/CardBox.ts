@@ -147,16 +147,21 @@ class CardBox {
         });
     }
 
-    private cardElement = writableWithGet(null)
     private cardID = writableWithGet("")
+    private cardPath = writableWithGet("")
     private addBtns(protyle: IProtyle) {
         const id = protyle.block.id;
-        const cardElement = protyle.contentElement.querySelector(`div[data-node-id] > div[contenteditable="true"]`)
         if (!id) return;
         this.initSkipBtn();
         this.initSettingsBtn();
-        this.cardElement.set(cardElement)
         this.cardID.set(id)
+        siyuan.getBlockBreadcrumb(id).then((p) => {
+            const cardElement = protyle.contentElement.querySelectorAll(`div[data-node-id] > div[contenteditable="true"]`);
+            const text = [...cardElement].map(a => a.textContent).join("  ")
+            const path = p.map((p) => p.name);
+            path.push(text)
+            this.cardPath.set(path.join(" ➔ ").slice(0, 400))
+        });
         const cardSvID = document.getElementById(CardSettingsID)
         if (!cardSvID) {
             const target = document.querySelector(`[data-type="count"]`);
@@ -164,9 +169,8 @@ class CardBox {
                 mount(CardBoxFloatSvelte, {
                     target,
                     props: {
-                        element: this.cardElement,
                         id: this.cardID,
-                        show: cardBoxSettingsShow,
+                        cardPath: this.cardPath,
                     }
                 });
             }

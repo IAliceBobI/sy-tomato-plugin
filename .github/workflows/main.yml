@@ -4,69 +4,25 @@ on:
   push:
     tags:
       - "v*"
-# env:
-#   PROJ_PATH: sy-tomato-plugin
-#   YARN_CACHE_DIR_PATH: ""
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout workspace repo # https://github.com/marketplace/actions/checkout#checkout-multiple-repos-side-by-side
-#         uses: actions/checkout@v4
-#         with:
-#           repository: IAliceBobI/sy-plugins
 
-#       - name: Install Node.js
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: 20
-#           registry-url: "https://registry.npmjs.org"
+env:
+  NPM_CACHE_DIR_PATH: ""
 
-#       - name: Install yarn
-#         run: npm install -g yarn
-
-#       - name: Set yarn cache directory
-#         shell: bash
-#         run: echo "YARN_CACHE_DIR_PATH=$(yarn cache dir)" >> $GITHUB_ENV
-
-#       - name: Cache dependencies
-#         uses: actions/cache@v4
-#         with:
-#           path: ${{ env.YARN_CACHE_DIR_PATH }}
-#           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-#           restore-keys: |
-#             ${{ runner.os }}-yarn-
-
-#       - name: Install dependencies
-#         run: |
-#           cd $PROJ_PATH
-#           yarn install
-
-#       - name: Build for production
-#         run: |
-#           cd $PROJ_PATH
-#           yarn build
-#           mv package.zip ..
-
-#       - name: Release
-#         uses: ncipollo/release-action@v1
-#         with:
-#           allowUpdates: true
-#           artifactErrorsFailBuild: true
-#           artifacts: "package.zip"
-#           token: ${{ secrets.GITHUB_TOKEN }}
-#           prerelease: false
+# https://github.com/marketplace/actions
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run Script
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - run: npm i
+      - run: npm run build
+      - name: make zip package
         run: |
-          cd dist
+          cd build
           zip -r package.zip ./*
           mv package.zip ..
 
@@ -77,4 +33,4 @@ jobs:
           artifactErrorsFailBuild: true
           artifacts: "package.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: false
+          prerelease: true

@@ -21,18 +21,17 @@
     import { pressSkip, doStopCards, getIDFromCard } from "./libs/cardUtils";
     import TomatoVip from "./TomatoVIP.svelte";
     import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
-    import { cardBoxSpradEvenlyPostpone } from "./libs/stores";
+    import {
+        cardBoxSettingsShow,
+        cardBoxSpradEvenlyPostpone,
+    } from "./libs/stores";
 
     interface Props {
-        element: Writable<HTMLElement>;
         id: Writable<string>;
-        show: Writable<boolean>;
+        cardPath: Writable<string>;
     }
+    let { id, cardPath }: Props = $props();
 
-    let { element, id, show }: Props = $props();
-    let msg = $derived.by(() => {
-        return $element?.textContent ?? "";
-    });
     let delayDays = $state(0.1);
     let hours = $derived(delayDays * 24);
     let showMsg = $state(false);
@@ -81,7 +80,7 @@
     }
 
     async function deleteCardDeleteContent() {
-        confirm("🗑️" + tomatoI18n.删除内容块, msg.slice(0, 50), async () => {
+        confirm("🗑️" + tomatoI18n.删除内容块, $cardPath, async () => {
             await deleteBlock($id);
             await deleteCard();
         });
@@ -91,7 +90,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <DialogSvelte
     maxWidth="200"
-    show={$show}
+    show={$cardBoxSettingsShow}
     title={tomatoI18n.闪卡工具}
     zIndexPlus
     savePositionKey="card box sv 2025-07-22 10:33:26"
@@ -105,7 +104,9 @@
             >
                 💁‍♀️
                 {#if showMsg}
-                    <p>{msg.slice(0, 500)}</p>
+                    <p>{$cardPath}</p>
+                {:else}
+                    <p>{$cardPath.slice(0, 8)} ……</p>
                 {/if}
             </div>
             <div>

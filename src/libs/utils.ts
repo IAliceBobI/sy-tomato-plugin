@@ -2098,10 +2098,10 @@ export const siyuan = {
     async setAppearance(conf: Config.IAppearance) {
         return siyuan.call("/api/setting/setAppearance", conf);
     },
-    async updateBlock(id: string, data: string, dataType = "markdown") {
+    async updateBlock(id: string, data: string, dataType: "markdown" | "dom" = "markdown") {
         return siyuan.call("/api/block/updateBlock", { id, data, dataType });
     },
-    async safeUpdateBlock(id: string, data: string, dataType = "markdown") {
+    async safeUpdateBlock(id: string, data: string, dataType: "markdown" | "dom" = "markdown") {
         let i = 20;
         do {
             const e = await siyuan.checkBlockExist(id);
@@ -2190,19 +2190,19 @@ export const siyuan = {
         const args = { id, k, mk, sort, mSort, containChildren };
         return siyuan.call("/api/ref/getBacklink2", args);
     },
-    async appendDailyNoteBlock(notebook: string, data: string, dataType = "markdown"): Promise<gconst.TransactionData[]> {
+    async appendDailyNoteBlock(notebook: string, data: string, dataType: "markdown" | "dom" = "markdown"): Promise<gconst.TransactionData[]> {
         return siyuan.call("/api/block/appendDailyNoteBlock", { notebook, data, dataType });
     },
-    async prependDailyNoteBlock(notebook: string, data: string, dataType = "markdown"): Promise<gconst.TransactionData[]> {
+    async prependDailyNoteBlock(notebook: string, data: string, dataType: "markdown" | "dom" = "markdown"): Promise<gconst.TransactionData[]> {
         return siyuan.call("/api/block/prependDailyNoteBlock", { notebook, data, dataType });
     },
-    async insertBlockAfter(data: string, previousID: string, dataType = "markdown") {
+    async insertBlockAfter(data: string, previousID: string, dataType: "markdown" | "dom" = "markdown") {
         return siyuan.call("/api/block/insertBlock", { data, dataType, previousID });
     },
-    async insertBlockBefore(data: string, nextID: string, dataType = "markdown") {
+    async insertBlockBefore(data: string, nextID: string, dataType: "markdown" | "dom" = "markdown") {
         return siyuan.call("/api/block/insertBlock", { data, dataType, nextID });
     },
-    async insertBlockAsChildOf(data: string, parentID: string, dataType = "markdown") {
+    async insertBlockAsChildOf(data: string, parentID: string, dataType: "markdown" | "dom" = "markdown") {
         return siyuan.call("/api/block/insertBlock", { data, dataType, parentID });
     },
     transInsertBlocksBefore(domStrs: string[], nextID: string) {
@@ -2254,7 +2254,7 @@ export const siyuan = {
         })
         if (tail) return siyuan.transactions(siyuan.transInsertBlocksAfter(domStrs, tail));
     },
-    async appendBlock(data: string, parentID: string, dataType = "markdown"): Promise<gconst.TransactionData[]> {
+    async appendBlock(data: string, parentID: string, dataType: "markdown" | "dom" = "markdown"): Promise<gconst.TransactionData[]> {
         return siyuan.call("/api/block/appendBlock", { data, dataType, parentID });
     },
     async checkUpdate(showMsg = false) {
