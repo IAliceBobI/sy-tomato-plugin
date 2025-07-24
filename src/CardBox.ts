@@ -152,13 +152,17 @@ class CardBox {
                 clearInterval(setGlobal("tomato open card 2025-07-24 10:07:05",
                     setInterval(async () => {
                         if (!document.querySelector(`.card__action`)) {
-                            await openTab({
-                                app: this.plugin.app,
-                                card: { type: "all" },
-                                keepCursor: true,
-                                removeCurrentTab: false,
-                                openNewTab: true,
-                            });
+                            const cards = await siyuan.getRiffDueCards()
+                            const num = cards?.unreviewedCount || 0;
+                            if (num > 0) {
+                                await openTab({
+                                    app: this.plugin.app,
+                                    card: { type: "all" },
+                                    keepCursor: true,
+                                    removeCurrentTab: false,
+                                    openNewTab: true,
+                                });
+                            }
                         }
                     }, 20000)
                 ));
