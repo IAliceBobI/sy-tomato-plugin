@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+          cache-dependency-path: package-lock.json
       - run: npm i
       - run: npm run build
       - name: make zip package
@@ -27,4 +28,4 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "package.zip"
-          prerelease: false
+          prerelease: true
