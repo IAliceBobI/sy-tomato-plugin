@@ -1,11 +1,11 @@
-import { IEventBusMap, IProtyle, } from "siyuan";
+import { IEventBusMap, IProtyle, openTab, } from "siyuan";
 import { deleteBlock, siyuan, sleep, } from "./libs/utils";
 import "./index.scss";
 import { EventType, events } from "./libs/Events";
 import { getIDFromCard, pressSkip, showCardAnswer, removeDocCards } from "./libs/cardUtils";
 import { CardSettingsID, WEB_SPACE } from "./libs/gconst";
 import { addFlashCard } from "./libs/listUtils";
-import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxSettingsShow, cardBoxSuperCard, writableWithGet } from "./libs/stores";
+import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxSettingsShow, cardBoxSuperCard, cardBoxCardtab, writableWithGet } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { getDocTracer, locTree, OpenSyFile2 } from "./libs/docUtils";
 import { closeAllDialog } from "./libs/keyboard";
@@ -15,6 +15,7 @@ import { winHotkey } from "./libs/winHotkey";
 import { verifyKeyTomato } from "./libs/user";
 import { mount } from "svelte";
 import CardBoxFloatSvelte from "./CardBoxFloat.svelte";
+import { setGlobal } from "stonev5-utils";
 
 export const CardBox用选中的行创建超级块超级块制卡取消制卡 = winHotkey("shift+ctrl+1", "addFlashCard2025年5月4日13:53:52", "🗃️", () => tomatoI18n.用选中的行创建超级块超级块制卡取消制卡, false, cardBoxSuperCard)
 export const CardBox复习时删除当前闪卡 = winHotkey("alt+F9", "delCard2025-5-10 12:40:25", "", () => tomatoI18n.复习时删除当前闪卡)
@@ -145,6 +146,24 @@ class CardBox {
                 }
             }
         });
+
+        if (!events.isMobile) {
+            if (cardBoxCardtab.get()) {
+                clearInterval(setGlobal("tomato open card 2025-07-24 10:07:05",
+                    setInterval(async () => {
+                        if (!document.querySelector(`.card__action`)) {
+                            await openTab({
+                                app: this.plugin.app,
+                                card: { type: "all" },
+                                keepCursor: true,
+                                removeCurrentTab: false,
+                                openNewTab: true,
+                            });
+                        }
+                    }, 20000)
+                ));
+            }
+        }
     }
 
     private cardID = writableWithGet("")

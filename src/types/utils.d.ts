@@ -18,6 +18,7 @@ type TomatoSettings = {
     finishPieceCreateAt: "all | desktop" | "desktop-window" | "mobile" | "browser-desktop" | "browser-mobile",
     prefixArticlesSoftLimit: string,
     floatingballDocTabMenu: boolean,
+    cardBoxCardtab: boolean,
     cardBoxSettingsShow: boolean,
     prefixArticlesTagsShow: boolean,
     fastNoteBoxDocPrefix: boolean,

@@ -173,12 +173,14 @@ class ToolbarBox {
             });
             this.ob.observe(document.getElementById("layouts"), { attributes: true, childList: true, subtree: true });
         }
-        if (!events.isMobile) {
-            clearInterval(setGlobal("tomato showCardNumber 2025-06-13 15:33:11",
-                setInterval(() => {
-                    this.showCardNumber();
-                }, 20000)
-            ));
+        if (toolbarspacerepeat.get()) {
+            if (!events.isMobile) {
+                clearInterval(setGlobal("tomato showCardNumber 2025-06-13 15:33:11",
+                    setInterval(() => {
+                        this.showCardNumber();
+                    }, 20000)
+                ));
+            }
         }
     }
 

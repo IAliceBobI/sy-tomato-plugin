@@ -375,6 +375,7 @@ export const readingAddRPmenu = settingFactory("readingAddRPmenu", true, STORAGE
 export const readingAddJumpMenu = settingFactory("readingAddJumpMenu", true, STORAGE_SETTINGS, null as TSK);
 export const readingAddDeleteMenu = settingFactory("readingAddDeleteMenu", true, STORAGE_SETTINGS, null as TSK);
 export const cardBoxCheckbox = settingFactory("cardBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
+export const cardBoxCardtab = settingFactory("cardBoxCardtab", false, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSuperCard = settingFactory("cardBoxSuperCard", false, STORAGE_SETTINGS, null as TSK);
 export const cardBoxAddConcepts = settingFactory("cardBoxAddConcepts", false, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSpradEvenlyPostpone = settingFactory("cardBoxSpradEvenlyPostpone", true, STORAGE_SETTINGS, null as TSK);

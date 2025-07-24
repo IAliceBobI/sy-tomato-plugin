@@ -192,6 +192,7 @@
         commentBoxSaveUnderDoc,
         floatingballDocTabMenu,
         exportPathWin,
+        cardBoxCardtab,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -2134,6 +2135,14 @@
                 {tomatoI18n.用选中的行创建超级块超级块制卡取消制卡}<strong
                     >{CardBox用选中的行创建超级块超级块制卡取消制卡.w()}</strong
                 >
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$cardBoxCardtab}
+                />
+                {tomatoI18n.如果有闪卡可复习自动在后台打开} 
             </div>
             <div>
                 <input
