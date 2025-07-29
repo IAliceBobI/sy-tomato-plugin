@@ -81,6 +81,8 @@ interface GetChildBlocks {
     type?: string;
     subType?: string;
     data?: any;
+    content?: string;
+    markdown?: string;
 }
 
 type Block = {
