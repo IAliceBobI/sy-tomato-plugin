@@ -542,10 +542,12 @@ export async function locTree(cardID: string) {
     const tree = getDockByType("file");
     if (tree?.selectItem) {
         const info = await siyuan.getBlockInfo(cardID);
-        let notebookId = info.box;
-        let path = info.path;
-        docTreeOpenClose(false)
-        tree.selectItem(notebookId, path);
+        if (info) {
+            let notebookId = info.box;
+            let path = info.path;
+            docTreeOpenClose(false)
+            tree.selectItem(notebookId, path);
+        }
     }
 }
 

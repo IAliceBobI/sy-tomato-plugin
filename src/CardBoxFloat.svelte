@@ -97,18 +97,6 @@
 >
     {#snippet dialogInner()}
         <div class="tomatoflexCol">
-            <div
-                onmouseenter={() => (showMsg = true)}
-                onmouseleave={() => (showMsg = false)}
-                class="msg-container"
-            >
-                💁‍♀️
-                {#if showMsg}
-                    <p>{$cardPath}</p>
-                {:else}
-                    <p>{$cardPath.slice(0, 8)} ……</p>
-                {/if}
-            </div>
             <div>
                 {title}
             </div>
@@ -172,6 +160,18 @@
                         <TomatoVip codeValid={lastVerifyResult()}
                         ></TomatoVip></button
                     >
+                {/if}
+            </div>
+            <div
+                onmouseenter={() => (showMsg = true)}
+                onmouseleave={() => (showMsg = false)}
+                class="msg-container"
+            >
+                💁‍♀️
+                {#if showMsg}
+                    <p>{$cardPath}</p>
+                {:else}
+                    <p>{$cardPath.slice(0, 8)} ……</p>
                 {/if}
             </div>
         </div>
