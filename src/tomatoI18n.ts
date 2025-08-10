@@ -291,6 +291,24 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "If there are flashcards to review, automatically open the tab in the background without interrupting current work";
         }
     }
+    public get 如果无法拖动() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "如果无法拖动，请排除问题，切回官方主题、禁用其他插件再试试。";
+            case "es_ES": return "Si no se puede arrastrar, por favor elimine el problema, vuelva al tema oficial y desactive otros complementos para probarlo.";
+            case "fr_FR": return "Si vous ne pouvez pas faire glisser, veuillez résoudre le problème, revenir au thème officiel et désactiver les autres plugins pour essayer.";
+            case "ja_JP": return "ドラッグできない場合は、問題を解消し、公式テーマに戻し、他のプラグインを無効にして試してみてください。";
+            case "zh_CHT": return "如果無法拖動，請排除問題，切回官方主題、禁用其他外掛再試試。";
+            case "it_IT": return "Se non è possibile trascinare, risolvi il problema, torna al tema ufficiale e disabilita gli altri plugin per provare.";
+            case "de_DE": return "Wenn Sie nicht ziehen können, beheben Sie das Problem, wechseln Sie zurück zum offiziellen Thema und deaktivieren Sie andere Plugins, um es zu versuchen.";
+            case "he_IL": return "אם לא ניתן לגרור, נא לפתור את הבעיה, לחזור לנושא הרשמי ולבטל פלגינים אחרים ולנסות.";
+            case "ru_RU": return "Если не удается перетащить, устраните проблему, вернитесь к официальной теме и отключите другие плагины, чтобы попробовать.";
+            case "pl_PL": return "Jeśli nie można przeciągnąć, rozwiąż problem, wróć do oficjalnego motywu i wyłącz inne wtyczki, aby spróbować.";
+            case "ar_SA": return "إذا لم يكن بإمكانك السحب، يرجى حل المشكلة، والعودة إلى الموضوع الرسمي، وتعطيل البرامج الإضافية الأخرى للمحاولة.";
+            case "pt_BR": return "Se não puder arrastar, resolva o problema, volte ao tema oficial e desative outros plugins para tentar.";
+            case "en_US": return "If you can't drag, please fix the problem, switch back to the official theme, disable other plugins and try again.";
+            default: return "If you can't drag, please fix the problem, switch back to the official theme, disable other plugins and try again.";
+        }
+    }
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

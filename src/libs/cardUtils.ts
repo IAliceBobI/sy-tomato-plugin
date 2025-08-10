@@ -1,3 +1,4 @@
+import { sleep } from "stonev5-utils";
 import { tomatoI18n } from "../tomatoI18n";
 import { events } from "./Events";
 import { CUSTOM_RIFF_DECKS } from "./gconst";
@@ -74,7 +75,8 @@ export function showCardAnswer() {
     return false;
 }
 
-export function pressSkip() {
+export async function pressSkip() {
+    if (showCardAnswer()) await sleep(300);
     const btnSkip = document.body.querySelector('button[data-type="-3"]') as HTMLButtonElement;
     if (btnSkip) {
         btnSkip.click();

@@ -47,7 +47,7 @@
 
     async function deleteCard() {
         await siyuan.removeRiffCards([$id]);
-        pressSkip();
+        await pressSkip();
     }
 
     async function delayRestCards(spread: boolean) {
@@ -58,7 +58,7 @@
 
     async function delayCard() {
         await doStopCards(String(delayDays), [{ ial: { id: $id } }] as any);
-        pressSkip();
+        await pressSkip();
     }
 
     async function setPri() {

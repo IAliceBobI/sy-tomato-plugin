@@ -411,9 +411,7 @@ type AttrType = {
     "custom-lnk-bottom"?: string,
     "fold"?: string,
     "heading-fold"?: string,
-    "custom-progmark"?: string,
     "custom-doc-notes"?: string,
-    "custom-progref"?: string,
     "custom-prog-piece-previous"?: string,
     "custom-mindwire-enable"?: string,
     "custom-comment-superblock-fold"?: string,
@@ -603,20 +601,6 @@ type CozeAddDoc = {
     syExists?: boolean,
     done?: boolean,
     updated?: string,
-}
-
-type ClubeEvents = {
-    content?: string;
-    isLocal?: boolean;
-    blockID?: string;
-}
-
-type ClubeColumn = {
-    title: string;
-    plots: ClubeEvents[];
-    show?: boolean;
-    highlight?: boolean;
-    new?: boolean;
 }
 
 type FloatingDocItem = {

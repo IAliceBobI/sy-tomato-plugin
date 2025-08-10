@@ -420,17 +420,7 @@ class CardPriorityBox {
             if (attr?.id) {
                 const card = cardsMap.get(attr.id).card;
                 const p = readPriority(attr);
-                // const progmark = attr["custom-progmark"] as string;
-                // if (progmark?.includes(TEMP_CONTENT)) {
-                //     if (!hasPiece) {
-                //         hasPiece = true;
-                //         review.set(attr.id, { card, p });
-                //     } else {
-                //         stop.set(attr.id, { card, p });
-                //     }
-                // } else {
                 review.set(attr.id, { card, p });
-                // }
             }
             return { hasPiece, review, stop };
         }, { hasPiece: false, review: new Map<string, CARD>(), stop: new Map<string, CARD>() });
