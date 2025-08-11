@@ -284,20 +284,24 @@ class CardPriorityBox {
         }
     }
 
-    async stopCards(blocks: GetCardRetBlock[], spread = false) {
+    async stopCards(blocks: GetCardRetBlock[], spread = false, days = "") {
         let text: string;
         if (spread) {
             text = tomatoI18n.准备分散推迟x个闪卡(blocks.length)
-        } else[
+        } else {
             text = tomatoI18n.准备推迟x个闪卡(blocks.length)
-        ]
-        new DialogText(
-            text,
-            "2",
-            async (days: string) => {
-                await doStopCards(days, blocks, spread);
-            },
-        );
+        }
+        if (days) {
+            await doStopCards(days, blocks, spread);
+        } else {
+            new DialogText(
+                text,
+                "2",
+                async (days: string) => {
+                    await doStopCards(days, blocks, spread);
+                },
+            );
+        }
     }
 
     async updatePrioritySelected(elements: HTMLElement[], priority?: number, dialog?: boolean, cb?: Func) {
