@@ -438,18 +438,23 @@
         };
     }
 
-    function mountProtyle(backLink: BacklinkSv<Protyle>) {
+    function mountProtyle(index: number) {
         return (node: HTMLElement) => {
-            node.style.minHeight = "auto";
-            node.appendChild(backLink.protyle.protyle.element);
+            const backLink: BacklinkSv<Protyle> = backLinks.at(index);
+            if (backLink?.protyle?.protyle?.element) {
+                node.style.minHeight = "auto";
+                node.appendChild(backLink.protyle.protyle.element);
 
-            const protyleDiv = document.getElementById(getProtyleID(backLink));
-            const btn = document.getElementById(getButtonID(backLink));
+                const protyleDiv = document.getElementById(
+                    getProtyleID(backLink),
+                );
+                const btn = document.getElementById(getButtonID(backLink));
 
-            if (backLink.isFold === true) {
-                doFold(btn, protyleDiv);
-            } else {
-                doUnFold(btn, protyleDiv);
+                if (backLink.isFold === true) {
+                    doFold(btn, protyleDiv);
+                } else {
+                    doUnFold(btn, protyleDiv);
+                }
             }
         };
     }
@@ -691,7 +696,7 @@
                         </div>
                         <div
                             id={getProtyleID(backLink)}
-                            {@attach mountProtyle(backLink)}
+                            {@attach mountProtyle(index)}
                         ></div>
                     </div>
                 </div>

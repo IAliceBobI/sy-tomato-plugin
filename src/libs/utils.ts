@@ -769,8 +769,11 @@ export function set_href(e: HTMLElement, id: string, txt?: string) {
     if (txt) e.textContent = txt;
 }
 
-export function get_siyuan_lnk_md(id: string, text: string, empty = false) {
+export function get_siyuan_lnk_md(id: string, text: string, empty = false, title = "") {
     if (empty || !id || !text) return ""
+    if (title) {
+        return `[${text}](siyuan://blocks/${id}?focus=1 "${title}")`;
+    }
     return `[${text}](siyuan://blocks/${id}?focus=1)`;
 }
 

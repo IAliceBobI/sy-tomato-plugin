@@ -240,7 +240,9 @@
         protyle.protyle.wysiwyg.element.style.paddingBottom = "0px";
 
         dm.add("svelte clean", () => {
-            closeProtyle(...backLinks);
+            const tmp = backLinks;
+            backLinks = [];
+            closeProtyle(...tmp);
             observer.disconnect();
         });
 
@@ -355,16 +357,18 @@
     }
 
     // protyle
-    function mountProtyle(backLink: BacklinkSv<Protyle>) {
+    function mountProtyle(index: number) {
         return (node: HTMLElement) => {
             node.style.minHeight = "auto";
             node.addEventListener("click", () => {
                 $autoRefreshChecked = false;
             });
-            if (backLink.protyle == null && backLink.ob == null) {
+            const backLink: BacklinkSv<Protyle> = backLinks.at(index);
+            if (backLink.protyle == null) {
                 let id = backLink.blockID;
                 if (backLink.parentID) id = backLink.parentID;
                 const pob = createProtyle(id, maker.plugin);
+                console.log(111111111111111);
                 backLink.ob = pob.ob;
                 backLink.protyle = pob.p;
                 backLink.protyle.protyle.element.style.maxHeight =
@@ -1183,14 +1187,14 @@
 
                     {#if backLink.edit === true}
                         <!-- 可以编辑 -->
-                        <div {@attach mountProtyle(backLink)}></div>
+                        <div {@attach mountProtyle(index)}></div>
                     {:else}
                         <!-- 不能编辑 -->
                         <div
                             class="protyle-wysiwyg"
                             onclick={() => {
                                 $autoRefreshChecked = false;
-                                backLink.edit = true;
+                                backLinks.at(index).edit = true;
                             }}
                         >
                             <div

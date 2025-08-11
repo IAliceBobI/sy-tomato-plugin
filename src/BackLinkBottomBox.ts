@@ -73,12 +73,12 @@ export class BKMaker {
             const handler = setInterval(() => {
                 if (!this.running()) {
                     this.dm.destroyBy("from maker")
+                    clearInterval(handler);
                 } else {
                     this.refreshBacklinks();
                 }
             }, 5000);
             this.dm.add("maker del sv", () => sv.destroy())
-            this.dm.add("maker del interval", () => clearInterval(handler))
         })
     }
 
