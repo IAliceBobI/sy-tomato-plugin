@@ -368,7 +368,6 @@
                 let id = backLink.blockID;
                 if (backLink.parentID) id = backLink.parentID;
                 const pob = createProtyle(id, maker.plugin);
-                console.log(111111111111111);
                 backLink.ob = pob.ob;
                 backLink.protyle = pob.p;
                 backLink.protyle.protyle.element.style.maxHeight =
