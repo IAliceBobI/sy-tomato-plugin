@@ -152,16 +152,29 @@ class CardBox {
                 clearInterval(setGlobal("tomato open card 2025-07-24 10:07:05",
                     setInterval(async () => {
                         if (!document.querySelector(`.card__action`)) {
-                            const cards = await siyuan.getRiffDueCards()
-                            const num = cards?.unreviewedCount || 0;
-                            if (num > 0) {
-                                await openTab({
-                                    app: this.plugin.app,
-                                    card: { type: "all" },
-                                    keepCursor: true,
-                                    removeCurrentTab: false,
-                                    openNewTab: true,
-                                });
+                            const existsCard = document.querySelectorAll(`li[data-initdata]`)
+                                .values()
+                                .toArray()
+                                .map(li => li.getAttribute('data-initdata'))
+                                .map(str => {
+                                    try {
+                                        return JSON.parse(str)
+                                    } catch (e) { }
+                                })
+                                .filter(json => json?.["customModelType"] == "siyuan-card")
+                                .length > 0;
+                            if (!existsCard) {
+                                const cards = await siyuan.getRiffDueCards()
+                                const num = cards?.unreviewedCount || 0;
+                                if (num > 0) {
+                                    await openTab({
+                                        app: this.plugin.app,
+                                        card: { type: "all" },
+                                        keepCursor: true,
+                                        removeCurrentTab: false,
+                                        openNewTab: true,
+                                    });
+                                }
                             }
                         }
                     }, 20000)
