@@ -276,8 +276,8 @@ export default class ThePlugin extends BaseTomatoPlugin {
         setGlobal(TomatoPluginInstance, this)
         this.loadStore = loadStore;
 
-        if (this.global.tomato_zZmqus5PtYRi == null)
-            this.global.tomato_zZmqus5PtYRi = {} as any
+        if (window.tomato_zZmqus5PtYRi == null)
+            window.tomato_zZmqus5PtYRi = {} as any
 
         this.clean()
 
@@ -287,16 +287,16 @@ export default class ThePlugin extends BaseTomatoPlugin {
                 this.settingCfg = {} as TomatoSettings;
             }
 
-            this.global.tomato_zZmqus5PtYRi['cardPriorityBox'] = cardPriorityBox;
-            this.global.tomato_zZmqus5PtYRi.utils = utils;
-            this.global.tomato_zZmqus5PtYRi.siyuan = siyuan;
-            this.global.tomato_zZmqus5PtYRi.timeUtil = timeUtil;
-            this.global.tomato_zZmqus5PtYRi.events = events;
-            this.global.tomato_zZmqus5PtYRi.tools = tools;
-            this.global.tomato_zZmqus5PtYRi.plugin = plugin;
-            this.global.tomato_zZmqus5PtYRi.pluginInstance = this;
-            this.global.tomato_zZmqus5PtYRi.pluginID = this.id;
-            this.global.tomato_zZmqus5PtYRi.pluginConfig = this.settingCfg;
+            window.tomato_zZmqus5PtYRi['cardPriorityBox'] = cardPriorityBox;
+            window.tomato_zZmqus5PtYRi.utils = utils;
+            window.tomato_zZmqus5PtYRi.siyuan = siyuan;
+            window.tomato_zZmqus5PtYRi.timeUtil = timeUtil;
+            window.tomato_zZmqus5PtYRi.events = events;
+            window.tomato_zZmqus5PtYRi.tools = tools;
+            window.tomato_zZmqus5PtYRi.plugin = plugin;
+            window.tomato_zZmqus5PtYRi.pluginInstance = this;
+            window.tomato_zZmqus5PtYRi.pluginID = this.id;
+            window.tomato_zZmqus5PtYRi.pluginConfig = this.settingCfg;
             loadStore(this);
             setGlobal(TomatoPluginConfig, this.settingCfg)
             return this.settingCfg;
@@ -305,10 +305,10 @@ export default class ThePlugin extends BaseTomatoPlugin {
     }
 
     private clean() {
-        this.global.tomato_zZmqus5PtYRi?.pluginInstance?.statusBarIcons?.forEach((e: HTMLElement) => {
+        window.tomato_zZmqus5PtYRi?.pluginInstance?.statusBarIcons?.forEach((e: HTMLElement) => {
             if (e.style) e.style.display = "none"
         });
-        this.global.tomato_zZmqus5PtYRi?.pluginInstance?.topBarIcons?.forEach((e: HTMLElement) => {
+        window.tomato_zZmqus5PtYRi?.pluginInstance?.topBarIcons?.forEach((e: HTMLElement) => {
             if (e.style) e.style.display = "none"
         });
         setTimeout(() => {

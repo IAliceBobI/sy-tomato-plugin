@@ -651,7 +651,7 @@ async function addNoRefPage(plugin: BaseTomatoPlugin, protyle: IProtyle) {
     const { mdEmpty, mdEmptyIDs, mdContent } = await getDocs(false);
     const { mdEmpty: mdRefEmpty, mdContent: mdRefContent } = await getDocs(true);
 
-    plugin.global.tomato_zZmqus5PtYRi.rmContentEmptyRefs = () => {
+    window.tomato_zZmqus5PtYRi.rmContentEmptyRefs = () => {
         mdEmptyIDs.forEach(id => siyuan.removeDocByID(id))
     }
 

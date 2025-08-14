@@ -470,29 +470,6 @@ interface Funding {
     custom: string[];
 }
 
-interface TomatoGlobal {
-    prog_zZmqus5PtYRi: {
-        timeUtil: any;
-        siyuan: any;
-        pluginConfig: TomatoSettings;
-        save?: () => void;
-    },
-    tomato_zZmqus5PtYRi_doc_tracer: any;
-    tomato_zZmqus5PtYRi: {
-        pluginInstance: any;
-        pluginID: string;
-        pluginConfig: TomatoSettings;
-        plugin: any;
-        utils: any;
-        siyuan: any;
-        timeUtil: any;
-        events: any;
-        tools: any;
-        save?: () => void;
-        rmContentEmptyRefs?: () => void;
-    };
-}
-
 interface ID_Time {
     id: string;
     time: string;

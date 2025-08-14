@@ -504,6 +504,8 @@
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
+        overflow-y: hidden; /* 垂直滚动 */
+        overflow-x: hidden; /* 禁止水平滚动 */
     }
 
     .prefix-dialog-grabber {

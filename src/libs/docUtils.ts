@@ -731,10 +731,10 @@ export function calcWords(content: string) {
 
 export async function getDocTracer(): Promise<DocTracer> {
     function get() {
-        return (globalThis as unknown as TomatoGlobal).tomato_zZmqus5PtYRi_doc_tracer;
+        return window.tomato_zZmqus5PtYRi_doc_tracer;
     }
     function set(x: DocTracer) {
-        (globalThis as unknown as TomatoGlobal).tomato_zZmqus5PtYRi_doc_tracer = x
+        window.tomato_zZmqus5PtYRi_doc_tracer = x
     }
     return navigator.locks.request("doctracer2025年3月16日00:48:04", async (lock) => {
         if (lock) {

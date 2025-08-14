@@ -1,6 +1,31 @@
 import { Plugin } from "siyuan";
 import { newID } from "stonev5-utils/lib/id";
 
+declare global {
+    interface Window {
+        prog_zZmqus5PtYRi: {
+            timeUtil: any;
+            siyuan: any;
+            pluginConfig: TomatoSettings;
+            save?: () => void;
+        },
+        tomato_zZmqus5PtYRi_doc_tracer: any;
+        tomato_zZmqus5PtYRi: {
+            pluginInstance: any;
+            pluginID: string;
+            pluginConfig: TomatoSettings;
+            plugin: any;
+            utils: any;
+            siyuan: any;
+            timeUtil: any;
+            events: any;
+            tools: any;
+            save?: () => void;
+            rmContentEmptyRefs?: () => void;
+        };
+    }
+}
+
 export class BaseTomatoPlugin extends Plugin {
     getDocks(): SyDock {
         return (this as any).docks
@@ -17,9 +42,8 @@ export class BaseTomatoPlugin extends Plugin {
     taskCfg: Promise<any>;
     settingCfg: TomatoSettings;
     pluginSpec: PluginSpec;
-    readonly global: TomatoGlobal = globalThis as any;
     initCfg() {
-        const cfg = this.global?.tomato_zZmqus5PtYRi?.pluginConfig;
+        const cfg = window.tomato_zZmqus5PtYRi?.pluginConfig;
         if (cfg != null) {
             console.debug("load cfg from global: pluginID: " + this.id);
             this.settingCfg = cfg;

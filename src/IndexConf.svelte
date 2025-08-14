@@ -366,7 +366,7 @@
     });
     export function destroy() {}
     onMount(async () => {
-        plugin.global.tomato_zZmqus5PtYRi.save = save;
+        window.tomato_zZmqus5PtYRi.save = save;
         codeValid = await verifyKeyTomato();
         saveRestorePagePosition(
             "tomato_settings_scrollPosition_YELnPikKNirXyQqzIHNB",
