@@ -8,7 +8,6 @@ import PrefixArticles from "./PrefixArticles.svelte"
 import { newID } from "stonev5-utils/lib/id";
 import { adaptHotkey, Dialog } from "siyuan";
 import { prefixArticlesEnable, prefixArticlesMenu, prefixArticlesSoftLimit } from "./libs/stores";
-import { uniqueFilter } from "stonev5-utils";
 import { mount } from "svelte";
 export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树 2025-06-26 00:20:18", "📖", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock 2025-06-26 00:20:18", "iconFilesTomato", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
@@ -195,13 +194,14 @@ export async function getPrefixDocs(docID: string, name: string, force = false) 
         }
         for (const part of tags) {
             for (const [id, block] of tracer.getDocMap().entries()) {
-                const docName = block.content.trim();
-                if (docName.includes(part)) {
+                const docName = block.content?.trim() ?? "";
+                const tag = block.tag?.trim() ?? "";
+                if (docName.includes(part) || tag.includes(part)) {
                     prefixDocs.push({ id, docName, prefix: part });
                 }
             }
         }
-        prefixDocs = prefixDocs.filter(uniqueFilter(i => i.id))
+        prefixDocs = prefixDocs.uniq(i => i.id);
         prefixDocs = getNearest(prefixDocs, max)
         prefixDocs = prefixDocs.sort(titleSort);
         prefixDocs = prune(prefixDocs, docID, max)
