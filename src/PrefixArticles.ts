@@ -6,7 +6,7 @@ import { winHotkey } from "./libs/winHotkey";
 import { tomatoI18n } from "./tomatoI18n";
 import PrefixArticles from "./PrefixArticles.svelte"
 import { newID } from "stonev5-utils/lib/id";
-import { adaptHotkey, Dialog, Dock } from "siyuan";
+import { adaptHotkey, Dialog } from "siyuan";
 import { prefixArticlesEnable, prefixArticlesMenu, prefixArticlesSoftLimit } from "./libs/stores";
 import { uniqueFilter } from "stonev5-utils";
 import { mount } from "svelte";
@@ -93,7 +93,7 @@ function addDock() {
         destroy() {
             dm?.destroyBy()
         },
-        init: (dock: Dock) => {
+        init: (dock) => {
             const eleID = newID();
             if (events.isMobile) {
                 dock.element.innerHTML = `<div class="toolbar toolbar--border toolbar--dark">
@@ -119,7 +119,7 @@ function addDock() {
                 props: {
                     dm,
                     isDock: true,
-                    dockElement: dock.element,
+                    dockElement: dock.element as any,
                 }
             });
         },
@@ -180,12 +180,20 @@ export async function getPrefixDocs(docID: string, name: string, force = false) 
     if (typeof max !== "number" || isNaN(max) || max < 1) {
         max = 50;
     }
-    if (name.includes("|")) {
-        const parts = name.replaceAll("丨", "|").split("|").map(i => i.trim());
+    const tags = await siyuan.getRowByID(docID)
+        .then(r => r.tag ?? "")
+        .then(t => t.split("#").map(i => i.trim()))
+        .then(tags => {
+            const parts = name.replaceAll("丨", "|").split("|").map(i => i.trim())
+            tags.push(...parts)
+            return tags
+        })
+        .then(r => r.filter(i => !!i))
+    if (tags.length > 1) {
         if (force) {
-            await tryFixTracerByLike(parts.map(p => `content like "%${p}%"`).join(" or "))
+            await tryFixTracerByLike(tags.map(p => `content like "%${p}%"`).join(" or "))
         }
-        for (const part of parts) {
+        for (const part of tags) {
             for (const [id, block] of tracer.getDocMap().entries()) {
                 const docName = block.content.trim();
                 if (docName.includes(part)) {

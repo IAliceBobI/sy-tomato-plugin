@@ -1,4 +1,4 @@
-import { adaptHotkey, Custom, Dialog, Dock, IProtyle, openTab, Tab } from "siyuan";
+import { adaptHotkey, Custom, Dialog, IProtyle, openTab, Tab } from "siyuan";
 import { events, EventType } from "./libs/Events";
 import { getAttribute, getDialogContainer, isEditor, setAttribute, siyuan, sleep, } from "./libs/utils";
 import CommentBoxSvelte from "./CommentBox.svelte";
@@ -294,7 +294,7 @@ class CommentBox {
             destroy() {
                 commentBox.svelte.destroy();
             },
-            init: (dock: Dock) => {
+            init: (dock) => {
                 const eleID = newID();
                 if (events.isMobile) {
                     dock.element.innerHTML = `<div class="toolbar toolbar--border toolbar--dark">
@@ -318,7 +318,7 @@ class CommentBox {
                 commentBox.svelte = mount(CommentBoxSvelte, {
                     target: dock.element.querySelector("#" + eleID),
                     props: {
-                        dock,
+                        dock: dock as any,
                     }
                 }) as any;
             },

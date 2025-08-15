@@ -2002,7 +2002,7 @@ export const siyuan = {
         // return ['20231102203317-gj54aex']
         return siyuan.call("/api/filetree/getIDsByHPath", { path: hpath, notebook: notebookID });
     },
-    async getTag(sort: number) {
+    async getTag(sort = 4): Promise<Tag[]> {
         return siyuan.call("/api/tag/getTag", { sort });
     },
     async copyStdMarkdown(id: string): Promise<string> {

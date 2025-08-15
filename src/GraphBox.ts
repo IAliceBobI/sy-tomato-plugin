@@ -166,16 +166,16 @@ class GraphBox {
             data: {
                 svelte: null,
             },
-            resize(this: Dock) {
-                graphBox.getData(this).setCanvasSize()
+            resize(this) {
+                graphBox.getData(this as any).setCanvasSize()
             },
-            update(this: Dock) {
+            update(this) {
                 // graphBox.getData(this).setCanvasSize() 这里会在同步时，更新文档树时，自动弹出dock框。
             },
-            destroy(this: Dock) {
-                graphBox.getData(this).svelte.destroy();
+            destroy(this) {
+                graphBox.getData(this as any).svelte.destroy();
             },
-            init: (dock: Dock) => {
+            init: (dock) => {
                 const eleID = newID();
                 if (events.isMobile) {
                     dock.element.innerHTML = `<div class="toolbar toolbar--border toolbar--dark">
@@ -199,12 +199,12 @@ class GraphBox {
                         <div id="${eleID}"></div>
                     </div>`;
                 }
-                this.dock = dock;
+                this.dock = dock as any;
                 try {
-                    graphBox.getData(dock).svelte = mount(GraphBoxSvelte, {
+                    graphBox.getData(dock as any).svelte = mount(GraphBoxSvelte, {
                         target: dock.element.querySelector("#" + eleID),
                         props: {
-                            dock,
+                            dock: dock as any,
                             plugin: this.plugin,
                             landscapeSwitchBtnID,
                         }

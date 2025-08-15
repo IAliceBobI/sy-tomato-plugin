@@ -36,16 +36,8 @@
         range: Range;
     }
 
-    let {
-        dm,
-        protyle,
-        boxID,
-        ro,
-        ids,
-        selected,
-        rangeText,
-        range
-    }: Props = $props();
+    let { dm, protyle, boxID, ro, ids, selected, rangeText, range }: Props =
+        $props();
     const ops: IOperation[] = [];
     const newDivs: HTMLElement[] = [];
     let text = $state("");
@@ -129,14 +121,16 @@
                     return all;
                 })
                 .flat()
-                .forEach((div) => {
-                    add_ref(
-                        div,
-                        new2old.get(getAttribute(div, "data-node-id")),
-                        "*",
-                        true,
-                        true,
-                    );
+                .forEach((div, i) => {
+                    if (i == 0) {
+                        add_ref(
+                            div,
+                            new2old.get(getAttribute(div, "data-node-id")),
+                            "*",
+                            true,
+                            true,
+                        );
+                    }
                     setAttribute(div, "custom-comment-bk-id", builder.id);
                     div.style.backgroundColor = "";
                 });
@@ -147,7 +141,7 @@
             .forEach((l) => builder.append(domNewLine(l)));
 
         builder.setAttr("custom-lnk-bottom", "1"); // 加边框
-        builder.setAttr("custom-tomato-ref-hpath", await rpath);
+        builder.setAttr("custom-tomato-ref-hpath", rpath);
 
         const superBlock = new DomSuperBlockBuilder();
 
@@ -283,7 +277,7 @@
         width: auto;
         height: 200px;
         line-height: 2;
-        font-size: x-large;
+        font-size: large;
     }
     .container {
         display: flex;

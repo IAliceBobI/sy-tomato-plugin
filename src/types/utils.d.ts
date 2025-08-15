@@ -622,3 +622,12 @@ type Size = {
     height: number;
     width: number;
 }
+
+type Tag = {
+    name: string;
+    label: string;
+    children: null;
+    type: string;
+    depth: number;
+    count: number;
+}

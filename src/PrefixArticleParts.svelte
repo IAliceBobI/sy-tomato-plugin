@@ -33,29 +33,31 @@
     async function readParts() {
         const map = new Map<string, PartDate>();
         for (const block of tracer.getDocMap().values()) {
-            if (block.content.includes("|") || block.content.includes("丨")) {
-                block.content
-                    ?.replaceAll("丨", "|")
-                    ?.split("|")
-                    ?.slice(0, -1)
-                    ?.map((i) => i.trim())
-                    ?.forEach((pStr) => {
-                        const old = map.get(pStr);
-                        const obj = {
-                            part: pStr,
-                            updated: block.updated,
-                            docID: block.id,
-                        };
-                        if (!old) {
+            if (block.tag == null) block.tag = "";
+            if (block.content == null) block.content = "";
+            block.content
+                .replaceAll("丨", "|")
+                .split("|")
+                .slice(0, -1)
+                .extend(...block.tag.split("#"))
+                .map((i) => i.trim())
+                .filter((i) => !!i)
+                .forEach((pStr) => {
+                    const old = map.get(pStr);
+                    const obj = {
+                        part: pStr,
+                        updated: block.updated,
+                        docID: block.id,
+                    };
+                    if (!old) {
+                        map.set(pStr, obj);
+                    } else {
+                        const u = old.updated ?? "";
+                        if (block.updated > u) {
                             map.set(pStr, obj);
-                        } else {
-                            const u = old.updated ?? "";
-                            if (block.updated > u) {
-                                map.set(pStr, obj);
-                            }
                         }
-                    });
-            }
+                    }
+                });
         }
         targets = [...map.values()].sort((a, b) => {
             return -a.updated.localeCompare(b.updated);

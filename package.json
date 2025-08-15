@@ -32,7 +32,8 @@
   "author": "IAliceBobI",
   "license": "MIT",
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^5.1.0",
+    "@types/uuid": "^9.0.8",
+    "@sveltejs/vite-plugin-svelte": "^6.0.0",
     "@types/elliptic": "^6.4.18",
     "@types/fabric": "^5.3.7",
     "@types/minimist": "^1.2.5",
@@ -47,12 +48,11 @@
     "svelte-check": "^4.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.5.0",
-    "vite": "^6.2.6",
+    "vite": "^7.0.4",
     "vite-plugin-static-copy": "^3.1.0"
   },
   "dependencies": {
     "@dagrejs/dagre": "^1.1.4",
-    "@types/uuid": "^9.0.8",
     "@xyflow/svelte": "^1.2.1",
     "elliptic": "^6.5.7",
     "fabric": "^5.4.0",

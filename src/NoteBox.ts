@@ -1,4 +1,4 @@
-import { adaptHotkey, Custom, Dialog, Dock, IProtyle, openTab, openWindow } from "siyuan";
+import { adaptHotkey, Custom, Dialog, IProtyle, openTab, openWindow } from "siyuan";
 import { events, EventType } from "./libs/Events";
 import { add_ref, convertMinutesToTimeFormat, doubleSupRows, isMainWin, NewNodeID, setTimeouts, siyuan, sleep, timeUtil, } from "./libs/utils";
 import NoteBoxSvelte from "./NoteBox.svelte";
@@ -233,7 +233,7 @@ class NoteBox {
             },
             destroy() {
             },
-            init: (dock: Dock) => {
+            init: (dock) => {
                 const eleID = newID();
                 let suffix = "";
                 if (avoiding_cloud_synchronization_conflicts.get()) {
@@ -288,7 +288,7 @@ class NoteBox {
                 this.data.sm = new DestroyManager();
                 this.data.sm.add("custom-tab", () => { this.destroy(); });
                 if (!isMainWin()) {
-                    this.data.sv = mount(NoteBoxSvelte,{
+                    this.data.sv = mount(NoteBoxSvelte, {
                         target: this.element.querySelector("#" + id),
                         props: { sm: this.data.sm }
                     });
