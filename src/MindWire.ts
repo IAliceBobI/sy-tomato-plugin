@@ -51,7 +51,7 @@ class MindWire {
         if (!mindWireCheckbox.get()) return;
         this.plugin = plugin;
         await verifyKeyTomato()
-        if (events.isMobile) return;
+        // if (events.isMobile) return;
 
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             this.mindMenu(detail as any);

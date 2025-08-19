@@ -2979,3 +2979,28 @@ export async function getHpath(id: string) {
     return id;
 }
 
+export function blockDOM2StdMd(...divs: Element[]) {
+    divs = divs.map(d => d.cloneNode(true)) as any;
+    makeAllRefsText(divs);
+    const lute = NewLute();
+    return divs.map(o => lute.BlockDOM2StdMd(o.outerHTML)).join("\n\n");
+}
+
+function makeAllRefsText(div: Element[]) {
+    return getAllRef(div).forEach(e => e.outerHTML = e.textContent)
+}
+
+function getAllRef(div: Element[]) {
+    return div.map(i => i.querySelectorAll(`span[data-type="block-ref"]`).values().toArray()).flat()
+}
+
+export function getLastNumberFromString(str: string): number | null {
+    // 匹配字符串末尾的一个或多个数字
+    const match = str.match(/\d+$/);
+    if (match) {
+        // 将匹配到的数字字符串转换为数字
+        return parseInt(match[0], 10);
+    }
+    // 没有找到数字
+    return null;
+}
