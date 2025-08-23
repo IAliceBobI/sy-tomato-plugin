@@ -22,6 +22,7 @@ type TomatoSettings = {
     cardBoxSettingsShow: boolean,
     prefixArticlesTagsShow: boolean,
     fastNoteBoxDocPrefix: boolean,
+    foldTypesNODE_listITEM: boolean,
     commentBoxSaveUnderDoc: boolean,
     dailyNoteMoveLeaveLnk: boolean,
     prefixArticlesMenu: boolean,

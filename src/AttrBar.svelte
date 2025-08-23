@@ -1,16 +1,14 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
     import { BlockNodeEnum, TOMATO_ATTR_BAR } from "./libs/gconst";
     import { getAttribute, getProtylesByID, siyuan } from "./libs/utils";
 
     interface Props {
-        plugin: BaseTomatoPlugin;
         element: HTMLElement;
         attrElement: HTMLElement;
     }
 
-    let { plugin, element, attrElement = $bindable() }: Props = $props();
+    let { element, attrElement = $bindable() }: Props = $props();
     const ctrlAttr = $state({});
     let id: string;
     let fold: string = $state();
@@ -20,7 +18,6 @@
         ctrlAttr[TOMATO_ATTR_BAR] = "1";
         attrElement.style.top = "0";
         attrElement.style.opacity = "1";
-        plugin;
         id = getAttribute(element, "data-node-id");
         fold = getAttribute(element, "fold");
         dataType = getAttribute(element, "data-type");

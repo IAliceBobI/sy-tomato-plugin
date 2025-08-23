@@ -193,6 +193,7 @@
         floatingballDocTabMenu,
         exportPathWin,
         cardBoxCardtab,
+        foldTypesNODE_listITEM,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -780,6 +781,22 @@
                     }}
                 />
                 {tomatoI18n.列表块}
+            </label>
+            <!-- 列表项 -->
+            <label class="space">
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$foldTypesNODE_listITEM}
+                    onchange={() => {
+                        if ($foldTypesNODE_listITEM) {
+                            pushUniq($foldTypes, BlockNodeEnum.NODE_LIST_ITEM);
+                        } else {
+                            removeFromArr($foldTypes, BlockNodeEnum.NODE_LIST_ITEM);
+                        }
+                    }}
+                />
+                {tomatoI18n.列表项}
             </label>
             <!-- 表格 -->
             <label class="space">

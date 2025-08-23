@@ -7,7 +7,6 @@ import { BlockNodeEnum, COMMENT_SUPERBLOCK_FOLD, TOMATO_ATTR_BAR } from "./libs/
 import { findElement } from "./libs/listUtils";
 import { winHotkey } from "./libs/winHotkey";
 import AttrBar from "./AttrBar.svelte";
-import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { commentBoxCheckbox, foldTypes } from "./libs/stores";
 import { setGlobal } from "stonev5-utils";
 import { mount } from "svelte";
@@ -151,14 +150,14 @@ function findPreviousElementSibling(e: HTMLElement, f: (a: HTMLElement) => boole
     }
 }
 
-export function addFoldingAttrBarBtns(plugin: BaseTomatoPlugin) {
+export function addFoldingAttrBarBtns() {
     if (commentBoxCheckbox.get() || foldTypes.get().length > 0) {
         const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === "attributes" && mutation.attributeName === "fold") {
-                    addBar(plugin, mutation.target as any);
+                    addBar(mutation.target as any);
                 }
-                mutation.addedNodes.forEach(e => addBar(plugin, e as any))
+                mutation.addedNodes.forEach(e => addBar(e as any))
             }
         });
         setGlobal("addAttrBarBtns 2025-6-7 13:44:59", observer)?.disconnect();
@@ -177,25 +176,31 @@ export function addFoldingAttrBarBtns(plugin: BaseTomatoPlugin) {
     }
 }
 
-function addBar(plugin: BaseTomatoPlugin, element: HTMLElement) {
+function addBar(element: HTMLElement) {
     if (!element.getAttribute) return;
     element.querySelectorAll(`div[${COMMENT_SUPERBLOCK_FOLD}]`).forEach(e => {
-        findTarget2addBar(plugin, e as any);
+        findTarget2addBar(e as any);
     })
-    findTarget2addBar(plugin, element);
+    findTarget2addBar(element);
+    if (
+        foldTypes.get().includes(BlockNodeEnum.NODE_LIST_ITEM) &&
+        getAttribute(element, "data-type") == BlockNodeEnum.NODE_LIST
+    ) {
+        for (const item of element.querySelectorAll(`div[data-type="NodeList"][data-node-id]`)) {
+            findTarget2addBar(item as any);
+        }
+    }
 };
 
-function findTarget2addBar(plugin: BaseTomatoPlugin, e: HTMLElement) {
+function findTarget2addBar(e: HTMLElement) {
     if (!e.lastElementChild) return;
-    const ts = foldTypes.get();
-    if (ts.includes(getAttribute(e, "data-type")) || e.hasAttribute(COMMENT_SUPERBLOCK_FOLD)) {
+    if (foldTypes.get().includes(getAttribute(e, "data-type")) || e.hasAttribute(COMMENT_SUPERBLOCK_FOLD)) {
         if (e.lastElementChild.classList.contains("protyle-attr")) {
             e.lastElementChild.querySelectorAll(`div[${TOMATO_ATTR_BAR}]`).forEach(e => e.parentElement.removeChild(e));
             mount(AttrBar, {
                 target: e.lastElementChild,
                 props: {
                     element: e,
-                    plugin,
                     attrElement: e.lastElementChild as any,
                 }
             })

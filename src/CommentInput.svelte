@@ -126,7 +126,7 @@
                         add_ref(
                             div,
                             new2old.get(getAttribute(div, "data-node-id")),
-                            "*",
+                            "+",
                             true,
                             true,
                         );

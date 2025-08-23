@@ -323,6 +323,7 @@ export const foldTypes = settingFactory("foldTypes", [], STORAGE_SETTINGS, null 
 export const foldTypesSuperBlock = settingFactory("foldTypesSuperBlock", false, STORAGE_SETTINGS, null as TSK);
 export const foldTypesBLOCKQUOTE = settingFactory("foldTypesBLOCKQUOTE", false, STORAGE_SETTINGS, null as TSK);
 export const foldTypesNODE_LIST = settingFactory("foldTypesNODE_LIST", false, STORAGE_SETTINGS, null as TSK);
+export const foldTypesNODE_listITEM = settingFactory("foldTypesNODE_listITEM", false, STORAGE_SETTINGS, null as TSK);
 export const foldTypesNODE_TABLE = settingFactory("foldTypesNODE_TABLE", false, STORAGE_SETTINGS, null as TSK);
 export const foldTypesNODE_HEADING = settingFactory("foldTypesNODE_HEADING", false, STORAGE_SETTINGS, null as TSK);
 export const addSelectionBtnsMobile = settingFactory("addSelectionBtnsMobile", true, STORAGE_SETTINGS, null as TSK);

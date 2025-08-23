@@ -103,6 +103,23 @@ export abstract class TomatoI18nABC12 extends TomatoI18nABC13 {
         }
     }
 
+    public get 列表项() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "列表项";
+            case "es_ES": return "Elemento de lista";
+            case "fr_FR": return "Élément de liste";
+            case "ja_JP": return "リストアイテム";
+            case "zh_CHT": return "列表項";
+            case "it_IT": return "Elemento dell'elenco";
+            case "de_DE": return "Listenelement";
+            case "he_IL": return "פריט ברשימה";
+            case "ru_RU": return "Элемент списка";
+            case "pl_PL": return "Element listy";
+            case "en_US":
+            default: return "List item";
+        }
+    }
+
     public get 引述块() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "引述块";
