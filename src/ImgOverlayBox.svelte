@@ -229,12 +229,14 @@
         {/each}
     </select>
 
-    <label for="groupSelect">{tomatoI18n.选择组别}:</label>
-    <select class="b3-select" id="groupSelect" bind:value={selectedGroup}>
-        {#each groups as group}
-            <option value={group}>{group}</option>
-        {/each}
-    </select>
+    {#if selectedMode === "group"}
+        <label for="groupSelect">{tomatoI18n.选择组别}:</label>
+        <select class="b3-select" id="groupSelect" bind:value={selectedGroup}>
+            {#each groups as group}
+                <option value={group}>{group}</option>
+            {/each}
+        </select>
+    {/if}
 </div>
 
 <!-- 保留原有canvas容器 -->
@@ -258,4 +260,7 @@
 </div>
 
 <style>
+    .overlay-options {
+        margin: 5px;
+    }
 </style>
