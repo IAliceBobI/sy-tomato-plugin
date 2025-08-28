@@ -1,9 +1,9 @@
 import { Constants, IProtyle, openMobileFileById, openTab, openWindow, Plugin, Tab, TProtyleAction } from "siyuan";
 import { events } from "./Events";
-import { BLOCK_REF, BlockTypeContainer, BlockTypeContent, ClassActive, CUSTOM_RIFF_DECKS, DATA_ID, DATA_NODE_ID, DATA_NODE_INDEX, DATA_SUBTYPE, DATA_TYPE } from "./gconst";
+import { BLOCK_REF, BlockTypeContainer, BlockTypeContent, ClassActive, CUSTOM_RIFF_DECKS, DATA_ID, DATA_NODE_ID, DATA_NODE_INDEX, DATA_SUBTYPE, DATA_TYPE, SPACE } from "./gconst";
 import { chunks, cleanText, getBlockDiv, getContenteditableElement, getDoOperations, NewNodeID, notEmptyStrDo, parseIAL, readAllFiles, removeInvisibleChars, siyuan, siyuanCache, timeUtil } from "./utils";
 import { pinyin } from "pinyin-pro";
-import { storeAttrManager, tag_to_ref_add_card, tag_to_ref_add_pinyin } from "./stores";
+import { storeAttrManager, tag_to_ref_add_card, tag_to_ref_add_pinyin, toolbarTidyExt } from "./stores";
 import { tomatoI18n, TomatoI18n } from "../tomatoI18n";
 import { zipNways } from "./functional";
 import { DefaultMap } from "./cache";
@@ -446,7 +446,25 @@ export async function tidyAssets(tomatoI18n: TomatoI18n) {
                 await siyuan.pushMsg(tomatoI18n.你还没秘钥插件无法为您创建本地快照, 0)
                 return;
             }
-            const exts = [...Constants.SIYUAN_ASSETS_IMAGE, ...Constants.SIYUAN_ASSETS_AUDIO, ...Constants.SIYUAN_ASSETS_VIDEO];
+            const exts = toolbarTidyExt.get()
+                .replaceAll(SPACE, " ")
+                .split(" ")
+                .extend(...Constants.SIYUAN_ASSETS_IMAGE)
+                .extend(...Constants.SIYUAN_ASSETS_AUDIO)
+                .extend(...Constants.SIYUAN_ASSETS_VIDEO)
+                .mapfilter(i => {
+                    i = i.trim()
+                    if (i) {
+                        if (i.startsWith(".")) {
+                            return i
+                        } else {
+                            return "." + i
+                        }
+                    }
+                })
+                .map(i => i.toLocaleLowerCase())
+                .uniq()
+
             const files = await readAllFiles().then(async pathes => {
                 const ret: [string, string][] = []
                 for (const ps of chunks(pathes, 50)) {

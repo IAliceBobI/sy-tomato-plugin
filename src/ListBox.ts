@@ -8,8 +8,8 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { tomatoI18n } from "./tomatoI18n";
 import { winHotkey } from "./libs/winHotkey";
 
-export const ListBox取消勾选当前文档所有已完成的todo任务 = winHotkey("⌥⇧G", "uncheckall 2025-5-12 08:00:51", "", () => tomatoI18n.取消勾选当前文档所有已完成的todo任务)
-export const ListBox删除当前文档所有已完成的todo任务 = winHotkey("⌥⇧H", "delAllchecked 2025-5-12 08:00:52", "", () => tomatoI18n.删除当前文档所有已完成的todo任务)
+export const ListBox取消勾选当前文档所有已完成的todo任务 = winHotkey("alt+shift+ctrl+G", "uncheckall 2025-5-12 08:00:51", "", () => tomatoI18n.取消勾选当前文档所有已完成的todo任务)
+export const ListBox删除当前文档所有已完成的todo任务 = winHotkey("alt+shift+ctrl+H", "delAllchecked 2025-5-12 08:00:52", "", () => tomatoI18n.删除当前文档所有已完成的todo任务)
 
 class ListBox {
     private plugin: BaseTomatoPlugin;

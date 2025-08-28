@@ -194,6 +194,8 @@
         exportPathWin,
         cardBoxCardtab,
         foldTypesNODE_listITEM,
+        deleteBlocksMenu,
+        toolbarTidyExt,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -792,7 +794,10 @@
                         if ($foldTypesNODE_listITEM) {
                             pushUniq($foldTypes, BlockNodeEnum.NODE_LIST_ITEM);
                         } else {
-                            removeFromArr($foldTypes, BlockNodeEnum.NODE_LIST_ITEM);
+                            removeFromArr(
+                                $foldTypes,
+                                BlockNodeEnum.NODE_LIST_ITEM,
+                            );
                         }
                     }}
                 />
@@ -1962,6 +1967,14 @@
                     >{ToolBarBox整理assets下的图片视频音频.w()}</strong
                 >
             </div>
+            <div>
+                 <textarea
+                    class="b3-text-field"
+                    placeholder="doc docx xls xlsx emmx sql"
+                    bind:value={$toolbarTidyExt}
+                    spellcheck="false"
+                ></textarea> {tomatoI18n.补充文件后缀}
+            </div>
 
             <div class:codeNotValid>
                 <input
@@ -2159,7 +2172,7 @@
                     class="b3-switch"
                     bind:checked={$cardBoxCardtab}
                 />
-                {tomatoI18n.如果有闪卡可复习自动在后台打开} 
+                {tomatoI18n.如果有闪卡可复习自动在后台打开}
             </div>
             <div>
                 <input
@@ -2325,9 +2338,17 @@
         </div>
         {#if $cpBoxCheckbox}
             <div>
-                {tomatoI18n.批量删除大量连续内容块}
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$deleteBlocksMenu}
+                />
+                {tomatoI18n.menu添加右键菜单 +
+                    "：" +
+                    CpBox批量删除大量连续内容块.langText()}
                 <strong>{CpBox批量删除大量连续内容块.w()}</strong>
             </div>
+
             <div class="kbd">
                 {@html tomatoI18n.批量删除帮助}
             </div>

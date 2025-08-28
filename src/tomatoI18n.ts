@@ -309,6 +309,149 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "If you can't drag, please fix the problem, switch back to the official theme, disable other plugins and try again.";
         }
     }
+
+    public get 清理文档内容到子文档() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "清理文档内容到子文档";
+            case "es_ES": return "Limpiar el contenido del documento a subdocumentos";
+            case "fr_FR": return "Nettoyer le contenu du document vers des sous-documents";
+            case "ja_JP": return "ドキュメント内容をサブドキュメントにクリーンアップ";
+            case "zh_CHT": return "清理文檔內容到子文檔";
+            case "it_IT": return "Pulisci il contenuto del documento nei sotto-documenti";
+            case "de_DE": return "Dokumenteninhalt in Unterdokumente bereinigen";
+            case "he_IL": return "נקה את תוכן המסמך למסמכים secundariים";
+            case "ru_RU": return "Очистить содержимое документа в поддокументы";
+            case "pl_PL": return "Wyczyść zawartość dokumentu do poddokumentów";
+            case "ar_SA": return "تنظيف محتوى المستند إلى المستندات الفرعية";
+            case "pt_BR": return "Limpar o conteúdo do documento para subdocumentos";
+            case "en_US":
+            default: return "Clean document content to subdocuments";
+        }
+    }
+
+    public get 清理文档内容() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "清理文档内容";
+            case "es_ES": return "Limpiar contenido del documento";
+            case "fr_FR": return "Nettoyer le contenu du document";
+            case "ja_JP": return "ドキュメント内容をクリーンアップ";
+            case "zh_CHT": return "清理文檔內容";
+            case "it_IT": return "Pulisci il contenuto del documento";
+            case "de_DE": return "Dokumenteninhalt bereinigen";
+            case "he_IL": return "נקה את תוכן המסמך";
+            case "ru_RU": return "Очистить содержимое документа";
+            case "pl_PL": return "Wyczyść zawartość dokumentu";
+            case "ar_SA": return "تنظيف محتوى المستند";
+            case "pt_BR": return "Limpar o conteúdo do documento";
+            case "en_US":
+            default: return "Clean document content";
+        }
+    }
+
+    public get 补充文件后缀() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "补充文件后缀，空格隔开";
+            case "es_ES": return "Extensiones de archivo complementarias, separadas por espacios";
+            case "fr_FR": return "Extensions de fichiers supplémentaires, séparées par des espaces";
+            case "ja_JP": return "補足ファイル拡張子、スペースで区切る";
+            case "zh_CHT": return "補充文件後綴，空格隔開";
+            case "it_IT": return "Estensioni file supplementari, separate da spazi";
+            case "de_DE": return "Zusätzliche Dateierweiterungen, durch Leerzeichen getrennt";
+            case "he_IL": return "סיומות קבצים משלימות, מופרדות ברווחים";
+            case "ru_RU": return "Дополнительные расширения файлов, разделенные пробелами";
+            case "pl_PL": return "Dodatkowe rozszerzenia plików, oddzielone spacjami";
+            case "ar_SA": return "لواحق الملفات التكميلية، مفصولة بمسافات";
+            case "pt_BR": return "Extensões de arquivo complementares, separadas por espaços";
+            case "en_US":
+            default: return "Supplementary file extensions, separated by spaces";
+        }
+    }
+
+    public get 选择组别() {
+        // tyepscript: 翻译为各国语言。写入case的return中。
+        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
+        // 最后删除注释。
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "选择组别";
+            case "es_ES": return "Seleccionar grupo";
+            case "fr_FR": return "Sélectionner un groupe";
+            case "ja_JP": return "グループを選択";
+            case "zh_CHT": return "選擇組別";
+            case "it_IT": return "Seleziona gruppo";
+            case "de_DE": return "Gruppe auswählen";
+            case "he_IL": return "בחר קבוצה";
+            case "ru_RU": return "Выбрать группу";
+            case "pl_PL": return "Wybierz grupę";
+            case "ar_SA": return "اختر مجموعة";
+            case "pt_BR": return "Selecionar grupo";
+            case "en_US":
+            default: return "Select Group";
+        }
+    }
+    public get 当前模式() {
+        // tyepscript: 翻译为各国语言。写入case的return中。
+        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
+        // 最后删除注释。
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "当前模式";
+            case "es_ES": return "Modo actual";
+            case "fr_FR": return "Mode actuel";
+            case "ja_JP": return "現在のモード";
+            case "zh_CHT": return "當前模式";
+            case "it_IT": return "Modalità corrente";
+            case "de_DE": return "Aktueller Modus";
+            case "he_IL": return "מצב נוכחי";
+            case "ru_RU": return "Текущий режим";
+            case "pl_PL": return "Bieżący tryb";
+            case "ar_SA": return "الوضع الحالي";
+            case "pt_BR": return "Modo atual";
+            case "en_US":
+            default: return "Current Mode";
+        }
+    }
+    public get 分组() {
+        // tyepscript: 翻译为各国语言。写入case的return中。
+        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
+        // 最后删除注释。
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "分组";
+            case "es_ES": return "Agrupar";
+            case "fr_FR": return "Grouper";
+            case "ja_JP": return "グループ化";
+            case "zh_CHT": return "分組";
+            case "it_IT": return "Raggruppa";
+            case "de_DE": return "Gruppieren";
+            case "he_IL": return "קבץ";
+            case "ru_RU": return "Группировать";
+            case "pl_PL": return "Grupuj";
+            case "ar_SA": return "تجميع";
+            case "pt_BR": return "Agrupar";
+            case "en_US":
+            default: return "Group";
+        }
+    }
+    public get 不分组() {
+        // tyepscript: 翻译为各国语言。写入case的return中。
+        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
+        // 最后删除注释。
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "不分组";
+            case "es_ES": return "No agrupar";
+            case "fr_FR": return "Ne pas grouper";
+            case "ja_JP": return "グループ化しない";
+            case "zh_CHT": return "不分組";
+            case "it_IT": return "Non raggruppare";
+            case "de_DE": return "Nicht gruppieren";
+            case "he_IL": return "אל תקבץ";
+            case "ru_RU": return "Не группировать";
+            case "pl_PL": return "Nie grupuj";
+            case "ar_SA": return "لا تجمع";
+            case "pt_BR": return "Não agrupar";
+            case "en_US":
+            default: return "Ungrouped";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

@@ -22,7 +22,20 @@
     let drawingRect: fabric.Rect = null;
     let scaleValue: number = $state(1);
 
+    // 组别和模式选项
+    const modes = [
+        { k: "group", v: tomatoI18n.分组 },
+        { k: "single", v: tomatoI18n.不分组 },
+    ];
+    let selectedMode: string = $state("group");
+    let groups = $state([]);
+    let selectedGroup: string = $state("1");
+
     onMount(async () => {
+        for (let id = 1; id < 36; id++) {
+            groups.push(id2txt(id));
+        }
+        groups = groups;
         const imgID = getID(imgSpan);
         const imgSrc = imgSpan?.querySelector("img")?.getAttribute("src") ?? "";
         if (imgID && imgSrc) {
@@ -117,12 +130,22 @@
         canvas?.dispose();
     }
 
-    function createOverlayFromRect(rect: fabric.Rect, id: number) {
+    function id2txt(id: number) {
         let txt = "#";
         if (id < 10) {
             txt = String(id);
         } else if (id >= 10 && id < 10 + 26) {
             txt = String.fromCharCode(65 + id - 10);
+        }
+        return txt;
+    }
+
+    function createOverlayFromRect(rect: fabric.Rect, id: number) {
+        let txt = "#";
+        if (selectedMode === "group") {
+            txt = selectedGroup;
+        } else {
+            txt = id2txt(id);
         }
         const o = createOverlay(
             txt,
@@ -197,8 +220,25 @@
     }
 </script>
 
-<!-- https://learn.svelte.dev/tutorial/if-blocks -->
-<div >
+<!-- 添加选项UI -->
+<div class="overlay-options">
+    <label for="modeSelect">{tomatoI18n.当前模式}:</label>
+    <select class="b3-select" id="modeSelect" bind:value={selectedMode}>
+        {#each modes as mode}
+            <option value={mode.k}>{mode.v}</option>
+        {/each}
+    </select>
+
+    <label for="groupSelect">{tomatoI18n.选择组别}:</label>
+    <select class="b3-select" id="groupSelect" bind:value={selectedGroup}>
+        {#each groups as group}
+            <option value={group}>{group}</option>
+        {/each}
+    </select>
+</div>
+
+<!-- 保留原有canvas容器 -->
+<div id="canvasContainer">
     <button class="b3-button b3-button--outline tomato-button" onclick={remove}
         >{tomatoI18n.删除最后一个遮挡层}</button
     >
@@ -216,3 +256,6 @@
     />
     <canvas id="imgOverlayBoxCanvas"></canvas>
 </div>
+
+<style>
+</style>

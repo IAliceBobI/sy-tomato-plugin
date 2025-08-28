@@ -10,7 +10,7 @@ import { winHotkey } from "./libs/winHotkey";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
-export const ImgBoxHotKey = winHotkey("⌥⇧I", "ImgBox2024-07-03 18:38:32")
+export const ImgBoxHotKey = winHotkey("alt+shift+ctrl+I", "ImgBox2024-07-03 18:38:32")
 class ImgBox {
     private plugin: BaseTomatoPlugin;
 

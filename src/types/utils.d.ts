@@ -17,6 +17,8 @@ type TSK = keyof TomatoSettings
 type TomatoSettings = {
     finishPieceCreateAt: "all | desktop" | "desktop-window" | "mobile" | "browser-desktop" | "browser-mobile",
     prefixArticlesSoftLimit: string,
+    toolbarTidyExt: string,
+    deleteBlocksMenu: boolean,
     floatingballDocTabMenu: boolean,
     cardBoxCardtab: boolean,
     cardBoxSettingsShow: boolean,
