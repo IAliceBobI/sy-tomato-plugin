@@ -18,6 +18,9 @@ type TomatoSettings = {
     finishPieceCreateAt: "all | desktop" | "desktop-window" | "mobile" | "browser-desktop" | "browser-mobile",
     prefixArticlesSoftLimit: string,
     toolbarTidyExt: string,
+    superRefBoxGlobalLnkMenu: boolean,
+    superRefBoxGlobalFixMenu: boolean,
+    superRefBoxCheckBox: boolean,
     deleteBlocksMenu: boolean,
     floatingballDocTabMenu: boolean,
     cardBoxCardtab: boolean,
@@ -305,6 +308,8 @@ type TomatoSettings = {
 };
 
 type AttrType = {
+    "custom-ref-id"?: string,
+    "custom-ref-snapshot-"?: string,
     title?: string,
     alias?: string, // comma separated
     memo?: string,

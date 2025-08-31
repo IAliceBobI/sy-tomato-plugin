@@ -196,6 +196,9 @@
         foldTypesNODE_listITEM,
         deleteBlocksMenu,
         toolbarTidyExt,
+        superRefBoxCheckBox,
+        superRefBoxGlobalFixMenu,
+        superRefBoxGlobalLnkMenu,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -337,6 +340,10 @@
         linkDoc2floatBall,
     } from "./FloatingBall";
     import { PrefixArticles前缀文档树 } from "./PrefixArticles";
+    import {
+        SuperRefBox全局修复引用,
+        SuperRefBox全局加固引用,
+    } from "./SuperRefBox";
     interface Props {
         dm: DestroyManager;
         plugin: BaseTomatoPlugin;
@@ -1309,6 +1316,55 @@
             </div>
         {/if}
     </div>
+    <!-- 修复引用 -->
+    <div class="settingBox">
+        <div>
+            <input
+                type="checkbox"
+                class="b3-switch"
+                bind:checked={$superRefBoxCheckBox}
+            />
+            引用修复工具
+            <strong>
+                <a href="https://awx9773btw.feishu.cn/docx/WTgxdUINHoYXHbxmU87cxs5knfd?from=from_copylink">
+                    {tomatoI18n.帮助}</a
+                >
+            </strong>
+        </div>
+        {#if $superRefBoxCheckBox}
+            <div>打开或关闭文档时，自动对当前文档中的引用进行加固处理</div>
+            <div>
+                经过加固的引用，在原文的ID改变后，可以被修复重新指向新原文。
+                （原文被删除，但保留拷贝的副本）
+            </div>
+            <div>
+                经过加固的引用，原文被删除后，可以凭借引用属性上的快照'复活'原文。
+                （快照可能只有部分， 比如原文是列表）
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$superRefBoxGlobalFixMenu}
+                />
+                {tomatoI18n.menu添加右键菜单 +
+                    "：" +
+                    SuperRefBox全局修复引用.langText()}
+                <strong>{SuperRefBox全局修复引用.w()}</strong>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$superRefBoxGlobalLnkMenu}
+                />
+                {tomatoI18n.menu添加右键菜单 +
+                    "：" +
+                    SuperRefBox全局加固引用.langText()}
+                <strong>{SuperRefBox全局加固引用.w()}</strong>
+            </div>
+        {/if}
+    </div>
     <!-- 状态栏番茄钟 -->
     <div class="settingBox">
         <div>
@@ -1968,12 +2024,13 @@
                 >
             </div>
             <div>
-                 <textarea
+                <textarea
                     class="b3-text-field"
                     placeholder="doc docx xls xlsx emmx sql"
                     bind:value={$toolbarTidyExt}
                     spellcheck="false"
-                ></textarea> {tomatoI18n.补充文件后缀}
+                ></textarea>
+                {tomatoI18n.补充文件后缀}
             </div>
 
             <div class:codeNotValid>

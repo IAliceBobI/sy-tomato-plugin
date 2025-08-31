@@ -10,7 +10,7 @@
         ],
         "skipLibCheck": true,
         /* Bundler mode */
-        "moduleResolution": "Node",
+        "moduleResolution": "bundler",
         // "allowImportingTsExtensions": true,
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,
@@ -52,7 +52,8 @@
         "src/**/*.svelte",
     ],
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "node_modules/.svelte2tsx-language-server-files"
     ],
     "references": [
         {

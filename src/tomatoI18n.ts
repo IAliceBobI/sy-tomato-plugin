@@ -452,6 +452,49 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 全局修复文档引用() {
+        // tyepscript: 翻译为各国语言。写入case的return中。
+        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
+        // 最后删除注释。
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "全局修复文档引用";
+            case "es_ES": return "Reparar referencias de documentos globalmente";
+            case "fr_FR": return "Réparer globalement les références de documents";
+            case "ja_JP": return "ドキュメント参照をグローバルに修復";
+            case "zh_CHT": return "全局修復文檔引用";
+            case "it_IT": return "Ripara globalmente i riferimenti ai documenti";
+            case "de_DE": return "Dokumentreferenzen global reparieren";
+            case "he_IL": return "תקן הפניות מסמך גלובליות";
+            case "ru_RU": return "Глобально исправить ссылки на документы";
+            case "pl_PL": return "Napraw globalnie odniesienia do dokumentów";
+            case "ar_SA": return "إصلاح مراجع المستندات عالميًا";
+            case "pt_BR": return "Reparar referências de documentos globalmente";
+            case "en_US":
+            default: return "Globally repair document references";
+        }
+    }
+    public get 全局加固文档引用() {
+        // tyepscript: 翻译为各国语言。写入case的return中。
+        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
+        // 最后删除注释。
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "全局加固文档引用";
+            case "es_ES": return "Reforzar referencias de documentos globalmente";
+            case "fr_FR": return "Renforcer globalement les références de documents";
+            case "ja_JP": return "ドキュメント参照をグローバルに強化";
+            case "zh_CHT": return "全局加固文檔引用";
+            case "it_IT": return "Rafforza globalmente i riferimenti ai documenti";
+            case "de_DE": return "Dokumentreferenzen global stärken";
+            case "he_IL": return "חיזוק הפניות מסמך גלובליות";
+            case "ru_RU": return "Глобально усилить ссылки на документы";
+            case "pl_PL": return "Wzmocnij globalnie odniesienia do dokumentów";
+            case "ar_SA": return "تعزيز مراجع المستندات عالميًا";
+            case "pt_BR": return "Reforçar referências de documentos globalmente";
+            case "en_US":
+            default: return "Globally reinforce document references";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
