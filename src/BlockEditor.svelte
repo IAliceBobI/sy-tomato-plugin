@@ -40,7 +40,6 @@
     maxWidth="200"
     show={true}
     title={tomatoI18n.块编辑器}
-    zIndexPlus
     {dm}
     savePositionKey="块编辑器 2025年9月1日22:06:25"
 >
