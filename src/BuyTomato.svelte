@@ -98,6 +98,9 @@
         <strong> {tomatoI18n.淘宝店二维码}</strong>
     </div>
     <div class="center">
+        <strong>进入宝贝详情页后，请选择插件：'番茄工具箱'或者是'渐进学习'</strong>
+    </div>
+    <div class="center">
         <strong>{tomatoI18n.可联系客服获取7天试用激活码}</strong>
     </div>
 </div>

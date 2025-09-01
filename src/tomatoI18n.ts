@@ -368,9 +368,6 @@ export class TomatoI18n extends TomatoI18nABC {
     }
 
     public get 选择组别() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "选择组别";
             case "es_ES": return "Seleccionar grupo";
@@ -389,9 +386,6 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
     public get 当前模式() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "当前模式";
             case "es_ES": return "Modo actual";
@@ -410,9 +404,6 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
     public get 分组() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "分组";
             case "es_ES": return "Agrupar";
@@ -431,9 +422,6 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
     public get 不分组() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "不分组";
             case "es_ES": return "No agrupar";
@@ -453,9 +441,6 @@ export class TomatoI18n extends TomatoI18nABC {
     }
 
     public get 全局修复文档引用() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "全局修复文档引用";
             case "es_ES": return "Reparar referencias de documentos globalmente";
@@ -474,9 +459,6 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
     public get 全局加固文档引用() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "全局加固文档引用";
             case "es_ES": return "Reforzar referencias de documentos globalmente";
@@ -492,6 +474,25 @@ export class TomatoI18n extends TomatoI18nABC {
             case "pt_BR": return "Reforçar referências de documentos globalmente";
             case "en_US":
             default: return "Globally reinforce document references";
+        }
+    }
+
+    public get 删除双向链接() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "删除双向链接";
+            case "es_ES": return "Eliminar enlace bidireccional";
+            case "fr_FR": return "Supprimer le lien bidirectionnel";
+            case "ja_JP": return "双方向リンクを削除";
+            case "zh_CHT": return "刪除雙向連結";
+            case "it_IT": return "Elimina collegamento bidirezionale";
+            case "de_DE": return "Bidirektionalen Link löschen";
+            case "he_IL": return "מחק קישור דו-כיווני";
+            case "ru_RU": return "Удалить двунаправленную ссылку";
+            case "pl_PL": return "Usuń link dwukierunkowy";
+            case "ar_SA": return "حذف الرابط ثنائي الاتجاه";
+            case "pt_BR": return "Excluir link bidirecional";
+            case "en_US":
+            default: return "Delete Bidirectional Link";
         }
     }
 

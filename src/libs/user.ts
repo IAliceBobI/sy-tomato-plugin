@@ -86,14 +86,17 @@ async function verifyUserSign(tokenSign: string, included: string) {
         signValid = await checkUserID(ldID, name, exp);
     }
 
+    // if ([
+    //     "",
+    // ].includes(getMd5(userPartShort))) signValid = false;
+    // if ([
+    //     "",
+    // ].includes(getMd5(userPartShort + "_siyuanTomatoCode"))) signValid = false;
     if ([
-        "",
-    ].includes(getMd5(userPartShort))) signValid = false;
+        "e0cb783f11f5c6d8e3891124c8f06fb6",
+    ].includes(getMd5(userPartShort + "_siyuanProgressiveCode"))) signValid = false;
     if ([
-        "",
         "9fac2fca1710a5a38eac53df8cddb9bd",
-        // "9d9158dbee60ee0a960c4fa080221700",
-        // "34df19cf16c16723059f187350043986",
     ].includes(getMd5(userPartShort.split("_").at(0)))) signValid = false;
 
     if (included && !tokenSign.includes(included)) signValid = false;

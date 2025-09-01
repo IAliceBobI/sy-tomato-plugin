@@ -1,7 +1,7 @@
 import { Dialog, IEventBusMap, IProtyle, Plugin } from "siyuan";
 import { EventType, events } from "./libs/Events";
 import * as gconst from "./libs/gconst";
-import { bilinkWithInsertingRefs, clean_broken_href, extractLinksFromElement, getDoOperations, joinByComma, linkTwoElementsWithRef, setAttribute, siyuan, } from "./libs/utils";
+import { bilinkWithInsertingRefs, clean_broken_href, extractLinksFromElement, getAttribute, getDoOperations, joinByComma, linkTwoElementsWithRef, setAttribute, siyuan, } from "./libs/utils";
 import * as utils from "./libs/utils";
 import { AttrBuilder, findElementByAttr, findListTypeByElement } from "./libs/listUtils";
 import { linkBoxAttrIconOnHide, linkBoxBilinkMenu, linkBoxCheckbox, linkBoxLnkTitle, linkBoxSyncBlock, linkBoxSyncBlockAuto, linkBoxSyncHref, linkBoxSyncRef, linkBoxUseLnkOrRef } from "./libs/stores";
@@ -28,6 +28,7 @@ export const LinkBox链接到块底部 = winHotkey("⌥F3", "lnk2bottom 2025-5-1
 export const LinkBox双向互链选择块 = winHotkey("⌥F1", "bilinkSelectBlock 2025-5-11 22:11:08", "", () => tomatoI18n.双向互链选择块)
 export const LinkBox双向互链创建往返链 = winHotkey("⌥F2", "bilinkSelectBlock 2025-5-11 22:11:04", "", () => tomatoI18n.双向互链创建往返链)
 export const LinkBox修复双向链接 = winHotkey("⌥⇧F1", "fixLnk 2025-5-11 22:10:56", "", () => tomatoI18n.修复双向链接)
+export const LinkBox删除双向链接 = winHotkey("⌥⇧F2", "remove link 2025年9月1日16:08:16", "", () => tomatoI18n.删除双向链接)
 export const LinkBox嵌入互链选择 = winHotkey("⇧⌥1", "bilinkSelectBlock 2025-5-11 22:10:51", "", () => tomatoI18n.嵌入互链选择)
 export const LinkBox嵌入互链创建 = winHotkey("⇧⌥2", "bilinkCreateLnk 2025-5-11 22:10:47", "", () => tomatoI18n.嵌入互链创建)
 export const LinkBox关联两个块选择 = winHotkey("⌘⌥[", "bilinkSelectBlockRefOnly 2025-5-11 22:33:00", "", () => tomatoI18n.关联两个块选择)
@@ -102,6 +103,21 @@ class LinkBox {
                 }
             },
         });
+        this.plugin.addCommand({
+            langKey: LinkBox删除双向链接.langKey,
+            langText: LinkBox删除双向链接.langText(),
+            hotkey: LinkBox删除双向链接.m,
+            editorCallback: async (protyle: IProtyle) => {
+                const { selected } = await events.selectedDivs(protyle);
+                if (selected.length > 0) {
+                    await this.delLnk(protyle, selected[0]);
+                    await siyuan.pushMsg("delete link done!")
+                } else {
+                    await siyuan.pushMsg(`【${tomatoI18n.双向互链}】${tomatoI18n.请先选中块}`);
+                }
+            },
+        });
+
         this.plugin.addCommand({
             langKey: LinkBox双向互链选择块.langKey,
             langText: LinkBox双向互链选择块.langText(),
@@ -274,6 +290,33 @@ class LinkBox {
         const { div: newDiv } = await utils.getBlockDiv(newID);
         await this.addLnkTwoDivs(protyle, div, newDiv);
         await OpenSyFile2(this.plugin, anchorID);
+    }
+
+    private async delLnk(_protyle: IProtyle, div: HTMLElement) {
+        const blockID = getAttribute(div, "data-node-id")
+        let toIDs = getAttribute(div, "custom-lnk-to-ids")?.split(",") ?? []
+        if (blockID && toIDs.length > 0) {
+            const blockIDs = await siyuan
+                .sqlAttr(`select block_id from attributes 
+                    where name="custom-lnk-my-id" 
+                    and value in (${toIDs.map(i => `"${i}"`).join(",")}) limit 999999`)
+                .then(attrs => attrs?.map(a => a.block_id)) ?? [];
+            for (const bID of blockIDs) {
+                div.querySelectorAll(`span[data-type="a"][data-href^="siyuan://blocks/${bID}"]`)
+                    .forEach(e => {
+                        e.parentElement.removeChild(e);
+                    });
+            }
+            div.querySelectorAll(`span[data-type="a"]`)
+                .forEach(e => {
+                    if (e.textContent == "[<-*]" || e.textContent == "[->*]") {
+                        e.parentElement.removeChild(e);
+                    }
+                });
+            utils.removeAttribute(div, "custom-lnk-my-id")
+            utils.removeAttribute(div, "custom-lnk-to-ids")
+            await siyuan.updateBlock(blockID, div.outerHTML, "dom");
+        }
     }
 
     private async fixLnk(protyle: IProtyle, div: HTMLElement) {
@@ -575,7 +618,7 @@ export async function showSyncBlocks(protyle: IProtyle, plugin: Plugin, element?
                         dm.destroyBy("1")
                     },
                 });
-                const d = mount(  LinkBoxDialog,{
+                const d = mount(LinkBoxDialog, {
                     target: dialog.element.querySelector("#" + id),
                     props: {
                         plugin,
