@@ -259,6 +259,7 @@
         LinkBox修复双向链接,
         LinkBox关联两个块创建,
         LinkBox关联两个块选择,
+        LinkBox删除双向链接,
         LinkBox双向互链创建往返链,
         LinkBox双向互链选择块,
         LinkBox同步块创建,
@@ -1326,7 +1327,9 @@
             />
             引用修复工具
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/WTgxdUINHoYXHbxmU87cxs5knfd?from=from_copylink">
+                <a
+                    href="https://awx9773btw.feishu.cn/docx/WTgxdUINHoYXHbxmU87cxs5knfd?from=from_copylink"
+                >
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -2533,6 +2536,14 @@
             </div>
             <div class="softBox">
                 <div>
+                    <input
+                        type="checkbox"
+                        class="b3-switch"
+                        bind:checked={$linkBoxLnkTitle}
+                    />
+                    {tomatoI18n.给链接加文字}
+                </div>
+                <div>
                     {LinkBox双向互链选择块.langText()}<strong
                         >{LinkBox双向互链选择块.w()}</strong
                     >
@@ -2543,16 +2554,13 @@
                     >
                 </div>
                 <div>
-                    <input
-                        type="checkbox"
-                        class="b3-switch"
-                        bind:checked={$linkBoxLnkTitle}
-                    />
-                    {tomatoI18n.给链接加文字}
-                </div>
-                <div>
                     {LinkBox修复双向链接.langText()}<strong
                         >{LinkBox修复双向链接.w()}</strong
+                    >
+                </div>
+                <div>
+                    {LinkBox删除双向链接.langText()}<strong
+                        >{LinkBox删除双向链接.w()}</strong
                     >
                 </div>
             </div>
