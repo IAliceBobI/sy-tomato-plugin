@@ -114,7 +114,7 @@ class GraphBox {
             custom: {
                 icon: "iconGraphTomato",
                 title: tomatoI18n.块关系图,
-                data: { docID: events.docID, blockID: events.lastBlockID },
+                data: { docID: events.docID, blockID: events.lastBlockID }, // getCursorElement
                 id: this.plugin.name + TAB_TYPE
             },
         });

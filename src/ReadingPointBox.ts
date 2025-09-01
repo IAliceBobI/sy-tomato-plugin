@@ -292,7 +292,7 @@ class ReadingPointBox {
     }
 
     private async addReadPoint(blockID: string, div: HTMLElement) {
-        if (!blockID) blockID = events.lastBlockID;
+        if (!blockID) blockID = events.lastBlockID; // getCursorElement
         if (!blockID) {
             siyuan.pushMsg(this.plugin.i18n.clickOneBlockFirst);
             return;

@@ -199,6 +199,8 @@
         superRefBoxCheckBox,
         superRefBoxGlobalFixMenu,
         superRefBoxGlobalLnkMenu,
+        blockEditorBox,
+        blockEditorMenu,
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
@@ -345,6 +347,7 @@
         SuperRefBox全局修复引用,
         SuperRefBox全局加固引用,
     } from "./SuperRefBox";
+    import { BlockEditor打开编辑器 } from "./BlockEditor";
     interface Props {
         dm: DestroyManager;
         plugin: BaseTomatoPlugin;
@@ -1314,6 +1317,35 @@
                     >{MarkdownExport确保导出符合配置.langText() +
                         MarkdownExport确保导出符合配置.w()}
                 </button>
+            </div>
+        {/if}
+    </div>
+    <!-- 块编辑器 -->
+    <div class="settingBox">
+        <div>
+            <input
+                type="checkbox"
+                class="b3-switch"
+                bind:checked={$blockEditorBox}
+            />
+            块编辑器
+            <strong>
+                <a href="https://awx9773btw.feishu.cn/docx/AheDdwG35ol3qWxYPeYc8HennJf?from=from_copylink">
+                    {tomatoI18n.帮助}</a
+                >
+            </strong>
+        </div>
+        {#if $blockEditorBox}
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$blockEditorMenu}
+                />
+                {tomatoI18n.menu添加右键菜单 +
+                    "：" +
+                    BlockEditor打开编辑器.langText()}
+                <strong>{BlockEditor打开编辑器.w()}</strong>
             </div>
         {/if}
     </div>

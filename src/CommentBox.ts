@@ -160,7 +160,7 @@ class CommentBox {
                 custom: {
                     icon: CommentBoxTab批注.icon,
                     title: CommentBoxTab批注.langText(),
-                    data: { docID: events.docID, blockID: events.lastBlockID },
+                    data: { docID: events.docID, blockID: events.lastBlockID }, // getCursorElement
                     id: this.plugin.name + TAB_TYPE
                 },
             });

@@ -25,7 +25,7 @@ class Schedule {
             langText: ScheduleCopyID.langText(),
             hotkey: ScheduleCopyID.m,
             callback: () => {
-                this.showScheduleDialog(events.lastBlockID);
+                this.showScheduleDialog(events.lastBlockID); // getCursorElement
             },
         });
         // getTomatoPlugin().protyleSlash.push({

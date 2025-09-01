@@ -496,6 +496,25 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 块编辑器() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "块编辑器";
+            case "es_ES": return "Editor de bloques";
+            case "fr_FR": return "Éditeur de blocs";
+            case "ja_JP": return "ブロックエディター";
+            case "zh_CHT": return "塊編輯器";
+            case "it_IT": return "Editor di blocchi";
+            case "de_DE": return "Block-Editor";
+            case "he_IL": return "עורך בלוקים";
+            case "ru_RU": return "Редактор блоков";
+            case "pl_PL": return "Edytor bloków";
+            case "ar_SA": return "محرر الكتل";
+            case "pt_BR": return "Editor de blocos";
+            case "en_US":
+            default: return "Block Editor";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
