@@ -2,6 +2,7 @@
     import { createProtyle } from "./libs/bkUtils";
     import { DestroyManager } from "./libs/destroyer";
     import DialogSvelte from "./libs/DialogSvelte.svelte";
+    import { OpenSyFile2 } from "./libs/docUtils";
     import { getDoOperations, getTomatoPluginInstance } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
 
@@ -34,6 +35,9 @@
             }
         };
     }
+    function locate() {
+        OpenSyFile2(getTomatoPluginInstance(), blockID);
+    }
 </script>
 
 <DialogSvelte
@@ -44,9 +48,11 @@
     savePositionKey="块编辑器 2025年9月1日22:06:25"
 >
     {#snippet dialogInner()}
+        <button
+            title={tomatoI18n.定位}
+            class="b3-button b3-button--text tomato-button"
+            onclick={locate}>🎯</button
+        >
         <div {@attach mountProtyle()}></div>
     {/snippet}
 </DialogSvelte>
-
-<style>
-</style>
