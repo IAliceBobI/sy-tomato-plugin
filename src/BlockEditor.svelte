@@ -40,6 +40,21 @@
     }
 </script>
 
+{#snippet closeBtn()}
+    <div class="btnLine">
+        <button
+            title={tomatoI18n.定位}
+            class="b3-button b3-button--text tomato-button"
+            onclick={locate}>🎯</button
+        >
+        <button
+            title={tomatoI18n.退出}
+            class="b3-button b3-button--text tomato-button"
+            onclick={() => dm.destroyBy()}>🏃</button
+        >
+    </div>
+{/snippet}
+
 <DialogSvelte
     maxWidth="200"
     show={true}
@@ -48,11 +63,23 @@
     savePositionKey="块编辑器 2025年9月1日22:06:25"
 >
     {#snippet dialogInner()}
-        <button
-            title={tomatoI18n.定位}
-            class="b3-button b3-button--text tomato-button"
-            onclick={locate}>🎯</button
-        >
+        {@render closeBtn()}
         <div {@attach mountProtyle()}></div>
+        {@render closeBtn()}
     {/snippet}
 </DialogSvelte>
+
+<style>
+    .btnLine {
+        display: flex;
+        width: 100%;
+        gap: 8px;
+    }
+    .btnLine .b3-button {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px;
+    }
+</style>

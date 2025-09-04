@@ -46,6 +46,10 @@ async function openBlockEditor() {
             || t === BlockNodeEnum.NODE_BLOCK_QUERY_EMBED
     })?.found;
     const blockID = getAttribute(e, "data-node-id")
+    openBlockEditorByBlockID(blockID);
+}
+
+export function openBlockEditorByBlockID(blockID: string) {
     if (blockID) {
         const dm = new DestroyManager();
         const sv = mount(BlockEditorSvelte, {
@@ -55,7 +59,7 @@ async function openBlockEditor() {
                 dm,
             }
         });
-        dm.add("close", () => unmount(sv))
+        dm.add("close", () => unmount(sv));
     }
 }
 
