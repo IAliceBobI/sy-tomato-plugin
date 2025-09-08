@@ -515,6 +515,43 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 白名单为空请先在文档树中右键添加文档() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "白名单为空，请在文档树中右键添加文件夹或文档";
+            case "es_ES": return "La lista blanca está vacía, haga clic derecho en el árbol de documentos para agregar carpetas o documentos";
+            case "fr_FR": return "La liste blanche est vide, faites un clic droit sur l'arbre des documents pour ajouter des dossiers ou des documents";
+            case "ja_JP": return "ホワイトリストが空です。ドキュメントツリーで右クリックして、フォルダーまたはドキュメントを追加してください";
+            case "zh_CHT": return "白名單為空，請在文件樹中右鍵添加資料夾或文件";
+            case "it_IT": return "La whitelist è vuota, fare clic con il tasto destro sull'albero dei documenti per aggiungere cartelle o documenti";
+            case "de_DE": return "Die Whitelist ist leer. Klicken Sie mit der rechten Maustaste auf den Dokumentbaum, um Ordner oder Dokumente hinzuzufügen";
+            case "he_IL": return "הרשימה הלבנה ריקה, לחץ לחיצה ימנית על עץ המסמכים כדי להוסיף תיקיות או מסמכים";
+            case "ru_RU": return "Белый список пуст, щелкните правой кнопкой мыши по дереву документов, чтобы добавить папки или документы";
+            case "pl_PL": return "Biała lista jest pusta, kliknij prawym przyciskiem myszy drzewo dokumentów, aby dodać foldery lub dokumenty";
+            case "ar_SA": return "القائمة البيضاء فارغة، يرجى النقر بزر الماوس الأيمن على شجرة المستندات لإضافة مجلدات أو مستندات";
+            case "pt_BR": return "A lista branca está vazia, clique com o botão direito na árvore de documentos para adicionar pastas ou documentos";
+            case "en_US":
+            default: return "Whitelist is empty, please right-click in the document tree to add folders or documents";
+        }
+    }
+    public get 黑名单为空可在文档树中右键添加() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "黑名单为空，可在文档树中右键添加文件夹或文档";
+            case "es_ES": return "La lista negra está vacía, haga clic derecho en el árbol de documentos para agregar carpetas o documentos";
+            case "fr_FR": return "La liste noire est vide, faites un clic droit sur l'arbre des documents pour ajouter des dossiers ou des documents";
+            case "ja_JP": return "ブラックリストが空です。ドキュメントツリーで右クリックして、フォルダーまたはドキュメントを追加してください";
+            case "zh_CHT": return "黑名單為空，可在文件樹中右鍵添加資料夾或文件";
+            case "it_IT": return "La blacklist è vuota, fare clic con il tasto destro sull'albero dei documenti per aggiungere cartelle o documenti";
+            case "de_DE": return "Die Blacklist ist leer, klicken Sie mit der rechten Maustaste auf den Dokumentbaum, um Ordner oder Dokumente hinzuzufügen";
+            case "he_IL": return "הרשימה השחורה ריקה, לחץ לחיצה ימנית על עץ המסמכים כדי להוסיף תיקיות או מסמכים";
+            case "ru_RU": return "Черный список пуст, щелкните правой кнопкой мыши по дереву документов, чтобы добавить папки или документы";
+            case "pl_PL": return "Czarna lista jest pusta, kliknij prawym przyciskiem myszy drzewo dokumentów, aby dodać foldery lub dokumenty";
+            case "ar_SA": return "القائمة السوداء فارغة، يرجى النقر بزر الماوس الأيمن على شجرة المستندات لإضافة مجلدات أو مستندات";
+            case "pt_BR": return "A lista negra está vazia, clique com o botão direito na árvore de documentos para adicionar pastas ou documentos";
+            case "en_US":
+            default: return "Blacklist is empty, you can right-click in the document tree to add folders or documents";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

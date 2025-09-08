@@ -310,6 +310,7 @@ type TomatoSettings = {
 };
 
 type AttrType = {
+    "custom-block-editor"?: string,
     "custom-ref-id"?: string,
     "custom-ref-snapshot-"?: string,
     title?: string,

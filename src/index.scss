@@ -63,6 +63,10 @@
   border: 1px dashed var(--b3-font-color5);
 }
 
+.protyle-wysiwyg div[custom-block-editor] {
+  border: 1px solid var(--b3-font-color6);
+}
+
 // readonly
 .protyle-wysiwyg div[custom-tomato-readonly]::before {
   content: attr(memo);

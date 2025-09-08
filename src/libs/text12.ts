@@ -356,22 +356,6 @@ export abstract class TomatoI18nABC12 extends TomatoI18nABC13 {
             default: return "Add to export workspace whitelist";
         }
     }
-    public get 白名单为空请先在文档树中右键添加文档() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "白名单为空，请先在文档树中右键添加文档";
-            case "es_ES": return "La lista blanca está vacía. Por favor, agregue un documento haciendo clic derecho en el árbol de documentos.";
-            case "fr_FR": return "La liste blanche est vide. Veuillez ajouter un document en cliquant avec le bouton droit dans l'arborescence des documents.";
-            case "ja_JP": return "ホワイトリストが空です。まず文書ツリーで右クリックして文書を追加してください。";
-            case "zh_CHT": return "白名單為空，請先在文檔樹中右鍵添加文檔";
-            case "it_IT": return "L'elenco bianco è vuoto. Aggiungere un documento facendo clic con il pulsante destro del mouse nell'albero dei documenti.";
-            case "de_DE": return "Die Whitelist ist leer. Bitte fügen Sie ein Dokument hinzu, indem Sie mit der rechten Maustaste im Dokumentenbaum klicken.";
-            case "he_IL": return "רשימת הלבן ריקה. אנא הוסף מסמך על ידי לחיצה ימנית בעץ המסמכים.";
-            case "ru_RU": return "Белый список пуст. Пожалуйста, добавьте документ, щелкнув правой кнопкой мыши в дереве документов.";
-            case "pl_PL": return "Lista białej jest pusta. Proszę dodać dokument, klikając prawym przyciskiem myszy w drzewie dokumentów.";
-            case "en_US":
-            default: return "The whitelist is empty. Please add a document by right-clicking in the document tree.";
-        }
-    }
     public get 可以填写小数() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "可以填写小数";
@@ -422,22 +406,7 @@ export abstract class TomatoI18nABC12 extends TomatoI18nABC13 {
             default: return `Added ${x} folders`;
         }
     }
-    public get 黑名单为空可在文档树中右键添加() {
-        switch (this.conf.appearance.lang) {
-            case "zh_CN": return "黑名单为空，可在文档树中右键添加";
-            case "es_ES": return "La lista negra está vacía. Puede agregar haciendo clic derecho en el árbol de documentos.";
-            case "fr_FR": return "La liste noire est vide. Vous pouvez ajouter en cliquant avec le bouton droit dans l'arborescence des documents.";
-            case "ja_JP": return "ブラックリストが空です。ドキュメントツリーで右クリックして追加できます。";
-            case "zh_CHT": return "黑名單為空，可在文件樹中右鍵添加";
-            case "it_IT": return "La blacklist è vuota. Puoi aggiungere facendo clic con il tasto destro nell'albero dei documenti.";
-            case "de_DE": return "Die schwarze Liste ist leer. Sie können im Dokumentenbaum per Rechtsklick hinzufügen.";
-            case "he_IL": return "הרשימה השחורה ריקה. ניתן להוסיף על ידי לחיצה ימנית בעץ המסמכים.";
-            case "ru_RU": return "Черный список пуст. Можно добавить, щелкнув правой кнопкой мыши в дереве документов.";
-            case "pl_PL": return "Czarna lista jest pusta. Możesz dodać, klikając prawym przyciskiem myszy w drzewie dokumentów.";
-            case "en_US":
-            default: return "The blacklist is empty. You can add by right-clicking in the document tree.";
-        }
-    }
+   
     public get 添加到导出工作空间的黑名单() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "添加到导出工作空间的黑名单";

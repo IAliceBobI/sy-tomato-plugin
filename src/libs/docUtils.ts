@@ -9,6 +9,7 @@ import { zipNways } from "./functional";
 import { DefaultMap } from "./cache";
 import { verifyKeyTomato } from "./user";
 import { newID } from "stonev5-utils/lib/id";
+import { domNewLine, DomSuperBlockBuilder } from "./sydom";
 
 export function isMultiLineElement(md: string) {
     return md.startsWith("```")
@@ -921,4 +922,26 @@ export async function getTreeRows(docID: string) {
     if (!block?.path) return []
     const rows = await siyuan.sql(`select id,content from blocks where type='d' and path like "${block.path.slice(0, -3)}%"`)
     return rows ?? []
+}
+
+// export async function docSupers(docID: string, docName: string) {
+//     const { root } = await getDocBlocks(docID, docName, false, true, 1);
+//     return root.children
+//         .filter(b => b.type == 's')
+//         .toMapUniq(b => {
+//             const t = getEntityTitle(b.div, false).join("~")
+//             if (t) return [t, b]
+//         })
+// }
+
+export async function appendSuperBlock(docID: string, selectedText?: string) {
+    const superBlock = new DomSuperBlockBuilder();
+    if (!selectedText) {
+        selectedText = ""
+    }
+    const lastID = await siyuan.getDocLastID(docID);
+    superBlock.append(domNewLine(selectedText))
+    superBlock.setAttr("custom-block-editor", "1")
+    await siyuan.insertBlockBefore(superBlock.build().outerHTML, lastID, "dom")
+    return superBlock.id;
 }

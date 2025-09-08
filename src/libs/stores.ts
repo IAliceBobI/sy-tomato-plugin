@@ -304,7 +304,9 @@ const settingFactory = <T>(key: TSK, defaultValue: T, file: string, _void: TSK) 
             }
             if (value != null) {
                 save(value);
-                plugin.saveData(file, plugin.settingCfg);
+                if (plugin && plugin.settingCfg) {
+                    plugin.saveData(file, plugin.settingCfg);
+                }
             }
         }
     };

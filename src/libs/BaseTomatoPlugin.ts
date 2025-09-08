@@ -8,6 +8,7 @@ declare global {
             siyuan: any;
             pluginConfig: TomatoSettings;
             save?: () => void;
+            pluginInstance: any;
         },
         tomato_zZmqus5PtYRi_doc_tracer: any;
         tomato_zZmqus5PtYRi: {
