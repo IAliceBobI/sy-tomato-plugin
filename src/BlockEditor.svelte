@@ -65,7 +65,7 @@
         const { root } = await getDocBlocks(row.id, row.content, false, true, 1);
         blocks = root.children.mapfilter((block) => {
             if (isBigBlock(block.div)) {
-                block.content = block.div.textContent;
+                block.content = block.div.firstElementChild.textContent;
                 return block;
             }
         });
@@ -118,7 +118,7 @@
             <button
                 class:b3-button--outline={selectedBlockID != block.id}
                 class="b3-button tomato-button"
-                onclick={() => mountProtyle(block.id)}>{block.content.slice(0, 12)}</button
+                onclick={() => mountProtyle(block.id)}>[{block.content.slice(0, 15)}]</button
             >
         {/each}
         <div bind:this={editor}></div>
