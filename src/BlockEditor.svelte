@@ -7,6 +7,7 @@
     import { getTomatoPluginInstance, siyuan } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
     import { isBigBlock } from "./BlockEditor";
+    import { currentBockEditorDocID } from "./libs/Events";
 
     // if (isMe()) {
     //     const handleKeyDown = (event: KeyboardEvent) => {
@@ -32,26 +33,35 @@
     // });
 
     interface Props {
-        blockID: string;
         dm: DestroyManager;
     }
-    let { blockID, dm }: Props = $props();
+    let { dm }: Props = $props();
     let docName = $state("");
     let blocks = $state<Block[]>([]);
     let editor = $state<HTMLElement>(null);
     let pob = $state<ReturnType<typeof createProtyle>>(null);
-    let selectedBlockID = $state(blockID);
-    let docID = $state("");
+    let selectedBlockID = $state("");
+    let currentDocID = "";
 
     onMount(async () => {
         dm.add("close protyle", closeProtyle);
         await reloadBlocks();
     });
 
+    $effect(() => {
+        if (currentDocID != $currentBockEditorDocID) {
+            currentDocID = $currentBockEditorDocID;
+            selectedBlockID = "";
+            closeProtyle();
+            reloadBlocks();
+        }
+    });
+
     async function reloadBlocks() {
-        const row = await siyuan.getDocRowByBlockID(blockID);
+        if (!$currentBockEditorDocID) return;
+        const row = await siyuan.getRowByID($currentBockEditorDocID);
+        if (!row.id) return;
         docName = row.content;
-        docID = row.id;
         const { root } = await getDocBlocks(row.id, row.content, false, true, 1);
         blocks = root.children.mapfilter((block) => {
             if (isBigBlock(block.div)) {
@@ -86,14 +96,18 @@
     {#snippet dialogInner()}
         <div class="btnLine">
             <button title={tomatoI18n.定位} class="b3-button b3-button--text tomato-button" onclick={locate}>🎯</button>
-            <button class="b3-button b3-button--text tomato-button" onclick={reloadBlocks}>♻️{tomatoI18n.刷新}</button>
+            <button title="♻️{tomatoI18n.刷新}" class="b3-button b3-button--text tomato-button" onclick={reloadBlocks}
+                >♻️
+            </button>
             <button
+                title="➕{tomatoI18n.超级块}"
                 class="b3-button b3-button--text tomato-button"
                 onclick={async () => {
-                    const id = await appendSuperBlock(docID);
+                    const id = await appendSuperBlock($currentBockEditorDocID);
                     mountProtyle(id);
-                }}>➕{tomatoI18n.超级块}</button
-            >
+                }}
+                >➕
+            </button>
             <button
                 title={tomatoI18n.退出}
                 class="b3-button b3-button--text tomato-button"
