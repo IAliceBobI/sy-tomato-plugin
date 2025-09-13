@@ -599,9 +599,31 @@ export function setFocusToEditableDiv(editableDiv: HTMLElement) {
     selection.addRange(range);
 }
 
-export function moveCursor2Tail(id: string) {
-    const newDIV = document.querySelector(`div[${gconst.DATA_NODE_ID}="${id}"] div[contenteditable="true"]`);
+export function moveCursor2HeadProtyle(protyle: IProtyle, id: string) {
+    const newDIV = protyle.element.querySelector(`div[data-node-id="${id}"]`)
+    if (newDIV) {
+        document.getSelection().collapse(newDIV, 0);
+    }
+}
+
+export function moveCursor2TailInProtyle(protyle: IProtyle, id: string) {
+    const newDIV = protyle.element.querySelector(`div[data-node-id="${id}"]`)
+    if (newDIV) {
+        if (getAttribute(newDIV.nextElementSibling, "data-node-id")) {
+            document.getSelection().collapse(newDIV.nextElementSibling, 0)
+        } else {
+            document.getSelection().collapse(newDIV, 1);
+        }
+    }
+}
+
+export function moveCursor2TailByDiv(newDIV: HTMLElement) {
     if (newDIV) document.getSelection().collapse(newDIV, 1);
+}
+
+export function moveCursor2Tail4List(id: string) {
+    const newDIV = document.querySelector(`div[${gconst.DATA_NODE_ID}="${id}"] > div[contenteditable="true"]`);
+    if (newDIV) document.getSelection().collapse(newDIV, 0);
 }
 
 export function extractLinksFromElement(div: HTMLElement) {

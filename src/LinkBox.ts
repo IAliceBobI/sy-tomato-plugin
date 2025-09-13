@@ -460,6 +460,7 @@ class LinkBox {
             id: id2,
             domStr: div2.outerHTML
         }]);
+        utils.moveCursor2HeadProtyle(protyle, id2);
         await siyuan.pushMsg(`【${tomatoI18n.双向互链}】${tomatoI18n.创建往返链成功}`);
     }
 

@@ -1,5 +1,5 @@
 import { IProtyle } from "siyuan";
-import { getContenteditableElement as getContentEditableElement, moveCursor2Tail, siyuan, } from "./libs/utils";
+import { getContenteditableElement as getContentEditableElement, moveCursor2Tail4List, siyuan, } from "./libs/utils";
 import { EventType, events } from "./libs/Events";
 import { BlockNodeEnum, DATA_TYPE, WEB_ZERO_SPACE } from "./libs/gconst";
 import { delAllchecked, getDocListMd, uncheckAll } from "./libs/listUtils";
@@ -101,7 +101,7 @@ async function insertItemList() {
             const { md, id: newID } = getDocListMd(txt);
             await siyuan.insertBlockAfter(md, id);
             await siyuan.deleteBlock(id);
-            moveCursor2Tail(newID);
+            moveCursor2Tail4List(newID);
             await siyuan.addRiffCards([newID])
         }
     }

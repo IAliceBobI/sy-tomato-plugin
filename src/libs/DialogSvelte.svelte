@@ -1,10 +1,6 @@
 <script lang="ts">
-    import { onMount, Snippet } from "svelte";
-    import {
-        getProgressivePluginConfig,
-        getTomatoPluginConfig,
-        icon,
-    } from "./utils";
+    import { onMount, Snippet, tick } from "svelte";
+    import { getProgressivePluginConfig, getTomatoPluginConfig, icon } from "./utils";
     import { events } from "./Events";
     import { userID } from "./stores";
     import { DestroyManager } from "./destroyer";
@@ -26,6 +22,9 @@
         useBrowserStorage?: boolean;
         isProgressive?: boolean;
         zIndexPlus?: boolean;
+        // 新增属性：是否允许拖动和调整大小
+        draggable?: boolean;
+        resizable?: boolean;
     }
 
     let {
@@ -44,16 +43,16 @@
         useBrowserStorage = false,
         isProgressive = false,
         zIndexPlus = false,
+        draggable = true,
+        resizable = true,
     }: PropsType = $props();
 
-    let dialogElement: HTMLElement = $state();
+    let dialogElement: HTMLElement | null = $state(null);
     let isDragging = $state(false);
     let isResizing = $state(false);
     let offsetX = $state(0);
     let offsetY = $state(0);
-    let dialogTop = $state(0);
-    let dialogLeft = $state(0);
-    let resizeDirection = $state(""); // 记录调整大小的方向
+    let resizeDirection = $state("");
     let showTitle = $derived.by(() => {
         const MAX_TITLE_LEN = 20;
         const suffix = title.length > MAX_TITLE_LEN ? ".." : "";
@@ -61,11 +60,34 @@
     });
 
     // 设备检测
-    const isTouchDevice =
-        "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+    // 清理事件监听器的辅助函数
+    function cleanupEventListeners(isTouch: boolean) {
+        if (isTouch) {
+            document.removeEventListener("touchmove", handleDragMove);
+            document.removeEventListener("touchend", handleDragEnd);
+            document.removeEventListener("touchmove", handleResize);
+            document.removeEventListener("touchend", handleResizeEnd);
+        } else {
+            document.removeEventListener("mousemove", handleDragMove);
+            document.removeEventListener("mouseup", handleDragEnd);
+            document.removeEventListener("mousemove", handleResize);
+            document.removeEventListener("mouseup", handleResizeEnd);
+        }
+    }
 
     onMount(() => {
-        if (dialogElement) {
+        // 组件卸载时确保清理所有事件监听器
+        return () => {
+            cleanupEventListeners(true);
+            cleanupEventListeners(false);
+        };
+    });
+
+    $effect(() => {
+        if (show && dialogElement) {
+            // 确保样式正确应用
             if (maxHeight != null) {
                 dialogElement.style.height = maxHeight;
                 dialogElement.style.maxHeight = maxHeight;
@@ -86,58 +108,68 @@
             if (minHeight != null) {
                 dialogElement.style.minHeight = `${minHeight}px`;
             }
-        }
-        // 初始设置位置
-        if (show && savePositionKey) {
-            loadPosition();
+
+            // 延迟加载位置，确保元素已渲染
+            tick().then(() => {
+                if (savePositionKey) {
+                    loadPosition();
+                } else {
+                    // 如果没有保存的位置，居中显示
+                    centerDialog();
+                }
+            });
         }
     });
 
-    $effect(() => {
-        if (show && savePositionKey) {
-            loadPosition();
-        }
-    });
+    // 新增：将对话框居中显示的方法
+    function centerDialog() {
+        if (!dialogElement) return;
 
-    // 获取事件位置（兼容鼠标和触摸事件）
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const dialogWidth = dialogElement.offsetWidth;
+        const dialogHeight = dialogElement.offsetHeight;
+
+        const left = Math.max(0, (viewportWidth - dialogWidth) / 2);
+        const top = Math.max(0, (viewportHeight - dialogHeight) / 2);
+
+        dialogElement.style.left = `${left}px`;
+        dialogElement.style.top = `${top}px`;
+    }
+
     function getEventPosition(event: MouseEvent | TouchEvent) {
-        if ("touches" in event) {
+        if ("touches" in event && event.touches.length > 0) {
             return {
                 clientX: event.touches[0].clientX,
                 clientY: event.touches[0].clientY,
             };
         }
         return {
-            clientX: event.clientX,
-            clientY: event.clientY,
+            clientX: (event as MouseEvent).clientX,
+            clientY: (event as MouseEvent).clientY,
         };
     }
 
     // 拖动相关函数
     function handleDragStart(event: MouseEvent | TouchEvent) {
-        if (!dialogElement) return;
+        if (!draggable || !dialogElement || isResizing) return;
 
-        // 阻止事件冒泡，避免触发父元素的事件
         event.stopPropagation();
-        // 防止默认行为，如触摸缩放
         event.preventDefault();
 
         isDragging = true;
 
-        // 计算鼠标/触摸点在对话框中的相对位置
         const rect = dialogElement.getBoundingClientRect();
         const { clientX, clientY } = getEventPosition(event);
 
         offsetX = clientX - rect.left;
         offsetY = clientY - rect.top;
 
-        // 保存当前对话框位置
-        dialogTop = rect.top;
-        dialogLeft = rect.left;
+        // 先移除可能存在的监听器，避免重复绑定
+        cleanupEventListeners(isTouchDevice);
 
-        // 添加事件监听器
         if (isTouchDevice) {
-            document.addEventListener("touchmove", handleDragMove);
+            document.addEventListener("touchmove", handleDragMove, { passive: false });
             document.addEventListener("touchend", handleDragEnd);
         } else {
             document.addEventListener("mousemove", handleDragMove);
@@ -148,16 +180,15 @@
     function handleDragMove(event: MouseEvent | TouchEvent) {
         if (!isDragging || !dialogElement) return;
 
-        // 防止默认行为，如页面滚动
         if ("touches" in event) {
             event.preventDefault();
         }
 
         const { clientX, clientY } = getEventPosition(event);
 
-        // 计算新位置
-        const newTop = dialogTop + (clientY - offsetY - dialogTop);
-        const newLeft = dialogLeft + (clientX - offsetX - dialogLeft);
+        // 计算新位置（修正了原计算逻辑）
+        const newTop = clientY - offsetY;
+        const newLeft = clientX - offsetX;
 
         // 限制在视口内
         const viewportHeight = window.innerHeight;
@@ -177,16 +208,10 @@
     }
 
     function handleDragEnd() {
-        isDragging = false;
+        if (!isDragging) return;
 
-        // 移除事件监听器
-        if (isTouchDevice) {
-            document.removeEventListener("touchmove", handleDragMove);
-            document.removeEventListener("touchend", handleDragEnd);
-        } else {
-            document.removeEventListener("mousemove", handleDragMove);
-            document.removeEventListener("mouseup", handleDragEnd);
-        }
+        isDragging = false;
+        cleanupEventListeners(isTouchDevice);
 
         if (savePositionKey) {
             savePosition();
@@ -194,15 +219,10 @@
     }
 
     // 调整大小相关函数
-    function handleResizeStart(
-        event: MouseEvent | TouchEvent,
-        direction: string,
-    ) {
-        if (!dialogElement) return;
+    function handleResizeStart(event: MouseEvent | TouchEvent, direction: string) {
+        if (!resizable || !dialogElement || isDragging) return;
 
-        // 阻止事件冒泡，避免触发父元素的事件
         event.stopPropagation();
-        // 防止默认行为，如触摸缩放
         event.preventDefault();
 
         isResizing = true;
@@ -218,9 +238,11 @@
         dialogElement.style.width = `${rect.width}px`;
         dialogElement.style.height = `${rect.height}px`;
 
-        // 添加事件监听器
+        // 先移除可能存在的监听器，避免重复绑定
+        cleanupEventListeners(isTouchDevice);
+
         if (isTouchDevice) {
-            document.addEventListener("touchmove", handleResize);
+            document.addEventListener("touchmove", handleResize, { passive: false });
             document.addEventListener("touchend", handleResizeEnd);
         } else {
             document.addEventListener("mousemove", handleResize);
@@ -229,9 +251,8 @@
     }
 
     function handleResize(event: MouseEvent | TouchEvent) {
-        if (!isResizing || !dialogElement) return;
+        if (!isResizing || !dialogElement || !resizeDirection) return;
 
-        // 防止默认行为，如页面滚动
         if ("touches" in event) {
             event.preventDefault();
         }
@@ -264,6 +285,17 @@
         const viewportHeight = window.innerHeight;
         const viewportWidth = window.innerWidth;
 
+        // 边界检查增强
+        if (newLeft < 0) {
+            newWidth += newLeft;
+            newLeft = 0;
+        }
+
+        if (newTop < 0) {
+            newHeight += newTop;
+            newTop = 0;
+        }
+
         if (newLeft + newWidth > viewportWidth) {
             newWidth = viewportWidth - newLeft;
         }
@@ -284,16 +316,11 @@
     }
 
     function handleResizeEnd() {
-        isResizing = false;
+        if (!isResizing) return;
 
-        // 移除事件监听器
-        if (isTouchDevice) {
-            document.removeEventListener("touchmove", handleResize);
-            document.removeEventListener("touchend", handleResizeEnd);
-        } else {
-            document.removeEventListener("mousemove", handleResize);
-            document.removeEventListener("mouseup", handleResizeEnd);
-        }
+        isResizing = false;
+        resizeDirection = "";
+        cleanupEventListeners(isTouchDevice);
 
         if (savePositionKey) {
             savePosition();
@@ -305,20 +332,32 @@
     }
 
     function loadPosition() {
-        if (!dialogElement) return;
-        if (!savePositionKey) return;
-        if (useBrowserStorage) {
-            let x = localStorage.getItem(key("offsetX"));
-            let y = localStorage.getItem(key("offsetY"));
-            let width = localStorage.getItem(key("width"));
-            let height = localStorage.getItem(key("height"));
-            setPosition(x, y, width, height);
-        } else {
-            let x = getCfg()[key("offsetX")];
-            let y = getCfg()[key("offsetY")];
-            let width = getCfg()[key("width")];
-            let height = getCfg()[key("height")];
-            setPosition(x, y, width, height);
+        if (!dialogElement || !savePositionKey) return;
+
+        try {
+            let x: string | null = null;
+            let y: string | null = null;
+            let w: string | null = null;
+            let h: string | null = null;
+
+            if (useBrowserStorage) {
+                x = localStorage.getItem(key("offsetX"));
+                y = localStorage.getItem(key("offsetY"));
+                w = localStorage.getItem(key("width"));
+                h = localStorage.getItem(key("height"));
+            } else {
+                const cfg = getCfg();
+                x = cfg[key("offsetX")] || null;
+                y = cfg[key("offsetY")] || null;
+                w = cfg[key("width")] || null;
+                h = cfg[key("height")] || null;
+            }
+
+            setPosition(x, y, w, h);
+        } catch (error) {
+            console.error("Failed to load dialog position:", error);
+            // 加载失败时居中显示
+            centerDialog();
         }
     }
 
@@ -330,47 +369,47 @@
     }
 
     function savePosition() {
-        if (!dialogElement) return;
-        if (!savePositionKey) return;
-        if (useBrowserStorage) {
-            if (dialogElement.style.left)
-                localStorage.setItem(key("offsetX"), dialogElement.style.left);
-            if (dialogElement.style.top)
-                localStorage.setItem(key("offsetY"), dialogElement.style.top);
-            if (dialogElement.style.width)
-                localStorage.setItem(key("width"), dialogElement.style.width);
-            if (dialogElement.style.height)
-                localStorage.setItem(key("height"), dialogElement.style.height);
-        } else {
-            if (dialogElement.style.left)
-                getCfg()[key("offsetX")] = dialogElement.style.left;
-            if (dialogElement.style.top)
-                getCfg()[key("offsetY")] = dialogElement.style.top;
-            if (dialogElement.style.width)
-                getCfg()[key("width")] = dialogElement.style.width;
-            if (dialogElement.style.height)
-                getCfg()[key("height")] = dialogElement.style.height;
-            userID.write(); // 任意一个key可以保存整体
+        if (!dialogElement || !savePositionKey) return;
+
+        try {
+            if (useBrowserStorage) {
+                if (dialogElement.style.left) localStorage.setItem(key("offsetX"), dialogElement.style.left);
+                if (dialogElement.style.top) localStorage.setItem(key("offsetY"), dialogElement.style.top);
+                if (dialogElement.style.width) localStorage.setItem(key("width"), dialogElement.style.width);
+                if (dialogElement.style.height) localStorage.setItem(key("height"), dialogElement.style.height);
+            } else {
+                const cfg = getCfg();
+                if (dialogElement.style.left) cfg[key("offsetX")] = dialogElement.style.left;
+                if (dialogElement.style.top) cfg[key("offsetY")] = dialogElement.style.top;
+                if (dialogElement.style.width) cfg[key("width")] = dialogElement.style.width;
+                if (dialogElement.style.height) cfg[key("height")] = dialogElement.style.height;
+                userID.write();
+            }
+        } catch (error) {
+            console.error("Failed to save dialog position:", error);
         }
     }
 
-    function setPosition(
-        x?: string,
-        y?: string,
-        width?: string,
-        height?: string,
-    ) {
+    function setPosition(x?: string | null, y?: string | null, width?: string | null, height?: string | null) {
         if (!dialogElement) return;
 
-        if (!x) x = (window.innerWidth - dialogElement.offsetWidth) / 2 + "px";
-        if (!y)
-            y = (window.innerHeight - dialogElement.offsetHeight) / 2 + "px";
+        // 如果没有保存的位置，居中显示
+        if (!x || !y) {
+            centerDialog();
+            return;
+        }
 
         // 解析像素值
         let left = parseInt(x, 10);
         let top = parseInt(y, 10);
         let w = width ? parseInt(width, 10) : dialogElement.offsetWidth;
         let h = height ? parseInt(height, 10) : dialogElement.offsetHeight;
+
+        // 检查是否为有效数字
+        if (isNaN(left) || isNaN(top)) {
+            centerDialog();
+            return;
+        }
 
         // 获取对话框尺寸
         let dialogWidth = Math.max(minWidth, w);
@@ -385,28 +424,58 @@
 
         dialogElement.style.left = `${left}px`;
         dialogElement.style.top = `${top}px`;
-        if (width) {
+        if (width && !isNaN(w)) {
             dialogElement.style.width = `${dialogWidth}px`;
         }
-        if (height) {
+        if (height && !isNaN(h)) {
             dialogElement.style.height = `${dialogHeight}px`;
         }
     }
+
+    // 窗口大小变化时重新调整位置，防止对话框超出视口
+    function handleWindowResize() {
+        if (dialogElement && show) {
+            setPosition(
+                dialogElement.style.left,
+                dialogElement.style.top,
+                dialogElement.style.width,
+                dialogElement.style.height,
+            );
+        }
+    }
+
+    // 添加窗口大小变化监听
+    window.addEventListener("resize", handleWindowResize);
+    // 组件卸载时移除监听
+    onMount(() => {
+        return () => {
+            window.removeEventListener("resize", handleWindowResize);
+        };
+    });
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
 {#if show}
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
         class="prefix-dialog-overlay"
         class:prefix-dialog-overlay-up={zIndexPlus}
+        onmousedown={(e) => e.stopPropagation()}
+        ontouchstart={(e) => e.stopPropagation()}
     >
-        <div class="prefix-dialog" bind:this={dialogElement}>
+        <div
+            class="prefix-dialog"
+            bind:this={dialogElement}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dialog-title"
+        >
             <!-- 拖动区域 -->
             <div
                 class="prefix-dialog-grabber"
                 onmousedown={handleDragStart}
                 ontouchstart={handleDragStart}
-                {title}
+                class:no-drag={!draggable}
+                id="dialog-title"
             >
                 <div class="grabber-icon">≡</div>
                 <div class="grabber-title">{showTitle}</div>
@@ -414,7 +483,10 @@
                     <button
                         title={tomatoI18n.退出}
                         class="close-button"
-                        onclick={() => dm.destroyBy()}
+                        onclick={(e) => {
+                            e.stopPropagation();
+                            dm.destroyBy();
+                        }}
                     >
                         {@html icon("iconClose", 15)}
                     </button>
@@ -422,52 +494,59 @@
             </div>
 
             <!-- 调整大小手柄 -->
-            <div
-                class="resizer nw"
-                onmousedown={(e) => handleResizeStart(e, "nw")}
-                ontouchstart={(e) => handleResizeStart(e, "nw")}
-            ></div>
-            <div
-                class="resizer n"
-                onmousedown={(e) => handleResizeStart(e, "n")}
-                ontouchstart={(e) => handleResizeStart(e, "n")}
-            ></div>
-            <div
-                class="resizer ne"
-                onmousedown={(e) => handleResizeStart(e, "ne")}
-                ontouchstart={(e) => handleResizeStart(e, "ne")}
-            ></div>
-            <div
-                class="resizer e"
-                onmousedown={(e) => handleResizeStart(e, "e")}
-                ontouchstart={(e) => handleResizeStart(e, "e")}
-            ></div>
-            <div
-                class="resizer se"
-                onmousedown={(e) => handleResizeStart(e, "se")}
-                ontouchstart={(e) => handleResizeStart(e, "se")}
-            ></div>
-            <div
-                class="resizer s"
-                onmousedown={(e) => handleResizeStart(e, "s")}
-                ontouchstart={(e) => handleResizeStart(e, "s")}
-            ></div>
-            <div
-                class="resizer sw"
-                onmousedown={(e) => handleResizeStart(e, "sw")}
-                ontouchstart={(e) => handleResizeStart(e, "sw")}
-            ></div>
-            <div
-                class="resizer w"
-                onmousedown={(e) => handleResizeStart(e, "w")}
-                ontouchstart={(e) => handleResizeStart(e, "w")}
-            ></div>
+            {#if resizable}
+                <div
+                    class="resizer nw"
+                    onmousedown={(e) => handleResizeStart(e, "nw")}
+                    ontouchstart={(e) => handleResizeStart(e, "nw")}
+                    aria-label="调整窗口大小（西北方向）"
+                ></div>
+                <div
+                    class="resizer n"
+                    onmousedown={(e) => handleResizeStart(e, "n")}
+                    ontouchstart={(e) => handleResizeStart(e, "n")}
+                    aria-label="调整窗口大小（北方向）"
+                ></div>
+                <div
+                    class="resizer ne"
+                    onmousedown={(e) => handleResizeStart(e, "ne")}
+                    ontouchstart={(e) => handleResizeStart(e, "ne")}
+                    aria-label="调整窗口大小（东北方向）"
+                ></div>
+                <div
+                    class="resizer e"
+                    onmousedown={(e) => handleResizeStart(e, "e")}
+                    ontouchstart={(e) => handleResizeStart(e, "e")}
+                    aria-label="调整窗口大小（东方向）"
+                ></div>
+                <div
+                    class="resizer se"
+                    onmousedown={(e) => handleResizeStart(e, "se")}
+                    ontouchstart={(e) => handleResizeStart(e, "se")}
+                    aria-label="调整窗口大小（东南方向）"
+                ></div>
+                <div
+                    class="resizer s"
+                    onmousedown={(e) => handleResizeStart(e, "s")}
+                    ontouchstart={(e) => handleResizeStart(e, "s")}
+                    aria-label="调整窗口大小（南方向）"
+                ></div>
+                <div
+                    class="resizer sw"
+                    onmousedown={(e) => handleResizeStart(e, "sw")}
+                    ontouchstart={(e) => handleResizeStart(e, "sw")}
+                    aria-label="调整窗口大小（西南方向）"
+                ></div>
+                <div
+                    class="resizer w"
+                    onmousedown={(e) => handleResizeStart(e, "w")}
+                    ontouchstart={(e) => handleResizeStart(e, "w")}
+                    aria-label="调整窗口大小（西方向）"
+                ></div>
+            {/if}
 
             <!-- 内容区域 -->
-            <div
-                class:dialog-content={!hideScrollbar}
-                class:dialog-content-hide-scrollbar={hideScrollbar}
-            >
+            <div class:dialog-content={!hideScrollbar} class:dialog-content-hide-scrollbar={hideScrollbar}>
                 {@render dialogInner()}
             </div>
         </div>
@@ -504,8 +583,8 @@
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
-        overflow-y: hidden; /* 垂直滚动 */
-        overflow-x: hidden; /* 禁止水平滚动 */
+        overflow-y: hidden;
+        overflow-x: hidden;
     }
 
     .prefix-dialog-grabber {
@@ -516,6 +595,11 @@
         border-bottom: 1px solid var(--b3-border-color);
         border-radius: 8px 8px 0 0;
         background: var(--b3-toolbar-background);
+        user-select: none; /* 防止拖动时文本被选中 */
+    }
+
+    .prefix-dialog-grabber.no-drag {
+        cursor: default;
     }
 
     .grabber-icon {
@@ -539,7 +623,7 @@
         cursor: pointer;
         color: var(--b3-theme-on-background);
         font-size: 16px;
-        padding: 0 5px;
+        padding: 3px 8px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -570,78 +654,96 @@
         display: none; /* Chrome/Safari/Webkit */
     }
 
-    /* 调整大小手柄样式 */
+    /* 调整大小手柄样式 - 增大交互区域 */
     .resizer {
         position: absolute;
         background-color: transparent;
-        z-index: 1;
+        z-index: 2; /* 确保在对话框内容之上 */
     }
 
     .resizer.nw {
-        top: -5px;
-        left: -5px;
-        width: 10px;
-        height: 10px;
+        top: -8px;
+        left: -8px;
+        width: 16px;
+        height: 16px;
         cursor: nwse-resize;
     }
 
     .resizer.n {
-        top: -5px;
-        left: 50%;
-        width: calc(100% - 10px);
-        height: 10px;
-        transform: translateX(-50%);
+        top: -8px;
+        left: 16px;
+        right: 16px;
+        height: 16px;
         cursor: ns-resize;
     }
 
     .resizer.ne {
-        top: -5px;
-        right: -5px;
-        width: 10px;
-        height: 10px;
+        top: -8px;
+        right: -8px;
+        width: 16px;
+        height: 16px;
         cursor: nesw-resize;
     }
 
     .resizer.e {
-        top: 50%;
-        right: -5px;
-        width: 10px;
-        height: calc(100% - 10px);
-        transform: translateY(-50%);
+        top: 16px;
+        right: -8px;
+        bottom: 16px;
+        width: 16px;
         cursor: ew-resize;
     }
 
     .resizer.se {
-        bottom: -5px;
-        right: -5px;
-        width: 10px;
-        height: 10px;
+        bottom: -8px;
+        right: -8px;
+        width: 16px;
+        height: 16px;
         cursor: nwse-resize;
+        /* 东南方向手柄是最常用的，增加视觉提示 */
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 0 0 8px 0;
     }
 
     .resizer.s {
-        bottom: -5px;
-        left: 50%;
-        width: calc(100% - 10px);
-        height: 10px;
-        transform: translateX(-50%);
+        bottom: -8px;
+        left: 16px;
+        right: 16px;
+        height: 16px;
         cursor: ns-resize;
     }
 
     .resizer.sw {
-        bottom: -5px;
-        left: -5px;
-        width: 10px;
-        height: 10px;
+        bottom: -8px;
+        left: -8px;
+        width: 16px;
+        height: 16px;
         cursor: nesw-resize;
     }
 
     .resizer.w {
-        top: 50%;
-        left: -5px;
-        width: 10px;
-        height: calc(100% - 10px);
-        transform: translateY(-50%);
+        top: 16px;
+        left: -8px;
+        bottom: 16px;
+        width: 16px;
         cursor: ew-resize;
+    }
+
+    /* 为触摸设备增大交互区域 */
+    @media (pointer: coarse) {
+        .resizer {
+            width: 24px;
+            height: 24px;
+        }
+
+        .resizer.nw,
+        .resizer.ne,
+        .resizer.sw,
+        .resizer.se {
+            margin: -12px;
+        }
+
+        .prefix-dialog-grabber {
+            padding: 15px;
+        }
     }
 </style>
