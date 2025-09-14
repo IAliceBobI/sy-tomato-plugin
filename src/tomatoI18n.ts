@@ -552,6 +552,25 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 导出所有文件() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "导出所有文件";
+            case "es_ES": return "Exportar todos los archivos";
+            case "fr_FR": return "Exporter tous les fichiers";
+            case "ja_JP": return "すべてのファイルをエクスポート";
+            case "zh_CHT": return "導出所有文件";
+            case "it_IT": return "Esporta tutti i file";
+            case "de_DE": return "Alle Dateien exportieren";
+            case "he_IL": return "ייצא את כל הקבצים";
+            case "ru_RU": return "Экспортировать все файлы";
+            case "pl_PL": return "Eksportuj wszystkie pliki";
+            case "ar_SA": return "تصدير جميع الملفات";
+            case "pt_BR": return "Exportar todos os arquivos";
+            case "en_US": return "Export all files";
+            default: return "Export all files";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

@@ -1,5 +1,5 @@
 import { IProtyle } from "siyuan";
-import { exportBlackList, exportCleanFiles, exportCleanFilesOn, exportIntervalSec, exportIntervalSecOn, exportPath, exportPathWin, exportWhiteList, markdownExportBoxCheckbox, markdownExportPics } from "./libs/stores";
+import { exportBlackList, exportCleanFiles, exportCleanFilesOn, exportIntervalSec, exportIntervalSecOn, exportPath, exportPathWin, exportWhiteList, exportWL4All, markdownExportBoxCheckbox, markdownExportPics } from "./libs/stores";
 import { zipNways } from "./libs/functional";
 import { siyuan, readAllFilePathIDs, Siyuan, chunks, sanitizePathSegment, getAttribute, getNotebookByID, osFs, osPath, timeUtil, sleep, NewLute, setAttribute, removeAttribute, getTomatoPluginInstance, getTomatoPluginConfig } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
@@ -149,11 +149,13 @@ async function _exportMd2Dir(dir: string, force = false, msg = true) {
     const maxUpdated = getTomatoPluginConfig()[KEY] ?? "";
     let docs = await siyuan.sql(`select * from blocks where type='d' and updated>'${maxUpdated}' order by updated asc limit 99999999`)
     // 白名单
-    docs = docs.filter(d => {
-        for (const w of exportWhiteList.get()) {
-            if (d.path.indexOf(w) >= 0) return true;
-        }
-    });
+    if (!exportWL4All.get()) {
+        docs = docs.filter(d => {
+            for (const w of exportWhiteList.get()) {
+                if (d.path.indexOf(w) >= 0) return true;
+            }
+        });
+    }
     // 黑名单
     docs = docs.filter(d => {
         for (const w of exportBlackList.get()) {
