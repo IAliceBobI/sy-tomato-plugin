@@ -150,11 +150,13 @@ async function _exportMd2Dir(dir: string, force = false, msg = true) {
     let docs = await siyuan.sql(`select * from blocks where type='d' and updated>'${maxUpdated}' order by updated asc limit 99999999`)
     // 白名单
     if (!exportWL4All.get()) {
-        docs = docs.filter(d => {
-            for (const w of exportWhiteList.get()) {
-                if (d.path.indexOf(w) >= 0) return true;
-            }
-        });
+        if (exportWhiteList.get().length > 0) {
+            docs = docs.filter(d => {
+                for (const w of exportWhiteList.get()) {
+                    if (d.path.indexOf(w) >= 0) return true;
+                }
+            });
+        }
     }
     // 黑名单
     docs = docs.filter(d => {
