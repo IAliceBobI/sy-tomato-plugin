@@ -422,6 +422,17 @@
             shiftKey: addDoc_keyboardShift,
         });
     }
+
+    $effect(() => {
+        if ($cardBoxCheckbox === true) {
+            $cardPriorityBoxCheckbox = true;
+        }
+    });
+    $effect(() => {
+        if ($cardPriorityBoxCheckbox === false) {
+            $cardBoxCheckbox = false;
+        }
+    });
 </script>
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->
@@ -1000,7 +1011,10 @@
             </strong>
         </div>
         {#if $markdownExportBoxCheckbox}
-            <div><input type="checkbox" class="b3-switch" bind:checked={$exportWL4All} /> {tomatoI18n.导出所有文件}</div>
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$exportWL4All} />
+                {tomatoI18n.导出所有文件}
+            </div>
             <div>
                 {#if $exportWL4All}
                     <div></div>
