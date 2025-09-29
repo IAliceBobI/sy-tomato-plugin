@@ -22,7 +22,8 @@
         useBrowserStorage?: boolean;
         isProgressive?: boolean;
         zIndexPlus?: boolean;
-        // 新增属性：是否允许拖动和调整大小
+        // 新增属性：基础z-index值，用于多层级窗体
+        baseZIndex?: number;
         draggable?: boolean;
         resizable?: boolean;
     }
@@ -43,6 +44,8 @@
         useBrowserStorage = false,
         isProgressive = false,
         zIndexPlus = false,
+        // 默认基础z-index为12，可通过属性调整
+        baseZIndex = 12,
         draggable = true,
         resizable = true,
     }: PropsType = $props();
@@ -53,6 +56,7 @@
     let offsetX = $state(0);
     let offsetY = $state(0);
     let resizeDirection = $state("");
+    let currentZIndex = $state(baseZIndex);
     let showTitle = $derived.by(() => {
         const MAX_TITLE_LEN = 20;
         const suffix = title.length > MAX_TITLE_LEN ? ".." : "";
@@ -109,6 +113,9 @@
                 dialogElement.style.minHeight = `${minHeight}px`;
             }
 
+            // 设置z-index
+            dialogElement.style.zIndex = zIndexPlus ? "999" : currentZIndex.toString();
+
             // 延迟加载位置，确保元素已渲染
             tick().then(() => {
                 if (savePositionKey) {
@@ -120,6 +127,26 @@
             });
         }
     });
+
+    // 当对话框被点击时，提升z-index使其位于顶层
+    function bringToFront() {
+        if (!dialogElement) return;
+
+        // 找到当前页面中所有对话框的最大z-index
+        const dialogs = document.querySelectorAll(".prefix-dialog");
+        let maxZIndex = baseZIndex;
+
+        dialogs.forEach((dialog) => {
+            const zIndex = parseInt(getComputedStyle(dialog).zIndex || "0", 10);
+            if (zIndex > maxZIndex) {
+                maxZIndex = zIndex;
+            }
+        });
+
+        // 将当前对话框z-index设置为比最大的大1
+        currentZIndex = maxZIndex + 1;
+        dialogElement.style.zIndex = currentZIndex.toString();
+    }
 
     // 新增：将对话框居中显示的方法
     function centerDialog() {
@@ -157,6 +184,9 @@
         event.stopPropagation();
         event.preventDefault();
 
+        // 拖动时将当前对话框置于顶层
+        bringToFront();
+
         isDragging = true;
 
         const rect = dialogElement.getBoundingClientRect();
@@ -186,7 +216,7 @@
 
         const { clientX, clientY } = getEventPosition(event);
 
-        // 计算新位置（修正了原计算逻辑）
+        // 计算新位置
         const newTop = clientY - offsetY;
         const newLeft = clientX - offsetX;
 
@@ -224,6 +254,9 @@
 
         event.stopPropagation();
         event.preventDefault();
+
+        // 调整大小时将当前对话框置于顶层
+        bringToFront();
 
         isResizing = true;
         resizeDirection = direction;
@@ -461,13 +494,16 @@
         class:prefix-dialog-overlay-up={zIndexPlus}
         onmousedown={(e) => e.stopPropagation()}
         ontouchstart={(e) => e.stopPropagation()}
+        style="z-index: {zIndexPlus ? 998 : baseZIndex - 1}"
     >
+        <!-- svelte-ignore a11y_interactive_supports_focus -->
         <div
             class="prefix-dialog"
             bind:this={dialogElement}
             role="dialog"
             aria-modal="true"
             aria-labelledby="dialog-title"
+            onmousedown={bringToFront}
         >
             <!-- 拖动区域 -->
             <div
@@ -560,7 +596,6 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        z-index: 12;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -568,7 +603,7 @@
     }
 
     .prefix-dialog-overlay-up {
-        z-index: 999 !important;
+        z-index: 998 !important;
     }
 
     .prefix-dialog {
