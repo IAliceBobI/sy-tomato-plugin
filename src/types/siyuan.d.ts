@@ -1,5 +1,7 @@
 // https://app.quicktype.io/?l=ts
 
+declare module "*.scss";
+
 type BlockID = string;
 
 interface GetNotebookConf {

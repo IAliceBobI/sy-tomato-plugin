@@ -38,7 +38,7 @@ import { resetKey, verifyKeyTomato } from "./libs/user";
 import { commentBox } from "./CommentBox";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cozeSearchBox } from "./CozeSearchBox";
-import { addSelectionButton, exportAsOneFile, mergeDocMenuListener } from "./exportFiles";
+import { addSelectionButton, exportAsOneFile, initDocNavigator, mergeDocMenuListener } from "./exportFiles";
 import { getDocTracer } from "./libs/docUtils";
 import { addFoldCmd, addFoldingAttrBarBtns } from "./fold";
 import { winHotkey } from "./libs/winHotkey";
@@ -463,7 +463,10 @@ export default class ThePlugin extends BaseTomatoPlugin {
         await getDocTracer()
         await superRefBox.onload()
         await blockEditor.onload()
+        this.uninitNav = initDocNavigator();
     }
+
+    private uninitNav: Func;
 
     onload() {
         this.initCfg();
@@ -530,6 +533,7 @@ export default class ThePlugin extends BaseTomatoPlugin {
         toolbarBox.onunload();
         tag2RefBox.onunload();
         listBox.onunload();
+        this.uninitNav()
     }
 
     private blockIconEvent({ detail }: any) {

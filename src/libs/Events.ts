@@ -123,6 +123,8 @@ class Events {
                 this._docID = this.protyle?.protyle?.block.rootID ?? "";
                 if (currentBockEditorDocID.get() != this._docID) {
                     currentBockEditorDocID.set(this._docID);
+                    currentBockEditorDocName.set(this._title);
+                    currentProtyle.set(this._protyle);
                 }
                 if (this.docID) {
                     this._readingPointMap.set(this.docID, {
@@ -280,6 +282,8 @@ class Events {
     }
 }
 
-export const currentBockEditorDocID = writableWithGet("");
+export const currentBockEditorDocID = writableWithGet<string>("");
+export const currentBockEditorDocName = writableWithGet<string>("");
+export const currentProtyle = writableWithGet<Protyle>(null);
 
 export const events = new Events();

@@ -7,30 +7,7 @@
     import { getTomatoPluginInstance, siyuan } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
     import { isBigBlock } from "./BlockEditor";
-    import { currentBockEditorDocID } from "./libs/Events";
-
-    // if (isMe()) {
-    //     const handleKeyDown = (event: KeyboardEvent) => {
-    //         if (event.shiftKey && event.key === "F4") {
-    //             event.preventDefault();
-    //             dm.destroyBy();
-    //         }
-    //     };
-    //     window.addEventListener("keydown", handleKeyDown);
-    //     dm.add("remove keydown listener", () => {
-    //         window.removeEventListener("keydown", handleKeyDown);
-    //     });
-    // }
-    // pob.p.protyle.ws.ws.addEventListener("message", (ev) => {
-    //     for (const op of getDoOperations(JSON.parse(ev.data))) {
-    //         if (op.action == "delete") {
-    //             if (op.id === blockID) {
-    //                 dm.destroyBy();
-    //                 return;
-    //             }
-    //         }
-    //     }
-    // });
+    import { currentBockEditorDocID, currentProtyle, events } from "./libs/Events";
 
     interface Props {
         dm: DestroyManager;
@@ -42,10 +19,14 @@
     let pob = $state<ReturnType<typeof createProtyle>>(null);
     let selectedBlockID = $state("");
     let currentDocID = "";
+    let show = $state(false);
 
     onMount(async () => {
-        dm.add("close protyle", closeProtyle);
+        dm?.add("close protyle", closeProtyle);
         await reloadBlocks();
+        if (dm) {
+            show = true;
+        }
     });
 
     $effect(() => {
@@ -54,8 +35,27 @@
             selectedBlockID = "";
             closeProtyle();
             reloadBlocks();
+            if (!dm) {
+                const { attrs } = events.getInfo($currentProtyle?.protyle);
+                if (attrs["custom-book-writing"]) {
+                    show = true;
+                } else {
+                    show = false;
+                }
+            }
         }
     });
+
+    function defaultSelect() {
+        if (selectedBlockID != "") return;
+        for (const b of blocks) {
+            if (b.content?.includes("outline")) {
+                mountProtyle(b.id);
+                return;
+            }
+        }
+        mountProtyle(blocks.at(0)?.id);
+    }
 
     async function reloadBlocks() {
         if (!$currentBockEditorDocID) return;
@@ -69,6 +69,7 @@
                 return block;
             }
         });
+        defaultSelect();
     }
 
     function closeProtyle() {
@@ -79,6 +80,8 @@
     }
 
     function mountProtyle(blockID: string) {
+        if (!blockID) return;
+        if (!editor) return;
         selectedBlockID = blockID;
         closeProtyle();
         editor.style.minHeight = "auto";
@@ -92,7 +95,7 @@
     }
 </script>
 
-<DialogSvelte maxWidth="200" show={true} title={docName} {dm} savePositionKey="块编辑器 2025年9月1日22:06:25">
+<DialogSvelte maxWidth="200" {show} title={docName} {dm} savePositionKey="块编辑器 2025年9月1日22:06:25">
     {#snippet dialogInner()}
         <div class="btnLine">
             <button title={tomatoI18n.定位} class="b3-button b3-button--text tomato-button" onclick={locate}>🎯</button>
@@ -103,16 +106,20 @@
                 title="➕{tomatoI18n.超级块}"
                 class="b3-button b3-button--text tomato-button"
                 onclick={async () => {
-                    const id = await appendSuperBlock($currentBockEditorDocID);
+                    let text = "";
+                    if (!dm) text = "outline";
+                    const id = await appendSuperBlock($currentBockEditorDocID, text);
                     mountProtyle(id);
                 }}
                 >➕
             </button>
-            <button
-                title={tomatoI18n.退出}
-                class="b3-button b3-button--text tomato-button"
-                onclick={() => dm.destroyBy()}>🏃</button
-            >
+            {#if dm}
+                <button
+                    title={tomatoI18n.退出}
+                    class="b3-button b3-button--text tomato-button"
+                    onclick={() => dm.destroyBy()}>🏃</button
+                >
+            {/if}
         </div>
         {#each blocks as block (block.id)}
             <button

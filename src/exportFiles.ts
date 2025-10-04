@@ -5,10 +5,13 @@ import { tomatoI18n } from "./tomatoI18n";
 import { TOMATO_LINE_THROUGH } from "./libs/gconst";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { DomSuperBlockBuilder } from "./libs/sydom";
-import { verifyKeyTomato } from "./libs/user";
+import { isMe, verifyKeyTomato } from "./libs/user";
 import { addSelectionBtnsDesktop, addSelectionBtnsMobile, noteBoxCheckbox } from "./libs/stores";
 import { SelectionML } from "./libs/SelectionML";
 import { noteBox } from "./NoteBox";
+import { mount, unmount } from "svelte";
+import NavigatorBoxSvelte from "./NavigatorBox.svelte";
+import BlockEditorSvelte from "./BlockEditor.svelte";
 
 
 export function mergeDocMenuListener() {
@@ -191,3 +194,19 @@ export function addCustomButton(protyle: IProtyle, dataType: string, ariaLabel: 
     customBtn.addEventListener('click', clickHandler);
     lockBtn.parentNode?.insertBefore(customBtn, lockBtn);
 }
+
+export function initDocNavigator() {
+    if (isMe()) {
+        let navigatorBoxSvelte = mount(NavigatorBoxSvelte, { target: document.body })
+        let blockEditorSvelte = mount(BlockEditorSvelte, { target: document.body, props: { dm: null } })
+        return () => {
+            if (navigatorBoxSvelte) {
+                unmount(navigatorBoxSvelte)
+                unmount(blockEditorSvelte)
+                navigatorBoxSvelte = null
+            }
+        }
+    }
+    return () => { }
+}
+
