@@ -538,6 +538,7 @@ export async function tidyAssets(tomatoI18n: TomatoI18n) {
                 siyuan.pushMsg(`save: ${saveCount}/${save.length}`)
             }
             siyuan.pushMsg(tomatoI18n.assets整理了x个文件(pics.length))
+            window.location.reload();
         } else {
             siyuan.pushMsg(tomatoI18n.assets整理还在进行中)
         }
