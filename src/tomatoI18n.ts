@@ -571,6 +571,82 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 导入markdownOrText() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "导入markdown或者文本文件";
+            case "es_ES": return "Importar archivos markdown o de texto";
+            case "fr_FR": return "Importer des fichiers markdown ou texte";
+            case "ja_JP": return "Markdownまたはテキストファイルをインポート";
+            case "zh_CHT": return "匯入markdown或者文字檔案";
+            case "it_IT": return "Importa file markdown o di testo";
+            case "de_DE": return "Markdown- oder Textdateien importieren";
+            case "he_IL": return "ייבוא קובצי markdown או טקסט";
+            case "ru_RU": return "Импорт markdown или текстовых файлов";
+            case "pl_PL": return "Importuj pliki markdown lub tekstowe";
+            case "ar_SA": return "استيراد ملفات markdown أو النص";
+            case "pt_BR": return "Importar arquivos markdown ou de texto";
+            case "en_US":
+            default: return "Import markdown or text files";
+        }
+    }
+
+    public get 确认() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "确认";
+            case "es_ES": return "Confirmar";
+            case "fr_FR": return "Confirmer";
+            case "ja_JP": return "確認";
+            case "zh_CHT": return "確認";
+            case "it_IT": return "Conferma";
+            case "de_DE": return "Bestätigen";
+            case "he_IL": return "אישור";
+            case "ru_RU": return "Подтвердить";
+            case "pl_PL": return "Potwierdź";
+            case "ar_SA": return "تأكيد";
+            case "pt_BR": return "Confirmar";
+            case "en_US":
+            default: return "Confirm";
+        }
+    }
+
+    public get utf8Encoding() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "文件编码必须是utf8";
+            case "es_ES": return "La codificación del archivo debe ser UTF-8";
+            case "fr_FR": return "L'encodage du fichier doit être UTF-8";
+            case "ja_JP": return "ファイルのエンコーディングはUTF-8である必要があります";
+            case "zh_CHT": return "文件編碼必須是utf8";
+            case "it_IT": return "La codifica del file deve essere UTF-8";
+            case "de_DE": return "Die Dateikodierung muss UTF-8 sein";
+            case "he_IL": return "קידוד הקובץ חייב להיות UTF-8";
+            case "ru_RU": return "Кодировка файла должна быть UTF-8";
+            case "pl_PL": return "Kodowanie pliku musi być UTF-8";
+            case "ar_SA": return "يجب أن يكون ترميز الملف UTF-8";
+            case "pt_BR": return "A codificação do arquivo deve ser UTF-8";
+            case "en_US":
+            default: return "File encoding must be UTF-8";
+        }
+    }
+
+    public get 请填写文件的路径() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "请填写文件的路径";
+            case "es_ES": return "Por favor, rellene la ruta del archivo";
+            case "fr_FR": return "Veuillez remplir le chemin du fichier";
+            case "ja_JP": return "ファイルのパスを入力してください";
+            case "zh_CHT": return "請填寫文件的路徑";
+            case "it_IT": return "Per favore, inserisci il percorso del file";
+            case "de_DE": return "Bitte geben Sie den Dateipfad ein";
+            case "he_IL": return "אנא מלא את נתיב הקובץ";
+            case "ru_RU": return "Пожалуйста, заполните путь к файлу";
+            case "pl_PL": return "Proszę wypełnić ścieżkę pliku";
+            case "ar_SA": return "يرجى ملء مسار الملف";
+            case "pt_BR": return "Por favor, preencha o caminho do arquivo";
+            case "en_US":
+            default: return "Please fill in the file path";
+        }
+    }
+
     public get aaa() {
         // tyepscript: 翻译为各国语言。写入case的return中。
         // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。

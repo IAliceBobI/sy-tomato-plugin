@@ -5,7 +5,7 @@
     import { closeTabByTitle, getOpenedEditors, getTomatoPluginInstance, siyuan } from "./libs/utils";
 
     let currentDocID = $state("");
-    let show = $state(true);
+    let show = $state(false);
     let page = $state(0);
     let bookID = $state("");
     $effect(() => {

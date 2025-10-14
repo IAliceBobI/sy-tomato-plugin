@@ -1,6 +1,6 @@
 import { confirm, IProtyle, Plugin, Protyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { cleanDivOnly, cloneCleanDiv, downloadStringAsFile, getAttribute, getBlocksByTrees, getMarkdownsByTrees, isEditor, removeInvisibleChars, siyuan, } from "./libs/utils";
+import { cleanDivOnly, cloneCleanDiv, downloadStringAsFile, getAttribute, getBlocksByTrees, getMarkdownsByTrees, getTomatoPluginInstance, isEditor, removeInvisibleChars, siyuan, } from "./libs/utils";
 import { tomatoI18n } from "./tomatoI18n";
 import { TOMATO_LINE_THROUGH } from "./libs/gconst";
 import { OpenSyFile2 } from "./libs/docUtils";
@@ -12,6 +12,8 @@ import { noteBox } from "./NoteBox";
 import { mount, unmount } from "svelte";
 import NavigatorBoxSvelte from "./NavigatorBox.svelte";
 import BlockEditorSvelte from "./BlockEditor.svelte";
+import { DialogText } from "./libs/DialogText";
+import { osFs } from "stonev5-utils";
 
 
 export function mergeDocMenuListener() {
@@ -88,6 +90,39 @@ export function exportAsOneFile() {
             })
         }
     })
+}
+
+export function importMD() {
+    events.addListener_open_menu_doctree("2025年10月14日13:15:00导入MD", (detial) => {
+        const ids = [...detial.elements]
+            .map(e => getAttribute(e, "data-node-id"))
+            .filter(i => !!i);
+        if (ids.length > 0) {
+            detial.menu.addItem({
+                label: tomatoI18n.导入markdownOrText,
+                icon: "iconDownload",
+                click: () => {
+                    new DialogText(tomatoI18n.请填写文件的路径, "", (mdPath) => {
+                        doImportMD(ids.at(0), mdPath)
+                    }, false, tomatoI18n.utf8Encoding)
+                }
+            })
+        }
+    })
+}
+
+async function doImportMD(docID: string, mdPath: string) {
+    const row = await siyuan.getRowByID(docID)
+    const fs = osFs()
+    if (fs.readFile && row?.id) {
+        let file = await fs.readFile(mdPath, { encoding: "utf-8" })
+        file = file.trim();
+        const title = file.slice(0, 15).replaceAll("\n", "");
+        file = file.replaceAll("\n", "\n\n")
+        row.hpath = row.hpath.split("/").slice(0, -1).extend(title).join("/")
+        const id = await siyuan.createDocWithMd(row.box, row.hpath, file);
+        await OpenSyFile2(getTomatoPluginInstance(), id);
+    }
 }
 
 async function exportBigText(ids: string[]) {

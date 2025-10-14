@@ -790,3 +790,44 @@ type CalcOperator =
     "Unchecked" |
     "Percent checked" |
     "Percent unchecked";
+
+interface FullTextSearchBlockRet {
+    blocks: FullTextSearchBlockBlock[];
+    docMode: boolean;
+    matchedBlockCount: number;
+    matchedRootCount: number;
+    pageCount: number;
+}
+
+interface FullTextSearchBlockBlock {
+    box: string;
+    path: string;
+    hPath: string;
+    id: string;
+    rootID: string;
+    parentID: string;
+    name: string;
+    alias: string;
+    memo: string;
+    tag: string;
+    content: string;
+    fcontent: string;
+    markdown: string;
+    folded: boolean;
+    type: string;
+    subType: string;
+    refText: string;
+    refs: any;
+    defID: string;
+    defPath: string;
+    ial: Record<string, string>;
+    children: any;
+    depth: number;
+    count: number;
+    refCount: number;
+    sort: number;
+    created: string;
+    updated: string;
+    riffCardID: string;
+    riffCard: any;
+}

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
     import { DestroyManager } from "./destroyer";
+    import { tomatoI18n } from "../tomatoI18n";
 
     interface Props {
         dm: DestroyManager;
@@ -70,11 +71,7 @@
                 onkeypress={(event) => {
                     if (event instanceof KeyboardEvent) {
                         if (event.key === "Enter") {
-                            if (
-                                event.shiftKey ||
-                                event.ctrlKey ||
-                                event.altKey
-                            ) {
+                            if (event.shiftKey || event.ctrlKey || event.altKey) {
                                 btnClick();
                             }
                         }
@@ -97,9 +94,7 @@
                     }
                 }}
             />
-            <button class="b3-button b3-button--outline tomato-button" onclick={btnClick}
-                >Enter</button
-            >
+            <button class="b3-button b3-button--outline tomato-button" onclick={btnClick}>{tomatoI18n.确认}</button>
         {/if}
     </div>
 </div>

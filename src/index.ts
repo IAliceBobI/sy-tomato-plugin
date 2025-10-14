@@ -38,7 +38,7 @@ import { resetKey, verifyKeyTomato } from "./libs/user";
 import { commentBox } from "./CommentBox";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cozeSearchBox } from "./CozeSearchBox";
-import { addSelectionButton, exportAsOneFile, initDocNavigator, mergeDocMenuListener } from "./exportFiles";
+import { addSelectionButton, exportAsOneFile, importMD, initDocNavigator, mergeDocMenuListener } from "./exportFiles";
 import { getDocTracer } from "./libs/docUtils";
 import { addFoldCmd, addFoldingAttrBarBtns } from "./fold";
 import { winHotkey } from "./libs/winHotkey";
@@ -439,6 +439,7 @@ export default class ThePlugin extends BaseTomatoPlugin {
         loadFloatingBall();
         addSelectionButton();
         mergeDocMenuListener();
+        importMD();
         exportAsOneFile();
         addFoldCmd(this);
         addFoldingAttrBarBtns()
