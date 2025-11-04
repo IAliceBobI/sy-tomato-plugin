@@ -2,6 +2,7 @@
     import DialogSvelte from "./libs/DialogSvelte.svelte";
     import { OpenSyFile2 } from "./libs/docUtils";
     import { currentBockEditorDocID, currentBockEditorDocName, currentProtyle, events } from "./libs/Events";
+    import { navSourceBlock } from "./libs/stores";
     import { closeTabByTitle, getOpenedEditors, getTomatoPluginInstance, siyuan } from "./libs/utils";
 
     let currentDocID = $state("");
@@ -59,7 +60,7 @@
 <DialogSvelte
     minWidth={100}
     minHeight={100}
-    {show}
+    show={show && $navSourceBlock}
     title={$currentBockEditorDocName}
     savePositionKey="上下遍历2025年9月30日22:09:20"
 >

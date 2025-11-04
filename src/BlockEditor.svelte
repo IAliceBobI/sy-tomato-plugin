@@ -8,6 +8,7 @@
     import { tomatoI18n } from "./tomatoI18n";
     import { isBigBlock } from "./BlockEditor";
     import { currentBockEditorDocID, currentProtyle, events } from "./libs/Events";
+    import { navSourceBlock } from "./libs/stores";
 
     interface Props {
         dm: DestroyManager;
@@ -95,39 +96,52 @@
     }
 </script>
 
-<DialogSvelte maxWidth="200" {show} title={docName} {dm} savePositionKey="块编辑器 2025年9月1日22:06:25">
+<DialogSvelte
+    maxWidth="200"
+    show={show && $navSourceBlock}
+    title={docName}
+    {dm}
+    savePositionKey="块编辑器 2025年9月1日22:06:25"
+>
     {#snippet dialogInner()}
-        <div class="btnLine">
-            <button title={tomatoI18n.定位} class="b3-button b3-button--text tomato-button" onclick={locate}>🎯</button>
-            <button title="♻️{tomatoI18n.刷新}" class="b3-button b3-button--text tomato-button" onclick={reloadBlocks}
-                >♻️
-            </button>
-            <button
-                title="➕{tomatoI18n.超级块}"
-                class="b3-button b3-button--text tomato-button"
-                onclick={async () => {
-                    let text = "";
-                    if (!dm) text = "outline";
-                    const id = await appendSuperBlock($currentBockEditorDocID, text);
-                    mountProtyle(id);
-                }}
-                >➕
-            </button>
-            {#if dm}
-                <button
-                    title={tomatoI18n.退出}
-                    class="b3-button b3-button--text tomato-button"
-                    onclick={() => dm.destroyBy()}>🏃</button
+        <div class="sticky-header">
+            <div class="btnLine">
+                <button title={tomatoI18n.定位} class="b3-button b3-button--text tomato-button" onclick={locate}
+                    >🎯</button
                 >
-            {/if}
+                <button
+                    title="♻️{tomatoI18n.刷新}"
+                    class="b3-button b3-button--text tomato-button"
+                    onclick={reloadBlocks}
+                    >♻️
+                </button>
+                <button
+                    title="➕{tomatoI18n.超级块}"
+                    class="b3-button b3-button--text tomato-button"
+                    onclick={async () => {
+                        let text = "";
+                        if (!dm) text = "outline";
+                        const id = await appendSuperBlock($currentBockEditorDocID, text);
+                        mountProtyle(id);
+                    }}
+                    >➕
+                </button>
+                {#if dm}
+                    <button
+                        title={tomatoI18n.退出}
+                        class="b3-button b3-button--text tomato-button"
+                        onclick={() => dm.destroyBy()}>🏃</button
+                    >
+                {/if}
+            </div>
+            {#each blocks as block (block.id)}
+                <button
+                    class:b3-button--outline={selectedBlockID != block.id}
+                    class="b3-button tomato-button"
+                    onclick={() => mountProtyle(block.id)}>[{block.content.slice(0, 15)}]</button
+                >
+            {/each}
         </div>
-        {#each blocks as block (block.id)}
-            <button
-                class:b3-button--outline={selectedBlockID != block.id}
-                class="b3-button tomato-button"
-                onclick={() => mountProtyle(block.id)}>[{block.content.slice(0, 15)}]</button
-            >
-        {/each}
         <div bind:this={editor}></div>
     {/snippet}
 </DialogSvelte>
@@ -144,5 +158,13 @@
         justify-content: center;
         align-items: center;
         padding: 8px;
+    }
+    .sticky-header {
+        position: sticky;
+        top: -5px;
+        z-index: 5;
+        background: var(--b3-theme-surface);
+        padding: 5px 0 0 0;
+        margin: 0;
     }
 </style>

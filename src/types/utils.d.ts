@@ -19,6 +19,7 @@ type TomatoSettings = {
     prefixArticlesSoftLimit: string,
     toolbarTidyExt: string,
     blockEditorBox: boolean,
+    navSourceBlock: boolean,
     exportWL4All: boolean,
     blockEditorMenu: boolean,
     superRefBoxGlobalLnkMenu: boolean,

@@ -5,6 +5,7 @@ import { siyuan } from "./utils";
 import { zipNways } from "./functional";
 import { events } from "./Events";
 import { BaseTomatoPlugin } from "./BaseTomatoPlugin";
+import { getGlobal, setGlobal } from "stonev5-utils";
 
 export function writableWithGet<T>(t: T) {
     const store = writable(t);
@@ -592,3 +593,14 @@ export const btnIgnoreBook = settingFactory("btnIgnoreBook", false, STORAGE_Prog
 export const btnSplitByPunctuations = settingFactory("btnSplitByPunctuations", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const btnSplitByPunctuationsListCheck = settingFactory("btnSplitByPunctuationsListCheck", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const btnSplitByPunctuationsList = settingFactory("btnSplitByPunctuationsList", false, STORAGE_Prog_SETTINGS, null as TSK);
+
+// ---------------
+export const navSourceBlock = settingFactory("navSourceBlock", true, STORAGE_SETTINGS, null as TSK);
+
+export function getNavSourceBlock(): ReturnType<typeof settingFactory> {
+    const KEY = "navSourceBlock"
+    const n = getGlobal(KEY) as any;
+    if (n != null) return n;
+    setGlobal(KEY, navSourceBlock)
+    return navSourceBlock;
+}
