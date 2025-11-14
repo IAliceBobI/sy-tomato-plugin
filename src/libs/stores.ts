@@ -385,6 +385,7 @@ export const cardBoxCardtab = settingFactory("cardBoxCardtab", false, STORAGE_SE
 export const cardBoxSuperCard = settingFactory("cardBoxSuperCard", false, STORAGE_SETTINGS, null as TSK);
 export const cardBoxAddConcepts = settingFactory("cardBoxAddConcepts", false, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSpradEvenlyPostpone = settingFactory("cardBoxSpradEvenlyPostpone", true, STORAGE_SETTINGS, null as TSK);
+export const cardBoxDelayDays = settingFactory("cardBoxDelayDays", 0.1, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSettingsShow = settingFactory("cardBoxSettingsShow", false, STORAGE_SETTINGS, null as TSK);
 export const cardPriorityBoxCheckbox = settingFactory("cardPriorityBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const cardPrioritySetPriInterval = settingFactory("cardPrioritySetPriInterval", "0", STORAGE_SETTINGS, null as TSK);

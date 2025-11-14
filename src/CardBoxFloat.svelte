@@ -24,6 +24,7 @@
     import {
         cardBoxSettingsShow,
         cardBoxSpradEvenlyPostpone,
+        cardBoxDelayDays,
     } from "./libs/stores";
 
     interface Props {
@@ -32,7 +33,7 @@
     }
     let { id, cardPath }: Props = $props();
 
-    let delayDays = $state(0.1);
+    let delayDays = $state(cardBoxDelayDays.get() ?? 0.1);
     let hours = $derived(delayDays * 24);
     let showMsg = $state(false);
 
@@ -129,6 +130,7 @@
                         bind:value={delayDays}
                         type="number"
                         class="b3-text-field"
+                        onchange={() => cardBoxDelayDays.write(delayDays)}
                     />
                     {tomatoI18n.天}
                 </label>

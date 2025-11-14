@@ -191,6 +191,7 @@ type TomatoSettings = {
     cardBoxCheckbox: boolean,
     cardBoxAddConcepts: boolean,
     cardBoxSpradEvenlyPostpone: boolean,
+    cardBoxDelayDays: number,
     cardRemoveBoxCheckbox: boolean,
     cardAddListBoxCheckbox: boolean,
     cardPriorityBoxCheckbox: boolean,
