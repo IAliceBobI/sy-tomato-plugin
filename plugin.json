@@ -2,7 +2,7 @@
   "name": "sy-tomato-plugin",
   "author": "IAliceBobI",
   "url": "https://github.com/IAliceBobI/sy-tomato-plugin",
-  "version": "5.3.69",
+  "version": "5.3.70",
   "minAppVersion": "3.0.3",
   "disabledInPublish": false,
   "backends": [
@@ -54,3 +54,4 @@
     "Goal setting"
   ]
 }
+
