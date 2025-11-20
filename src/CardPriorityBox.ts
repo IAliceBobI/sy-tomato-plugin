@@ -452,6 +452,10 @@ class CardPriorityBox {
             }, new Map());
         return options;
     }
+
+    public resumeCardByIDs(blockIDs: string[], setDue = false) {
+        return resumeCard(blockIDs, setDue);
+    }
 }
 
 export async function resumeCard(blockIDs: string[], setDue = false) {
