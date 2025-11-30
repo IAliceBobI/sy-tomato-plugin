@@ -508,7 +508,7 @@ export async function getPluginSpec(name: string): Promise<PluginSpec> {
 
 export async function tryFixCfg(pluginName: string, fileName: string) {
     try {
-        const path = `data\\storage\\petal\\${pluginName}\\${fileName}`;
+        const path = `data/storage/petal/${pluginName}/${fileName}`;
         const ret = await siyuan.getJson(path);
         if (!ret) {
             await siyuan.removeFile(path)

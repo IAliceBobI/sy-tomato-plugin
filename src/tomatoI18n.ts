@@ -255,6 +255,24 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Hide fragment buttons group when reviewing flashcards";
         }
     }
+    public get 禁用初始化渐进学习浮动按钮() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "禁用初始化渐进学习浮动按钮";
+            case "es_ES": return "Deshabilitar inicialización de botones flotantes de aprendizaje progresivo";
+            case "fr_FR": return "Désactiver l'initialisation des boutons flottants d'apprentissage progressif";
+            case "ja_JP": return "段階的学習フローティングボタンの初期化を無効化";
+            case "zh_CHT": return "禁用初始化漸進學習浮動按鈕";
+            case "it_IT": return "Disabilita inizializzazione pulsanti fluttuanti apprendimento progressivo";
+            case "de_DE": return "Initialisierung der schwebenden Buttons für progressives Lernen deaktivieren";
+            case "he_IL": return "השבת אתחול כפתורים צפים של למידה הדרגתית";
+            case "ru_RU": return "Отключить инициализацию плавающих кнопок прогрессивного обучения";
+            case "pl_PL": return "Wyłącz inicjalizację pływających przycisków progresywnego uczenia się";
+            case "ar_SA": return "تعطيل تهيئة أزرار التعلم التدريجي العائمة";
+            case "pt_BR": return "Desabilitar inicialização de botões flutuantes de aprendizado progressivo";
+            case "en_US":
+            default: return "Disable initialization of progressive learning floating buttons";
+        }
+    }
     public get 恢复笔记颜色() {
         switch (this.conf.appearance.lang) {
             case "zh_CN": return "恢复笔记颜色";

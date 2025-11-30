@@ -453,7 +453,7 @@ class CardPriorityBox {
         return options;
     }
 
-    public resumeCardByIDs(blockIDs: string[], setDue = false) {
+    public async resumeCardByIDs(blockIDs: string[], setDue = false) {
         return resumeCard(blockIDs, setDue);
     }
 }

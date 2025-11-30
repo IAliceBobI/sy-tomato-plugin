@@ -149,6 +149,7 @@ type TomatoSettings = {
     cardUnderPiece: boolean,
     openCardsOnOpenPiece: boolean,
     hideBtnsInFlashCard: boolean,
+    initProgFloatBtnsDisable: boolean,
     markOriginTextBG: boolean,
     markOriginText: boolean,
     summary2dailynote: boolean,
