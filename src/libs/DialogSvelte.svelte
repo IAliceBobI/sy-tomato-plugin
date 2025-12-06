@@ -63,29 +63,27 @@
         return title.slice(0, MAX_TITLE_LEN) + suffix;
     });
 
-    // 设备检测
-    const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-
-    // 清理事件监听器的辅助函数
-    function cleanupEventListeners(isTouch: boolean) {
-        if (isTouch) {
-            document.removeEventListener("touchmove", handleDragMove);
-            document.removeEventListener("touchend", handleDragEnd);
-            document.removeEventListener("touchmove", handleResize);
-            document.removeEventListener("touchend", handleResizeEnd);
-        } else {
-            document.removeEventListener("mousemove", handleDragMove);
-            document.removeEventListener("mouseup", handleDragEnd);
-            document.removeEventListener("mousemove", handleResize);
-            document.removeEventListener("mouseup", handleResizeEnd);
-        }
+    // 清理事件监听器的辅助函数 - 使用 Pointer Events
+    function cleanupEventListeners() {
+        document.removeEventListener("pointermove", handleDragMove);
+        document.removeEventListener("pointerup", handleDragEnd);
+        document.removeEventListener("pointermove", handleResize);
+        document.removeEventListener("pointerup", handleResizeEnd);
+        // 兜底：保留旧的事件监听器清理（兼容性）
+        document.removeEventListener("mousemove", handleDragMove);
+        document.removeEventListener("mouseup", handleDragEnd);
+        document.removeEventListener("touchmove", handleDragMove);
+        document.removeEventListener("touchend", handleDragEnd);
+        document.removeEventListener("mousemove", handleResize);
+        document.removeEventListener("mouseup", handleResizeEnd);
+        document.removeEventListener("touchmove", handleResize);
+        document.removeEventListener("touchend", handleResizeEnd);
     }
 
     onMount(() => {
         // 组件卸载时确保清理所有事件监听器
         return () => {
-            cleanupEventListeners(true);
-            cleanupEventListeners(false);
+            cleanupEventListeners();
         };
     });
 
@@ -164,21 +162,31 @@
         dialogElement.style.top = `${top}px`;
     }
 
-    function getEventPosition(event: MouseEvent | TouchEvent) {
-        if ("touches" in event && event.touches.length > 0) {
+    function getEventPosition(event: MouseEvent | TouchEvent | PointerEvent) {
+        // Pointer Events 和 Mouse Events 都有 clientX/clientY
+        if (event instanceof PointerEvent || event instanceof MouseEvent) {
+            return {
+                clientX: event.clientX,
+                clientY: event.clientY,
+            };
+        }
+        // Touch Events
+        if (event instanceof TouchEvent && event.touches.length > 0) {
             return {
                 clientX: event.touches[0].clientX,
                 clientY: event.touches[0].clientY,
             };
         }
+        // 兜底：假设有 clientX/clientY 属性
+        const e = event as unknown as { clientX: number; clientY: number };
         return {
-            clientX: (event as MouseEvent).clientX,
-            clientY: (event as MouseEvent).clientY,
+            clientX: e.clientX ?? 0,
+            clientY: e.clientY ?? 0,
         };
     }
 
-    // 拖动相关函数
-    function handleDragStart(event: MouseEvent | TouchEvent) {
+    // 拖动相关函数 - 使用 Pointer Events
+    function handleDragStart(event: MouseEvent | TouchEvent | PointerEvent) {
         if (!draggable || !dialogElement || isResizing) return;
 
         event.stopPropagation();
@@ -196,21 +204,25 @@
         offsetY = clientY - rect.top;
 
         // 先移除可能存在的监听器，避免重复绑定
-        cleanupEventListeners(isTouchDevice);
+        cleanupEventListeners();
 
-        if (isTouchDevice) {
-            document.addEventListener("touchmove", handleDragMove, { passive: false });
-            document.addEventListener("touchend", handleDragEnd);
-        } else {
-            document.addEventListener("mousemove", handleDragMove);
-            document.addEventListener("mouseup", handleDragEnd);
+        // 使用 Pointer Events（统一处理鼠标和触控）
+        if (event instanceof PointerEvent) {
+            // 捕获指针，确保事件持续跟踪
+            (event.target as HTMLElement)?.setPointerCapture?.(event.pointerId);
         }
+
+        document.addEventListener("pointermove", handleDragMove, { passive: false });
+        document.addEventListener("pointerup", handleDragEnd);
     }
 
-    function handleDragMove(event: MouseEvent | TouchEvent) {
+    function handleDragMove(event: MouseEvent | TouchEvent | PointerEvent) {
         if (!isDragging || !dialogElement) return;
 
-        if ("touches" in event) {
+        // 对于触控事件，阻止默认行为（防止页面滚动）
+        if (event instanceof PointerEvent && event.pointerType === "touch") {
+            event.preventDefault();
+        } else if ("touches" in event) {
             event.preventDefault();
         }
 
@@ -237,19 +249,25 @@
         dialogElement.style.left = `${constrainedLeft}px`;
     }
 
-    function handleDragEnd() {
+    function handleDragEnd(event?: MouseEvent | TouchEvent | PointerEvent) {
         if (!isDragging) return;
 
         isDragging = false;
-        cleanupEventListeners(isTouchDevice);
+        
+        // 释放指针捕获
+        if (event instanceof PointerEvent && event.target) {
+            (event.target as HTMLElement)?.releasePointerCapture?.(event.pointerId);
+        }
+
+        cleanupEventListeners();
 
         if (savePositionKey) {
             savePosition();
         }
     }
 
-    // 调整大小相关函数
-    function handleResizeStart(event: MouseEvent | TouchEvent, direction: string) {
+    // 调整大小相关函数 - 使用 Pointer Events
+    function handleResizeStart(event: MouseEvent | TouchEvent | PointerEvent, direction: string) {
         if (!resizable || !dialogElement || isDragging) return;
 
         event.stopPropagation();
@@ -272,21 +290,25 @@
         dialogElement.style.height = `${rect.height}px`;
 
         // 先移除可能存在的监听器，避免重复绑定
-        cleanupEventListeners(isTouchDevice);
+        cleanupEventListeners();
 
-        if (isTouchDevice) {
-            document.addEventListener("touchmove", handleResize, { passive: false });
-            document.addEventListener("touchend", handleResizeEnd);
-        } else {
-            document.addEventListener("mousemove", handleResize);
-            document.addEventListener("mouseup", handleResizeEnd);
+        // 使用 Pointer Events（统一处理鼠标和触控）
+        if (event instanceof PointerEvent) {
+            // 捕获指针，确保事件持续跟踪
+            (event.target as HTMLElement)?.setPointerCapture?.(event.pointerId);
         }
+
+        document.addEventListener("pointermove", handleResize, { passive: false });
+        document.addEventListener("pointerup", handleResizeEnd);
     }
 
-    function handleResize(event: MouseEvent | TouchEvent) {
+    function handleResize(event: MouseEvent | TouchEvent | PointerEvent) {
         if (!isResizing || !dialogElement || !resizeDirection) return;
 
-        if ("touches" in event) {
+        // 对于触控事件，阻止默认行为（防止页面滚动/缩放）
+        if (event instanceof PointerEvent && event.pointerType === "touch") {
+            event.preventDefault();
+        } else if ("touches" in event) {
             event.preventDefault();
         }
 
@@ -348,12 +370,18 @@
         offsetY = clientY;
     }
 
-    function handleResizeEnd() {
+    function handleResizeEnd(event?: MouseEvent | TouchEvent | PointerEvent) {
         if (!isResizing) return;
 
         isResizing = false;
         resizeDirection = "";
-        cleanupEventListeners(isTouchDevice);
+        
+        // 释放指针捕获
+        if (event instanceof PointerEvent && event.target) {
+            (event.target as HTMLElement)?.releasePointerCapture?.(event.pointerId);
+        }
+
+        cleanupEventListeners();
 
         if (savePositionKey) {
             savePosition();
@@ -508,6 +536,7 @@
             <!-- 拖动区域 -->
             <div
                 class="prefix-dialog-grabber"
+                onpointerdown={handleDragStart}
                 onmousedown={handleDragStart}
                 ontouchstart={handleDragStart}
                 class:no-drag={!draggable}
@@ -533,48 +562,56 @@
             {#if resizable}
                 <div
                     class="resizer nw"
+                    onpointerdown={(e) => handleResizeStart(e, "nw")}
                     onmousedown={(e) => handleResizeStart(e, "nw")}
                     ontouchstart={(e) => handleResizeStart(e, "nw")}
                     aria-label="调整窗口大小（西北方向）"
                 ></div>
                 <div
                     class="resizer n"
+                    onpointerdown={(e) => handleResizeStart(e, "n")}
                     onmousedown={(e) => handleResizeStart(e, "n")}
                     ontouchstart={(e) => handleResizeStart(e, "n")}
                     aria-label="调整窗口大小（北方向）"
                 ></div>
                 <div
                     class="resizer ne"
+                    onpointerdown={(e) => handleResizeStart(e, "ne")}
                     onmousedown={(e) => handleResizeStart(e, "ne")}
                     ontouchstart={(e) => handleResizeStart(e, "ne")}
                     aria-label="调整窗口大小（东北方向）"
                 ></div>
                 <div
                     class="resizer e"
+                    onpointerdown={(e) => handleResizeStart(e, "e")}
                     onmousedown={(e) => handleResizeStart(e, "e")}
                     ontouchstart={(e) => handleResizeStart(e, "e")}
                     aria-label="调整窗口大小（东方向）"
                 ></div>
                 <div
                     class="resizer se"
+                    onpointerdown={(e) => handleResizeStart(e, "se")}
                     onmousedown={(e) => handleResizeStart(e, "se")}
                     ontouchstart={(e) => handleResizeStart(e, "se")}
                     aria-label="调整窗口大小（东南方向）"
                 ></div>
                 <div
                     class="resizer s"
+                    onpointerdown={(e) => handleResizeStart(e, "s")}
                     onmousedown={(e) => handleResizeStart(e, "s")}
                     ontouchstart={(e) => handleResizeStart(e, "s")}
                     aria-label="调整窗口大小（南方向）"
                 ></div>
                 <div
                     class="resizer sw"
+                    onpointerdown={(e) => handleResizeStart(e, "sw")}
                     onmousedown={(e) => handleResizeStart(e, "sw")}
                     ontouchstart={(e) => handleResizeStart(e, "sw")}
                     aria-label="调整窗口大小（西南方向）"
                 ></div>
                 <div
                     class="resizer w"
+                    onpointerdown={(e) => handleResizeStart(e, "w")}
                     onmousedown={(e) => handleResizeStart(e, "w")}
                     ontouchstart={(e) => handleResizeStart(e, "w")}
                     aria-label="调整窗口大小（西方向）"
@@ -631,6 +668,7 @@
         border-radius: 8px 8px 0 0;
         background: var(--b3-toolbar-background);
         user-select: none; /* 防止拖动时文本被选中 */
+        touch-action: none; /* 防止触控滚动/缩放干扰拖动 */
     }
 
     .prefix-dialog-grabber.no-drag {
@@ -694,6 +732,7 @@
         position: absolute;
         background-color: transparent;
         z-index: 2; /* 确保在对话框内容之上 */
+        touch-action: none; /* 防止触控滚动/缩放干扰调整大小 */
     }
 
     .resizer.nw {
