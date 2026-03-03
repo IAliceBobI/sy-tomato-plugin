@@ -2,7 +2,7 @@
     import DialogSvelte from "./libs/DialogSvelte.svelte";
     import { CardSettingsID } from "./libs/gconst";
     import { tomatoI18n } from "./tomatoI18n";
-    import { Writable } from "svelte/store";
+    import type { Writable } from "svelte/store";
     import { confirm } from "siyuan";
     import { deleteBlock, getTomatoPluginInstance, siyuan } from "./libs/utils";
     import { closeAllDialog } from "./libs/keyboard";

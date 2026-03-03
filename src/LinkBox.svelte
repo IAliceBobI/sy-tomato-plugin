@@ -16,56 +16,48 @@
         verMap: Map<string, number>;
     }
 
-    let {
-        plugin,
-        rows,
-        dm,
-        dialog,
-        cursorPosID,
-        syncID,
-        syncDiv,
-        verMap
-    }: Props = $props();
+    let props: Props = $props();
     let singleList: Block[] = $state([]);
-    syncID;
-    dialog;
-    plugin;
-    let originID = $state(getAttribute(syncDiv, "custom-sync-origin-id"));
-    const version = getAttribute(syncDiv, "custom-sync-version");
-    let oriVer = $state(version);
+    function getVersion() {
+        return getAttribute(props.syncDiv, "custom-sync-version");
+    }
+    function getOriginID() {
+        return getAttribute(props.syncDiv, "custom-sync-origin-id");
+    }
+    let oriVer = $state("");
     export function destroy() {}
 
     onMount(() => {
         const count = stringToNumber(
-            getAttribute(syncDiv, "custom-sync-block-count"),
+            getAttribute(props.syncDiv, "custom-sync-block-count"),
         );
-        if (count >= 0 && count != rows.length) {
+        if (count >= 0 && count != props.rows.length) {
             siyuan.batchSetBlockAttrs(
-                rows.map((row) => {
+                props.rows.map((row) => {
                     return {
                         id: row.id,
                         attrs: {
-                            "custom-sync-block-count": rows.length.toString(),
+                            "custom-sync-block-count": props.rows.length.toString(),
                         },
                     };
                 }),
             );
         }
-        if (!rows.some((row) => row.id === originID)) {
+        if (!props.rows.some((row) => row.id === getOriginID())) {
             setAsOrigin();
         }
-        if (!version || version == "0") {
+        if (!getVersion() || getVersion() == "0") {
             resetVersion();
         }
-        const o = rows.find((r) => r.id == originID);
+        const o = props.rows.find((r) => r.id == getOriginID());
         if (o) {
             oriVer = o.data;
         }
     });
     async function resetVersion() {
-        verMap.delete(syncID);
+        props.verMap.delete(props.syncID);
         return siyuan.batchSetBlockAttrs(
-            rows.map((row) => {
+            props.rows.map((row) => {
                 return {
                     id: row.id,
                     attrs: {
@@ -100,29 +92,28 @@
         }
     }
     async function setAsOrigin() {
-        if (originID != cursorPosID) {
-            originID = cursorPosID;
+        if (getOriginID() != props.cursorPosID) {
             siyuan.batchSetBlockAttrs(
-                rows.map((row) => {
+                props.rows.map((row) => {
                     return {
                         id: row.id,
-                        attrs: { "custom-sync-origin-id": cursorPosID },
+                        attrs: { "custom-sync-origin-id": props.cursorPosID },
                     };
                 }),
             );
         }
-        dm.destroyBy();
+        props.dm.destroyBy();
     }
     function deleteAll(title: string, exclude = "") {
-        confirm(title, "⚠️  " + tomatoI18n.已在x个地方同步(rows.length), () => {
+        confirm(title, "⚠️  " + tomatoI18n.已在x个地方同步(props.rows.length), () => {
             siyuan
                 .deleteBlocks(
-                    rows
+                    props.rows
                         .filter((row) => row.id != exclude)
                         .map((row) => row.id),
                 )
                 .then(() => {
-                    dm.destroyBy();
+                    props.dm.destroyBy();
                 });
         });
     }
@@ -132,7 +123,7 @@
     <div class="space asRow">
         <button
             class="b3-button b3-button--outline tomato-button"
-            onclick={() => deleteAll(tomatoI18n.删除其他, cursorPosID)}
+            onclick={() => deleteAll(tomatoI18n.删除其他, props.cursorPosID)}
             >{tomatoI18n.删除其他}</button
         >
         <button
@@ -168,11 +159,11 @@
             <a href="siyuan://blocks/{id}">[{content.slice(0, 10)}]</a>
         </div>
     {/each}
-    {#each rows as { id, content, data }}
+    {#each props.rows as { id, content, data }}
         <div class="space asRow">
             <div>
                 <a href="siyuan://blocks/{id}">{content}</a>
-                {#if originID == id}
+                {#if getOriginID() == id}
                     <svg class="icon"><use xlink:href="#iconStar"></use></svg>
                 {/if}
             </div>

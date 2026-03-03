@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { onMount, Snippet, tick } from "svelte";
+    import { onMount, tick } from "svelte";
+    import type { Snippet } from "svelte";
     import { getProgressivePluginConfig, getTomatoPluginConfig, icon } from "./utils";
     import { events } from "./Events";
     import { userID } from "./stores";
@@ -56,7 +57,13 @@
     let offsetX = $state(0);
     let offsetY = $state(0);
     let resizeDirection = $state("");
-    let currentZIndex = $state(baseZIndex);
+    let currentZIndex = $state(12); // 初始值，会在 $effect 中同步 baseZIndex
+    // 同步 baseZIndex 变化到 currentZIndex（仅在非拖拽/调整大小时）
+    $effect(() => {
+        if (!isDragging && !isResizing) {
+            currentZIndex = baseZIndex;
+        }
+    });
     let showTitle = $derived.by(() => {
         const MAX_TITLE_LEN = 20;
         const suffix = title.length > MAX_TITLE_LEN ? ".." : "";

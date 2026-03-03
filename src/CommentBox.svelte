@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { confirm, Dock, IProtyle, Protyle } from "siyuan";
+    import { confirm, Protyle } from "siyuan";
     import { onMount } from "svelte";
     import { commentBox, CommentBox刷新文档正引 } from "./CommentBox";
     import {

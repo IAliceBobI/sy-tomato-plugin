@@ -811,6 +811,32 @@ export function cloneCleanDiv(div: HTMLElement, useIDMap = false) {
     return cleanDivOnly(div?.cloneNode(true) as any, useIDMap);
 }
 
+/**
+ * 克隆同步块，保留子元素的原始 ID
+ * 用于同步块更新，避免破坏嵌套块（如 tip 块）的内部结构
+ */
+export function cloneForSync(div: HTMLElement, targetID: string): HTMLElement {
+    if (!div) return null;
+    const clone = div.cloneNode(true) as HTMLElement;
+
+    // 移除选中样式
+    clone.classList.remove("protyle-wysiwyg--select");
+
+    // 设置 contenteditable 为 true
+    clone.querySelectorAll(`div[${gconst.CONTENT_EDITABLE}="false"]`)
+        .forEach(e => e.setAttribute(gconst.CONTENT_EDITABLE, "true"));
+
+    // 只更新超级块的 ID 为目标 ID，保留所有子元素的原始 ID
+    clone.setAttribute(gconst.DATA_NODE_ID, targetID);
+
+    // 移除 riff 标记
+    clone.removeAttribute(gconst.CUSTOM_RIFF_DECKS);
+    clone.querySelectorAll(`[${gconst.CUSTOM_RIFF_DECKS}]`)
+        .forEach((e: HTMLElement) => e.removeAttribute(gconst.CUSTOM_RIFF_DECKS));
+
+    return clone;
+}
+
 export function cleanDivOnly(div: HTMLElement, useIDMap = false) {
     if (!div) return {};
     div.classList.remove("protyle-wysiwyg--select")
@@ -1017,7 +1043,24 @@ export function getSyElement(e1: HTMLElement | Element | Node, attrs?: string[])
 
 export function getAllContentEditableElements(element: Element) {
     if (!element) return [];
-    return [...element.querySelectorAll(`[${gconst.CONTENT_EDITABLE}="true"]`)];
+    const result: Element[] = [];
+    // 检查元素本身是否有 contenteditable 属性（不管是 true 还是 false，只读模式下是 false）
+    const ce = element.getAttribute(gconst.CONTENT_EDITABLE);
+    if (ce === "true" || ce === "false") {
+        // 排除 protyle-attr 这类非内容元素
+        if (!element.classList.contains("protyle-attr") && !element.classList.contains("protyle-wysiwyg")) {
+            result.push(element);
+        }
+    }
+    // 查找后代元素（包括 contenteditable="true" 和 "false"）
+    const children = element.querySelectorAll(`[${gconst.CONTENT_EDITABLE}]`);
+    for (const child of children) {
+        // 排除 protyle-attr 这类非内容元素
+        if (!child.classList.contains("protyle-attr")) {
+            result.push(child);
+        }
+    }
+    return result;
 }
 
 export function getAllText(element: Element[], join = "\n") {

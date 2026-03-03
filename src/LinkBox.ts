@@ -748,8 +748,8 @@ export async function syncAllBlocks(superDiv: HTMLElement, count: string, rows: 
     const trans = siyuan.transUpdateBlocks(rows
         .filter(row => row.exists)
         .map(row => {
-            const c = utils.cloneCleanDiv(superDiv).div;
-            c.setAttribute(gconst.DATA_NODE_ID, row.block_id);
+            // 使用 cloneForSync 保留子元素的原始 ID，避免破坏嵌套块结构
+            const c = utils.cloneForSync(superDiv, row.block_id);
             return { id: row.block_id, domStr: c.outerHTML };
         }));
     await siyuan.transactions(trans);

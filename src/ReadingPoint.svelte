@@ -3,7 +3,7 @@
     import { DestroyManager } from "./libs/destroyer";
     import { onMount } from "svelte";
     import { OpenSyFile2 } from "./libs/docUtils";
-    import { RPType } from "./ReadingPointBox";
+    import type { RPType } from "./ReadingPointBox";
 
     interface Props {
         plugin: Plugin;

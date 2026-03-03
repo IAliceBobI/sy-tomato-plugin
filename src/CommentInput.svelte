@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { IProtyle } from "siyuan";
     import { DestroyManager } from "./libs/destroyer";
     import {
         commentBoxAddFlashCard,

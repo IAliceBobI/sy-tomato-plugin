@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import { Plugin } from "siyuan";
     import {
         DATA_NODE_ID,
@@ -23,30 +22,30 @@
         verMap: Map<string, number>;
     }
 
-    let { plugin, syncBlock, verMap }: Props = $props();
+    let props: Props = $props();
     let saveBtn: HTMLElement = $state();
     let saveBtnDisabled = false;
-    const syncID = getAttribute(syncBlock, "custom-sync-block-id");
-    const originID = getAttribute(syncBlock, "custom-sync-origin-id");
-    const cursorPosID = syncBlock.getAttribute(DATA_NODE_ID);
-    let syncVersion = $state(0);
-    onMount(() => {
-        let syncVersion = stringToNumber(
-            getAttribute(syncBlock, "custom-sync-version"),
+    let syncCount = $state(0);
+    $effect(() => {
+        syncCount = stringToNumber(
+            getAttribute(props.syncBlock, "custom-sync-block-count"),
         );
-        if (!syncVersion) {
-            const v = verMap.get(syncID);
-            if (v != null) {
-                syncVersion = v;
-            }
-        }
     });
-
-    let syncCount = stringToNumber(
-        getAttribute(syncBlock, "custom-sync-block-count"),
-    );
     const ctrlAttr = $state({});
     ctrlAttr[TOMATO_CONTROL_SYNC] = "1";
+
+    function getSyncID() {
+        return getAttribute(props.syncBlock, "custom-sync-block-id");
+    }
+    function getOriginID() {
+        return getAttribute(props.syncBlock, "custom-sync-origin-id");
+    }
+    function getCursorPosID() {
+        return props.syncBlock.getAttribute(DATA_NODE_ID);
+    }
+    function getSyncVersion() {
+        return stringToNumber(getAttribute(props.syncBlock, "custom-sync-version"));
+    }
 
     function save() {
         if (saveBtnDisabled) return;
@@ -55,13 +54,13 @@
         saveBtn.textContent = tomatoI18n.延迟x秒后执行(delay);
         setTimeout(async () => {
             try {
-                const element: HTMLElement = syncBlock.cloneNode(true) as any;
+                const element: HTMLElement = props.syncBlock.cloneNode(true) as any;
                 element.removeAttribute(PROTYLE_WYSIWYG_SELECT);
-                const { rows } = await getRowAndMaxVer("", syncID);
+                const { rows } = await getRowAndMaxVer("", getSyncID());
                 setAttribute(
                     element,
                     "custom-sync-version",
-                    (syncVersion + 1).toString(),
+                    (getSyncVersion() + 1).toString(),
                 );
                 await syncAllBlocks(element, rows.length.toString(), rows);
             } finally {
@@ -72,33 +71,34 @@
     }
 
     function showAll() {
-        showSyncBlocks(null, plugin, syncBlock);
+        showSyncBlocks(null, props.plugin, props.syncBlock);
     }
 
     async function openAll() {
-        const { rows } = await getRowAndMaxVer(cursorPosID, syncID);
+        const { rows } = await getRowAndMaxVer(getCursorPosID(), getSyncID());
         for (const row of rows) {
-            if (row.block_id != cursorPosID) {
-                await OpenSyFile2(plugin, row.block_id);
+            if (row.block_id != getCursorPosID()) {
+                await OpenSyFile2(props.plugin, row.block_id);
                 await sleep(200);
             }
         }
     }
 
     async function openOrigin() {
-        if (originID) await OpenSyFile2(plugin, originID);
+        const originID = getOriginID();
+        if (originID) await OpenSyFile2(props.plugin, originID);
     }
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div {...ctrlAttr}>
-    {#if syncVersion}
+    {#if getSyncVersion()}
         <span class="space btn" onclick={openOrigin}>
-            {#if cursorPosID === originID}
+            {#if getCursorPosID() === getOriginID()}
                 <svg><use xlink:href="#iconStar"></use></svg>
             {/if}
-            v{syncVersion}
+            v{getSyncVersion()}
         </span>
     {/if}
     {#if !$linkBoxSyncBlockAuto}

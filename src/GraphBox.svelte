@@ -3,18 +3,18 @@
     import { writable } from "svelte/store";
     import {
         SvelteFlow,
-        Connection,
         MiniMap,
         SvelteFlowProvider,
         Controls,
-        ColorMode,
         Background,
         type Edge,
         type Node,
+        type Connection,
+        type ColorMode,
         Position,
     } from "@xyflow/svelte";
     import "@xyflow/svelte/dist/style.css";
-    import { Plugin, IProtyle } from "siyuan";
+    import { Plugin, type IProtyle } from "siyuan";
     import { getData } from "./GraphBox";
     import { newID } from "stonev5-utils/lib/id";
     import {

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Writable } from "svelte/store";
+    import type { Writable } from "svelte/store";
     import { tomatoI18n } from "./tomatoI18n";
     interface Props {
         autoRefreshChecked: Writable<boolean>;

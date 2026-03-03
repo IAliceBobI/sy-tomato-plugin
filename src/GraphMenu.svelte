@@ -1,9 +1,9 @@
 <script lang="ts">
     import { run } from 'svelte/legacy';
 
-    import { Node } from "@xyflow/svelte";
+    import type { Node } from "@xyflow/svelte";
     import { tomatoI18n } from "./tomatoI18n";
-    import { Writable } from "svelte/store";
+    import type { Writable } from "svelte/store";
     import { OpenSyFile2 } from "./libs/docUtils";
     import { Plugin } from "siyuan";
 
@@ -20,7 +20,6 @@
         plugin,
         dock
     }: Props = $props();
-    dock;
     // const nodes = useNodes();
     // const edges = useEdges();
     let height: number = $state();
@@ -29,6 +28,7 @@
     let left: number = $state();
     let text: string = $state();
     run(() => {
+        void dock;  // accessed inside closure to suppress warning
         top = $menuOpt.y - height;
         left = $menuOpt.x - width;
         if (top + 200 > $menuOpt.canvasHeight) {

@@ -422,6 +422,7 @@ async function addEnv(docInfo: Block, rpDocName: string, list: DomSuperBlockBuil
     for (const docIDInPage of docIDs) {
         const doc = events.readingPointMap.get(docIDInPage);
         if (docInfo.id == docIDInPage) continue;
+        if (!doc) continue;
         if (doc.title == rpDocName) continue;
         let bID = doc.blockID;
         if (bID) {
