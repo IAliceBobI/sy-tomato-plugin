@@ -259,21 +259,37 @@ class CardBox {
 
     private initSettingsBtn() {
         const btnPrevious = document.body.querySelector(
-            'button[data-type="-3"]'
+            'button[data-type="4"]'
         ) as HTMLButtonElement;
         const container = btnPrevious?.parentElement?.parentElement;
         if (container) {
             container.querySelectorAll("[TomatoCardDelBtn]").forEach(e => e?.parentElement?.removeChild(e));
-            const div = container.appendChild(document.createElement("div")) as HTMLDivElement;
-            div.setAttribute("TomatoCardDelBtn", "1");
-            div.appendChild(document.createElement("span")) as HTMLSpanElement;
-            const btn = div.appendChild(document.createElement("button")) as HTMLButtonElement;
+
+            // 创建一个新的 wrapper div，模仿其他评分按钮的结构
+            const wrapper = document.createElement("div");
+            wrapper.setAttribute("TomatoCardDelBtn", "1");
+            wrapper.style.marginRight = "8px";
+
+            // 创建 span 占位（模仿其他按钮的结构）
+            const span = document.createElement("span");
+            span.textContent = "";
+            wrapper.appendChild(span);
+
+            // 创建按钮
+            const btn = document.createElement("button");
             btn.setAttribute("aria-label", CardBox闪卡复习时打开闪卡设置.w());
             btn.innerHTML = "<div class=\"card__icon\">⚙️</div> " + tomatoI18n.设置;
             btn.title = this.getHK();
             btn.setAttribute("data-type", "-100");
             btn.classList.add(...btnPrevious.classList);
             btn.addEventListener("click", () => this.openSettings());
+
+            // 把按钮放进 wrapper
+            wrapper.appendChild(btn);
+
+            // 在"简单(4)"按钮容器后面插入
+            const simpleContainer = btnPrevious.parentElement;
+            simpleContainer.after(wrapper);
         }
     }
 }

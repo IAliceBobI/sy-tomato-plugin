@@ -683,6 +683,25 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "No valid extraction content";
         }
     }
+
+    public get docNotFound() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "无法找到文档";
+            case "es_ES": return "Documento no encontrado";
+            case "fr_FR": return "Document non trouvé";
+            case "ja_JP": return "ドキュメントが見つかりません";
+            case "zh_CHT": return "無法找到文檔";
+            case "it_IT": return "Documento non trovato";
+            case "de_DE": return "Dokument nicht gefunden";
+            case "he_IL": return "מסמך לא נמצא";
+            case "ru_RU": return "Документ не найден";
+            case "pl_PL": return "Nie znaleziono dokumentu";
+            case "ar_SA": return "المستند غير موجود";
+            case "pt_BR": return "Documento não encontrado";
+            case "en_US":
+            default: return "Document not found";
+        }
+    }
 }
 
 // public[^get]+\(  查找所有的函数

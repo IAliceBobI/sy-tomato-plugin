@@ -298,6 +298,10 @@ class ReadingPointBox {
             return;
         }
         const docInfo = await siyuan.getDocRowByBlockID(blockID)
+        if (!docInfo?.id) {
+            siyuan.pushMsg(this.plugin.i18n.docNotFound);
+            return;
+        }
         const docID = docInfo.id;
         if (!docInfo["hpath"]) return;
         const path: Array<string> = docInfo["hpath"].split("/");

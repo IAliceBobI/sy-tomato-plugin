@@ -75,7 +75,11 @@ class CardPriorityBox {
         }
 
         const cardPrioritySet = async () => {
-            const cardID = await getIDFromCard()
+            // 检查间隔重复界面是否可见（活跃状态）
+            const cardMainElement = document.querySelector('div.card__main');
+            const isCardReviewActive = cardMainElement && !cardMainElement.classList.contains('fn__none');
+
+            const cardID = isCardReviewActive ? await getIDFromCard() : null;
             if (cardID) {
                 const blocks = await siyuan.getRiffCardsByBlockIDs([cardID])
                     .then(r => {
