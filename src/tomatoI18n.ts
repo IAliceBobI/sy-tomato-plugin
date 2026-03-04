@@ -665,25 +665,22 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
-    public get aaa() {
-        // tyepscript: 翻译为各国语言。写入case的return中。
-        // 不要改属性名字，不要添加其他代码，不要改错，就改当前代码片段。en_US与default返回语言一致。
-        // 最后删除注释。
+    public get 没有有效的摘抄内容() {
         switch (this.conf.appearance.lang) {
-            case "zh_CN": return "aaa";
-            case "es_ES":
-            case "fr_FR":
-            case "ja_JP":
-            case "zh_CHT":
-            case "it_IT":
-            case "de_DE":
-            case "he_IL":
-            case "ru_RU":
-            case "pl_PL":
-            case "ar_SA":
-            case "pt_BR":
+            case "zh_CN": return "没有有效的摘抄内容";
+            case "es_ES": return "No hay contenido de extracción válido";
+            case "fr_FR": return "Aucun contenu d'extraction valide";
+            case "ja_JP": return "有効な摘抄コンテンツがありません";
+            case "zh_CHT": return "沒有有效的摘抄內容";
+            case "it_IT": return "Nessun contenuto di estrazione valido";
+            case "de_DE": return "Kein gültiger Extraktionsinhalt";
+            case "he_IL": return "אין תוכן חילוץ חוקי";
+            case "ru_RU": return "Нет действительного содержимого для извлечения";
+            case "pl_PL": return "Brak ważnej zawartości ekstrakcji";
+            case "ar_SA": return "لا يوجد محتوى استخراج صالح";
+            case "pt_BR": return "Nenhum conteúdo de extração válido";
             case "en_US":
-            default:
+            default: return "No valid extraction content";
         }
     }
 }
