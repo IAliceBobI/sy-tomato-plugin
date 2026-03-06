@@ -21,6 +21,7 @@
         getTomatoPluginConfig,
     } from "./libs/utils";
     import { onDestroy, onMount } from "svelte";
+    import type { IProtyle } from "siyuan";
     import { tomatoI18n } from "./tomatoI18n";
     import { events } from "./libs/Events";
 
