@@ -1,6 +1,6 @@
 <script lang="ts">
     import TomatoVIP from "./TomatoVIP.svelte";
-    import { onDestroy, onMount } from "svelte";
+    import { onDestroy, onMount, tick } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
     import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
     import {
@@ -352,9 +352,13 @@
             settingsDiv?.parentElement?.parentElement,
             false,
         );
-        if (localStorage.getItem(SearchKeyItemKey)) {
-            searchKey = localStorage.getItem(SearchKeyItemKey);
-            searchSettings(settingsDiv, searchKey);
+        const savedSearchKey = localStorage.getItem(SearchKeyItemKey);
+        if (savedSearchKey) {
+            searchKey = savedSearchKey;
+            await tick();
+            if (settingsDiv) {
+                searchSettings(settingsDiv, searchKey);
+            }
         }
         searchInput.focus();
         if (addDocSettings?.style?.display) {
@@ -481,7 +485,10 @@
             bind:this={searchInput}
             class="b3-text-field"
             bind:value={searchKey}
-            oninput={() => searchSettings(settingsDiv, searchKey)}
+            oninput={() => {
+                localStorage.setItem(SearchKeyItemKey, searchKey);
+                searchSettings(settingsDiv, searchKey);
+            }}
         />
         {tomatoI18n.search搜索配置}
     </div>

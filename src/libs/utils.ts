@@ -840,7 +840,7 @@ export function cloneForSync(div: HTMLElement, targetID: string): HTMLElement {
 export function cleanDivOnly(div: HTMLElement, useIDMap = false) {
     if (!div) return {};
     div.classList.remove("protyle-wysiwyg--select")
-    div.querySelectorAll(`div[${gconst.CONTENT_EDITABLE}="false"]`).forEach(e => e.setAttribute(gconst.CONTENT_EDITABLE, "true"));
+    div.querySelectorAll(`[${gconst.CONTENT_EDITABLE}="false"]`).forEach(e => e.setAttribute(gconst.CONTENT_EDITABLE, "true"));
 
     let new2old: Map<string, string>;
     if (useIDMap) new2old = new Map();
