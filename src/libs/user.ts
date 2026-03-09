@@ -89,9 +89,9 @@ async function verifyUserSign(tokenSign: string, included: string) {
     // if ([
     //     "",
     // ].includes(getMd5(userPartShort))) signValid = false;
-    // if ([
-    //     "",
-    // ].includes(getMd5(userPartShort + "_siyuanTomatoCode"))) signValid = false;
+    if ([
+        "e1255da1e2caf502a408c34c8d336ae7",
+    ].includes(getMd5(userPartShort + "_siyuanTomatoCode"))) signValid = false;
     if ([
         "e0cb783f11f5c6d8e3891124c8f06fb6",
     ].includes(getMd5(userPartShort + "_siyuanProgressiveCode"))) signValid = false;

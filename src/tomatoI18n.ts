@@ -702,6 +702,25 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Document not found";
         }
     }
+
+    public get 需要开启闪卡优先级功能() {
+        switch (this.conf.appearance.lang) {
+            case "zh_CN": return "需要开启闪卡优先级功能";
+            case "es_ES": return "Necesita activar la función de prioridad de tarjetas";
+            case "fr_FR": return "Besoin d'activer la fonction de priorité des cartes";
+            case "ja_JP": return "フラッシュカードの優先度機能を有効にする必要があります";
+            case "zh_CHT": return "需要開啟閃卡優先級功能";
+            case "it_IT": return "È necessario abilitare la funzione di priorità delle flashcard";
+            case "de_DE": return "Kartenprioritätsfunktion muss aktiviert werden";
+            case "he_IL": return "צריך להפעיל את פונקציית עדיפות הכרטיס";
+            case "ru_RU": return "Нужно включить функцию приоритета карточек";
+            case "pl_PL": return "Trzeba włączyć funkcję priorytetu fiszek";
+            case "ar_SA": return "بحاجة إلى تفعيل وظيفة أولوية البطاقة";
+            case "pt_BR": return "Precisa ativar a função de prioridade do cartão";
+            case "en_US":
+            default: return "Need to enable card priority feature";
+        }
+    }
 }
 
 // public[^get]+\(  查找所有的函数

@@ -1413,6 +1413,10 @@ export const timeUtil = {
         return { y: Number(y), M: Number(M), d: Number(d), h: Number(h), m: Number(m), s: Number(s) }
     },
     nowYMDStrPad(d1?: Date) {
+        // 检查日期是否有效
+        if (!d1 || isNaN(d1.getTime())) {
+            d1 = new Date();
+        }
         const [ymd, hms] = timeUtil.nowStr(d1).split(" ")
         const [y, M, d] = ymd.split("-")
         const [h, m, s] = hms.split(":")

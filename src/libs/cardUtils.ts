@@ -85,6 +85,13 @@ export async function pressSkip() {
     return false;
 }
 
+export async function getRestCards() {
+    const cards = await siyuan.getRiffDueCards();
+    return cards.cards.map(due => {
+        return { ial: { id: due.blockID } } as unknown as GetCardRetBlock;
+    });
+}
+
 export async function getIDFromCard() {
     const blockInDocCard = document.querySelector(`div.card__main div[data-doc-type="NodeDocument"][custom-riff-decks] > div[data-node-id]`);
     const subBlockID = getAttribute(blockInDocCard as any, "data-node-id");

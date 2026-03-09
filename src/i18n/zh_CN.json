@@ -60,5 +60,6 @@
   "noteBoxGlobal": "拍照闪念(全局)",
   "gotoBlockID": "跳转到剪贴板中的块ID(gotoBlockID)",
   "deleteBookmark": "删除当前文档的阅读点rp",
-  "gotoBookmark": "跳到当前文档的阅读点rp"
+  "gotoBookmark": "跳到当前文档的阅读点rp",
+  "需要开启闪卡优先级功能": "需要开启闪卡优先级功能"
 }

@@ -427,16 +427,6 @@
         });
     }
 
-    $effect(() => {
-        if ($cardBoxCheckbox === true) {
-            $cardPriorityBoxCheckbox = true;
-        }
-    });
-    $effect(() => {
-        if ($cardPriorityBoxCheckbox === false) {
-            $cardBoxCheckbox = false;
-        }
-    });
 </script>
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->

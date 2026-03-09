@@ -5,7 +5,7 @@ import { EventType, events } from "./libs/Events";
 import { getIDFromCard, pressSkip, showCardAnswer, removeDocCards } from "./libs/cardUtils";
 import { CardSettingsID, WEB_SPACE } from "./libs/gconst";
 import { addFlashCard } from "./libs/listUtils";
-import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxSettingsShow, cardBoxSuperCard, cardBoxCardtab, writableWithGet } from "./libs/stores";
+import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxSettingsShow, cardBoxSuperCard, cardBoxCardtab, writableWithGet, cardPriorityBoxCheckbox } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { getDocTracer, locTree, OpenSyFile2 } from "./libs/docUtils";
 import { closeAllDialog } from "./libs/keyboard";
@@ -227,7 +227,25 @@ class CardBox {
     }
 
     private getHK() {
-        return tomatoI18n.复习时的快捷键(CardBox删除内容块.w(), CardBox复习时删除当前闪卡.w(), CardBox复习时跳过当前闪卡.w(), CardPriorityBox修改文档中闪卡优先级.w(), CardBox定位闪卡.w(), CardPriorityBox分散推迟闪卡.w());
+        if (cardPriorityBoxCheckbox.get()) {
+            return tomatoI18n.复习时的快捷键(
+                CardBox删除内容块.w(),
+                CardBox复习时删除当前闪卡.w(),
+                CardBox复习时跳过当前闪卡.w(),
+                CardPriorityBox修改文档中闪卡优先级.w(),
+                CardBox定位闪卡.w(),
+                CardPriorityBox分散推迟闪卡.w()
+            );
+        } else {
+            return tomatoI18n.复习时的快捷键(
+                CardBox删除内容块.w(),
+                CardBox复习时删除当前闪卡.w(),
+                CardBox复习时跳过当前闪卡.w(),
+                "",
+                CardBox定位闪卡.w(),
+                ""
+            );
+        }
     }
 
     private initSkipBtn() {

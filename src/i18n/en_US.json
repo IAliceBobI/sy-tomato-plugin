@@ -60,5 +60,6 @@
   "noteBoxGlobal": "Capture fleeting thoughts (global)",
   "gotoBlockID": "Jump to block ID in clipboard (gotoBlockID)",
   "deleteBookmark": "Delete reading point in current document",
-  "gotoBookmark": "Jump to reading point in current document"
+  "gotoBookmark": "Jump to reading point in current document",
+  "需要开启闪卡优先级功能": "Flashcard priority feature needs to be enabled"
 }

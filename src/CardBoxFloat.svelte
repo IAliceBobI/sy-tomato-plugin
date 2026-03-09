@@ -18,13 +18,14 @@
         CardPriorityBox分散推迟闪卡,
         cardPriorityBox,
     } from "./CardPriorityBox";
-    import { pressSkip, doStopCards, getIDFromCard } from "./libs/cardUtils";
+    import { pressSkip, doStopCards, getIDFromCard, getRestCards } from "./libs/cardUtils";
     import TomatoVip from "./TomatoVIP.svelte";
     import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
     import {
         cardBoxSettingsShow,
         cardBoxSpradEvenlyPostpone,
         cardBoxDelayDays,
+        cardPriorityBoxCheckbox,
     } from "./libs/stores";
 
     interface Props {
@@ -33,17 +34,29 @@
     }
     let { id, cardPath }: Props = $props();
 
+    let priorityEnabled = $derived(cardPriorityBoxCheckbox.get());
+
     let delayDays = $state(cardBoxDelayDays.get() ?? 0.1);
     let hours = $derived(delayDays * 24);
     let showMsg = $state(false);
 
-    const title = tomatoI18n.复习时的快捷键(
-        CardBox删除内容块.w(),
-        CardBox复习时删除当前闪卡.w(),
-        CardBox复习时跳过当前闪卡.w(),
-        CardPriorityBox修改文档中闪卡优先级.w(),
-        CardBox定位闪卡.w(),
-        CardPriorityBox分散推迟闪卡.w(),
+    let title = $derived(priorityEnabled
+        ? tomatoI18n.复习时的快捷键(
+            CardBox删除内容块.w(),
+            CardBox复习时删除当前闪卡.w(),
+            CardBox复习时跳过当前闪卡.w(),
+            CardPriorityBox修改文档中闪卡优先级.w(),
+            CardBox定位闪卡.w(),
+            CardPriorityBox分散推迟闪卡.w(),
+        )
+        : tomatoI18n.复习时的快捷键(
+            CardBox删除内容块.w(),
+            CardBox复习时删除当前闪卡.w(),
+            CardBox复习时跳过当前闪卡.w(),
+            "",
+            CardBox定位闪卡.w(),
+            "",
+        )
     );
 
     async function deleteCard() {
@@ -52,7 +65,7 @@
     }
 
     async function delayRestCards(spread: boolean) {
-        const blocks = await cardPriorityBox?.getRestCards();
+        const blocks = await getRestCards();
         await doStopCards(String(delayDays), blocks, spread);
         closeAllDialog();
     }
@@ -118,6 +131,8 @@
                 >
                 <button
                     class="b3-button b3-button--outline tomato-button"
+                    disabled={!priorityEnabled}
+                    title={priorityEnabled ? "" : tomatoI18n.需要开启闪卡优先级功能}
                     onclick={setPri}>🔴🟡🟢{tomatoI18n.闪卡优先级}</button
                 >
             </div>
