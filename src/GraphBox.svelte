@@ -29,6 +29,7 @@
     import dagre from "@dagrejs/dagre";
     import GraphControl from "./GraphControl.svelte";
     import GraphMenu from "./GraphMenu.svelte";
+    import EdgeWithLabel from "./EdgeWithLabel.svelte";
     import { BlockTypeNoContent } from "./libs/gconst";
     import {
         graphClick2Locate,
@@ -59,6 +60,7 @@
     let lastDocID = "";
     let stop = false;
     let isVertical = false;
+    const edgeTypes = { labeledEdge: EdgeWithLabel };
     export function destroy() {}
 
     // https://svelteflow.dev/examples/nodes/easy-connect
@@ -173,13 +175,12 @@
         const set = new Set<string>();
         links.forEach((link) => {
             if (graphHideStructEdges.get() && !link.isRef) return;
-            const id1 = link.block_id + "-" + link.def_block_id;
-            const id2 = link.def_block_id + "-" + link.block_id;
-            if (set.has(id1) || set.has(id2)) return;
-            set.add(id1);
-            set.add(id2);
+            const id = link.block_id + "-" + link.def_block_id;
+            if (set.has(id)) return;
+            set.add(id);
             addEdge(link);
         });
+        spreadEdgeLabels($edges);
         await taskLayoutDirection;
         relayout();
         if (docID != lastDocID && data()?.locateID) {
@@ -208,7 +209,20 @@
             source: link.block_id,
             target: link.def_block_id,
             label,
+            type: label ? "labeledEdge" : undefined,
         });
+    }
+
+    function spreadEdgeLabels(edges: Edge[]) {
+        const srcIdx = new Map<string, number>();
+        for (const e of edges) {
+            if (!e.label) continue;
+            const idx = srcIdx.get(e.source) ?? 0;
+            srcIdx.set(e.source, idx + 1);
+            // Labels stay near source (t=0.1, 0.3, 0.5...).
+            // Edges from different sources are spatially separated even when paths cross.
+            (e as any).data = { ...((e as any).data ?? {}), labelT: 0.1 + idx * 0.2 };
+        }
     }
 
     function relayout() {
@@ -260,23 +274,22 @@
                 node.sourcePosition = Position.Right;
             }
         });
-        // 出入链接调整一下，不然会拧巴着.
+        // 回边处理：不交换 source/target，直接标记 isBackEdge，弧线从右边出接左边入
         edges.forEach((edge) => {
             const s = nodeMap.get(edge.source);
             const t = nodeMap.get(edge.target);
             if (s && t) {
-                if (isVertical) {
-                    if (s.position.y > t.position.y) {
-                        const tmp = edge.source;
-                        edge.source = edge.target;
-                        edge.target = tmp;
-                    }
-                } else {
-                    if (s.position.x > t.position.x) {
-                        const tmp = edge.source;
-                        edge.source = edge.target;
-                        edge.target = tmp;
-                    }
+                const isBackEdge = isVertical
+                    ? s.position.y > t.position.y
+                    : s.position.x > t.position.x;
+                if (isBackEdge) {
+                    const oldData: any = (edge as any).data ?? {};
+                    (edge as any).data = {
+                        ...oldData,
+                        isBackEdge: true,
+                        backEdgeDir: isVertical ? "left" : "down",
+                    };
+                    edge.type = "labeledEdge";
                 }
             }
         });
@@ -355,6 +368,7 @@
             id={newID()}
             {colorMode}
             {snapGrid}
+            {edgeTypes}
             fitView
             {ondelete}
             {onconnect}
@@ -385,5 +399,8 @@
     .container {
         width: 800px;
         height: 800px;
+    }
+    :global(.svelte-flow__edges) {
+        z-index: 1001 !important;
     }
 </style>

@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@dagrejs/dagre": "^1.1.4",
-    "@xyflow/svelte": "^1.2.1",
+    "@xyflow/svelte": "^1.5.1",
     "elliptic": "^6.5.7",
     "fabric": "^5.4.0",
     "html2canvas": "^1.4.1",
