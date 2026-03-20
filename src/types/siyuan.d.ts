@@ -308,6 +308,7 @@ type Ref = {
     root_id?: string;
     type?: string;
     docContent?: string;
+    isRef?: boolean;
 }
 
 type DocTabInitData = {

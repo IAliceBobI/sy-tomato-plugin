@@ -32,6 +32,7 @@
     import { BlockTypeNoContent } from "./libs/gconst";
     import {
         graphClick2Locate,
+        graphHideStructEdges,
         graphMaxAllBlocks,
         graphMaxPBlocks,
     } from "./libs/stores";
@@ -171,6 +172,7 @@
         });
         const set = new Set<string>();
         links.forEach((link) => {
+            if (graphHideStructEdges.get() && !link.isRef) return;
             const id1 = link.block_id + "-" + link.def_block_id;
             const id2 = link.def_block_id + "-" + link.block_id;
             if (set.has(id1) || set.has(id2)) return;

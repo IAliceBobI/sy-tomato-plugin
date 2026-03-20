@@ -98,6 +98,7 @@
         graphBoxCheckbox,
         graphMaxPBlocks,
         graphMaxAllBlocks,
+        graphHideStructEdges,
         fastNoteBoxDelAfterCreating,
         graphClick2Locate,
         dailyNoteCopySimple,
@@ -1433,6 +1434,10 @@
             <div>
                 <input class="b3-text-field" bind:value={$graphMaxAllBlocks} />
                 {tomatoI18n.最大节点数量}
+            </div>
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$graphHideStructEdges} />
+                隐藏结构连线（仅显示引用形成的连线）
             </div>
             <div>
                 {@html tomatoI18n.块关系图帮助}

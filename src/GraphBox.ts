@@ -428,6 +428,7 @@ export async function getData(docID: string, docName: string, maxPBlocks: number
             refs = await taskRefs;
             const ids = refs
                 .map((r) => {
+                    r.isRef = true;
                     r.content = r.content?.slice(0, 4) ?? "";
                     return [
                         r.root_id,

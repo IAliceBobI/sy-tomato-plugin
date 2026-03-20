@@ -350,6 +350,7 @@ export const graphBoxCheckbox = settingFactory("graphBoxCheckbox", false, STORAG
 export const graphMaxPBlocks = settingFactory("graphMaxPBlocks", 20, STORAGE_SETTINGS, null as TSK);
 export const graphMaxAllBlocks = settingFactory("graphMaxAllBlocks", 800, STORAGE_SETTINGS, null as TSK);
 export const graphClick2Locate = settingFactory("graphClick2Locate", false, STORAGE_SETTINGS, null as TSK);
+export const graphHideStructEdges = settingFactory("graphHideStructEdges", true, STORAGE_SETTINGS, null as TSK);
 export const graphAddTopbarIcon = settingFactory("graphAddTopbarIcon", true, STORAGE_SETTINGS, null as TSK);
 export const graph打开块关系图Menu = settingFactory("graphopengraphMenu", true, STORAGE_SETTINGS, null as TSK);
 export const graph定位到图中的节点Menu = settingFactory("graphlocatetographMenu", true, STORAGE_SETTINGS, null as TSK);

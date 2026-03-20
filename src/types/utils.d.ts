@@ -162,6 +162,7 @@ type TomatoSettings = {
     flashcardAddRefs: boolean,
     //------------------
     graphClick2Locate: boolean,
+    graphHideStructEdges: boolean,
     graphMaxAllBlocks: string,
     graphMaxPBlocks: string,
     graphBoxCheckbox: string,
