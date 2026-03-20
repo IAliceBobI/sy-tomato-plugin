@@ -670,6 +670,18 @@ function getShortName(longName: string): string | undefined {
     return nodeNameMapping[longName];
 }
 
+/**
+ * 获取元素内容，排除引用锚点文本
+ * 引用元素的格式: <span data-type="block-ref" ...>anchor text</span>
+ */
+function getContentWithoutRefs(element: HTMLElement): string {
+    // 克隆节点以避免修改原始DOM
+    const clone = element.cloneNode(true) as HTMLElement;
+    // 移除所有引用元素
+    clone.querySelectorAll('[data-type="block-ref"]').forEach(ref => ref.remove());
+    return clone.textContent || "";
+}
+
 export async function fillChildren(root: Block, div: HTMLElement, setContent: boolean, emptyContent: boolean, level: number, maxLevel: number) {
     if (level > maxLevel) return;
     if (!root.children) root.children = [];
@@ -687,7 +699,8 @@ export async function fillChildren(root: Block, div: HTMLElement, setContent: bo
                 if (child.type === 'm') {
                     child.content = e.getAttribute('data-content').trim();
                 } else {
-                    child.content = removeInvisibleChars(e.textContent, true)
+                    // 排除引用锚点文本：只获取非引用元素的内容
+                    child.content = removeInvisibleChars(getContentWithoutRefs(e), true)
                 }
                 if (!emptyContent) {
                     if (!child.content) continue;

@@ -409,6 +409,7 @@ type AttrType = {
     "custom-bkMenDocCount"?: string,
     "custom-bkRefDocCount"?: string,
     "custom-graph-isVertical"?: string,
+    "custom-graph-node-positions"?: string,
     "custom-super-list"?: string,
     "custom-tomato-reflink"?: string,
     "custom-sync-block-id"?: string,
