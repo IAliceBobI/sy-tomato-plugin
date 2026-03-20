@@ -533,6 +533,7 @@ export default class ThePlugin extends BaseTomatoPlugin {
     }
 
     onunload() {
+        graphBox.destroy();
         linkBox.onunload();
         cardPriorityBox.onunload();
         toolbarBox.onunload();
