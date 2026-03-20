@@ -1,7 +1,7 @@
 import { Custom, Dock, IEventBusMap, IProtyle, openTab } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { graphAddTopbarIcon, graphBoxCheckbox, graph定位到图中的节点Menu, graph打开块关系图Menu } from "./libs/stores";
-import { siyuan, } from "./libs/utils";
+import { siyuan, getDoOperations } from "./libs/utils";
 import { events, EventType } from "./libs/Events";
 import GraphBoxSvelte from "./GraphBox.svelte";
 import { tomatoI18n } from "./tomatoI18n";
@@ -24,6 +24,11 @@ class GraphBox {
     plugin: BaseTomatoPlugin;
     private customTab: () => Custom;
     private dock: Dock;
+    // 智能刷新相关
+    private lastRefreshedDocID: string = "";   // 上次刷新的文档 ID
+    private lastRefreshedUpdated: string = ""; // 上次刷新时的文档 updated 时间戳
+    private pendingRefresh: boolean = false;   // 是否有待处理的刷新请求
+    private debounceTimer: ReturnType<typeof setTimeout> | null = null;
     onload(plugin: BaseTomatoPlugin) {
         if (plugin.initCfg()) {
             this._onload(plugin)
@@ -71,8 +76,44 @@ class GraphBox {
                 || eventType == EventType.click_editorcontent
                 || eventType == EventType.switch_protyle
             ) {
+                // 切换文档时重置时间戳
+                const newDocID = detail?.protyle?.block?.rootID;
+                if (newDocID && newDocID !== this.lastRefreshedDocID) {
+                    this.lastRefreshedUpdated = "";
+                    this.lastRefreshedDocID = newDocID;
+                }
                 this.getData()?.changeDoc(detail?.protyle);
             }
+        });
+        // 自动刷新：智能防抖刷新机制
+        events.addWsListener("tomato-graph-auto-refresh-2025", (wsData: WsMain) => {
+            const ops = getDoOperations(wsData);
+            if (ops.length === 0) return;
+            const currentDocID = events.docID;
+            if (!currentDocID) return;
+
+            const related = ops.some(op =>
+                op.id === currentDocID ||
+                op.parentID === currentDocID
+            );
+            if (!related) return;
+
+            // 标记有待处理的刷新请求
+            this.pendingRefresh = true;
+
+            // 清除之前的防抖定时器
+            if (this.debounceTimer) {
+                clearTimeout(this.debounceTimer);
+            }
+
+            // 500ms 防抖，合并连续事件
+            this.debounceTimer = setTimeout(() => {
+                this.debounceTimer = null;
+                if (this.pendingRefresh) {
+                    this.pendingRefresh = false;
+                    this.checkAndRefresh(currentDocID);
+                }
+            }, 500);
         });
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             this.locateNodeMenu(detail as any);
@@ -105,6 +146,26 @@ class GraphBox {
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
         if (!graphBoxCheckbox.get()) return;
         this.locateNodeMenu(detail as any);
+    }
+
+    // 检查文档 updated 时间戳，决定是否需要刷新
+    private async checkAndRefresh(docID: string) {
+        try {
+            // 查询文档当前的 updated 时间戳
+            const row = await siyuan.sqlOne(`SELECT updated FROM blocks WHERE id = "${docID}" AND type = "d"`);
+            const currentUpdated = row?.updated;
+
+            // 如果时间戳没有变化，跳过刷新
+            if (currentUpdated && currentUpdated === this.lastRefreshedUpdated) {
+                return;
+            }
+
+            // 时间戳有变化，执行刷新
+            this.lastRefreshedUpdated = currentUpdated || "";
+            this.getData()?.changeDoc(events.protyle?.protyle);
+        } catch (e) {
+            console.warn("[GraphBox] checkAndRefresh error:", e);
+        }
     }
 
     async openGraphTab() {
