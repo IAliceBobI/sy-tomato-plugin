@@ -13,6 +13,7 @@ import { imgOverlayBox } from "./ImgOverlayBox";
 import { dailyNoteBox } from "./DailyNoteBox";
 import { cardPriorityBox } from "./CardPriorityBox";
 import { siyuan, timeUtil } from "../../sy-tomato-plugin/src/libs/utils";
+import { assetsApi } from "./libs/docUtils";
 import { mixBox } from "./MixBox";
 import { DATA_TYPE, TomatoPluginConfig, TomatoPluginInstance } from "./libs/gconst";
 import { tomatoI18n } from "./tomatoI18n";
@@ -311,6 +312,9 @@ export default class ThePlugin extends BaseTomatoPlugin {
             window.tomato_zZmqus5PtYRi.pluginInstance = this;
             window.tomato_zZmqus5PtYRi.pluginID = this.id;
             window.tomato_zZmqus5PtYRi.pluginConfig = this.settingCfg;
+            window.tomato_zZmqus5PtYRi.api = {
+                assets: assetsApi,
+            };
             loadStore(this);
             setGlobal(TomatoPluginConfig, this.settingCfg)
             return this.settingCfg;

@@ -23,6 +23,17 @@ declare global {
             tools: any;
             save?: () => void;
             rmContentEmptyRefs?: () => void;
+            api?: {
+                assets?: {
+                    buildExts: () => string[];
+                    scanAssetFiles: (exts?: string[]) => Promise<{ isDir: boolean; isSymlink: boolean; name: string; updated: string }[]>;
+                    readSyFiles: (exts?: string[]) => Promise<Map<string, { content: string; modified: boolean }>>;
+                    createSnapshot: () => Promise<void>;
+                    moveAndReplace: (files: { name: string }[], yearMonth?: string[]) => Promise<{ oldPath: string; newPath: string; success: boolean }[]>;
+                    saveModifiedFiles: (syFiles: Map<string, { content: string; modified: boolean }>) => Promise<number>;
+                    tidy: () => Promise<void>;
+                };
+            };
         };
     }
 }
