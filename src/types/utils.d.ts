@@ -477,7 +477,7 @@ interface PluginSpec {
 
 interface Description {
     default: string;
-    zh_CN: string;
+    "zh-CN": string;
 }
 
 interface Funding {

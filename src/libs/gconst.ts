@@ -174,14 +174,36 @@ export enum WsActionTypes {
 export abstract class TomatoI18nABCMAX {
     conf: Config.IConf | {
         appearance: {
-            lang: "ar_SA" | "pt_BR"
+            lang: string
         }
     };
     init() {
         this.conf = Siyuan.config
+        // 路A：原地把 lang 改写成内部旧码，687 处 switch 零改动即可同时支持新旧 lang 值。
+        // 思源 3.7.0 把 appearance.lang 从下划线形式（zh_CN）改成了 BCP 47 形式（zh-CN），
+        // 但本插件所有 switch case 仍比对旧下划线形式，这里做一层兼容映射统一成旧码。
+        // 若 config 对象只读/冻结，catch 兜底忽略，外部读取走下面的 lang getter 也能归一化。
+        try {
+            this.conf.appearance.lang = this.lang
+        } catch (e) { /* 冻结对象则跳过，调用方经 lang getter 读取 */ }
+    }
+    /**
+     * 把运行时的 lang（新码 zh-CN / 旧码 zh_CN）归一化成内部旧码。
+     * 覆盖思源官方对照表全部 13 种语言。
+     * 不在表里的值原样返回，保证旧版本/未知语言不被破坏。
+     */
+    get lang(): string {
+        const lang = this.conf?.appearance?.lang ?? "en_US"
+        const newToOld: Record<string, string> = {
+            "zh-CN": "zh_CN", "zh-TW": "zh_CHT",
+            "en": "en_US", "de": "de_DE", "fr": "fr_FR", "es": "es_ES",
+            "it": "it_IT", "ja": "ja_JP", "ru": "ru_RU", "pl": "pl_PL",
+            "ar": "ar_SA", "he": "he_IL", "pt-BR": "pt_BR",
+        }
+        return newToOld[lang] ?? lang  // 旧码不在表里则原样返回（旧版本兼容）
     }
     get isEN() {
-        return this.conf.appearance.lang == "en_US";
+        return this.lang == "en_US";
     }
 }
 
