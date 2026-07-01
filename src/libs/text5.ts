@@ -2,7 +2,7 @@ import { TomatoI18nABC6 } from "./text6";
 
 export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     public get 给无序列表加上背景色() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "给无序列表加上背景色";
             case "es_ES":
@@ -21,7 +21,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 禁用强提醒() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "禁用强提醒";
             case "es_ES":
@@ -40,7 +40,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 用对话框的形式打开阅读点() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "用对话框的形式打开阅读点";
             case "es_ES":
@@ -59,7 +59,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 触发快捷键时弹出对话框() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "触发快捷键时弹出对话框(速度更快)";
             case "es_ES":
@@ -78,7 +78,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 同步块选择() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "同步块-选择";
             case "es_ES":
@@ -97,7 +97,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 同步块创建() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "同步块-创建";
             case "es_ES":
@@ -116,7 +116,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 同步块() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "同步块";
             case "es_ES":
@@ -136,7 +136,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
 
     public 已在x个地方同步(x: number) {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return `已在${x}个地方同步`;
             case "es_ES":
@@ -155,7 +155,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 保存() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "保存";
             case "es_ES":
@@ -174,7 +174,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 自动() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "自动";
             case "es_ES":
@@ -193,7 +193,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public 延迟x秒后执行(x: number) {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return `延迟${x}秒后执行，请勿修改`;
             case "es_ES":
@@ -212,7 +212,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 全部打开() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "全部打开";
             case "es_ES":
@@ -231,7 +231,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 自动隐藏() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "自动隐藏";
             case "es_ES":
@@ -250,7 +250,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 添加到原始块的链接() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "添加到原始块的链接";
             case "es_ES":
@@ -269,7 +269,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 添加到原始块的引用() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "添加到原始块的引用";
             case "es_ES":
@@ -288,7 +288,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 设为原始块() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "设为原始块";
             case "es_ES":
@@ -307,7 +307,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 全部删除() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "全部删除";
             case "es_ES":
@@ -326,7 +326,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 删除其他() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "删除其他";
             case "es_ES":
@@ -345,7 +345,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 同步失败() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "同步失败";
             case "es_ES":
@@ -364,7 +364,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 无复本块() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "无复本块";
             case "es_ES":
@@ -383,7 +383,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 重置版本() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "重置版本";
             case "es_ES":
@@ -402,7 +402,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 打开块关系图() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "打开块关系图";
             case "es_ES":
@@ -423,7 +423,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
 
  
     public get 批注(): string {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "批注";
             case "es_ES":
@@ -442,7 +442,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 包含正反链() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "包含正反链";
             case "es_ES":
@@ -461,7 +461,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 正引() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "正引";
             case "es_ES":
@@ -481,7 +481,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
     public get 反引() {
         // 补充缺失的语言
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "反引";
             case "es_ES":
@@ -501,7 +501,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
     public get 虚引() {
         // 补充缺失的语言
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "虚引";
             case "es_ES":
@@ -521,7 +521,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
     public get 高度() {
         // 补充缺失的语言
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "高度";
             case "es_ES":
@@ -540,7 +540,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 添加批注到日记() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "添加批注到日记";
             case "es_ES":
@@ -559,7 +559,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 添加批注到新文件() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "添加批注到新文件";
             case "es_ES":
@@ -578,7 +578,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 批注添加下划线() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "批注添加下划线";
             case "es_ES":
@@ -597,7 +597,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 定位() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "定位";
             case "es_ES":
@@ -616,7 +616,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 引用已向上传递() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "引用已向上传递";
             case "es_ES":
@@ -635,7 +635,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 显示ID() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "显示ID";
             case "es_ES":
@@ -655,7 +655,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
     public get 显示路径() {
         // 补充缺失的语言
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "显示路径";
             case "es_ES":
@@ -675,7 +675,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
     public get 向上传递引用到标题() {
         // 补充缺失的语言
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "向上传递引用到标题";
             case "es_ES":
@@ -695,7 +695,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
     public get 向上传递引用到超级块() {
         // 补充缺失的语言
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "向上传递引用到超级块";
             case "es_ES":
@@ -715,7 +715,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
     public get 向上传递引用到引述块() {
         // 补充缺失的语言
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "向上传递引用到引述块";
             case "es_ES":
@@ -735,7 +735,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
     public get 复制为引用() {
         // 补充缺失的语言
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "复制为引用";
             case "es_ES":
@@ -755,7 +755,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
     public get 展开与折叠() {
         // 补充缺失的语言
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "展开与折叠";
             case "es_ES":
@@ -774,7 +774,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 将选择文字加入文档的别名() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "将选择文字加入文档的别名";
             case "es_ES":
@@ -793,7 +793,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 回到第一页() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "回到第一页";
             case "es_ES":
@@ -812,7 +812,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 保存查询条件() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "保存查询条件";
             case "es_ES":
@@ -831,7 +831,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 点击查询ctrl点击删除() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "点击查询，ctrl点击删除";
             case "es_ES":
@@ -850,7 +850,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
         }
     }
     public get 添加空间ID() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "添加空间ID";
             case "es_ES":
@@ -870,7 +870,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
 
     public get 添加知识库ID() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "添加知识库ID";
             case "es_ES":
@@ -890,7 +890,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
 
     public get 添加令牌() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "添加令牌";
             case "es_ES":
@@ -910,7 +910,7 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
     }
 
     public get 上传当前文档以及所有子文档() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "上传当前文档以及所有子文档";
             case "es_ES":

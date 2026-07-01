@@ -4,7 +4,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
    
 
     public get 闪念插入到Dailynote顶端() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "闪念插入到Dailynote顶端。";
             case "es_ES":
@@ -21,7 +21,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
         }
     }
     public get 显示闪念的时间与类型() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "显示闪念的时间与类型。";
             case "es_ES":
@@ -39,7 +39,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 闪念插入到文件() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "闪念插入到文件，填入文件名（无路径，无后缀）（留空为插入到当天dailynote）";
             case "es_ES":
@@ -57,7 +57,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 列表工具() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "列表工具";
             case "es_ES":
@@ -75,7 +75,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 阻止连续回车断开列表() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "阻止连续回车断开列表。(若想从中间断开列表：shift+tab)";
             case "es_ES":
@@ -93,7 +93,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 注册文心() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "注册Ernie AI：注册后，创建应用，复制API Key与Secret Key即可";
             case "es_ES":
@@ -111,7 +111,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 注册Deepseek创建APIKey() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "注册 Deepseek，创建 API Key";
             case "es_ES":
@@ -129,7 +129,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 注册moonshot创建APIKey() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "注册 moonshot，创建 API Key";
             case "es_ES":
@@ -146,7 +146,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
         }
     }
     public get 请先选中块() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "请先选中段落块";
             case "es_ES":
@@ -166,7 +166,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 创建往返链成功() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "创建往返链成功";
             case "es_ES":
@@ -184,7 +184,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 静态反链() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "静态反链";
             case "es_ES":
@@ -202,7 +202,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 禁用底部反链() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "禁用底部反链";
             case "es_ES":
@@ -220,7 +220,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 启用底部反链() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "启用底部反链";
             case "es_ES":
@@ -238,7 +238,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 把文档内容移动到这里() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "把文档内容移动到这里";
             case "es_ES":
@@ -255,7 +255,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
         }
     }
     public get 填入要被清空的文档的ID文档里面的块ID也行会最终得到文档ID() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "填入要被清空的文档的ID，文档里面的块ID也行，会最终得到文档ID";
             case "es_ES":
@@ -273,7 +273,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 合并文档到这里() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "合并文档到这里，内容属性引用";
             case "es_ES":
@@ -291,7 +291,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 刷新静态反链() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "刷新静态反链";
             case "es_ES":
@@ -309,7 +309,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     }
 
     public get 删除静态反链() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "删除静态反链";
             case "es_ES":
@@ -326,7 +326,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
         }
     }
     public get 插入空的脑图流程图文件() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "插入空的脑图、流程图文件";
             case "es_ES":
@@ -343,7 +343,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
         }
     }
     public get 脑图名字() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "填写文件名。后缀为 '.xmind' 或 '.drawio'";
             case "es_ES":
@@ -360,7 +360,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
         }
     }
     public get SEARCH_HELP() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return `
 <div >
@@ -545,7 +545,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
     }
 
     public get 整理assets下的图片视频音频() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "整理 assets 下的图片、视频、音频";
             case "es_ES":
@@ -563,7 +563,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
     }
 
     public get 即将创建快照() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "即将创建快照，如果有问题，可从快照恢复。（建议自己手动 alt+h 创建快照保险一些）";
             case "es_ES":
@@ -581,7 +581,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
     }
 
     public get 已经刷新虚拟引用() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "已经刷新虚拟引用";
             case "es_ES":
@@ -599,7 +599,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
     }
 
     public get 正在转移引用() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "正在转移引用……";
             case "es_ES":
@@ -617,7 +617,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
     }
 
     public get 正在尝试删除闪卡() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "正在尝试删除闪卡……";
             case "es_ES":
@@ -635,7 +635,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
     }
 
     public get 正在删除老文件() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "正在删除老文件……";
             case "es_ES":
@@ -652,7 +652,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get assets整理还在进行中() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "assets: 整理还在进行中……";
             case "es_ES":
@@ -670,7 +670,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
     }
 
     public assets整理了x个文件(filesCount: number) {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return `assets: 整理了[${filesCount}]个文件`;
             case "es_ES":
@@ -688,7 +688,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
     }
 
     public 已经处理了x个块(count: number, filesCount: number, blockCount: number) {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return `已经处理了[${count}/${filesCount}]个文件，[${blockCount}]个块。`;
             case "es_ES":
@@ -705,7 +705,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public 准备删除失效闪卡(x: number) {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return `准备删除失效闪卡${x}个`;
             case "es_ES":
@@ -722,7 +722,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 默认关闭自动刷新() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "默认关闭自动刷新";
             case "es_ES":
@@ -739,7 +739,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 自动选择一个笔记本() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "自动选择一个笔记本";
             case "es_ES":
@@ -756,7 +756,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 选择() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "选择";
             case "es_ES":
@@ -773,7 +773,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 知识库问答() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "知识库问答";
             case "es_ES":
@@ -790,7 +790,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 隐藏闪卡暂停按钮() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "隐藏闪卡暂停按钮";
             case "es_ES":
@@ -808,7 +808,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
     }
 
     public get 隐藏优先级滑动块() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "隐藏优先级滑动块";
             case "es_ES":
@@ -825,7 +825,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 使内容模糊() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "使内容模糊";
             case "es_ES":
@@ -842,7 +842,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 请将上面的内容制作为表格() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "请将上面的内容制作为表格";
             case "es_ES":
@@ -859,7 +859,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 内容制表() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "把有‘|’隔开的内容制表，可选择多行";
             case "es_ES":
@@ -876,7 +876,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 在文档树中定位() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "在文档树中定位";
             case "es_ES":
@@ -893,7 +893,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 番茄钟在状态栏的右边() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "番茄钟在状态栏的右边";
             case "es_ES":
@@ -910,7 +910,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 复制为图片(): string {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "复制为图片";
             case "es_ES":
@@ -927,7 +927,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 正在复制为图片请等待() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "正在复制为图片请等待";
             case "es_ES":
@@ -944,7 +944,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 复制完成() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "复制完成";
             case "es_ES":
@@ -961,7 +961,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 显示备注() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "显示备注Memo于内容上方";
             case "es_ES":
@@ -978,7 +978,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 锁定内容() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "锁定内容/解锁内容";
             case "es_ES":
@@ -995,7 +995,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
     public get 百度千帆转发器监听地址() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "百度千帆转发器监听地址";
             case "es_ES":
@@ -1013,7 +1013,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
     }
 
     public get 添加百度千帆的密钥() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "添加百度千帆的密钥";
             case "es_ES":
@@ -1031,7 +1031,7 @@ it means that as long as one of these keywords appears, it will match.</strong><
     }
 
     public get 添加知识库得到ID() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "添加知识库得到ID";
             case "es_ES":

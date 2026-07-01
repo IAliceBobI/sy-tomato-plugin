@@ -179,18 +179,14 @@ export abstract class TomatoI18nABCMAX {
     };
     init() {
         this.conf = Siyuan.config
-        // 路A：原地把 lang 改写成内部旧码，687 处 switch 零改动即可同时支持新旧 lang 值。
-        // 思源 3.7.0 把 appearance.lang 从下划线形式（zh_CN）改成了 BCP 47 形式（zh-CN），
-        // 但本插件所有 switch case 仍比对旧下划线形式，这里做一层兼容映射统一成旧码。
-        // 若 config 对象只读/冻结，catch 兜底忽略，外部读取走下面的 lang getter 也能归一化。
-        try {
-            this.conf.appearance.lang = this.lang
-        } catch (e) { /* 冻结对象则跳过，调用方经 lang getter 读取 */ }
     }
     /**
      * 把运行时的 lang（新码 zh-CN / 旧码 zh_CN）归一化成内部旧码。
      * 覆盖思源官方对照表全部 13 种语言。
      * 不在表里的值原样返回，保证旧版本/未知语言不被破坏。
+     *
+     * 注意：纯读取，绝不回写 conf.appearance.lang——this.conf 是 window.siyuan.config
+     * 的引用，回写会污染思源全局配置导致本体语言错乱。
      */
     get lang(): string {
         const lang = this.conf?.appearance?.lang ?? "en_US"

@@ -2,7 +2,7 @@ import { TomatoI18nABC12 } from "./text12";
 
 export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     public get 开始学习() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "开始学习";
             case "es_ES": return "Comenzar a aprender";
             case "fr_FR": return "Commencer à apprendre";
@@ -18,7 +18,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 开始随机学习() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "开始随机学习";
             case "es_ES": return "Comenzar aprendizaje aleatorio";
             case "fr_FR": return "Démarrer l'apprentissage aléatoire";
@@ -34,7 +34,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 查看所有渐进学习文档() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "查看所有渐进学习文档";
             case "es_ES": return "Ver todos los documentos de aprendizaje progresivo";
             case "fr_FR": return "Voir tous les documents d'apprentissage progressif";
@@ -50,7 +50,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 添加当前文档到渐进阅读分片模式() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "添加当前文档到渐进阅读（分片模式）";
             case "es_ES": return "Agregar documento actual a lectura progresiva (modo fragmentado)";
             case "fr_FR": return "Ajouter le document actuel à la lecture progressive (mode fragmenté)";
@@ -66,7 +66,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 请选择段落块进行跳转() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "请选择文档内的段落块进行跳转，不支持大纲、超级块等复杂结构里的段落块";
             case "es_ES": return "Seleccione un bloque de párrafo dentro del documento para saltar, no se admiten bloques de párrafo en estructuras complejas como esquemas o bloques superiores";
             case "fr_FR": return "Sélectionnez un bloc de paragraphe dans le document pour effectuer un saut, les blocs de paragraphe dans des structures complexes telles que les plans ou les super blocs ne sont pas pris en charge";
@@ -82,7 +82,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get topbar添加图标() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "添加topbar图标";
             case "es_ES": return "Agregar icono a la barra superior";
             case "fr_FR": return "Ajouter une icône à la barre supérieure";
@@ -98,7 +98,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get search搜索配置() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "搜索配置";
             case "es_ES": return "Buscar configuración";
             case "fr_FR": return "Rechercher configuration";
@@ -114,7 +114,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 复制文档为纯文本() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "复制文档为纯文本";
             case "es_ES": return "Copiar documento como texto sin formato";
             case "fr_FR": return "Copier le document en texte brut";
@@ -131,7 +131,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get vip版本上线前打赏的金额可以双倍抵扣() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "2025年5月15日前打赏享「翻倍 buff」！金额直接 ×2 抵扣，多出来的部分就当请我们喝快乐水啦～主打一个双向奔赴，入股不亏！";
             case "es_ES": return "¡Donaciones antes del 15 de mayo de 2025 disfrutan de «doble bonificación»! El monto se deduce directamente ×2, ¡la diferencia extra es como invitarnos a un refresco feliz! Principalmente una carrera hacia ambos sentidos, ¡invertir no tiene pérdidas!";
             case "fr_FR": return "Les dons effectués avant le 15 mai 2025 bénéficient d'un « bonus doublé » ! Le montant est déduit directement ×2, la différence supplémentaire est comme si vous nous offriez une boisson rafraîchissante ! Principalement une course vers les deux sens, investir sans perdre !";
@@ -148,7 +148,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 点击打开商品() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "点击打开商品";
             case "es_ES": return "Haga clic para abrir el producto";
             case "fr_FR": return "Cliquez pour ouvrir le produit";
@@ -165,7 +165,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 摘抄后加入阅读点() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "摘抄后，加入阅读点（需要番茄工具箱插件）";
             case "es_ES": return "Después de copiar, agrega un punto de lectura (requiere el complemento Tomato Toolbox)";
             case "fr_FR": return "Après avoir copié, ajoutez un point de lecture (nécessite l'extension Tomato Toolbox)";
@@ -182,7 +182,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 取消最后一次选择的内容() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "取消最后一次选择的内容";
             case "es_ES": return "Cancelar el contenido de la última selección";
             case "fr_FR": return "Annuler le contenu de la dernière sélection";
@@ -199,7 +199,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 移动端显示悬浮按钮() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "移动端显示悬浮按钮";
             case "es_ES": return "Mostrar botón flotante en móvil";
             case "fr_FR": return "Afficher le bouton flottant sur mobile";
@@ -216,7 +216,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 桌面端显示悬浮按钮() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "桌面端显示悬浮按钮";
             case "es_ES": return "Mostrar botón flotante en escritorio";
             case "fr_FR": return "Afficher le bouton flottant sur bureau";
@@ -233,7 +233,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 关闭悬浮按钮双击可以再次打开() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "关闭悬浮按钮，双击可以再次打开";
             case "es_ES": return "Cierra el botón flotante. Puedes abrirlo de nuevo haciendo doble clic.";
             case "fr_FR": return "Fermez le bouton flottant. Vous pouvez le rouvrir en double-cliquant.";
@@ -250,7 +250,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 移动端编辑器右上角添加多行选择按钮() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "移动端：编辑器右上角添加多行选择按钮";
             case "es_ES": return "Móvil: Agregar botón de selección múltiple en la esquina superior derecha del editor";
             case "fr_FR": return "Mobile : Ajouter un bouton de sélection multiple dans l'angle supérieur droit de l'éditeur";
@@ -267,7 +267,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 桌面端编辑器右上角添加多行选择按钮() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "桌面端：编辑器右上角添加多行选择按钮";
             case "es_ES": return "Escritorio: Agregar botón de selección múltiple en la esquina superior derecha del editor";
             case "fr_FR": return "Bureau : Ajouter un bouton de sélection multiple dans l'angle supérieur droit de l'éditeur";
@@ -284,7 +284,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 移动端编辑器右上角添加多行选择菜单() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "移动端：编辑器右上角添加多行选择菜单";
             case "es_ES": return "Móvil: Añadir menú de selección múltiple en la esquina superior derecha del editor";
             case "fr_FR": return "Mobile : Ajouter un menu de sélection multiple dans l'angle supérieur droit de l'éditeur";
@@ -301,7 +301,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 桌面端编辑器右上角添加多行选择菜单() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "桌面端：编辑器右上角添加多行选择菜单";
             case "es_ES": return "Escritorio: Añadir menú de selección múltiple en la esquina superior derecha del editor";
             case "fr_FR": return "Bureau : Ajouter un menu de sélection multiple dans l'angle supérieur droit de l'éditeur";
@@ -318,7 +318,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 打开多行选择菜单() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "打开多行选择菜单";
             case "es_ES": return "Abrir menú de selección múltiple";
             case "fr_FR": return "Ouvrir le menu de sélection multiple";
@@ -335,7 +335,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 开始执行() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "开始执行";
             case "es_ES": return "Comenzar ejecución";
             case "fr_FR": return "Démarrer l'exécution";
@@ -352,7 +352,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 在编辑器右上角添加加入渐进阅读分片模式按钮() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "在编辑器右上角添加加入渐进阅读分片模式按钮";
             case "es_ES": return "Agregar botón para entrar en modo de fragmentos de lectura progresiva en la esquina superior derecha del editor";
             case "fr_FR": return "Ajouter un bouton pour activer le mode fragments de lecture progressive dans le coin supérieur droit de l'éditeur";
@@ -369,7 +369,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 思维导线() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "思维导线";
             case "es_ES": return "hilo de pensamiento";
             case "fr_FR": return "fil de réflexion";
@@ -386,7 +386,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 思维导线帮助() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "引用渲染为连线。可根据引用，在段落块间添加连线";
             case "es_ES": return "Las referencias se representan como conexiones. Puedes añadir conexiones entre bloques de párrafos según las referencias";
             case "fr_FR": return "Les références sont rendues sous forme de connexions. Vous pouvez ajouter des connexions entre les blocs de paragraphes en fonction des références";
@@ -403,7 +403,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 流动线条效果() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "流动线条效果";
             case "es_ES": return "Efecto de líneas fluidas";
             case "fr_FR": return "Effet de lignes fluides";
@@ -420,7 +420,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 启用思维导线() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "启用思维导线";
             case "es_ES": return "Habilitar guía de pensamiento";
             case "fr_FR": return "Activer le guide de pensée";
@@ -437,7 +437,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 禁用思维导线() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "禁用思维导线";
             case "es_ES": return "Deshabilitar guía de pensamiento";
             case "fr_FR": return "Désactiver le guide de pensée";
@@ -454,7 +454,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 在编辑器右上角添加摘抄按钮() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "在编辑器右上角添加摘抄按钮";
             case "es_ES": return "Añadir botón de citas en la esquina superior derecha del editor";
             case "fr_FR": return "Ajouter un bouton de citation dans le coin supérieur droit de l'éditeur";
@@ -471,7 +471,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 启用或禁用全局思维导线() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "启用或禁用全局思维导线";
             case "es_ES": return "Habilitar o deshabilitar el hilo de pensamiento global";
             case "fr_FR": return "Activer ou désactiver le fil de pensée global";
@@ -488,7 +488,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 启用或禁用文档思维导线() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "启用或禁用文档思维导线";
             case "es_ES": return "Habilitar o deshabilitar el hilo de pensamiento del documento";
             case "fr_FR": return "Activer ou désactiver le fil de pensée du document";
@@ -505,7 +505,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 豆包智能体ID() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "发布后的豆包智能体ID（可选）";
             case "es_ES": return "ID del agente inteligente Doubao después de la publicación (opcional)";
             case "fr_FR": return "ID de l'agent intelligent Doubao après publication (optionnel)";
@@ -522,7 +522,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 需要先发布到豆包再填写发布后的豆包智能体ID() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "需要先发布到豆包，再到设置中，填写发布后的豆包智能体ID";
             case "es_ES": return "Primero debes publicar en Doubao, luego ir a configuración y completar el ID del agente inteligente Doubao después de la publicación";
             case "fr_FR": return "Vous devez d'abord publier sur Doubao, puis aller dans les paramètres et remplir l'ID de l'agent intelligent Doubao après publication";
@@ -539,7 +539,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 帮助() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "帮助";
             case "es_ES": return "Ayuda";
             case "fr_FR": return "Aide";
@@ -555,7 +555,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 文档树工具() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "文档树工具";
             case "es_ES": return "Herramienta de árbol de documentos";
             case "fr_FR": return "Outil d'arborescence de documents";
@@ -572,7 +572,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 只关联星号引用() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "只关联星号*引用";
             case "es_ES": return "Solo asociar referencias con asterisco*";
             case "fr_FR": return "Associer uniquement les références avec astérisque*";
@@ -590,7 +590,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 隐藏vip图标() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "隐藏 VIP 图标";
             case "es_ES": return "Ocultar icono VIP";
             case "fr_FR": return "Masquer l'icône VIP";
@@ -607,7 +607,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
 
     public get 使用实线() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "使用实线";
             case "es_ES": return "Usar línea sólida";
             case "fr_FR": return "Utiliser une ligne pleine";
@@ -623,7 +623,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 使用多种颜色() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "使用多种颜色";
             case "es_ES": return "Usar múltiples colores";
             case "fr_FR": return "Utiliser plusieurs couleurs";
@@ -639,7 +639,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 线条宽度() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "线条宽度";
             case "es_ES": return "Ancho de línea";
             case "fr_FR": return "Largeur de ligne";
@@ -655,7 +655,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 给所有超级块加上边框() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "给所有超级块加上边框";
             case "es_ES": return "Añadir bordes a todos los superbloques";
             case "fr_FR": return "Ajouter des bordures à tous les super blocs";
@@ -671,7 +671,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 取消() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "取消";
             case "es_ES": return "Cancelar";
             case "fr_FR": return "Annuler";
@@ -687,7 +687,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 闪卡() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "闪卡";
             case "es_ES": return "Tarjeta de memoria";
             case "fr_FR": return "Carte mémoire";
@@ -703,7 +703,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 时间() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "时间";
             case "es_ES": return "Tiempo";
             case "fr_FR": return "Temps";
@@ -719,7 +719,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 记忆() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "记忆";
             case "es_ES": return "Memoria";
             case "fr_FR": return "Mémoire";
@@ -735,7 +735,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 加入时间() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "加入时间";
             case "es_ES": return "Hora de unión";
             case "fr_FR": return "Heure d'arrivée";
@@ -751,7 +751,7 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
     public get 记忆上次的输入() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "记忆上次的输入";
             case "es_ES": return "Recordar última entrada";
             case "fr_FR": return "Se souvenir de la dernière entrée";

@@ -2,7 +2,7 @@ import { TomatoI18nABC14 } from "./text14";
 
 export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
      public get 悬浮球() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "悬浮球";
             case "es_ES": return "Bola flotante";
             case "fr_FR": return "Boule flottante";
@@ -18,7 +18,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 使用小窗打开() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "使用小窗打开";
             case "es_ES": return "Abrir en ventana pequeña";
             case "fr_FR": return "Ouvrir dans une petite fenêtre";
@@ -34,7 +34,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 图标() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "图标";
             case "es_ES": return "Icono";
             case "fr_FR": return "Icône";
@@ -50,7 +50,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 文档名() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "文档名";
             case "es_ES": return "Nombre del documento";
             case "fr_FR": return "Nom du document";
@@ -66,7 +66,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 快捷键() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "快捷键";
             case "es_ES": return "Atajo de teclado";
             case "fr_FR": return "Raccourci clavier";
@@ -82,7 +82,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 找不到文档() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "找不到文档";
             case "es_ES": return "No se encontró el documento";
             case "fr_FR": return "Document introuvable";
@@ -98,7 +98,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 绑定文档到悬浮按钮() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "绑定文档到悬浮按钮";
             case "es_ES": return "Vincular documento al botón flotante";
             case "fr_FR": return "Lier le document au bouton flottant";
@@ -114,7 +114,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 绑定快捷键到悬浮按钮() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "绑定快捷键到悬浮按钮";
             case "es_ES": return "Vincular atajo al botón flotante";
             case "fr_FR": return "Lier le raccourci au bouton flottant";
@@ -130,7 +130,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 键() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "键";
             case "es_ES": return "Tecla";
             case "fr_FR": return "Touche";
@@ -146,7 +146,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 桌面端() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "桌面端";
             case "es_ES": return "Escritorio";
             case "fr_FR": return "Bureau";
@@ -162,7 +162,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 移动端() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "移动端";
             case "es_ES": return "Móvil";
             case "fr_FR": return "Mobile";
@@ -178,7 +178,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 特殊绑定当天日志() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "特殊：绑定当天日志";
             case "es_ES": return "Especial: vincular el registro del día";
             case "fr_FR": return "Spécial : lier le journal du jour";
@@ -194,7 +194,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public 非VIP上限为x个(x: number, unit: string) {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return `非VIP上限为${x}个${unit}`;
             case "es_ES": return `El límite para no VIP es de ${x} ${unit}`;
             case "fr_FR": return `La limite pour les non VIP est de ${x} ${unit}`;
@@ -210,7 +210,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 文档正引说明() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "展示当前文档中所有正引内容";
             case "es_ES": return "Mostrar todo el contenido citado positivamente en el documento actual";
             case "fr_FR": return "Afficher tout le contenu cité positivement dans le document actuel";
@@ -226,7 +226,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 在当前文档中定位() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "在当前文档中定位";
             case "es_ES": return "Localizar en el documento actual";
             case "fr_FR": return "Localiser dans le document actuel";
@@ -242,7 +242,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get vip功能() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "VIP功能";
             case "es_ES": return "Función VIP";
             case "fr_FR": return "Fonction VIP";
@@ -258,7 +258,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 解除悬浮球与文档之间的绑定() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "解除悬浮球与文档之间的绑定";
             case "es_ES": return "Desvincular la bola flotante del documento";
             case "fr_FR": return "Dissocier la boule flottante du document";
@@ -274,7 +274,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 创建闪卡时添加所有虚拟引用到第一行() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "创建闪卡时，添加所有虚拟引用，到第一行";
             case "es_ES": return "Al crear una tarjeta, añade todas las referencias virtuales a la primera línea";
             case "fr_FR": return "Lors de la création d'une carte, ajoutez toutes les références virtuelles à la première ligne";
@@ -290,7 +290,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 移动内容到dailynote后原文改为链接() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "移动内容到 dailynote 后，原文改为链接";
             case "es_ES": return "Después de mover el contenido a dailynote, el texto original se convierte en un enlace";
             case "fr_FR": return "Après avoir déplacé le contenu vers dailynote, le texte original devient un lien";
@@ -306,7 +306,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 前缀文档树() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "前缀文档树";
             case "es_ES": return "Árbol de documentos de prefijo";
             case "fr_FR": return "Arbre de documents préfixés";
@@ -322,7 +322,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 阅读点保存到指定文档() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "阅读点保存到指定文档";
             case "es_ES": return "Guardar punto de lectura en el documento especificado";
             case "fr_FR": return "Enregistrer le point de lecture dans le document spécifié";
@@ -338,7 +338,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 最大列出的文件数量() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "最大列出的文件数量";
             case "es_ES": return "Cantidad máxima de archivos listados";
             case "fr_FR": return "Nombre maximal de fichiers listés";
@@ -354,7 +354,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 使用当前文档名字的前缀() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "使用当前文档名字的前缀";
             case "es_ES": return "Usar el prefijo del nombre del documento actual";
             case "fr_FR": return "Utiliser le préfixe du nom du document actuel";
@@ -370,7 +370,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 把批注保存在子文档否则保存在日记中() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "把批注保存在子文档，否则保存在日记中";
             case "es_ES": return "Guarda las anotaciones en el subdocumento, de lo contrario en el diario";
             case "fr_FR": return "Enregistrez les annotations dans le sous-document, sinon dans le journal";
@@ -386,7 +386,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 块关系图帮助() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN":
                 return "图中：backspace删节点或连线；  拖拽创建连线则相应创建引用；  alt点击定位到文档<br>文档中：右键菜单可以定位到图中。若要快速创建引用，用双向互链功能";
             case "es_ES":
@@ -413,7 +413,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 定位到文档() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "定位到文档<br><br>backspace删节点或连线<br><br>拖拽创建连线则相应创建引用<br><br>alt点击定位到文档";
             case "es_ES": return "Localizar en el documento<br><br>backspace elimina nodos o conexiones<br><br>arrastrar para crear una conexión también crea una referencia<br><br>alt-clic para localizar el documento";
             case "fr_FR": return "Localiser dans le document<br><br>backspace supprime les nœuds ou les liens<br><br>faire glisser pour créer un lien crée également une référence<br><br>alt-clic pour localiser le document";
@@ -429,7 +429,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 批量改前缀() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "批量改前缀";
             case "es_ES": return "Cambiar prefijo por lotes";
             case "fr_FR": return "Modifier le préfixe en lot";
@@ -445,7 +445,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 确定() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "确定";
             case "es_ES": return "Confirmar";
             case "fr_FR": return "Confirmer";
@@ -461,7 +461,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 请输入新前缀() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "请输入新前缀";
             case "es_ES": return "Por favor, introduzca el nuevo prefijo";
             case "fr_FR": return "Veuillez saisir le nouveau préfixe";
@@ -477,7 +477,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 请输入原前缀() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "请输入原前缀";
             case "es_ES": return "Por favor, introduzca el prefijo original";
             case "fr_FR": return "Veuillez saisir l'ancien préfixe";
@@ -493,7 +493,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 重命名完成() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "重命名完成";
             case "es_ES": return "Renombrado completado";
             case "fr_FR": return "Renommage terminé";
@@ -509,7 +509,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 已经创建快照() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "已经创建快照，如果有问题，可以从快照回滚";
             case "es_ES": return "Se ha creado una instantánea, si hay algún problema, puede restaurar desde la instantánea";
             case "fr_FR": return "Une capture d'écran a été créée, en cas de problème, vous pouvez revenir à la capture";
@@ -525,7 +525,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 绑定文档到Tab() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "绑定文档到Tab";
             case "es_ES": return "Vincular documento a la pestaña";
             case "fr_FR": return "Lier le document à l'onglet";
@@ -541,7 +541,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get ctrl点击删除按钮() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "ctrl点击删除按钮";
             case "es_ES": return "Ctrl clic para eliminar el botón";
             case "fr_FR": return "Ctrl-clic pour supprimer le bouton";
@@ -557,7 +557,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 如果块很多请放到超级块内否则会很慢() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "如果块很多，请放到超级块内，否则会很慢";
             case "es_ES": return "Si hay muchos bloques, colóquelos dentro de un super bloque, de lo contrario será muy lento";
             case "fr_FR": return "S'il y a beaucoup de blocs, placez-les dans un super bloc, sinon cela sera très lent";
@@ -574,7 +574,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
     }
 
     public get 刷新() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "刷新";
             case "es_ES": return "Actualizar";
             case "fr_FR": return "Rafraîchir";
@@ -590,7 +590,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 退出() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "退出";
             case "es_ES": return "Salir";
             case "fr_FR": return "Quitter";
@@ -606,7 +606,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 标题内竖线分割出来的标签() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "标题内竖线，分割出来的标签，不含最后一部分";
             case "es_ES": return "Etiqueta separada por barra vertical en el título, sin la última parte";
             case "fr_FR": return "Étiquette séparée par une barre verticale dans le titre, sans la dernière partie";
@@ -622,7 +622,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 文档数量() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "文档数量";
             case "es_ES": return "Cantidad de documentos";
             case "fr_FR": return "Nombre de documents";
@@ -638,7 +638,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 切换笔记本() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "切换笔记本，需要刷新";
             case "es_ES": return "Cambiar de cuaderno, es necesario actualizar";
             case "fr_FR": return "Changer de carnet, il est nécessaire de rafraîchir";
@@ -654,7 +654,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 按需() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "按需";
             case "es_ES": return "A demanda";
             case "fr_FR": return "Sur demande";
@@ -670,7 +670,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 标号() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "标号";
             case "es_ES": return "Etiqueta";
             case "fr_FR": return "Étiquette";
@@ -686,7 +686,7 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
         }
     }
     public get 末尾() {
-        switch (this.conf.appearance.lang) {
+        switch (this.lang) {
             case "zh_CN": return "末尾";
             case "es_ES": return "Final";
             case "fr_FR": return "Fin";
