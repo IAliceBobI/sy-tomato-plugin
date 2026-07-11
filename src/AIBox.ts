@@ -1,5 +1,5 @@
 import { Dialog, IEventBusMap } from "siyuan";
-import { getAllText } from "./libs/utils";
+import { getAllText, siyuan } from "./libs/utils";
 import { events } from "./libs/Events";
 import { aiBoxCheckbox, aiBoxMenuShow, } from "./libs/stores";
 import AIBoxMenu from "./AIBoxMenu.svelte";
@@ -9,6 +9,7 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
 import { newID } from "stonev5-utils/lib/id";
 import { mount } from "svelte";
+import { OpenAIClient } from "./libs/openAI";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 export const AIBoxHotkey = winHotkey("⌥⇧S", "人工智能2024-6-9 01:58:39", "💻", () => tomatoI18n.人工智能)
@@ -89,6 +90,12 @@ class AIBox {
             this.dm.add("2", () => { d.destroy() })
             this.dm.add("dm", () => { this.dm = null; })
         }
+    }
+
+    public async runAI(text: string, anchorID: string) {
+        await siyuan.pushMsg(text.slice(0, 100), 2000);
+        const client = OpenAIClient.getOfficalModel(true);
+        return client(text, anchorID);
     }
 }
 

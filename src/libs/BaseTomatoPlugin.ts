@@ -34,6 +34,13 @@ declare global {
                     tidy: () => Promise<void>;
                 };
             };
+            ai?: {
+                runAI: (text: string, anchorID: string) => Promise<any>;
+                buildMessages: (text: string) => any[];
+                createStream: (model: string, messages: any[]) => Promise<any>;
+                appendChunk: (state: any, chunk: any) => any;
+                stripThinkTag: (html: string) => string;
+            };
         };
     }
 }

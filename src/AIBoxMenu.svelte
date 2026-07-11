@@ -1,8 +1,7 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
-    import { setTimeouts, siyuan } from "./libs/utils";
-    import { OpenAIClient } from "./libs/openAI";
+    import { aiBox } from "./AIBox";
     import { aiBoxPrompts } from "./libs/stores";
     interface Props {
         dm: DestroyManager;
@@ -85,9 +84,7 @@
 
     async function ai() {
         dm.destroyBy();
-        await siyuan.pushMsg(text.slice(0, 100), 2000);
-        const client = OpenAIClient.getOfficalModel(true);
-        await client(text, anchorID);
+        await aiBox.runAI(text, anchorID);
     }
 
     function toggleAddNewPromptDiv() {

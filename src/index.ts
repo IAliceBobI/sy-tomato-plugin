@@ -29,6 +29,7 @@ import { tag2RefBox } from "./Tag2RefBox";
 import { noteBox } from "./NoteBox";
 import { listBox } from "./ListBox";
 import { aiBox } from "./AIBox";
+import { OpenAIClient, buildMessages, appendChunk, stripThinkTag, getOfficialConfig } from "./libs/openAI";
 import { imgBox } from "./ImgBox";
 import { fastNoteBox } from "./FastNoteBox";
 import * as plugin from "siyuan";
@@ -314,6 +315,17 @@ export default class ThePlugin extends BaseTomatoPlugin {
             window.tomato_zZmqus5PtYRi.pluginConfig = this.settingCfg;
             window.tomato_zZmqus5PtYRi.api = {
                 assets: assetsApi,
+            };
+            window.tomato_zZmqus5PtYRi.ai = {
+                runAI: (text: string, anchorID: string) => aiBox.runAI(text, anchorID),
+                buildMessages,
+                createStream: (model: string, messages: any[]) => {
+                    const aiCfg = getOfficialConfig();
+                    const client = new OpenAIClient(aiCfg.apiKey, aiCfg.baseURL);
+                    return client.createStreamPublic(model, messages);
+                },
+                appendChunk,
+                stripThinkTag,
             };
             loadStore(this);
             setGlobal(TomatoPluginConfig, this.settingCfg)
