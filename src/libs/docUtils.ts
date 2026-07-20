@@ -509,9 +509,9 @@ export async function moveAndReplace(
                 // 通过 assets 表找到引用该文件的 block，用 block API 更新（避免 putFile 被编辑器缓存覆盖）
                 const refs = await siyuan.sqlAsset(`SELECT block_id FROM assets WHERE path='${oldpath}'`);
                 for (const ref of refs ?? []) {
-                    const blocks: { markdown: string }[] = await siyuan.sql(`SELECT markdown FROM blocks WHERE id='${ref.block_id}'`);
-                    if (blocks?.length > 0 && blocks[0].markdown) {
-                        const newMd = blocks[0].markdown.replaceAll(oldpath, newpath);
+                    const { kramdown } = await siyuan.getBlockKramdown(ref.block_id);
+                    if (kramdown) {
+                        const newMd = kramdown.replaceAll(oldpath, newpath);
                         await siyuan.updateBlock(ref.block_id, newMd, "markdown");
                     }
                 }
