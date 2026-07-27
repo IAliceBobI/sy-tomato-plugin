@@ -4,13 +4,13 @@ import {
     ConTreeNode,
     disableBK, enableBK,
 } from "./libs/bkUtils";
-import { icon, isCardUI, isFloatUI, isSearchUI, siyuan, } from "./libs/utils";
+import { icon, isCardUI, isFloatUI, isProtyleVisible, isSearchUI, siyuan, } from "./libs/utils";
 import { MarkKey, TEMP_CONTENT, TOMATO_BK_IGNORE } from "./libs/gconst";
 import BackLinkBottom from "./BackLinkBottom.svelte";
 import { DestroyManager } from "./libs/destroyer";
 import BKConTree from "./BackLinkBottomConTree.svelte";
 import { tomatoI18n } from "./tomatoI18n";
-import { back_link_dailynote_off, back_link_default_off, back_link_goto_bottom_btn, backLinkBottomBoxCheckbox, fastNoteBoxDisableBK, back_link_show_floatUI, bk启用禁用文档的底部反链menu } from "./libs/stores";
+import { back_link_dailynote_off, back_link_default_off, back_link_goto_bottom_btn, backLinkBottomBoxCheckbox, fastNoteBoxDisableBK, back_link_show_floatUI, bk启用禁用文档的底部反链menu, back_link_refresh_off, bk_refresh_interval_sec, bk_visible_only } from "./libs/stores";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
@@ -31,12 +31,16 @@ export class BKMaker {
     public protyle: IProtyle;
     public plugin: BaseTomatoPlugin;
     public refreshBK: () => Promise<void>;
+    /** 追踪可见性变化，从后台切回前台时立即补刷一次（issue #78） */
+    private lastVisible = true;
     public dm = new DestroyManager(false, "backlink");
     public id = newID();
 
     constructor(blBox: BackLinkBottomBox, docID: string) {
         this.docID = docID;
-        this.shouldFreeze = false;
+        // 与 back_link_refresh_off 默认 true 保持一致，初始即冻结，
+        // 消除 svelte onMount async 块回填前的时间窗口（issue #78）。
+        this.shouldFreeze = back_link_refresh_off.get();
         this.plugin = blBox.plugin;
         this.lockName = "BackLinkBottomBox-BKMakerLock" + this.docID;
         this.goDownID = "godown" + docID;
@@ -75,9 +79,23 @@ export class BKMaker {
                     this.dm.destroyBy("from maker")
                     clearInterval(handler);
                 } else {
+                    // issue #78: 后台页签不刷新反链，避免多个页签并行轮询导致 CPU 占用过高发烫
+                    if (bk_visible_only.get()) {
+                        const visible = isProtyleVisible(this.protyle);
+                        if (!visible) {
+                            this.lastVisible = false;
+                            return;
+                        }
+                        // 从后台切回前台，立即补刷一次（补偿后台期间未刷新的数据）
+                        if (!this.lastVisible) {
+                            this.lastVisible = true;
+                            this.refreshBacklinks();
+                            return;
+                        }
+                    }
                     this.refreshBacklinks();
                 }
-            }, 5000);
+            }, Math.max(2, Number(bk_refresh_interval_sec.get()) || 15) * 1000);
             this.dm.add("maker del sv", () => sv.destroy())
         })
     }

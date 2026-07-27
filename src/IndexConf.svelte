@@ -23,6 +23,8 @@
         back_link_remove_refs,
         back_link_refresh_off,
         back_link_show_floatUI,
+        bk_refresh_interval_sec,
+        bk_visible_only,
         cardBoxCheckbox,
         cardPriorityBoxCheckbox,
         card_priority_slider_hide,
@@ -194,6 +196,7 @@
         floatingballDocTabMenu,
         exportPathWin,
         cardBoxCardtab,
+        card_refresh_visible_only,
         foldTypesNODE_listITEM,
         deleteBlocksMenu,
         toolbarTidyExt,
@@ -1542,6 +1545,27 @@
                 {tomatoI18n.默认关闭自动刷新}
             </div>
 
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$bk_visible_only}
+                    onchange={() => bk_visible_only.write($bk_visible_only)}
+                />
+                {tomatoI18n.仅可见页签刷新底部反链}
+            </div>
+
+            <div>
+                <input
+                    type="number"
+                    min="2"
+                    class="b3-text-field space"
+                    bind:value={$bk_refresh_interval_sec}
+                    onchange={() => bk_refresh_interval_sec.write(Math.max(2, Number($bk_refresh_interval_sec) || 15))}
+                />
+                {tomatoI18n.底部反链刷新间隔秒数($bk_refresh_interval_sec)}
+            </div>
+
             <div class:codeNotValid>
                 <input
                     type="checkbox"
@@ -1741,6 +1765,15 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxCardtab} />
                 {tomatoI18n.如果有闪卡可复习自动在后台打开}
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$card_refresh_visible_only}
+                    onchange={() => card_refresh_visible_only.write($card_refresh_visible_only)}
+                />
+                {tomatoI18n.仅可见时检查闪卡待复习}
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxAddConcepts} />

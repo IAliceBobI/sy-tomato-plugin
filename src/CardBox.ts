@@ -1,11 +1,11 @@
 import { IEventBusMap, IProtyle, openTab, } from "siyuan";
-import { deleteBlock, siyuan, sleep, } from "./libs/utils";
+import { deleteBlock, isVisible, siyuan, sleep, } from "./libs/utils";
 import "./index.scss";
 import { EventType, events } from "./libs/Events";
 import { getIDFromCard, pressSkip, showCardAnswer, removeDocCards } from "./libs/cardUtils";
 import { CardSettingsID, WEB_SPACE } from "./libs/gconst";
 import { addFlashCard } from "./libs/listUtils";
-import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxSettingsShow, cardBoxSuperCard, cardBoxCardtab, writableWithGet, cardPriorityBoxCheckbox } from "./libs/stores";
+import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxSettingsShow, cardBoxSuperCard, cardBoxCardtab, card_refresh_visible_only, writableWithGet, cardPriorityBoxCheckbox } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { getDocTracer, locTree, OpenSyFile2 } from "./libs/docUtils";
 import { closeAllDialog } from "./libs/keyboard";
@@ -151,6 +151,14 @@ class CardBox {
             if (cardBoxCardtab.get()) {
                 clearInterval(setGlobal("tomato open card 2025-07-24 10:07:05",
                     setInterval(async () => {
+                        // issue #78: 仅当应用前台可见且有可见编辑器时才检查待复习卡片，
+                        // 避免后台/无活动时空转打网络请求 + 误触发自动开页签。
+                        if (card_refresh_visible_only.get()) {
+                            if (document.visibilityState !== 'visible') return;
+                            const hasVisibleEditor = [...document.querySelectorAll('.protyle:not(.card__block)')]
+                                .some(el => isVisible(el));
+                            if (!hasVisibleEditor) return;
+                        }
                         if (!document.querySelector(`.card__action`)) {
                             const existsCard = document.querySelectorAll(`li[data-initdata]`)
                                 .values()

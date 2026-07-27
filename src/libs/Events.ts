@@ -107,11 +107,56 @@ class Events {
             if (eType === EventType.open_menu_doctree) cb(detail)
         }));
     }
+
+    // issue #78: 对 4 个高频 protyle 事件做 per-protyle trailing debounce，
+    // 同一 protyle 在 300ms 内多次触发只派发最后一次，避免快速切页签时的事件风暴。
+    private static readonly DEBOUNCE_MS = 300;
+    private static readonly DEBOUNCE_EVENTS = new Set<string>([
+        EventType.click_editorcontent,
+        EventType.loaded_protyle_static,
+        EventType.loaded_protyle_dynamic,
+        EventType.switch_protyle,
+    ]);
+    private _debounceTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
+
     private invokeCB(eventType: string, detail: Protyle) {
+        // store 更新必须立即同步执行（UI 依赖 events.protyle/docID）
         this.setReadingPointMap(eventType, detail);
-        for (const cb of this._protyleListeners.values()) {
-            cb(eventType, detail);
+
+        if (Events.DEBOUNCE_EVENTS.has(eventType)) {
+            // key 含 eventType + rootID：不同事件类型/不同 protyle 互不干扰
+            const rootID = (detail as any)?.protyle?.block?.rootID ?? "";
+            const key = eventType + "::" + rootID;
+            const old = this._debounceTimers.get(key);
+            if (old) clearTimeout(old);
+            const t = setTimeout(() => {
+                this._debounceTimers.delete(key);
+                this._dispatchToListeners(eventType, detail);
+            }, Events.DEBOUNCE_MS);
+            this._debounceTimers.set(key, t);
+        } else {
+            // 其他事件（destroy_protyle 等）立即派发
+            this._dispatchToListeners(eventType, detail);
         }
+    }
+
+    private _dispatchToListeners(eventType: string, detail: Protyle) {
+        for (const cb of this._protyleListeners.values()) {
+            // 错误隔离：单个回调抛异常不中断其他回调
+            try {
+                cb(eventType, detail);
+            } catch (e) {
+                console.error("[tomato] event listener error:", e);
+            }
+        }
+    }
+
+    /** 清理所有未触发的 debounce timer（插件卸载时调用） */
+    clearDebounce() {
+        for (const t of this._debounceTimers.values()) {
+            clearTimeout(t);
+        }
+        this._debounceTimers.clear();
     }
 
     private setReadingPointMap(eventType: string, detail: Protyle) {

@@ -738,6 +738,58 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "Disable auto-refresh by default";
         }
     }
+    public get 仅可见页签刷新底部反链() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "仅当页签可见时才刷新底部反链（节省 CPU）";
+            case "es_ES":
+                return "Solo actualizar los vínculos inversos inferiores cuando la pestaña es visible (ahorra CPU)";
+            case "fr_FR":
+                return "Ne actualiser les rétroliens inférieurs que lorsque l'onglet est visible (économise le CPU)";
+            case "ja_JP":
+                return "タブが表示されている時のみ下部バックリンクを更新（CPU節約）";
+            case "zh_CHT":
+                return "僅當頁籤可見時才刷新底部反鏈（節省 CPU）";
+
+            default:
+                return "Only refresh bottom backlinks when the tab is visible (saves CPU)";
+        }
+    }
+    public 底部反链刷新间隔秒数(x: string | number) {
+        const s = String(x);
+        switch (this.lang) {
+            case "zh_CN":
+                return `底部反链每 ${s} 秒刷新一次（最小 2）`;
+            case "es_ES":
+                return `Actualizar vínculos inversos inferiores cada ${s} segundos (mín. 2)`;
+            case "fr_FR":
+                return `Actualiser les rétroliens inférieurs toutes les ${s} secondes (min. 2)`;
+            case "ja_JP":
+                return `下部バックリンクを ${s} 秒ごとに更新（最小 2）`;
+            case "zh_CHT":
+                return `底部反鏈每 ${s} 秒刷新一次（最小 2）`;
+
+            default:
+                return `Refresh bottom backlinks every ${s} seconds (min. 2)`;
+        }
+    }
+    public get 仅可见时检查闪卡待复习() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "仅当页面可见时才检查闪卡待复习（节省 CPU）";
+            case "es_ES":
+                return "Solo comprobar tarjetas pendientes cuando la página es visible (ahorra CPU)";
+            case "fr_FR":
+                return "Ne vérifier les cartes à réviser que lorsque la page est visible (économise le CPU)";
+            case "ja_JP":
+                return "ページが表示されている時のみフラッシュカードの復習を確認（CPU節約）";
+            case "zh_CHT":
+                return "僅當頁面可見時才檢查閃卡待復習（節省 CPU）";
+
+            default:
+                return "Only check flashcards for review when the page is visible (saves CPU)";
+        }
+    }
     public get 自动选择一个笔记本() {
         switch (this.lang) {
             case "zh_CN":

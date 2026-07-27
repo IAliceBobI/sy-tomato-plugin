@@ -2999,6 +2999,35 @@ export function isEditor(protyle: IProtyle) {
     return !!getAttribute(protyle.element, "data-id") || events.isMobile
 }
 
+/**
+ * 判断一个 DOM 元素当前是否对用户可见。
+ *
+ * 实测结论（2026-07，思源 3.7.1）：后台页签的 protyle 容器被设为
+ * `display:none`（而非从 DOM 卸载），因此 `offsetParent === null` 且
+ * `getBoundingClientRect().width === 0`。三者任一即可判定，组合最稳妥。
+ */
+export function isVisible(el: Element | null | undefined): boolean {
+    if (!el || !el.isConnected) return false;
+    // offsetParent === null 表示 display:none（或祖先为 fixed/sticky，下方排除）
+    if ((el as HTMLElement).offsetParent === null) {
+        const cs = getComputedStyle(el);
+        // protyle 容器通常是普通定位，fixed/sticky 的极少，单独排除避免误判
+        if (cs.position !== "fixed" && cs.position !== "sticky") return false;
+    }
+    // 兜底：宽高为 0 也算不可见
+    const rect = (el as HTMLElement).getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+}
+
+/**
+ * 判断一个 protyle 编辑器当前是否对用户可见。
+ * 手机端单页签始终可见；桌面端依赖 protyle.element 的可见性。
+ */
+export function isProtyleVisible(protyle: IProtyle | any): boolean {
+    if (events.isMobile) return true;
+    return isVisible(protyle?.element);
+}
+
 export function getDialogContainer(dialog: Dialog) {
     return dialog?.element?.querySelector("div.b3-dialog > div.b3-dialog__container")
 }
