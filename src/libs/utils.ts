@@ -2,7 +2,6 @@ import { Config, Constants, Lute, Protyle, fetchSyncPost, confirm, IProtyle, get
 import * as gconst from "./gconst";
 import * as moment from "moment-timezone";
 import { TomatoI18n } from "../tomatoI18n";
-import { zipNways } from "./functional";
 import { Md5 } from "ts-md5";
 import { events } from "./Events";
 import { linkBoxUseLnkOrRef } from "./stores";
@@ -424,23 +423,40 @@ function recursiveFlat(tree: RetListDocTreeDir, ids: Set<string> = new Set()) {
 }
 
 async function getAllFileIDs() {
-    return siyuan.lsNotebooks().then(async (books) => {
-        const list = await Promise.all(books.map(i => siyuan.listDocTree(i.id, "/")))
-        return zipNways(books, list).filter(all => all[1].tree != null).map(([b, { tree }]) => {
-            return tree.map(i => {
-                i.box = b.id
-                i.path = "/" + b.id
-                return i;
-            })
-        }).flat()
-    }).then((trees) => {
-        return trees.map(tree => recursiveFlat(tree)).reduce((init, v) => {
-            for (const i of v.values()) {
-                init.add(i);
+    // 思源 3.7.2+ 起 /api/filetree/listDocTree 增加了 IsSubPath 越界校验，
+    // path:"/" 经 filepath.Join 后等于 notebook 根目录本身，而 gulu.IsSubPath 对
+    // 「路径相等」返回 false，故被拒（code -1 "path escapes notebook directory"）。
+    // 改用 readDir 列举 notebook 根目录的顶层条目，再对每个子目录调用 listDocTree 取子树。
+    // 详见 https://github.com/IAliceBobI/sy-tomato-plugin/issues/79
+    const books = await siyuan.lsNotebooks();
+    const nodeIDPattern = /^\d{14}-[a-z0-9]+$/;
+    const allIDs = new Set<string>();
+    await Promise.all(books.map(async (b) => {
+        try {
+            const entries = await siyuan.readDir("/data/" + b.id);
+            if (!entries) return;
+            for (const e of entries) {
+                if (e.isDir) {
+                    if (!nodeIDPattern.test(e.name)) continue; // 跳过 .siyuan 等非文档目录
+                    const dirID = e.name;
+                    const sub = await siyuan.listDocTree(b.id, "/" + dirID);
+                    if (!sub?.tree) continue;
+                    for (const root of sub.tree) {
+                        root.box = b.id;
+                        root.path = "/" + b.id + "/" + dirID;
+                        for (const p of recursiveFlat(root)) allIDs.add(p);
+                    }
+                } else if (e.name.endsWith(".sy")) {
+                    const id = e.name.slice(0, -3);
+                    if (!nodeIDPattern.test(id)) continue;
+                    allIDs.add("/" + b.id + "/" + e.name);
+                }
             }
-            return init;
-        }, new Set())
-    })
+        } catch (e) {
+            // 单个 notebook 失败（加密锁定 / 已关闭 / 权限不足）不中断整体
+        }
+    }));
+    return allIDs;
 }
 
 export function downloadStringAsFile(content: string, filename: string, mimeType: string = 'text/plain') {
