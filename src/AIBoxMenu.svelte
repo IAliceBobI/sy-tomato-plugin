@@ -3,6 +3,7 @@
     import { DestroyManager } from "./libs/destroyer";
     import { aiBox } from "./AIBox";
     import { aiBoxPrompts } from "./libs/stores";
+    import { setTimeouts } from "./libs/utils";
     interface Props {
         dm: DestroyManager;
         text: string;

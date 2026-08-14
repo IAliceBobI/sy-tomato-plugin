@@ -25,7 +25,6 @@ class GraphBox {
     private customTab: () => Custom;
     private dock: Dock;
     // 智能刷新相关
-    private lastRefreshedDocID: string = "";   // 上次刷新的文档 ID
     private lastRefreshedUpdated: string = ""; // 上次刷新时的文档 updated 时间戳
     private debounceTimer: ReturnType<typeof setTimeout> | null = null;
     private pollTimer: ReturnType<typeof setInterval> | null = null; // 3秒轮询定时器
@@ -78,7 +77,6 @@ class GraphBox {
                 // 切换文档：直接刷新图（内容完全不同，无需时间戳比对）
                 const newDocID = detail?.protyle?.block?.rootID;
                 if (newDocID) {
-                    this.lastRefreshedDocID = newDocID;
                     this.lastRefreshedUpdated = ""; // 重置时间戳，下次轮询/编辑时会重新获取
                     this.getData()?.changeDoc(detail?.protyle);
                 }
