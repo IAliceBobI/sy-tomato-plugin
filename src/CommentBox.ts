@@ -9,7 +9,7 @@ import { isReadonly } from "./libs/docUtils";
 import { winHotkey } from "./libs/winHotkey";
 import { DestroyManager } from "./libs/destroyer";
 import CommentInput from "./CommentInput.svelte";
-import { newID } from "stonev5-utils/lib/id";
+import { newID } from "stonev5-utils";
 import { verifyKeyTomato } from "./libs/user";
 import { mount } from "svelte";
 

@@ -9,7 +9,7 @@ import { addIcon, isPinned, removeStatusBar } from "./libs/ui";
 import { tomato_clocks, tomato_clocks_change_bg, tomato_clocks_change_bg_dark, tomato_clocks_force_dialog, tomato_clocks_force_notice, tomato_clocks_opacity, tomato_clocks_position_right, tomatoClockCheckbox } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { verifyKeyTomato } from "./libs/user";
-import { newID } from "stonev5-utils/lib/id";
+import { newID } from "stonev5-utils";
 import { mount } from "svelte";
 
 function formatDuration(milliseconds: number): { minutes: number, seconds: number } {

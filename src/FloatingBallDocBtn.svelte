@@ -13,7 +13,7 @@
         SPACE,
     } from "./libs/gconst";
     import { confirm, Dialog } from "siyuan";
-    import { newID } from "stonev5-utils/lib/id";
+    import { newID } from "stonev5-utils";
     import { events } from "./libs/Events";
     import { OpenSyFile2 } from "./libs/docUtils";
     import {

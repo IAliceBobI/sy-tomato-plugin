@@ -2,7 +2,7 @@ import DialogTextSv from "./DialogTextSv.svelte";
 import { Dialog } from "siyuan";
 import { DestroyManager } from "./destroyer";
 import { events } from "./Events";
-import { newID } from "stonev5-utils/lib/id";
+import { newID } from "stonev5-utils";
 import { mount } from "svelte";
 
 export class DialogTextArea {

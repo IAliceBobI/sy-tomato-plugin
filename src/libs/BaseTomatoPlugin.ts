@@ -1,5 +1,5 @@
 import { Plugin } from "siyuan";
-import { newID } from "stonev5-utils/lib/id";
+import { newID } from "stonev5-utils";
 
 declare global {
     interface Window {

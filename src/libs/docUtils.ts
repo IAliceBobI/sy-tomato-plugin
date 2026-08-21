@@ -8,7 +8,7 @@ import { tomatoI18n, TomatoI18n } from "../tomatoI18n";
 import { zipNways } from "./functional";
 import { DefaultMap } from "./cache";
 import { verifyKeyTomato } from "./user";
-import { newID } from "stonev5-utils/lib/id";
+import { newID } from "stonev5-utils";
 import { domNewLine, DomSuperBlockBuilder } from "./sydom";
 
 export function isMultiLineElement(md: string) {

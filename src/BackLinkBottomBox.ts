@@ -15,7 +15,7 @@ import { OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
-import { newID } from "stonev5-utils/lib/id";
+import { newID } from "stonev5-utils";
 import { mount } from "svelte";
 
 const BKMAKER_ADD = "BKMAKER_ADD";

@@ -5,7 +5,7 @@ import { tomatoI18n } from "../tomatoI18n";
 import { getHierarchyConcepts, OpenSyFile2 } from "./docUtils";
 import { back_link_passup_heading, back_link_passup_quote, back_link_passup_super, storeAttrManager } from "./stores";
 import { SortType } from "./types";
-import { newID } from "stonev5-utils/lib/id";
+import { newID } from "stonev5-utils";
 
 // export async function shouldInsertDiv(lastID: string, docID: string) {
 //     const allIDs = await siyuan.getTailChildBlocks(docID, 5);

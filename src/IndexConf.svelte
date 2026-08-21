@@ -209,6 +209,8 @@
     } from "./libs/stores";
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
+    import { openHelpDialog } from "./libs/helpDialog";
+    import helpDocs from "./help.json";
     import NotebookSelect from "./NotebookSelect.svelte";
     import { cleanDataview, getHpath, icon, removeFromArr, saveRestorePagePosition, siyuan } from "./libs/utils";
     import { expStore, lastVerifyResult, resetKey, verifyKeyTomato } from "./libs/user";
@@ -347,6 +349,14 @@
         localStorage.setItem(SearchKeyItemKey, searchKey);
     });
     export function destroy() {}
+
+    // 帮助链接: 插件内弹窗展示文字版帮助, ctrl/⌘+点击仍走浏览器打开飞书
+    function helpOpen(e: MouseEvent) {
+        if (e.metaKey || e.ctrlKey) return;
+        e.preventDefault();
+        openHelpDialog((e.currentTarget as HTMLAnchorElement).href, helpDocs);
+    }
+
     onMount(async () => {
         window.tomato_zZmqus5PtYRi.save = save;
         codeValid = await verifyKeyTomato();
@@ -498,7 +508,7 @@
         <div>
             {addFoldCmd折叠.langText()}<strong>{addFoldCmd折叠.w()}</strong>
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/XyFPdPBbsol477xl5TFcX9Ttn2e?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/XyFPdPBbsol477xl5TFcX9Ttn2e?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -522,7 +532,7 @@
         <div>
             {tomatoI18n.文档树工具}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/NXSPd81W4oxUJrxW2XsctewUn5g?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/NXSPd81W4oxUJrxW2XsctewUn5g?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -534,7 +544,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$addSelectionBtnsMobile} />
             {tomatoI18n.移动端编辑器右上角添加多行选择按钮}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/Gh0udnFdGoiu8txrgE2c3SQenxf?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/Gh0udnFdGoiu8txrgE2c3SQenxf?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -641,7 +651,7 @@
         <div>
             {tomatoI18n.块折叠助手}： {tomatoI18n.在块的右上角显示折叠图标}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/RqDsdlLkwolnUgxyEmVcDuv8nwd?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/RqDsdlLkwolnUgxyEmVcDuv8nwd?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -751,7 +761,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesEnable} />
             {tomatoI18n.前缀文档树}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/WD3Nd8WCxozzE4xXIJucpFBPn9a?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/WD3Nd8WCxozzE4xXIJucpFBPn9a?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -775,7 +785,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$floatingballEnable} />
             {tomatoI18n.悬浮球}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/IFT9drxvSoYKVmxCcqncFOgknXg?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/IFT9drxvSoYKVmxCcqncFOgknXg?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1006,7 +1016,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$markdownExportBoxCheckbox} />
             {tomatoI18n.导出工作空间}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/UmNxds5JLo4m1qxc7j3cOvh4ncc?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/UmNxds5JLo4m1qxc7j3cOvh4ncc?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1124,7 +1134,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$blockEditorBox} />
             块编辑器
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/AheDdwG35ol3qWxYPeYc8HennJf?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/AheDdwG35ol3qWxYPeYc8HennJf?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1143,7 +1153,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxCheckBox} />
             引用修复工具
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/WTgxdUINHoYXHbxmU87cxs5knfd?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/WTgxdUINHoYXHbxmU87cxs5knfd?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1173,7 +1183,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$tomatoClockCheckbox} />
             {tomatoI18n.状态栏番茄钟}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/KmCRdj1s7okXZOxkwsTcbPFXnNh?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/KmCRdj1s7okXZOxkwsTcbPFXnNh?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1244,7 +1254,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$noteBoxCheckbox} />
             {tomatoI18n.拍照闪念收集图片闪念到}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/N3LkdvKGhowkTUx1r6OcxCjInec?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/N3LkdvKGhowkTUx1r6OcxCjInec?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1297,7 +1307,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$commentBoxCheckbox} />
             {tomatoI18n.批注}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/Svq2dIQpaob0kKx0l38ciftRnXl?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/Svq2dIQpaob0kKx0l38ciftRnXl?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1333,7 +1343,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$mindWireCheckbox} />
             {tomatoI18n.思维导线}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/QNArdYNuuoH34qxGHdCcHmE6nic?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/QNArdYNuuoH34qxGHdCcHmE6nic?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1397,7 +1407,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$graphBoxCheckbox} />
             {tomatoI18n.块关系图}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/UIRudM9EQoyri2x4okkcjbGZnug?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/UIRudM9EQoyri2x4okkcjbGZnug?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1453,7 +1463,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$backLinkBottomBoxCheckbox} />
             {tomatoI18n.底部反链}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/SVELdPHKYoGMj1xkmF3cIPg3nZd?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/SVELdPHKYoGMj1xkmF3cIPg3nZd?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1589,7 +1599,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$toolbarBoxCheckbox} />
             {tomatoI18n.开启toolbar按钮}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/NDgJd64mmo7c0Wxj42RcNv2Tnaf?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/NDgJd64mmo7c0Wxj42RcNv2Tnaf?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1647,7 +1657,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$readingPointBoxCheckbox} />
             {tomatoI18n.阅读点}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/KQOWdXzT8o05LlxPfJCcBHNEnYc?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/KQOWdXzT8o05LlxPfJCcBHNEnYc?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1718,7 +1728,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$imgBoxCheckbox} />
             {tomatoI18n.复制为图片}<strong>{ImgBoxHotKey.w()}</strong>
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/QGx5d437SoArUyxZ6c3cqhmfnnb?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/QGx5d437SoArUyxZ6c3cqhmfnnb?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1737,7 +1747,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$cardBoxCheckbox} />
             {tomatoI18n.闪卡工具}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/HJVDdXzrfo3XgMxAwFTc1gyvnHc?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/HJVDdXzrfo3XgMxAwFTc1gyvnHc?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1806,7 +1816,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$cardPriorityBoxCheckbox} />
             {tomatoI18n.闪卡优先级}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/KwZJdW9BeoHkiRxVg6jcLUnanqf?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/KwZJdW9BeoHkiRxVg6jcLUnanqf?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1884,7 +1894,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$cpBoxCheckbox} />
             {tomatoI18n.长内容工具}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/Njovdyosyo4pVExpeqOcH3ImnJu?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/Njovdyosyo4pVExpeqOcH3ImnJu?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1925,7 +1935,7 @@
             />
             {tomatoI18n.同步块}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/NaSudYNaBoeGqZxnyHFc9QQVneb?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/NaSudYNaBoeGqZxnyHFc9QQVneb?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -1988,7 +1998,7 @@
             />
             {tomatoI18n.双向互链}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/DmGUdmtacol9ANxy0Encl1ownfP?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/DmGUdmtacol9ANxy0Encl1ownfP?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -2063,7 +2073,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteBoxCheckbox} />
             {tomatoI18n.dailynote工具}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/MuXadWNNEoSsuExVj7dcZcY1nJb?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/MuXadWNNEoSsuExVj7dcZcY1nJb?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -2175,7 +2185,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$imgOverlayCheckbox} />
             {tomatoI18n.图片遮挡}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/SLSWdFITgo7q4ex4q6ScIuGin2g?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/SLSWdFITgo7q4ex4q6ScIuGin2g?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -2187,7 +2197,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxCheckbox} />
             {tomatoI18n.数据库充当反链}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/W4WxdA0Bzo0O7UxwHFFcAHUUnSd?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/W4WxdA0Bzo0O7UxwHFFcAHUUnSd?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -2222,7 +2232,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$mixBoxCheckbox} />
             {tomatoI18n.杂项许多小功能}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/Yw4UdhdaTo25dhxtiPUcPnNzn3c?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/Yw4UdhdaTo25dhxtiPUcPnNzn3c?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -2340,7 +2350,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$tag2RefBoxCheckbox} />
             {tomatoI18n.文本转引用}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/OikodVWC1oJK16xUfm9cmpfAnQd?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/OikodVWC1oJK16xUfm9cmpfAnQd?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -2384,7 +2394,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$listBoxCheckbox} />
             {tomatoI18n.列表工具}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/GbeDdl1Bro3laRxlfqrcl10OnTc?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/GbeDdl1Bro3laRxlfqrcl10OnTc?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -2410,7 +2420,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$aiBoxCheckbox} />
             {AIBoxHotkey.langText()}<strong>{AIBoxHotkey.w()}</strong>
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/Kbuvd9lbhoDWTCxggz9cxQgJnAH?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/Kbuvd9lbhoDWTCxggz9cxQgJnAH?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -2429,7 +2439,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$cozeSearchBoxCheckbox} />
             coze{tomatoI18n.知识库问答}<strong>{CozeSearchBoxHotkey.w()}</strong>
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/ENZfd6zfKoTZPqxZxf2c4uWVnow?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/ENZfd6zfKoTZPqxZxf2c4uWVnow?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>
@@ -2469,7 +2479,7 @@
             <input type="checkbox" class="b3-switch" bind:checked={$fastNoteBoxCheckbox} />
             {tomatoI18n.快速笔记}
             <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/DNZ1dYORAoHpm7xdPaecyb6Pnrh?from=from_copylink">
+                <a href="https://awx9773btw.feishu.cn/docx/DNZ1dYORAoHpm7xdPaecyb6Pnrh?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
                 >
             </strong>

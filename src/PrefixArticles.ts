@@ -5,7 +5,7 @@ import { getTomatoPluginInstance, siyuan } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
 import { tomatoI18n } from "./tomatoI18n";
 import PrefixArticles from "./PrefixArticles.svelte"
-import { newID } from "stonev5-utils/lib/id";
+import { newID } from "stonev5-utils";
 import { adaptHotkey, Dialog } from "siyuan";
 import { prefixArticlesEnable, prefixArticlesMenu, prefixArticlesSoftLimit } from "./libs/stores";
 import { mount } from "svelte";

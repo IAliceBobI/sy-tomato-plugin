@@ -8,7 +8,7 @@
         TOMATO_CONTROL_ELEMENT,
         WEB_SPACE,
     } from "./libs/gconst";
-    import { newID } from "stonev5-utils/lib/id";
+    import { newID } from "stonev5-utils";
     import {
         getContenteditableElement,
         isValidNumber,

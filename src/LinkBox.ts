@@ -14,7 +14,7 @@ import LinkBoxDialog from "./LinkBox.svelte";
 import LinkBoxBar from "./LinkBoxBar.svelte";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
-import { newID } from "stonev5-utils/lib/id";
+import { newID } from "stonev5-utils";
 import { winHotkey } from "./libs/winHotkey";
 import { mount } from "svelte";
 

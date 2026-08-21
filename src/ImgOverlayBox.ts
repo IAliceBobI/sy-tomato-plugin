@@ -6,7 +6,7 @@ import { ATTR_PIC_OVERLAY, OVERLAY_DIV } from "./constants";
 import { imgOverlayCheckbox } from "./libs/stores";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { tomatoI18n } from "./tomatoI18n";
-import { newID } from "stonev5-utils/lib/id";
+import { newID } from "stonev5-utils";
 import { mount } from "svelte";
 import { DestroyManager } from "./libs/destroyer";
 

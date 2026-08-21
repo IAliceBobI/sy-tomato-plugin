@@ -7,7 +7,7 @@ import CozeSearchBoxMenu from "./CozeSearchBoxMenu.svelte"
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cozeSearchBoxCheckbox, cozeSearchMenuShow } from "./libs/stores";
 import { winHotkey } from "./libs/winHotkey";
-import { newID } from "stonev5-utils/lib/id";
+import { newID } from "stonev5-utils";
 import { mount } from "svelte";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];

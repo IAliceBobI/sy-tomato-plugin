@@ -16,7 +16,7 @@
     import "@xyflow/svelte/dist/style.css";
     import { Plugin, type IProtyle } from "siyuan";
     import { getData } from "./GraphBox";
-    import { newID } from "stonev5-utils/lib/id";
+    import { newID } from "stonev5-utils";
     import {
         getBlockDiv,
         linkTwoElements,
