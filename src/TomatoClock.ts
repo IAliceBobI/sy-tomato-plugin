@@ -37,7 +37,7 @@ class TomatoClock {
     private timeoutID: any;
     private lastDelayMinute: number;
     private lastStartTime: number;
-    private customTab: () => Custom;
+    private customTab: (options: any) => Custom;
 
     onload(plugin: BaseTomatoPlugin) {
         if (plugin.initCfg()) {

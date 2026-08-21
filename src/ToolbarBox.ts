@@ -218,9 +218,10 @@ async function _showCardNumber(e: HTMLElement) {
     }
 }
 
-async function changeLang(lang: Config.TLang) {
+async function changeLang(lang: string) {
     const c = await siyuan.getConf();
-    c.conf.appearance.lang = lang;
+    // TLang 在 siyuan@1.2.x 只剩 BCP 47 码；内核 util.LangToBCP47 仍接受 zh_CN 等历史码，行为不变
+    c.conf.appearance.lang = lang as Config.TLang;
     await siyuan.setAppearance(c.conf.appearance);
     window.location.reload();
 }

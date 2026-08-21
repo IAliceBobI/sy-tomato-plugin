@@ -8,6 +8,7 @@
     import {
         getAttribute,
         setAttribute,
+        siyuan,
         sleep,
         stringToNumber,
     } from "./libs/utils";
@@ -26,10 +27,13 @@
     let saveBtn: HTMLElement = $state();
     let saveBtnDisabled = false;
     let syncCount = $state(0);
+    let syncStatus = $state("");
     $effect(() => {
         syncCount = stringToNumber(
             getAttribute(props.syncBlock, "custom-sync-block-count"),
         );
+        // 冲突徽标优先读 custom-sync-status；标记写入由 MutationObserver 触发重挂徽标刷新
+        syncStatus = getAttribute(props.syncBlock, "custom-sync-status") ?? "";
     });
     const ctrlAttr = $state({});
     ctrlAttr[TOMATO_CONTROL_SYNC] = "1";
@@ -57,12 +61,19 @@
                 const element: HTMLElement = props.syncBlock.cloneNode(true) as any;
                 element.removeAttribute(PROTYLE_WYSIWYG_SELECT);
                 const { rows } = await getRowAndMaxVer("", getSyncID());
-                setAttribute(
-                    element,
-                    "custom-sync-version",
-                    (getSyncVersion() + 1).toString(),
-                );
-                await syncAllBlocks(element, rows.length.toString(), rows);
+                const ver = getSyncVersion() + 1;
+                setAttribute(element, "custom-sync-version", ver.toString());
+                const hNew = await syncAllBlocks(element, rows.length.toString(), rows);
+                // 手动保存也要维护编辑基线：写源块自身 (version, hash, count)，
+                // 否则基线停在旧哈希，开回自动同步后首个事件会被误判为修改源而重复传播
+                const selfID = getCursorPosID();
+                if (selfID) {
+                    await siyuan.setBlockAttrs(selfID, {
+                        "custom-sync-version": ver.toString(),
+                        "custom-sync-hash": hNew,
+                        "custom-sync-block-count": (rows.length + 1).toString(),
+                    });
+                }
             } finally {
                 saveBtn.textContent = tomatoI18n.保存;
                 saveBtnDisabled = false;
@@ -109,7 +120,9 @@
     <span bind:this={saveBtn} class="space btn" onclick={openAll}
         >{tomatoI18n.全部打开}</span
     >
-    {#if syncCount < 0}
+    {#if syncStatus === "conflict"}
+        <span class="space fail" onclick={showAll}>⚠️ {tomatoI18n.同步冲突}</span>
+    {:else if syncCount < 0}
         <span class="space fail" onclick={showAll}>{tomatoI18n.同步失败} </span>
     {:else}
         <span class="space btn" onclick={showAll}

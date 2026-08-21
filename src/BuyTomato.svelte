@@ -162,7 +162,9 @@
         border-radius: var(--b3-border-radius);
         box-shadow: inset 0 -1px 0 var(--b3-theme-surface-lighter);
     }
-    .settingBox {
+    /* 加元素选择器提高特异性：设置对话框全局样式 IndexConf.css 也定义了 .settingBox，
+       此处需保持自己的 margin 不被覆盖（两处使用均为 button 元素） */
+    button.settingBox {
         margin: 5px;
     }
 </style>

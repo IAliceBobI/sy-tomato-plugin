@@ -28,7 +28,7 @@ class CommentBox {
     svelteCallbackTab: Func;
     svelteResizeTab: () => void;
     svelte: CommentBoxSvelte;
-    private customTab: () => Custom;
+    private customTab: (options: any) => Custom;
 
     onload(plugin: BaseTomatoPlugin) {
         if (plugin.initCfg()) {
@@ -322,7 +322,7 @@ class CommentBox {
                     }
                 }) as any;
             },
-        });
+        } as any); // addDock.init 的 dock 参数同 GraphBox：1.2.5 类型漏了，运行时仍传
     }
 }
 

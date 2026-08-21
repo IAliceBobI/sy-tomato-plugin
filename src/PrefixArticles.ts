@@ -122,7 +122,7 @@ function addDock() {
                 }
             });
         },
-    });
+    } as any); // addDock.init 的 dock 参数同 GraphBox：1.2.5 类型漏了，运行时仍传
     dm.add("dock", () => dock);
     dm.add("svelte", () => svelte?.destroy())
 }

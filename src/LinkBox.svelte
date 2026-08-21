@@ -4,6 +4,7 @@
     import { tomatoI18n } from "./tomatoI18n";
     import { linkBoxSyncBlockAuto } from "./libs/stores";
     import { getAttribute, siyuan, stringToNumber } from "./libs/utils";
+    import { syncFromBlock } from "./LinkBox";
     import { onMount } from "svelte";
     interface Props {
         plugin: Plugin;
@@ -46,7 +47,10 @@
         if (!props.rows.some((row) => row.id === getOriginID())) {
             setAsOrigin();
         }
-        if (!getVersion() || getVersion() == "0") {
+        // 遗留组无版本行才补 1 自愈。version=0 是传播舞步的过渡态（接收方刚收到克隆，
+        // 真实版本还没通过 attrs 对齐），此处重置成 1 会打破版本单调性，与 runDoSync/
+        // syncFromBlock 的 verMap 防重交互成「清完 conflict 后静默早退」的复燃假象
+        if (!getVersion()) {
             resetVersion();
         }
         const o = props.rows.find((r) => r.id == getOriginID());
@@ -103,6 +107,18 @@
             );
         }
         props.dm.destroyBy();
+    }
+    // 冲突裁决（设计 §4.5）：以此行为准跑一轮强制传播，完成后关对话框（pushMsg 提示结果）
+    let resolving = $state(false);
+    async function resolveFrom(id: string) {
+        if (resolving) return;
+        resolving = true;
+        try {
+            await syncFromBlock(id);
+            props.dm.destroyBy();
+        } finally {
+            resolving = false;
+        }
     }
     function deleteAll(title: string, exclude = "") {
         confirm(title, "⚠️  " + tomatoI18n.已在x个地方同步(props.rows.length), () => {
@@ -167,12 +183,20 @@
                     <svg class="icon"><use xlink:href="#iconStar"></use></svg>
                 {/if}
             </div>
-            <div
-                class="ver"
-                class:good={oriVer == data}
-                class:wrong={oriVer != data}
-            >
-                v{data}
+            <div class="asRowRight">
+                <div
+                    class="ver"
+                    class:good={oriVer == data}
+                    class:wrong={oriVer != data}
+                >
+                    v{data}
+                </div>
+                <button
+                    class="b3-button b3-button--outline tomato-button"
+                    disabled={resolving}
+                    onclick={() => resolveFrom(id)}
+                    >{tomatoI18n.以此块为准同步}</button
+                >
             </div>
         </div>
     {/each}
@@ -214,5 +238,10 @@
         justify-content: space-between;
         align-items: center; /* 可选：垂直居中对齐 */
         width: 100%;
+    }
+    .asRowRight {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 </style>

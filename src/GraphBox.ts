@@ -22,7 +22,7 @@ export const GraphBox打开块关系图 = winHotkey("⇧⌥E", "graphLocateNode 
 
 class GraphBox {
     plugin: BaseTomatoPlugin;
-    private customTab: () => Custom;
+    private customTab: (options: any) => Custom;
     private dock: Dock;
     // 智能刷新相关
     private lastRefreshedUpdated: string = ""; // 上次刷新时的文档 updated 时间戳
@@ -227,6 +227,8 @@ class GraphBox {
 
     private addDock() {
         const landscapeSwitchBtnID = newID();
+        // siyuan@1.2.5 的 addDock.init 类型漏了 dock 参数（运行时 Custom 构造器仍 this.init(this) 传参），
+        // init 是用词法 this 的箭头函数，不能改成 this 参数形式，整体 as any 保住现有语义
         this.plugin.addDock({
             type: DOCK_TYPE,
             config: {
@@ -286,7 +288,7 @@ class GraphBox {
                     console.error(e);
                 }
             },
-        });
+        } as any);
     }
 }
 

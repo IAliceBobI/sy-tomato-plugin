@@ -363,6 +363,139 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "Synchronization failed";
         }
     }
+    public get 检测到同步冲突() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "检测到同步冲突，请打开同步块菜单选择保留版本";
+            case "es_ES":
+                return "Se detectó un conflicto de sincronización; abra el menú del bloque sincronizado para elegir la versión a conservar";
+            case "fr_FR":
+                return "Conflit de synchronisation détecté ; ouvrez le menu du bloc synchronisé pour choisir la version à conserver";
+            case "ja_JP":
+                return "同期の競合を検出しました。同期ブロックのメニューを開いて残すバージョンを選択してください";
+            case "zh_CHT":
+                return "檢測到同步衝突，請打開同步塊選單選擇保留版本";
+            case "it_IT":
+                return "Rilevato un conflitto di sincronizzazione; apri il menu del blocco sincronizzato per scegliere la versione da mantenere";
+
+            default:
+                return "Sync conflict detected; open the sync block menu to choose which version to keep";
+        }
+    }
+    public get 同步冲突() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "同步冲突";
+            case "es_ES":
+                return "Conflicto de sincronización";
+            case "fr_FR":
+                return "Conflit de synchronisation";
+            case "ja_JP":
+                return "同期の競合";
+            case "zh_CHT":
+                return "同步衝突";
+            case "it_IT":
+                return "Conflitto di sincronizzazione";
+
+            default:
+                return "Sync Conflict";
+        }
+    }
+    public get 以此块为准同步() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "以此块为准同步";
+            case "es_ES":
+                return "Sincronizar usando este bloque";
+            case "fr_FR":
+                return "Synchroniser depuis ce bloc";
+            case "ja_JP":
+                return "このブロックを基準に同期";
+            case "zh_CHT":
+                return "以此塊為準同步";
+            case "it_IT":
+                return "Sincronizza da questo blocco";
+
+            default:
+                return "Sync from this block";
+        }
+    }
+    public get 冲突已解决() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "冲突已解决，已同步到全部副本";
+            case "es_ES":
+                return "Conflicto resuelto; se ha sincronizado con todas las copias";
+            case "fr_FR":
+                return "Conflit résolu ; synchronisé avec toutes les copies";
+            case "ja_JP":
+                return "競合を解決しました。すべてのコピーに同期しました";
+            case "zh_CHT":
+                return "衝突已解決，已同步到全部副本";
+            case "it_IT":
+                return "Conflitto risolto; sincronizzato con tutte le copie";
+
+            default:
+                return "Conflict resolved; synced to all copies";
+        }
+    }
+    public get 巡检重算哈希() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "巡检时重算同步块哈希（检测引擎外的修改）";
+            case "es_ES":
+                return "Recalcular el hash de los bloques sincronizados al inspeccionar (detecta cambios ajenos al motor)";
+            case "fr_FR":
+                return "Recalculer le hachage des blocs synchronisés lors de l'inspection (détecte les modifications hors moteur)";
+            case "ja_JP":
+                return "スキャン時に同期ブロックのハッシュを再計算（エンジン外の変更を検出）";
+            case "zh_CHT":
+                return "巡檢時重算同步塊雜湊（檢測引擎外的修改）";
+            case "it_IT":
+                return "Ricalcola l'hash dei blocchi sincronizzati durante l'ispezione (rileva modifiche esterne al motore)";
+
+            default:
+                return "Re-hash sync blocks on scan (detects out-of-engine changes)";
+        }
+    }
+    public get 子块ID重映射实验() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "子块ID重映射（实验）";
+            case "es_ES":
+                return "Remapear IDs de bloques secundarios (experimental)";
+            case "fr_FR":
+                return "Remapper les IDs des sous-blocs (expérimental)";
+            case "ja_JP":
+                return "子ブロックIDのリマップ（実験的）";
+            case "zh_CHT":
+                return "子塊ID重映射（實驗）";
+            case "it_IT":
+                return "Rimappa ID blocchi figli (sperimentale)";
+
+            default:
+                return "Remap child block IDs (experimental)";
+        }
+    }
+    public get 开启后每个副本的子块使用独立块ID() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "开启后每个副本的子块使用独立块ID，首次开启可能需要重新同步一次全组，建议先对全组执行一次「以此块为准」同步后再开启";
+            case "es_ES":
+                return "Al activarlo, los bloques secundarios de cada copia usan IDs de bloque independientes; la primera activación puede requerir resincronizar todo el grupo; se recomienda ejecutar «Sincronizar usando este bloque» en todo el grupo antes de activarlo";
+            case "fr_FR":
+                return "Une fois activé, les sous-blocs de chaque copie utilisent des IDs de bloc distincts ; la première activation peut nécessiter une resynchronisation du groupe entier ; il est recommandé d'exécuter « Synchroniser depuis ce bloc » sur tout le groupe avant de l'activer";
+            case "ja_JP":
+                return "有効にすると各コピーの子ブロックが独立したブロックIDを使用します。初回有効時はグループ全体の再同期が必要になる場合があります。有効にする前にグループ全体へ「このブロックを基準に同期」を実行することをお勧めします";
+            case "zh_CHT":
+                return "開啟後每個副本的子塊使用獨立塊ID，首次開啟可能需要重新同步一次全組，建議先對全組執行一次「以此塊為準」同步後再開啟";
+            case "it_IT":
+                return "Una volta attivato, i blocchi figli di ogni copia usano ID blocco indipendenti; la prima attivazione può richiedere una risincronizzazione dell'intero gruppo; si consiglia di eseguire \"Sincronizza da questo blocco\" sull'intero gruppo prima di attivarlo";
+
+            default:
+                return "Once enabled, each copy's child blocks use their own block IDs; the first activation may require a full-group re-sync; run \"Sync from this block\" on the whole group before turning it on";
+        }
+    }
     public get 无复本块() {
         switch (this.lang) {
             case "zh_CN":

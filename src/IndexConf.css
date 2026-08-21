@@ -1,0 +1,79 @@
+/* IndexConf 设置对话框共享样式（2026-08 从 IndexConf.svelte 的 <style> 拆出）。
+ * 原为 Svelte 组件作用域样式，分区抽成子组件后改为全局引入；
+ * 所有选择器加 .tomato-settings-dialog 前缀限定在设置对话框内，避免 .space/.kbd/textarea 等
+ * 通用名泄漏到全应用。对话框根节点带 tomato-settings-dialog class。 */
+.tomato-settings-dialog .softBox {
+    padding: 5px;
+    background-color: rgba(200, 230, 255, 0.3);
+    border: 1px solid rgba(100, 150, 200, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+.tomato-settings-dialog .search-bar {
+    position: sticky;
+    top: 0;
+    background-color: var(--b3-theme-surface);
+    z-index: 10;
+}
+.tomato-settings-dialog .space {
+    margin-right: 10px;
+}
+.tomato-settings-dialog .spacetop {
+    margin-top: 5px;
+}
+.tomato-settings-dialog .settingBox {
+    margin: 10px;
+    padding: 10px;
+    border-top: 3px dashed var(--b3-theme-on-surface);
+}
+.tomato-settings-dialog .settingBox > div:not(:last-child) {
+    margin-bottom: 5px;
+}
+.tomato-settings-dialog .settingBox > div:not(:first-child) {
+    margin-left: 5%;
+}
+.tomato-settings-dialog textarea {
+    width: 70%;
+    line-height: 2;
+}
+.tomato-settings-dialog .activeCode {
+    width: 50%;
+    line-height: 2;
+}
+.tomato-settings-dialog .codeNotValid {
+    pointer-events: none;
+    opacity: 30%;
+}
+.tomato-settings-dialog .contentCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.tomato-settings-dialog .alert {
+    padding: 2px 4px;
+    font: "Liberation Mono", Menlo, Courier, monospace, var(--b3-font-family);
+    line-height: 1;
+    color: var(--b3-theme-on-surface);
+    vertical-align: middle;
+    background-color: var(--b3-theme-surface);
+    border: solid 1px var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius);
+    box-shadow: inset 0 -1px 0 var(--b3-theme-surface-lighter);
+}
+.tomato-settings-dialog .kbd {
+    padding: 2px 4px;
+    font:
+        100% Consolas,
+        "Liberation Mono",
+        Menlo,
+        Courier,
+        monospace,
+        var(--b3-font-family);
+    line-height: 1;
+    color: var(--b3-theme-on-surface);
+    vertical-align: middle;
+    background-color: var(--b3-theme-surface);
+    border: solid 1px var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius);
+    box-shadow: inset 0 -1px 0 var(--b3-theme-surface-lighter);
+}

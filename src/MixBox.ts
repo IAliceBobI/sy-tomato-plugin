@@ -267,7 +267,7 @@ class MixBox {
                                             k = "card"
                                         }
                                         if (k === "id") {
-                                            v = v.split("-").at(1);
+                                            v = String(v).split("-").at(1);
                                             k = ""
                                         }
                                         if (v && k) {

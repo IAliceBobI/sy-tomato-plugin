@@ -208,6 +208,8 @@ type TomatoSettings = {
     linkBoxSyncRef: boolean,
     linkBoxSyncHref: boolean,
     linkBoxSyncBlockAuto: boolean,
+    linkBoxSyncScanDeep: boolean,
+    linkBoxSyncRemapChildID: boolean,
     linkBoxUseLnkOrRef: boolean,
     dailyNoteBoxCheckbox: boolean,
     dailyNoteGoToBottom: boolean,
@@ -420,6 +422,8 @@ type AttrType = {
     "custom-sync-version"?: string,
     "custom-sync-origin-id"?: string,
     "custom-sync-item-id"?: string,
+    "custom-sync-hash"?: string,//SYNC_HASH 内容基线哈希
+    "custom-sync-status"?: string,//SYNC_STATUS ok(缺省)/conflict
     "data-node-id"?: string,
     "tomato-control-card-priority"?: string,
     "custom-prog-words"?: string,

@@ -43,7 +43,7 @@ export const NoteBox拍照闪念全局 = winHotkey("ctrl+q", "拍照闪念全局
 
 class NoteBox {
     plugin: BaseTomatoPlugin;
-    private custom: () => Custom;
+    private custom: (options: any) => Custom;
     settingCfg: TomatoSettings;
     // private ticker: any;
     // private notebookID: string;
@@ -263,7 +263,7 @@ class NoteBox {
                     props: {}
                 }) as any;
             },
-        });
+        } as any); // addDock.init 的 dock 参数同 GraphBox：1.2.5 类型漏了，运行时仍传
     }
 
     private addTab() {

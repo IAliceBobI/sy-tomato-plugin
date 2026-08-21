@@ -214,6 +214,9 @@ export interface DoOperation {
     action: TOperation;
     data: any;
     id: string;
+    // 本 op 来源事务的 ws 会话 id（ws-main 广播的 sid）：编辑器自身事务的 sid 即发起视图
+    // protyle.id，传播事务带上它可被内核排除发起视图的回声
+    sid?: string;
     parentID: string;
     previousID: string;
     nextID: string;
