@@ -375,6 +375,7 @@ type RetListDocsByPathFile = {
     hCtime: Date;
     sort: number;
     subFileCount: number;
+    titleEmpty?: boolean, // tomato：内核 model.File 带 titleEmpty（omitempty），未空标题时缺省
     hidden: boolean;
     newFlashcardCount: number;
     dueFlashcardCount: number;

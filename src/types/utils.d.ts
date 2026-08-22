@@ -46,6 +46,7 @@ type TomatoSettings = {
     exportCleanFilesOn: boolean,
     exportIntervalSecOn: boolean,
     markdownExportPics: boolean,
+    exportCleanPath: boolean,
     markdownExportBoxCheckbox: boolean,
     readingAdd2DocName: string,
     exportIntervalSec: string,

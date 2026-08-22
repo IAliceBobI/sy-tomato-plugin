@@ -522,4 +522,84 @@ export abstract class TomatoI18nABC12 extends TomatoI18nABC13 {
             default: return "Export image";
         }
     }
+    public get 导出路径去掉块ID后缀() {
+        switch (this.lang) {
+            case "zh_CN": return "导出路径去掉块ID后缀";
+            case "zh_CHT": return "導出路徑去掉塊ID後綴";
+            case "es_ES": return "Exportar rutas sin sufijo de ID de bloque";
+            case "fr_FR": return "Exporter les chemins sans le suffixe d'ID de bloc";
+            case "ja_JP": return "ブロックIDの接尾辞を付けずにエクスポート";
+            case "it_IT": return "Esporta i percorsi senza il suffisso ID del blocco";
+            case "de_DE": return "Pfade ohne Block-ID-Suffix exportieren";
+            case "he_IL": return "ייצוא נתיבים ללא סיומת מזהה הבלוק";
+            case "ru_RU": return "Экспортировать пути без суффикса ID блока";
+            case "pl_PL": return "Eksportuj ścieżki bez sufiksu ID bloku";
+            case "en_US":
+            default: return "Export paths without block ID suffix";
+        }
+    }
+    public get 切换本开关后执行一次确保导出符合配置即可自动迁移() {
+        switch (this.lang) {
+            case "zh_CN": return "切换本开关后，执行一次「确保导出符合配置」即可自动迁移（大库耗时）";
+            case "zh_CHT": return "切換本開關後，執行一次「確保導出符合配置」即可自動遷移（大庫耗時）";
+            case "es_ES": return "Tras cambiar este interruptor, ejecute «Asegurar exportación conforme a la configuración» una vez para migrar automáticamente (lento en bibliotecas grandes)";
+            case "fr_FR": return "Après avoir basculé ce commutateur, exécutez une fois « Assurer la conformité de l'exportation » pour migrer automatiquement (lent pour les grandes bibliothèques)";
+            case "ja_JP": return "このスイッチを切り替えた後、「エクスポートを設定に合わせる」を一度実行すると自動移行します（大規模ライブラリでは時間がかかります）";
+            case "it_IT": return "Dopo aver attivato questo interruttore, esegui una volta «Garantisci export conforme alla configurazione» per migrare automaticamente (lento per librerie grandi)";
+            case "de_DE": return "Nach dem Umschalten dieses Schalters einmal „Export an Konfiguration angleichen“ ausführen, um automatisch zu migrieren (bei großen Bibliotheken langsam)";
+            case "he_IL": return "לאחר החלפת מצב המתג, הפעל פעם אחת «ודא שהייצוא תואם לתצורה» כדי להעביר אוטומטית (אטי עבור ספריות גדולות)";
+            case "ru_RU": return "После переключения этого выключателя выполните один раз «Убедиться, что экспорт соответствует конфигурации» для автоматической миграции (медленно для больших библиотек)";
+            case "pl_PL": return "Po przełączeniu tego przełącznika uruchom raz «Dopasuj eksport do konfiguracji», aby automatycznie migrować (wolne przy dużych bibliotekach)";
+            case "en_US":
+            default: return "After toggling this switch, run \"Ensure export matches config\" once to migrate automatically (slow for large vaults)";
+        }
+    }
+    public get 导出目录由插件管理手动放入的文件会被清理删除() {
+        switch (this.lang) {
+            case "zh_CN": return "导出目录由插件管理，手动放入的文件会被清理删除";
+            case "zh_CHT": return "導出目錄由外掛管理，手動放入的檔案會被清理刪除";
+            case "es_ES": return "El directorio de exportación lo gestiona el complemento; los archivos colocados manualmente se eliminarán al limpiar";
+            case "fr_FR": return "Le répertoire d'exportation est géré par le plugin ; les fichiers ajoutés manuellement seront supprimés lors du nettoyage";
+            case "ja_JP": return "エクスポート先はプラグインが管理します。手動で置いたファイルはクリーンアップで削除されます";
+            case "it_IT": return "La directory di esportazione è gestita dal plugin; i file inseriti manualmente verranno eliminati durante la pulizia";
+            case "de_DE": return "Das Exportverzeichnis wird vom Plugin verwaltet; manuell abgelegte Dateien werden beim Aufräumen gelöscht";
+            case "he_IL": return "ספריית הייצוא מנוהלת על ידי התוסף; קבצים שהוצבו ידנית יימחקו בניקוי";
+            case "ru_RU": return "Каталогом экспорта управляет плагин; вручную помещённые файлы будут удалены при очистке";
+            case "pl_PL": return "Katalogiem eksportu zarządza wtyczka; ręcznie umieszczone pliki zostaną usunięte podczas czyszczenia";
+            case "en_US":
+            default: return "The export directory is managed by the plugin; manually placed files will be cleaned up and deleted";
+        }
+    }
+    public get 构建导出目录清单失败已中止清理() {
+        switch (this.lang) {
+            case "zh_CN": return "构建导出目录清单失败，已中止本次清理";
+            case "zh_CHT": return "建立導出目錄清單失敗，已中止本次清理";
+            case "es_ES": return "Error al construir el listado del directorio de exportación; limpieza cancelada";
+            case "fr_FR": return "Échec de la construction de la liste du répertoire d'exportation ; nettoyage annulé";
+            case "ja_JP": return "エクスポートディレクトリ一覧の作成に失敗したため、クリーンアップを中止しました";
+            case "it_IT": return "Creazione dell'elenco della directory di esportazione non riuscita; pulizia interrotta";
+            case "de_DE": return "Erstellen der Exportverzeichnisliste fehlgeschlagen; Aufräumen abgebrochen";
+            case "he_IL": return "בניית רשימת ספריית הייצוא נכשלה; הניקוי בוטל";
+            case "ru_RU": return "Не удалось построить список каталога экспорта; очистка прервана";
+            case "pl_PL": return "Nie udało się zbudować listy katalogu eksportu; czyszczenie przerwane";
+            case "en_US":
+            default: return "Failed to build the export directory listing; cleanup aborted";
+        }
+    }
+    public get 导出目录清单为空已中止清理() {
+        switch (this.lang) {
+            case "zh_CN": return "导出目录清单为空，已中止本次清理";
+            case "zh_CHT": return "導出目錄清單為空，已中止本次清理";
+            case "es_ES": return "El listado del directorio de exportación está vacío; limpieza cancelada";
+            case "fr_FR": return "La liste du répertoire d'exportation est vide ; nettoyage annulé";
+            case "ja_JP": return "エクスポートディレクトリ一覧が空のため、クリーンアップを中止しました";
+            case "it_IT": return "L'elenco della directory di esportazione è vuoto; pulizia interrotta";
+            case "de_DE": return "Exportverzeichnisliste ist leer; Aufräumen abgebrochen";
+            case "he_IL": return "רשימת ספריית הייצוא ריקה; הניקוי בוטל";
+            case "ru_RU": return "Список каталога экспорта пуст; очистка прервана";
+            case "pl_PL": return "Lista katalogu eksportu jest pusta; czyszczenie przerwane";
+            case "en_US":
+            default: return "Export directory listing is empty; cleanup aborted";
+        }
+    }
 }

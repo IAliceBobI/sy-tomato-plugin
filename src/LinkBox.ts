@@ -15,7 +15,7 @@ import LinkBoxBar from "./LinkBoxBar.svelte";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { debugLog } from "./libs/logUtils";
-import { createTrailingDebouncer, decideGroupAction, deepScanVerdict, pendingIsDeletionShaped, pivotSyncPeers, scanRecheckPlan, LivePeer, SyncPeerState } from "./libs/syncDecision";
+import { anchorEditExemptsVersionGuards, createTrailingDebouncer, decideGroupAction, deepScanVerdict, editingInsideGroup, monotonicHeal, pendingIsDeletionShaped, pivotSyncPeers, scanRecheckPlan, verMapGate, LivePeer, SyncPeerState, VerMapCache } from "./libs/syncDecision";
 import { newID } from "stonev5-utils";
 import { winHotkey } from "./libs/winHotkey";
 import { mount } from "svelte";
@@ -654,7 +654,7 @@ export async function showSyncBlocks(protyle: IProtyle, plugin: Plugin, element?
     }
 }
 
-const verMap = new Map<string, number>();
+const verMap = new Map<string, VerMapCache>();
 // checkSync 对「传播未完成（v=0）」每个 syncID 只重试一次（设计 §4.6）
 const checkSyncRetried = new Set<string>();
 
@@ -741,16 +741,27 @@ async function runDoSyncLocked(ops: gconst.DoOperation, syncID: string, superDiv
         // 传播过渡态快速路径：事务 DOM 里 version=0 是「刚收到传播」的标记（舞步），此时内核索引
         // 可能尚未提交本副本的新 (v,h)，拿旧基线做冲突判定会误报——只对齐版本，直接返回。
         // 多前端（桌面 App + 浏览器）并存时本路径也是双跑的稳定锚点：谁先对齐都幂等。
+        // 豁免（2026-08-22 单字母不传播修复）：version 只是活 DOM 渲染态，回声（editorSession
+        // 错位时打字视图不被排除）会把打字视图刷成 version=0，治愈到位前用户的单字母编辑会被
+        // 本路径吞掉——光标在副本内且内容已偏离 DB 基线 = 打字真值，放行落穿到正常判定。
         const domVer0 = utils.stringToNumber(utils.getAttribute(superDiv, "custom-sync-version")) === 0;
+        const hCur = utils.normalizeForHash(superDiv);
+        // superDiv 是 clone（contains 对不上活节点），锚点判定查本成员的活副本
+        const anchorInside = editingInsideGroup(
+            Array.from(document.querySelectorAll(`div[data-node-id="${id}"]`)),
+            getSelection()?.anchorNode);
         debugLog("runDoSync", `id=${id} domVer0=${domVer0}`);
         if (domVer0) {
             const { maxVer } = await getGroupState(id, syncID);
             const attrs = await siyuan.getBlockAttrs(id);
             const vBase = utils.stringToNumber(attrs?.["custom-sync-version"]);
-            if (maxVer > vBase) {
-                await siyuan.setBlockAttrs(id, { "custom-sync-version": maxVer.toString() });
+            if (!anchorEditExemptsVersionGuards(anchorInside, hCur, attrs?.["custom-sync-hash"])) {
+                if (maxVer > vBase) {
+                    await siyuan.setBlockAttrs(id, { "custom-sync-version": maxVer.toString() });
+                }
+                return;
             }
-            return;
+            debugLog("runDoSync", `id=${id} 打字编辑豁免 domVer0 快速路径（version=0 但光标在副本内且内容偏离基线）`);
         }
         // 基线只认 DB 属性（修 P6：编辑器 DOM 属性可能滞后）
         const attrs = await siyuan.getBlockAttrs(id);
@@ -782,49 +793,55 @@ async function runDoSyncLocked(ops: gconst.DoOperation, syncID: string, superDiv
         // 基线之外的修改（传播回声 / 属性触碰）；DOM 版本属性落后于 DB 说明编辑器还没应用
         // 完上一轮事务，此时传播会拿旧内容覆盖别人。两种情况都只做版本自我对齐——
         // 这就是「写 version=0 → 各副本 ws 事件自我对齐」舞步的接收侧（§4.1 不变量）。
-        const hCur = utils.normalizeForHash(superDiv);
         const domVer = utils.stringToNumber(utils.getAttribute(superDiv, "custom-sync-version"));
         debugLog("runDoSync", `id=${id} action=${action} vBase=${vBase} hBase=${hBase?.slice(0, 10) ?? "-"} hCur==hBase=${hCur === hBase} domVer=${domVer} peers=${peers.length} maxVer=${maxVer}`);
-        if (hCur === hBase || domVer !== vBase) {
+        // domVer≠vBase 早退的豁免同上：光标在副本内且内容已偏离基线 = 打字真值，不按「编辑器
+        // 还没应用完上一轮事务」早退（否则吞掉的是用户刚打的字而不是旧内容）
+        if (hCur === hBase || (domVer !== vBase && !anchorEditExemptsVersionGuards(anchorInside, hCur, hBase))) {
             if (maxVer > vBase) {
                 await siyuan.setBlockAttrs(id, { "custom-sync-version": maxVer.toString() });
             }
             return;
         }
         // 修改源：传播。syncVer 取组内最大版本 +1，副本漏收传播后（v 落后）再编辑也能直接追平。
-        const cacheVer = verMap.get(syncID) ?? -1; // 防止重复更新
+        // 判重升级「版本+哈希」（2026-08-22 死锁修复）：治愈曾以滞后 SQL 把组版本写回低位（回摆），
+        // 页面级 verMap 却记住历史高位，此后 syncVer ≤ cacheVer 的真编辑全被静默吞、深检同锁，
+        // 整组死锁到插件重载（活实例：17 轮回声风暴后 verMap=312、组回摆 310）。哈希相同才是
+        // 重复回声（dup），版本追不上但哈希是新编辑（allow）必须放行。
+        const cached = verMap.get(syncID);
         const syncVer = Math.max(maxVer, vBase) + 1;
-        debugLog("runDoSync", `id=${id} 传播分支 syncVer=${syncVer} cacheVer=${cacheVer} remap=${linkBoxSyncRemapChildID.get()}`);
-        if (syncVer > cacheVer) {
-            verMap.set(syncID, syncVer)
-            const count = (rows.length + 1).toString();
-            await addSyncItemAttr(superDiv); // 新子块先领 item-id（§3.2 哈希计算时点）
-            const hNew = utils.normalizeForHash(superDiv);
-            setAttribute(superDiv, "custom-sync-hash", hNew);
-            await siyuan.setBlockAttrs(id, { "custom-sync-block-count": count, "custom-sync-version": syncVer.toString(), "custom-sync-hash": hNew });
-            setAttribute(superDiv, "custom-sync-version", "0");
-            // 回声抑制（2026-08-21 光标跳块首修复二轮）：编辑器自身事务广播自带 sid=发起视图
-            // protyle.id，直接透传给内核排除该视图——currentProtyle 只在 docID 变化时更新，同文档
-            // 双视图等场景会滞后错位（排除错连接 → 打字视图照收回声 → 光标跳块首），仅作兜底
-            const editorSession = ops.sid ?? currentProtyle.get()?.protyle?.id;
-            await syncAllBlocks(superDiv, count, rows, editorSession);
-            // 编辑者基线回写 + 源侧自写（□6，2026-08-21）：上面写进 superDiv 的 version=0 是给目标克隆的
-            // 舞步标记，留在编辑者 DOM 上会让下一轮被 domVer≠vBase 早退吞掉（尾字丢失）或卡 domVer0
-            // 快速路径——回写 syncVer 与 updateAttrs 广播幂等，堵住两者的应用乱序竞态；
-            // 传播事务只写目标，共享子块 ID 模式（remap 关）下源内核副本会停在旧内容：blocktree 随克隆
-            // 翻转后，编辑者后续打字 op 被内核写进目标的树（实测深检以旧源为据传播可回滚新内容）——
-            // 源也用同一份 DOM 自写一次保持内核新鲜，并让「正在编辑的树」恒为子块索引的当前副本
-            setAttribute(superDiv, "custom-sync-version", syncVer.toString());
-            if (rows.length > 0) {
-                await siyuan.transactions(siyuan.transUpdateBlocks([{ id, domStr: superDiv.outerHTML }]), [], editorSession);
-            }
-            if (anyConflict || baseStatus) {
-                await clearGroupStatus([id, ...peers.map(p => p.id)]); // 裁决后的重传：成功后清除组 status（§4.4 5b）
-            }
-            setTimeout(() => {
-                checkSync(syncID);
-            }, 10 * 1000);
+        await addSyncItemAttr(superDiv); // 新子块先领 item-id（§3.2 哈希计算时点）
+        const hNew = utils.normalizeForHash(superDiv);
+        setAttribute(superDiv, "custom-sync-hash", hNew);
+        const gate = verMapGate(syncVer, cached, hNew);
+        debugLog("runDoSync", `id=${id} 传播分支 syncVer=${syncVer} cacheVer=${cached?.ver ?? -1} gate=${gate} remap=${linkBoxSyncRemapChildID.get()}`);
+        if (gate === "dup") return;
+        if (gate === "allow") debugLog("runDoSync", `id=${id} 版本回摆放行：syncVer=${syncVer} ≤ cacheVer=${cached?.ver} 但内容是新编辑`);
+        verMap.set(syncID, { ver: Math.max(syncVer, cached?.ver ?? 0), hash: hNew })
+        const count = (rows.length + 1).toString();
+        await siyuan.setBlockAttrs(id, { "custom-sync-block-count": count, "custom-sync-version": syncVer.toString(), "custom-sync-hash": hNew });
+        setAttribute(superDiv, "custom-sync-version", "0");
+        // 回声抑制（2026-08-21 光标跳块首修复二轮）：编辑器自身事务广播自带 sid=发起视图
+        // protyle.id，直接透传给内核排除该视图——currentProtyle 只在 docID 变化时更新，同文档
+        // 双视图等场景会滞后错位（排除错连接 → 打字视图照收回声 → 光标跳块首），仅作兜底
+        const editorSession = ops.sid ?? currentProtyle.get()?.protyle?.id;
+        await syncAllBlocks(superDiv, count, rows, editorSession);
+        // 编辑者基线回写 + 源侧自写（□6，2026-08-21）：上面写进 superDiv 的 version=0 是给目标克隆的
+        // 舞步标记，留在编辑者 DOM 上会让下一轮被 domVer≠vBase 早退吞掉（尾字丢失）或卡 domVer0
+        // 快速路径——回写 syncVer 与 updateAttrs 广播幂等，堵住两者的应用乱序竞态；
+        // 传播事务只写目标，共享子块 ID 模式（remap 关）下源内核副本会停在旧内容：blocktree 随克隆
+        // 翻转后，编辑者后续打字 op 被内核写进目标的树（实测深检以旧源为据传播可回滚新内容）——
+        // 源也用同一份 DOM 自写一次保持内核新鲜，并让「正在编辑的树」恒为子块索引的当前副本
+        setAttribute(superDiv, "custom-sync-version", syncVer.toString());
+        if (rows.length > 0) {
+            await siyuan.transactions(siyuan.transUpdateBlocks([{ id, domStr: superDiv.outerHTML }]), [], editorSession);
         }
+        if (anyConflict || baseStatus) {
+            await clearGroupStatus([id, ...peers.map(p => p.id)]); // 裁决后的重传：成功后清除组 status（§4.4 5b）
+        }
+        setTimeout(() => {
+            checkSync(syncID);
+        }, 10 * 1000);
     }
 }
 
@@ -848,11 +865,11 @@ async function checkSync(syncID: string) {
         return;
     }
     const ops = peers
-        .filter(p => p.version !== maxVer || (anyConflict && p.status === "conflict"))
+        .filter(p => monotonicHeal(p.version, maxVer) || (anyConflict && p.status === "conflict"))
         .map(p => ({
             id: p.id,
             attrs: {
-                ...(p.version !== maxVer ? { "custom-sync-version": maxVer.toString() } : {}),
+                ...(monotonicHeal(p.version, maxVer) ? { "custom-sync-version": maxVer.toString() } : {}),
                 ...(anyConflict && p.status === "conflict" ? { "custom-sync-status": null } : {}),
             },
         }));
@@ -897,11 +914,16 @@ export async function syncFromBlock(blockID: string, opts?: { silent?: boolean }
     superDiv.classList.remove(PROTYLE_WYSIWYG_SELECT);
     const ver = Math.max(maxVer, utils.stringToNumber(attrs["custom-sync-version"])) + 1;
     const count = (rows.length + 1).toString();
-    const cacheVer = verMap.get(syncID) ?? -1;
-    if (ver <= cacheVer) return; // 防重复：同一版本裁决只跑一次
-    verMap.set(syncID, ver)
+    // 判重升级「版本+哈希」（2026-08-22 死锁修复，与 runDoSync 同款）：深检自动传播曾与回摆的
+    // 版本号共振被 verMap 高位静默锁死（裁决对话框有 delete workaround，深检没有）——哈希相同
+    // 才是重复裁决，版本追不上但内容是新编辑必须放行
+    const cached = verMap.get(syncID);
     await addSyncItemAttr(superDiv); // 新子块先领 item-id（§3.2 哈希计算时点）
     const hNew = utils.normalizeForHash(superDiv);
+    const gate = verMapGate(ver, cached, hNew);
+    if (gate === "dup") return; // 防重复：同版本同内容的裁决只跑一次
+    if (gate === "allow") debugLog("syncFromBlock", `blockID=${blockID} 版本回摆放行：ver=${ver} ≤ cacheVer=${cached?.ver} 但内容是新编辑`);
+    verMap.set(syncID, { ver: Math.max(ver, cached?.ver ?? 0), hash: hNew })
     setAttribute(superDiv, "custom-sync-hash", hNew);
     await siyuan.setBlockAttrs(blockID, {
         "custom-sync-block-count": count,
@@ -974,7 +996,7 @@ async function scanAllGroups() {
                     const hashNew = utils.normalizeForHash(reach[0].div);
                     for (const p of reach) {
                         const attrs: AttrType = { "custom-sync-hash": hashNew };
-                        if (p.peer.version !== maxVer) attrs["custom-sync-version"] = maxVer.toString();
+                        if (monotonicHeal(p.peer.version, maxVer)) attrs["custom-sync-version"] = maxVer.toString();
                         if (p.peer.status === "conflict") attrs["custom-sync-status"] = null;
                         healOps.push({ id: p.peer.id, attrs });
                     }
@@ -999,6 +1021,16 @@ async function scanAllGroups() {
                         for (const p of reach.filter(p => p.peer.status !== "conflict")) {
                             markOps.push({ id: p.peer.id, attrs: { "custom-sync-status": "conflict" } });
                         }
+                        continue;
+                    }
+                    // 光标避让（□1-A，2026-08-22）：深检传播/源自写不带 editorSession（广播全量），
+                    // 组内副本正被编辑时事务回声会替换打字视图正文——光标跳五连修后仅剩的复发口。
+                    // 延后但不重排 8s 复查（2026-08-22 自旋修复：光标停在组内不动时无条件重排会
+                    // 无限自旋——每 8s 一轮全量扫描+刷日志）；嫌疑保留，sync_end 周期巡检在光标
+                    // 离开后自然传播
+                    if (editingInsideGroup(reach.map(e => e.div), getSelection()?.anchorNode)) {
+                        scanDeepSuspects.add(syncID);
+                        debugLog("scanAllGroups", `syncID=${syncID} 深检 pending 组内编辑中延后传播（待周期巡检复查）`);
                         continue;
                     }
                     // 编辑形：结构完整只是内容变，自动以偏离侧为源传播（silent——本无冲突可报），
@@ -1030,7 +1062,7 @@ async function scanAllGroups() {
             const maxVer = peers.reduce((pre, cur) => cur.version > pre ? cur.version : pre, 0);
             for (const p of reach) {
                 const attrs: AttrType = {};
-                if (p.peer.version !== maxVer) attrs["custom-sync-version"] = maxVer.toString();
+                if (monotonicHeal(p.peer.version, maxVer)) attrs["custom-sync-version"] = maxVer.toString();
                 if (p.peer.status === "conflict") attrs["custom-sync-status"] = null;
                 if (Object.keys(attrs).length > 0) healOps.push({ id: p.peer.id, attrs });
             }

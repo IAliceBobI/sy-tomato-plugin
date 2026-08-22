@@ -93,6 +93,55 @@ export function pendingIsDeletionShaped(deviant: Element, baseline: Element): bo
 }
 
 /**
+ * 深检 pending 编辑形自动传播前的光标避让（2026-08-22 checkpoint □1-A）：
+ * 深检传播（syncFromBlock → syncAllBlocks / 源自写）不带 editorSession、广播全量，
+ * 组内副本正被编辑时传播事务会替换打字视图正文——光标跳五连修后仅剩的复发口。
+ * 组内任一副本含选区锚点（含文本节点）即视为编辑进行中，调用方延后传播。
+ */
+export function editingInsideGroup(divs: (Element | null | undefined)[], anchor: Node | null | undefined): boolean {
+    if (!anchor) return false;
+    return (divs ?? []).some(d => d?.contains(anchor));
+}
+
+/**
+ * 打字真编辑对版本守卫的豁免（2026-08-22 单字母不传播修复）：
+ * runDoSyncLocked 的 domVer0 快速路径与 domVer≠vBase 早退，防的是「拿旧内容覆盖别人」——
+ * 但 version 属性只是活 DOM 的渲染态：传播轮回声（editorSession 错位时打字视图不被排除）
+ * 会把打字视图活 DOM 刷成 version=0，版本号治愈（checkSync +10s）到位前，用户打的一两个
+ * 字母被当回声吞掉、静默搁浅。光标锚点在本副本内 + 内容哈希已偏离 DB 基线 = 用户正在
+ * 此副本打字（编辑真值，内核侧必为最新），守卫须放行；锚点不在（回声/陈旧 DOM）则维持
+ * 原防护。哈希缺失（遗留组）保守不豁免。
+ */
+export function anchorEditExemptsVersionGuards(anchorInside: boolean, hCur: string | null | undefined, hBase: string | null | undefined): boolean {
+    return !!anchorInside && !!hCur && !!hBase && hCur !== hBase;
+}
+
+/** verMap 缓存项（2026-08-22 死锁修复）：版本高水位 + 上次传播的内容哈希 */
+export type VerMapCache = { ver: number; hash: string };
+
+/**
+ * verMap 判重闸（2026-08-22 传播链死锁修复）：判重从「仅版本号」升级为「版本+上次传播哈希」。
+ * 死锁链：回声风暴把版本推高（页面级 verMap 记住高位），checkSync 治愈以滞后 SQL 把组版本
+ * 写回低位（回摆，见 monotonicHeal），此后真编辑算出的 syncVer 永远 ≤ cacheVer 被静默吞——
+ * 打字传播、深检 syncFromBlock 同锁，整组死锁到插件重载。语义：
+ * propagate = 正常递增放行；dup = 版本追不上且哈希相同（重复回声，原防重语义保留）；
+ * allow = 版本追不上但哈希是新编辑（版本回摆后的真编辑，必须放行）。
+ */
+export function verMapGate(syncVer: number, cached: VerMapCache | undefined, hNew: string): "propagate" | "dup" | "allow" {
+    if (!cached || syncVer > cached.ver) return "propagate";
+    return cached.hash === hNew ? "dup" : "allow";
+}
+
+/**
+ * 版本治愈的单调闸（2026-08-22 版本回摆修复）：checkSync/巡检治愈原来用 !== 判断，
+ * 滞后 SQL 读出低位 maxVer 时会把高版本成员往回写（活实例 312 → 310），破坏版本
+ * 单调性并与 verMap 高位共振死锁。治愈只升不降；cur > maxVer 说明 maxVer 是滞后读。
+ */
+export function monotonicHeal(cur: number, maxVer: number): boolean {
+    return cur < maxVer;
+}
+
+/**
  * attributes 表行 (block_id, name, value) → 副本状态数组（设计 §4.4 步骤 2 的纯函数半，
  * IO 半在 LinkBox.getGroupState：发 SQL + checkBlockExist 存活过滤）。
  * version/hash/status 行按 block_id 透视合并；缺 version 行的副本按 0 计。

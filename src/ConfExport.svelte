@@ -16,6 +16,7 @@
         exportWhiteList,
         markdownExportBoxCheckbox,
         markdownExportPics,
+        exportCleanPath,
         superRefBoxCheckBox,
         superRefBoxGlobalFixMenu,
         superRefBoxGlobalLnkMenu,
@@ -154,6 +155,15 @@
                     >{MarkdownExport确保导出符合配置.langText() + MarkdownExport确保导出符合配置.w()}
                 </button>
             </div>
+            <div>
+                <label class="space">
+                    <input type="checkbox" class="b3-switch" bind:checked={$exportCleanPath} />{tomatoI18n.导出路径去掉块ID后缀}
+                </label>
+            </div>
+            {#if $exportCleanPath}
+                <div class="kbd">{tomatoI18n.切换本开关后执行一次确保导出符合配置即可自动迁移}</div>
+                <div class="kbd">{tomatoI18n.导出目录由插件管理手动放入的文件会被清理删除}</div>
+            {/if}
         {/if}
     </div>
     <!-- 块编辑器 -->

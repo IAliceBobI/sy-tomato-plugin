@@ -27,6 +27,8 @@
         baseZIndex?: number;
         draggable?: boolean;
         resizable?: boolean;
+        // 无 dm 时也可显示关闭按钮：点击时调用该回调（如隐藏悬浮菜单）
+        onClose?: () => void;
     }
 
     let {
@@ -49,6 +51,7 @@
         baseZIndex = 12,
         draggable = true,
         resizable = true,
+        onClose = undefined,
     }: PropsType = $props();
 
     let dialogElement: HTMLElement | null = $state(null);
@@ -558,6 +561,17 @@
                         onclick={(e) => {
                             e.stopPropagation();
                             dm.destroyBy();
+                        }}
+                    >
+                        {@html icon("iconClose", 15)}
+                    </button>
+                {:else if onClose}
+                    <button
+                        title={tomatoI18n.退出}
+                        class="close-button"
+                        onclick={(e) => {
+                            e.stopPropagation();
+                            onClose();
                         }}
                     >
                         {@html icon("iconClose", 15)}

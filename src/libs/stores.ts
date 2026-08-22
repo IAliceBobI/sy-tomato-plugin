@@ -335,6 +335,8 @@ export const cssRefStyle = settingFactory("cssRefStyle", false, STORAGE_SETTINGS
 export const exportWL4All = settingFactory("exportWL4All", false, STORAGE_SETTINGS, null as TSK);
 export const exportWhiteList = settingFactory("exportWhiteList", [], STORAGE_SETTINGS, null as TSK);
 export const exportBlackList = settingFactory("exportBlackList", [], STORAGE_SETTINGS, null as TSK);
+// 默认开启（2026-08-22 用户拍板：干净路径是默认形态，无需选择）；已存储过旧值的用户不受影响。
+export const exportCleanPath = settingFactory("exportCleanPath", true, STORAGE_SETTINGS, null as TSK);
 export const showDocAttrs = settingFactory("showDocAttrs", false, STORAGE_SETTINGS, null as TSK);
 export const cssNattyList = settingFactory("cssNattyList", false, STORAGE_SETTINGS, null as TSK);
 export const cssListBackgound = settingFactory("cssListBackgound", false, STORAGE_SETTINGS, null as TSK);

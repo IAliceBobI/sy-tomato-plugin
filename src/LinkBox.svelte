@@ -5,6 +5,7 @@
     import { linkBoxSyncBlockAuto } from "./libs/stores";
     import { getAttribute, siyuan, stringToNumber } from "./libs/utils";
     import { syncFromBlock } from "./LinkBox";
+    import type { VerMapCache } from "./libs/syncDecision";
     import { onMount } from "svelte";
     interface Props {
         plugin: Plugin;
@@ -14,7 +15,7 @@
         cursorPosID: string;
         syncID: string;
         syncDiv: HTMLElement;
-        verMap: Map<string, number>;
+        verMap: Map<string, VerMapCache>;
     }
 
     let props: Props = $props();

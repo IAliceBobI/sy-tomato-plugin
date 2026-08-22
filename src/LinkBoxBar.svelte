@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Plugin } from "siyuan";
+    import type { VerMapCache } from "./libs/syncDecision";
     import {
         DATA_NODE_ID,
         PROTYLE_WYSIWYG_SELECT,
@@ -20,7 +21,7 @@
     interface Props {
         plugin: Plugin;
         syncBlock: HTMLElement;
-        verMap: Map<string, number>;
+        verMap: Map<string, VerMapCache>;
     }
 
     let props: Props = $props();
