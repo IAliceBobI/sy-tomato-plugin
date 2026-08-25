@@ -1,19 +1,78 @@
-# [OPEN SOURCE 已开源 🔓](https://github.com/IAliceBobI/sy-tomato-plugin)
+# 番茄工具箱 Tomato Toolbox
 
-# [DOC 帮助文档 📖](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)
+为思源笔记打造的 24 合 1 效率工具箱：时间管理、文档编辑、闪卡复习、AI 问答，一个插件全覆盖，全部开源。
 
-# [ISSUE 在这里交流 💬](https://pd.qq.com/s/2fh7nh7gz)
+## 核心亮点
 
-# [CHANGELOG 更新日志 📅](https://awx9773btw.feishu.cn/docx/KekbdZ6Ozo4LLHxAGsncGTKJnff?from=from_copylink)
+- 🧰 **24 合 1 工具箱**——从番茄钟到 AI，装一个插件省一排插件位
+- 🤖 **AI 知识库问答**——接入你自己的笔记，流式输出，答案有出处
+- 🎴 **闪卡复习增强**——优先级排序、图片挖空、复习时顺手删卡、失效卡一键清理
+- 🔗 **块引用工具集**——同步块、双向互链、文本转引用、块关系图，把笔记连成网
+- 🍅 **状态栏番茄钟**——点击即开，专注/休息自动轮转，最小打扰
 
-# [ACKNOWLEDGMENTS 鸣谢 🙏](https://awx9773btw.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
+## 功能总览
 
-> 📊 思源集市下载 136,000+ · 评分 4.8
+### 🍅 番茄钟与提醒
+
+- **状态栏番茄钟**——点击即开，专注/休息自动轮转
+- **定期提醒**——周而复始的事，到点自动提醒
+
+### 📝 文档与编辑
+
+- **自动导出 Markdown**——笔记定时导出为 md 文件
+- **前缀文档树**——按标题前缀整理文档树
+- **移动端多选**——手机上也能批量选块
+- **增强折叠**——更强大的折叠能力
+- **批注**——给内容块加批注高亮
+- **文档合并**——多个文档一键并成一个
+- **移到今日笔记**——任意块一键挪进今天的日记
+
+### 🔗 块与引用
+
+- **同步块**——一处修改，处处同步
+- **双向互链**——两个块互相引用，A 面 B 面一键跳转
+- **文本转引用**——选中文字原地变引用块
+- **底部反链**——编辑器底部常驻反链面板
+- **块关系图**——块之间引用关系的可视化
+- **思维导线**——大纲一键展开成思维导线
+- **数据库反链**——数据库视图里的反链
+
+### 🎴 闪卡与复习
+
+- **闪卡优先级**——重要的卡先复习
+- **闪卡图片挖空**——图片局部挖空制卡
+- **复习时删卡**——复习界面顺手删掉废卡
+- **清理失效闪卡**——失效卡一键清理
+- **拍照闪念**——手机拍照秒存闪念
+- **阅读点**——标记读到哪了，下次接着读
+
+### 🤖 AI
+
+- **AI 知识库问答**——基于自己的笔记问答，答案有出处
+- **流式 AI**——边生成边读，不用干等
+
+## 上手
+
+1. 安装后看思源状态栏——点击番茄图标，开跑第一个番茄钟
+2. 打开插件设置（思源设置 → 插件 → 番茄工具箱），按习惯调时长、提醒与 AI 配置
+3. 其余功能不用背：命令面板搜「番茄」全部列出，或到帮助文档按场景找
+
+## 文档与社区
+
+- 📖 **[帮助文档](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)**——每个功能都有配图和视频演示，5 分钟看懂全部玩法
+- 📅 [更新日志](https://awx9773btw.feishu.cn/docx/KekbdZ6Ozo4LLHxAGsncGTKJnff?from=from_copylink)
+- 🙏 [鸣谢](https://awx9773btw.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
+- 💬 [QQ 交流群](https://pd.qq.com/s/2fh7nh7gz)——反馈、催更、蹲新功能
+- 🔓 [开源仓库](https://github.com/IAliceBobI/sy-tomato-plugin)——代码即产物，GitHub Actions 在线编译，所见即所得
+
+📊 思源集市下载 136,000+ · 评分 4.8
+
+## 支持作者
 
 <div>
-<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/wx1.png" alt="alipay" width="300" />
+<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/wx1.png" alt="微信收款码" width="300" />
 </div>
 <br>
 <div>
-<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/zfb1.jpg" alt="wechat" width="300" />
+<img src="https://player-pubpic.oss-cn-beijing.aliyuncs.com/static/zfb1.jpg" alt="支付宝收款码" width="300" />
 </div>

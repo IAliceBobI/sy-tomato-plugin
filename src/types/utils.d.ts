@@ -132,6 +132,7 @@ type TomatoSettings = {
     btnSplitByPunctuationsList: boolean,
     btnSplitByPunctuationsListCheck: boolean,
     btnSplitByPunctuations: boolean,
+    mobileTopBar: boolean,
     btnIgnoreBook: boolean,
     btnDeleteExit: boolean,
     btnDelCard: boolean,

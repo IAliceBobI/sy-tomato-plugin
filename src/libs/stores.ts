@@ -604,6 +604,7 @@ export const btnIgnoreBook = settingFactory("btnIgnoreBook", false, STORAGE_Prog
 export const btnSplitByPunctuations = settingFactory("btnSplitByPunctuations", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const btnSplitByPunctuationsListCheck = settingFactory("btnSplitByPunctuationsListCheck", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const btnSplitByPunctuationsList = settingFactory("btnSplitByPunctuationsList", false, STORAGE_Prog_SETTINGS, null as TSK);
+export const mobileTopBar = settingFactory("mobileTopBar", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const initProgFloatBtnsDisable = settingFactory("initProgFloatBtnsDisable", false, STORAGE_Prog_SETTINGS, null as TSK);
 
 // ---------------

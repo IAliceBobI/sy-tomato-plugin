@@ -54,6 +54,14 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 移动端浮条固定顶部() {
+        switch (this.lang) {
+            case "zh_CN": return "移动端浮条固定顶部";
+            case "zh_CHT": return "行動端浮條固定頂部";
+            default: return "Mobile floatbar pinned to top";
+        }
+    }
+
     public get 分片按钮组() {
         switch (this.lang) {
             case "zh_CN": return "分片按钮组";
