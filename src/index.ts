@@ -402,21 +402,45 @@ export default class ThePlugin extends BaseTomatoPlugin {
             name.textContent = tomatoI18n.番茄工具箱 + " · " + tomatoI18n.设置;
             name.style.fontWeight = "600";
             name.style.whiteSpace = "nowrap";
-            div.appendChild(name);
             const versionSpan = document.createElement("span") as HTMLSpanElement;
             versionSpan.textContent = "v" + version + "t";
             versionSpan.style.fontSize = "12px";
             versionSpan.style.alignSelf = "center";
-            div.appendChild(versionSpan);
-            div.appendChild(help);
-            div.appendChild(log);
-            div.appendChild(save);
-            div.style.display = "flex"
-            div.style.flexDirection = "row"
-            div.style.justifyContent = "space-between"
-            div.style.alignItems = "center"
-            div.style.flexWrap = "nowrap"
-            div.style.gap = "8px"
+            // 手机屏宽放不下整行：标题/版本一行，按钮组另起一行右对齐，防止溢出屏幕右缘
+            if (events.isMobile) {
+                const titleRow = document.createElement("div") as HTMLDivElement;
+                titleRow.style.display = "flex";
+                titleRow.style.alignItems = "center";
+                titleRow.style.gap = "8px";
+                titleRow.appendChild(name);
+                titleRow.appendChild(versionSpan);
+                const btnRow = document.createElement("div") as HTMLDivElement;
+                btnRow.style.display = "flex";
+                btnRow.style.alignItems = "center";
+                btnRow.style.justifyContent = "flex-end";
+                btnRow.style.flexWrap = "wrap";
+                btnRow.style.gap = "8px";
+                btnRow.appendChild(help);
+                btnRow.appendChild(log);
+                btnRow.appendChild(save);
+                div.appendChild(titleRow);
+                div.appendChild(btnRow);
+                div.style.display = "flex";
+                div.style.flexDirection = "column";
+                div.style.gap = "6px";
+            } else {
+                div.appendChild(name);
+                div.appendChild(versionSpan);
+                div.appendChild(help);
+                div.appendChild(log);
+                div.appendChild(save);
+                div.style.display = "flex"
+                div.style.flexDirection = "row"
+                div.style.justifyContent = "space-between"
+                div.style.alignItems = "center"
+                div.style.flexWrap = "nowrap"
+                div.style.gap = "8px"
+            }
             div.style.width = "100%"
             return div;
         }
