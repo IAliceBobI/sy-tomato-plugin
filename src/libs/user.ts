@@ -34,12 +34,48 @@ export async function verifyKeyProgressive() {
     return verifyKey("_siyuanProgressiveCode_")
 }
 
+export async function verifyKeyRecite() {
+    return verifyKey("_siyuanReciteCode_")
+}
+
+// 产品标识（2026-08 recite 商业化引入第三产品）：verify/redeem/购买组件共用的分流参数类型
+export type Product = "tomato" | "progressive" | "recite";
+
+// 无副作用本地验签（找回激活码·三分支判定用）：只读 userToken，不碰 _isValid 缓存、
+// 不写 token——绝不能走 verifyKey（它无效时会静默把 token 换成免费试用码）。
+// verifyUserSign 内含 checkUserID（exp 有效性 + ldID 绑定当前登录 userID），「有效」
+// 已含绑定判定；name 型不做云端备份，调用方须自判 ldID 非空
+export const INCLUDED_BY_PRODUCT: Record<Product, string> = {
+    tomato: "_siyuanTomatoCode_",
+    progressive: "_siyuanProgressiveCode_",
+    recite: "_siyuanReciteCode_",
+};
+
+// verify 分流查表（2026-08 三产品化）：ActivationCard / redeem / BuyTomato 共用，
+// 替代散落的 product === "tomato" ? ... : ... 三元链
+export function verifyFnByProduct(product: Product): () => Promise<boolean> {
+    return product === "tomato" ? verifyKeyTomato
+        : product === "progressive" ? verifyKeyProgressive
+        : verifyKeyRecite;
+}
+
+export async function verifyLocalCode(
+    plugin: Product,
+): Promise<{ valid: boolean; ldID: string; name: string; exp: string }> {
+    const included = INCLUDED_BY_PRODUCT[plugin];
+    const v = await verifyUserSign(userToken.get(), included);
+    return { valid: v.valid, ldID: v.ldID, name: v.name, exp: v.exp };
+}
+
+// verifyKey 失败时塞进 store 的过期免费码（20250721）。导出供展示层识别清空：
+// 未激活态输入框预填它会让买家粘贴前须手动清空（2026-08-24 评审 P1）。
+export const FREE_KEY = "freeze7XSGUQr_20250721_name_siyuanTomatoCode_30440220584fbd1f344fbadcde83242f7bd87356b0b3186141fc820acfe820d68efb1c0102205a28181a774d96e5c46e1366954ea69f106faa11cb28a8ea7c1d19b87f8bb314";
+
 async function verifyKey(included: string) {
     if (_isValid != null) return _isValid;
 
     let v = await verifyUserSign(userToken.get(), included);
     if (!v.valid) {
-        const FREE_KEY = "freeze7XSGUQr_20250721_name_siyuanTomatoCode_30440220584fbd1f344fbadcde83242f7bd87356b0b3186141fc820acfe820d68efb1c0102205a28181a774d96e5c46e1366954ea69f106faa11cb28a8ea7c1d19b87f8bb314";
         userToken.set(FREE_KEY);
         v = await verifyUserSign(FREE_KEY, "_siyuanTomatoCode_");
     }
@@ -100,7 +136,7 @@ async function verifyUserSign(tokenSign: string, included: string) {
     ].includes(getMd5(userPartShort.split("_").at(0)))) signValid = false;
 
     if (included && !tokenSign.includes(included)) signValid = false;
-    return { exp, valid: signValid };
+    return { exp, valid: signValid, ldID, name };
 }
 
 async function checkUserID(ldID: string, name: string, exp: string) {

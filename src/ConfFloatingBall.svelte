@@ -22,6 +22,7 @@
     import { lastVerifyResult } from "./libs/user";
     import { events } from "./libs/Events";
     import { tomatoI18n } from "./tomatoI18n";
+    import HotkeyCap from "./HotkeyCap.svelte";
     import { helpOpen } from "./helpOpen";
 
     let addDocSettings: HTMLElement = $state();
@@ -106,12 +107,12 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$floatingballDocMenu} />
                 {tomatoI18n.menu添加右键菜单}: {FloatingBall添加文档.langText()}
-                <strong>{FloatingBall添加文档.w()}</strong>
+                <HotkeyCap hk={FloatingBall添加文档} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$floatingballDocTabMenu} />
                 {tomatoI18n.menu添加右键菜单}: {FloatingBallTab添加文档.langText()}
-                <strong>{FloatingBallTab添加文档.w()}</strong>
+                <HotkeyCap hk={FloatingBallTab添加文档} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <!-- 列出文档绑定 -->
             <div>

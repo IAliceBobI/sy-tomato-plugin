@@ -4,6 +4,7 @@
     import { DestroyManager } from "./libs/destroyer";
     import { TomatoClockID, tomatoClock } from "./TomatoClock";
     import { tomato_clocks_audio } from "./libs/stores";
+    import { tomatoI18n } from "./tomatoI18n";
 
     interface Props {
         vedioID: BlockID;
@@ -65,7 +66,7 @@
 <div id={TomatoClockID}>
     {#if !vedioID}
         <div class="box">
-            <div class="prompt">{tomatoClock.plugin.i18n.takeARestPlease}</div>
+            <div class="prompt">{tomatoI18n.休息一会儿吧}</div>
         </div>
     {:else}
         <div bind:this={protyleTarget}></div>

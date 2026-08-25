@@ -66,14 +66,24 @@ export function createNumIcon(num: number) {
 
 export function searchSettings(settingsDiv: HTMLElement, searchKey: string) {
     const sk = searchKey.toLocaleLowerCase();
-    getChildElements(settingsDiv).forEach((e) => {
+    // 过滤候选：面板直接子元素（激活卡/搜索栏/保存行）+ 卡片壳（conf-group）内的单个
+    // settingBox——2026-08 卡片化重构后 settingBox 不再是直接子元素，粒度仍保持「单条」
+    const groups = getChildElements(settingsDiv);
+    const candidates = groups.flatMap((e) =>
+        e.classList.contains("conf-group")
+            ? ([...e.querySelectorAll(".settingBox")] as HTMLElement[])
+            : [e]);
+    candidates.forEach((e) => {
+        e.style.display = "";
+    });
+    groups.forEach((e) => {
         e.style.display = "";
     });
     settingsDiv.querySelectorAll(".tomato-highlight").forEach(e => {
         e.classList.remove("tomato-highlight")
     })
     if (sk) {
-        getChildElements(settingsDiv).forEach((e) => {
+        candidates.forEach((e) => {
             if (e.hasAttribute("data-search")) return;
             if (e.hasAttribute("data-hide")) {
                 e.style.display = "none";
@@ -83,6 +93,13 @@ export function searchSettings(settingsDiv: HTMLElement, searchKey: string) {
                 e.style.display = "none";
                 return;
             }
+        });
+        // 组内全空则隐藏整张卡片壳，避免剩空卡边框
+        groups.forEach((e) => {
+            if (!e.classList.contains("conf-group")) return;
+            const anyVisible = [...e.querySelectorAll(".settingBox")]
+                .some((b) => (b as HTMLElement).style.display !== "none");
+            e.style.display = anyVisible ? "" : "none";
         });
         settingsDiv.querySelectorAll("div,strong").forEach(e => {
             if (getDirectTextContent(e).toLocaleLowerCase().includes(sk)) {

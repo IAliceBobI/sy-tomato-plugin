@@ -1,7 +1,8 @@
 {
   "name": "sy-tomato-plugin",
-  "version": "0.0.1",
-  "description": "",
+  "version": "5.3.108",
+  "description": "思源笔记工具箱插件：状态栏番茄钟、AI 问答、块关系图、数据库反链等",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",
@@ -34,9 +35,17 @@
   ],
   "author": "IAliceBobI",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IAliceBobI/sy-tomato-plugin.git"
+  },
+  "homepage": "https://github.com/IAliceBobI/sy-tomato-plugin",
   "overrides": {
     "@mapbox/node-pre-gyp": {
       "tar": "7.5.22"
+    },
+    "stonev5-utils": {
+      "uuid": "^11.1.1"
     }
   },
   "devDependencies": {
@@ -45,7 +54,6 @@
     "@types/fabric": "^5.3.7",
     "@types/minimist": "^1.2.5",
     "@types/node": "^20.12.7",
-    "@types/uuid": "^9.0.8",
     "@vitest/coverage-v8": "^4.0.18",
     "fast-glob": "^3.2.12",
     "glob": "^11.0.0",
@@ -73,8 +81,7 @@
     "pinyin-pro": "^3.20.3",
     "stonev5-utils": "^1.2.0",
     "terser": "^5.31.6",
-    "ts-md5": "^1.3.1",
-    "uuid": "^9.0.1"
+    "ts-md5": "^1.3.1"
   },
   "allowScripts": {
     "canvas": false,

@@ -299,14 +299,16 @@ const settingFactory = <T>(key: TSK, defaultValue: T, file: string, _void: TSK) 
         set(value: T) {
             save(value);
         },
-        write(value?: T) {
+        // 返回落盘 Promise：调用方紧跟 reload/跳转时必须 await，否则 saveData 的
+        // 异步写会被 reload 掐断，文件保持旧值（2026-08-24 取消激活白点实测）
+        async write(value?: T): Promise<void> {
             if (value == null) {
                 value = store.get();
             }
             if (value != null) {
                 save(value);
                 if (plugin && plugin.settingCfg) {
-                    plugin.saveData(file, plugin.settingCfg);
+                    await plugin.saveData(file, plugin.settingCfg);
                 }
             }
         }
@@ -315,13 +317,13 @@ const settingFactory = <T>(key: TSK, defaultValue: T, file: string, _void: TSK) 
 
 export const userToken = settingFactory("userToken", "", STORAGE_SETTINGS, null as TSK);
 export const userID = settingFactory("userID", "", STORAGE_SETTINGS, null as TSK);
+export const licenseCloudSynced = settingFactory("licenseCloudSynced", false, STORAGE_SETTINGS, null as TSK);
 export const exportIntervalSec = settingFactory("exportIntervalSec", "5", STORAGE_SETTINGS, null as TSK);
 export const exportIntervalSecOn = settingFactory("exportIntervalSecOn", true, STORAGE_SETTINGS, null as TSK);
 export const exportCleanFiles = settingFactory("exportCleanFiles", "60", STORAGE_SETTINGS, null as TSK);
 export const exportCleanFilesOn = settingFactory("exportCleanFilesOn", true, STORAGE_SETTINGS, null as TSK);
 export const exportPath = settingFactory("exportPath", "", STORAGE_SETTINGS, null as TSK);
 export const exportPathWin = settingFactory("exportPathWin", "", STORAGE_SETTINGS, null as TSK);
-export const hideVIP = settingFactory("hideVIP", true, STORAGE_SETTINGS, null as TSK);
 export const foldTypes = settingFactory("foldTypes", [], STORAGE_SETTINGS, null as TSK);
 export const foldTypesSuperBlock = settingFactory("foldTypesSuperBlock", false, STORAGE_SETTINGS, null as TSK);
 export const foldTypesBLOCKQUOTE = settingFactory("foldTypesBLOCKQUOTE", false, STORAGE_SETTINGS, null as TSK);

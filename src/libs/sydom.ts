@@ -3,7 +3,7 @@ import { BLOCK_REF, BlockNodeEnum, CONTENT_EDITABLE, DATA_AV_ID, DATA_ID, DATA_N
 import { joinArray, dom2div, NewLute, NewNodeID, siyuan, cloneCleanDiv, setAttribute } from "./utils";
 import { DocTracer } from "./docUtils";
 
-export function domHdeading(id: string, text: string, subtype = "h1") {
+export function domHeading(id: string, text: string, subtype = "h1") {
     if (!id) id = NewNodeID();
     if (!text) text = "<<<<nodata>>>>";
     return `<div data-subtype="${subtype}" data-node-id="${id}" data-type="NodeHeading" class="${subtype}">
@@ -11,6 +11,8 @@ export function domHdeading(id: string, text: string, subtype = "h1") {
 <div class="protyle-attr" contenteditable="false">​</div>
 </div>`;
 }
+// 旧名拼写遗留（domHdeading），ReadingPointBox 等历史调用方仍可用
+export const domHdeading = domHeading;
 
 export function domEmbedding(refID: string, id?: string) {
     if (!id) id = NewNodeID();
@@ -110,15 +112,32 @@ function newAttr() {
     return attr;
 }
 
+/** append 入参统一规整为已 build 的 HTMLElement：builder 自动 build（消灭嵌套忘 build 坑） */
+export function buildDOM(d: HTMLElement | DomBuilder): HTMLElement {
+    return d instanceof DomBuilder ? d.build() : d;
+}
+
 export abstract class DomBuilder {
     // can be override.
-    append(...div: HTMLElement[]) {
-        div.forEach(d => this.container.appendChild(d))
+    append(...div: (HTMLElement | DomBuilder)[]) {
+        div.forEach(d => {
+            const el = buildDOM(d);
+            // build 后 protyle-attr 已是末元素，新子块须插它之前保持结构合法
+            if (this.built) this.container.insertBefore(el, this.container.lastElementChild);
+            else this.container.appendChild(el);
+        })
         return this;
     }
     build() {
-        this.container.appendChild(newAttr());
+        if (!this.built) {
+            this.container.appendChild(newAttr());
+            this.built = true;
+        }
         return this.container;
+    }
+    /** 事务直用：build 并以 HTML 字符串返回（幂等，可重复调用） */
+    html() {
+        return this.build().outerHTML;
     }
     //----
     cloneDiv() {
@@ -137,6 +156,8 @@ export abstract class DomBuilder {
     get container(): HTMLDivElement {
         return this._container;
     }
+    /** build 幂等标记：重复 build 不叠加 protyle-attr */
+    private built = false;
     //---- id
     private _id = NewNodeID();
     get id(): string {
@@ -174,12 +195,13 @@ export class DomListBuilder extends DomBuilder {
 
     newList(div: HTMLElement) {
         const sub = new DomListBuilder();
-        this.append(div, sub.container); // 需要build后，有了protyle-attr才能加入，这里为了方便就忽略了。
+        this.append(div, sub); // append 收 builder 自动 build（含 protyle-attr），无漏 build 风险
         return sub;
     }
 
-    append(...divs: HTMLElement[]) {
-        divs.forEach(div => div.removeAttribute(DATA_NODE_INDEX))
+    append(...divs: (HTMLElement | DomBuilder)[]) {
+        const els = divs.map(d => buildDOM(d));
+        els.forEach(el => el.removeAttribute(DATA_NODE_INDEX))
         const l = document.createElement("div") as HTMLDivElement;
         l.setAttribute("data-marker", "*")
         l.setAttribute(DATA_SUBTYPE, "u");
@@ -187,7 +209,7 @@ export class DomListBuilder extends DomBuilder {
         l.setAttribute(DATA_TYPE, BlockNodeEnum.NODE_LIST_ITEM)
         l.classList.add("li")
         l.appendChild(newListUDot());
-        divs.forEach(div => l.appendChild(div))
+        els.forEach(el => l.appendChild(el))
         l.appendChild(newAttr());
         this.container.append(l);
         return this;
@@ -258,12 +280,47 @@ export async function cloneRefSpans(divs: HTMLElement[], turn2lnk = true) {
 }
 
 export class DomSuperBlockBuilder extends DomBuilder {
+    /** layout 语义按思源原生（与直觉相反，2026-08-24 实测 computed style 铁证）：
+     * "row"=行布局→flex-direction:column 垂直堆叠；"col"=列布局→flex-direction:row 左右并排。
+     * 要「左右两栏、栏内垂直多块」= 外层 "col" + 内层 "row"。 */
     constructor(layout: "row" | "col" = "row") {
         super()
         this.container.classList.add("sb")
         this.container.setAttribute(DATA_TYPE, BlockNodeEnum.NODE_SUPER_BLOCK)
         this.container.setAttribute("data-sb-layout", layout)
     }
+}
+
+/** 段落块 builder：text 纯文本落块（不解析 markdown，要解析用 md2Divs）；无参 = 空段块占位 */
+export class DomParaBuilder extends DomBuilder {
+    constructor(text = "") {
+        super()
+        this.container.classList.add("p")
+        this.container.setAttribute(DATA_TYPE, BlockNodeEnum.NODE_PARAGRAPH)
+        const div = this.container.appendChild(document.createElement("div"))
+        div.setAttribute(CONTENT_EDITABLE, "true")
+        div.setAttribute("spellcheck", "false")
+        div.textContent = text
+    }
+}
+
+/**
+ * markdown → protyle 块 DOM 数组（Md2BlockDOM 是 protyle 粘贴同款官方转换通道）。
+ * 产物统一换新 data-node-id（Md2BlockDOM 生成的 id 不保证唯一语义，显式换掉防撞号）；
+ * attrs 挂首块（custom-* 属性直接作为 DOM 属性，内核落库时转为 IAL）。
+ * 软换行多行（"行1\n行2"）产出单块（与 kramdown 一段一块语义一致）。
+ */
+export function md2Divs(md: string, attrs?: AttrType, lute?: Lute): HTMLElement[] {
+    if (!md?.trim()) return [];
+    if (!lute) lute = NewLute();
+    const host = document.createElement("div");
+    host.innerHTML = lute.Md2BlockDOM(md);
+    const divs = [...host.children].filter((el): el is HTMLElement => el instanceof HTMLElement);
+    divs.forEach((d, i) => {
+        d.setAttribute(DATA_NODE_ID, NewNodeID());
+        if (i === 0 && attrs) Object.entries(attrs).forEach(([k, v]) => d.setAttribute(k, v));
+    });
+    return divs;
 }
 
 export class AvBuilder extends DomBuilder {

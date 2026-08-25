@@ -19,6 +19,467 @@ export abstract class TomatoI18nABC extends TomatoI18nABC2 {
         }
     }
 
+    public get 兑换码或激活码() {
+        switch (this.lang) {
+            case "zh_CN": return "兑换码 / 激活码";
+            case "es_ES": return "Código de canje / Código de activación";
+            case "fr_FR": return "Code d'échange / Code d'activation";
+            case "ja_JP": return "引き換えコード / アクティベーションコード";
+            case "zh_CHT": return "兌換碼 / 激活碼";
+            case "it_IT": return "Codice di riscatto / Codice di attivazione";
+            case "de_DE": return "Einlösungscode / Aktivierungscode";
+            case "he_IL": return "קוד מימוש / קוד הפעלה";
+            case "ru_RU": return "Код обмена / Код активации";
+            case "pl_PL": return "Kod do wymiany / Kod aktywacyjny";
+            case "en_US":
+            default: return "Redeem code / Activation code";
+        }
+    }
+
+    public get 粘贴兑换码或激活码() {
+        switch (this.lang) {
+            case "zh_CN": return "粘贴兑换码 / 激活码（可整段粘贴消息，自动识别）";
+            case "es_ES": return "Pegue el código de canje / activación (puede pegar el mensaje completo, se detecta automáticamente)";
+            case "fr_FR": return "Collez le code d'échange / d'activation (message entier accepté, détection automatique)";
+            case "ja_JP": return "引き換えコード / アクティベーションコードを貼り付け（メッセージ全体をそのまま貼り付け可、自動識別）";
+            case "zh_CHT": return "貼上兌換碼 / 激活碼（可整段貼上訊息，自動識別）";
+            case "it_IT": return "Incolla il codice di riscatto / attivazione (puoi incollare l'intero messaggio, riconoscimento automatico)";
+            case "de_DE": return "Einlösungs- / Aktivierungscode einfügen (ganze Nachricht möglich, automatische Erkennung)";
+            case "he_IL": return "הדבק קוד מימוש / הפעלה (אפשר להדביק את ההודעה כולה, זיהוי אוטומטי)";
+            case "ru_RU": return "Вставьте код обмена / активации (можно вставить всё сообщение целиком, распознаётся автоматически)";
+            case "pl_PL": return "Wklej kod do wymiany / aktywacyjny (można wkleić całą wiadomość, rozpoznawanie automatyczne)";
+            case "en_US":
+            default: return "Paste redeem code / activation code (whole message OK, auto-detected)";
+        }
+    }
+
+    public get 淘宝购买() {
+        switch (this.lang) {
+            case "zh_CN": return "淘宝购买";
+            case "es_ES": return "Comprar en Taobao";
+            case "fr_FR": return "Acheter sur Taobao";
+            case "ja_JP": return "淘寶（Taobao）で購入";
+            case "zh_CHT": return "淘寶購買";
+            case "it_IT": return "Acquista su Taobao";
+            case "de_DE": return "Auf Taobao kaufen";
+            case "he_IL": return "רכישה ב-Taobao";
+            case "ru_RU": return "Купить на Taobao";
+            case "pl_PL": return "Kup na Taobao";
+            case "en_US":
+            default: return "Buy on Taobao";
+        }
+    }
+
+    public get 去淘宝购买() {
+        switch (this.lang) {
+            case "zh_CN": return "去淘宝购买";
+            case "es_ES": return "Ir a Taobao";
+            case "fr_FR": return "Aller sur Taobao";
+            case "ja_JP": return "淘寶へ移動して購入";
+            case "zh_CHT": return "去淘寶購買";
+            case "it_IT": return "Vai su Taobao";
+            case "de_DE": return "Zu Taobao gehen";
+            case "he_IL": return "עבור אל Taobao";
+            case "ru_RU": return "Перейти на Taobao";
+            case "pl_PL": return "Przejdź na Taobao";
+            case "en_US":
+            default: return "Go to Taobao";
+        }
+    }
+
+    public get 拍下后客服发兑换码回来在这里粘贴激活() {
+        switch (this.lang) {
+            case "zh_CN": return "拍下后客服发兑换码，回来在这里粘贴激活";
+            case "es_ES": return "Tras el pedido, atención al cliente le envía un código de canje; péguelo aquí para activar";
+            case "fr_FR": return "Après la commande, le service client vous envoie un code d'échange ; collez-le ici pour activer";
+            case "ja_JP": return "注文後、カスタマーサポートから引き換えコードが届きます。ここに貼り付けてアクティベートしてください";
+            case "zh_CHT": return "下單後客服發兌換碼，回來在這裡貼上激活";
+            case "it_IT": return "Dopo l'ordine, il servizio clienti ti invia un codice di riscatto: incollalo qui per attivare";
+            case "de_DE": return "Nach der Bestellung sendet der Kundendienst einen Einlösungscode — hier einfügen zum Aktivieren";
+            case "he_IL": return "לאחר ההזמנה שירות הלקוחות ישלח קוד מימוש — הדבק אותו כאן להפעלה";
+            case "ru_RU": return "После заказа служба поддержки пришлёт код обмена — вставьте его здесь для активации";
+            case "pl_PL": return "Po zamówieniu obsługa klienta wyśle kod do wymiany — wklej go tutaj, aby aktywować";
+            case "en_US":
+            default: return "After ordering, customer service sends you a redeem code — paste it here to activate";
+        }
+    }
+
+    // 购买弹窗价格指引（2026-08-25 SKU 直达后配套）：{price} 由 BuyTomato 按产品价格表
+    // 插值（tomato/progressive 72、recite 10），各语种语序自由
+    public get 拍下价格档兑换码收码后回设置页粘贴激活() {
+        switch (this.lang) {
+            case "zh_CN": return "拍下 ￥{price} 档兑换码，客服发码后回到设置页粘贴到激活框即可";
+            case "es_ES": return "Compre el código de canje de ￥{price}; tras recibirlo del atención al cliente, péguelo en el cuadro de activación de la página de ajustes";
+            case "fr_FR": return "Achetez le code d'échange à ￥{price} ; après réception du service client, collez-le dans le champ d'activation de la page des paramètres";
+            case "ja_JP": return "￥{price} の引き換えコードをご注文ください。コードが届いたら、設定ページのアクティベート入力欄に貼り付けてください";
+            case "zh_CHT": return "拍下 ￥{price} 檔兌換碼，客服發碼後回到設定頁貼到激活框即可";
+            case "it_IT": return "Acquisti il codice di riscatto da ￥{price}; ricevuto dal servizio clienti, lo incolli nel campo di attivazione della pagina delle impostazioni";
+            case "de_DE": return "Bestellen Sie den ￥{price}-Einlösungscode; nach Erhalt vom Kundendienst fügen Sie ihn im Aktivierungsfeld der Einstellungsseite ein";
+            case "he_IL": return "הזמינו את קוד המימוש ב-￥{price}; לאחר שתקבלו אותו משירות הלקוחות, הדביקו אותו בשדה ההפעלה בעמוד ההגדרות";
+            case "ru_RU": return "Закажите код активации за ￥{price}; получив его от службы поддержки, вставьте в поле активации на странице настроек";
+            case "pl_PL": return "Zamów kod wymiany za ￥{price}; po otrzymaniu od obsługi klienta wklej go w pole aktywacji na stronie ustawień";
+            case "en_US":
+            default: return "Order the ￥{price} redemption code; once customer service sends it, paste it into the activation box on the settings page";
+        }
+    }
+
+    // 云端参数级错误兜底（2026-08-25「找回激活码显示 Bad Parameter」实测）：plugin 枚举
+    // 云端滞后时返回 bad params 原文，对用户无意义——映射为版本提示
+    public get 参数不被支持请更新插件重试() {
+        switch (this.lang) {
+            case "zh_CN": return "请求参数不被支持，请更新插件到最新版本后重试";
+            case "es_ES": return "Parámetro no admitido; actualice el plugin a la última versión e inténtelo de nuevo";
+            case "fr_FR": return "Paramètre non pris en charge ; mettez le plugin à jour puis réessayez";
+            case "ja_JP": return "パラメータがサポートされていません。プラグインを最新版に更新して再試行してください";
+            case "zh_CHT": return "請求參數不被支持，請更新插件到最新版本後重試";
+            case "it_IT": return "Parametro non supportato; aggiorna il plugin all'ultima versione e riprova";
+            case "de_DE": return "Parameter nicht unterstützt — aktualisieren Sie das Plugin und versuchen Sie es erneut";
+            case "he_IL": return "פרמטר לא נתמך; עדכנו את התוסף לגרסה האחרונה ונסו שוב";
+            case "ru_RU": return "Параметр не поддерживается — обновите плагин до последней версии и повторите";
+            case "pl_PL": return "Parametr nieobsługiwany; zaktualizuj wtyczkę do najnowszej wersji i spróbuj ponownie";
+            case "en_US":
+            default: return "Request parameter not supported — please update the plugin to the latest version and retry";
+        }
+    }
+
+    public get 未识别到兑换码或激活码() {
+        switch (this.lang) {
+            case "zh_CN": return "未识别到兑换码或激活码";
+            case "es_ES": return "No se detectó ningún código de canje o activación";
+            case "fr_FR": return "Aucun code d'échange ou d'activation détecté";
+            case "ja_JP": return "引き換えコードまたはアクティベーションコードが認識されませんでした";
+            case "zh_CHT": return "未識別到兌換碼或激活碼";
+            case "it_IT": return "Nessun codice di riscatto o attivazione rilevato";
+            case "de_DE": return "Kein Einlösungs- oder Aktivierungscode erkannt";
+            case "he_IL": return "לא זוהה קוד מימוש או הפעלה";
+            case "ru_RU": return "Код обмена или активации не распознан";
+            case "pl_PL": return "Nie wykryto kodu do wymiany ani aktywacyjnego";
+            case "en_US":
+            default: return "No redeem code or activation code detected";
+        }
+    }
+
+    public get 兑换成功正在激活() {
+        switch (this.lang) {
+            case "zh_CN": return "兑换成功，正在激活";
+            case "es_ES": return "Canjeado con éxito, activando";
+            case "fr_FR": return "Échangé avec succès, activation en cours";
+            case "ja_JP": return "引換に成功しました。アクティベート中です";
+            case "zh_CHT": return "兌換成功，正在激活";
+            case "it_IT": return "Riscattato con successo, attivazione in corso";
+            case "de_DE": return "Erfolgreich eingelöst, Aktivierung läuft";
+            case "he_IL": return "המימוש בוצע בהצלחה, מבצע הפעלה";
+            case "ru_RU": return "Код успешно активирован, выполняется включение";
+            case "pl_PL": return "Wymieniono pomyślnie, trwa aktywacja";
+            case "en_US":
+            default: return "Redeemed successfully, activating";
+        }
+    }
+    public get 兑换失败() {
+        switch (this.lang) {
+            case "zh_CN": return "兑换失败";
+            case "es_ES": return "Error al canjear";
+            case "fr_FR": return "Échec de l'échange";
+            case "ja_JP": return "引換に失敗しました";
+            case "zh_CHT": return "兌換失敗";
+            case "it_IT": return "Riscatto non riuscito";
+            case "de_DE": return "Einlösung fehlgeschlagen";
+            case "he_IL": return "המימוש נכשל";
+            case "ru_RU": return "Не удалось активировать код";
+            case "pl_PL": return "Wymiana nie powiodła się";
+            case "en_US":
+            default: return "Redeem failed";
+        }
+    }
+    public get 兑换失败请检查网络后重试() {
+        switch (this.lang) {
+            case "zh_CN": return "兑换失败，请检查网络后重试";
+            case "es_ES": return "Error al canjear, compruebe la red e inténtelo de nuevo";
+            case "fr_FR": return "Échec de l'échange, vérifiez le réseau et réessayez";
+            case "ja_JP": return "引換に失敗しました。ネットワークを確認して再試行してください";
+            case "zh_CHT": return "兌換失敗，請檢查網絡後重試";
+            case "it_IT": return "Riscatto non riuscito, controlla la rete e riprova";
+            case "de_DE": return "Einlösung fehlgeschlagen, bitte Netzwerk prüfen und erneut versuchen";
+            case "he_IL": return "המימוש נכשל, בדוק את הרשת ונסה שוב";
+            case "ru_RU": return "Не удалось активировать код, проверьте сеть и повторите попытку";
+            case "pl_PL": return "Wymiana nie powiodła się, sprawdź sieć i spróbuj ponownie";
+            case "en_US":
+            default: return "Redeem failed, please check network and retry";
+        }
+    }
+    public get 激活码已备份云端无需找回() {
+        switch (this.lang) {
+            case "zh_CN": return "激活码已备份云端，无需找回";
+            case "es_ES": return "El código de activación ya está respaldado en la nube, no es necesario recuperarlo";
+            case "fr_FR": return "Le code d'activation est déjà sauvegardé dans le cloud, inutile de le récupérer";
+            case "ja_JP": return "アクティベーションコードはクラウドにバックアップ済みのため、復元は不要です";
+            case "zh_CHT": return "激活碼已備份雲端，無需找回";
+            case "it_IT": return "Il codice di attivazione è già salvato nel cloud, non è necessario recuperarlo";
+            case "de_DE": return "Der Aktivierungscode ist bereits in der Cloud gesichert, eine Wiederherstellung ist nicht nötig";
+            case "he_IL": return "קוד ההפעלה כבר מגובה בענן, אין צורך לשחזר אותו";
+            case "ru_RU": return "Код активации уже сохранён в облаке, восстанавливать его не нужно";
+            case "pl_PL": return "Kod aktywacyjny jest już zapisany w chmurze, nie ma potrzeby go odzyskiwać";
+            case "en_US":
+            default: return "Activation code is already backed up to the cloud, no need to recover";
+        }
+    }
+    public get 激活码已备份到云端() {
+        switch (this.lang) {
+            case "zh_CN": return "激活码已备份到云端";
+            case "es_ES": return "Código de activación respaldado en la nube";
+            case "fr_FR": return "Code d'activation sauvegardé dans le cloud";
+            case "ja_JP": return "アクティベーションコードをクラウドにバックアップしました";
+            case "zh_CHT": return "激活碼已備份到雲端";
+            case "it_IT": return "Codice di attivazione salvato nel cloud";
+            case "de_DE": return "Aktivierungscode in der Cloud gesichert";
+            case "he_IL": return "קוד ההפעלה גובה בענן";
+            case "ru_RU": return "Код активации сохранён в облако";
+            case "pl_PL": return "Kod aktywacyjny zapisany w chmurze";
+            case "en_US":
+            default: return "Activation code backed up to the cloud";
+        }
+    }
+    public get 备份激活码失败请检查网络后重试() {
+        switch (this.lang) {
+            case "zh_CN": return "备份激活码失败，请检查网络后重试";
+            case "es_ES": return "Error al respaldar el código de activación, compruebe la red e inténtelo de nuevo";
+            case "fr_FR": return "Échec de la sauvegarde du code d'activation, vérifiez le réseau et réessayez";
+            case "ja_JP": return "アクティベーションコードのバックアップに失敗しました。ネットワークを確認して再試行してください";
+            case "zh_CHT": return "備份激活碼失敗，請檢查網絡後重試";
+            case "it_IT": return "Backup del codice di attivazione non riuscito, controlla la rete e riprova";
+            case "de_DE": return "Sicherung des Aktivierungscodes fehlgeschlagen, bitte Netzwerk prüfen und erneut versuchen";
+            case "he_IL": return "גיבוי קוד ההפעלה נכשל, בדוק את הרשת ונסה שוב";
+            case "ru_RU": return "Не удалось сохранить код активации в облако, проверьте сеть и повторите попытку";
+            case "pl_PL": return "Nie udało się utworzyć kopii kodu aktywacyjnego, sprawdź sieć i spróbuj ponownie";
+            case "en_US":
+            default: return "Failed to back up the activation code, please check the network and retry";
+        }
+    }
+    public get 兑换码格式不正确() {
+        switch (this.lang) {
+            case "zh_CN": return "兑换码格式不正确";
+            case "es_ES": return "Formato de código de canje incorrecto";
+            case "fr_FR": return "Format du code d'échange incorrect";
+            case "ja_JP": return "引換コードの形式が正しくありません";
+            case "zh_CHT": return "兌換碼格式不正確";
+            case "it_IT": return "Formato del codice di riscatto non valido";
+            case "de_DE": return "Format des Einlösungscodes ist ungültig";
+            case "he_IL": return "תבנית קוד המימוש שגויה";
+            case "ru_RU": return "Неверный формат кода активации";
+            case "pl_PL": return "Nieprawidłowy format kodu do wymiany";
+            case "en_US":
+            default: return "Invalid redeem code format";
+        }
+    }
+    public get 兑换码不存在() {
+        switch (this.lang) {
+            case "zh_CN": return "兑换码不存在";
+            case "es_ES": return "El código de canje no existe";
+            case "fr_FR": return "Le code d'échange n'existe pas";
+            case "ja_JP": return "引換コードが存在しません";
+            case "zh_CHT": return "兌換碼不存在";
+            case "it_IT": return "Il codice di riscatto non esiste";
+            case "de_DE": return "Einlösungscode existiert nicht";
+            case "he_IL": return "קוד המימוש אינו קיים";
+            case "ru_RU": return "Код активации не найден";
+            case "pl_PL": return "Kod do wymiany nie istnieje";
+            case "en_US":
+            default: return "Redeem code not found";
+        }
+    }
+    public get 兑换码已被使用() {
+        switch (this.lang) {
+            case "zh_CN": return "兑换码已被使用";
+            case "es_ES": return "El código de canje ya ha sido utilizado";
+            case "fr_FR": return "Le code d'échange a déjà été utilisé";
+            case "ja_JP": return "引換コードは既に使用されています";
+            case "zh_CHT": return "兌換碼已被使用";
+            case "it_IT": return "Il codice di riscatto è già stato utilizzato";
+            case "de_DE": return "Einlösungscode wurde bereits verwendet";
+            case "he_IL": return "קוד המימוש כבר שומש";
+            case "ru_RU": return "Код активации уже использован";
+            case "pl_PL": return "Kod do wymiany został już wykorzystany";
+            case "en_US":
+            default: return "Redeem code already used";
+        }
+    }
+    public get 兑换码面值与插件价格不符() {
+        switch (this.lang) {
+            case "zh_CN": return "兑换码面值与插件价格不符";
+            case "es_ES": return "El valor del código de canje no coincide con el precio del plugin";
+            case "fr_FR": return "La valeur du code d'échange ne correspond pas au prix du plugin";
+            case "ja_JP": return "引換コードの額面がプラグインの価格と一致しません";
+            case "zh_CHT": return "兌換碼面值與插件價格不符";
+            case "it_IT": return "Il valore del codice di riscatto non corrisponde al prezzo del plugin";
+            case "de_DE": return "Der Nennwert des Einlösungscodes stimmt nicht mit dem Plugin-Preis überein";
+            case "he_IL": return "ערך קוד המימוש אינו תואם למחיר התוסף";
+            case "ru_RU": return "Номинал кода активации не соответствует цене плагина";
+            case "pl_PL": return "Nominał kodu nie zgadza się z ceną wtyczki";
+            case "en_US":
+            default: return "Redeem code value doesn't match plugin price";
+        }
+    }
+
+    public get 在线购买自动发货() {
+        switch (this.lang) {
+            case "zh_CN": return "在线购买（自动发货）";
+            case "es_ES": return "Compra en línea (entrega automática)";
+            case "fr_FR": return "Achat en ligne (livraison automatique)";
+            case "ja_JP": return "オンライン購入（自動発送）";
+            case "zh_CHT": return "線上購買（自動發貨）";
+            case "it_IT": return "Acquisto online (consegna automatica)";
+            case "de_DE": return "Online-Kauf (automatische Auslieferung)";
+            case "he_IL": return "רכישה מקוונת (אספקה אוטומטית)";
+            case "ru_RU": return "Покупка онлайн (автоматическая выдача)";
+            case "pl_PL": return "Zakup online (automatyczna dostawa)";
+            case "en_US":
+            default: return "Buy online (instant delivery)";
+        }
+    }
+    public get 在线购买说明() {
+        switch (this.lang) {
+            case "zh_CN": return "点击「去爱发电购买」付款（自动备注思源 ID），付款后回到此处点击「我已完成购买」自动激活";
+            case "es_ES": return "Pulse «Comprar en Afdian» para pagar (su ID de SiYuan se adjunta automáticamente), vuelva aquí y pulse «Ya he pagado» para activar";
+            case "fr_FR": return "Cliquez sur « Acheter sur Afdian » pour payer (votre ID SiYuan est joint automatiquement), revenez ici et cliquez sur « J'ai payé » pour activer";
+            case "ja_JP": return "「愛発電で購入」をクリックして支払う（SiYuan ID が自動で添付されます）。支払い後ここへ戻り「我已完成购买」をクリックすると自動アクティベートされます";
+            case "zh_CHT": return "點擊「去愛發電購買」付款（自動備註思源 ID），付款後回到此處點擊「我已完成購買」自動激活";
+            case "it_IT": return "Clicca \"Acquista su Afdian\" per pagare (l'ID SiYuan è allegato automaticamente), torna qui e clicca \"Ho pagato\" per attivare";
+            case "de_DE": return "Klicken Sie auf „Bei Afdian kaufen“, um zu zahlen (Ihre SiYuan-ID wird automatisch angehängt); kehren Sie dann hierher zurück und klicken Sie auf „Ich habe bezahlt“, um zu aktivieren";
+            case "he_IL": return "לחצו על \"רכישה ב-Afdian\" לתשלום (מזהה ה-SiYuan מצורף אוטומטית), חזרו לכאן ולחצו על \"שילמתי\" להפעלה";
+            case "ru_RU": return "Нажмите «Купить на Afdian» для оплаты (ваш ID SiYuan прилагается автоматически), затем вернитесь сюда и нажмите «Я оплатил» для активации";
+            case "pl_PL": return "Kliknij \"Kup na Afdian\", aby zapłacić (Twój ID SiYuan jest dołączany automatycznie), wróć tu i kliknij \"Zapłaciłem\", aby aktywować";
+            case "en_US":
+            default: return "Click \"Buy on Afdian\" to pay (your SiYuan ID is attached automatically), then return here and click \"I've paid\" to activate";
+        }
+    }
+    public get 去爱发电购买() {
+        switch (this.lang) {
+            case "zh_CN": return "去爱发电购买";
+            case "es_ES": return "Comprar en Afdian";
+            case "fr_FR": return "Acheter sur Afdian";
+            case "ja_JP": return "愛発電で購入";
+            case "zh_CHT": return "去愛發電購買";
+            case "it_IT": return "Acquista su Afdian";
+            case "de_DE": return "Bei Afdian kaufen";
+            case "he_IL": return "רכישה ב-Afdian";
+            case "ru_RU": return "Купить на Afdian";
+            case "pl_PL": return "Kup na Afdian";
+            case "en_US":
+            default: return "Buy on Afdian";
+        }
+    }
+    public get 我已完成购买() {
+        switch (this.lang) {
+            case "zh_CN": return "我已完成购买";
+            case "es_ES": return "Ya he pagado, activar";
+            case "fr_FR": return "J'ai payé, activer";
+            case "ja_JP": return "支払い完了、アクティベート";
+            case "zh_CHT": return "我已完成購買";
+            case "it_IT": return "Ho pagato, attiva";
+            case "de_DE": return "Ich habe bezahlt, aktivieren";
+            case "he_IL": return "שילמתי, להפעיל";
+            case "ru_RU": return "Я оплатил, активировать";
+            case "pl_PL": return "Zapłaciłem, aktywuj";
+            case "en_US":
+            default: return "I've paid, activate";
+        }
+    }
+    public get 已完成购买正在激活() {
+        switch (this.lang) {
+            case "zh_CN": return "已获取激活码，正在激活";
+            case "es_ES": return "Licencia recibida, activando";
+            case "fr_FR": return "Licence reçue, activation en cours";
+            case "ja_JP": return "アクティベーションコードを取得しました。アクティベート中です";
+            case "zh_CHT": return "已獲取激活碼，正在激活";
+            case "it_IT": return "Licenza ricevuta, attivazione in corso";
+            case "de_DE": return "Lizenz erhalten, Aktivierung läuft";
+            case "he_IL": return "הרישיון התקבל, מבצע הפעלה";
+            case "ru_RU": return "Лицензия получена, выполняется активация";
+            case "pl_PL": return "Otrzymano licencję, trwa aktywacja";
+            case "en_US":
+            default: return "License received, activating";
+        }
+    }
+    public get 未查询到付款订单() {
+        switch (this.lang) {
+            case "zh_CN": return "未查询到付款订单，请稍后再试或联系卖家";
+            case "es_ES": return "Aún no se encontró ningún pedido pagado, inténtelo más tarde o contacte al vendedor";
+            case "fr_FR": return "Aucune commande payée trouvée pour le moment, réessayez plus tard ou contactez le vendeur";
+            case "ja_JP": return "支払い済み注文が見つかりません。しばらくしてから再試行するか、販売者に連絡してください";
+            case "zh_CHT": return "未查詢到付款訂單，請稍後再試或聯繫賣家";
+            case "it_IT": return "Nessun ordine pagato trovato, riprova più tardi o contatta il venditore";
+            case "de_DE": return "Noch keine bezahlte Bestellung gefunden, versuchen Sie es später erneut oder kontaktieren Sie den Verkäufer";
+            case "he_IL": return "לא נמצאה הזמנה ששולמה, נסו שוב מאוחר יותר או צרו קשר עם המוכר";
+            case "ru_RU": return "Оплаченный заказ пока не найден, повторите попытку позже или свяжитесь с продавцом";
+            case "pl_PL": return "Nie znaleziono opłaconego zamówienia, spróbuj później lub skontaktuj się ze sprzedawcą";
+            case "en_US":
+            default: return "No paid order found yet, try again later or contact the seller";
+        }
+    }
+    public get 购买查询失败请检查网络后重试() {
+        switch (this.lang) {
+            case "zh_CN": return "购买查询失败，请检查网络后重试";
+            case "es_ES": return "Falló la consulta de compra, compruebe su red y reintente";
+            case "fr_FR": return "Échec de la requête d'achat, vérifiez votre réseau et réessayez";
+            case "ja_JP": return "購入の照会に失敗しました。ネットワークを確認して再試行してください";
+            case "zh_CHT": return "購買查詢失敗，請檢查網絡後重試";
+            case "it_IT": return "Query di acquisto non riuscita, controlla la rete e riprova";
+            case "de_DE": return "Kaufabfrage fehlgeschlagen, prüfen Sie Ihr Netzwerk und versuchen Sie es erneut";
+            case "he_IL": return "שאילתת הרכישה נכשלה, בדקו את הרשת ונסו שוב";
+            case "ru_RU": return "Не удалось выполнить запрос покупки, проверьте сеть и повторите попытку";
+            case "pl_PL": return "Zapytanie o zakup nie powiodło się, sprawdź sieć i spróbuj ponownie";
+            case "en_US":
+            default: return "Purchase query failed, check your network and retry";
+        }
+    }
+    public get 找回激活码() {
+        switch (this.lang) {
+            case "zh_CN": return "找回激活码";
+            case "es_ES": return "Recuperar licencia";
+            case "fr_FR": return "Récupérer la licence";
+            case "ja_JP": return "ライセンスを復元";
+            case "zh_CHT": return "找回激活碼";
+            case "it_IT": return "Recupera licenza";
+            case "de_DE": return "Lizenz wiederherstellen";
+            case "he_IL": return "שחזור רישיון";
+            case "ru_RU": return "Восстановить лицензию";
+            case "pl_PL": return "Odzyskaj licencję";
+            case "en_US":
+            default: return "Recover license";
+        }
+    }
+    public get 未查询到该账号的激活记录() {
+        switch (this.lang) {
+            case "zh_CN": return "该账号没有云端激活记录（仅兑换码兑换的激活码支持找回）";
+            case "es_ES": return "No hay registro de activación en la nube para esta cuenta (solo los códigos canjeados se pueden recuperar)";
+            case "fr_FR": return "Aucun enregistrement d'activation dans le cloud pour ce compte (seuls les codes échangés peuvent être récupérés)";
+            case "ja_JP": return "このアカウントのクラウドアクティベーション記録がありません（引換コードでアクティベートしたコードのみ復元できます）";
+            case "zh_CHT": return "該賬號沒有雲端激活記錄（僅兌換碼兌換的激活碼支持找回）";
+            case "it_IT": return "Nessuna attivazione cloud trovata per questo account (solo i codici riscattati possono essere recuperati)";
+            case "de_DE": return "Keine Cloud-Aktivierung für dieses Konto gefunden (nur eingelöste Codes können wiederhergestellt werden)";
+            case "he_IL": return "לא נמצא רישיון בענן לחשבון זה (ניתן לשחזר רק קודים שנממשו)";
+            case "ru_RU": return "Для этой учётной записи нет облачной активации (восстановить можно только коды, активированные обменом)";
+            case "pl_PL": return "Brak aktywacji w chmurze dla tego konta (odzyskać można tylko kody wymienione)";
+            case "en_US":
+            default: return "No cloud activation found for this account (only redeemed codes can be recovered)";
+        }
+    }
+    public get 找回激活码失败请检查网络后重试() {
+        switch (this.lang) {
+            case "zh_CN": return "找回激活码失败，请检查网络后重试";
+            case "es_ES": return "No se pudo recuperar la licencia, compruebe su red y reintente";
+            case "fr_FR": return "Échec de la récupération de la licence, vérifiez votre réseau et réessayez";
+            case "ja_JP": return "ライセンスの復元に失敗しました。ネットワークを確認して再試行してください";
+            case "zh_CHT": return "找回激活碼失敗，請檢查網絡後重試";
+            case "it_IT": return "Recupero della licenza non riuscito, controlla la rete e riprova";
+            case "de_DE": return "Lizenzwiederherstellung fehlgeschlagen, prüfen Sie Ihr Netzwerk und versuchen Sie es erneut";
+            case "he_IL": return "שחזור הרישיון נכשל, בדקו את הרשת ונסו שוב";
+            case "ru_RU": return "Не удалось восстановить лицензию, проверьте сеть и повторите попытку";
+            case "pl_PL": return "Nie udało się odzyskać licencji, sprawdź sieć i spróbuj ponownie";
+            case "en_US":
+            default: return "Failed to recover license, check your network and retry";
+        }
+    }
     public get 跳到当前文档的阅读点() {
         switch (this.lang) {
             case "zh_CN": return "跳到当前文档的阅读点";

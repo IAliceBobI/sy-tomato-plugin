@@ -76,7 +76,7 @@ class NoteBox {
         if (events.isMobile) {
             this.plugin.addTopBar({
                 icon: "iconCameraTomato",
-                title: this.plugin.i18n.noteBox,
+                title: tomatoI18n.拍照闪念,
                 position: "left",
                 callback: () => {
                     this.showInDialog();
@@ -206,7 +206,7 @@ class NoteBox {
 
     private getCloseSvg() {
         for (const e of document.querySelectorAll("span.item__text")) {
-            if (e.textContent.startsWith(this.plugin.i18n.noteBox)) {
+            if (e.textContent.startsWith(tomatoI18n.拍照闪念)) {
                 // <span class="item__text">拍照闪念(移动端规避云端同步冲突)</span>
                 // <span class="item__close"><svg><use xlink:href="#iconClose"></use></svg></span>
                 return e.nextElementSibling as HTMLButtonElement;
@@ -357,7 +357,7 @@ class NoteBox {
                 app: this.plugin.app,
                 custom: {
                     icon: "iconCameraTomato",
-                    title: this.plugin.i18n.noteBox + suffix,
+                    title: tomatoI18n.拍照闪念 + suffix,
                     data: {},
                     id: this.plugin.name + TAB_TYPE
                 },

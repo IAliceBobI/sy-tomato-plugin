@@ -38,6 +38,30 @@ export function getOpenedEditors() {
     })
 }
 
+/**
+ * 当前激活编辑器页签里的文档 ID。与思源官方 isCurrentEditor（app/src/editor/util.ts）
+ * 同源：`.layout__wnd--active > .fn__flex > .layout-tab-bar > .item--focus` 拿激活
+ * 页签 data-id，再从 getAllEditor 里匹配该页签的 protyle。
+ * 桌面端 events.docID 只在点击编辑器内容时更新（文档树点开文档不算），需要
+ * 「眼前显示的文档」时用本函数；移动端无此 DOM 结构返回空串（events.docID
+ * 随 loaded 事件更新，无此问题）。找不到（面板全关/结构变更）返回空串。
+ */
+export function getActiveDocID(): string {
+    if (events.isMobile) return "";
+    const activeTab = document.querySelector(".layout__wnd--active > .fn__flex > .layout-tab-bar > .item--focus");
+    const dataID = activeTab?.getAttribute("data-id");
+    if (!dataID) return "";
+    for (const p of getAllEditor()) {
+        // 编辑器 protyle 所在 panel 与页签头共享 data-id；浮窗/搜索预览等非页签
+        // protyle 的最近 [data-id] 祖先不等于激活页签 id，不会误命中
+        const panel = p?.protyle?.element?.closest("[data-id]");
+        if (panel?.getAttribute("data-id") === dataID) {
+            return p?.protyle?.block?.rootID ?? "";
+        }
+    }
+    return "";
+}
+
 export function setAttribute(e: any, name: keyof AttrType, value: string) {
     if (e?.setAttribute) e.setAttribute(name, value);
 }
@@ -298,4 +322,33 @@ export function liveSyncDiv(id: string): HTMLElement | null {
         return d;
     }
     return null;
+}
+
+/**
+ * 兼容移动端的剪贴板写入：先走 Clipboard API，失败或不存在（思源移动端 webview）
+ * 回落 execCommand。返回是否复制成功，调用方据此决定提示语。
+ */
+export async function copyToClipboard(text: string): Promise<boolean> {
+    try {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch (e) {
+        console.log("Clipboard API failed, falling back to execCommand");
+    }
+    try {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.cssText = "position:fixed;left:-9999px;top:-9999px;opacity:0;";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        const success = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        if (success) return true;
+    } catch (e) {
+        console.error("execCommand copy failed:", e);
+    }
+    return false;
 }

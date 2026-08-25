@@ -18,7 +18,7 @@ class ImgOverlayBox {
         this.plugin = plugin;
         this.plugin.eventBus.on(EventType.open_menu_image, ({ detail }) => {
             detail.menu.addItem({
-                label: this.plugin.i18n.addPicOverlay,
+                label: tomatoI18n.添加图片遮挡层,
                 iconHTML: "🛡️🖼️",
                 click: () => { this.overlayEditor(detail.element, detail.protyle); }
             });
@@ -47,7 +47,7 @@ class ImgOverlayBox {
         if (imgs.length > 0) {
             detail.menu.addItem({
                 iconHTML: "🛡️🖼️",
-                label: this.plugin.i18n.addPicOverlay,
+                label: tomatoI18n.添加图片遮挡层,
                 click: () => {
                     for (const element of imgs) {
                         this.overlayEditor(element, detail.protyle);

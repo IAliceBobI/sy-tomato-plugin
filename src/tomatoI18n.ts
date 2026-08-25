@@ -2,6 +2,75 @@ import { TomatoI18nABC } from "./libs/text1";
 
 export class TomatoI18n extends TomatoI18nABC {
 
+    // 渐进设置页卡片化（2026-08-24）新增的分区标题键
+    public get 右键菜单() {
+        switch (this.lang) {
+            case "zh_CN": return "右键菜单";
+            case "es_ES": return "Menú contextual";
+            case "fr_FR": return "Menu contextuel";
+            case "ja_JP": return "右クリックメニュー";
+            case "zh_CHT": return "右鍵選單";
+            case "it_IT": return "Menu contestuale";
+            case "de_DE": return "Kontextmenü";
+            case "he_IL": return "תפריט הקשר";
+            case "ru_RU": return "Контекстное меню";
+            case "pl_PL": return "Menu kontekstowe";
+            case "en_US": return "Context menu";
+            default: return "Context menu";
+        }
+    }
+
+    public get 基础设置() {
+        switch (this.lang) {
+            case "zh_CN": return "基础设置";
+            case "es_ES": return "Configuración básica";
+            case "fr_FR": return "Réglages de base";
+            case "ja_JP": return "基本設定";
+            case "zh_CHT": return "基礎設定";
+            case "it_IT": return "Impostazioni di base";
+            case "de_DE": return "Grundeinstellungen";
+            case "he_IL": return "הגדרות בסיסיות";
+            case "ru_RU": return "Основные настройки";
+            case "pl_PL": return "Ustawienia podstawowe";
+            case "en_US": return "Basic settings";
+            default: return "Basic settings";
+        }
+    }
+
+    public get 摘抄与制卡() {
+        switch (this.lang) {
+            case "zh_CN": return "摘抄与制卡";
+            case "es_ES": return "Copiado y tarjetas";
+            case "fr_FR": return "Copie et cartes";
+            case "ja_JP": return "要約とカード作成";
+            case "zh_CHT": return "摘抄與制卡";
+            case "it_IT": return "Copia e schede";
+            case "de_DE": return "Exzerpieren & Karten";
+            case "he_IL": return "מיצוי וכרטיסים";
+            case "ru_RU": return "Выписки и карточки";
+            case "pl_PL": return "Notatki i fiszki";
+            case "en_US": return "Digest & cards";
+            default: return "Digest & cards";
+        }
+    }
+
+    public get 分片按钮组() {
+        switch (this.lang) {
+            case "zh_CN": return "分片按钮组";
+            case "es_ES": return "Botones de fragmentos";
+            case "fr_FR": return "Boutons de fragments";
+            case "ja_JP": return "断片ボタン";
+            case "zh_CHT": return "分片按鈕組";
+            case "it_IT": return "Pulsanti frammento";
+            case "de_DE": return "Fragment-Schaltflächen";
+            case "he_IL": return "כפתורי קטעים";
+            case "ru_RU": return "Кнопки фрагментов";
+            case "pl_PL": return "Przyciski fragmentów";
+            case "en_US": return "Fragment buttons";
+            default: return "Fragment buttons";
+        }
+    }
+
     public get 分片都加入闪卡() {
         switch (this.lang) {
             case "zh_CN": return "分片都加入闪卡";
@@ -719,6 +788,724 @@ export class TomatoI18n extends TomatoI18nABC {
             case "pt_BR": return "Precisa ativar a função de prioridade do cartão";
             case "en_US":
             default: return "Need to enable card priority feature";
+        }
+    }
+    public get 激活解锁全部功能() {
+        switch (this.lang) {
+            case "zh_CN": return "激活后解锁全部高级功能";
+            case "es_ES": return "Activa para desbloquear todas las funciones avanzadas";
+            case "fr_FR": return "Activez pour débloquer toutes les fonctionnalités avancées";
+            case "ja_JP": return "アクティベートすると全上位機能が解放されます";
+            case "zh_CHT": return "激活後解鎖全部進階功能";
+            case "it_IT": return "Attiva per sbloccare tutte le funzioni avanzate";
+            case "de_DE": return "Aktivieren Sie, um alle erweiterten Funktionen freizuschalten";
+            case "he_IL": return "הפעל כדי לפתוח את כל הפונקציות המתקדמות";
+            case "ru_RU": return "Активируйте, чтобы разблокировать все расширенные функции";
+            case "pl_PL": return "Aktywuj, aby odblokować wszystkie zaawansowane funkcje";
+            case "ar_SA": return "قم بالتفعيل لفتح جميع الميزات المتقدمة";
+            case "pt_BR": return "Ative para desbloquear todos os recursos avançados";
+            case "en_US":
+            default: return "Activate to unlock all advanced features";
+        }
+    }
+    public get 已激活() {
+        switch (this.lang) {
+            case "zh_CN": return "已激活";
+            case "es_ES": return "Activado";
+            case "fr_FR": return "Activé";
+            case "ja_JP": return "有効化済み";
+            case "zh_CHT": return "已激活";
+            case "it_IT": return "Attivato";
+            case "de_DE": return "Aktiviert";
+            case "he_IL": return "הופעל";
+            case "ru_RU": return "Активировано";
+            case "pl_PL": return "Aktywowano";
+            case "ar_SA": return "تم التفعيل";
+            case "pt_BR": return "Ativado";
+            case "en_US":
+            default: return "Activated";
+        }
+    }
+    public get 打开番茄工具箱购买页() {
+        switch (this.lang) {
+            case "zh_CN": return "打开番茄工具箱购买页";
+            case "es_ES": return "Abrir la página de compra de la caja de herramientas Pomodoro";
+            case "fr_FR": return "Ouvrir la page d'achat de la boîte à outils Pomodoro";
+            case "ja_JP": return "トマトツールボックスの購入ページを開く";
+            case "zh_CHT": return "打開番茄工具箱購買頁";
+            case "it_IT": return "Apri la pagina di acquisto degli strumenti Pomodoro";
+            case "de_DE": return "Kaufseite der Pomodoro-Werkzeugkasten öffnen";
+            case "he_IL": return "פתח את דף הרכישה של תיבת כלים פומודורו";
+            case "ru_RU": return "Открыть страницу покупки помидорного набора инструментов";
+            case "pl_PL": return "Otwórz stronę zakupu narzędzi Pomodoro";
+            case "ar_SA": return "افتح صفحة شراء صندوق أدوات بومودورو";
+            case "pt_BR": return "Abrir a página de compra da caixa de ferramentas Pomodoro";
+            case "en_US":
+            default: return "Open the Pomodoro toolbox purchase page";
+        }
+    }
+    public get 打开渐进学习购买页() {
+        switch (this.lang) {
+            case "zh_CN": return "打开渐进学习购买页";
+            case "es_ES": return "Abrir la página de compra de aprendizaje progresivo";
+            case "fr_FR": return "Ouvrir la page d'achat de l'apprentissage progressif";
+            case "ja_JP": return "段階的学習の購入ページを開く";
+            case "zh_CHT": return "打開漸進學習購買頁";
+            case "it_IT": return "Apri la pagina di acquisto dell'apprendimento progressivo";
+            case "de_DE": return "Kaufseite des progressiven Lernens öffnen";
+            case "he_IL": return "פתח את דף הרכישה של למידה הדרגתית";
+            case "ru_RU": return "Открыть страницу покупки прогрессивного обучения";
+            case "pl_PL": return "Otwórz stronę zakupu progresywnego uczenia się";
+            case "ar_SA": return "افتح صفحة شراء التعلم التدريجي";
+            case "pt_BR": return "Abrir a página de compra do aprendizado progressivo";
+            case "en_US":
+            default: return "Open the progressive learning purchase page";
+        }
+    }
+    public get 购买页() {
+        switch (this.lang) {
+            case "zh_CN": return "购买";
+            case "es_ES": return "Comprar";
+            case "fr_FR": return "Acheter";
+            case "ja_JP": return "購入";
+            case "zh_CHT": return "購買";
+            case "it_IT": return "Acquista";
+            case "de_DE": return "Kaufen";
+            case "he_IL": return "רכישה";
+            case "ru_RU": return "Купить";
+            case "pl_PL": return "Kup";
+            case "ar_SA": return "شراء";
+            case "pt_BR": return "Comprar";
+            case "en_US":
+            default: return "Purchase";
+        }
+    }
+    public get 复购或赠送() {
+        switch (this.lang) {
+            case "zh_CN": return "复购 / 赠送";
+            case "es_ES": return "Recomprar / Regalar";
+            case "fr_FR": return "Racheter / Offrir";
+            case "ja_JP": return "再購入 / ギフト";
+            case "zh_CHT": return "復購 / 贈送";
+            case "it_IT": return "Riacquista / Regala";
+            case "de_DE": return "Erneut kaufen / Verschenken";
+            case "he_IL": return "רכישה חוזרת / מתנה";
+            case "ru_RU": return "Купить снова / Подарить";
+            case "pl_PL": return "Kup ponownie / Podaruj";
+            case "ar_SA": return "إعادة الشراء / إهداء";
+            case "pt_BR": return "Recomprar / Presentear";
+            case "en_US":
+            default: return "Buy again / Gift";
+        }
+    }
+    public get 您已购买无需重复购买() {
+        switch (this.lang) {
+            case "zh_CN": return "您已购买，无需重复购买；如遇问题可联系客服。";
+            case "es_ES": return "Ya lo ha comprado, no necesita comprar de nuevo; si tiene problemas, contacte con atención al cliente.";
+            case "fr_FR": return "Vous avez déjà acheté, inutile de racheter ; en cas de problème, contactez le service client.";
+            case "ja_JP": return "購入済みのため、再購入は不要です。問題がある場合はカスタマーサポートまで。";
+            case "zh_CHT": return "您已購買，無需重複購買；如遇問題可聯繫客服。";
+            case "it_IT": return "Hai già acquistato, non è necessario ricomprare; in caso di problemi contatta l'assistenza.";
+            case "de_DE": return "Sie haben bereits gekauft, ein erneuter Kauf ist nicht nötig; bei Problemen wenden Sie sich an den Support.";
+            case "he_IL": return "כבר רכשת, אין צורך לרכוש שוב; בבעיות פנה לשירות הלקוחות.";
+            case "ru_RU": return "Вы уже купили, повторная покупка не требуется; при проблемах обратитесь в поддержку.";
+            case "pl_PL": return "Już kupiłeś, nie musisz kupować ponownie; w razie problemów skontaktuj się z pomocą techniczną.";
+            case "ar_SA": return "لقد اشتريت بالفعل، ولا حاجة للشراء مرة أخرى؛ في حال وجود مشاكل تواصل مع خدمة العملاء.";
+            case "pt_BR": return "Você já comprou, não precisa comprar novamente; em caso de problemas, contate o suporte.";
+            case "en_US":
+            default: return "You have already purchased; no need to buy again. Contact support if you have issues.";
+        }
+    }
+
+    // 快捷键就地修改（2026-08-24 □5）HotkeyCap 组件文案
+    public get 点击修改快捷键() {
+        switch (this.lang) {
+            case "zh_CN": return "点击修改快捷键\nEsc 取消\nBackspace 删除";
+            case "zh_CHT": return "點擊修改快捷鍵\nEsc 取消\nBackspace 刪除";
+            case "es_ES": return "Clic para cambiar el atajo\nEsc para cancelar\nRetroceso para eliminar";
+            case "fr_FR": return "Cliquer pour modifier le raccourci\nÉchap pour annuler\nRetour arrière pour supprimer";
+            case "ja_JP": return "クリックでショートカットを変更\nEsc でキャンセル\nBackspace で削除";
+            case "it_IT": return "Clicca per modificare\nEsc per annullare\nBackspace per eliminare";
+            case "de_DE": return "Klicken zum Ändern\nEsc zum Abbrechen\nRücktaste zum Löschen";
+            case "he_IL": return "לחץ לשינוי הקיצור\nEsc לביטול\nBackspace למחיקה";
+            case "ru_RU": return "Нажмите, чтобы изменить\nEsc — отмена\nBackspace — удалить";
+            case "pl_PL": return "Kliknij, aby zmienić\nEsc — anuluj\nBackspace — usuń";
+            case "ar_SA": return "انقر لتغيير الاختصار\nEsc للإلغاء\nBackspace للحذف";
+            case "pt_BR": return "Clique para alterar o atalho\nEsc para cancelar\nBackspace para excluir";
+            case "en_US":
+            default: return "Click to change hotkey\nEsc to cancel\nBackspace to remove";
+        }
+    }
+    public get 按下新组合键() {
+        switch (this.lang) {
+            case "zh_CN": return "按下新组合键…";
+            case "zh_CHT": return "按下新組合鍵…";
+            case "es_ES": return "Pulsa la nueva combinación…";
+            case "fr_FR": return "Appuyez sur la nouvelle combinaison…";
+            case "ja_JP": return "新しい組み合わせを押してください…";
+            case "it_IT": return "Premi la nuova combinazione…";
+            case "de_DE": return "Neue Kombination drücken…";
+            case "he_IL": return "הקש שילוב חדש…";
+            case "ru_RU": return "Нажмите новую комбинацию…";
+            case "pl_PL": return "Naciśnij nową kombinację…";
+            case "ar_SA": return "اضغط التركيبة الجديدة…";
+            case "pt_BR": return "Pressione a nova combinação…";
+            case "en_US":
+            default: return "Press new combination…";
+        }
+    }
+    public 与其冲突的快捷键(x: string) {
+        switch (this.lang) {
+            case "zh_CN": return `冲突：${x}`;
+            case "zh_CHT": return `衝突：${x}`;
+            case "es_ES": return `Conflicto con: ${x}`;
+            case "fr_FR": return `Conflit avec : ${x}`;
+            case "ja_JP": return `競合：${x}`;
+            case "it_IT": return `In conflitto con: ${x}`;
+            case "de_DE": return `Konflikt mit: ${x}`;
+            case "he_IL": return `התנגשות עם: ${x}`;
+            case "ru_RU": return `Конфликтует с: ${x}`;
+            case "pl_PL": return `Konflikt z: ${x}`;
+            case "ar_SA": return `تعارض مع: ${x}`;
+            case "pt_BR": return `Conflito com: ${x}`;
+            case "en_US":
+            default: return `Conflicts with: ${x}`;
+        }
+    }
+    public 建议改用(x: string) {
+        switch (this.lang) {
+            case "zh_CN": return `建议改用 ${x}`;
+            case "zh_CHT": return `建議改用 ${x}`;
+            case "es_ES": return `Prueba ${x}`;
+            case "fr_FR": return `Essayez ${x}`;
+            case "ja_JP": return `${x} を推奨`;
+            case "it_IT": return `Prova ${x}`;
+            case "de_DE": return `Versuche ${x}`;
+            case "he_IL": return `נסה ${x}`;
+            case "ru_RU": return `Попробуйте ${x}`;
+            case "pl_PL": return `Wypróbuj ${x}`;
+            case "ar_SA": return `جرّب ${x}`;
+            case "pt_BR": return `Tente ${x}`;
+            case "en_US":
+            default: return `Try ${x} instead`;
+        }
+    }
+    public get 快捷键需要修饰键() {
+        switch (this.lang) {
+            case "zh_CN": return "单字符键会拦截输入，需搭配 ⌘/⌥/⌃ 修饰键";
+            case "zh_CHT": return "單字元鍵會攔截輸入，需搭配 ⌘/⌥/⌃ 修飾鍵";
+            case "es_ES": return "Las teclas simples bloquean la escritura; añade un modificador ⌘/⌥/⌃";
+            case "fr_FR": return "Les touches seules bloquent la saisie ; ajoutez un modificateur ⌘/⌥/⌃";
+            case "ja_JP": return "単一キーは入力を妨げます。⌘/⌥/⌃ 修飾キーを追加してください";
+            case "it_IT": return "I tasti singoli bloccano la digitazione; aggiungi un modificatore ⌘/⌥/⌃";
+            case "de_DE": return "Einzelne Tasten blockieren die Eingabe; füge ⌘/⌥/⌃ hinzu";
+            case "he_IL": return "מקש בודד חוסם הקלדה; הוסף מקש החלפה ⌘/⌥/⌃";
+            case "ru_RU": return "Одиночные клавиши мешают вводу; добавьте модификатор ⌘/⌥/⌃";
+            case "pl_PL": return "Pojedyncze klawisze blokują pisanie; dodaj modyfikator ⌘/⌥/⌃";
+            case "ar_SA": return "المفاتيح المفردة تعيق الكتابة؛ أضف مفتاح تعديل ⌘/⌥/⌃";
+            case "pt_BR": return "Teclas simples bloqueiam a digitação; adicione um modificador ⌘/⌥/⌃";
+            case "en_US":
+            default: return "Single keys block typing; add a ⌘/⌥/⌃ modifier";
+        }
+    }
+    public get 系统保留快捷键() {
+        switch (this.lang) {
+            case "zh_CN": return "系统保留快捷键，不可使用";
+            case "zh_CHT": return "系統保留快捷鍵，不可使用";
+            case "es_ES": return "Reservado por el sistema";
+            case "fr_FR": return "Réservé par le système";
+            case "ja_JP": return "システム予約のショートカットです";
+            case "it_IT": return "Riservato dal sistema";
+            case "de_DE": return "Vom System reserviert";
+            case "he_IL": return "שמור למערכת";
+            case "ru_RU": return "Зарезервировано системой";
+            case "pl_PL": return "Zarezerwowane przez system";
+            case "ar_SA": return "محجوز للنظام";
+            case "pt_BR": return "Reservado pelo sistema";
+            case "en_US":
+            default: return "Reserved by the system";
+        }
+    }
+    public get 已恢复默认() {
+        switch (this.lang) {
+            case "zh_CN": return "已恢复默认";
+            case "zh_CHT": return "已恢復預設";
+            case "es_ES": return "Restablecido";
+            case "fr_FR": return "Réinitialisé";
+            case "ja_JP": return "デフォルトに戻しました";
+            case "it_IT": return "Ripristinato";
+            case "de_DE": return "Zurückgesetzt";
+            case "he_IL": return "אופס לברירת מחדל";
+            case "ru_RU": return "Сброшено";
+            case "pl_PL": return "Przywrócono domyślne";
+            case "ar_SA": return "تمت الاستعادة";
+            case "pt_BR": return "Redefinido";
+            case "en_US":
+            default: return "Reset to default";
+        }
+    }
+    public get 已生效() {
+        switch (this.lang) {
+            case "zh_CN": return "已生效";
+            case "zh_CHT": return "已生效";
+            case "es_ES": return "Guardado";
+            case "fr_FR": return "Enregistré";
+            case "ja_JP": return "保存しました";
+            case "it_IT": return "Salvato";
+            case "de_DE": return "Gespeichert";
+            case "he_IL": return "נשמר";
+            case "ru_RU": return "Сохранено";
+            case "pl_PL": return "Zapisano";
+            case "ar_SA": return "تم الحفظ";
+            case "pt_BR": return "Salvo";
+            case "en_US":
+            default: return "Saved";
+        }
+    }
+    public get 随机可用快捷键() {
+        switch (this.lang) {
+            case "zh_CN": return "随机分配一个可用快捷键（优先短组合）";
+            case "zh_CHT": return "隨機分配一個可用快捷鍵（優先短組合）";
+            case "es_ES": return "Asignar aleatoriamente un atajo disponible (se prefieren cortos)";
+            case "fr_FR": return "Attribuer aléatoirement un raccourci libre (courts privilégiés)";
+            case "ja_JP": return "空いているショートカットをランダム割り当て（短い組み合わせを優先）";
+            case "it_IT": return "Assegna casualmente una combinazione libera (preferite le corte)";
+            case "de_DE": return "Zufällig eine freie Kombination zuweisen (kurze bevorzugt)";
+            case "he_IL": return "הקצה אקראית קיצור פנוי (עדיפים קצרים)";
+            case "ru_RU": return "Случайно назначить свободную комбинацию (короткие в приоритете)";
+            case "pl_PL": return "Losowo przypisz wolny skrót (preferowane krótkie)";
+            case "ar_SA": return "تعيين اختصار متاح عشوائيًا (تفضيل القصير)";
+            case "pt_BR": return "Atribuir aleatoriamente um atalho livre (curtos preferidos)";
+            case "en_US":
+            default: return "Assign a random free hotkey (short combos preferred)";
+        }
+    }
+    public get 删除快捷键() {
+        switch (this.lang) {
+            case "zh_CN": return "删除快捷键（不再响应键盘）";
+            case "zh_CHT": return "刪除快捷鍵（不再回應鍵盤）";
+            case "es_ES": return "Eliminar el atajo (dejará de responder)";
+            case "fr_FR": return "Supprimer le raccourci (ne répondra plus)";
+            case "ja_JP": return "ショートカットを削除（キーに反応しなくなります）";
+            case "it_IT": return "Elimina la combinazione (non risponderà più)";
+            case "de_DE": return "Kombination löschen (reagiert nicht mehr)";
+            case "he_IL": return "מחק את הקיצור (לא יגיב יותר)";
+            case "ru_RU": return "Удалить комбинацию (перестанет срабатывать)";
+            case "pl_PL": return "Usuń skrót (przestanie działać)";
+            case "ar_SA": return "حذف الاختصار (لن يستجيب)";
+            case "pt_BR": return "Excluir o atalho (deixará de responder)";
+            case "en_US":
+            default: return "Remove the hotkey (stops responding)";
+        }
+    }
+    public get 恢复默认快捷键() {
+        switch (this.lang) {
+            case "zh_CN": return "恢复默认键位";
+            case "zh_CHT": return "恢復預設鍵位";
+            case "es_ES": return "Restablecer el atajo predeterminado";
+            case "fr_FR": return "Rétablir le raccourci par défaut";
+            case "ja_JP": return "デフォルトのキーに戻す";
+            case "it_IT": return "Ripristina la combinazione predefinita";
+            case "de_DE": return "Standardkombination wiederherstellen";
+            case "he_IL": return "שחזר את קיצור ברירת המחדל";
+            case "ru_RU": return "Вернуть комбинацию по умолчанию";
+            case "pl_PL": return "Przywróć domyślny skrót";
+            case "ar_SA": return "استعادة الاختصار الافتراضي";
+            case "pt_BR": return "Restaurar o atalho padrão";
+            case "en_US":
+            default: return "Restore default hotkey";
+        }
+    }
+    public get 未设置快捷键() {
+        switch (this.lang) {
+            case "zh_CN": return "未设置";
+            case "zh_CHT": return "未設定";
+            case "es_ES": return "Sin asignar";
+            case "fr_FR": return "Non défini";
+            case "ja_JP": return "未設定";
+            case "it_IT": return "Non impostato";
+            case "de_DE": return "Nicht gesetzt";
+            case "he_IL": return "לא מוגדר";
+            case "ru_RU": return "Не задано";
+            case "pl_PL": return "Nieustawione";
+            case "ar_SA": return "غير معين";
+            case "pt_BR": return "Não definido";
+            case "en_US":
+            default: return "Not set";
+        }
+    }
+    public get 已删除() {
+        switch (this.lang) {
+            case "zh_CN": return "已删除";
+            case "zh_CHT": return "已刪除";
+            case "es_ES": return "Eliminado";
+            case "fr_FR": return "Supprimé";
+            case "ja_JP": return "削除しました";
+            case "it_IT": return "Eliminato";
+            case "de_DE": return "Gelöscht";
+            case "he_IL": return "נמחק";
+            case "ru_RU": return "Удалено";
+            case "pl_PL": return "Usunięto";
+            case "ar_SA": return "تم الحذف";
+            case "pt_BR": return "Excluído";
+            case "en_US":
+            default: return "Removed";
+        }
+    }
+
+    // 番茄钟老模块（TomatoClock/NoteBox/ReadingPointBox 等）从 JSON 轨迁入（2026-08-25 i18n 归一为 TS 轨）
+    public get 请等待上个操作完成() {
+        switch (this.lang) {
+            case "zh_CN": return "请等待上个操作完成！";
+            case "zh_CHT": return "請等待上個操作完成！";
+            case "es_ES": return "¡espere a que finalice la operación anterior!";
+            case "fr_FR": return "Veuillez attendre la fin de l'opération précédente !";
+            case "ja_JP": return "前の操作が完了するまで待ってください！";
+            case "en_US":
+            default: return "Please wait for the previous operation to finish!";
+        }
+    }
+    public get 番茄钟() {
+        switch (this.lang) {
+            case "zh_CN": return "番茄钟";
+            case "zh_CHT": return "番茄鐘";
+            case "es_ES": return "Temporizador de tomate";
+            case "fr_FR": return "Chronomètre à tomates";
+            case "ja_JP": return "トマトクロック";
+            case "en_US":
+            default: return "Tomato Timer";
+        }
+    }
+    public get 添加图片遮挡层() {
+        switch (this.lang) {
+            case "zh_CN": return "添加图片遮挡层";
+            case "zh_CHT": return "添加圖片遮擋層";
+            case "es_ES": return "agregar capa de imagen";
+            case "fr_FR": return "Ajouter un calque de masquage d'image";
+            case "ja_JP": return "画像オーバーレイを追加";
+            case "en_US":
+            default: return "Add picture overlay";
+        }
+    }
+    public get 打开目录页书签页() {
+        switch (this.lang) {
+            case "zh_CN": return "打开目录页/书签页";
+            case "zh_CHT": return "打開目錄頁/書籤頁";
+            case "es_ES": return "abrir página de índice/marcadores";
+            case "fr_FR": return "Ouvrir la page de contenu/page de signets";
+            case "ja_JP": return "コンテンツページ/ブックマークページを開く";
+            case "en_US":
+            default: return "Open contents/bookmark page";
+        }
+    }
+    public get 休息一会儿吧() {
+        switch (this.lang) {
+            case "zh_CN": return "😊休息一会儿吧！";
+            case "zh_CHT": return "😊休息一下吧！";
+            case "es_ES": return "😊 Por favor, descansa un momento!";
+            case "fr_FR": return "😊 Prenez une pause !";
+            case "ja_JP": return "😊 しばらく休憩しましょう！";
+            case "en_US":
+            default: return "😊 Take a break!";
+        }
+    }
+    public get 分钟后休息() {
+        switch (this.lang) {
+            case "zh_CN": return "分钟后休息";
+            case "zh_CHT": return "分鐘後休息";
+            case "es_ES": return "descansar después de minutos";
+            case "fr_FR": return "pause après minutes";
+            case "ja_JP": return "分後に休憩";
+            case "en_US":
+            default: return "Take a break after";
+        }
+    }
+    public get 开始计时() {
+        switch (this.lang) {
+            case "zh_CN": return "开始计时";
+            case "zh_CHT": return "開始計時";
+            case "es_ES": return "iniciar cuenta regresiva";
+            case "fr_FR": return "Démarrer le compte à rebours";
+            case "ja_JP": return "カウントダウン開始";
+            case "en_US":
+            default: return "Start countdown";
+        }
+    }
+    public get 分钟已到() {
+        switch (this.lang) {
+            case "zh_CN": return "分钟已到";
+            case "zh_CHT": return "分鐘已到";
+            case "es_ES": return "minutos terminados";
+            case "fr_FR": return "minutes écoulées";
+            case "ja_JP": return "分間働いた";
+            case "en_US":
+            default: return "Minutes up";
+        }
+    }
+    public get 请先点击一个内容块() {
+        switch (this.lang) {
+            case "zh_CN": return "请先点击一个内容块";
+            case "zh_CHT": return "請先點擊一個內容塊";
+            case "es_ES": return "por favor, haga clic en un bloque de contenido primero";
+            case "fr_FR": return "Veuillez cliquer d'abord sur un bloc de contenu";
+            case "ja_JP": return "まず内容ブロックをクリックしてください";
+            case "en_US":
+            default: return "Please click on a block first";
+        }
+    }
+    public get 取消上次的计时() {
+        switch (this.lang) {
+            case "zh_CN": return "取消上次的计时";
+            case "zh_CHT": return "取消上次的計時";
+            case "es_ES": return "cancelar la cuenta regresiva anterior";
+            case "fr_FR": return "Annuler le compte à rebours précédent";
+            case "ja_JP": return "前回のカウントダウンをキャンセル";
+            case "en_US":
+            default: return "Cancel last countdown";
+        }
+    }
+    public get 取消计时() {
+        switch (this.lang) {
+            case "zh_CN": return "取消计时";
+            case "zh_CHT": return "取消計時";
+            case "es_ES": return "cancelar cuenta regresiva";
+            case "fr_FR": return "Annuler le compte à rebours";
+            case "ja_JP": return "カウントダウンキャンセル";
+            case "en_US":
+            default: return "Cancel countdown";
+        }
+    }
+
+    // 渐进学习文案从 progressive JSON 轨迁入（2026-08-25 i18n 归一为 TS 轨）
+    public get 请等待索引建立() {
+        switch (this.lang) {
+            case "zh_CN": return "⏳请等待索引的建立……然后再继续操作……";
+            case "zh_CHT": return "⏳請等待索引的建立……然後再繼續操作……";
+            case "es_ES": return "⏳ espere a que se establezca el índice... luego continúe con la operación...";
+            case "fr_FR": return "⏳Veuillez attendre la création de l'index... puis continuez à opérer...";
+            case "ja_JP": return "⏳インデックスの構築を待ってから操作を続けてください……";
+            case "en_US":
+            default: return "⏳ Please Wait for Indexing to Be Established... Then Continue Operating...";
+        }
+    }
+    public get 重新推送本书() {
+        switch (this.lang) {
+            case "zh_CN": return "重新推送本书";
+            case "zh_CHT": return "重新推送本書";
+            case "es_ES": return "reenviar este libro";
+            case "fr_FR": return "Réenvoi de ce livre";
+            case "ja_JP": return "この本のプッシュを再開";
+            case "en_US":
+            default: return "Re-push This Book";
+        }
+    }
+    public get 已经忽略本书() {
+        switch (this.lang) {
+            case "zh_CN": return "已经忽略本书";
+            case "zh_CHT": return "已經忽略本書";
+            case "es_ES": return "ya se ha ignorado este libro";
+            case "fr_FR": return "Ce livre a déjà été ignoré";
+            case "ja_JP": return "この本は無視されました";
+            case "en_US":
+            default: return "This Book Has Been Ignored";
+        }
+    }
+    public get 自动制卡() {
+        switch (this.lang) {
+            case "zh_CN": return "自动制卡";
+            case "zh_CHT": return "自動制卡";
+            case "es_ES": return "crear tarjeta automáticamente";
+            case "fr_FR": return "créer automatiquement une fiche";
+            case "ja_JP": return "自動カード作成";
+            case "en_US":
+            default: return "Auto Make Card";
+        }
+    }
+    public get 已经是最后一页了() {
+        switch (this.lang) {
+            case "zh_CN": return "已经是最后一页了";
+            case "zh_CHT": return "已經是最後一頁了";
+            case "es_ES": return "ya es la última página";
+            case "fr_FR": return "c'est déjà la dernière page";
+            case "ja_JP": return "これが最後のページです";
+            case "en_US":
+            default: return "This is the Last Page";
+        }
+    }
+    public get 已经是第一页了() {
+        switch (this.lang) {
+            case "zh_CN": return "已经是第一页了";
+            case "zh_CHT": return "已經是第一頁了";
+            case "es_ES": return "ya es la primera página";
+            case "fr_FR": return "c'est déjà la première page";
+            case "ja_JP": return "これが最初のページです";
+            case "en_US":
+            default: return "This is the First Page";
+        }
+    }
+    public get 按标题拆分() {
+        switch (this.lang) {
+            case "zh_CN": return "标题级别1~6，b是粗体单独一行，逗号隔开，留空不拆分。";
+            case "zh_CHT": return "標題級別1~6，b是粗體單獨一行，逗號隔開，留空不拆分。";
+            case "es_ES": return "niveles de título 1~6, b es negrita en una línea separada, separados por comas, dejar en blanco para no dividir.";
+            case "fr_FR": return "niveaux de titres 1~6, b pour gras sur une ligne séparée, séparés par des virgules, laisser vide pour ne pas diviser.";
+            case "ja_JP": return "見出しレベル1〜6、bは太字で1行、カンマで区切り、空欄は分割しない。";
+            case "en_US":
+            default: return "Heading Levels 1~6, b for Bold on a Separate Line, Comma Separated, Leave Blank for No Split.";
+        }
+    }
+    public get 渐进学习菜单() {
+        switch (this.lang) {
+            case "zh_CN": return "渐进学习菜单";
+            case "zh_CHT": return "漸進學習菜單";
+            case "es_ES": return "menú de aprendizaje progresivo";
+            case "fr_FR": return "Menu d'apprentissage progressif";
+            case "ja_JP": return "漸進学習メニュー";
+            case "en_US":
+            default: return "Progressive Reading Menu";
+        }
+    }
+    public get 该分片内容已失效() {
+        switch (this.lang) {
+            case "zh_CN": return "该分片内容已失效（源块已被删除），已跳过";
+            case "zh_CHT": return "該分片內容已失效（源塊已被刪除），已跳過";
+            case "es_ES": return "este fragmento no está disponible (bloques de origen eliminados), omitido";
+            case "fr_FR": return "cette pièce est indisponible (blocs sources supprimés), ignorée";
+            case "ja_JP": return "このシャープは無効です（元ブロックが削除済み）、スキップしました";
+            case "en_US":
+            default: return "This Piece Is Unavailable (Source Blocks Deleted), Skipped";
+        }
+    }
+    public get 正在为您打开文档片段() {
+        switch (this.lang) {
+            case "zh_CN": return "正在为您打开文档片段，请耐心等待……";
+            case "zh_CHT": return "正在為您打開文檔片段，請耐心等待……";
+            case "es_ES": return "abriendo el fragmento del documento para ti, por favor ten paciencia...";
+            case "fr_FR": return "Ouverture de la pièce de document pour vous, veuillez patienter...";
+            case "ja_JP": return "ドキュメントのシャープを開いています、お待ちください……";
+            case "en_US":
+            default: return "Opening Document Piece for You, Please Wait...";
+        }
+    }
+    public get 请先打开一个文档() {
+        switch (this.lang) {
+            case "zh_CN": return "请先打开一个文档";
+            case "zh_CHT": return "請先打開一個文檔";
+            case "es_ES": return "por favor, abra primero un documento";
+            case "fr_FR": return "Veuillez d'abord ouvrir un document";
+            case "ja_JP": return "まずドキュメントを開いてください";
+            case "en_US":
+            default: return "Please Open a Document First";
+        }
+    }
+    public get 取消自动文档制卡() {
+        switch (this.lang) {
+            case "zh_CN": return "取消自动文档制卡";
+            case "zh_CHT": return "取消自動文檔制卡";
+            case "es_ES": return "cancelar creación automática de tarjetas de documento";
+            case "fr_FR": return "Annuler la création automatique de fiches de document";
+            case "ja_JP": return "自動ドキュメントカード作成をキャンセル";
+            case "en_US":
+            default: return "Cancel Auto Document Card Making";
+        }
+    }
+    public get 自动文档制卡() {
+        switch (this.lang) {
+            case "zh_CN": return "自动文档制卡";
+            case "zh_CHT": return "自動文檔制卡";
+            case "es_ES": return "crear tarjetas de documento automáticamente";
+            case "fr_FR": return "Création automatique de fiches de document";
+            case "ja_JP": return "自動ドキュメントカード作成";
+            case "en_US":
+            default: return "Auto Document Card Making";
+        }
+    }
+    public get 似乎书本已被删除() {
+        switch (this.lang) {
+            case "zh_CN": return "似乎{bookID}已经被删除";
+            case "zh_CHT": return "似乎{bookID}已經被刪除";
+            case "es_ES": return "parece que {bookID} ha sido eliminado";
+            case "fr_FR": return "Il semble que {bookID} ait été supprimé";
+            case "ja_JP": return "{bookID}は削除された可能性があります";
+            case "en_US":
+            default: return "It Seems {bookID} Has Been Removed";
+        }
+    }
+    public get 找不到文档对应的笔记本() {
+        switch (this.lang) {
+            case "zh_CN": return "找不到文档对应的笔记本：";
+            case "zh_CHT": return "找不到文檔對應的筆記本：";
+            case "es_ES": return "no se puede encontrar la libreta correspondiente al documento:";
+            case "fr_FR": return "Impossible de trouver le cahier correspondant au document :";
+            case "ja_JP": return "対応するノートブックが見つかりません：";
+            case "en_US":
+            default: return "Cannot Find the Notebook Corresponding to the Document:";
+        }
+    }
+    public get 未找到文档请等待索引() {
+        switch (this.lang) {
+            case "zh_CN": return "未找到文档，请重新建立索引或者等待索引建立完成";
+            case "zh_CHT": return "未找到文檔，請重新建立索引或者等待索引建立完成";
+            case "es_ES": return "no se encontró el documento, por favor vuelva a crear el índice o espere a que se complete el índice";
+            case "fr_FR": return "Document non trouvé, veuillez recréer l'index ou attendre la fin de la création de l'index";
+            case "ja_JP": return "ドキュメントが見つかりませんでした、インデックスを再構築するか、インデックス構築が完了するのを待ってください";
+            case "en_US":
+            default: return "Document Not Found, Please Rebuild Index or Wait for Indexing to Complete";
+        }
+    }
+    public get 请先将此文档加入渐进学习列表() {
+        switch (this.lang) {
+            case "zh_CN": return "请先将此文档加入渐进学习列表";
+            case "zh_CHT": return "請先將此文檔加入漸進學習列表";
+            case "es_ES": return "por favor, agregue primero este documento a la lista de aprendizaje progresivo";
+            case "fr_FR": return "Veuillez d'abord ajouter ce document à la liste d'apprentissage progressif";
+            case "ja_JP": return "まずこのドキュメントを漸進学習リストに追加してください";
+            case "en_US":
+            default: return "Please Add This Document to the Progressive Reading List First";
+        }
+    }
+    public get 添加文档到渐进阅读() {
+        switch (this.lang) {
+            case "zh_CN": return "添加文档/重新添加文档到渐进阅读";
+            case "zh_CHT": return "添加文檔/重新添加文檔到漸進閱讀";
+            case "es_ES": return "agregar documento/volver a agregar documento al aprendizaje progresivo";
+            case "fr_FR": return "Ajouter/réajouter un document à la lecture progressive";
+            case "ja_JP": return "ドキュメントを漸進読書に追加/再追加";
+            case "en_US":
+            default: return "Add/Re-add Document to Progressive Reading";
+        }
+    }
+    public get 删除并下一个() {
+        switch (this.lang) {
+            case "zh_CN": return "🗑 ➡";
+            case "zh_CHT": return "🗑 ➡";
+            case "es_ES": return "🗑 ➡";
+            case "fr_FR": return "🗑 ➡";
+            case "ja_JP": return "🗑 ➡";
+            case "en_US":
+            default: return "🗑 ➡";
+        }
+    }
+    public get 删除并返回() {
+        switch (this.lang) {
+            case "zh_CN": return "⬅ 🗑";
+            case "zh_CHT": return "⬅ 🗑";
+            case "es_ES": return "⬅ 🗑";
+            case "fr_FR": return "⬅ 🗑";
+            case "ja_JP": return "⬅ 🗑";
+            case "en_US":
+            default: return "⬅ 🗑";
+        }
+    }
+    public get 您还没添加任何文档() {
+        switch (this.lang) {
+            case "zh_CN": return "您还没添加任何文档。";
+            case "zh_CHT": return "您還沒添加任何文檔。";
+            case "es_ES": return "aún no ha agregado ningún documento.";
+            case "fr_FR": return "Vous n'avez encore ajouté aucun document.";
+            case "ja_JP": return "まだドキュメントを追加していません。";
+            case "en_US":
+            default: return "You Haven't Added Any Documents Yet.";
         }
     }
 }

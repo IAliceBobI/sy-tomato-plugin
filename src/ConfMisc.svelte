@@ -68,6 +68,7 @@
     } from "./MixBox";
     import { Tag2RefBox模糊查找引用Lnk, Tag2RefBox模糊查找引用Ref } from "./Tag2RefBox";
     import { tomatoI18n } from "./tomatoI18n";
+    import HotkeyCap from "./HotkeyCap.svelte";
     import { helpOpen } from "./helpOpen";
 
     let { codeValid }: { codeValid: boolean } = $props();
@@ -103,7 +104,7 @@
                 <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxRefreshMenu} />
                 {tomatoI18n.menu添加右键菜单}:
                 {DbBkBox刷新数据库反链.langText()}
-                <strong>{DbBkBox刷新数据库反链.w()}</strong>
+                <HotkeyCap hk={DbBkBox刷新数据库反链} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="number" min="1" class="b3-text-field" bind:value={$dbBkBoxMaxBacklinkSize} />
@@ -140,50 +141,50 @@
             </div>
             <div>
                 {MixBox删除块以及闪卡.langText()}
-                <strong>{MixBox删除块以及闪卡.w()}</strong>
+                <HotkeyCap hk={MixBox删除块以及闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {MixBox内容制表.langText()}
-                <strong>{MixBox内容制表.w()}</strong>
+                <HotkeyCap hk={MixBox内容制表} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {MixBox使内容模糊.langText()}
-                <strong>{MixBox使内容模糊.w()}</strong>
+                <HotkeyCap hk={MixBox使内容模糊} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {MixBox跳转到剪贴板中ID的块.langText()}
-                <strong>{MixBox跳转到剪贴板中ID的块.w()}</strong>
+                <HotkeyCap hk={MixBox跳转到剪贴板中ID的块} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {MixBox添加一个flag书签.langText()}
-                <strong>{MixBox添加一个flag书签.w()}</strong>
+                <HotkeyCap hk={MixBox添加一个flag书签} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {MixBox删除所有flag书签.langText()}
-                <strong>{MixBox删除所有flag书签.w()}</strong>
+                <HotkeyCap hk={MixBox删除所有flag书签} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {MixBox空格隔开的所有内容都转为引用.langText()}
-                <strong>{MixBox空格隔开的所有内容都转为引用.w()}</strong>
+                <HotkeyCap hk={MixBox空格隔开的所有内容都转为引用} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {MixBox收集当前文档与子文档所有的未完成任务.langText()}
-                <strong>{MixBox收集当前文档与子文档所有的未完成任务.w()}</strong>
+                <HotkeyCap hk={MixBox收集当前文档与子文档所有的未完成任务} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {MixBox列出当前文档与子文档中没被引用的文档.langText()}
-                <strong>{MixBox列出当前文档与子文档中没被引用的文档.w()}</strong>
+                <HotkeyCap hk={MixBox列出当前文档与子文档中没被引用的文档} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
-                {MixBox将选择文字加入文档的别名.langText()}<strong>{MixBox将选择文字加入文档的别名.w()}</strong>
+                {MixBox将选择文字加入文档的别名.langText()}<HotkeyCap hk={MixBox将选择文字加入文档的别名} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
-                {MixBox复制文档为纯文本.langText()}<strong>{MixBox复制文档为纯文本.w()}</strong>
+                {MixBox复制文档为纯文本.langText()}<HotkeyCap hk={MixBox复制文档为纯文本} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$storeFillMemoMenu} />
-                {tomatoI18n.menu添加右键菜单}: {MixBox锁定内容.langText()}<strong>{MixBox锁定内容.w()}</strong>
+                {tomatoI18n.menu添加右键菜单}: {MixBox锁定内容.langText()}<HotkeyCap hk={MixBox锁定内容} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
 
             <div>
@@ -208,16 +209,12 @@
 
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$mixBoxPinyin} />
-                {tomatoI18n.menu添加右键菜单}: {MixBox将选择文字与其拼音加入文档的别名.langText()}<strong
-                    >{MixBox将选择文字与其拼音加入文档的别名.w()}</strong
-                >
+                {tomatoI18n.menu添加右键菜单}: {MixBox将选择文字与其拼音加入文档的别名.langText()}<HotkeyCap hk={MixBox将选择文字与其拼音加入文档的别名} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
 
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$storeOpenRefsMenu} />
-                {tomatoI18n.menu添加右键菜单}: {MixBox定位所有引用Menu.langText()}<strong
-                    >{MixBox定位所有引用Menu.w()}</strong
-                >
+                {tomatoI18n.menu添加右键菜单}: {MixBox定位所有引用Menu.langText()}<HotkeyCap hk={MixBox定位所有引用Menu} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
 
             <div class:codeNotValid>
@@ -233,9 +230,7 @@
 
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$storeCopyStdMD} />
-                {tomatoI18n.menu添加右键菜单}: {MixBox复制文档为标准Markdown.langText()}<strong
-                    >{MixBox复制文档为标准Markdown.w()}</strong
-                >
+                {tomatoI18n.menu添加右键菜单}: {MixBox复制文档为标准Markdown.langText()}<HotkeyCap hk={MixBox复制文档为标准Markdown} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
         {/if}
     </div>
@@ -271,15 +266,11 @@
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$tag2RefSearchRef} />
-                {tomatoI18n.menu添加右键菜单}:{Tag2RefBox模糊查找引用Ref.langText()}<strong
-                    >{Tag2RefBox模糊查找引用Ref.w()}</strong
-                >
+                {tomatoI18n.menu添加右键菜单}:{Tag2RefBox模糊查找引用Ref.langText()}<HotkeyCap hk={Tag2RefBox模糊查找引用Ref} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$tag2RefSearchLnk} />
-                {tomatoI18n.menu添加右键菜单}:{Tag2RefBox模糊查找引用Lnk.langText()}<strong
-                    >{Tag2RefBox模糊查找引用Lnk.w()}</strong
-                >
+                {tomatoI18n.menu添加右键菜单}:{Tag2RefBox模糊查找引用Lnk.langText()}<HotkeyCap hk={Tag2RefBox模糊查找引用Lnk} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
         {/if}
     </div>
@@ -297,11 +288,11 @@
         {#if $listBoxCheckbox}
             <div>
                 {ListBox取消勾选当前文档所有已完成的todo任务.langText()}
-                <strong>{ListBox取消勾选当前文档所有已完成的todo任务.w()}</strong>
+                <HotkeyCap hk={ListBox取消勾选当前文档所有已完成的todo任务} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {ListBox删除当前文档所有已完成的todo任务.langText()}
-                <strong>{ListBox删除当前文档所有已完成的todo任务.w()}</strong>
+                <HotkeyCap hk={ListBox删除当前文档所有已完成的todo任务} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$dont_break_list} />
@@ -313,7 +304,7 @@
     <div class="settingBox">
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$aiBoxCheckbox} />
-            {AIBoxHotkey.langText()}<strong>{AIBoxHotkey.w()}</strong>
+            {AIBoxHotkey.langText()}<HotkeyCap hk={AIBoxHotkey} pluginName="sy-tomato-plugin"></HotkeyCap>
             <strong>
                 <a href="https://awx9773btw.feishu.cn/docx/Kbuvd9lbhoDWTCxggz9cxQgJnAH?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
@@ -332,7 +323,7 @@
     <div class="settingBox">
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$cozeSearchBoxCheckbox} />
-            coze{tomatoI18n.知识库问答}<strong>{CozeSearchBoxHotkey.w()}</strong>
+            coze{tomatoI18n.知识库问答}<HotkeyCap hk={CozeSearchBoxHotkey} pluginName="sy-tomato-plugin"></HotkeyCap>
             <strong>
                 <a href="https://awx9773btw.feishu.cn/docx/ENZfd6zfKoTZPqxZxf2c4uWVnow?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a
@@ -384,17 +375,17 @@
 
             <div>
                 {tomatoI18n.创建快速笔记}
-                <strong>{FastNoteBox创建快速笔记.w()}</strong>
+                <HotkeyCap hk={FastNoteBox创建快速笔记} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
 
             <div>
                 {tomatoI18n.打开最后一个笔记}
-                <strong>{FastNoteBox打开最后一个笔记.w()}</strong>
+                <HotkeyCap hk={FastNoteBox打开最后一个笔记} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
 
             <div class:codeNotValid>
                 {FastNoteBox草稿切换.langText()}
-                <strong>{FastNoteBox草稿切换.w()}</strong><TomatoVIP {codeValid}></TomatoVIP>
+                <HotkeyCap hk={FastNoteBox草稿切换} pluginName="sy-tomato-plugin"></HotkeyCap><TomatoVIP {codeValid}></TomatoVIP>
             </div>
 
             <div>

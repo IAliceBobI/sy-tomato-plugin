@@ -147,23 +147,6 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
 
-    public get 点击打开商品() {
-        switch (this.lang) {
-            case "zh_CN": return "点击打开商品";
-            case "es_ES": return "Haga clic para abrir el producto";
-            case "fr_FR": return "Cliquez pour ouvrir le produit";
-            case "ja_JP": return "商品を開くをクリック";
-            case "zh_CHT": return "點擊打開商品";
-            case "it_IT": return "Clicca per aprire il prodotto";
-            case "de_DE": return "Klicken Sie, um das Produkt zu öffnen";
-            case "he_IL": return "לחץ כדי לפתוח את המוצר";
-            case "ru_RU": return "Нажмите, чтобы открыть товар";
-            case "pl_PL": return "Kliknij, aby otworzyć produkt";
-            case "en_US":
-            default: return "Click to open the product";
-        }
-    }
-
     public get 摘抄后加入阅读点() {
         switch (this.lang) {
             case "zh_CN": return "摘抄后，加入阅读点（需要番茄工具箱插件）";
@@ -586,23 +569,6 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
             case "en_US":
             default:
                 return "Only associate asterisk* references";
-        }
-    }
-
-    public get 隐藏vip图标() {
-        switch (this.lang) {
-            case "zh_CN": return "隐藏 VIP 图标";
-            case "es_ES": return "Ocultar icono VIP";
-            case "fr_FR": return "Masquer l'icône VIP";
-            case "ja_JP": return "VIPアイコンを非表示";
-            case "zh_CHT": return "隱藏 VIP 圖標";
-            case "it_IT": return "Nascondi icona VIP";
-            case "de_DE": return "VIP-Symbol ausblenden";
-            case "he_IL": return "הסתר סמל VIP";
-            case "ru_RU": return "Скрыть значок VIP";
-            case "pl_PL": return "Ukryj ikonę VIP";
-            case "en_US":
-            default: return "Hide VIP icon";
         }
     }
 

@@ -35,6 +35,7 @@
     } from "./CardPriorityBox";
     import { CpBox批量删除大量连续内容块, CpBox批量复制大量连续内容块, CpBox批量移动大量连续内容块 } from "./CpBox";
     import { tomatoI18n } from "./tomatoI18n";
+    import HotkeyCap from "./HotkeyCap.svelte";
     import { helpOpen } from "./helpOpen";
 
     let { codeValid }: { codeValid: boolean } = $props();
@@ -58,19 +59,17 @@
             </div>
             <div>
                 {tomatoI18n.取消当前文档内所有闪卡}
-                <strong>{CardBox取消当前文档内所有闪卡.w()}</strong>
+                <HotkeyCap hk={CardBox取消当前文档内所有闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {tomatoI18n.清理所有失效的闪卡}
-                <strong>{CardBox清理所有失效的闪卡.w()}</strong>
+                <HotkeyCap hk={CardBox清理所有失效的闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
 
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxSuperCard} />
                 {tomatoI18n.menu添加右键菜单}:
-                {tomatoI18n.用选中的行创建超级块超级块制卡取消制卡}<strong
-                    >{CardBox用选中的行创建超级块超级块制卡取消制卡.w()}</strong
-                >
+                {tomatoI18n.用选中的行创建超级块超级块制卡取消制卡}<HotkeyCap hk={CardBox用选中的行创建超级块超级块制卡取消制卡} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxCardtab} />
@@ -126,13 +125,13 @@
 
             <div>
                 {tomatoI18n.恢复所有暂停的闪卡}
-                <strong>{CardPriority恢复所有暂停的闪卡.w()}</strong>
+                <HotkeyCap hk={CardPriority恢复所有暂停的闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
 
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardPriorityBoxPostponeCardMenu} />
                 {tomatoI18n.menu添加右键菜单 + "：" + tomatoI18n.推迟闪卡}
-                <strong>{CardPriorityBox推迟闪卡.w()}</strong>
+                <HotkeyCap hk={CardPriorityBox推迟闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
 
             <div class:codeNotValid>
@@ -144,13 +143,13 @@
                     bind:checked={$cardPriorityBoxSpradDelayMenu}
                 />
                 {tomatoI18n.menu添加右键菜单 + "：" + tomatoI18n.分散推迟闪卡}
-                <strong>{CardPriorityBox分散推迟闪卡.w()}</strong><TomatoVIP {codeValid}></TomatoVIP>
+                <HotkeyCap hk={CardPriorityBox分散推迟闪卡} pluginName="sy-tomato-plugin"></HotkeyCap><TomatoVIP {codeValid}></TomatoVIP>
             </div>
 
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardPriorityBoxPriorityMenu} />
                 {tomatoI18n.menu添加右键菜单 + "：" + tomatoI18n.修改文档中闪卡优先级}
-                <strong>{CardPriorityBox修改文档中闪卡优先级.w()}</strong>
+                <HotkeyCap hk={CardPriorityBox修改文档中闪卡优先级} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
 
             <div class:codeNotValid>
@@ -203,7 +202,7 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$deleteBlocksMenu} />
                 {tomatoI18n.menu添加右键菜单 + "：" + CpBox批量删除大量连续内容块.langText()}
-                <strong>{CpBox批量删除大量连续内容块.w()}</strong>
+                <HotkeyCap hk={CpBox批量删除大量连续内容块} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
 
             <div class="kbd">
@@ -211,11 +210,11 @@
             </div>
             <div>
                 {tomatoI18n.批量移动大量连续内容块}
-                <strong>{CpBox批量移动大量连续内容块.w()}</strong>
+                <HotkeyCap hk={CpBox批量移动大量连续内容块} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {tomatoI18n.批量复制大量连续内容块}
-                <strong>{CpBox批量复制大量连续内容块.w()}</strong>
+                <HotkeyCap hk={CpBox批量复制大量连续内容块} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div class="kbd">
                 {@html tomatoI18n.批量移动复制帮助}

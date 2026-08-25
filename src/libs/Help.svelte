@@ -1,6 +1,8 @@
 <script lang="ts">
     interface Props {
-        doc: { title: string; body: string; url: string };
+        // hint/linkText 可选（2026-08 recite 复用时引入：recite 无飞书文档，完整帮助指向
+        // GitHub README）；缺省保持飞书口径，tomato/progressive 传参不变行为不变
+        doc: { title: string; body: string; url: string; hint?: string; linkText?: string };
     }
 
     let { doc }: Props = $props();
@@ -106,12 +108,12 @@
 
 <div class="help-wrap">
     <div class="help-top">
-        <span class="help-top__hint">弹窗为文字速览，截图与视频请打开飞书文档查看</span>
+        <span class="help-top__hint">{doc.hint ?? "弹窗为文字速览，截图与视频请打开飞书文档查看"}</span>
         <a
             class="b3-button b3-button--outline"
             href={doc.url}
             target="_blank"
-            rel="noreferrer">📖 飞书完整帮助</a
+            rel="noreferrer">{doc.linkText ?? "📖 飞书完整帮助"}</a
         >
     </div>
     <div class="help-body">{@html md2html(doc.body)}</div>

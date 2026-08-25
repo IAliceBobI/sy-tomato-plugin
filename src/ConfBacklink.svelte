@@ -59,6 +59,7 @@
         ToolBarBox间隔重复,
     } from "./ToolbarBox";
     import { tomatoI18n } from "./tomatoI18n";
+    import HotkeyCap from "./HotkeyCap.svelte";
     import { helpOpen } from "./helpOpen";
 
     const ICONS_SIZE = 14;
@@ -83,7 +84,7 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$bk启用禁用文档的底部反链menu} />
                 {tomatoI18n.menu添加右键菜单}:
-                {BK启用禁用文档的底部反链.langText()}<strong>{BK启用禁用文档的底部反链.w()}</strong>
+                {BK启用禁用文档的底部反链.langText()}<HotkeyCap hk={BK启用禁用文档的底部反链} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="number" min="0" class="b3-text-field" bind:value={$back_link_max_size} />
@@ -219,24 +220,22 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$toolbarspacerepeat} />
                 {tomatoI18n.topbar添加图标}：
-                {ToolBarBox间隔重复.langText()}<strong>{ToolBarBox间隔重复.w()}</strong>
+                {ToolBarBox间隔重复.langText()}<HotkeyCap hk={ToolBarBox间隔重复} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$toolbarrefreshVr} />
                 {tomatoI18n.topbar添加图标}：
-                {ToolBarBox刷新虚拟引用.langText()}<strong>{ToolBarBox刷新虚拟引用.w()}</strong>
+                {ToolBarBox刷新虚拟引用.langText()}<HotkeyCap hk={ToolBarBox刷新虚拟引用} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$toolbarlocatedoc} />
                 {tomatoI18n.topbar添加图标}：
-                {ToolBarBox突出定位文档.langText()}<strong>{ToolBarBox突出定位文档.w()}</strong>
+                {ToolBarBox突出定位文档.langText()}<HotkeyCap hk={ToolBarBox突出定位文档} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$toolbarTidy} />
                 {tomatoI18n.topbar添加图标}：
-                {ToolBarBox整理assets下的图片视频音频.langText()}<strong
-                    >{ToolBarBox整理assets下的图片视频音频.w()}</strong
-                >
+                {ToolBarBox整理assets下的图片视频音频.langText()}<HotkeyCap hk={ToolBarBox整理assets下的图片视频音频} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <textarea
@@ -274,26 +273,20 @@
         </div>
         {#if $readingPointBoxCheckbox}
             <div>
-                {ReadingPointBox查看阅读点.langText()}<strong>{ReadingPointBox查看阅读点.w()}</strong>
+                {ReadingPointBox查看阅读点.langText()}<HotkeyCap hk={ReadingPointBox查看阅读点} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$readingAddRPmenu} />
-                {tomatoI18n.menu添加右键菜单}:{ReadingPointBox设置阅读点.langText()}<strong
-                    >{ReadingPointBox设置阅读点.w()}</strong
-                >
+                {tomatoI18n.menu添加右键菜单}:{ReadingPointBox设置阅读点.langText()}<HotkeyCap hk={ReadingPointBox设置阅读点} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$readingAddJumpMenu} />
-                {tomatoI18n.menu添加右键菜单}:{ReadingPointBox跳到当前文档的阅读点.langText()}<strong
-                    >{ReadingPointBox跳到当前文档的阅读点.w()}</strong
-                >
+                {tomatoI18n.menu添加右键菜单}:{ReadingPointBox跳到当前文档的阅读点.langText()}<HotkeyCap hk={ReadingPointBox跳到当前文档的阅读点} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$readingAddDeleteMenu} />
-                {tomatoI18n.menu添加右键菜单}:{ReadingPointBox删除当前文档的阅读点.langText()}<strong
-                    >{ReadingPointBox删除当前文档的阅读点.w()}</strong
-                >
+                {tomatoI18n.menu添加右键菜单}:{ReadingPointBox删除当前文档的阅读点.langText()}<HotkeyCap hk={ReadingPointBox删除当前文档的阅读点} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$readingDialog} />
@@ -336,7 +329,7 @@
     <div class="settingBox">
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$imgBoxCheckbox} />
-            {tomatoI18n.复制为图片}<strong>{ImgBoxHotKey.w()}</strong>
+            {tomatoI18n.复制为图片}<HotkeyCap hk={ImgBoxHotKey} pluginName="sy-tomato-plugin"></HotkeyCap>
             <strong>
                 <a href="https://awx9773btw.feishu.cn/docx/QGx5d437SoArUyxZ6c3cqhmfnnb?from=from_copylink" onclick={helpOpen}>
                     {tomatoI18n.帮助}</a

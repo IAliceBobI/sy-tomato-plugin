@@ -431,24 +431,6 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
             default: return "New users can contact customer service to get a 7 - day trial activation code";
         }
     }
-
-    public 广告语(x: number) {
-        switch (this.lang) {
-            case "zh_CN": return `${x} = 终身全能助手！一次付费，永久畅享，离线可用。持续更新实用功能。每天不足一分钱，却能为效率加速、为生活减负，每一次使用都在兑现超值回报，这笔投资，稳赚不亏！`;
-            case "es_ES": return `${x} = ¡Asistente todo en uno de por vida! Paga una vez y disfruta para siempre. Disponible sin conexión y con funciones prácticas que se actualizan constantemente. Menos de un céntimo al día, pero puede acelerar la productividad y aliviar la carga de la vida. Cada uso es una recompensa excepcional. Esta inversión es una ganancia segura.`;
-            case "fr_FR": return `${x} = Assistant tout-en-un à vie ! Payer une fois, profiter éternellement. Utilisable hors ligne avec des fonctions pratiques mises à jour en permanence. Moins d'un centime par jour, mais cela peut accélérer l'efficacité et alléger la vie. Chaque utilisation concrétise un retour sur investissement exceptionnel. Cet investissement est gagnant.`;
-            case "ja_JP": return `${x} = 生涯使える万能アシスタント！一度の支払いで、永久に利用できます。オフラインでも利用可能で、常に更新される便利な機能が充実。1日1銭もかからず、効率を上げ、生活の負担を軽減します。使うたびに超価値が実感でき、この投資は間違いなく儲かります！`;
-            case "zh_CHT": return `${x} = 終身全能助手！一次付費，永久暢享，離線可用。持續更新實用功能。每天不足一分錢，卻能為效率加速、為生活減負，每一次使用都在兌現超值回報，這筆投資，穩賺不虧！`;
-            case "it_IT": return `${x} = Assistente tutto-in-uno per tutta la vita! Paga una volta e goditi per sempre. Disponibile offline con funzioni pratiche costantemente aggiornate. Meno di un centesimo al giorno, ma puoi aumentare l'efficienza e alleggerire la vita. Ogni utilizzo ti offre un ottimo ritorno sull'investimento. Questo investimento è una certezza.`;
-            case "de_DE": return `${x} = All-in-One-Assistent fürs Leben! Zahle einmal und genieße dauerhaft. Nutbar offline mit praktischen Funktionen, die ständig aktualisiert werden. Weniger als ein Cent pro Tag, aber es kann die Effizienz steigern und die Lebensbelastung verringern. Bei jedem Gebrauch erlebst du einen überragenden Mehrwert. Diese Investition lohnt sich garantiert.`;
-            case "he_IL": return `${x} = עוזר חכם לכל החיים! תשלום יחיד, הנאה מוגבלת לעולם. זמין ללא חיבור לרשת ופונקציות שימושיות מתעדכנות ללא הרף. פחות ממלוא אגורה ליום, אבל זה יכול להאיץ את היעילות ולהקל על החיים. בכל שימוש אתה מנצל תמורה מעל בסיס. השקעה זו היא רווח בטוח.`;
-            case "ru_RU": return `${x} = Вечный всесторонний помощник! Один раз заплатите и наслаждайтесь навсегда. Доступен без подключения к интернету с практичными функциями, которые постоянно обновляются. Меньше одного копейки в день, но это может ускорить работу и облегчить жизнь. Каждый раз, когда вы используете его, вы получаете огромную выгоду. Эта инвестиция точно окупится!`;
-            case "pl_PL": return `${x} = Wszechstronny asystent na całe życie! Jednorazowa płatność, wieczne korzystanie. Dostępny offline z praktycznymi funkcjami, które są stale aktualizowane. Mniej niż jeden grosz dziennie, ale to może przyspieszyć wydajność i ułatwić życie. Każde użycie to wyjątkowa wartość zwrotna. Ta inwestycja to pewna wygrana.`;
-            case "en_US":
-            default: return `${x} = All-in-one assistant for life! Pay once and enjoy forever. Available offline with practical functions that are constantly updated. Less than a cent a day, but it can speed up efficiency and relieve the burden of life. Every use delivers exceptional value. This investment is a sure win.`;
-        }
-    }
-
     public get 合并为单个文件() {
         switch (this.lang) {
             case "zh_CN": return "合并为单个文件VIP";

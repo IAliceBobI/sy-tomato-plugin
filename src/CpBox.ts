@@ -26,7 +26,7 @@ class CpBox {
                 if (lock) {
                     await this.deleteBlocks();
                 } else {
-                    siyuan.pushMsg(this.plugin.i18n.wait4finish);
+                    siyuan.pushMsg(tomatoI18n.请等待上个操作完成);
                 }
             });
         };
@@ -47,7 +47,7 @@ class CpBox {
                     if (lock) {
                         await this.moveBlocks(false);
                     } else {
-                        siyuan.pushMsg(this.plugin.i18n.wait4finish);
+                        siyuan.pushMsg(tomatoI18n.请等待上个操作完成);
                     }
                 });
             },
@@ -61,7 +61,7 @@ class CpBox {
                     if (lock) {
                         await this.moveBlocks(true);
                     } else {
-                        siyuan.pushMsg(this.plugin.i18n.wait4finish);
+                        siyuan.pushMsg(tomatoI18n.请等待上个操作完成);
                     }
                 });
             },

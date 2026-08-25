@@ -197,6 +197,9 @@
 
     // 拖动相关函数 - 使用 Pointer Events
     function handleDragStart(event: MouseEvent | TouchEvent | PointerEvent) {
+        // 防重入：grabber 同时绑 pointerdown/mousedown/touchstart，桌面端一次按下
+        // 会触发两次——第二次直接返回，避免拆掉已绑监听并丢失指针捕获
+        if (isDragging) return;
         if (!draggable || !dialogElement || isResizing) return;
 
         event.stopPropagation();
@@ -248,8 +251,9 @@
         const dialogHeight = dialogElement.offsetHeight;
         const dialogWidth = dialogElement.offsetWidth;
 
-        const maxTop = viewportHeight - dialogHeight;
-        const maxLeft = viewportWidth - dialogWidth;
+        // Math.max(0,..)：视口小于对话框时退化为 0，避免负区间把位置锁死（手机竖屏/小窗口必现）
+        const maxTop = Math.max(0, viewportHeight - dialogHeight);
+        const maxLeft = Math.max(0, viewportWidth - dialogWidth);
 
         const constrainedTop = Math.max(0, Math.min(maxTop, newTop));
         const constrainedLeft = Math.max(0, Math.min(maxLeft, newLeft));
@@ -278,6 +282,8 @@
 
     // 调整大小相关函数 - 使用 Pointer Events
     function handleResizeStart(event: MouseEvent | TouchEvent | PointerEvent, direction: string) {
+        // 防重入：同 handleDragStart，8 向手柄的三重绑定下第二次触发直接返回
+        if (isResizing) return;
         if (!resizable || !dialogElement || isDragging) return;
 
         event.stopPropagation();
@@ -486,9 +492,9 @@
         let dialogWidth = Math.max(minWidth, w);
         let dialogHeight = Math.max(minHeight, h);
 
-        // 限制在视口内
-        const maxLeft = window.innerWidth - dialogWidth;
-        const maxTop = window.innerHeight - dialogHeight;
+        // 限制在视口内（Math.max(0,..)：视口小于对话框时退化为 0，避免负区间把位置锁死）
+        const maxLeft = Math.max(0, window.innerWidth - dialogWidth);
+        const maxTop = Math.max(0, window.innerHeight - dialogHeight);
 
         left = Math.max(0, Math.min(maxLeft, left));
         top = Math.max(0, Math.min(maxTop, top));

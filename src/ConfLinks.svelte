@@ -56,6 +56,7 @@
         DailyNoteBox移动内容到dailynote,
     } from "./DailyNoteBox";
     import { tomatoI18n } from "./tomatoI18n";
+    import HotkeyCap from "./HotkeyCap.svelte";
     import { helpOpen } from "./helpOpen";
 
     let { codeValid }: { codeValid: boolean } = $props();
@@ -83,15 +84,15 @@
         {#if $linkBoxSyncBlock}
             <div>
                 {LinkBox查看所有同步位置.langText()}
-                <strong> {LinkBox查看所有同步位置.w()}</strong>
+                <HotkeyCap hk={LinkBox查看所有同步位置} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {LinkBox同步块选择.langText()}
-                <strong> {LinkBox同步块选择.w()}</strong>
+                <HotkeyCap hk={LinkBox同步块选择} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {LinkBox同步块创建.langText()}
-                <strong> {LinkBox同步块创建.w()}</strong>
+                <HotkeyCap hk={LinkBox同步块创建} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div class:codeNotValid>
                 <input
@@ -163,7 +164,7 @@
         {#if $linkBoxCheckbox}
             <div class="softBox">
                 <div>
-                    {LinkBox链接到块底部.langText()}<strong>{LinkBox链接到块底部.w()}</strong>
+                    {LinkBox链接到块底部.langText()}<HotkeyCap hk={LinkBox链接到块底部} pluginName="sy-tomato-plugin"></HotkeyCap>
                 </div>
             </div>
             <div class="softBox">
@@ -171,7 +172,7 @@
                 <div>
                     <input type="checkbox" class="b3-switch" bind:checked={$linkBoxBilinkMenu} />
                     {tomatoI18n.menu添加右键菜单}: {LinkBoxbilink.langText()}
-                    <strong>{LinkBoxbilink.w()}</strong>
+                    <HotkeyCap hk={LinkBoxbilink} pluginName="sy-tomato-plugin"></HotkeyCap>
                 </div>
             </div>
             <div class="softBox">
@@ -180,42 +181,42 @@
                     {tomatoI18n.给链接加文字}
                 </div>
                 <div>
-                    {LinkBox双向互链选择块.langText()}<strong>{LinkBox双向互链选择块.w()}</strong>
+                    {LinkBox双向互链选择块.langText()}<HotkeyCap hk={LinkBox双向互链选择块} pluginName="sy-tomato-plugin"></HotkeyCap>
                 </div>
                 <div>
-                    {LinkBox双向互链创建往返链.langText()}<strong>{LinkBox双向互链创建往返链.w()}</strong>
+                    {LinkBox双向互链创建往返链.langText()}<HotkeyCap hk={LinkBox双向互链创建往返链} pluginName="sy-tomato-plugin"></HotkeyCap>
                 </div>
                 <div>
-                    {LinkBox修复双向链接.langText()}<strong>{LinkBox修复双向链接.w()}</strong>
+                    {LinkBox修复双向链接.langText()}<HotkeyCap hk={LinkBox修复双向链接} pluginName="sy-tomato-plugin"></HotkeyCap>
                 </div>
                 <div>
-                    {LinkBox删除双向链接.langText()}<strong>{LinkBox删除双向链接.w()}</strong>
+                    {LinkBox删除双向链接.langText()}<HotkeyCap hk={LinkBox删除双向链接} pluginName="sy-tomato-plugin"></HotkeyCap>
                 </div>
             </div>
             <div class="softBox">
                 <div class:codeNotValid>
-                    {LinkBox嵌入互链选择.langText()}<strong>{LinkBox嵌入互链选择.w()}</strong><TomatoVIP {codeValid}
+                    {LinkBox嵌入互链选择.langText()}<HotkeyCap hk={LinkBox嵌入互链选择} pluginName="sy-tomato-plugin"></HotkeyCap><TomatoVIP {codeValid}
                     ></TomatoVIP>
                 </div>
                 <div class:codeNotValid>
-                    {LinkBox嵌入互链创建.langText()}<strong>{LinkBox嵌入互链创建.w()}</strong><TomatoVIP {codeValid}
+                    {LinkBox嵌入互链创建.langText()}<HotkeyCap hk={LinkBox嵌入互链创建} pluginName="sy-tomato-plugin"></HotkeyCap><TomatoVIP {codeValid}
                     ></TomatoVIP>
                 </div>
             </div>
             <div class="softBox">
                 <div>
-                    {LinkBox互相插入引用于下方选择.langText()}<strong>{LinkBox互相插入引用于下方选择.w()}</strong>
+                    {LinkBox互相插入引用于下方选择.langText()}<HotkeyCap hk={LinkBox互相插入引用于下方选择} pluginName="sy-tomato-plugin"></HotkeyCap>
                 </div>
                 <div>
-                    {LinkBox互相插入引用于下方创建.langText()}<strong>{LinkBox互相插入引用于下方创建.w()}</strong>
+                    {LinkBox互相插入引用于下方创建.langText()}<HotkeyCap hk={LinkBox互相插入引用于下方创建} pluginName="sy-tomato-plugin"></HotkeyCap>
                 </div>
             </div>
             <div class="softBox">
                 <div>
-                    {LinkBox关联两个块选择.langText()}<strong>{LinkBox关联两个块选择.w()}</strong>
+                    {LinkBox关联两个块选择.langText()}<HotkeyCap hk={LinkBox关联两个块选择} pluginName="sy-tomato-plugin"></HotkeyCap>
                 </div>
                 <div>
-                    {LinkBox关联两个块创建.langText()}<strong>{LinkBox关联两个块创建.w()}</strong>
+                    {LinkBox关联两个块创建.langText()}<HotkeyCap hk={LinkBox关联两个块创建} pluginName="sy-tomato-plugin"></HotkeyCap>
                 </div>
                 <div>
                     <input type="checkbox" class="b3-switch" bind:checked={$linkBoxUseLnkOrRef} />
@@ -241,18 +242,18 @@
                 <input type="checkbox" class="b3-switch" bind:checked={$dailyNotetopbarleft} />
                 {tomatoI18n.topbar添加图标}:
                 {DailyNoteBox上一个日志.langText()}
-                <strong>{DailyNoteBox上一个日志.w()}</strong>
+                <HotkeyCap hk={DailyNoteBox上一个日志} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$dailyNotetopbarright} />
                 {tomatoI18n.topbar添加图标}:
                 {DailyNoteBox下一个日志.langText()}
-                <strong>{DailyNoteBox下一个日志.w()}</strong>
+                <HotkeyCap hk={DailyNoteBox下一个日志} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteGoToBottomMenu} />
                 {tomatoI18n.menu添加右键菜单}： {DailyNoteBox移动内容到dailynote.langText()}
-                <strong>{DailyNoteBox移动内容到dailynote.w()}</strong>
+                <HotkeyCap hk={DailyNoteBox移动内容到dailynote} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteMoveLeaveLnk} />
@@ -280,12 +281,12 @@
 
             <div>
                 {DailyNoteBox复制到dailynote.langText()}
-                <strong>{DailyNoteBox复制到dailynote.w()}</strong>
+                <HotkeyCap hk={DailyNoteBox复制到dailynote} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             {#if !$dailyNoteCopySimple}
                 <div>
                     {DailyNoteBox复制到dailynoteNewFile.langText()}
-                    <strong>{DailyNoteBox复制到dailynoteNewFile.w()}</strong>
+                    <HotkeyCap hk={DailyNoteBox复制到dailynoteNewFile} pluginName="sy-tomato-plugin"></HotkeyCap>
                 </div>
             {/if}
             <div>

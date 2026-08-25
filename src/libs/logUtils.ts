@@ -10,14 +10,16 @@ function instanceLabel(): string {
     return navigator?.userAgent?.includes("Electron") ? "desktop" : "browser";
 }
 
-export function debugLog(tag: string, msg: string): void {
+// app：stream label 分流（LinkBox 既有查询用默认 "linkbox"；跨插件复用时传自己的
+// 标识，如 sy-my-plugin Sign 面板传 "sign"，LogQL 按此分流互不混流）
+export function debugLog(tag: string, msg: string, app: string = "linkbox"): void {
     if (!isMe()) return;
     const line = `[${tag}] ${msg}`;
     console.debug(`[tomato] ${line}`);
     const ts = `${Date.now()}000000`;
     const body = JSON.stringify({
         streams: [{
-            stream: { job: "tomato-plugin", app: "linkbox", instance: instanceLabel() },
+            stream: { job: "tomato-plugin", app, instance: instanceLabel() },
             values: [[ts, line]],
         }],
     });

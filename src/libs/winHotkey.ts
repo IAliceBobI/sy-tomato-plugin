@@ -25,7 +25,8 @@ function getAllHotkeys(obj: any) {
     }
 }
 
-function toWin(k: string) {
+// 键帽/命令面板显示用的平台化（win 显示 Ctrl+X 形态）；HotkeyCap 就地编辑复用（2026-08-24 导出）
+export function toWin(k: string) {
     if (events.isMac) {
         return k
     } else {

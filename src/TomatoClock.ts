@@ -156,14 +156,14 @@ class TomatoClock {
     }
 
     private async showRemainingTime() {
-        const name = this.plugin.i18n.name;
+        const name = tomatoI18n.番茄钟;
         const { minutes, seconds } = formatDuration(this.getRemainingTime());
         if (minutes == 0 && seconds == 0) await siyuan.pushMsg(`${name}🍅` + tomatoI18n.未开始计时);
         else await siyuan.pushMsg(tomatoI18n.剩余时间(name, minutes, seconds));
     }
 
     private addTomatoPeeker() {
-        const name = this.plugin.i18n.name;
+        const name = tomatoI18n.番茄钟;
         const statusIconTemp = document.createElement("template");
         statusIconTemp.innerHTML = `<div class="toolbar__item ariaLabel" aria-label="${name}🍅${tomatoI18n.查看剩余时间}"><svg><use xlink:href="#iconEye"></use></svg></div>`;
         statusIconTemp.content.firstElementChild.addEventListener("click", this.showRemainingTime.bind(this));
@@ -177,10 +177,10 @@ class TomatoClock {
         const icon = `iconTomato${minute}`;
         addIcon(this.plugin, minute);
 
-        const name = this.plugin.i18n.name;
-        let label = `${name}🍅${minute}${this.plugin.i18n.takeARestAfterMinutes}`;
+        const name = tomatoI18n.番茄钟;
+        let label = `${name}🍅${minute}${tomatoI18n.分钟后休息}`;
         if (minute === 0) {
-            label = `${name}🍅${this.plugin.i18n.cancelCountdown}`;
+            label = `${name}🍅${tomatoI18n.取消计时}`;
         }
         const statusIconTemp = document.createElement("template");
         statusIconTemp.innerHTML = `<div class="toolbar__item ariaLabel" aria-label="${label}"><svg><use xlink:href="#${icon}"></use></svg></div>`;
@@ -188,12 +188,12 @@ class TomatoClock {
             clearTimeout(this.timeoutID);
             if (this.lastDelayMinute > 0) {
                 await this.showRemainingTime();
-                await siyuan.pushMsg(`${name}🍅${this.plugin.i18n.cancelLastCountdown}: ${this.lastDelayMinute}m`, 5000);
+                await siyuan.pushMsg(`${name}🍅${tomatoI18n.取消上次的计时}: ${this.lastDelayMinute}m`, 5000);
             }
             this.lastDelayMinute = minute;
             this.lastStartTime = Date.now();
             if (minute > 0) {
-                await siyuan.pushMsg(`${name}🍅${this.plugin.i18n.startCountdown}: ${minute}m`, 5000);
+                await siyuan.pushMsg(`${name}🍅${tomatoI18n.开始计时}: ${minute}m`, 5000);
                 this.plugin.saveData(STORAGE_TOMATO_TIME, { minute, startTime: this.lastStartTime });
                 this.timeoutID = setTimeout(async () => {
                     await this.showTimeoutDialog(minute);
@@ -220,7 +220,7 @@ class TomatoClock {
                 vedioID = await getRandVedioID(rows[0].id)
             }
         }
-        const title = `${this.plugin.i18n.name}🍅${minute} ${this.plugin.i18n.hasWorkedMinutes}`
+        const title = `${tomatoI18n.番茄钟}🍅${minute} ${tomatoI18n.分钟已到}`
         if (events.isBrowser || tomato_clocks_force_dialog.get()) {
             const dm = new DestroyManager();
             const id = newID();

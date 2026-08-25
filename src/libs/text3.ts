@@ -375,6 +375,23 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
             default: return "Copy"; // 默认返回英语
         }
     }
+    public get 复制失败请手动复制() {
+        // 补充缺失语言。
+        switch (this.lang) {
+            case "zh_CN": return "复制失败，请手动复制: "; // 简体中文
+            case "es_ES": return "Error al copiar, copie manualmente: "; // 西班牙语
+            case "fr_FR": return "Échec de la copie, veuillez copier manuellement : "; // 法语
+            case "ja_JP": return "コピーに失敗しました。手動でコピーしてください: "; // 日语
+            case "zh_CHT": return "複製失敗，請手動複製: "; // 繁体中文
+            case "it_IT": return "Copia non riuscita, copia manualmente: "; // 意大利语
+            case "de_DE": return "Kopieren fehlgeschlagen, bitte manuell kopieren: "; // 德语
+            case "he_IL": return "ההעתקה נכשלה, אנא העתק ידנית: "; // 希伯来语
+            case "ru_RU": return "Не удалось скопировать, скопируйте вручную: "; // 俄语
+            case "pl_PL": return "Kopiowanie nie powiodło się, skopiuj ręcznie: "; // 波兰语
+            case "en_US": return "Copy failed, please copy manually: "; // 英语（美国）
+            default: return "Copy failed, please copy manually: "; // 默认返回英语
+        }
+    }
     public get 如果要激活插件请先登录思源本体的账户() {
         // 补充缺失语言。
         switch (this.lang) {
@@ -500,22 +517,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
             default: return "Click to open the store";
         }
     }
-    public get 点击复制按钮进入店铺将复制的内容发给客服() {
-        switch (this.lang) {
-            case "zh_CN": return "点击复制按钮，进入店铺，将复制的内容发给客服";
-            case "es_ES": return "Haga clic en el botón de copiar, entre en la tienda y envíe el contenido copiado al servicio al cliente";
-            case "fr_FR": return "Cliquez sur le bouton de copie, entrez dans le magasin et envoyez le contenu copié au service client";
-            case "ja_JP": return "コピーのボタンをクリックして、店舗に入り、コピーした内容をカスタマーサービスに送信します";
-            case "zh_CHT": return "點擊複製按鈕，進入店鋪，將複製的內容發給客服";
-            case "it_IT": return "Fai clic sul pulsante di copia, entra nel negozio e invia il contenuto copiato al servizio clienti";
-            case "de_DE": return "Klicken Sie auf die Kopierschaltfläche, gehen Sie in den Laden und senden Sie den kopierten Inhalt an den Kundendienst";
-            case "he_IL": return "לחץ על כפתור העתק, היכנס לחנות ושלח את התוכן שהועתק למשתמש שירות לקוחות";
-            case "ru_RU": return "Нажмите кнопку копирования, зайдите в магазин и отправьте скопированное содержимое в службу поддержки";
-            case "pl_PL": return "Kliknij przycisk kopiowania, wejdź do sklepu i wyślij skopiowaną zawartość do obsługi klienta";
-            case "en_US":
-            default: return "Click the copy button, enter the store, and send the copied content to customer service";
-        }
-    }
     public get 淘宝店二维码() {
         switch (this.lang) {
             case "zh_CN": return "淘宝店二维码";
@@ -580,22 +581,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
             default: return "Lifetime";
         }
     }
-    public get 购买番茄工具箱VIP版() {
-        switch (this.lang) {
-            case "zh_CN": return "购买番茄工具箱VIP版";
-            case "es_ES": return "Comprar la versión VIP de Tomato Toolbox";
-            case "fr_FR": return "Acheter la version VIP de Tomato Toolbox";
-            case "ja_JP": return "トマトツールボックスVIP版を購入";
-            case "zh_CHT": return "購買番茄工具箱VIP版";
-            case "it_IT": return "Acquista la versione VIP di Tomato Toolbox";
-            case "de_DE": return "Kaufen Sie die VIP-Version von Tomato Toolbox";
-            case "he_IL": return "קנה את גרסת ה-VIP של תיבת הכלים טומטו";
-            case "ru_RU": return "Купить VIP-версию Tomato Toolbox";
-            case "pl_PL": return "Kup wersję VIP Tomato Toolbox";
-            case "en_US":
-            default: return "Purchase Tomato Toolbox VIP Edition";
-        }
-    }
     public get 番茄工具箱() {
         switch (this.lang) {
             case "zh_CN": return "番茄工具箱";
@@ -626,22 +611,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
             case "pl_PL": return "Progresywne uczenie się";
             case "en_US": return "Progressive Learning";
             default: return "Progressive Learning";
-        }
-    }
-    public get 购买渐进学习VIP版() {
-        switch (this.lang) {
-            case "zh_CN": return "购买渐进学习VIP版";
-            case "es_ES": return "Comprar la versión VIP de aprendizaje progresivo";
-            case "fr_FR": return "Acheter la version VIP d'apprentissage progressif";
-            case "ja_JP": return "段階的学習のVIP版を購入する";
-            case "zh_CHT": return "購買漸進學習VIP版";
-            case "it_IT": return "Acquista la versione VIP di apprendimento progressivo";
-            case "de_DE": return "Kaufe die VIP - Version des schrittweisen Lernens";
-            case "he_IL": return "רכישת גרסת VIP של למידה הדרגתית";
-            case "ru_RU": return "Купить VIP - версию постепенного обучения";
-            case "pl_PL": return "Kup wersję VIP progresywnego uczenia się";
-            case "en_US": return "Buy the VIP version of Progressive Learning";
-            default: return "Buy the VIP version of Progressive Learning";
         }
     }
     public get 大部分功能不需要激活() {

@@ -48,7 +48,7 @@ class ReadingPointBox {
         if (readingTopBar.get()) {
             plugin.addTopBar({
                 icon: "iconBookmark",
-                title: plugin.i18n.topBarTitleShowContents,
+                title: tomatoI18n.打开目录页书签页,
                 position: "left",
                 callback: async () => {
                     await this.showContentsWithLock();
@@ -195,7 +195,7 @@ class ReadingPointBox {
                     return;
                 }
             } else {
-                siyuan.pushMsg(this.plugin.i18n.wait4finish);
+                siyuan.pushMsg(tomatoI18n.请等待上个操作完成);
             }
         });
     }
@@ -294,12 +294,12 @@ class ReadingPointBox {
     private async addReadPoint(blockID: string, div: HTMLElement) {
         if (!blockID) blockID = events.lastBlockID; // getCursorElement
         if (!blockID) {
-            siyuan.pushMsg(this.plugin.i18n.clickOneBlockFirst);
+            siyuan.pushMsg(tomatoI18n.请先点击一个内容块);
             return;
         }
         const docInfo = await siyuan.getDocRowByBlockID(blockID)
         if (!docInfo?.id) {
-            siyuan.pushMsg(this.plugin.i18n.docNotFound);
+            siyuan.pushMsg(tomatoI18n.docNotFound);
             return;
         }
         const docID = docInfo.id;

@@ -32,6 +32,7 @@
     import { pushUniq } from "stonev5-utils";
     import { removeFromArr } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
+    import HotkeyCap from "./HotkeyCap.svelte";
     import { PrefixArticles前缀文档树 } from "./PrefixArticles";
     import { helpOpen } from "./helpOpen";
 
@@ -283,7 +284,7 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesMenu} />
                 {tomatoI18n.menu添加右键菜单}: {PrefixArticles前缀文档树.langText()}
-                <strong>{PrefixArticles前缀文档树.w()}</strong>
+                <HotkeyCap hk={PrefixArticles前缀文档树} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input class="b3-text-field" bind:value={$prefixArticlesSoftLimit} />

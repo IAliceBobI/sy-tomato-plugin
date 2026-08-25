@@ -14,6 +14,14 @@
     top: 0;
     background-color: var(--b3-theme-surface);
     z-index: 10;
+    margin: 10px 12px 0;
+    padding: 8px 10px;
+    border: 1px solid var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius);
+}
+/* 搜索框拉满面板宽度自适应（2026-08-24 用户反馈：配置页宽而搜索栏太窄） */
+.tomato-settings-dialog .search-bar input.b3-text-field {
+    width: 100%;
 }
 .tomato-settings-dialog .space {
     margin-right: 10px;
@@ -21,16 +29,44 @@
 .tomato-settings-dialog .spacetop {
     margin-top: 5px;
 }
+/* 分区卡片壳（2026-08-24 现代化改造）：每个功能分区（Conf 组件 / 快捷键区）一张卡，
+ * 替代旧「settingBox 顶部 3px dashed 虚线」分隔——虚线在深色下几乎失效且观感原始 */
+.tomato-settings-dialog .conf-group {
+    margin: 12px 12px 0;
+    padding: 4px;
+    background-color: var(--b3-theme-surface);
+    border: 1px solid var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius);
+}
+/* 卡内设置行：行式布局 + hover 反馈，替代旧虚线分隔的单条盒子 */
 .tomato-settings-dialog .settingBox {
-    margin: 10px;
-    padding: 10px;
-    border-top: 3px dashed var(--b3-theme-on-surface);
+    margin: 2px 4px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    transition: background-color 0.15s;
+}
+.tomato-settings-dialog .settingBox:hover {
+    background-color: var(--b3-list-hover, var(--b3-theme-surface-lighter));
 }
 .tomato-settings-dialog .settingBox > div:not(:last-child) {
     margin-bottom: 5px;
 }
 .tomato-settings-dialog .settingBox > div:not(:first-child) {
     margin-left: 5%;
+}
+/* 分区标题：手动标记（.section-title）+ :has 兜底识别 Conf 组件里
+ * 「纯标题行」（无输入控件、含帮助链接的行），拉开与正文的层级 */
+.tomato-settings-dialog .section-title,
+.tomato-settings-dialog .settingBox
+    > div:not(:has(input)):not(:has(select)):not(:has(textarea)):not(:has(button)):has(strong a) {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--b3-theme-on-surface);
+}
+.tomato-settings-dialog .save-row {
+    display: flex;
+    justify-content: center;
+    margin: 12px;
 }
 .tomato-settings-dialog textarea {
     width: 70%;
@@ -60,8 +96,10 @@
     border-radius: var(--b3-border-radius);
     box-shadow: inset 0 -1px 0 var(--b3-theme-surface-lighter);
 }
+/* 快捷键键帽：与背景拉开明度差才有「键帽」感（旧样式 surface 底与卡片同色不可见） */
 .tomato-settings-dialog .kbd {
-    padding: 2px 4px;
+    display: inline-block;
+    padding: 2px 6px;
     font:
         100% Consolas,
         "Liberation Mono",
@@ -69,11 +107,82 @@
         Courier,
         monospace,
         var(--b3-font-family);
-    line-height: 1;
+    font-size: 12px;
+    line-height: 1.4;
     color: var(--b3-theme-on-surface);
     vertical-align: middle;
-    background-color: var(--b3-theme-surface);
+    background-color: var(--b3-theme-surface-lighter);
     border: solid 1px var(--b3-theme-surface-lighter);
-    border-radius: var(--b3-border-radius);
+    border-radius: 4px;
     box-shadow: inset 0 -1px 0 var(--b3-theme-surface-lighter);
+}
+/* 可点击键帽（HotkeyCap 组件）：hover 变主色、监听态高亮脉冲 */
+.tomato-settings-dialog .hotkey-cap {
+    cursor: pointer;
+    user-select: none;
+}
+.tomato-settings-dialog .hotkey-cap:hover {
+    border-color: var(--b3-theme-primary);
+    color: var(--b3-theme-primary);
+}
+.tomato-settings-dialog .hotkey-cap.listening {
+    border-color: var(--b3-theme-primary);
+    color: var(--b3-theme-primary);
+    animation: tomato-hk-pulse 1s ease-in-out infinite;
+}
+.tomato-settings-dialog .hotkey-cap.unset {
+    color: var(--b3-theme-on-surface);
+    opacity: 0.5;
+    border-style: dashed;
+    font-style: italic;
+    animation: none;
+}
+@keyframes tomato-hk-pulse {
+    0%,
+    100% {
+        box-shadow:
+            inset 0 -1px 0 var(--b3-theme-surface-lighter),
+            0 0 0 0 color-mix(in srgb, var(--b3-theme-primary) 40%, transparent);
+    }
+    50% {
+        box-shadow:
+            inset 0 -1px 0 var(--b3-theme-surface-lighter),
+            0 0 0 3px color-mix(in srgb, var(--b3-theme-primary) 40%, transparent);
+    }
+}
+.tomato-settings-dialog .hk-hint {
+    color: var(--b3-card-error-color);
+    font-size: 12px;
+    vertical-align: middle;
+}
+.tomato-settings-dialog .hk-suggest {
+    cursor: pointer;
+    margin-left: 4px;
+    color: var(--b3-theme-primary);
+}
+.tomato-settings-dialog .hk-suggest:hover {
+    border-color: var(--b3-theme-primary);
+}
+.tomato-settings-dialog .hk-flash {
+    color: var(--b3-theme-primary);
+    font-size: 12px;
+    vertical-align: middle;
+    margin-left: 4px;
+}
+/* 监听态操作芯片（🎲 随机 / ✕ 删除 / ↩ 默认）：小圆钮，hover 浮起 */
+.tomato-settings-dialog .hk-chip {
+    vertical-align: middle;
+    margin-left: 4px;
+    padding: 1px 5px;
+    font-size: 12px;
+    line-height: 1.4;
+    cursor: pointer;
+    color: var(--b3-theme-on-surface);
+    background-color: var(--b3-theme-surface-lighter);
+    border: solid 1px var(--b3-theme-surface-lighter);
+    border-radius: 4px;
+}
+.tomato-settings-dialog .hk-chip:hover {
+    color: var(--b3-theme-primary);
+    border-color: var(--b3-theme-primary);
 }

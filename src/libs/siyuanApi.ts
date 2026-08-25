@@ -20,7 +20,9 @@ import { IUILayoutTabSearchConfigTypes } from "./types";
 export const siyuan = {
     async pushMsg(msg: string, timeoutMs = 7000) {
         const url = "/api/notification/pushMsg";
-        msg += `<span style="display: none;">${new Date().getTime()}<span>`;
+        // 不拼时间戳等隐藏后缀：3.8.x notification 链路剥 HTML 属性，任何后缀都会暴露给用户；
+        // 内核 showMessage 对相邻同文消息只保留最新一条并重置计时（app/src/dialog/message.ts），
+        // 重复推送最多不堆叠，无需绕过
         const response = await fetchSyncPost(url, { msg, timeout: timeoutMs });
         if (response.code != 0) {
             throw Error(`${url}: code=${response.code}, msg=${response.msg}`);
@@ -722,6 +724,10 @@ export const siyuan = {
     async listDocsByPath(notebookID: string, notReadablePath: string, sort = 15): Promise<RetListDocsByPath> {
         return siyuan.call("/api/filetree/listDocsByPath", { notebook: notebookID, path: notReadablePath, sort });
     },
+    async getHPathByID(id: string, notebook: string): Promise<string> {
+        // 按块 id 直查可读路径（文件树通道实时，无 SQL 索引延迟——刚改名的文档也拿新路径）
+        return siyuan.call("/api/filetree/getHPathByID", { id, notebook });
+    },
     async listDocTree(notebookID: string, notReadablePath: string): Promise<RetListDocTree> {
         return siyuan.call("/api/filetree/listDocTree", { notebook: notebookID, path: notReadablePath });
     },
@@ -775,6 +781,9 @@ export const siyuan = {
     async insertBlockAsChildOf(data: string, parentID: string, dataType: "markdown" | "dom" = "markdown") {
         return siyuan.call("/api/block/insertBlock", { data, dataType, parentID });
     },
+    // 三兄弟均 reverse：内核 insert op 锚固定——nextID/previousID 插锚点前/后、parentID 落容器
+    // 为头插 PrependChild（kernel/model/transaction.go doInsert0，2026-08-24 源码+实测确认），
+    // 同锚顺序发 op 落库倒序，reverse 后落库=传入序。调用方按期望文档序传入即可，勿预补偿。
     transInsertBlocksBefore(domStrs: string[], nextID: string) {
         return domStrs.slice().reverse().map(data => {
             const op = {} as IOperation;
