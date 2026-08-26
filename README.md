@@ -60,7 +60,6 @@ A 24-in-1 productivity toolbox for SiYuan: time management, document editing, fl
 ## Docs & Community
 
 - 📖 **[Documentation](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)** (Chinese, with GIFs & videos for every feature)
-- 📅 [Changelog](https://awx9773btw.feishu.cn/docx/KekbdZ6Ozo4LLHxAGsncGTKJnff?from=from_copylink)
 - 🙏 [Acknowledgments](https://awx9773btw.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
 - 💬 [QQ Group](https://pd.qq.com/s/2fh7nh7gz) (Chinese) — feedback and feature requests
 - 🔓 [Open-source repo](https://github.com/IAliceBobI/sy-tomato-plugin) — what you see is what's compiled: built by GitHub Actions

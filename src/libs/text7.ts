@@ -5,18 +5,18 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
     public get 不再推送本书() {
         switch (this.lang) {
             case "zh_CN":
-                return "不再为我推送本书，可在顶栏的[查看所有渐进学习文档]中开启推送";
+                return "不再为我推送本书，可在左侧 Dock 舰队面板的[管理书目]中开启推送";
             case "es_ES":
-                return "No enviar más este libro, puedes habilitar el envío en [Ver todos los documentos de aprendizaje progresivo] en la barra superior";
+                return "No enviar más este libro, puedes habilitar el envío en [Gestionar libros] del panel de la flota en el Dock izquierdo";
             case "fr_FR":
-                return "Ne plus envoyer ce livre, vous pouvez activer l'envoi dans [Voir tous les documents d'apprentissage progressif] dans la barre supérieure";
+                return "Ne plus envoyer ce livre, vous pouvez activer l'envoi dans [Gérer les livres] du panneau de la flotte dans le Dock gauche";
             case "ja_JP":
-                return "この本をもう送らないでください、トップバーの[すべての段階的学習ドキュメントを表示]で送信を有効にできます";
+                return "この本をもう送らないでください、左側 Dock の艦隊パネルの[書目の管理]で送信を有効にできます";
             case "zh_CHT":
-                return "不再為我推送本書，可在頂欄的[查看所有漸進學習文檔]中開啟推送";
+                return "不再為我推送本書，可在左側 Dock 艦隊面板的[管理書目]中開啟推送";
 
             default:
-                return "No longer push this book for me, can turn on push in [View all progressive learning documents] in the top bar";
+                return "No longer push this book for me; re-enable it in [Manage books] on the fleet panel in the left dock";
         }
     }
 

@@ -3,9 +3,11 @@
     export type ProductPrice = { current: number; next?: number };
     // 价格单一事实来源：ActivationCard 的未激活态价格条也从此取，避免两处硬编码漂移。
     // 2026-08 三产品化改查表：recite ￥10 终身无划线原价（next 缺省即不渲染原价）。
+    // v5 □8（2026-08-26）：progressive 转 QQ 秀模式——功能全免费，￥29 = Pro 皮肤系统买断
+    // （三维混搭+参数微调+未来新皮自动含）；划线原价留老 VIP 价 ￥72 做锚（老用户自动尊享）。
     export const productPrices: Record<Product, ProductPrice> = {
         tomato: { current: 72, next: 96 },
-        progressive: { current: 72, next: 96 },
+        progressive: { current: 29, next: 72 },
         recite: { current: 10 },
     };
 </script>

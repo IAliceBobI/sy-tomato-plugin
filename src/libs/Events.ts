@@ -1,5 +1,5 @@
 import { Plugin, getFrontend, Protyle, IProtyle, IEventBusMap, getBackend } from "siyuan";
-import { getCursorElement, getID, getNotebookFirstOne, siyuan } from "./utils";
+import { blocksUnderRange, getCursorElement, getID, getNotebookFirstOne, siyuan } from "./utils";
 import { DATA_NODE_ID, PROTYLE_WYSIWYG_SELECT } from "./gconst";
 import { writableWithGet } from "./stores";
 
@@ -311,17 +311,22 @@ class Events {
 
     private collectInfo(element: HTMLDivElement) {
         const selected: HTMLElement[] = [...element.querySelectorAll(`.${PROTYLE_WYSIWYG_SELECT}`)] as any;
-        let cursorOnly = false;
-        if (selected.length == 0) {
-            cursorOnly = true;
-            const e = getCursorElement();
-            if (e) selected.push(e);
-        }
         let range: Range, rangeText: string;
         try {
             range = document.getSelection()?.getRangeAt(0);
             rangeText = range?.cloneContents()?.textContent ?? "";
         } catch { }
+        let cursorOnly = false;
+        if (selected.length == 0) {
+            // 思源 3.8（issue 8554）起内容区拖蓝跨块保留原生文本选区、不再自动转块选，
+            // 此时按 range 枚举覆盖的顶层块（与 Esc 转块选同语义），否则退化仅光标焦点块
+            selected.push(...blocksUnderRange(element, range));
+        }
+        if (selected.length == 0) {
+            cursorOnly = true;
+            const e = getCursorElement();
+            if (e) selected.push(e);
+        }
         const ids = selected.map(i => i.getAttribute(DATA_NODE_ID));
         return { selected, ids, rangeText, range, cursorOnly };
     }

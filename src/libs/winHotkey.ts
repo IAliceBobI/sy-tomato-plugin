@@ -69,14 +69,16 @@ export function winHotkey(m: string, langKey: string, icon?: string, langText?: 
     if (shift) m = "⇧" + m
     if (alt) m = "⌥" + m
 
+    // v5 □7 恢复重复检测（曾被注释——正是 ⌥⌘F6 双绑漏网的原因）；只查插件内部重复，
+    // 官方 keymap 对照（officalHotkeys）保持注释：模块加载时 Siyuan 可能未注入会误报
     // if (officalHotkeys.size == 0) getAllHotkeys(Siyuan?.config?.keymap);
-    // if (!globalThis.wieyqstvaPUaBkyoBGpsBztqoIZPplSyMWEETBcF) globalThis.wieyqstvaPUaBkyoBGpsBztqoIZPplSyMWEETBcF = new Map<string, string>();
-    // const hotkeySet: Map<string, string> = globalThis.wieyqstvaPUaBkyoBGpsBztqoIZPplSyMWEETBcF
-    // if (hotkeySet.has(m)) console.warn("发现重复的hotkey：", m, langKey, "--------", hotkeySet.get(m))
-    // if (hotkeySet.has(langKey)) console.warn("发现重复的langKey：", m, langKey, "--------", hotkeySet.get(langKey))
+    if (!globalThis.wieyqstvaPUaBkyoBGpsBztqoIZPplSyMWEETBcF) globalThis.wieyqstvaPUaBkyoBGpsBztqoIZPplSyMWEETBcF = new Map<string, string>();
+    const hotkeySet: Map<string, string> = globalThis.wieyqstvaPUaBkyoBGpsBztqoIZPplSyMWEETBcF
+    if (hotkeySet.has(m)) console.warn("发现重复的hotkey：", m, langKey, "--------", hotkeySet.get(m))
+    if (hotkeySet.has(langKey)) console.warn("发现重复的langKey：", m, langKey, "--------", hotkeySet.get(langKey))
     // if (officalHotkeys.has(m)) console.warn("发现与官方重复的langKey：", m, langKey, "--------", officalHotkeys.get(m))
-    // hotkeySet.set(m, langKey);
-    // hotkeySet.set(langKey, m);
+    hotkeySet.set(m, langKey);
+    hotkeySet.set(langKey, m);
 
     const w = () => {
         const a = Siyuan?.config?.keymap?.plugin?.['sy-tomato-plugin']?.[langKey]?.custom

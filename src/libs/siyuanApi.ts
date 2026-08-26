@@ -399,6 +399,14 @@ export const siyuan = {
             params = { notebook, path, markdown };
         }
         id = await siyuan.call("/api/filetree/createDocWithMd", params);
+        if (!id) {
+            // data 为空两种来源：①旧版内核该端点文档化即返回 data:null（issue #9654 时代，
+            // 官方为此才加了 getIDsByHPath）；②内核异常窗口（如 lang 空致 panic，文档已落盘
+            // 但 handler 走不到 data 赋值）。健康 3.8.1 实测正常返回 id（2026-08-26 复盘验证）。
+            // 按文件树直查（无 SQL 索引延迟）回查兜底，两态皆救，正常时零开销
+            const ids = await siyuan.call("/api/filetree/getIDsByHPath", { notebook, path });
+            id = Array.isArray(ids) ? (ids[0] ?? "") : "";
+        }
         if (attr) await siyuan.setBlockAttrs(id, attr);
         return id;
     },

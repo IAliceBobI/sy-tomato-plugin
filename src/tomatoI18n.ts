@@ -1516,6 +1516,665 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "You Haven't Added Any Documents Yet.";
         }
     }
+
+    // v5 □4：问题/心得标记（thinkQueue 状态机）与摘抄对话框瘦身
+    public get 摘抄并标问题() {
+        switch (this.lang) {
+            case "zh_CN": return "摘抄并标问题（定期重访直到弄懂）";
+            case "es_ES": return "Extraer y marcar como pregunta";
+            case "fr_FR": return "Extraire et marquer comme question";
+            case "ja_JP": return "摘録して質問としてマーク";
+            case "zh_CHT": return "摘抄並標問題";
+            case "it_IT": return "Estrai e contrassegna come domanda";
+            case "de_DE": return "Extrahieren und als Frage markieren";
+            case "he_IL": return "חלץ וסמן כשאלה";
+            case "ru_RU": return "Извлечь и пометить как вопрос";
+            case "pl_PL": return "Wyodrębnij i oznacz jako pytanie";
+            case "ar_SA": return "استخرج وعلّم كسؤال";
+            case "pt_BR": return "Extrair e marcar como pergunta";
+            case "en_US":
+            default: return "Digest & mark as question";
+        }
+    }
+
+    public get 问题已解决() {
+        switch (this.lang) {
+            case "zh_CN": return "问题已解决（转心得，不再重访）";
+            case "es_ES": return "Pregunta resuelta";
+            case "fr_FR": return "Question résolue";
+            case "ja_JP": return "質問が解決しました";
+            case "zh_CHT": return "問題已解決";
+            case "it_IT": return "Domanda risolta";
+            case "de_DE": return "Frage gelöst";
+            case "he_IL": return "השאלה נפתרה";
+            case "ru_RU": return "Вопрос решён";
+            case "pl_PL": return "Pytanie rozwiązane";
+            case "ar_SA": return "تم حل السؤال";
+            case "pt_BR": return "Pergunta resolvida";
+            case "en_US":
+            default: return "Question resolved";
+        }
+    }
+
+    public get 还没懂稍后再看() {
+        switch (this.lang) {
+            case "zh_CN": return "还没懂，稍后再看";
+            case "es_ES": return "Aún no lo entiendo, más tarde";
+            case "fr_FR": return "Pas encore compris, plus tard";
+            case "ja_JP": return "まだ分かりません、後で";
+            case "zh_CHT": return "還沒懂，稍後再看";
+            case "it_IT": return "Non capito ancora, più tardi";
+            case "de_DE": return "Noch nicht verstanden, später";
+            case "he_IL": return "עוד לא הבנתי, מאוחר יותר";
+            case "ru_RU": return "Пока не понял, позже";
+            case "pl_PL": return "Jeszcze nie rozumiem, później";
+            case "ar_SA": return "لم أفهم بعد، لاحقًا";
+            case "pt_BR": return "Ainda não entendi, mais tarde";
+            case "en_US":
+            default: return "Still not understood, revisit later";
+        }
+    }
+
+    public get 标为心得() {
+        switch (this.lang) {
+            case "zh_CN": return "标为心得";
+            case "es_ES": return "Marcar como idea";
+            case "fr_FR": return "Marquer comme idée";
+            case "ja_JP": return "心得としてマーク";
+            case "zh_CHT": return "標為心得";
+            case "it_IT": return "Contrassegna come idea";
+            case "de_DE": return "Als Einblick markieren";
+            case "he_IL": return "סמן כתובנה";
+            case "ru_RU": return "Пометить как вывод";
+            case "pl_PL": return "Oznacz jako przemyślenie";
+            case "ar_SA": return "علّم كفكرة";
+            case "pt_BR": return "Marcar como insight";
+            case "en_US":
+            default: return "Mark as insight";
+        }
+    }
+
+    public get 取消心得标记() {
+        switch (this.lang) {
+            case "zh_CN": return "取消心得标记";
+            case "es_ES": return "Quitar marca de idea";
+            case "fr_FR": return "Retirer la marque d'idée";
+            case "ja_JP": return "心得マークを解除";
+            case "zh_CHT": return "取消心得標記";
+            case "it_IT": return "Rimuovi contrassegno idea";
+            case "de_DE": return "Einblick-Markierung aufheben";
+            case "he_IL": return "הסר סימון תובנה";
+            case "ru_RU": return "Снять пометку вывода";
+            case "pl_PL": return "Usuń oznaczenie przemyślenia";
+            case "ar_SA": return "إزالة علامة الفكرة";
+            case "pt_BR": return "Remover marca de insight";
+            case "en_US":
+            default: return "Unmark insight";
+        }
+    }
+
+    public get 更多工具() {
+        switch (this.lang) {
+            case "zh_CN": return "更多工具";
+            case "es_ES": return "Más herramientas";
+            case "fr_FR": return "Plus d'outils";
+            case "ja_JP": return "その他のツール";
+            case "zh_CHT": return "更多工具";
+            case "it_IT": return "Altri strumenti";
+            case "de_DE": return "Weitere Werkzeuge";
+            case "he_IL": return "כלים נוספים";
+            case "ru_RU": return "Ещё инструменты";
+            case "pl_PL": return "Więcej narzędzi";
+            case "ar_SA": return "المزيد من الأدوات";
+            case "pt_BR": return "Mais ferramentas";
+            case "en_US":
+            default: return "More tools";
+        }
+    }
+
+    public get 已推迟重访() {
+        switch (this.lang) {
+            case "zh_CN": return "已推迟，N 天后重访";
+            case "es_ES": return "Aplazado, revisita en N días";
+            case "fr_FR": return "Reporté, revoir dans N jours";
+            case "ja_JP": return "延期しました、N日後に再訪";
+            case "zh_CHT": return "已推遲，N天後重訪";
+            case "it_IT": return "Rinviato, rivedrai tra N giorni";
+            case "de_DE": return "Verschoben, Wiederholung in N Tagen";
+            case "he_IL": return "נדחה, ייבדק שוב בעוד N ימים";
+            case "ru_RU": return "Отложено, повтор через N дней";
+            case "pl_PL": return "Odroczone, powrót za N dni";
+            case "ar_SA": return "تم التأجيل، إعادة زيارة بعد N يومًا";
+            case "pt_BR": return "Adiado, revisita em N dias";
+            case "en_US":
+            default: return "Postponed, revisit in N days";
+        }
+    }
+
+    // ============ v5 □5 浮条三态（docs/prog-v5-floatbar-design.md；zh+en 一等，其余落 en） ============
+
+    public get 浮条() {
+        switch (this.lang) {
+            case "zh_CN": return "浮条";
+            case "zh_CHT": return "浮條";
+            case "en_US":
+            default: return "Float bar";
+        }
+    }
+
+    public get 分片() {
+        switch (this.lang) {
+            case "zh_CN": return "分片";
+            case "zh_CHT": return "分片";
+            case "en_US":
+            default: return "Piece";
+        }
+    }
+
+    public get 摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "摘抄";
+            case "zh_CHT": return "摘抄";
+            case "en_US":
+            default: return "Digest";
+        }
+    }
+
+    public get 本书附属卡() {
+        switch (this.lang) {
+            case "zh_CN": return "本书附属卡·到期 {N}";
+            case "zh_CHT": return "本書附屬卡·到期 {N}";
+            case "en_US":
+            default: return "Book cards · {N} due";
+        }
+    }
+
+    public get 下一片删本片() {
+        switch (this.lang) {
+            case "zh_CN": return "下一片·删本片";
+            case "zh_CHT": return "下一片·刪本片";
+            case "en_US":
+            default: return "Next piece (delete this)";
+        }
+    }
+
+    public get 纯回看上一片() {
+        switch (this.lang) {
+            case "zh_CN": return "纯回看上一片";
+            case "zh_CHT": return "純回看上一片";
+            case "en_US":
+            default: return "Re-read previous piece";
+        }
+    }
+
+    public get 打开原书() {
+        switch (this.lang) {
+            case "zh_CN": return "打开原书";
+            case "zh_CHT": return "打開原書";
+            case "en_US":
+            default: return "Open the book";
+        }
+    }
+
+    public get 回原书() {
+        switch (this.lang) {
+            case "zh_CN": return "回原书（定位摘抄对应处）";
+            case "zh_CHT": return "回原書（定位摘抄對應處）";
+            case "en_US":
+            default: return "Back to book (locate the excerpt)";
+        }
+    }
+
+    public get 继续读() {
+        switch (this.lang) {
+            case "zh_CN": return "继续读（从断点开片）";
+            case "zh_CHT": return "繼續讀（從斷點開片）";
+            case "en_US":
+            default: return "Continue reading";
+        }
+    }
+
+    public get 摘抄汇总() {
+        switch (this.lang) {
+            case "zh_CN": return "摘抄汇总";
+            case "zh_CHT": return "摘抄匯總";
+            case "en_US":
+            default: return "All digests of this book";
+        }
+    }
+
+    public get 归档本书() {
+        switch (this.lang) {
+            case "zh_CN": return "归档本书";
+            case "zh_CHT": return "歸檔本書";
+            case "en_US":
+            default: return "Archive this book";
+        }
+    }
+
+    public get 归档本书确认() {
+        switch (this.lang) {
+            case "zh_CN": return "归档《{name}》？原书将退出一切推送，摘抄永久留存。";
+            case "zh_CHT": return "歸檔《{name}》？原書將退出一一切推送，摘抄永久留存。";
+            case "en_US":
+            default: return "Archive \"{name}\"? The book stops being served; digests are kept forever.";
+        }
+    }
+
+    public get 已归档本书() {
+        switch (this.lang) {
+            case "zh_CN": return "已归档本书";
+            case "zh_CHT": return "已歸檔本書";
+            case "en_US":
+            default: return "Book archived";
+        }
+    }
+
+    public get 送进仿写() {
+        switch (this.lang) {
+            case "zh_CN": return "送进仿写";
+            case "zh_CHT": return "送進仿寫";
+            case "en_US":
+            default: return "Send to Recite";
+        }
+    }
+
+    public get 摘抄选中内容() {
+        switch (this.lang) {
+            case "zh_CN": return "摘抄选中内容";
+            case "zh_CHT": return "摘抄選中內容";
+            case "en_US":
+            default: return "Digest selection";
+        }
+    }
+
+    public get 更多操作() {
+        switch (this.lang) {
+            case "zh_CN": return "更多操作";
+            case "zh_CHT": return "更多操作";
+            case "en_US":
+            default: return "More";
+        }
+    }
+
+    public get 留档() {
+        switch (this.lang) {
+            case "zh_CN": return "留档";
+            case "zh_CHT": return "留檔";
+            case "en_US":
+            default: return "Keep (no schedule)";
+        }
+    }
+
+    public get 思考() {
+        switch (this.lang) {
+            case "zh_CN": return "思考（标为问题）";
+            case "zh_CHT": return "思考（標為問題）";
+            case "en_US":
+            default: return "Think (mark as question)";
+        }
+    }
+
+    public get 背诵() {
+        switch (this.lang) {
+            case "zh_CN": return "背诵（进闪卡）";
+            case "zh_CHT": return "背誦（進閃卡）";
+            case "en_US":
+            default: return "Recite (flashcard)";
+        }
+    }
+
+    public get 单词() {
+        switch (this.lang) {
+            case "zh_CN": return "单词";
+            case "zh_CHT": return "單詞";
+            case "en_US":
+            default: return "Word";
+        }
+    }
+
+    public get 仿写() {
+        switch (this.lang) {
+            case "zh_CN": return "仿写";
+            case "zh_CHT": return "仿寫";
+            case "en_US":
+            default: return "Rewrite";
+        }
+    }
+
+    public get 多行挑选() {
+        switch (this.lang) {
+            case "zh_CN": return "多行挑选";
+            case "zh_CHT": return "多行挑選";
+            case "en_US":
+            default: return "Pick lines";
+        }
+    }
+
+    public get 请先选择要摘抄的块() {
+        switch (this.lang) {
+            case "zh_CN": return "请先选择要摘抄的块";
+            case "zh_CHT": return "請先選擇要摘抄的塊";
+            case "en_US":
+            default: return "Select blocks to digest first";
+        }
+    }
+
+    public get 请先选中文本() {
+        switch (this.lang) {
+            case "zh_CN": return "请先选中文本";
+            case "zh_CHT": return "請先選中文本";
+            case "en_US":
+            default: return "Select text first";
+        }
+    }
+
+    public get 本书还没有摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "本书还没有摘抄";
+            case "zh_CHT": return "本書還沒有摘抄";
+            case "en_US":
+            default: return "No digests for this book yet";
+        }
+    }
+
+    public get 未找到仿写插件功能() {
+        switch (this.lang) {
+            case "zh_CN": return "未找到仿写插件功能，请确认 recite 已安装启用";
+            case "zh_CHT": return "未找到仿寫插件功能，請確認 recite 已安裝啟用";
+            case "en_US":
+            default: return "Recite plugin not available";
+        }
+    }
+
+    public get 渐进学习浮条开关() {
+        switch (this.lang) {
+            case "zh_CN": return "浮条与悬浮球总开关";
+            case "zh_CHT": return "浮條與懸浮球總開關";
+            case "en_US":
+            default: return "Toggle float bar & ball";
+        }
+    }
+
+    // v5 □6 状态栏火苗 + 左 Dock 舰队总览（zh+en 一等，缺翻译落英文）
+    public get 舰队总览() {
+        switch (this.lang) {
+            case "zh_CN": return "舰队总览";
+            case "zh_CHT": return "艦隊總覽";
+            case "en_US":
+            default: return "Reading fleet";
+        }
+    }
+
+    public get 今日阅读() {
+        switch (this.lang) {
+            case "zh_CN": return "今日阅读";
+            case "zh_CHT": return "今日閱讀";
+            case "en_US":
+            default: return "Today";
+        }
+    }
+
+    public 火苗提示(read: number, quota: number, debt: number) {
+        switch (this.lang) {
+            case "zh_CN": return `今日已读 ${read}/${quota} · 欠债 ${debt}\n点击直达下一片`;
+            case "zh_CHT": return `今日已讀 ${read}/${quota} · 欠債 ${debt}\n點擊直達下一片`;
+            case "en_US":
+            default: return `Today ${read}/${quota} · debt ${debt}\nClick for next piece`;
+        }
+    }
+
+    public 欠N片(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `欠 ${n} 片`;
+            case "zh_CHT": return `欠 ${n} 片`;
+            case "en_US":
+            default: return `${n} owed`;
+        }
+    }
+
+    public get 每日目标() {
+        switch (this.lang) {
+            case "zh_CN": return "每日目标片数";
+            case "zh_CHT": return "每日目標片數";
+            case "en_US":
+            default: return "Daily quota";
+        }
+    }
+
+    public 每日目标N片(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `每日目标 ${n} 片`;
+            case "zh_CHT": return `每日目標 ${n} 片`;
+            case "en_US":
+            default: return `Daily quota: ${n}`;
+        }
+    }
+
+    public get 近14天阅读() {
+        switch (this.lang) {
+            case "zh_CN": return "近14天阅读";
+            case "zh_CHT": return "近14天閱讀";
+            case "en_US":
+            default: return "Last 14 days";
+        }
+    }
+
+    public get 开始今日阅读() {
+        switch (this.lang) {
+            case "zh_CN": return "开始今日阅读";
+            case "zh_CHT": return "開始今日閱讀";
+            case "en_US":
+            default: return "Start today's reading";
+        }
+    }
+
+    public get 加入第一本书() {
+        switch (this.lang) {
+            case "zh_CN": return "把当前文档加入渐进阅读";
+            case "zh_CHT": return "把當前文檔加入漸進閱讀";
+            case "en_US":
+            default: return "Add current doc as first book";
+        }
+    }
+
+    public get 管理书目() {
+        switch (this.lang) {
+            case "zh_CN": return "管理书目";
+            case "zh_CHT": return "管理書目";
+            case "en_US":
+            default: return "Manage books";
+        }
+    }
+
+    public get 已读完() {
+        switch (this.lang) {
+            case "zh_CN": return "已读完";
+            case "zh_CHT": return "已讀完";
+            case "en_US":
+            default: return "Finished";
+        }
+    }
+
+    public get 书架空空() {
+        switch (this.lang) {
+            case "zh_CN": return "书架空空，从一本书开始吧";
+            case "zh_CHT": return "書架空空，從一本書開始吧";
+            case "en_US":
+            default: return "Empty shelf — start with a book";
+        }
+    }
+
+    public get 书架空空说明() {
+        switch (this.lang) {
+            case "zh_CN": return "把长书切成分片，每日滚筒轮转，读完即删";
+            case "zh_CHT": return "把長書切成分片，每日滾筒輪轉，讀完即刪";
+            case "en_US":
+            default: return "Slice a long book, rotate daily, delete as read";
+        }
+    }
+
+    public get 加载中() {
+        switch (this.lang) {
+            case "zh_CN": return "加载中…";
+            case "zh_CHT": return "載入中…";
+            case "en_US":
+            default: return "Loading…";
+        }
+    }
+
+    public get 导流仿写已装() {
+        switch (this.lang) {
+            case "zh_CN": return "仿写练习（recite）";
+            case "zh_CHT": return "仿寫練習（recite）";
+            case "en_US":
+            default: return "Recite practice";
+        }
+    }
+
+    public get 导流仿写未装() {
+        switch (this.lang) {
+            case "zh_CN": return "仿写插件（recite）未安装";
+            case "zh_CHT": return "仿寫插件（recite）未安裝";
+            case "en_US":
+            default: return "Recite plugin not installed";
+        }
+    }
+
+    // ===== v5 □8 皮肤系统（2026-08-26，QQ 秀三维正交 + 参数微调） =====
+
+    // 皮肤/形态/材质雅名：zh 为键（theme.ts 注册表 zhName），繁化/英译查表兜底原值。
+    // 专有雅名不进六语种全翻（i18n 兜底哲学：非英语互混才是 bug，英语兜底可接受）
+    private static readonly SKIN_ZH_CHT: Record<string, string> = {
+        "青瓷黛蓝": "青瓷黛藍", "琉璃琥珀": "琉璃琥珀", "松烟黛紫": "松煙黛紫",
+        "绯樱落霞": "緋櫻落霞", "苍山雾雪": "蒼山霧雪", "墨玉轻雾": "墨玉輕霧",
+        "经典泪滴": "經典淚滴", "鹅毛笔羽焰": "鵝毛筆羽焰", "纸灯笼焰": "紙燈籠焰",
+        "双芯双焰": "雙芯雙焰", "破浪焰": "破浪焰",
+        "素面": "素面", "毛玻璃": "毛玻璃", "宣纸": "宣紙",
+    };
+    private static readonly SKIN_EN: Record<string, string> = {
+        "青瓷黛蓝": "Celadon Azure", "琉璃琥珀": "Glass Amber", "松烟黛紫": "Pine-Smoke Plum",
+        "绯樱落霞": "Sakura Sunset", "苍山雾雪": "Misty Mountains", "墨玉轻雾": "Ink Jade Mist",
+        "经典泪滴": "Classic Teardrop", "鹅毛笔羽焰": "Quill Plume", "纸灯笼焰": "Paper Lantern",
+        "双芯双焰": "Twin Flames", "破浪焰": "Breaking Wave",
+        "素面": "Surface", "毛玻璃": "Frosted Glass", "宣纸": "Rice Paper",
+    };
+
+    public 皮肤名(zh: string) {
+        switch (this.lang) {
+            case "zh_CN": return zh;
+            case "zh_CHT": return TomatoI18n.SKIN_ZH_CHT[zh] ?? zh;
+            default: return TomatoI18n.SKIN_EN[zh] ?? zh;
+        }
+    }
+
+    public get 皮肤外观() {
+        switch (this.lang) {
+            case "zh_CN": return "皮肤外观";
+            case "zh_CHT": return "皮膚外觀";
+            case "en_US":
+            default: return "Appearance";
+        }
+    }
+
+    public get 功能全免费说明() {
+        switch (this.lang) {
+            case "zh_CN": return "功能全部免费；Pro 一个价解锁整个皮肤系统（三维混搭、参数微调与未来新皮）";
+            case "zh_CHT": return "功能全部免費；Pro 一個價解鎖整個皮膚系統（三維混搭、參數微調與未來新皮）";
+            case "en_US":
+            default: "All features free; Pro unlocks the whole skin system (3D mix, fine-tuning & future skins)";
+        }
+    }
+
+    public get 配色主题() {
+        switch (this.lang) {
+            case "zh_CN": return "配色主题";
+            case "zh_CHT": return "配色主題";
+            case "en_US":
+            default: return "Color theme";
+        }
+    }
+
+    public get 火苗形态() {
+        switch (this.lang) {
+            case "zh_CN": return "火苗形态";
+            case "zh_CHT": return "火苗形態";
+            case "en_US":
+            default: return "Flame shape";
+        }
+    }
+
+    public get 容器材质() {
+        switch (this.lang) {
+            case "zh_CN": return "容器材质";
+            case "zh_CHT": return "容器材質";
+            case "en_US":
+            default: return "Panel material";
+        }
+    }
+
+    public get 参数微调() {
+        switch (this.lang) {
+            case "zh_CN": return "参数微调（基于选中配色）";
+            case "zh_CHT": return "參數微調（基於選中配色）";
+            case "en_US":
+            default: return "Fine-tune (on selected theme)";
+        }
+    }
+
+    public get 色相() {
+        switch (this.lang) {
+            case "zh_CN": return "色相";
+            case "zh_CHT": return "色相";
+            case "en_US":
+            default: return "Hue";
+        }
+    }
+
+    public get 亮度() {
+        switch (this.lang) {
+            case "zh_CN": return "亮度";
+            case "zh_CHT": return "亮度";
+            case "en_US":
+            default: return "Brightness";
+        }
+    }
+
+    public get 自定义名称() {
+        switch (this.lang) {
+            case "zh_CN": return "自定义名称（可选）";
+            case "zh_CHT": return "自定義名稱（可選）";
+            case "en_US":
+            default: return "Custom name (optional)";
+        }
+    }
+
+    public get 重置微调() {
+        switch (this.lang) {
+            case "zh_CN": return "重置";
+            case "zh_CHT": return "重置";
+            case "en_US":
+            default: return "Reset";
+        }
+    }
+
+    public get 皮肤Pro提示() {
+        switch (this.lang) {
+            case "zh_CN": return "Pro 皮肤需激活解锁（功能不受影响）";
+            case "zh_CHT": return "Pro 皮膚需啟用解鎖（功能不受影響）";
+            case "en_US":
+            default: return "Pro skin requires activation (features unaffected)";
+        }
+    }
+
+    public get 微调Pro提示() {
+        switch (this.lang) {
+            case "zh_CN": return "参数微调是 Pro 功能";
+            case "zh_CHT": return "參數微調是 Pro 功能";
+            case "en_US":
+            default: return "Fine-tuning is a Pro feature";
+        }
+    }
 }
 
 // public[^get]+\(  查找所有的函数

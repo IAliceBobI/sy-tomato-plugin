@@ -128,6 +128,17 @@ export function getCursorElement() {
     return getSyElement(selection?.focusNode as any) as HTMLElement;
 }
 
+/** 原生 range 覆盖的顶层块（文档序）。
+    思源 3.8（issue 8554）起内容区拖蓝跨块保留文本选区、不再自动转块选，
+    用它与 Esc 转块选后的 querySelectorAll 语义对齐：只认 wysiwyg 直接子级的
+    data-node-id 块（嵌套块归容器整块），range 不在 container 内返回空。 */
+export function blocksUnderRange(container: HTMLElement, range: Range): HTMLElement[] {
+    if (!range || range.collapsed || !container.contains(range.startContainer)) return [];
+    return [...container.children].filter(
+        b => b.hasAttribute(gconst.DATA_NODE_ID) && range.intersectsNode(b)
+    ) as HTMLElement[];
+}
+
 export function getID(e: HTMLElement | Element | Node, attrs?: string[]) {
     const s = getSyElement(e, attrs);
     if (s) {

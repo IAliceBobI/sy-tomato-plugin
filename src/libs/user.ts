@@ -35,7 +35,18 @@ export async function verifyKeyProgressive() {
 }
 
 export async function verifyKeyRecite() {
-    return verifyKey("_siyuanReciteCode_")
+    // v5 □8（2026-08-26）码互通拍板：progressive Pro（￥29）单向送 recite——recite 面板
+    // 粘贴 progressive 激活码同样解锁 recite Pro（￥10 recite 码不反向解锁 progressive，
+    // 避免商业倒挂）。三产品同公钥仅 included 标记分流，seller/云端零改动。
+    // 必须先无副作用验签（verifyUserSign 只读 token）：若先走 verifyKey 失败会塞
+    // FREE_KEY 覆盖用户原 token，progressive 码就丢了。
+    if (_isValid != null) return _isValid;
+    const cross = await verifyUserSign(userToken.get(), "_siyuanProgressiveCode_");
+    if (cross.valid) {
+        _isValid = true;
+        return true;
+    }
+    return verifyKey("_siyuanReciteCode_");
 }
 
 // 产品标识（2026-08 recite 商业化引入第三产品）：verify/redeem/购买组件共用的分流参数类型

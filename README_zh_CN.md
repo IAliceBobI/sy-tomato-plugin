@@ -60,7 +60,6 @@
 ## 文档与社区
 
 - 📖 **[帮助文档](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)**——每个功能都有配图和视频演示，5 分钟看懂全部玩法
-- 📅 [更新日志](https://awx9773btw.feishu.cn/docx/KekbdZ6Ozo4LLHxAGsncGTKJnff?from=from_copylink)
 - 🙏 [鸣谢](https://awx9773btw.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
 - 💬 [QQ 交流群](https://pd.qq.com/s/2fh7nh7gz)——反馈、催更、蹲新功能
 - 🔓 [开源仓库](https://github.com/IAliceBobI/sy-tomato-plugin)——代码即产物，GitHub Actions 在线编译，所见即所得

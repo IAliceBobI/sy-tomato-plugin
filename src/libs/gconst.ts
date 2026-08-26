@@ -1,5 +1,7 @@
 import { TOperation, Config } from "siyuan";
-import { Siyuan } from "./utils";
+// 从 globals 而非 utils 桶导入：utils → siyuanApi → tomatoI18n → text 链会绕回 gconst 成环，
+// vite 构建容忍、vitest ESM 严格求值下 text 链 extends undefined 直接炸（progressive 单测引入 vitest 时踩到）。
+import { Siyuan } from "./globals";
 
 export const SPACE = "　";
 export const WEB_SPACE = "&nbsp;";
