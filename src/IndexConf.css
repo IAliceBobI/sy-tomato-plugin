@@ -392,3 +392,131 @@
     color: var(--b3-theme-primary);
     border-color: var(--b3-theme-primary);
 }
+
+/* ── 导出工作空间分区翻新（2026-08-30 spec docs/tomato-export-settings-revamp.md）──
+ * 纪律：本文件旧规则的值被 progressive/recite 打包副本钉死（□3/□4/□5 实证），
+ * 所有需要压过旧规则的地方一律升特异性（双类写法），不吃「后注入者胜」的运气 */
+/* 组小标题：压过旧 .settingBox > div:not(:first-child) 的 5% 缩进（(0,3,1)），
+ * 双类升权 (0,4,0) > (0,3,1)，与 .helpText.tomato-audio-invalid-hint 升权同款先例 */
+.tomato-settings-dialog .settingBox > .tomato-group-title {
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+}
+.tomato-settings-dialog .settingBox > .tomato-group-title.tomato-group-title {
+    margin-left: 0;
+}
+/* 名单容器：caption 放容器内部（非 .settingBox 直接子元素），避开旧 margin 规则 */
+.tomato-settings-dialog .tomato-list {
+    display: flex;
+    flex-direction: column;
+    row-gap: 2px;
+}
+.tomato-settings-dialog .tomato-list-caption {
+    margin: 0 0 2px;
+    font-size: 12px;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+}
+.tomato-settings-dialog .tomato-list-item {
+    display: flex;
+    align-items: center;
+    column-gap: 6px;
+    padding: 2px 4px;
+    border-radius: var(--b3-border-radius);
+}
+.tomato-settings-dialog .tomato-list-item:hover {
+    background-color: var(--b3-list-hover, var(--b3-theme-surface-lighter));
+}
+.tomato-settings-dialog .tomato-item-del {
+    flex: 0 0 auto;
+    min-height: 0;
+    padding: 2px 4px;
+    line-height: 1;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+}
+.tomato-settings-dialog .tomato-item-del:hover {
+    color: var(--b3-theme-error);
+}
+.tomato-settings-dialog .tomato-item-del svg {
+    display: block;
+}
+.tomato-settings-dialog .tomato-item-badge {
+    flex: 0 0 auto;
+    display: inline-flex;
+}
+.tomato-settings-dialog .tomato-item-badge svg {
+    display: block;
+}
+.tomato-settings-dialog .tomato-item-badge--wl {
+    color: var(--b3-theme-success);
+}
+.tomato-settings-dialog .tomato-item-badge--bl {
+    color: var(--b3-theme-error);
+}
+/* 路径换行不截断（□2 helpText 纪律：无省略号即无需悬停补全），可复制对照 */
+.tomato-settings-dialog .tomato-item-path {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+    user-select: text;
+}
+.tomato-settings-dialog .tomato-item-path--pending {
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+}
+/* 名单空态盒：虚线 + 图标 + 三段文字，警告降级为引导 */
+.tomato-settings-dialog .tomato-empty {
+    display: flex;
+    align-items: flex-start;
+    column-gap: 10px;
+    padding: 10px 12px;
+    border: 1px dashed var(--b3-border-color);
+    border-radius: var(--b3-border-radius);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+}
+.tomato-settings-dialog .tomato-empty-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    margin-top: 2px;
+    opacity: 0.8;
+}
+.tomato-settings-dialog .tomato-empty-icon svg {
+    display: block;
+}
+.tomato-settings-dialog .tomato-empty-title {
+    font-weight: 500;
+    color: var(--b3-theme-on-surface);
+}
+.tomato-settings-dialog .tomato-empty-hint {
+    margin-top: 2px;
+    overflow-wrap: anywhere;
+}
+/* 定时器：小数字输入框。需压过 .settingBox > .tomato-input-row > input.b3-text-field
+ * 的 flex:1 1 240px（(0,4,1)），双类升权到 (0,5,1)，不吃注入顺序运气 */
+.tomato-settings-dialog .settingBox > .tomato-input-row > input.tomato-timer-input.tomato-timer-input {
+    flex: 0 0 76px;
+    min-width: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.tomato-settings-dialog .tomato-timer-off {
+    flex: 1 1 auto;
+    font-size: 12px;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+}
+/* 手动操作按钮组 */
+.tomato-settings-dialog .tomato-action-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 6px;
+}
+.tomato-settings-dialog .tomato-action-kbd {
+    margin-left: 6px;
+    pointer-events: none;
+}

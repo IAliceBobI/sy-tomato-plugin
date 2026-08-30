@@ -103,7 +103,9 @@ export function searchSettings(settingsDiv: HTMLElement, searchKey: string) {
                 .some((b) => (b as HTMLElement).style.display !== "none");
             e.style.display = anyVisible ? "" : "none";
         });
-        settingsDiv.querySelectorAll("div,strong").forEach(e => {
+        // span 也要枚举（□23 起渐进设置行 label 包 span 挂 tooltip，直接文本在 span 里，
+        // 只枚举 div,strong 会命中但不高亮；span 无直接文本的经 getDirectTextContent 自然空过）
+        settingsDiv.querySelectorAll("div,strong,span").forEach(e => {
             if (getDirectTextContent(e).toLocaleLowerCase().includes(sk)) {
                 e.classList.add("tomato-highlight")
             }

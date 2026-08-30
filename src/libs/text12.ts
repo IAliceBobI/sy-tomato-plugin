@@ -373,23 +373,6 @@ export abstract class TomatoI18nABC12 extends TomatoI18nABC13 {
         }
     }
 
-    public 每x秒执行一次增量导出(x: string) {
-        switch (this.lang) {
-            case "zh_CN": return `每${x}秒执行一次增量导出`;
-            case "es_ES": return `Realizar una exportación incremental cada ${x} segundos`;
-            case "fr_FR": return `Effectuer une exportation incrémentielle toutes les ${x} secondes`;
-            case "ja_JP": return `${x}秒ごとに増分エクスポートを実行`;
-            case "zh_CHT": return `每${x}秒執行一次增量導出`;
-            case "it_IT": return `Esegui un'esportazione incrementale ogni ${x} secondi`;
-            case "de_DE": return `Alle ${x} Sekunden einen inkrementellen Export durchführen`;
-            case "he_IL": return `בצע ייצוא הדרגתי כל ${x} שניות`;
-            case "ru_RU": return `Выполнять инкрементальный экспорт каждые ${x} секунд`;
-            case "pl_PL": return `Wykonuj eksport przyrostowy co ${x} sekund`;
-            case "en_US":
-            default: return `Perform incremental export every ${x} seconds`;
-        }
-    }
-
     public 添加了x个文件夹(x: number) {
         switch (this.lang) {
             case "zh_CN": return `添加了 ${x} 个文件夹`;
@@ -439,23 +422,6 @@ export abstract class TomatoI18nABC12 extends TomatoI18nABC13 {
             default: return "Ensure export matches configuration";
         }
     }
-    public 每x分钟确保导出符合配置(x: string) {
-        switch (this.lang) {
-            case "zh_CN": return `每${x}分钟确保导出符合配置`;
-            case "es_ES": return `Asegúrese de que la exportación cumpla con la configuración cada ${x} minutos`;
-            case "fr_FR": return `Assurez-vous que l'exportation est conforme à la configuration toutes les ${x} minutes`;
-            case "ja_JP": return `${x}分ごとにエクスポートが設定に準拠していることを確認してください`;
-            case "zh_CHT": return `每${x}分鐘確保導出符合配置`;
-            case "it_IT": return `Assicurati che l'esportazione sia conforme alla configurazione ogni ${x} minuti`;
-            case "de_DE": return `Stellen Sie alle ${x} Minuten sicher, dass der Export den Einstellungen entspricht`;
-            case "he_IL": return `ודא שהייצוא תואם את ההגדרות כל ${x} דקות`;
-            case "ru_RU": return `Убедитесь, что экспорт соответствует настройкам каждые ${x} минут`;
-            case "pl_PL": return `Upewnij się, że eksport jest zgodny z konfiguracją co ${x} minut`;
-            case "en_US":
-            default: return `Ensure export matches configuration every ${x} minutes`;
-        }
-    }
-
     public get 将选中的内容转为引用() {
         switch (this.lang) {
             case "zh_CN": return "将选中的内容转为引用";

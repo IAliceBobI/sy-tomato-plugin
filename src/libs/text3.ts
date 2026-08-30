@@ -1000,35 +1000,35 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
     public get 对分片制卡额外链接到分片() {
         switch (this.lang) {
             case "zh_CN":
-                return "对分片制卡，闪卡除了链接到原文，还额外链接到分片。";
+                return "对分片制卡，闪卡除了链接到原文，还额外链接到分片";
             case "es_ES":
-                return "Para las tarjetas fragmentadas, las tarjetas flash están adicionalmente vinculadas a los fragmentos además de estar vinculadas al texto original.";
+                return "Al crear tarjetas dentro de un fragmento, la tarjeta lleva además un enlace a ese fragmento";
             case "fr_FR":
-                return "Pour les cartes fragmentées, les cartes flash sont en outre liées aux fragments en plus d'être liées au texte original.";
+                return "Lors de la création de cartes dans un fragment, la carte comporte en plus un lien vers ce fragment";
             case "ja_JP":
-                return "分割されたカードについて、フラッシュカードは原文にリンクするだけでなく、分割にも追加でリンクします。";
+                return "フラグメント内でカードを作成すると、カードにそのフラグメントへのリンクが追加されます";
             case "zh_CHT":
-                return "對分片制卡，閃卡除了鏈接到原文，還額外鏈接到分片。";
+                return "對分片制卡，閃卡除了鏈接到原文，還額外鏈接到分片";
 
             default:
-                return "For fragmented card making, flashcards are additionally linked to fragments in addition to being linked to the original text.";
+                return "When making cards inside a piece, the card also carries a link to that piece";
         }
     }
     public get 闪卡的回溯使用链接() {
         switch (this.lang) {
             case "zh_CN":
-                return "闪卡的回溯使用链接，否则用引用。";
+                return "闪卡回溯用链接而非块引用";
             case "es_ES":
-                return "Enlace de retroceso de la tarjeta flash, de lo contrario usa la referencia.";
+                return "El retroceso de la tarjeta flash usa enlace en vez de referencia de bloque";
             case "fr_FR":
-                return "Lien de retour de la carte flash, sinon utilisez la référence.";
+                return "Le retour de la carte flash utilise un lien plutôt qu'une réf. de bloc";
             case "ja_JP":
-                return "フラッシュカードのリグレッションリンク、それ以外の場合は参照を使用します。";
+                return "フラッシュカードの遡及はブロック参照ではなくリンクを使用";
             case "zh_CHT":
-                return "閃卡的回溯使用連結，否則用引用。";
+                return "閃卡回溯用連結而非塊引用";
 
             default:
-                return "Flashcard regression link, otherwise use reference.";
+                return "Flashcard backtrace uses a hyperlink instead of a block ref";
         }
     }
     public get 制卡时在末尾添加空行() {

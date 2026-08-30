@@ -18,7 +18,10 @@
     let {
         posKey,
         title = "",
-        zIndex = 12,
+        // 10 = 浮层安全档：内核弹层（Dialog/Menu）走 ++window.siyuan.zIndex 自 11 起，
+    // 恒在其下（z12 会盖住首个弹窗——渐进加书弹窗被浮条遮、实弹 DOM 复核 2026-08-30）；
+    // protyle 常驻元素 ≤9，10 仍浮于编辑器内容之上
+    zIndex = 10,
         barClass = "",
         onClose,
         children,

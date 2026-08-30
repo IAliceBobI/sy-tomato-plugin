@@ -202,7 +202,8 @@
 
 <style>
     .floating-button {
-        z-index: 12;
+        /* 10 = 浮层安全档（恒低于内核弹层最小 z11，高于 protyle 常驻 ≤9） */
+        z-index: 10;
         position: fixed;
         border-radius: 50%;
         display: flex;

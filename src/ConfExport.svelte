@@ -21,7 +21,7 @@
         superRefBoxGlobalFixMenu,
         superRefBoxGlobalLnkMenu,
     } from "./libs/stores";
-    import { getHpath } from "./libs/utils";
+    import { getHpath, icon } from "./libs/utils";
     import { events } from "./libs/Events";
     import {
         cleanExportedMds,
@@ -40,7 +40,8 @@
     let codeNotValid = $derived(!codeValid);
 </script>
 
-    <!-- 导出工作空间 -->
+    <!-- 导出工作空间（2026-08 翻新 spec：docs/tomato-export-settings-revamp.md）。
+         组序 = 范围 → 目录 → 输出选项 → 自动调度 → 手动操作；store/VIP 门控/添加通道零变化 -->
     <div class="settingBox">
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$markdownExportBoxCheckbox} />
@@ -52,119 +53,181 @@
             </strong>
         </div>
         {#if $markdownExportBoxCheckbox}
+            <!-- ① 导出范围 -->
+            <div class="tomato-group-title">{tomatoI18n.导出范围}</div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$exportWL4All} />
                 {tomatoI18n.导出所有文件}
+                <div class="helpText">{tomatoI18n.关闭后按白名单过滤黑名单始终生效}</div>
             </div>
-            <div>
-                {#if $exportWL4All}
-                    <div></div>
-                {:else if $exportWhiteList.length === 0}
-                    <div class="kbd">
-                        <strong>⚠️{tomatoI18n.白名单为空请先在文档树中右键添加文档}⚠️</strong>
-                    </div>
-                {:else}
-                    {#each $exportWhiteList as item, index}
-                        <div>
-                            <button
-                                class="b3-button b3-button--text space"
-                                onclick={() => {
-                                    $exportWhiteList.splice(index, 1);
-                                    $exportWhiteList = $exportWhiteList;
-                                }}
+            {#if !$exportWL4All}
+                <!-- 开关关闭才参与白名单过滤（MarkdownExportBox._exportMd2Dir 语义），开启时整块隐藏 -->
+                {#if $exportWhiteList.length === 0}
+                    <div class="tomato-empty">
+                        <span class="tomato-empty-icon">{@html icon("FilesRoot", 20)}</span>
+                        <div class="tomato-empty-body">
+                            <div class="tomato-empty-title">{tomatoI18n.白名单为空请先在文档树中右键添加文档}</div>
+                            <div class="tomato-empty-hint"
+                                >{tomatoI18n.在文档树中右键选择x(tomatoI18n.添加到导出工作空间的白名单)}</div
                             >
-                                🗑️
-                            </button>
-                            {#await getHpath(item)}
-                                <span class="text">{item} ✅</span>
-                            {:then v}
-                                <span class="text">{v} ✅</span>
-                            {/await}
+                            <div class="tomato-empty-hint">{tomatoI18n.白名单为空时将导出全部文档}</div>
                         </div>
-                    {/each}
-                {/if}
-            </div>
-            <div>
-                {#if $exportBlackList.length === 0}
-                    <div class="kbd">
-                        {tomatoI18n.黑名单为空可在文档树中右键添加}
                     </div>
                 {:else}
-                    {#each $exportBlackList as item, index}
-                        <div>
+                    <div class="tomato-list">
+                        <div class="tomato-list-caption">{tomatoI18n.白名单}</div>
+                        {#each $exportWhiteList as item, index (item)}
+                            <div class="tomato-list-item">
+                                <button
+                                    type="button"
+                                    class="b3-button b3-button--text tomato-item-del b3-tooltips b3-tooltips__n"
+                                    aria-label={tomatoI18n.从名单中移除}
+                                    onclick={() => {
+                                        $exportWhiteList.splice(index, 1);
+                                        $exportWhiteList = $exportWhiteList;
+                                    }}
+                                >
+                                    {@html icon("Trashcan", 14)}
+                                </button>
+                                <span class="tomato-item-badge tomato-item-badge--wl">{@html icon("Check", 12)}</span>
+                                {#await getHpath(item)}
+                                    <span class="tomato-item-path tomato-item-path--pending">{item}</span>
+                                {:then v}
+                                    <span class="tomato-item-path">{v}</span>
+                                {/await}
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
+            {/if}
+            <!-- 黑名单任何模式都生效（无白名单那样的 if 包裹） -->
+            {#if $exportBlackList.length === 0}
+                <div class="tomato-empty">
+                    <span class="tomato-empty-icon">{@html icon("Eyeoff", 20)}</span>
+                    <div class="tomato-empty-body">
+                        <div class="tomato-empty-title">{tomatoI18n.黑名单为空可在文档树中右键添加}</div>
+                        <div class="tomato-empty-hint"
+                            >{tomatoI18n.在文档树中右键选择x(tomatoI18n.添加到导出工作空间的黑名单)}</div
+                        >
+                    </div>
+                </div>
+            {:else}
+                <div class="tomato-list">
+                    <div class="tomato-list-caption">{tomatoI18n.黑名单}</div>
+                    {#each $exportBlackList as item, index (item)}
+                        <div class="tomato-list-item">
                             <button
-                                class="b3-button b3-button--text space"
+                                type="button"
+                                class="b3-button b3-button--text tomato-item-del b3-tooltips b3-tooltips__n"
+                                aria-label={tomatoI18n.从名单中移除}
                                 onclick={() => {
                                     $exportBlackList.splice(index, 1);
                                     $exportBlackList = $exportBlackList;
                                 }}
                             >
-                                🗑️
+                                {@html icon("Trashcan", 14)}
                             </button>
+                            <span class="tomato-item-badge tomato-item-badge--bl">{@html icon("Close", 12)}</span>
                             {#await getHpath(item)}
-                                <span class="text">{item} 🚫</span>
+                                <span class="tomato-item-path tomato-item-path--pending">{item}</span>
                             {:then v}
-                                <span class="text">{v} 🚫</span>
+                                <span class="tomato-item-path">{v}</span>
                             {/await}
                         </div>
                     {/each}
+                </div>
+            {/if}
+
+            <!-- ② 导出目录（placeholder 修正：Windows 显示 Windows 风格示例、其他平台显示 POSIX 风格示例；
+                 旧代码两分支互换且 Windows 误挂 $exportPath，见 spec §3.2 行为修正） -->
+            <div class="tomato-group-title">{tomatoI18n.导出目录}</div>
+            <div class="tomato-input-row">
+                {#if events.isWindows}
+                    <input
+                        class="b3-text-field"
+                        placeholder="D:\\backup"
+                        aria-label={tomatoI18n.导出工作空间到此文件夹}
+                        bind:value={$exportPathWin}
+                    />
+                {:else}
+                    <input
+                        class="b3-text-field"
+                        placeholder="/path/to/backup"
+                        aria-label={tomatoI18n.导出工作空间到此文件夹}
+                        bind:value={$exportPath}
+                    />
                 {/if}
+                <span class="tomato-row-label">{tomatoI18n.导出工作空间到此文件夹}</span>
+                <div class="helpText">{tomatoI18n.导出目录留空时不执行导出}</div>
+            </div>
+
+            <!-- ③ 输出选项 -->
+            <div class="tomato-group-title">{tomatoI18n.输出选项}</div>
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$markdownExportPics} />
+                {tomatoI18n.导出图片}
+                <div class="helpText">{tomatoI18n.导出图片帮助}</div>
             </div>
             <div>
-                {#if events.isWindows}
-                    <input class="b3-text-field space" placeholder={$exportPath} bind:value={$exportPathWin} />
-                {:else}
-                    <input placeholder="D:\\backup" class="b3-text-field space" bind:value={$exportPath} />
+                <input type="checkbox" class="b3-switch" bind:checked={$exportCleanPath} />
+                {tomatoI18n.导出路径去掉块ID后缀}
+                {#if $exportCleanPath}
+                    <div class="helpText">{tomatoI18n.切换本开关后执行一次确保导出符合配置即可自动迁移}</div>
+                    <div class="helpText">{tomatoI18n.导出目录由插件管理手动放入的文件会被清理删除}</div>
                 {/if}
-                {tomatoI18n.导出工作空间到此文件夹}
             </div>
-            <div class:codeNotValid>
+
+            <!-- ④ 自动调度（两定时器同构；关闭态收敛成一行灰字，数字输入框仅开启态出现） -->
+            <div class="tomato-group-title">{tomatoI18n.自动调度}</div>
+            <div class="tomato-input-row" class:codeNotValid>
                 <input type="checkbox" class="b3-switch" bind:checked={$exportIntervalSecOn} />
+                <span class="tomato-row-label">{tomatoI18n.自动增量导出}</span>
+                <TomatoVIP {codeValid}></TomatoVIP>
                 {#if $exportIntervalSecOn}
                     <input
-                        title={tomatoI18n.可以填写小数}
-                        class="b3-text-field space"
+                        class="b3-text-field tomato-timer-input b3-tooltips b3-tooltips__n"
+                        aria-label={tomatoI18n.可以填写小数}
                         bind:value={$exportIntervalSec}
                     />
-                    {tomatoI18n.每x秒执行一次增量导出($exportIntervalSec)}
+                    <span class="tomato-row-label">{tomatoI18n.增量导出间隔秒}</span>
+                    <div class="helpText">{tomatoI18n.增量导出最小3秒}</div>
                 {:else}
-                    {tomatoI18n.每x秒执行一次增量导出("0")}
+                    <span class="tomato-timer-off">{tomatoI18n.已关闭开启后按设定间隔自动执行增量导出}</span>
                 {/if}
-                <TomatoVIP {codeValid}></TomatoVIP>
             </div>
-            <div class:codeNotValid>
+            <div class="tomato-input-row" class:codeNotValid>
                 <input type="checkbox" class="b3-switch" bind:checked={$exportCleanFilesOn} />
-                {#if $exportCleanFilesOn}
-                    <input title={tomatoI18n.可以填写小数} class="b3-text-field space" bind:value={$exportCleanFiles} />
-                    {tomatoI18n.每x分钟确保导出符合配置($exportCleanFiles)}
-                {:else}
-                    {tomatoI18n.每x分钟确保导出符合配置("0")}
-                {/if}
+                <span class="tomato-row-label">{tomatoI18n.定时确保导出}</span>
                 <TomatoVIP {codeValid}></TomatoVIP>
+                {#if $exportCleanFilesOn}
+                    <input
+                        class="b3-text-field tomato-timer-input b3-tooltips b3-tooltips__n"
+                        aria-label={tomatoI18n.可以填写小数}
+                        bind:value={$exportCleanFiles}
+                    />
+                    <span class="tomato-row-label">{tomatoI18n.确保导出间隔分钟}</span>
+                    <div class="helpText">{tomatoI18n.确保导出最小3分钟}</div>
+                {:else}
+                    <span class="tomato-timer-off">{tomatoI18n.已关闭开启后按设定间隔确保导出符合配置}</span>
+                {/if}
             </div>
-            <div>
-                <label class="space">
-                    <input type="checkbox" class="b3-switch" bind:checked={$markdownExportPics} />{tomatoI18n.导出图片}
-                </label>
-                <button class="b3-button b3-button--outline space" onclick={() => exportMd2Dir(true)}
-                    >{MarkdownExport全量导出.langText() + MarkdownExport全量导出.w()}
+
+            <!-- ⑤ 手动操作（回调/快捷键零变化；键帽只读，w() 平台化显示） -->
+            <div class="tomato-group-title">{tomatoI18n.手动操作}</div>
+            <div class="tomato-action-row">
+                <button type="button" class="b3-button b3-button--outline" onclick={() => exportMd2Dir(true)}>
+                    {MarkdownExport全量导出.langText()}<span class="kbd tomato-action-kbd">{MarkdownExport全量导出.w()}</span>
                 </button>
-                <button class="b3-button b3-button--outline space" onclick={() => exportMd2Dir()}
-                    >{MarkdownExport增量导出.langText() + MarkdownExport增量导出.w()}
+                <button type="button" class="b3-button b3-button--outline" onclick={() => exportMd2Dir()}>
+                    {MarkdownExport增量导出.langText()}<span class="kbd tomato-action-kbd">{MarkdownExport增量导出.w()}</span>
                 </button>
-                <button class="b3-button b3-button--outline space" onclick={() => cleanExportedMds()}
-                    >{MarkdownExport确保导出符合配置.langText() + MarkdownExport确保导出符合配置.w()}
+                <button type="button" class="b3-button b3-button--outline" onclick={() => cleanExportedMds()}>
+                    {MarkdownExport确保导出符合配置.langText()}<span class="kbd tomato-action-kbd"
+                        >{MarkdownExport确保导出符合配置.w()}</span
+                    >
                 </button>
+                <div class="helpText">{tomatoI18n.手动操作帮助}</div>
             </div>
-            <div>
-                <label class="space">
-                    <input type="checkbox" class="b3-switch" bind:checked={$exportCleanPath} />{tomatoI18n.导出路径去掉块ID后缀}
-                </label>
-            </div>
-            {#if $exportCleanPath}
-                <div class="kbd">{tomatoI18n.切换本开关后执行一次确保导出符合配置即可自动迁移}</div>
-                <div class="kbd">{tomatoI18n.导出目录由插件管理手动放入的文件会被清理删除}</div>
-            {/if}
         {/if}
     </div>
     <!-- 块编辑器 -->
