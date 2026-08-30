@@ -38,6 +38,25 @@
     border: 1px solid var(--b3-theme-surface-lighter);
     border-radius: var(--b3-border-radius);
 }
+/* ── □5 分区边界强化（2026-08-30 spec docs/checkpoints/2026-08-30-spec-q5-title-unify.md）──
+ * 旧规则 .conf-group (0,2,0) 的值被 progressive/recite 打包副本各带一份同
+ * 特异性钉死（□3/□4 实证），故升特异性 (0,2,1) 整体重写：
+ *   ① 左缘 3px 主色条：双主题不依赖底色差的边界锚点
+ *   ② 边框 surface-lighter → --b3-border-color：daylight 等价零回归，
+ *      midnight #484848 实色（旧值 rgba(230,230,230,.1) 边界近隐身）
+ *   ③ 底色 5% 主色 tint：与容器（.b3-dialog__container 同为 surface，base.css 实查）
+ *     拉色相区分（progressive --prog-card-bg 同公式先例）
+ *   ④ 卡间距 12→16px、内衬 4→8px
+ * 施工红线：禁止改上方旧规则本身的值（改了必被副本钉死），本规则完整重声明
+ * margin/padding/background-color/border/border-radius，不依赖级联留旧值 */
+.tomato-settings-dialog section.conf-group {
+    margin: 16px 12px 0;
+    padding: 8px;
+    background-color: color-mix(in srgb, var(--b3-theme-primary) 5%, var(--b3-theme-surface));
+    border: 1px solid var(--b3-border-color);
+    border-left: 3px solid var(--b3-theme-primary);
+    border-radius: var(--b3-border-radius);
+}
 /* 卡内设置行：行式布局 + hover 反馈，替代旧虚线分隔的单条盒子 */
 .tomato-settings-dialog .settingBox {
     margin: 2px 4px;
@@ -54,14 +73,201 @@
 .tomato-settings-dialog .settingBox > div:not(:first-child) {
     margin-left: 5%;
 }
-/* 分区标题：手动标记（.section-title）+ :has 兜底识别 Conf 组件里
- * 「纯标题行」（无输入控件、含帮助链接的行），拉开与正文的层级 */
-.tomato-settings-dialog .section-title,
-.tomato-settings-dialog .settingBox
-    > div:not(:has(input)):not(:has(select)):not(:has(textarea)):not(:has(button)):has(strong a) {
+/* ── 行内帮助行（2026-08-30 spec □2）──────────────────────────
+ * 放在所属行 div 内部第二段（非兄弟节点）：天然紧贴所属行、searchSettings 按行过滤不受影响；
+ * 属于缩进列（.settingBox > div:not(:first-child) 的 5%）内部内容，不再额外缩进。
+ * 治：长说明换行后第二行坠回面板最左缘脱离缩进列（旧 inline 流被 ~165px 输入框挤成窄条） */
+.tomato-settings-dialog .helpText {
+    margin-top: 2px;
+    font-size: 12px; /* 比 14px 正文小一号，对齐本文件 .kbd/.hk-hint 的 12px 档 */
+    line-height: 1.5;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface)); /* 透明度降一档，双主题自适应 */
+    overflow-wrap: anywhere; /* 超长路径/URL 可断行，不溢出 */
+    user-select: text; /* 示例路径可复制对照 */
+}
+/* ── 路径输入行：控件左 + 短标签右，行内 flex 布局 ──────────────
+ * 治：b3-text-field 默认 ~165px 硬截断无省略号。input 弹性吃满剩余宽度，
+ * 标签 flex-shrink:0 不被挤换行，帮助行 flex-basis:100% 独占下一行 */
+.tomato-settings-dialog .settingBox > .tomato-input-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: 8px;
+}
+.tomato-settings-dialog .settingBox > .tomato-input-row > input.b3-text-field {
+    flex: 1 1 240px;
+    min-width: 120px;
+    text-overflow: ellipsis; /* 极端长值显省略号（不引入悬停完整值，YAGNI） */
+}
+.tomato-settings-dialog .settingBox > .tomato-input-row > .tomato-row-label {
+    flex: 0 0 auto; /* 标签不收缩 */
+    white-space: nowrap;
+}
+.tomato-settings-dialog .settingBox > .tomato-input-row > .helpText,
+/* chips 行同理：帮助行独占一整行（chips 换行后仍贴行尾不挤压） */
+.tomato-settings-dialog .settingBox > .tomato-chip-row > .helpText {
+    flex: 1 0 100%; /* 帮助行独占一整行 */
+}
+/* ── 提示音选择化（□3）：下拉行 + 自定义展开行 ── */
+.tomato-settings-dialog .settingBox > .tomato-input-row > select.tomato-audio-select {
+    flex: 1 1 180px;
+    min-width: 140px;
+}
+.tomato-settings-dialog .tomato-audio-file-btn {
+    cursor: pointer;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    position: relative;
+}
+.tomato-settings-dialog .tomato-audio-file-input {
+    display: none; /* label 包裹隐藏原生 file input，点按钮即弹文件选择器 */
+}
+.tomato-settings-dialog .tomato-audio-invalid {
+    /* 本体 b3-text-field 用 outline 画边（border 宽 0），border-color 是空炮——染 outline 才真红 */
+    outline: 1px solid var(--b3-card-error-color);
+    outline-offset: -1px;
+    box-shadow: 0 0 0 1px var(--b3-card-error-color); /* 外圈补形：深色下单圈辨识弱 */
+}
+.tomato-settings-dialog .helpText.tomato-audio-invalid-hint {
+    /* 双类升权 (0,3,0)：progressive/recite 打包副本各带一份 .helpText 灰色规则，
+       同特异性 (0,2,0) 下后注入者胜会把红压回灰（vision 像素实证：从未红过） */
+    color: var(--b3-card-error-color);
+}
+/* ── 背景图自定义（□4）：缩略图 + 透明度滑块 + 非法标红（outline 画边/双类升权坑同 □3） ── */
+.tomato-settings-dialog .tomato-bg-thumb {
+    flex: 0 0 auto;
+    width: 48px;
+    height: 26px;
+    box-sizing: border-box;
+    border: 1px solid var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    line-height: 1;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+    white-space: nowrap;
+}
+.tomato-settings-dialog .tomato-bg-thumb--empty {
+    border-style: dashed; /* 空态=虚线框示意未配置 */
+}
+.tomato-settings-dialog .tomato-bg-thumb--broken {
+    border-style: dashed;
+    border-color: var(--b3-card-error-color); /* 坏链=红虚线框 + 外圈补形（vision P1：1px 虚线单信号在暗色下辨识弱，与输入框标红同款补救） */
+    box-shadow: 0 0 0 1px var(--b3-card-error-color);
+}
+.tomato-settings-dialog .tomato-bg-thumb--broken .tomato-bg-thumb-img {
+    display: none; /* 让位给文字信号（display:none 的 img 仍会加载并触发 onload，换 URL 可自愈） */
+}
+.tomato-settings-dialog .tomato-bg-thumb-broken-text {
+    font-size: 11px; /* 48px 内容盒 vs 4 字×12px=48px 会裁 2px，11px=44px 留余（vision P2） */
+    line-height: 1;
+    color: var(--b3-card-error-color); /* 与空态「未设置」同构的文字冗余信号 */
+}
+.tomato-settings-dialog .tomato-bg-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.tomato-settings-dialog .settingBox > .tomato-input-row > .tomato-bg-thumb + input.b3-text-field {
+    flex: 1 1 180px; /* 行内有 48px 缩略图+选文件按钮，输入框弹性基准比纯输入行收窄 */
+    min-width: 120px;
+    text-overflow: ellipsis;
+}
+.tomato-settings-dialog .tomato-bg-file-btn {
+    cursor: pointer;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    position: relative;
+}
+.tomato-settings-dialog .tomato-bg-file-input {
+    display: none; /* label 包裹隐藏原生 file input，点按钮即弹文件选择器 */
+}
+.tomato-settings-dialog .tomato-bg-invalid {
+    /* b3-text-field 用 outline 画边（border 宽 0），border-color 是空炮——染 outline 才真红（□3 同款） */
+    outline: 1px solid var(--b3-card-error-color);
+    outline-offset: -1px;
+    box-shadow: 0 0 0 1px var(--b3-card-error-color);
+}
+.tomato-settings-dialog .helpText.tomato-bg-invalid-hint {
+    /* 双类升权 (0,3,0) 防跨插件副本压制（□3 实证坑） */
+    color: var(--b3-card-error-color);
+}
+.tomato-settings-dialog .settingBox > .tomato-input-row > input.tomato-bg-opacity-slider {
+    flex: 1 1 180px;
+    min-width: 120px;
+    accent-color: var(--b3-theme-primary); /* 原生轨道填充色随主题（webkit 造型见 _slider.scss） */
+}
+.tomato-settings-dialog .tomato-bg-opacity-value {
+    flex: 0 0 auto;
+    min-width: 5.5em; /* 与「选择文件…」按钮视觉宽度对齐，三行行尾标签成一条纵列（vision P2） */
+    text-align: right;
+    font-variant-numeric: tabular-nums; /* 数字跳变不抖动 */
+}
+/* ── 番茄钟时长 chips（spec □2 整行重造）：b3 无现成 chip，自绘并挂对话框前缀 ── */
+.tomato-settings-dialog .tomato-chip-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: 6px;
+    row-gap: 6px; /* 窄面板 chips 换行时行间不贴脸（与 column-gap 拉开层级） */
+}
+.tomato-settings-dialog .tomato-chip {
+    padding: 1px 10px; /* 1+1px 边框 + 20px 行高 = 24px 总高，与 b3-switch 同档 */
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 20px;
+    color: var(--b3-theme-on-surface);
+    background-color: var(--b3-theme-surface-lighter);
+    border: solid 1px var(--b3-theme-surface-lighter);
+    border-radius: var(--b3-border-radius-b); /* 12px，24px 高呈胶囊形 */
+    cursor: pointer;
+    transition: var(--b3-transition);
+}
+.tomato-settings-dialog .tomato-chip--selected {
+    color: var(--b3-theme-on-primary); /* #fff on #3575f0，对比度达标 */
+    background-color: var(--b3-theme-primary);
+    border-color: var(--b3-theme-primary);
+    cursor: pointer; /* 再点一次=取消选择，仍可交互 */
+    font-weight: 500; /* 12px 白字小字对比度 4.2:1，压字重补足可读性（AA 线 4.5） */
+}
+.tomato-settings-dialog .tomato-chip:not(.tomato-chip--selected):not(.tomato-chip--disabled):hover {
+    color: var(--b3-theme-primary);
+    border-color: var(--b3-theme-primary);
+}
+.tomato-settings-dialog .tomato-chip--disabled,
+.tomato-settings-dialog .tomato-chip:disabled,
+.tomato-settings-dialog .tomato-chip-add:disabled {
+    opacity: 0.5; /* 对齐本文件 .hotkey-cap.unset 的 0.5 档 */
+    cursor: not-allowed;
+}
+.tomato-settings-dialog .tomato-chip-input {
+    width: 96px; /* 窄数字输入，占位长则自然裁剪 */
+}
+.tomato-settings-dialog .tomato-chip-add {
+    padding: 1px 10px; /* 压 b3-button 默认 padding，与 chip 同高 */
+    font-size: 12px;
+    line-height: 20px;
+}
+/* 分区标题：标题行显式挂 .section-title（对齐 IndexConf.svelte 快捷键区惯例）。
+ * 弃用 :has(input) 结构推断——「纯标题行」与「带开关主开关行」「带帮助链接行」
+ * 靠子元素结构无法稳定区分（近 bug：主开关行含 input 会被误排除/误命中） */
+.tomato-settings-dialog .section-title {
     font-size: 15px;
     font-weight: 600;
     color: var(--b3-theme-on-surface);
+}
+/* ── □5 升格标题行节奏（2026-08-30 spec □5）──────────────────
+ * 块首标题上缘 +4px 呼吸：块间距（20px）:标题→子行间距（5px）= 4:1，
+ * 让「标题带分区」的节奏可感而不过度留白。纯新增规则（无任何旧规则碰行内
+ * padding），progressive/recite 副本无同选择器规则，无双副本打架风险；
+ * 值用 padding 不用 margin——.settingBox > div:not(:last-child) 的
+ * margin-bottom:5px 被跨插件旧副本钉死，margin 上打不赢也不需要打 */
+.tomato-settings-dialog .settingBox > div.section-title {
+    padding-top: 4px;
 }
 .tomato-settings-dialog .save-row {
     display: flex;
@@ -78,7 +284,7 @@
 }
 .tomato-settings-dialog .codeNotValid {
     pointer-events: none;
-    opacity: 30%;
+    opacity: 50%; /* 未激活置灰档：与 .tomato-chip--disabled 同档（30% 暗色主题下标签难辨认） */
 }
 .tomato-settings-dialog .contentCenter {
     display: flex;

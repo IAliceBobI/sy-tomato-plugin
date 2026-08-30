@@ -9,8 +9,8 @@ import { domLnk, domRef } from "./libs/sydom";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
 
-export const Tag2RefBox模糊查找引用Ref = winHotkey("shift+alt+4", "模糊查找引用Ref 2025-5-12 18:46:16", "🔍", () => tomatoI18n.模糊查找引用 + "(ref)")
-export const Tag2RefBox模糊查找引用Lnk = winHotkey("shift+alt+7", "模糊查找引用Lnk 2025-5-12 18:46:16", "🔍", () => tomatoI18n.模糊查找链接 + "(lnk)")
+export const Tag2RefBox模糊查找引用Ref = winHotkey("shift+alt+4", "模糊查找引用Ref", "🔍", () => tomatoI18n.模糊查找引用 + "(ref)")
+export const Tag2RefBox模糊查找引用Lnk = winHotkey("shift+alt+7", "模糊查找引用Lnk", "🔍", () => tomatoI18n.模糊查找链接 + "(lnk)")
 
 class Tag2RefBox {
     public plugin: BaseTomatoPlugin;

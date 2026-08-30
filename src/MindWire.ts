@@ -9,8 +9,8 @@ import { tomatoI18n } from "./tomatoI18n";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { setGlobal } from "stonev5-utils";
 
-export const MindWire启用或禁用思维导线 = winHotkey("ctrl+alt+enter", "MindWire global 2025-5-25 00:00:02", "🌍🧠", () => tomatoI18n.启用或禁用全局思维导线, false, mindWireGlobalMenu)
-export const MindWire启用或禁用文档思维导线 = winHotkey("ctrl+shift+z", "MindWire doc 2025-5-25 00:00:02", "📜🧠", () => tomatoI18n.启用或禁用文档思维导线, false, mindWireDocMenu)
+export const MindWire启用或禁用思维导线 = winHotkey("ctrl+alt+enter", "MindWire global", "🌍🧠", () => tomatoI18n.启用或禁用全局思维导线, false, mindWireGlobalMenu)
+export const MindWire启用或禁用文档思维导线 = winHotkey("ctrl+shift+z", "MindWire doc", "📜🧠", () => tomatoI18n.启用或禁用文档思维导线, false, mindWireDocMenu)
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
 class MindWire {

@@ -65,7 +65,7 @@
 
     <!-- 同步块 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input
                 type="checkbox"
                 class="b3-switch"
@@ -145,7 +145,7 @@
     </div>
     <!-- 双向互链 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input
                 type="checkbox"
                 class="b3-switch"
@@ -227,7 +227,7 @@
     </div>
     <!-- DailyNote -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteBoxCheckbox} />
             {tomatoI18n.dailynote工具}
             <strong>

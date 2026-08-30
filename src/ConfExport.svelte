@@ -42,7 +42,7 @@
 
     <!-- 导出工作空间 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$markdownExportBoxCheckbox} />
             {tomatoI18n.导出工作空间}
             <strong>
@@ -169,7 +169,7 @@
     </div>
     <!-- 块编辑器 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$blockEditorBox} />
             块编辑器
             <strong>
@@ -188,7 +188,7 @@
     </div>
     <!-- 修复引用 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxCheckBox} />
             引用修复工具
             <strong>

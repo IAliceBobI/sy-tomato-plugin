@@ -317,7 +317,9 @@ const settingFactory = <T>(key: TSK, defaultValue: T, file: string, _void: TSK) 
 
 export const userToken = settingFactory("userToken", "", STORAGE_SETTINGS, null as TSK);
 export const userID = settingFactory("userID", "", STORAGE_SETTINGS, null as TSK);
-export const licenseCloudSynced = settingFactory("licenseCloudSynced", false, STORAGE_SETTINGS, null as TSK);
+// 语义 = 已回填激活码的 md5 指纹（libs/redeem.ts fingerprintOf，spec admin-codes 批次 B1）；
+// 升级前老值为布尔——读到的代码走指纹比对自然处理（布尔必然不等 → 触发一次幂等回填）
+export const licenseCloudSynced = settingFactory("licenseCloudSynced", "", STORAGE_SETTINGS, null as TSK);
 export const exportIntervalSec = settingFactory("exportIntervalSec", "5", STORAGE_SETTINGS, null as TSK);
 export const exportIntervalSecOn = settingFactory("exportIntervalSecOn", true, STORAGE_SETTINGS, null as TSK);
 export const exportCleanFiles = settingFactory("exportCleanFiles", "60", STORAGE_SETTINGS, null as TSK);
@@ -359,7 +361,9 @@ export const graphAddTopbarIcon = settingFactory("graphAddTopbarIcon", true, STO
 export const graph打开块关系图Menu = settingFactory("graphopengraphMenu", true, STORAGE_SETTINGS, null as TSK);
 export const graph定位到图中的节点Menu = settingFactory("graphlocatetographMenu", true, STORAGE_SETTINGS, null as TSK);
 export const tomatoClockCheckbox = settingFactory("tomatoClockCheckbox", true, STORAGE_SETTINGS, null as TSK);
-export const tomato_clocks_audio = settingFactory("tomato_clocks_audio", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", STORAGE_SETTINGS, null as TSK);
+export const tomato_clocks_audio = settingFactory("tomato_clocks_audio", "", STORAGE_SETTINGS, null as TSK);
+export const tomato_clocks_notice = settingFactory("tomato_clocks_notice", true, STORAGE_SETTINGS, null as TSK);
+export const tomato_clocks_focus = settingFactory("tomato_clocks_focus", true, STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks = settingFactory("tomato-clocks", "5,10,15,20,25,45", STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_force_dialog = settingFactory("tomato_clocks_force_dialog", true, STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_force_notice = settingFactory("tomato-clocks-force-notice", "", STORAGE_SETTINGS, null as TSK);
@@ -367,6 +371,8 @@ export const tomato_clocks_change_bg = settingFactory("tomato-clocks-change-bg",
 export const tomato_clocks_change_bg_dark = settingFactory("tomato-clocks-change-bg-dark", "", STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_position_right = settingFactory("tomato_clocks_position_right", true, STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_opacity = settingFactory("tomato_clocks_opacity", "0.16", STORAGE_SETTINGS, null as TSK);
+export const tomato_clocks_loop = settingFactory("tomato_clocks_loop", false, STORAGE_SETTINGS, null as TSK);
+export const tomato_clocks_break = settingFactory("tomato_clocks_break", "5", STORAGE_SETTINGS, null as TSK);
 export const toolbarBoxCheckbox = settingFactory("toolbarBoxCheckbox", true, STORAGE_SETTINGS, null as TSK);
 export const toolbarEN2CHBtn = settingFactory("toolbarEN2CHBtn", false, STORAGE_SETTINGS, null as TSK);
 export const toolbarTidy = settingFactory("toolbarTidy", false, STORAGE_SETTINGS, null as TSK);
@@ -545,17 +551,15 @@ export const commentBoxStaticOutlink = settingFactory("commentBoxStaticOutlink",
 // ---------------
 
 export const digestGlobalSigle = settingFactory("digestGlobalSigle", "0", STORAGE_Prog_SETTINGS, null as TSK);
-export const digest2Trace = settingFactory("digest2Trace", false, STORAGE_Prog_SETTINGS, null as TSK);
+// □11 退役（2026-08-30，旧持久化值留着无害）：digest2Trace（trace 文档机制退役→路线图浮层）、
+// doubleClick2DigestMobile/Desktop + add2piecesBtn2lockIcon + add2digBtn2lockIcon
+// （双击摘抄浮钮与锁图标旁两钮退役——摘抄入口统一收进浮条/⌥Z/⇧⌥Z）。
 export const digestAddReadingpoint = settingFactory("digestAddReadingpoint", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const digest2dailycard = settingFactory("digest2dailycard", false, STORAGE_Prog_SETTINGS, null as TSK);
-export const doubleClick2DigestMobile = settingFactory("doubleClick2Digest", true, STORAGE_Prog_SETTINGS, null as TSK);
 // v5 火苗档位：每日目标片数（"1"/"3"/"5"，默认 3）——滚筒欠债=Σ max(0, 当日q−当日已读)
 export const dailyQuota = settingFactory("dailyQuota", "3", STORAGE_Prog_SETTINGS, null as TSK);
 export const digestmenu = settingFactory("digestmenu", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const piecesmenu = settingFactory("piecesmenu", true, STORAGE_Prog_SETTINGS, null as TSK);
-export const doubleClick2DigestDesktop = settingFactory("doubleClick2DigestDesktop", false, STORAGE_Prog_SETTINGS, null as TSK);
-export const add2piecesBtn2lockIcon = settingFactory("add2piecesBtn2lockIcon", false, STORAGE_Prog_SETTINGS, null as TSK);
-export const add2digBtn2lockIcon = settingFactory("add2digBtn2lockIcon", false, STORAGE_Prog_SETTINGS, null as TSK);
 // v5 □7 设置砍半：words2dailycard/finishPieceCreateAt/PieceSummaryBoxmenu/merg2newBookEnable/
 // getAllPieceNotesEnable/multilineMarkEnable/send2* 六件/makeCard* 两件/summary2dailynote/
 // PieceMoving*/ProgressiveViewAllMenu 共 18 个显隐与计划流 store 退役（旧持久化值留着无害）。
@@ -569,7 +573,10 @@ export const digestNoBacktraceLink = settingFactory("digestNoBacktraceLink", tru
 export const pieceNoBacktraceLink = settingFactory("pieceNoBacktraceLink", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveStart2learn = settingFactory("ProgressiveStart2learn", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveJumpMenu = settingFactory("ProgressiveJumpMenu", true, STORAGE_Prog_SETTINGS, null as TSK);
-export const markOriginText = settingFactory("markOriginText", false, STORAGE_Prog_SETTINGS, null as TSK);
+// □12 退役（2026-08-30，旧持久化值留着无害）：markOriginText（制卡/摘抄在原文写 + 链接、
+// & 链接与 style 背景落盘）——摘抄标记零触碰统一，原文痕迹唯一机制=digestMarker span 渲染态。
+// v5 □12 语义更新：markOriginTextBG 从「写 style 到 .sy」改为「CSS div:has(> .prog-digest-mark)
+// 渲染态背景」的总开关（index.ts 订阅挂 body 类 prog-digest-bg-on，span 在则背景在）
 export const markOriginTextBG = settingFactory("markOriginTextBG", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const hideBtnsInFlashCard = settingFactory("hideBtnsInFlashCard", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const openCardsOnOpenPiece = settingFactory("openCardsOnOpenPiece", false, STORAGE_Prog_SETTINGS, null as TSK);
@@ -577,6 +584,15 @@ export const cardUnderPiece = settingFactory("cardUnderPiece", false, STORAGE_Pr
 export const cardAppendTime = settingFactory("cardAppendTime", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const mobileTopBar = settingFactory("mobileTopBar", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const initProgFloatBtnsDisable = settingFactory("initProgFloatBtnsDisable", false, STORAGE_Prog_SETTINGS, null as TSK);
+// 片态浮条首行勾选集（设置面板「浮条」区 checkbox 清单，□10 方案 B：勾=站首行大钮，
+// 未勾=落平铺区小格）；默认 = v5 编排（□18 增 addBook——已落盘的旧六项存储不回填，
+// 由 PIECE_MAIN_POOL 平铺区兜底可见，拖上首行即入清单）
+export const floatbarMainBtns = settingFactory(
+    "floatbarMainBtns", ["digest", "cards", "swap", "next", "prev", "origin", "addBook"], STORAGE_Prog_SETTINGS, null as TSK);
+// □14b 平铺区折叠偏好：持久化（布局偏好非临时状态，重启不再收一次）；默认展开与
+// □10 已发布行为兼容
+export const floatbarFlatCollapsed = settingFactory(
+    "floatbarFlatCollapsed", false, STORAGE_Prog_SETTINGS, null as TSK);
 
 // ---------------
 export const navSourceBlock = settingFactory("navSourceBlock", true, STORAGE_SETTINGS, null as TSK);

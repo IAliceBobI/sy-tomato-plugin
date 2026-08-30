@@ -17,14 +17,14 @@ import { mount } from "svelte";
 import CardBoxFloatSvelte from "./CardBoxFloat.svelte";
 import { setGlobal } from "stonev5-utils";
 
-export const CardBox用选中的行创建超级块超级块制卡取消制卡 = winHotkey("shift+ctrl+1", "addFlashCard2025年5月4日13:53:52", "🗃️", () => tomatoI18n.用选中的行创建超级块超级块制卡取消制卡, false, cardBoxSuperCard)
-export const CardBox复习时删除当前闪卡 = winHotkey("alt+F9", "delCard2025-5-10 12:40:25", "", () => tomatoI18n.复习时删除当前闪卡)
-export const CardBox闪卡复习时打开闪卡设置 = winHotkey("⇧⌥U", "opensettings2025-5-10 13:12:14", "", () => tomatoI18n.闪卡复习时打开闪卡设置)
-export const CardBox删除内容块 = winHotkey("⌘⇧9", "del card block 2024-12-19 00:24:07", "", () => tomatoI18n.删除内容块)
-export const CardBox复习时跳过当前闪卡 = winHotkey("shift+alt+8", "skipCard2025-5-10 12:44:19", "", () => tomatoI18n.复习时跳过当前闪卡)
-export const CardBox取消当前文档内所有闪卡 = winHotkey("F8", "remove cards in doc 2025-5-10 00:11:45", "", () => tomatoI18n.取消当前文档内所有闪卡)
-export const CardBox清理所有失效的闪卡 = winHotkey("⌘⇧7", "clean invalid cards 2024年12月18日21:31:32", "", () => tomatoI18n.清理所有失效的闪卡)
-export const CardBox定位闪卡 = winHotkey("⌘⌥J", "jump to card 2024年12月18日21:31:32", "", () => tomatoI18n.定位闪卡)
+export const CardBox用选中的行创建超级块超级块制卡取消制卡 = winHotkey("shift+ctrl+1", "addFlashCard", "🗃️", () => tomatoI18n.用选中的行创建超级块超级块制卡取消制卡, false, cardBoxSuperCard)
+export const CardBox复习时删除当前闪卡 = winHotkey("alt+F9", "delCard", "", () => tomatoI18n.复习时删除当前闪卡)
+export const CardBox闪卡复习时打开闪卡设置 = winHotkey("⇧⌥U", "opensettings", "", () => tomatoI18n.闪卡复习时打开闪卡设置)
+export const CardBox删除内容块 = winHotkey("⌘⇧9", "del card block", "", () => tomatoI18n.删除内容块)
+export const CardBox复习时跳过当前闪卡 = winHotkey("shift+alt+8", "skipCard", "", () => tomatoI18n.复习时跳过当前闪卡)
+export const CardBox取消当前文档内所有闪卡 = winHotkey("F8", "remove cards in doc", "", () => tomatoI18n.取消当前文档内所有闪卡)
+export const CardBox清理所有失效的闪卡 = winHotkey("⌘⇧7", "clean invalid cards", "", () => tomatoI18n.清理所有失效的闪卡)
+export const CardBox定位闪卡 = winHotkey("⌘⌥J", "jump to card", "", () => tomatoI18n.定位闪卡)
 
 class CardBox {
     private plugin: BaseTomatoPlugin;

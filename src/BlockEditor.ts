@@ -7,7 +7,7 @@ import { mount, unmount } from "svelte";
 import { DestroyManager } from "./libs/destroyer";
 import { BlockNodeEnum } from "./libs/gconst";
 
-export const BlockEditor打开编辑器 = winHotkey("alt+shift+5", "BlockEditor打开编辑器 2025年9月1日21:31:49", "📝", () => tomatoI18n.块编辑器, false, blockEditorMenu)
+export const BlockEditor打开编辑器 = winHotkey("alt+shift+5", "BlockEditor打开编辑器", "📝", () => tomatoI18n.块编辑器, false, blockEditorMenu)
 
 class BlockEditor {
     private dm: DestroyManager;

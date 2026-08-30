@@ -5,8 +5,8 @@ import { winHotkey } from "./libs/winHotkey";
 import { IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
 import { tomatoI18n } from "./tomatoI18n";
-export const SuperRefBox全局加固引用 = winHotkey("alt+shift+ctrl+1", "SuperRefBox全局加固引用2025年8月30日16:24:14", "🦸🔗", () => tomatoI18n.全局加固文档引用, false, superRefBoxGlobalLnkMenu)
-export const SuperRefBox全局修复引用 = winHotkey("alt+shift+ctrl+2", "SuperRefBox修复文档引用2025年8月30日16:24:12", "🦸🔗", () => tomatoI18n.全局修复文档引用, false, superRefBoxGlobalFixMenu)
+export const SuperRefBox全局加固引用 = winHotkey("alt+shift+ctrl+1", "SuperRefBox全局加固引用", "🦸🔗", () => tomatoI18n.全局加固文档引用, false, superRefBoxGlobalLnkMenu)
+export const SuperRefBox全局修复引用 = winHotkey("alt+shift+ctrl+2", "SuperRefBox修复文档引用", "🦸🔗", () => tomatoI18n.全局修复文档引用, false, superRefBoxGlobalFixMenu)
 
 class SuperRefBox {
     async onload() {

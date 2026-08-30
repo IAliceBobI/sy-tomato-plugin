@@ -22,21 +22,21 @@ import { mount } from "svelte";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
-export const LinkBox查看所有同步位置 = winHotkey("F1", "list refs show all place 2025-5-11 22:11:31", "🕒🔄", () => tomatoI18n.查看所有同步位置)
-export const LinkBox同步块选择 = winHotkey("⌘F1", "list refs 2025-5-11 22:11:26", "", () => tomatoI18n.同步块选择)
-export const LinkBox同步块创建 = winHotkey("⌘F2", "list refs 2025-5-11 22:11:22", "", () => tomatoI18n.同步块创建)
-export const LinkBoxbilink = winHotkey("⌥/", "bilink 2025-5-11 22:11:17", "🔗", () => tomatoI18n.双向互链)
-export const LinkBox链接到块底部 = winHotkey("⌥F3", "lnk2bottom 2025-5-11 22:11:13", "", () => tomatoI18n.链接到块底部)
-export const LinkBox双向互链选择块 = winHotkey("⌥F1", "bilinkSelectBlock 2025-5-11 22:11:08", "", () => tomatoI18n.双向互链选择块)
-export const LinkBox双向互链创建往返链 = winHotkey("⌥F2", "bilinkSelectBlock 2025-5-11 22:11:04", "", () => tomatoI18n.双向互链创建往返链)
-export const LinkBox修复双向链接 = winHotkey("⌥⇧F1", "fixLnk 2025-5-11 22:10:56", "", () => tomatoI18n.修复双向链接)
-export const LinkBox删除双向链接 = winHotkey("⌥⇧F2", "remove link 2025年9月1日16:08:16", "", () => tomatoI18n.删除双向链接)
-export const LinkBox嵌入互链选择 = winHotkey("⇧⌥1", "bilinkSelectBlock 2025-5-11 22:10:51", "", () => tomatoI18n.嵌入互链选择)
-export const LinkBox嵌入互链创建 = winHotkey("⇧⌥2", "bilinkCreateLnk 2025-5-11 22:10:47", "", () => tomatoI18n.嵌入互链创建)
-export const LinkBox关联两个块选择 = winHotkey("⌘⌥[", "bilinkSelectBlockRefOnly 2025-5-11 22:33:00", "", () => tomatoI18n.关联两个块选择)
-export const LinkBox关联两个块创建 = winHotkey("⌘⌥]", "bilinkCreateLnkRefOnly 2025-5-11 22:34:04", "", () => tomatoI18n.关联两个块创建)
-export const LinkBox互相插入引用于下方选择 = winHotkey("⌘⇧F1", "bidirection refs 2025-5-11 22:36:28", "", () => tomatoI18n.互相插入引用于下方选择)
-export const LinkBox互相插入引用于下方创建 = winHotkey("⌘⇧F2", "bidirection refs 2025-5-11 22:37:12", "", () => tomatoI18n.互相插入引用于下方创建)
+export const LinkBox查看所有同步位置 = winHotkey("F1", "list refs show all place", "🕒🔄", () => tomatoI18n.查看所有同步位置)
+export const LinkBox同步块选择 = winHotkey("⌘F1", "list refs select", "", () => tomatoI18n.同步块选择)
+export const LinkBox同步块创建 = winHotkey("⌘F2", "list refs create", "", () => tomatoI18n.同步块创建)
+export const LinkBoxbilink = winHotkey("⌥/", "bilink", "🔗", () => tomatoI18n.双向互链)
+export const LinkBox链接到块底部 = winHotkey("⌥F3", "lnk2bottom", "", () => tomatoI18n.链接到块底部)
+export const LinkBox双向互链选择块 = winHotkey("⌥F1", "bilinkSelectBlock", "", () => tomatoI18n.双向互链选择块)
+export const LinkBox双向互链创建往返链 = winHotkey("⌥F2", "bilinkSelectBlock roundtrip", "", () => tomatoI18n.双向互链创建往返链)
+export const LinkBox修复双向链接 = winHotkey("⌥⇧F1", "fixLnk", "", () => tomatoI18n.修复双向链接)
+export const LinkBox删除双向链接 = winHotkey("⌥⇧F2", "remove link", "", () => tomatoI18n.删除双向链接)
+export const LinkBox嵌入互链选择 = winHotkey("⇧⌥1", "bilinkSelectBlock embed", "", () => tomatoI18n.嵌入互链选择)
+export const LinkBox嵌入互链创建 = winHotkey("⇧⌥2", "bilinkCreateLnk", "", () => tomatoI18n.嵌入互链创建)
+export const LinkBox关联两个块选择 = winHotkey("⌘⌥[", "bilinkSelectBlockRefOnly", "", () => tomatoI18n.关联两个块选择)
+export const LinkBox关联两个块创建 = winHotkey("⌘⌥]", "bilinkCreateLnkRefOnly", "", () => tomatoI18n.关联两个块创建)
+export const LinkBox互相插入引用于下方选择 = winHotkey("⌘⇧F1", "bidirection refs select", "", () => tomatoI18n.互相插入引用于下方选择)
+export const LinkBox互相插入引用于下方创建 = winHotkey("⌘⇧F2", "bidirection refs create", "", () => tomatoI18n.互相插入引用于下方创建)
 
 
 class LinkBox {

@@ -16,21 +16,21 @@ import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
-export const MixBox删除块以及闪卡 = winHotkey("ctrl+alt+D", "delete 2025-5-12 09:00:20", "", () => tomatoI18n.删除块以及闪卡)
-export const MixBox内容制表 = winHotkey("alt+shift+T", "tab 2025-5-12 12:15:07", "", () => tomatoI18n.内容制表)
-export const MixBox使内容模糊 = winHotkey("alt+shift+D", "blur 2025-5-12 12:15:08", "", () => tomatoI18n.使内容模糊)
-export const MixBox跳转到剪贴板中ID的块 = winHotkey("alt+shift+J", "jump 2025-5-12 12:15:09", "", () => tomatoI18n.跳转到剪贴板中ID的块)
-export const MixBox添加一个flag书签 = winHotkey("alt+shift+K", "flag 2025-5-12 12:15:11", "", () => tomatoI18n.添加一个flag书签)
-export const MixBox删除所有flag书签 = winHotkey("alt+shift+0", "del flags 2025-5-12 12:15:11", "", () => tomatoI18n.删除所有flag书签)
-export const MixBox空格隔开的所有内容都转为引用 = winHotkey("alt+shift+F3", "txt2ref 2025-5-12 12:15:11", "", () => tomatoI18n.将选中的内容转为引用)
-export const MixBox收集当前文档与子文档所有的未完成任务 = winHotkey("⌘⇧w", "收集当前文档与子文档所有的未完成任务 2025-5-12 12:15:11", "", () => tomatoI18n.收集当前文档与子文档所有的未完成任务)
-export const MixBox列出当前文档与子文档中没被引用的文档 = winHotkey("⌘⇧q", "列出当前文档与子文档中没被引用的文档 2025-5-12 12:15:11", "", () => tomatoI18n.列出当前文档与子文档中没被引用的文档)
-export const MixBox将选择文字与其拼音加入文档的别名 = winHotkey("⌘⇧Y", "将选择文字与其拼音加入文档的别名 2025-5-12 12:15:11", "🎵", () => tomatoI18n.将选择文字与其拼音加入文档的别名 + "(pinyin)")
-export const MixBox将选择文字加入文档的别名 = winHotkey("⌘⇧U", "MixBox将选择文字加入文档的别名 2025-5-12 12:15:11", "", () => tomatoI18n.将选择文字加入文档的别名)
-export const MixBox定位所有引用Menu = winHotkey("⌥⇧A", "定位所有引用Menu 2025-5-12 12:15:11", "📍🔗", () => tomatoI18n.定位所有引用Menu)
-export const MixBox复制文档为标准Markdown = winHotkey("⌥⇧B", "复制文档为标准Markdown 2025-5-12 12:15:11", "📜📋", () => tomatoI18n.复制文档为标准Markdown)
-export const MixBox锁定内容 = winHotkey("⌥⇧L", "锁定内容 2025-5-12 12:15:11", "🔒/🔓", () => tomatoI18n.锁定内容)
-export const MixBox复制文档为纯文本 = winHotkey("alt+ctrl+shift+B", "复制文档为纯文本 2025-5-12 12:15:11", "", () => tomatoI18n.复制文档为纯文本)
+export const MixBox删除块以及闪卡 = winHotkey("ctrl+alt+D", "delete", "", () => tomatoI18n.删除块以及闪卡)
+export const MixBox内容制表 = winHotkey("alt+shift+T", "tab", "", () => tomatoI18n.内容制表)
+export const MixBox使内容模糊 = winHotkey("alt+shift+D", "blur", "", () => tomatoI18n.使内容模糊)
+export const MixBox跳转到剪贴板中ID的块 = winHotkey("alt+shift+J", "jump", "", () => tomatoI18n.跳转到剪贴板中ID的块)
+export const MixBox添加一个flag书签 = winHotkey("alt+shift+K", "flag", "", () => tomatoI18n.添加一个flag书签)
+export const MixBox删除所有flag书签 = winHotkey("alt+shift+0", "del flags", "", () => tomatoI18n.删除所有flag书签)
+export const MixBox空格隔开的所有内容都转为引用 = winHotkey("alt+shift+F3", "txt2ref", "", () => tomatoI18n.将选中的内容转为引用)
+export const MixBox收集当前文档与子文档所有的未完成任务 = winHotkey("⌘⇧w", "收集当前文档与子文档所有的未完成任务", "", () => tomatoI18n.收集当前文档与子文档所有的未完成任务)
+export const MixBox列出当前文档与子文档中没被引用的文档 = winHotkey("⌘⇧q", "列出当前文档与子文档中没被引用的文档", "", () => tomatoI18n.列出当前文档与子文档中没被引用的文档)
+export const MixBox将选择文字与其拼音加入文档的别名 = winHotkey("⌘⇧Y", "将选择文字与其拼音加入文档的别名", "🎵", () => tomatoI18n.将选择文字与其拼音加入文档的别名 + "(pinyin)")
+export const MixBox将选择文字加入文档的别名 = winHotkey("⌘⇧U", "MixBox将选择文字加入文档的别名", "", () => tomatoI18n.将选择文字加入文档的别名)
+export const MixBox定位所有引用Menu = winHotkey("⌥⇧A", "定位所有引用Menu", "📍🔗", () => tomatoI18n.定位所有引用Menu)
+export const MixBox复制文档为标准Markdown = winHotkey("⌥⇧B", "复制文档为标准Markdown", "📜📋", () => tomatoI18n.复制文档为标准Markdown)
+export const MixBox锁定内容 = winHotkey("⌥⇧L", "锁定内容", "🔒/🔓", () => tomatoI18n.锁定内容)
+export const MixBox复制文档为纯文本 = winHotkey("alt+ctrl+shift+B", "复制文档为纯文本", "", () => tomatoI18n.复制文档为纯文本)
 
 class MixBox {
     plugin: BaseTomatoPlugin;

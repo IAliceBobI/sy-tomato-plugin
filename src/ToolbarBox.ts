@@ -11,10 +11,10 @@ import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
 import { setGlobal } from "stonev5-utils";
 
-export const ToolBarBox间隔重复 = winHotkey("alt+backspace", "间隔重复 2025-5-12 19:34:21", "iconRiffCard", () => tomatoI18n.复习闪卡)
-export const ToolBarBox刷新虚拟引用 = winHotkey("alt+delete", "刷新虚拟引用 2025-5-12 19:34:22", "iconRef", () => tomatoI18n.刷新虚拟引用)
-export const ToolBarBox突出定位文档 = winHotkey("alt+enter", "突出定位文档 2025-5-12 19:34:24", "iconFocus", () => tomatoI18n.突出定位文档)
-export const ToolBarBox整理assets下的图片视频音频 = winHotkey("ctrl+alt+shift+F9", "整理assets下的图片视频音频 2025-5-12 19:34:26", "iconMove", () => tomatoI18n.整理assets下的图片视频音频)
+export const ToolBarBox间隔重复 = winHotkey("alt+backspace", "间隔重复", "iconRiffCard", () => tomatoI18n.复习闪卡)
+export const ToolBarBox刷新虚拟引用 = winHotkey("alt+delete", "刷新虚拟引用", "iconRef", () => tomatoI18n.刷新虚拟引用)
+export const ToolBarBox突出定位文档 = winHotkey("alt+enter", "突出定位文档", "iconFocus", () => tomatoI18n.突出定位文档)
+export const ToolBarBox整理assets下的图片视频音频 = winHotkey("ctrl+alt+shift+F9", "整理assets下的图片视频音频", "iconMove", () => tomatoI18n.整理assets下的图片视频音频)
 
 class ToolbarBox {
     public plugin: BaseTomatoPlugin;

@@ -421,21 +421,22 @@ export abstract class TomatoI18nABC8 extends TomatoI18nABC9 {
                 return "Click on the citation count to locate all citations";
         }
     }
+    // 背景图透明度：短标签（2026-08-30 翻新，取值说明挪至 背景图透明度帮助 key）
     public get 背景图透明度() {
         switch (this.lang) {
             case "zh_CN":
-                return "背景图透明度，0到1之间。";
+                return "背景图透明度";
             case "es_ES":
-                return "Opacidad de la imagen de fondo, entre 0 y 1.";
+                return "Opacidad de la imagen de fondo";
             case "fr_FR":
-                return "Opacité de l'image de fond, entre 0 et 1.";
+                return "Opacité de l'image de fond";
             case "ja_JP":
-                return "背景画像の透明度、0から1の間。";
+                return "背景画像の透明度";
             case "zh_CHT":
-                return "背景圖透明度，0到1之間。";
+                return "背景圖透明度";
 
             default:
-                return "Background image opacity, between 0 and 1.";
+                return "Background image opacity";
         }
     }
     public get 创建文件时制卡() {

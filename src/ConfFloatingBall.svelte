@@ -93,7 +93,7 @@
 
     <!-- 悬浮球 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$floatingballEnable} />
             {tomatoI18n.悬浮球}
             <strong>

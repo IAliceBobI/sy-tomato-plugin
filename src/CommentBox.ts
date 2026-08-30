@@ -16,9 +16,9 @@ import { mount } from "svelte";
 const DOCK_TYPE = "dock_CommentBox";
 const TAB_TYPE = "custom_tab_CommentBox"
 
-export const CommentBox添加批注到日记 = winHotkey("⇧⌥F", "comment box 2024-12-20 12:01:14", "iconQuoteTomato", () => tomatoI18n.添加批注到日记, false)
-export const CommentBoxTab批注 = winHotkey("⇧⌥I", "comment tab 2025-6-7 12:24:11", "iconQuoteTomato", () => tomatoI18n.批注, false)
-export const CommentBox刷新文档正引 = winHotkey("F9", "comment refresh ref 2025年6月12日17:51:13", "iconQuoteTomato", () => tomatoI18n.刷新文档正引, true)
+export const CommentBox添加批注到日记 = winHotkey("⇧⌥F", "comment box", "iconQuoteTomato", () => tomatoI18n.添加批注到日记, false)
+export const CommentBoxTab批注 = winHotkey("⇧⌥I", "comment tab", "iconQuoteTomato", () => tomatoI18n.批注, false)
+export const CommentBox刷新文档正引 = winHotkey("F9", "comment refresh ref", "iconQuoteTomato", () => tomatoI18n.刷新文档正引, true)
 
 class CommentBox {
     plugin: BaseTomatoPlugin;

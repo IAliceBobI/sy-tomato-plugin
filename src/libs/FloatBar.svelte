@@ -25,8 +25,10 @@
     }: PropsType = $props();
 
     let bar: HTMLElement = $state();
+    // □14 双浮条撞位：消费方只有渐进两浮条（v5 未发布无存量），默认位挪左下象限与
+    // recite 浮条 (200,200) 左上错开；拖过一次后 localStorage 位置记忆接管
     let x = $state(200);
-    let y = $state(200);
+    let y = $state(Math.max(0, window.innerHeight - 200));
 
     // svelte-ignore state_referenced_locally
     // 位置键挂载时读一次即可（实例生命周期内不变，显隐变化走外层 {#if} 重挂载）
@@ -93,8 +95,13 @@
         clamp(); // 存的位置可能超当前视口（换设备/改窗口后）
         const onResize = () => clamp();
         window.addEventListener("resize", onResize);
+        // 内容长高（子面板展开等）时底部可能溢出视口——拖拽/resize 之外的第三个钳位时机；
+        // clamp 同值不触发 Svelte 更新，无回环（渐进 □10 平铺区常驻后实测必踩）
+        const ro = new ResizeObserver(() => clamp());
+        ro.observe(bar);
         return () => {
             window.removeEventListener("resize", onResize);
+            ro.disconnect();
         };
     });
 </script>

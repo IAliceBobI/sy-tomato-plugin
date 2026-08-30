@@ -3,7 +3,6 @@
     import { onDestroy, onMount } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
     import { TomatoClockID, tomatoClock } from "./TomatoClock";
-    import { tomato_clocks_audio } from "./libs/stores";
     import { tomatoI18n } from "./tomatoI18n";
 
     interface Props {
@@ -21,19 +20,7 @@
     };
 
     onMount(async () => {
-        // 播放声音
-        if (tomato_clocks_audio.get()) {
-            const audio = new Audio(tomato_clocks_audio.get());
-            try {
-                audio.play();
-            } catch (e) {
-                console.error("Failed to play audio:", e);
-            }
-            dm?.add("close audio", () => {
-                audio.pause();
-                audio.currentTime = 0;
-            });
-        }
+        // 到点声音由 TomatoClock.onPhaseComplete 统一播（□2 收敛：组件不再自带音源，避免双音源打架）
         if (dm) {
             window.addEventListener("keydown", handleEscapePress);
             dm.add("Escape Key Lisener", () =>

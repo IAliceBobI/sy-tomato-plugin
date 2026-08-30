@@ -177,3 +177,21 @@
     stroke-dashoffset: 0;
   }
 }
+// 状态栏番茄钟 □1（2026-08-29）：常驻倒计时文本 + 正在计时档位高亮（运行中/暂停两态）
+#tomato-countdown {
+    cursor: pointer;
+    min-width: 3.6em;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+.toolbar__item.tomato-clock-running {
+    color: var(--b3-theme-primary);
+    background-color: var(--b3-theme-primary-lightest);
+    border-radius: 4px;
+}
+.toolbar__item.tomato-clock-paused {
+    color: var(--b3-theme-primary);
+    background-color: var(--b3-theme-primary-lightest);
+    border-radius: 4px;
+    opacity: 0.55;
+}

@@ -5,7 +5,7 @@ import { findListTypeByElement } from "./libs/listUtils";
 import { tomatoI18n } from "./tomatoI18n";
 import { winHotkey } from "./libs/winHotkey";
 
-export const ScheduleCopyID = winHotkey("shift+alt+3", "copy id 2025-5-12 18:46:16", "", () => tomatoI18n.复制ID)
+export const ScheduleCopyID = winHotkey("shift+alt+3", "copy id", "", () => tomatoI18n.复制ID)
 
 /*
 *    *    *    *    *    * 

@@ -9,10 +9,10 @@ import { auto_card_priority, cardPriorityBoxCheckbox, cardPriorityBoxPostponeCar
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 
-export const CardPriorityBox修改文档中闪卡优先级 = winHotkey("F6", "cardPrioritySet2025-5-10 11:18:36")
-export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8", "delay all cards spread on x days 2024-12-19 14:41:11", "🌊🛑", () => tomatoI18n.分散推迟闪卡, true, cardPriorityBoxSpradDelayMenu)
-export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9", "delay all cards 2025-5-10 12:31:04")
-export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y", "resume all cards 2025-5-10 12:31:04")
+export const CardPriorityBox修改文档中闪卡优先级 = winHotkey("F6", "cardPrioritySet")
+export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8", "delay all cards spread on x days", "🌊🛑", () => tomatoI18n.分散推迟闪卡, true, cardPriorityBoxSpradDelayMenu)
+export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9", "delay all cards")
+export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y", "resume all cards")
 import { winHotkey } from "./libs/winHotkey";
 import { setGlobal, shuffleArray } from "stonev5-utils";
 import { mount } from "svelte";

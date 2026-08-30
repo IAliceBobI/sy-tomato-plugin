@@ -49,8 +49,8 @@ export class FloatingBall {
     }
 }
 
-export const FloatingBall添加文档 = winHotkey("shift+alt+ctrl+f5", "绑定文档到悬浮按钮 2025-06-23 11:22:43", "🔗", () => tomatoI18n.绑定文档到悬浮按钮, false, floatingballDocMenu)
-export const FloatingBallTab添加文档 = winHotkey("shift+alt+h", "FloatingBallTab添加文档 2025-06-23 11:22:42", "🔗", () => tomatoI18n.绑定文档到Tab, false, floatingballDocTabMenu)
+export const FloatingBall添加文档 = winHotkey("shift+alt+ctrl+f5", "绑定文档到悬浮按钮", "🔗", () => tomatoI18n.绑定文档到悬浮按钮, false, floatingballDocMenu)
+export const FloatingBallTab添加文档 = winHotkey("shift+alt+h", "FloatingBallTab添加文档", "🔗", () => tomatoI18n.绑定文档到Tab, false, floatingballDocTabMenu)
 
 export function linkDoc2floatBall(addDoc_docName: string, addDoc_docIcon: string, addDoc_useDialog: number) {
     if (addDoc_docName) {

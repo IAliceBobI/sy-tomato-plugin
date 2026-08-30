@@ -613,73 +613,22 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
         }
     }
 
-    public get 番茄钟时长多个间用逗号隔开() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "番茄钟时长（多个间用逗号隔开）";
-            case "es_ES":
-                return "Duración del temporizador Pomodoro (separadas por comas)";
-            case "fr_FR":
-                return "Durée du chronomètre Pomodoro (séparées par des virgules)";
-            case "ja_JP":
-                return "ポモドーロタイマーの長さ（カンマで区切られた複数）";
-            case "zh_CHT":
-                return "番茄鐘時長（多個間用逗號隔開）";
-
-            default:
-                return "Pomodoro timer durations (separated by commas)";
-        }
-    }
+    // 随机视频：短标签（2026-08-30 翻新，长说明挪至 随机视频帮助 key）
     public get 随机视频() {
         switch (this.lang) {
             case "zh_CN":
-                return "随机视频：提供思源的文档名（无路径，无后缀），时间到会从文档与子文档中挑一个视频播放。即使用其他软件，也会弹窗。";
+                return "随机视频";
             case "es_ES":
-                return "Video aleatorio: Proporciona el nombre del documento de Siyuan (sin ruta, sin extensión). Cuando llegue el tiempo, se seleccionará un video de los documentos y subdocumentos para reproducir. Incluso si se usa otro software, aparecerá una ventana emergente.";
+                return "Vídeo aleatorio";
             case "fr_FR":
-                return "Vidéo aléatoire : Fournit le nom du document de Siyuan (sans chemin, sans extension). Lorsque le temps est écoulé, un vidéo sera sélectionnée parmi les documents et sous-documents pour être jouée. Même si un autre logiciel est utilisé, une fenêtre contextuelle apparaîtra.";
+                return "Vidéo aléatoire";
             case "ja_JP":
-                return "ランダムビデオ：思源のドキュメント名（パスなし、拡張子なし）を提供します。時間になると、ドキュメントとサブドキュメントからビデオが選択されて再生されます。他のソフトウェアを使用していても、ポップアップウィンドウが表示されます。";
+                return "ランダム動画";
             case "zh_CHT":
-                return "隨機視頻：提供思源的文檔名（無路徑，無後綴），時間到會從文檔與子文檔中挑一個視頻播放。即使用其他軟件，也會彈窗。";
+                return "隨機視頻";
 
             default:
-                return "Random Video: Provides the document name of Siyuan (no path, no extension). When the time comes, a video will be selected from the documents and sub-documents to play. Even if another software is used, a pop-up window will appear.";
-        }
-    }
-    public get 计时后修改背景明亮模式() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "计时后修改背景-明亮模式。比如填入：assets/dd-20240206160021-tz7aefu.jpeg";
-            case "es_ES":
-                return "Cambiar el fondo después del tiempo - Modo claro. Por ejemplo, ingrese: assets/dd-20240206160021-tz7aefu.jpeg";
-            case "fr_FR":
-                return "Changer l'arrière-plan après le temps - Mode clair. Par exemple, entrer : assets/dd-20240206160021-tz7aefu.jpeg";
-            case "ja_JP":
-                return "時間経過後に背景を変更 - 明るいモード。例えば、次のように入力します：assets/dd-20240206160021-tz7aefu.jpeg";
-            case "zh_CHT":
-                return "計時後修改背景-明亮模式。例如填入：assets/dd-20240206160021-tz7aefu.jpeg";
-
-            default:
-                return "Change background after timing - Light mode. For example, enter: assets/dd-20240206160021-tz7aefu.jpeg";
-        }
-    }
-
-    public get 计时后修改背景黑暗模式() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "计时后修改背景-黑暗模式。比如填入：assets/dd-20240206160021-tz7aefa.jpeg";
-            case "es_ES":
-                return "Cambiar el fondo después del tiempo - Modo oscuro. Por ejemplo, ingrese: assets/dd-20240206160021-tz7aefa.jpeg";
-            case "fr_FR":
-                return "Changer l'arrière-plan après le temps - Mode sombre. Par exemple, entrer : assets/dd-20240206160021-tz7aefa.jpeg";
-            case "ja_JP":
-                return "時間経過後に背景を変更 - ダークモード。例えば、次のように入力します：assets/dd-20240206160021-tz7aefa.jpeg";
-            case "zh_CHT":
-                return "計時後修改背景-黑暗模式。例如填入：assets/dd-20240206160021-tz7aefa.jpeg";
-
-            default:
-                return "Change background after timing - Dark mode. For example, enter: assets/dd-20240206160021-tz7aefa.jpeg";
+                return "Random video";
         }
     }
 

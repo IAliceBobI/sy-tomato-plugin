@@ -8,9 +8,9 @@ import { createNote, switchDraft } from "./libs/switchDraft";
 import { winHotkey } from "./libs/winHotkey";
 import { verifyKeyTomato } from "./libs/user";
 
-export const FastNoteBox创建快速笔记 = winHotkey("shift+alt+n", "创建快速笔记2024-08-06 10:35:21")
-export const FastNoteBox打开最后一个笔记 = winHotkey("⌘⌥N", "2024-08-06 10:35:22")
-export const FastNoteBox草稿切换 = winHotkey("alt+F4", "草稿切换 2024-9-13 09:32:44", "", () => tomatoI18n.草稿切换 + " · " + tomatoI18n.切换到文档背面, true)
+export const FastNoteBox创建快速笔记 = winHotkey("shift+alt+n", "创建快速笔记")
+export const FastNoteBox打开最后一个笔记 = winHotkey("⌘⌥N", "打开最后一个笔记")
+export const FastNoteBox草稿切换 = winHotkey("alt+F4", "草稿切换", "", () => tomatoI18n.草稿切换 + " · " + tomatoI18n.切换到文档背面, true)
 
 class FastNoteBox {
     plugin: BaseTomatoPlugin;

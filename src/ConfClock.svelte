@@ -34,6 +34,10 @@
         tomatoClockCheckbox,
         tomato_clocks,
         tomato_clocks_audio,
+        tomato_clocks_break,
+        tomato_clocks_focus,
+        tomato_clocks_loop,
+        tomato_clocks_notice,
         tomato_clocks_change_bg,
         tomato_clocks_change_bg_dark,
         tomato_clocks_force_dialog,
@@ -49,14 +53,206 @@
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
     import { helpOpen } from "./helpOpen";
+    import { PRESET_CLOCKS, MAX_CLOCKS, parseClocks, clocksToStore } from "./libs/TomatoClockList";
+    import {
+        AUDIO_PRESETS,
+        NOTICE_AUDIO_URL,
+        audioOptionOf,
+        audioStoreOf,
+        isValidAudioUrl,
+        uploadAssetName,
+        type AudioOptionId,
+    } from "./libs/TomatoAudioList";
+    import { bgUploadAssetName, isValidBgUrl, opacityPercentOf, opacityToStore } from "./libs/TomatoBg";
+    import { onDestroy } from "svelte";
+    import { siyuan } from "./libs/utils";
+    import { tomatoClock } from "./TomatoClock";
 
     let { codeValid }: { codeValid: boolean } = $props();
     let codeNotValid = $derived(!codeValid);
+
+    // 番茄钟时长 chips（□2）：store 逗号串 ↔ 档位集合；勾选即落盘并即时重挂状态栏图标。
+    // 落盘串行化（链式）：毫秒级连续点选时两次整文件 saveData 并发，旧快照后落会覆盖新值
+    let clocksWriteChain: Promise<void> = Promise.resolve();
+    const selectedClocks = $derived(parseClocks($tomato_clocks));
+    const customClocks = $derived(selectedClocks.filter((n) => !PRESET_CLOCKS.includes(n)));
+    let chipDraftMinutes: number | null = $state(null);
+    const isAddDisabled = $derived(
+        selectedClocks.length >= MAX_CLOCKS ||
+            !Number.isInteger(chipDraftMinutes) ||
+            chipDraftMinutes <= 0 ||
+            chipDraftMinutes > 240 || // 自定义上限：再大状态栏 32px 数字图标放不下（1e9 科学计数法也拦在这）
+            selectedClocks.includes(chipDraftMinutes),
+    );
+    function isChipSelected(n: number) {
+        return selectedClocks.includes(n);
+    }
+    function isChipDisabled(n: number) {
+        return !isChipSelected(n) && selectedClocks.length >= MAX_CLOCKS;
+    }
+    function applyClocks(next: number[]) {
+        clocksWriteChain = clocksWriteChain.then(() => tomato_clocks.write(clocksToStore(next)));
+        tomatoClock.remountStatusIcons();
+    }
+    function toggleChip(n: number) {
+        applyClocks(isChipSelected(n) ? selectedClocks.filter((m) => m !== n) : [...selectedClocks, n]);
+    }
+    function addCustomClock() {
+        if (isAddDisabled) return;
+        applyClocks([...selectedClocks, chipDraftMinutes]);
+        chipDraftMinutes = null;
+    }
+    // 位置开关换边也即时重挂（旧文本框时代需 reload；bind 只改内存，落盘+重挂在此闭环）
+    function onPositionChange() {
+        void tomato_clocks_position_right.write();
+        tomatoClock.remountStatusIcons();
+    }
+
+    // 提示音选择化（□3）：下拉+试听+自定义展开。存储语义零迁移——选中预置=存打包路径，
+    // 默认=存空串；存量非法值（如 Windows 本地路径，Chromium 必拒且静默）回落 custom 并标红引导。
+    const audioOption = $derived(audioOptionOf($tomato_clocks_audio));
+    // select 显示值走本地 state：切「自定义」只展开输入框不清 store 值（否则 store 驱动的
+    // audioOption 仍指旧预置，{#if} 不展开且单向绑定把 select 弹回）；store 写入后由 $effect 收敛同步
+    let audioSel: AudioOptionId = $state(audioOptionOf($tomato_clocks_audio));
+    $effect(() => {
+        // 空串=default 语义，但用户正在 custom 行内编辑清空时不回弹收行
+        // （防「全选→删→粘贴」标准动作把编辑中的输入框卸载失焦；输入值恰等于某预置路径
+        //  时仍收敛到该预置——那是语义正确，不受此守卫保护）
+        if (audioOption === "default" && audioSel === "custom") return;
+        audioSel = audioOption;
+    });
+    const customAudioInvalid = $derived(audioSel === "custom" && !isValidAudioUrl($tomato_clocks_audio));
+    const audioOptions = $derived([
+        ...AUDIO_PRESETS.map((p) => ({ id: p.id as AudioOptionId, label: audioPresetLabel(p.id) })),
+        { id: "custom" as AudioOptionId, label: tomatoI18n.自定义 },
+    ]);
+    function audioPresetLabel(id: Exclude<AudioOptionId, "custom">): string {
+        switch (id) {
+            case "default": return tomatoI18n.提示音默认;
+            case "bell": return tomatoI18n.提示音清脆铃;
+            case "chime": return tomatoI18n.提示音柔和钟;
+            case "woodblock": return tomatoI18n.提示音木鱼;
+        }
+    }
+    function onAudioOptionChange(e: Event) {
+        const id = (e.currentTarget as HTMLSelectElement).value as AudioOptionId;
+        audioSel = id;
+        if (id === "custom") return; // 只展开输入框，不清现值（老自定义 URL 原样可改）
+        void tomato_clocks_audio.write(audioStoreOf(id));
+    }
+    function onCustomAudioChange() {
+        void tomato_clocks_audio.write(); // bind 已进 store，这里只落盘
+    }
+    function previewNoticeAudio() {
+        // 点击手势栈内 play() 必响（思源桌面端 autoplayPolicy=user-gesture-required，粘性激活即放行）；
+        // custom 无效/为空时回落默认音——试听按钮点了总要有声
+        let url: string;
+        if (audioSel === "custom") {
+            const c = $tomato_clocks_audio.trim();
+            url = c && isValidAudioUrl(c) ? c : NOTICE_AUDIO_URL;
+        } else {
+            url = audioStoreOf(audioSel);
+        }
+        try {
+            new Audio(url).play()?.catch?.(() => { });
+        } catch { /* 静默：试听失败不弹提示 */ }
+    }
+    async function onPickAudioFile(e: Event) {
+        const input = e.currentTarget as HTMLInputElement;
+        const file = input.files?.[0];
+        input.value = ""; // 复位以允许再次选择同一文件
+        if (!file) return;
+        // accept 只是文件选择器建议，可切「所有文件」——非音频在此拦下，
+        // 否则错误被推迟到第一次到点播放失败（最差时机）
+        if (!file.type.startsWith("audio/")) {
+            void siyuan.pushMsg(tomatoI18n.提示音文件类型不支持, 3000);
+            return;
+        }
+        const name = uploadAssetName(file.name);
+        try {
+            // 直接 fetch 判 code：封装的 siyuan.putFile 成功时也返回 null（data 字段恒 null），
+            // 无法区分成败（NoteBox 先例同样不判返回值）
+            const fd = new FormData();
+            fd.append("path", "/data/assets/" + name);
+            fd.append("file", file);
+            fd.append("isDir", "false");
+            const resp = await fetch("/api/file/putFile", { method: "POST", body: fd });
+            const data = await resp.json();
+            if (data.code !== 0) throw new Error(data.msg);
+            await tomato_clocks_audio.write("/assets/" + name);
+        } catch (e) {
+            console.error("upload notice audio failed:", e);
+            void siyuan.pushMsg(tomatoI18n.提示音上传失败, 3000);
+        }
+    }
+
+    // 背景图自定义（□4）：明/暗两行各自配图（VS Code 式）——缩略图 + URL 手填（非法标红）+
+    // 选文件直传 assets；透明度滑块拖动全屏真预览、松手落盘。行级单层置灰纪律同 □2
+    const bgLightEmpty = $derived($tomato_clocks_change_bg.trim() === "");
+    const bgDarkEmpty = $derived($tomato_clocks_change_bg_dark.trim() === "");
+    const bgLightInvalid = $derived(!bgLightEmpty && !isValidBgUrl($tomato_clocks_change_bg));
+    const bgDarkInvalid = $derived(!bgDarkEmpty && !isValidBgUrl($tomato_clocks_change_bg_dark));
+    let bgLightThumbBroken = $state(false);
+    let bgDarkThumbBroken = $state(false);
+    function onBgUrlChange() {
+        void tomato_clocks_change_bg.write();
+        tomatoClock.refreshBgImg();
+    }
+    function onBgUrlDarkChange() {
+        void tomato_clocks_change_bg_dark.write();
+        tomatoClock.refreshBgImg();
+    }
+    async function onPickBgFile(e: Event, dark: boolean) {
+        const input = e.currentTarget as HTMLInputElement;
+        const file = input.files?.[0];
+        input.value = ""; // 复位以允许再次选择同一文件
+        if (!file) return;
+        // 类型白名单而非 image/* 前缀：HEIC 等 Chromium 不解码的格式走完上传后只会落「图片失效」，
+        // 用户会误以为图坏了——在此拦下并引导（评审 P2-5）
+        const BG_MIME_OK = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/bmp", "image/svg+xml"];
+        if (!BG_MIME_OK.includes(file.type)) {
+            void siyuan.pushMsg(tomatoI18n.背景文件类型不支持, 3000);
+            return;
+        }
+        const name = bgUploadAssetName(file.name);
+        try {
+            // 直接 fetch 判 code：封装的 siyuan.putFile 成功时也返回 null（data 恒 null）无法区分成败
+            const fd = new FormData();
+            fd.append("path", "/data/assets/" + name);
+            fd.append("file", file);
+            fd.append("isDir", "false");
+            const resp = await fetch("/api/file/putFile", { method: "POST", body: fd });
+            const data = await resp.json();
+            if (data.code !== 0) throw new Error(data.msg);
+            await (dark ? tomato_clocks_change_bg_dark : tomato_clocks_change_bg).write("/assets/" + name);
+            tomatoClock.refreshBgImg();
+        } catch (e) {
+            console.error("upload bg image failed:", e);
+            void siyuan.pushMsg(tomatoI18n.背景上传失败, 3000);
+        }
+    }
+
+    // 透明度滑块（□4）：值走本地 state（store 保持 "0.16" 小数串零迁移）；拖动写内存+全屏真预览，
+    // 松手一次 write 落盘（chips 同款写盘纪律）；store 外部变化经 $effect 收敛回滑块
+    let opacityPct = $state(opacityPercentOf($tomato_clocks_opacity));
+    $effect(() => {
+        opacityPct = opacityPercentOf($tomato_clocks_opacity);
+    });
+    function onOpacityInput(e: Event) {
+        opacityPct = Number((e.currentTarget as HTMLInputElement).value);
+        tomatoClock.updateBgPreview((opacityPct / 100).toFixed(2));
+    }
+    async function onOpacityChange() {
+        await tomato_clocks_opacity.write(opacityToStore(opacityPct));
+        tomatoClock.endBgPreview();
+    }
+    // 面板销毁兜底撤预览层（正常路径松手已撤；防极端卸载残挂 body）
+    onDestroy(() => tomatoClock.endBgPreview());
 </script>
 
-    <!-- 状态栏番茄钟 -->
+    <!-- 状态栏番茄钟：13 行结构（spec 2026-08-29-2259）：计时 6 行 → 提示 4 行 → 氛围 3 行 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$tomatoClockCheckbox} />
             {tomatoI18n.状态栏番茄钟}
             <strong>
@@ -67,8 +263,73 @@
         </div>
         {#if $tomatoClockCheckbox}
             <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$tomato_clocks_position_right} />
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$tomato_clocks_position_right}
+                    onchange={onPositionChange}
+                />
                 {tomatoI18n.番茄钟在状态栏的右边}
+            </div>
+
+            <!-- 番茄钟时长：chips 形态（□2 整行重造，勾选即生效） -->
+            <div class="tomato-chip-row">
+                {#each PRESET_CLOCKS as n (n)}
+                    <button
+                        type="button"
+                        class="tomato-chip"
+                        class:tomato-chip--selected={isChipSelected(n)}
+                        class:tomato-chip--disabled={isChipDisabled(n)}
+                        disabled={isChipDisabled(n)}
+                        aria-pressed={isChipSelected(n)}
+                        onclick={() => toggleChip(n)}
+                    >{n}</button>
+                {/each}
+                <!-- 已选的非预设值（自定义档）追加在预设之后 -->
+                {#each customClocks as n (n)}
+                    <button
+                        type="button"
+                        class="tomato-chip"
+                        class:tomato-chip--selected={isChipSelected(n)}
+                        aria-pressed={isChipSelected(n)}
+                        onclick={() => toggleChip(n)}
+                    >{n}</button>
+                {/each}
+                <input
+                    class="b3-text-field tomato-chip-input"
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder={tomatoI18n.自定义分钟数}
+                    aria-label={tomatoI18n.自定义分钟数}
+                    bind:value={chipDraftMinutes}
+                />
+                <button
+                    type="button"
+                    class="b3-button b3-button--outline tomato-chip-add"
+                    disabled={isAddDisabled}
+                    onclick={addCustomClock}
+                >{tomatoI18n.添加}</button>
+                <span class="tomato-row-label">{tomatoI18n.番茄钟时长}</span>
+                <div class="helpText">{tomatoI18n.番茄钟时长帮助.replaceAll("{max}", String(MAX_CLOCKS))}</div>
+            </div>
+
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$tomato_clocks_loop} />
+                {tomatoI18n.自动循环}
+                <div class="helpText">{tomatoI18n.自动循环帮助}</div>
+            </div>
+
+            {#if $tomato_clocks_loop}
+                <div class="tomato-input-row">
+                    <input class="b3-text-field" type="number" min="1" bind:value={$tomato_clocks_break} />
+                    <span class="tomato-row-label">{tomatoI18n.休息时长分钟}</span>
+                </div>
+            {/if}
+
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$tomato_clocks_focus} />
+                {tomatoI18n.专注时长写入文档}
             </div>
 
             <div>
@@ -77,57 +338,168 @@
             </div>
 
             <div>
-                <input class="b3-text-field" bind:value={$tomato_clocks} />
-                {tomatoI18n.番茄钟时长多个间用逗号隔开}
+                <input type="checkbox" class="b3-switch" bind:checked={$tomato_clocks_notice} />
+                {tomatoI18n.到点提示音}
             </div>
 
-            <div>
-                <input class="b3-text-field" bind:value={$tomato_clocks_audio} />
-                {tomatoI18n.时间到播放声音}
+            <!-- 提示音选择化（□3 整行重造）：下拉（默认+预置+自定义）+ 试听；自定义时下行展开输入+选文件上传 assets -->
+            <div class="tomato-input-row">
+                <select class="b3-select tomato-audio-select" value={audioSel} onchange={onAudioOptionChange}>
+                    {#each audioOptions as opt (opt.id)}
+                        <option value={opt.id}>{opt.label}</option>
+                    {/each}
+                </select>
+                <button type="button" class="b3-button b3-button--small tomato-audio-preview" onclick={previewNoticeAudio}>
+                    {tomatoI18n.试听}
+                </button>
+                <span class="tomato-row-label">{tomatoI18n.提示音}</span>
+                <div class="helpText">{tomatoI18n.提示音帮助}</div>
             </div>
+            {#if audioSel === "custom"}
+                <div class="tomato-input-row">
+                    <input
+                        class="b3-text-field"
+                        class:tomato-audio-invalid={customAudioInvalid}
+                        bind:value={$tomato_clocks_audio}
+                        onchange={onCustomAudioChange}
+                    />
+                    <label class="b3-button b3-button--small tomato-audio-file-btn">
+                        {tomatoI18n.选择文件}
+                        <input
+                            type="file"
+                            accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac,.aac"
+                            class="tomato-audio-file-input"
+                            onchange={onPickAudioFile}
+                        />
+                    </label>
+                    {#if customAudioInvalid}
+                        <div class="helpText tomato-audio-invalid-hint">{tomatoI18n.提示音地址无效}</div>
+                    {/if}
+                </div>
+            {/if}
 
-            <div>
+            <div class="tomato-input-row">
                 <input class="b3-text-field" bind:value={$tomato_clocks_force_notice} />
-                {tomatoI18n.随机视频}
+                <span class="tomato-row-label">{tomatoI18n.随机视频}</span>
+                <div class="helpText">{tomatoI18n.随机视频帮助}</div>
             </div>
 
-            <div class:codeNotValid>
+            <!-- 背景图自定义（□4 整行重造）：明/暗各自配图——缩略图+手填 URL（非法标红）+选文件直传 assets -->
+            <div class="tomato-input-row" class:codeNotValid>
+                <span
+                    class="tomato-bg-thumb"
+                    class:tomato-bg-thumb--empty={bgLightEmpty}
+                    class:tomato-bg-thumb--broken={bgLightThumbBroken}
+                >
+                    {#if bgLightEmpty}
+                        {tomatoI18n.背景未设置}
+                    {:else if bgLightInvalid}
+                        <!-- 非法地址只走输入框标红+提示行；缩略图保持空框，坏链态不随键入闪烁（评审 P2-6） -->
+                    {:else}
+                        <img
+                            class="tomato-bg-thumb-img"
+                            src={$tomato_clocks_change_bg}
+                            alt=""
+                            onerror={() => (bgLightThumbBroken = true)}
+                            onload={() => (bgLightThumbBroken = false)}
+                        />
+                        {#if bgLightThumbBroken}<span class="tomato-bg-thumb-broken-text">{tomatoI18n.背景图片失效}</span>{/if}
+                    {/if}
+                </span>
                 <input
                     disabled={codeNotValid}
-                    class:codeNotValid
                     class="b3-text-field"
+                    class:tomato-bg-invalid={bgLightInvalid}
+                    placeholder={tomatoI18n.背景未设置占位}
                     bind:value={$tomato_clocks_change_bg}
+                    onchange={onBgUrlChange}
                 />
-                {tomatoI18n.计时后修改背景明亮模式}
+                <label class="b3-button b3-button--small tomato-bg-file-btn">
+                    {tomatoI18n.选择文件}
+                    <input
+                        type="file"
+                        accept="image/*,.png,.jpg,.jpeg,.webp,.gif,.bmp,.svg"
+                        class="tomato-bg-file-input"
+                        onchange={(e) => onPickBgFile(e, false)}
+                    />
+                </label>
+                <span class="tomato-row-label">{tomatoI18n.明亮模式背景}</span>
                 <TomatoVIP {codeValid}></TomatoVIP>
+                {#if bgLightInvalid}
+                    <div class="helpText tomato-bg-invalid-hint">{tomatoI18n.背景地址无效}</div>
+                {/if}
+                <div class="helpText">{tomatoI18n.明亮模式背景帮助}</div>
             </div>
 
-            <div class:codeNotValid>
+            <div class="tomato-input-row" class:codeNotValid>
+                <span
+                    class="tomato-bg-thumb"
+                    class:tomato-bg-thumb--empty={bgDarkEmpty}
+                    class:tomato-bg-thumb--broken={bgDarkThumbBroken}
+                >
+                    {#if bgDarkEmpty}
+                        {tomatoI18n.背景未设置}
+                    {:else if bgDarkInvalid}
+                        <!-- 同明色行：非法地址不闪坏链态 -->
+                    {:else}
+                        <img
+                            class="tomato-bg-thumb-img"
+                            src={$tomato_clocks_change_bg_dark}
+                            alt=""
+                            onerror={() => (bgDarkThumbBroken = true)}
+                            onload={() => (bgDarkThumbBroken = false)}
+                        />
+                        {#if bgDarkThumbBroken}<span class="tomato-bg-thumb-broken-text">{tomatoI18n.背景图片失效}</span>{/if}
+                    {/if}
+                </span>
                 <input
                     disabled={codeNotValid}
-                    class:codeNotValid
                     class="b3-text-field"
+                    class:tomato-bg-invalid={bgDarkInvalid}
+                    placeholder={tomatoI18n.背景未设置占位}
                     bind:value={$tomato_clocks_change_bg_dark}
+                    onchange={onBgUrlDarkChange}
                 />
-                {tomatoI18n.计时后修改背景黑暗模式}
+                <label class="b3-button b3-button--small tomato-bg-file-btn">
+                    {tomatoI18n.选择文件}
+                    <input
+                        type="file"
+                        accept="image/*,.png,.jpg,.jpeg,.webp,.gif,.bmp,.svg"
+                        class="tomato-bg-file-input"
+                        onchange={(e) => onPickBgFile(e, true)}
+                    />
+                </label>
+                <span class="tomato-row-label">{tomatoI18n.黑暗模式背景}</span>
                 <TomatoVIP {codeValid}></TomatoVIP>
+                {#if bgDarkInvalid}
+                    <div class="helpText tomato-bg-invalid-hint">{tomatoI18n.背景地址无效}</div>
+                {/if}
+                <div class="helpText">{tomatoI18n.黑暗模式背景帮助}</div>
             </div>
 
-            <div class:codeNotValid>
+            <!-- 透明度滑块（□4）：拖动全屏真预览跟手，松手落盘；行内实时百分比标签 -->
+            <div class="tomato-input-row" class:codeNotValid>
                 <input
                     disabled={codeNotValid}
-                    class:codeNotValid
-                    class="b3-text-field"
-                    bind:value={$tomato_clocks_opacity}
+                    class="b3-slider tomato-bg-opacity-slider"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={opacityPct}
+                    oninput={onOpacityInput}
+                    onchange={onOpacityChange}
                 />
-                {tomatoI18n.背景图透明度}
+                <span class="tomato-bg-opacity-value">{opacityPct}%</span>
+                <span class="tomato-row-label">{tomatoI18n.背景图透明度}</span>
                 <TomatoVIP {codeValid}></TomatoVIP>
+                <div class="helpText">{tomatoI18n.背景图透明度帮助}</div>
             </div>
         {/if}
     </div>
     <!-- 拍照闪念 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$noteBoxCheckbox} />
             {tomatoI18n.拍照闪念收集图片闪念到}
             <strong>
@@ -153,7 +525,6 @@
             <div class:codeNotValid>
                 <input
                     disabled={codeNotValid}
-                    class:codeNotValid
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$avoiding_cloud_synchronization_conflicts}
@@ -180,7 +551,7 @@
     </div>
     <!-- 批注 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$commentBoxCheckbox} />
             {tomatoI18n.批注}
             <strong>
@@ -216,7 +587,7 @@
     </div>
     <!-- 思维导线 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$mindWireCheckbox} />
             {tomatoI18n.思维导线}
             <strong>
@@ -249,7 +620,6 @@
             <div class:codeNotValid>
                 <input
                     disabled={codeNotValid}
-                    class:codeNotValid
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$mindWireLine}
@@ -259,7 +629,6 @@
             <div class:codeNotValid>
                 <input
                     disabled={codeNotValid}
-                    class:codeNotValid
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$mindWireColorfull}
@@ -280,7 +649,7 @@
     </div>
     <!-- 块关系图 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$graphBoxCheckbox} />
             {tomatoI18n.块关系图}
             <strong>
@@ -308,7 +677,6 @@
             <div class:codeNotValid>
                 <input
                     disabled={codeNotValid}
-                    class:codeNotValid
                     type="checkbox"
                     class="b3-switch"
                     bind:checked={$graphClick2Locate}

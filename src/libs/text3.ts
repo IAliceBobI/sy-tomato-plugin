@@ -978,22 +978,23 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
         }
     }
     public get 新开窗口如何打开() {
+        // 枚举说明已下沉为下拉选项文案（渐进 □2 设置选择化），label 只留短语
         switch (this.lang) {
             case "zh_CN":
-                return "新页签: 0不打开，1打开到前台，2打开到后台，3打开到右边，4打开到底部，5移动到新窗口，6打开到前台1秒";
+                return "新页签打开方式";
             case "es_ES":
-                return "Nueva pestaña: 0 no abrir, 1 abrir en primer plano, 2 abrir en segundo plano, 3 abrir a la derecha, 4 abrir en la parte inferior, 5 mover a una nueva ventana, 6 abrir en primer plano durante 1 segundo";
+                return "Cómo abrir en nueva pestaña";
             case "fr_FR":
-                return "Nouvel onglet : 0 ne pas ouvrir, 1 ouvrir au premier plan, 2 ouvrir en arrière-plan, 3 ouvrir à droite, 4 ouvrir en bas, 5 déplacer vers une nouvelle fenêtre, 6 ouvrir au premier plan pendant 1 seconde";
+                return "Mode d'ouverture du nouvel onglet";
             case "ja_JP":
-                return "新しいタブ: 0 開かない, 1 前面に開く, 2 背面に開く, 3 右に開く, 4 下に開く, 5 新しいウィンドウに移動, 6 前面に1秒間開く";
+                return "新しいタブで開く方法";
             case "zh_CHT":
-                return "新頁籤: 0不開啟，1開啟到前台，2開啟到後台，3開啟到右邊，4開啟到底部，5移動到新視窗，6開啟到前台1秒";
+                return "新頁籤開啟方式";
             case "it_IT":
-                return "Nuova scheda: 0 non aprire, 1 aprire in primo piano, 2 aprire in background, 3 aprire a destra, 4 aprire in basso, 5 spostare in una nuova finestra, 6 aprire in primo piano per 1 secondo";
+                return "Modalità di apertura in nuova scheda";
 
             default:
-                return "New tab: 0 do not open, 1 open in foreground, 2 open in background, 3 open to the right, 4 open to the bottom, 5 move to new window, 6 open in foreground for 1 second";
+                return "New tab open style";
         }
     }
     public get 对分片制卡额外链接到分片() {

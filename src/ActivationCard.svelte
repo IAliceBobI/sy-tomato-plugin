@@ -9,7 +9,7 @@
     import { tomatoI18n } from "./tomatoI18n";
     import { resetKey, verifyFnByProduct, FREE_KEY } from "./libs/user";
     import type { Product } from "./libs/user";
-    import { extractActivationCode, extractRedeemCode, isRedeemCodeShape, recoverFromCloud, redeemCode, redeemErrMsg } from "./libs/redeem";
+    import { backfillCloudOnce, extractActivationCode, extractRedeemCode, fingerprintOf, isRedeemCodeShape, recoverFromCloud, redeemCode, redeemErrMsg } from "./libs/redeem";
     import { siyuan } from "./libs/utils";
     import { icon } from "./libs/domUtils";
     import { productPrices } from "./BuyTomato.svelte";
@@ -30,6 +30,9 @@
         showBuy?: boolean;
         // 覆盖默认 verify 函数（父组件已做 verify 时传 undefined，由本组件内部 onMount verify 兜底）。
         verifyFn?: () => Promise<boolean>;
+        // 购买点击闸门（□14 激活互通防误购）：点「购买」先问它，返回 false 中止购买流程。
+        // recite 传「检测到渐进 Pro 已激活→弹确认：确定=免费解锁+中止，取消=放行购买」；不传无闸。
+        buyGuard?: () => Promise<boolean> | boolean;
     }
 
     let {
@@ -39,10 +42,25 @@
         onActivated,
         showBuy = true,
         verifyFn,
+        buyGuard,
     }: Props = $props();
 
     let showCode = $state(false); // 激活码明文显示/隐藏
-    let verifying = $state(false); // 防重复激活
+        let verifying = $state(false); // 防重复激活
+        let buying = $state(false); // guard 异步期间防购买按钮连点
+
+        // 购买入口（□14 buyGuard 闸门）：guard 返回 false 中止（如 recite 已引导走免费解锁），
+        // true / 无 guard 照常打开购买页
+        async function onBuy() {
+            if (buying) return;
+            buying = true;
+            try {
+                if (buyGuard && !(await buyGuard())) return;
+                openBuyDialog(product, tomatoI18n.购买页);
+            } finally {
+                buying = false;
+            }
+        }
 
     onMount(async () => {
         // 由父承载 verify 时跳过；否则本组件兜底（兼容渐进面板现在把 verify 放 onMount 的情形）
@@ -86,8 +104,8 @@
                 return;
             }
             userToken.set(r.code);
-            // 兑换码兑换出的码云端 issue() 已落 license，置 flag 让下次找回走分支 1 短路
-            licenseCloudSynced.set(true);
+            // 兑换码兑换出的码云端 issue() 已落 license，写指纹让下次找回走分支 1 短路
+            licenseCloudSynced.set(fingerprintOf(userToken.get()));
             await siyuan.pushMsg(tomatoI18n.兑换成功正在激活);
         } else {
             const activation = extractActivationCode(text);
@@ -107,6 +125,9 @@
         // 无论激活成败都落盘（原面板语义：verify 后总是 saveData，失败的 token 重开面板仍在）
         await onActivated?.();
         if (codeValid) {
+            // 本地粘贴激活码路径顺手回填一次云端（spec 批次 B2；兑换码路径云端 issue
+            // 已落 license 不走）——必须 await 完才 reload，reload 会掐断在途请求
+            if (!redeem) await backfillCloudOnce(product);
             window.location.reload();
         }
     }
@@ -129,7 +150,7 @@
                 <span class="price-tag">{tomatoI18n.终身}</span>
                 <button
                     class="b3-button act-buy"
-                    onclick={() => openBuyDialog(product, tomatoI18n.购买页)}
+                    onclick={onBuy}
                 >
                     {tomatoI18n.购买}
                 </button>

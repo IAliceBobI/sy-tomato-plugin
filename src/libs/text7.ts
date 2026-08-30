@@ -268,38 +268,21 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
                 return "After card creation, append time and title path";
         }
     }
-    public get 制卡摘抄改变原文背景() {
+    public get 已摘抄块显示背景色() {
         switch (this.lang) {
             case "zh_CN":
-                return "制卡、摘抄改变原文背景";
+                return "已摘抄块显示背景色";
             case "es_ES":
-                return "Crear tarjetas, extractos cambian el fondo del texto original";
+                return "Mostrar color de fondo en los bloques extractados";
             case "fr_FR":
-                return "Créer des cartes, extraits changent l'arrière-plan du texte original";
+                return "Afficher une couleur de fond sur les extraits";
             case "ja_JP":
-                return "カード作成、抜粋は原文の背景を変更する";
+                return "抜粋済みブロックに背景色を表示";
             case "zh_CHT":
-                return "制卡、摘抄改變原文背景";
+                return "已摘抄塊顯示背景色";
 
             default:
-                return "Card making, excerpts change the background of the original text";
-        }
-    }
-    public get 制卡摘抄在原文处做标记() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "制卡、摘抄在原文处做标记";
-            case "es_ES":
-                return "Hacer tarjeta, hacer anotaciones en el texto original";
-            case "fr_FR":
-                return "Faire une carte, faire des notes dans le texte original";
-            case "ja_JP":
-                return "カードを作り、原文でマークをつける";
-            case "zh_CHT":
-                return "製卡、摘抄在原文處做標記";
-
-            default:
-                return "Make card, make notes in the original text";
+                return "Show background color on excerpted blocks";
         }
     }
     public get 分片内制卡放于分片的子文档内() {
@@ -1063,32 +1046,32 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
                 return "Move note to bottom";
         }
     }
-    public get 新闪卡存入的笔记本ID() {
-        // 补充缺少的语言
+    public get 新闪卡存入的笔记本() {
+        // 补充缺少的语言（□2 选择化：不再手输 ID，getter 随文案去「ID」）
         switch (this.lang) {
             case "zh_CN":
-                return "新闪卡存入的笔记本ID";
+                return "新闪卡存入的笔记本";
             case "es_ES":
-                return "ID del cuaderno donde se guarda la nueva tarjeta flash";
+                return "Cuaderno donde se guarda la nueva tarjeta flash";
             case "fr_FR":
-                return "ID du carnet dans lequel la nouvelle carte flash est enregistrée";
+                return "Carnet dans lequel la nouvelle carte flash est enregistrée";
             case "ja_JP":
-                return "新しいフラッシュカードが保存されるノートブックのID";
+                return "新しいフラッシュカードが保存されるノートブック";
             case "zh_CHT":
-                return "新閃卡存入的筆記本ID";
+                return "新閃卡存入的筆記本";
             case "it_IT":
-                return "ID del notebook in cui viene salvata la nuova scheda flash";
+                return "Notebook in cui viene salvata la nuova scheda flash";
             case "de_DE":
-                return "ID des Notizbuchs, in das die neue Flash-Karte gespeichert wird";
+                return "Notizbuch, in das die neue Flash-Karte gespeichert wird";
             case "he_IL":
-                return "מזהה الدفتر الذي يتم حفظ بطاقة الفلاش الجديدة فيه"; // 注意：此翻译使用了从右向左书写的希伯来语
+                return "המחברת שבה נשמרת כרטיסיית הבזק חדשה"; // 希伯来语从右向左书写
             case "ru_RU":
-                return "ID блокнота, в который сохраняется новая флеш-карта";
+                return "Блокнот, в который сохраняется новая флеш-карта";
             case "pl_PL":
-                return "ID notesa, do którego zapisywana jest nowa karta flash";
+                return "Notes, do którego zapisywana jest nowa karta flash";
             case "en_US":
             default:
-                return "Notebook ID where the new flash card is saved";
+                return "Notebook where the new flash card is saved";
         }
     }
     public get 收集内容到文件() {

@@ -12,7 +12,7 @@ import { mount } from "svelte";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
-export const CozeSearchBoxHotkey = winHotkey("⌘⇧o", "coze 2025-1-6 11:44:34",)
+export const CozeSearchBoxHotkey = winHotkey("⌘⇧o", "coze",)
 class CozeSearchBox {
     private plugin: BaseTomatoPlugin;
 

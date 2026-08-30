@@ -89,7 +89,7 @@
     </div>
     <!-- 数据库反链 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxCheckbox} />
             {tomatoI18n.数据库充当反链}
             <strong>
@@ -124,7 +124,7 @@
     </div>
     <!-- 杂项 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$mixBoxCheckbox} />
             {tomatoI18n.杂项许多小功能}
             <strong>
@@ -236,7 +236,7 @@
     </div>
     <!-- 文本转引用 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$tag2RefBoxCheckbox} />
             {tomatoI18n.文本转引用}
             <strong>
@@ -276,7 +276,7 @@
     </div>
     <!-- 列表工具 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$listBoxCheckbox} />
             {tomatoI18n.列表工具}
             <strong>
@@ -302,7 +302,7 @@
     </div>
     <!-- 人工智能 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$aiBoxCheckbox} />
             {AIBoxHotkey.langText()}<HotkeyCap hk={AIBoxHotkey} pluginName="sy-tomato-plugin"></HotkeyCap>
             <strong>
@@ -321,7 +321,7 @@
     </div>
     <!-- 豆包知识库 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$cozeSearchBoxCheckbox} />
             coze{tomatoI18n.知识库问答}<HotkeyCap hk={CozeSearchBoxHotkey} pluginName="sy-tomato-plugin"></HotkeyCap>
             <strong>
@@ -361,7 +361,7 @@
     </div>
     <!-- 快速笔记 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$fastNoteBoxCheckbox} />
             {tomatoI18n.快速笔记}
             <strong>

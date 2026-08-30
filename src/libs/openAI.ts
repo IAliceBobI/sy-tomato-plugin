@@ -85,6 +85,17 @@ export class OpenAIClient {
         return createStream(this.openai, model, messages);
     }
 
+    // 非流式一次拿全（recite AI 拆分用：整篇送 AI 回 JSON 定位，无逐块写回不必流式）。
+    // 错误语义照 createStream：请求失败 catch 后返回 undefined，由调用方弹提示止损
+    async createCompletionPublic(model: string, messages: ChatCompletionMessageParam[]) {
+        try {
+            return await this.openai.chat.completions.create({ model, messages });
+        } catch (e) {
+            console.error(e, messages);
+            return undefined;
+        }
+    }
+
     static async getModel(key: string, baseURL: string, model: string, noSup = false) {
         const openAI = new OpenAIClient(key, baseURL);
         return (prompt: string, anchorID = "") => {

@@ -44,7 +44,7 @@
 
     <!-- 闪卡工具 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$cardBoxCheckbox} />
             {tomatoI18n.闪卡工具}
             <strong>
@@ -111,7 +111,7 @@
     </div>
     <!-- 闪卡优先级 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$cardPriorityBoxCheckbox} />
             {tomatoI18n.闪卡优先级}
             <strong>
@@ -189,7 +189,7 @@
     </div>
     <!-- 长内容工具 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$cpBoxCheckbox} />
             {tomatoI18n.长内容工具}
             <strong>

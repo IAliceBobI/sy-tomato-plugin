@@ -9,9 +9,9 @@ import { IProtyle } from "siyuan";
 
 const LongContentOpsLock = "LongContentOpsLock";
 
-export const CpBox批量删除大量连续内容块 = winHotkey("alt+shift+;", "deleteBlocks 2025-5-10 23:28:29", "🧹", () => tomatoI18n.批量删除大量连续内容块, false, deleteBlocksMenu)
-export const CpBox批量移动大量连续内容块 = winHotkey("alt+shift+'", "moveBlocks 2025-5-10 23:29:52")
-export const CpBox批量复制大量连续内容块 = winHotkey("alt+shift+q", "copyBlocks 2025-5-10 23:31:46")
+export const CpBox批量删除大量连续内容块 = winHotkey("alt+shift+;", "deleteBlocks", "🧹", () => tomatoI18n.批量删除大量连续内容块, false, deleteBlocksMenu)
+export const CpBox批量移动大量连续内容块 = winHotkey("alt+shift+'", "moveBlocks")
+export const CpBox批量复制大量连续内容块 = winHotkey("alt+shift+q", "copyBlocks")
 
 class CpBox {
     private plugin: BaseTomatoPlugin;

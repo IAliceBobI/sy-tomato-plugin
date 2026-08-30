@@ -7,7 +7,7 @@ import { tomatoI18n } from "../tomatoI18n";
 import { resetKey, verifyFnByProduct, verifyLocalCode } from "./user";
 import type { Product } from "./user";
 import { licenseCloudSynced, userID, userToken } from "./stores";
-import { siyuan } from "./utils";
+import { getMd5, siyuan } from "./utils";
 
 // 去易混 base32 字符集（无 0/1/I/L/O/U/V），与 tools/license-worker/src/services.ts
 // 的 REDEEM_CODE_RE 同源——两端一致性由 tools/license-worker/test 守护（改这里必须跑那边测试）
@@ -47,6 +47,18 @@ const ACTIVATION_CODE_SCAN_RE =
 
 export function extractActivationCode(text: string): string | null {
     return text.match(ACTIVATION_CODE_SCAN_RE)?.[0] ?? null;
+}
+
+// 指纹闸门（spec docs/admin-codes-design.md 批次 B1）：licenseCloudSynced 的值从
+// 布尔升级为「已回填激活码的 md5」——布尔短路挡不住多产品（番茄码回填过→粘渐进码
+// 漏传）与续期换码（新 exp 码漏传、找回拿回旧码）。布尔 true 是升级前老值，不猜
+// 对应哪个码：指纹比对必然不等 → 触发一次回填（服务端覆盖格幂等，无害，设计行为）
+export function fingerprintOf(token: string): string {
+    return getMd5(token);
+}
+
+export function isLicenseSynced(stored: unknown, token: string): boolean {
+    return typeof stored === "string" && stored === fingerprintOf(token);
 }
 
 // 云函数基地址，BuyTomato 在线购买（/activate）与这里（/redeem）同域共用
@@ -111,8 +123,8 @@ export async function activateFromCloud(
     }
     await siyuan.pushMsg(tomatoI18n.已完成购买正在激活);
     userToken.write(r.code);
-    // 云端取回的码天然已备份（license/{plugin}/{userID} 即其来源），置 flag 挡后续查询
-    licenseCloudSynced.write(true);
+    // 云端取回的码天然已备份（license/{plugin}/{userID} 即其来源），写指纹挡后续查询
+    licenseCloudSynced.write(fingerprintOf(r.code));
     resetKey();
     if (await verifyFnByProduct(plugin)()) {
         window.location.reload();
@@ -120,16 +132,16 @@ export async function activateFromCloud(
 }
 
 // 找回激活码（spec 2026-08-23 方案 A 三分支，本地优先、只在此入口触网）：
-// 1 已备份短路：flag=true 且本地码 ldID 型验签有效 → 0 次网络调用
-// 2 上传回填：本地码 ldID 型验签有效（flag 未必置，老用户首次点）→ POST /license-upload，
-//   200 后置 flag 落盘；name 型不在此列（无绑定意义，走分支 3）
-// 3 云端找回：本地无码/无效/name 型 → activateFromCloud（200 时其内部已置 flag）。
-// 短路必须双条件：本地无码时哪怕 flag=true 也走分支 3——挡死「清掉本地 token 点找回
-// 拿回码」的真实场景（清 token 不清 flag 时）
+// 1 已备份短路：当前码指纹已回填且本地码 ldID 型验签有效 → 0 次网络调用
+// 2 上传回填：本地码 ldID 型验签有效但指纹未匹配（首次/布尔老值/多产品/换码）→
+//   POST /license-upload，200 后写指纹落盘；name 型不在此列（无绑定意义，走分支 3）
+// 3 云端找回：本地无码/无效/name 型 → activateFromCloud（200 时其内部已写指纹）。
+// 短路必须双条件：本地无码时哪怕指纹存在也走分支 3——挡死「清掉本地 token 点找回
+// 拿回码」的真实场景（清 token 不清指纹时）
 export async function recoverFromCloud(plugin: Product) {
     const v = await verifyLocalCode(plugin);
     if (v.valid && v.ldID) {
-        if (licenseCloudSynced.get()) {
+        if (isLicenseSynced(licenseCloudSynced.get(), userToken.get())) {
             await siyuan.pushMsg(tomatoI18n.激活码已备份云端无需找回);
             return;
         }
@@ -155,7 +167,7 @@ export async function recoverFromCloud(plugin: Product) {
             await siyuan.pushMsg(r.em || tomatoI18n.备份激活码失败请检查网络后重试);
             return;
         }
-        licenseCloudSynced.write(true);
+        licenseCloudSynced.write(fingerprintOf(userToken.get()));
         await siyuan.pushMsg(tomatoI18n.激活码已备份到云端);
         return;
     }
@@ -164,4 +176,29 @@ export async function recoverFromCloud(plugin: Product) {
         tomatoI18n.找回激活码失败请检查网络后重试,
         plugin,
     );
+}
+
+// 自动回填（spec 批次 B2）：ActivationCard 本地粘贴激活码路径、本地验签通过后、
+// reload 之前调用一次（reload 会掐断在途请求，调用方必须 await 本函数）。
+// 一切失败静默——回填是兜底不是主流程，绝不打断激活体验，漏传的下次找回入口还能补
+export async function backfillCloudOnce(plugin: Product) {
+    const token = userToken.get();
+    // name 型（FREE_KEY 等）不绑 userID、云端槽位无从落，跳过（token 第 3 段为类型）
+    if (token.split("_")[2] !== "ldID") return;
+    // 同码已回填过：零网络直接返回
+    if (isLicenseSynced(licenseCloudSynced.get(), token)) return;
+    let r: { ec: number; em?: string };
+    try {
+        const res = await fetch(`${FC_BASE_URL}/license-upload`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userID: userID.get(), plugin, code: token }),
+        });
+        r = await res.json();
+    } catch {
+        return;
+    }
+    if (r.ec === 200) {
+        await licenseCloudSynced.write(fingerprintOf(token));
+    }
 }

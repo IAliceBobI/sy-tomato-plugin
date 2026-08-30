@@ -10,9 +10,9 @@ import { winHotkey } from "./libs/winHotkey";
 import { walkAndClean, cleanWalkPolicy, shouldAbortClean, WalkPolicy, NamingCtx, getNamingCtx } from "./libs/exportNaming";
 import { pushUniq, setGlobal } from "stonev5-utils";
 
-export const MarkdownExport增量导出 = winHotkey("alt+f6", "增量导出 2025-06-16 19:15:06", "", () => tomatoI18n.增量导出)
-export const MarkdownExport确保导出符合配置 = winHotkey("alt+f7", "确保导出符合配置 2025-06-16 19:15:07", "", () => tomatoI18n.确保导出符合配置)
-export const MarkdownExport全量导出 = winHotkey("alt+f8", "全量导出 2025-06-16 19:15:05", "", () => tomatoI18n.全量导出)
+export const MarkdownExport增量导出 = winHotkey("alt+f6", "增量导出", "", () => tomatoI18n.增量导出)
+export const MarkdownExport确保导出符合配置 = winHotkey("alt+f7", "确保导出符合配置", "", () => tomatoI18n.确保导出符合配置)
+export const MarkdownExport全量导出 = winHotkey("alt+f8", "全量导出", "", () => tomatoI18n.全量导出)
 
 
 class MarkdownExportBox {

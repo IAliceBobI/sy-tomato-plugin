@@ -11,8 +11,8 @@ import { commentBoxCheckbox, foldTypes } from "./libs/stores";
 import { setGlobal } from "stonev5-utils";
 import { mount } from "svelte";
 
-export const addFoldCmd折叠 = winHotkey("alt+↑", "2025-5-11 16:00:08折叠", "", () => tomatoI18n.折叠)
-export const addFoldCmd展开 = winHotkey("alt+↓", "2025-5-11 16:00:04展开", "", () => tomatoI18n.展开)
+export const addFoldCmd折叠 = winHotkey("alt+↑", "折叠", "", () => tomatoI18n.折叠)
+export const addFoldCmd展开 = winHotkey("alt+↓", "展开", "", () => tomatoI18n.展开)
 
 export function addFoldCmd(plugin: Plugin) {
     plugin.addCommand({

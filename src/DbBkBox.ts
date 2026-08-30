@@ -11,7 +11,7 @@ import { winHotkey } from "./libs/winHotkey";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
-export const DbBkBox刷新数据库反链 = winHotkey("⇧⌥F9", "dbbkrefresh2024-9-25 08:32:17", "🔄💾", () => tomatoI18n.刷新数据库反链,)
+export const DbBkBox刷新数据库反链 = winHotkey("⇧⌥F9", "dbbkrefresh", "🔄💾", () => tomatoI18n.刷新数据库反链,)
 
 class DbBkBox {
     plugin: BaseTomatoPlugin;

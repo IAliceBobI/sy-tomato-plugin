@@ -9,8 +9,8 @@ import { newID } from "stonev5-utils";
 import { adaptHotkey, Dialog } from "siyuan";
 import { prefixArticlesEnable, prefixArticlesMenu, prefixArticlesSoftLimit } from "./libs/stores";
 import { mount } from "svelte";
-export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树 2025-06-26 00:20:18", "📖", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
-export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock 2025-06-26 00:20:18", "iconFilesTomato", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
+export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树", "📖", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
+export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock", "iconFilesTomato", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 
 function __initPrefixArticles() {
     const plugin = getTomatoPluginInstance();

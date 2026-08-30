@@ -31,6 +31,8 @@ export enum EventType {
     sync_start = "sync-start",
     sync_end = "sync-end",
     sync_fail = "sync-fail",
+    opened_notebook = "opened-notebook",
+    closed_notebook = "closed-notebook",
 }
 
 class Events {

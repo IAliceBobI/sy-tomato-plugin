@@ -37,6 +37,8 @@ export function isPinned() {
 
 export function addIcon(plugin: Plugin, minute: number | string) {
     const id = "iconTomato" + minute;
+    // 重挂（番茄钟档位即时重配）会重复注册同名 symbol：同 id 同内容本就无害，查重防 sprite 膨胀
+    if (document.getElementById(id)) return id;
     plugin.addIcons(`<symbol id="${id}" viewBox="0 0 32 32"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
     <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="bold">${minute}</text>
     </svg></symbol>`);

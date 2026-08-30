@@ -39,7 +39,7 @@ function isNoteBox() {
     return document.getElementById(NoteBoxID) != null;
 }
 
-export const NoteBox拍照闪念全局 = winHotkey("ctrl+q", "拍照闪念全局 2025-5-12 13:50:14", "", () => tomatoI18n.拍照闪念全局)
+export const NoteBox拍照闪念全局 = winHotkey("ctrl+q", "拍照闪念全局", "", () => tomatoI18n.拍照闪念全局)
 
 class NoteBox {
     plugin: BaseTomatoPlugin;

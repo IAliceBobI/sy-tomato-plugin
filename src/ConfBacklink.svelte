@@ -70,7 +70,7 @@
 
     <!-- 底部反链 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$backLinkBottomBoxCheckbox} />
             {tomatoI18n.底部反链}
             <strong>
@@ -206,7 +206,7 @@
     </div>
     <!-- toolbar按钮 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$toolbarBoxCheckbox} />
             {tomatoI18n.开启toolbar按钮}
             <strong>
@@ -262,7 +262,7 @@
     </div>
     <!-- 阅读点 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$readingPointBoxCheckbox} />
             {tomatoI18n.阅读点}
             <strong>
@@ -327,7 +327,7 @@
     </div>
     <!-- 复制为图片 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$imgBoxCheckbox} />
             {tomatoI18n.复制为图片}<HotkeyCap hk={ImgBoxHotKey} pluginName="sy-tomato-plugin"></HotkeyCap>
             <strong>

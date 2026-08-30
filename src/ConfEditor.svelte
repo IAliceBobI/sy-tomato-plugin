@@ -42,7 +42,7 @@
 
     <!-- 文档树工具 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             {tomatoI18n.文档树工具}
             <strong>
                 <a href="https://awx9773btw.feishu.cn/docx/NXSPd81W4oxUJrxW2XsctewUn5g?from=from_copylink" onclick={helpOpen}>
@@ -161,7 +161,7 @@
     </div>
     <!-- 折叠助手 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             {tomatoI18n.块折叠助手}： {tomatoI18n.在块的右上角显示折叠图标}
             <strong>
                 <a href="https://awx9773btw.feishu.cn/docx/RqDsdlLkwolnUgxyEmVcDuv8nwd?from=from_copylink" onclick={helpOpen}>
@@ -270,7 +270,7 @@
     </div>
     <!-- 前缀文档树 -->
     <div class="settingBox">
-        <div>
+        <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesEnable} />
             {tomatoI18n.前缀文档树}
             <strong>

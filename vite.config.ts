@@ -18,7 +18,7 @@ const distDir = devDistDir;
 export default defineConfig({
   resolve: {
     alias: {
-      "@": resolve(__dirname, "src"),
+      "@": resolve(import.meta.dirname, "src"),
     },
   },
 
@@ -41,6 +41,11 @@ export default defineConfig({
         {
           src: "./plugin.json",
           dest: "./",
+        },
+        {
+          // 到点提示音（□2：URL 优先用户自定义，留空回落这枚内置音）
+          src: "./audio/*.mp3",
+          dest: "./audio/",
         },
       ],
     }),
@@ -70,7 +75,7 @@ export default defineConfig({
 
     lib: {
       // Could also be a dictionary or array of multiple entry points
-      entry: resolve(__dirname, "src/index.ts"),
+      entry: resolve(import.meta.dirname, "src/index.ts"),
       // the proper extensions will be added
       fileName: "index",
       formats: ["cjs"],
@@ -106,7 +111,7 @@ export default defineConfig({
 
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ["siyuan", "process"],
+      external: ["siyuan", "process", "fs", "fs/promises", "os", "path", "util", "child_process"],
 
       output: {
         exports: "named",
