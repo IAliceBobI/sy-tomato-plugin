@@ -12,6 +12,7 @@ import { text2tab } from "./libs/listUtils";
 import { zipNways } from "./libs/functional";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
@@ -25,11 +26,11 @@ export const MixBox删除所有flag书签 = winHotkey("alt+shift+0", "del flags"
 export const MixBox空格隔开的所有内容都转为引用 = winHotkey("alt+shift+F3", "txt2ref", "", () => tomatoI18n.将选中的内容转为引用)
 export const MixBox收集当前文档与子文档所有的未完成任务 = winHotkey("⌘⇧w", "收集当前文档与子文档所有的未完成任务", "", () => tomatoI18n.收集当前文档与子文档所有的未完成任务)
 export const MixBox列出当前文档与子文档中没被引用的文档 = winHotkey("⌘⇧q", "列出当前文档与子文档中没被引用的文档", "", () => tomatoI18n.列出当前文档与子文档中没被引用的文档)
-export const MixBox将选择文字与其拼音加入文档的别名 = winHotkey("⌘⇧Y", "将选择文字与其拼音加入文档的别名", "🎵", () => tomatoI18n.将选择文字与其拼音加入文档的别名 + "(pinyin)")
+export const MixBox将选择文字与其拼音加入文档的别名 = winHotkey("⌘⇧Y", "将选择文字与其拼音加入文档的别名", "iconAttr", () => tomatoI18n.将选择文字与其拼音加入文档的别名 + "(pinyin)")
 export const MixBox将选择文字加入文档的别名 = winHotkey("⌘⇧U", "MixBox将选择文字加入文档的别名", "", () => tomatoI18n.将选择文字加入文档的别名)
-export const MixBox定位所有引用Menu = winHotkey("⌥⇧A", "定位所有引用Menu", "📍🔗", () => tomatoI18n.定位所有引用Menu)
-export const MixBox复制文档为标准Markdown = winHotkey("⌥⇧B", "复制文档为标准Markdown", "📜📋", () => tomatoI18n.复制文档为标准Markdown)
-export const MixBox锁定内容 = winHotkey("⌥⇧L", "锁定内容", "🔒/🔓", () => tomatoI18n.锁定内容)
+export const MixBox定位所有引用Menu = winHotkey("⌥⇧A", "定位所有引用Menu", "iconFocus", () => tomatoI18n.定位所有引用Menu)
+export const MixBox复制文档为标准Markdown = winHotkey("⌥⇧B", "复制文档为标准Markdown", "iconMarkdown", () => tomatoI18n.复制文档为标准Markdown)
+export const MixBox锁定内容 = winHotkey("⌥⇧L", "锁定内容", "iconLock", () => tomatoI18n.锁定内容)
 export const MixBox复制文档为纯文本 = winHotkey("alt+ctrl+shift+B", "复制文档为纯文本", "", () => tomatoI18n.复制文档为纯文本)
 
 class MixBox {
@@ -316,9 +317,9 @@ class MixBox {
     copyStdMDMenu(detail: TomatoMenu) {
         if (!storeCopyStdMD.get()) return
         const menu = detail.menu;
-        menu.addItem({
+        addIfVisible(menu, MixBox复制文档为标准Markdown.langKey, {
             label: MixBox复制文档为标准Markdown.langText(),
-            iconHTML: MixBox复制文档为标准Markdown.icon,
+            icon: MixBox复制文档为标准Markdown.icon,
             accelerator: MixBox复制文档为标准Markdown.m,
             click: async () => {
                 await copyStdMD(detail.protyle);
@@ -329,9 +330,9 @@ class MixBox {
     openRefsMenu(detail: TomatoMenu) {
         if (!storeOpenRefsMenu.get()) return
         const menu = detail.menu;
-        menu.addItem({
+        addIfVisible(menu, MixBox定位所有引用Menu.langKey, {
             label: MixBox定位所有引用Menu.langText(),
-            iconHTML: MixBox定位所有引用Menu.icon,
+            icon: MixBox定位所有引用Menu.icon,
             accelerator: MixBox定位所有引用Menu.m,
             click: async () => {
                 await openRefs(this.plugin, detail.protyle);
@@ -370,9 +371,9 @@ class MixBox {
     fillMemoMenu(detail: TomatoMenu) {
         if (!storeFillMemoMenu.get()) return
         const menu = detail.menu;
-        menu.addItem({
+        addIfVisible(menu, MixBox锁定内容.langKey, {
             label: MixBox锁定内容.langText(),
-            iconHTML: MixBox锁定内容.icon,
+            icon: MixBox锁定内容.icon,
             accelerator: MixBox锁定内容.m,
             click: async () => {
                 const { selected } = await events.selectedDivs();
@@ -384,9 +385,9 @@ class MixBox {
     addPinyin2alias(detail: TomatoMenu) {
         if (!mixBoxPinyin.get()) return;
         const menu = detail.menu;
-        menu.addItem({
+        addIfVisible(menu, MixBox将选择文字与其拼音加入文档的别名.langKey, {
             label: MixBox将选择文字与其拼音加入文档的别名.langText(),
-            iconHTML: MixBox将选择文字与其拼音加入文档的别名.icon,
+            icon: MixBox将选择文字与其拼音加入文档的别名.icon,
             accelerator: MixBox将选择文字与其拼音加入文档的别名.m,
             click: () => {
                 addPinyin2DocAlias(detail.protyle);
@@ -396,9 +397,9 @@ class MixBox {
 
     moveDocContentHere(detail: TomatoMenu) {
         if (!storeMoveDocContentHere.get()) return;
-        detail.menu.addItem({
+        addIfVisible(detail.menu, "m.mixBox.moveDocHere", {
             label: tomatoI18n.把文档内容移动到这里,
-            iconHTML: "📃📩",
+            icon: "iconMove",
             accelerator: "",
             click: async () => {
                 const { ids } = await events.selectedDivs(detail.protyle);
@@ -424,9 +425,9 @@ class MixBox {
     mergeDoc(detail: TomatoMenu) {
         if (!storeMergeDoc.get()) return;
         const menu = detail.menu;
-        menu.addItem({
+        addIfVisible(menu, "m.mixBox.mergeDoc", {
             label: tomatoI18n.合并文档到这里,
-            iconHTML: "📃🈴",
+            icon: "iconContract",
             accelerator: "",
             click: async () => {
                 const { ids } = await events.selectedDivs(detail.protyle);
@@ -450,9 +451,9 @@ class MixBox {
     refreshStaticBkLnk(detail: TomatoMenu) {
         if (!storeRefreshStaticBkLnk.get()) return;
         const menu = detail.menu;
-        menu.addItem({
+        addIfVisible(menu, "m.mixBox.refreshStaticBk", {
             label: tomatoI18n.刷新静态反链,
-            iconHTML: "♻️🔗",
+            icon: "iconRefresh",
             accelerator: "",
             click: async () => {
                 const { docID } = await events.selectedDivs(detail.protyle);
@@ -466,9 +467,9 @@ class MixBox {
     disableStaticBkLnk(detail: TomatoMenu) {
         if (!storeRefreshStaticBkLnk.get()) return;
         const menu = detail.menu;
-        menu.addItem({
+        addIfVisible(menu, "m.mixBox.delStaticBk", {
             label: tomatoI18n.删除静态反链,
-            iconHTML: "🧹🔗",
+            icon: "iconLinkOff",
             accelerator: "",
             click: async () => {
                 const { docID } = await events.selectedDivs(detail.protyle);
@@ -481,9 +482,9 @@ class MixBox {
     insertXml(detail: TomatoMenu) {
         if (!storeInsertXml.get()) return;
         const menu = detail.menu;
-        menu.addItem({
+        addIfVisible(menu, "m.mixBox.insertXml", {
             label: tomatoI18n.插入空的脑图流程图文件,
-            iconHTML: "＋🧠",
+            icon: "iconGlobalGraph",
             accelerator: "",
             click: async () => {
                 if (!events.isDesktop) {

@@ -15,6 +15,7 @@ import { OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { mount } from "svelte";
 
@@ -141,7 +142,7 @@ export class BKMaker {
     }
 }
 
-export const BK启用禁用文档的底部反链 = winHotkey("shift+alt+9", "BK启用禁用文档的底部反链", "📴🔗", () => tomatoI18n.enableBK启用禁用文档的底部反链,)
+export const BK启用禁用文档的底部反链 = winHotkey("shift+alt+9", "BK启用禁用文档的底部反链", "iconDock", () => tomatoI18n.enableBK启用禁用文档的底部反链,)
 
 class BackLinkBottomBox {
     public plugin: BaseTomatoPlugin;
@@ -173,9 +174,9 @@ class BackLinkBottomBox {
         if (bk启用禁用文档的底部反链menu.get()) {
             this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
                 const menu = detail.menu;
-                menu.addItem({
+                addIfVisible(menu, BK启用禁用文档的底部反链.langKey, {
                     label: BK启用禁用文档的底部反链.langText(),
-                    iconHTML: BK启用禁用文档的底部反链.icon,
+                    icon: BK启用禁用文档的底部反链.icon,
                     click: () => editorCallback(detail.protyle),
                 });
             });

@@ -34,10 +34,18 @@
     import { SuperRefBox全局修复引用, SuperRefBox全局加固引用 } from "./SuperRefBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
-    import { helpOpen } from "./helpOpen";
+    import { onDestroy } from "svelte";
+    import { destroyPanelTip, hidePanelTip, showPanelTip } from "./libs/panelTip";
 
     let { codeValid }: { codeValid: boolean } = $props();
     let codeNotValid = $derived(!codeValid);
+
+    // □3 迁 panelTip：设置弹窗 b3-dialog__body 同为 ov:auto 滚动容器，b3-tooltips__n 纯 CSS
+    // 气泡贴顶/贴缘即裁；滚动即弃防线已上提 panelTip 模块级单例（勿在组件层再挂）。
+    // 注意收尾现状：Svelte 5 mount() 返回 exports，d.destroy() 是 IndexConf export 的空函数，
+    // 本组件 onDestroy 实际不触发——tip 摘除由 openSettings 的 dm.add("tip") 兜底；此处
+    // onDestroy 留作 unmount 链修复后的自动生效位（同款死代码先例=CommentBox export destroy）
+    onDestroy(destroyPanelTip);
 </script>
 
     <!-- 导出工作空间（2026-08 翻新 spec：docs/tomato-export-settings-revamp.md）。
@@ -46,11 +54,6 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$markdownExportBoxCheckbox} />
             {tomatoI18n.导出工作空间}
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/UmNxds5JLo4m1qxc7j3cOvh4ncc?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
         </div>
         {#if $markdownExportBoxCheckbox}
             <!-- ① 导出范围 -->
@@ -80,11 +83,14 @@
                             <div class="tomato-list-item">
                                 <button
                                     type="button"
-                                    class="b3-button b3-button--text tomato-item-del b3-tooltips b3-tooltips__n"
+                                    class="b3-button b3-button--text tomato-item-del"
                                     aria-label={tomatoI18n.从名单中移除}
+                                    onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                                    onmouseleave={hidePanelTip}
                                     onclick={() => {
                                         $exportWhiteList.splice(index, 1);
                                         $exportWhiteList = $exportWhiteList;
+                                        hidePanelTip(); // 摘行无 mouseleave，锚没了 tip 会悬空
                                     }}
                                 >
                                     {@html icon("Trashcan", 14)}
@@ -118,11 +124,14 @@
                         <div class="tomato-list-item">
                             <button
                                 type="button"
-                                class="b3-button b3-button--text tomato-item-del b3-tooltips b3-tooltips__n"
+                                class="b3-button b3-button--text tomato-item-del"
                                 aria-label={tomatoI18n.从名单中移除}
+                                onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                                onmouseleave={hidePanelTip}
                                 onclick={() => {
                                     $exportBlackList.splice(index, 1);
                                     $exportBlackList = $exportBlackList;
+                                    hidePanelTip(); // 摘行无 mouseleave，锚没了 tip 会悬空
                                 }}
                             >
                                 {@html icon("Trashcan", 14)}
@@ -185,14 +194,16 @@
                 <TomatoVIP {codeValid}></TomatoVIP>
                 {#if $exportIntervalSecOn}
                     <input
-                        class="b3-text-field tomato-timer-input b3-tooltips b3-tooltips__n"
+                        class="b3-text-field tomato-timer-input"
                         aria-label={tomatoI18n.可以填写小数}
+                        onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                        onmouseleave={hidePanelTip}
                         bind:value={$exportIntervalSec}
                     />
                     <span class="tomato-row-label">{tomatoI18n.增量导出间隔秒}</span>
                     <div class="helpText">{tomatoI18n.增量导出最小3秒}</div>
                 {:else}
-                    <span class="tomato-timer-off">{tomatoI18n.已关闭开启后按设定间隔自动执行增量导出}</span>
+                    <span class="tomato-timer-off">{tomatoI18n.开启后按设定间隔自动执行增量导出}</span>
                 {/if}
             </div>
             <div class="tomato-input-row" class:codeNotValid>
@@ -201,31 +212,41 @@
                 <TomatoVIP {codeValid}></TomatoVIP>
                 {#if $exportCleanFilesOn}
                     <input
-                        class="b3-text-field tomato-timer-input b3-tooltips b3-tooltips__n"
+                        class="b3-text-field tomato-timer-input"
                         aria-label={tomatoI18n.可以填写小数}
+                        onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                        onmouseleave={hidePanelTip}
                         bind:value={$exportCleanFiles}
                     />
                     <span class="tomato-row-label">{tomatoI18n.确保导出间隔分钟}</span>
                     <div class="helpText">{tomatoI18n.确保导出最小3分钟}</div>
                 {:else}
-                    <span class="tomato-timer-off">{tomatoI18n.已关闭开启后按设定间隔确保导出符合配置}</span>
+                    <span class="tomato-timer-off">{tomatoI18n.开启后按设定间隔确保导出符合配置}</span>
                 {/if}
             </div>
 
-            <!-- ⑤ 手动操作（回调/快捷键零变化；键帽只读，w() 平台化显示） -->
+            <!-- ⑤ 手动操作（回调/快捷键零变化；按钮+键帽两段式——键帽是 HotkeyCap 可点击改键，
+                 绝不能嵌进 button 内：点击冒泡会误触发导出，2026-08-30 修假可供性） -->
             <div class="tomato-group-title">{tomatoI18n.手动操作}</div>
             <div class="tomato-action-row">
-                <button type="button" class="b3-button b3-button--outline" onclick={() => exportMd2Dir(true)}>
-                    {MarkdownExport全量导出.langText()}<span class="kbd tomato-action-kbd">{MarkdownExport全量导出.w()}</span>
-                </button>
-                <button type="button" class="b3-button b3-button--outline" onclick={() => exportMd2Dir()}>
-                    {MarkdownExport增量导出.langText()}<span class="kbd tomato-action-kbd">{MarkdownExport增量导出.w()}</span>
-                </button>
-                <button type="button" class="b3-button b3-button--outline" onclick={() => cleanExportedMds()}>
-                    {MarkdownExport确保导出符合配置.langText()}<span class="kbd tomato-action-kbd"
-                        >{MarkdownExport确保导出符合配置.w()}</span
-                    >
-                </button>
+                <span class="tomato-action-pair">
+                    <button type="button" class="b3-button b3-button--outline" onclick={() => exportMd2Dir(true)}>
+                        {MarkdownExport全量导出.langText()}
+                    </button>
+                    <HotkeyCap hk={MarkdownExport全量导出} pluginName="sy-tomato-plugin"></HotkeyCap>
+                </span>
+                <span class="tomato-action-pair">
+                    <button type="button" class="b3-button b3-button--outline" onclick={() => exportMd2Dir()}>
+                        {MarkdownExport增量导出.langText()}
+                    </button>
+                    <HotkeyCap hk={MarkdownExport增量导出} pluginName="sy-tomato-plugin"></HotkeyCap>
+                </span>
+                <span class="tomato-action-pair">
+                    <button type="button" class="b3-button b3-button--outline" onclick={() => cleanExportedMds()}>
+                        {MarkdownExport确保导出符合配置.langText()}
+                    </button>
+                    <HotkeyCap hk={MarkdownExport确保导出符合配置} pluginName="sy-tomato-plugin"></HotkeyCap>
+                </span>
                 <div class="helpText">{tomatoI18n.手动操作帮助}</div>
             </div>
         {/if}
@@ -235,11 +256,6 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$blockEditorBox} />
             块编辑器
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/AheDdwG35ol3qWxYPeYc8HennJf?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
         </div>
         {#if $blockEditorBox}
             <div>
@@ -254,11 +270,6 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxCheckBox} />
             引用修复工具
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/WTgxdUINHoYXHbxmU87cxs5knfd?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
         </div>
         {#if $superRefBoxCheckBox}
             <div>这是一个实验功能，请提前备份好。</div>

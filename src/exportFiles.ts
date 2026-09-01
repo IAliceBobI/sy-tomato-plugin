@@ -1,3 +1,4 @@
+import { addIfVisible } from "./libs/menuManager";
 import { confirm, IProtyle, Plugin, Protyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
 import { cleanDivOnly, cloneCleanDiv, downloadStringAsFile, getAttribute, getBlocksByTrees, getMarkdownsByTrees, getTomatoPluginInstance, isEditor, removeInvisibleChars, siyuan, } from "./libs/utils";
@@ -22,7 +23,7 @@ export function mergeDocMenuListener() {
             .map(e => getAttribute(e, "data-node-id"))
             .filter(i => !!i);
         if (ids.length > 0) {
-            detial.menu.addItem({
+            addIfVisible(detial.menu, "m.exportFiles.mergeMove", {
                 label: tomatoI18n.合并为单个文件 + " · " + tomatoI18n.移动,
                 icon: "iconMove",
                 click: async () => {
@@ -35,7 +36,7 @@ export function mergeDocMenuListener() {
                     }
                 }
             })
-            detial.menu.addItem({
+            addIfVisible(detial.menu, "m.exportFiles.mergeCopy", {
                 label: tomatoI18n.合并为单个文件 + " · " + tomatoI18n.复制,
                 icon: "iconCopy",
                 click: async () => {
@@ -83,7 +84,7 @@ export function exportAsOneFile() {
             .map(e => getAttribute(e, "data-node-id"))
             .filter(i => !!i);
         if (ids.length > 0) {
-            detial.menu.addItem({
+            addIfVisible(detial.menu, "m.exportFiles.exportAll", {
                 label: tomatoI18n.导出所有文档到单个文件,
                 icon: "iconUpload",
                 click: () => { exportBigText(ids) }
@@ -98,7 +99,7 @@ export function importMD() {
             .map(e => getAttribute(e, "data-node-id"))
             .filter(i => !!i);
         if (ids.length > 0) {
-            detial.menu.addItem({
+            addIfVisible(detial.menu, "m.exportFiles.importMD", {
                 label: tomatoI18n.导入markdownOrText,
                 icon: "iconDownload",
                 click: () => {

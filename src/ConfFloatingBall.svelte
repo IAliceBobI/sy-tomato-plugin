@@ -23,7 +23,6 @@
     import { events } from "./libs/Events";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
-    import { helpOpen } from "./helpOpen";
 
     let addDocSettings: HTMLElement = $state();
     let addShortcutSettings: HTMLElement = $state();
@@ -96,11 +95,6 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$floatingballEnable} />
             {tomatoI18n.悬浮球}
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/IFT9drxvSoYKVmxCcqncFOgknXg?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
         </div>
         {#if $floatingballEnable}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>

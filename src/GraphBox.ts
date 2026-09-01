@@ -8,6 +8,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { getDocBlocks } from "./libs/docUtils";
 import { DestroyManager } from "./libs/destroyer";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { mount } from "svelte";
 
@@ -196,22 +197,18 @@ class GraphBox {
     locateNodeMenu(detail: TomatoMenu) {
         const menu = detail.menu;
         if (!events.isMobile) {
-            if (graph定位到图中的节点Menu.get()) {
-                menu.addItem({
-                    label: GraphBox定位到图中的节点.langText(),
-                    icon: "iconGraphTomato",
-                    accelerator: GraphBox定位到图中的节点.m,
-                    click: () => this.locateNode(detail.protyle),
-                });
-            }
-            if (graph打开块关系图Menu.get()) {
-                menu.addItem({
-                    label: GraphBox打开块关系图.langText(),
-                    icon: "iconGraphTomato",
-                    accelerator: GraphBox打开块关系图.m,
-                    click: () => this.openGraphTab(),
-                });
-            }
+            addIfVisible(menu, GraphBox定位到图中的节点.langKey, {
+                label: GraphBox定位到图中的节点.langText(),
+                icon: "iconGraphTomato",
+                accelerator: GraphBox定位到图中的节点.m,
+                click: () => this.locateNode(detail.protyle),
+            }, graph定位到图中的节点Menu.get());
+            addIfVisible(menu, GraphBox打开块关系图.langKey, {
+                label: GraphBox打开块关系图.langText(),
+                icon: "iconGraphTomato",
+                accelerator: GraphBox打开块关系图.m,
+                click: () => this.openGraphTab(),
+            }, graph打开块关系图Menu.get());
         }
     }
 

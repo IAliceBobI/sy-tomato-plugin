@@ -327,7 +327,8 @@ class Events {
         if (selected.length == 0) {
             cursorOnly = true;
             const e = getCursorElement();
-            if (e) selected.push(e);
+            // 光标走全局 selection 祖先链，焦点可能在别的页签/面板——不在本 protyle 内维持空（blocksUnderRange 同款守卫）
+            if (e && element.contains(e)) selected.push(e);
         }
         const ids = selected.map(i => i.getAttribute(DATA_NODE_ID));
         return { selected, ids, rangeText, range, cursorOnly };

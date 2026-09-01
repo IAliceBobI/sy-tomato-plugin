@@ -320,70 +320,6 @@ export abstract class TomatoI18nABC extends TomatoI18nABC2 {
         }
     }
 
-    public get 在线购买自动发货() {
-        switch (this.lang) {
-            case "zh_CN": return "在线购买（自动发货）";
-            case "es_ES": return "Compra en línea (entrega automática)";
-            case "fr_FR": return "Achat en ligne (livraison automatique)";
-            case "ja_JP": return "オンライン購入（自動発送）";
-            case "zh_CHT": return "線上購買（自動發貨）";
-            case "it_IT": return "Acquisto online (consegna automatica)";
-            case "de_DE": return "Online-Kauf (automatische Auslieferung)";
-            case "he_IL": return "רכישה מקוונת (אספקה אוטומטית)";
-            case "ru_RU": return "Покупка онлайн (автоматическая выдача)";
-            case "pl_PL": return "Zakup online (automatyczna dostawa)";
-            case "en_US":
-            default: return "Buy online (instant delivery)";
-        }
-    }
-    public get 在线购买说明() {
-        switch (this.lang) {
-            case "zh_CN": return "点击「去爱发电购买」付款（自动备注思源 ID），付款后回到此处点击「我已完成购买」自动激活";
-            case "es_ES": return "Pulse «Comprar en Afdian» para pagar (su ID de SiYuan se adjunta automáticamente), vuelva aquí y pulse «Ya he pagado» para activar";
-            case "fr_FR": return "Cliquez sur « Acheter sur Afdian » pour payer (votre ID SiYuan est joint automatiquement), revenez ici et cliquez sur « J'ai payé » pour activer";
-            case "ja_JP": return "「愛発電で購入」をクリックして支払う（SiYuan ID が自動で添付されます）。支払い後ここへ戻り「我已完成购买」をクリックすると自動アクティベートされます";
-            case "zh_CHT": return "點擊「去愛發電購買」付款（自動備註思源 ID），付款後回到此處點擊「我已完成購買」自動激活";
-            case "it_IT": return "Clicca \"Acquista su Afdian\" per pagare (l'ID SiYuan è allegato automaticamente), torna qui e clicca \"Ho pagato\" per attivare";
-            case "de_DE": return "Klicken Sie auf „Bei Afdian kaufen“, um zu zahlen (Ihre SiYuan-ID wird automatisch angehängt); kehren Sie dann hierher zurück und klicken Sie auf „Ich habe bezahlt“, um zu aktivieren";
-            case "he_IL": return "לחצו על \"רכישה ב-Afdian\" לתשלום (מזהה ה-SiYuan מצורף אוטומטית), חזרו לכאן ולחצו על \"שילמתי\" להפעלה";
-            case "ru_RU": return "Нажмите «Купить на Afdian» для оплаты (ваш ID SiYuan прилагается автоматически), затем вернитесь сюда и нажмите «Я оплатил» для активации";
-            case "pl_PL": return "Kliknij \"Kup na Afdian\", aby zapłacić (Twój ID SiYuan jest dołączany automatycznie), wróć tu i kliknij \"Zapłaciłem\", aby aktywować";
-            case "en_US":
-            default: return "Click \"Buy on Afdian\" to pay (your SiYuan ID is attached automatically), then return here and click \"I've paid\" to activate";
-        }
-    }
-    public get 去爱发电购买() {
-        switch (this.lang) {
-            case "zh_CN": return "去爱发电购买";
-            case "es_ES": return "Comprar en Afdian";
-            case "fr_FR": return "Acheter sur Afdian";
-            case "ja_JP": return "愛発電で購入";
-            case "zh_CHT": return "去愛發電購買";
-            case "it_IT": return "Acquista su Afdian";
-            case "de_DE": return "Bei Afdian kaufen";
-            case "he_IL": return "רכישה ב-Afdian";
-            case "ru_RU": return "Купить на Afdian";
-            case "pl_PL": return "Kup na Afdian";
-            case "en_US":
-            default: return "Buy on Afdian";
-        }
-    }
-    public get 我已完成购买() {
-        switch (this.lang) {
-            case "zh_CN": return "我已完成购买";
-            case "es_ES": return "Ya he pagado, activar";
-            case "fr_FR": return "J'ai payé, activer";
-            case "ja_JP": return "支払い完了、アクティベート";
-            case "zh_CHT": return "我已完成購買";
-            case "it_IT": return "Ho pagato, attiva";
-            case "de_DE": return "Ich habe bezahlt, aktivieren";
-            case "he_IL": return "שילמתי, להפעיל";
-            case "ru_RU": return "Я оплатил, активировать";
-            case "pl_PL": return "Zapłaciłem, aktywuj";
-            case "en_US":
-            default: return "I've paid, activate";
-        }
-    }
     public get 已完成购买正在激活() {
         switch (this.lang) {
             case "zh_CN": return "已获取激活码，正在激活";
@@ -398,38 +334,6 @@ export abstract class TomatoI18nABC extends TomatoI18nABC2 {
             case "pl_PL": return "Otrzymano licencję, trwa aktywacja";
             case "en_US":
             default: return "License received, activating";
-        }
-    }
-    public get 未查询到付款订单() {
-        switch (this.lang) {
-            case "zh_CN": return "未查询到付款订单，请稍后再试或联系卖家";
-            case "es_ES": return "Aún no se encontró ningún pedido pagado, inténtelo más tarde o contacte al vendedor";
-            case "fr_FR": return "Aucune commande payée trouvée pour le moment, réessayez plus tard ou contactez le vendeur";
-            case "ja_JP": return "支払い済み注文が見つかりません。しばらくしてから再試行するか、販売者に連絡してください";
-            case "zh_CHT": return "未查詢到付款訂單，請稍後再試或聯繫賣家";
-            case "it_IT": return "Nessun ordine pagato trovato, riprova più tardi o contatta il venditore";
-            case "de_DE": return "Noch keine bezahlte Bestellung gefunden, versuchen Sie es später erneut oder kontaktieren Sie den Verkäufer";
-            case "he_IL": return "לא נמצאה הזמנה ששולמה, נסו שוב מאוחר יותר או צרו קשר עם המוכר";
-            case "ru_RU": return "Оплаченный заказ пока не найден, повторите попытку позже или свяжитесь с продавцом";
-            case "pl_PL": return "Nie znaleziono opłaconego zamówienia, spróbuj później lub skontaktuj się ze sprzedawcą";
-            case "en_US":
-            default: return "No paid order found yet, try again later or contact the seller";
-        }
-    }
-    public get 购买查询失败请检查网络后重试() {
-        switch (this.lang) {
-            case "zh_CN": return "购买查询失败，请检查网络后重试";
-            case "es_ES": return "Falló la consulta de compra, compruebe su red y reintente";
-            case "fr_FR": return "Échec de la requête d'achat, vérifiez votre réseau et réessayez";
-            case "ja_JP": return "購入の照会に失敗しました。ネットワークを確認して再試行してください";
-            case "zh_CHT": return "購買查詢失敗，請檢查網絡後重試";
-            case "it_IT": return "Query di acquisto non riuscita, controlla la rete e riprova";
-            case "de_DE": return "Kaufabfrage fehlgeschlagen, prüfen Sie Ihr Netzwerk und versuchen Sie es erneut";
-            case "he_IL": return "שאילתת הרכישה נכשלה, בדקו את הרשת ונסו שוב";
-            case "ru_RU": return "Не удалось выполнить запрос покупки, проверьте сеть и повторите попытку";
-            case "pl_PL": return "Zapytanie o zakup nie powiodło się, sprawdź sieć i spróbuj ponownie";
-            case "en_US":
-            default: return "Purchase query failed, check your network and retry";
         }
     }
     public get 找回激活码() {

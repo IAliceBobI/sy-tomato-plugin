@@ -39,27 +39,38 @@ export function getOpenedEditors() {
 }
 
 /**
- * 当前激活编辑器页签里的文档 ID。与思源官方 isCurrentEditor（app/src/editor/util.ts）
+ * 当前激活编辑器页签的 protyle。与思源官方 isCurrentEditor（app/src/editor/util.ts）
  * 同源：`.layout__wnd--active > .fn__flex > .layout-tab-bar > .item--focus` 拿激活
  * 页签 data-id，再从 getAllEditor 里匹配该页签的 protyle。
- * 桌面端 events.docID 只在点击编辑器内容时更新（文档树点开文档不算），需要
- * 「眼前显示的文档」时用本函数；移动端无此 DOM 结构返回空串（events.docID
- * 随 loaded 事件更新，无此问题）。找不到（面板全关/结构变更）返回空串。
+ * **按页签宿主（closest [data-id]）匹配**：块引浮窗/搜索预览等非页签 protyle 即使
+ * rootID 相同也不命中——需要「排除浮窗劫持、只要真页签编辑器」的身份校验场景用本函数
+ * （□8 P2-2 命令通道，只比 rootID 的旧写法会把浮窗预览同文档误当激活编辑器）。
+ * 移动端无此 DOM 结构返回 null。
  */
-export function getActiveDocID(): string {
-    if (events.isMobile) return "";
+export function getActiveProtyle(): IProtyle | null {
+    if (events.isMobile) return null;
     const activeTab = document.querySelector(".layout__wnd--active > .fn__flex > .layout-tab-bar > .item--focus");
     const dataID = activeTab?.getAttribute("data-id");
-    if (!dataID) return "";
+    if (!dataID) return null;
     for (const p of getAllEditor()) {
         // 编辑器 protyle 所在 panel 与页签头共享 data-id；浮窗/搜索预览等非页签
         // protyle 的最近 [data-id] 祖先不等于激活页签 id，不会误命中
         const panel = p?.protyle?.element?.closest("[data-id]");
         if (panel?.getAttribute("data-id") === dataID) {
-            return p?.protyle?.block?.rootID ?? "";
+            return p?.protyle ?? null;
         }
     }
-    return "";
+    return null;
+}
+
+/**
+ * 当前激活编辑器页签里的文档 ID（getActiveProtyle 薄封装）。
+ * 桌面端 events.docID 只在点击编辑器内容时更新（文档树点开文档不算），需要
+ * 「眼前显示的文档」时用本函数；移动端无此 DOM 结构返回空串（events.docID
+ * 随 loaded 事件更新，无此问题）。找不到（面板全关/结构变更）返回空串。
+ */
+export function getActiveDocID(): string {
+    return getActiveProtyle()?.block?.rootID ?? "";
 }
 
 export function setAttribute(e: any, name: keyof AttrType, value: string) {

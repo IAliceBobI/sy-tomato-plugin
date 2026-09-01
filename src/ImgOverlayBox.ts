@@ -1,3 +1,4 @@
+import { addIfVisible } from "./libs/menuManager";
 import { Dialog, IProtyle } from "siyuan";
 import ImgOverlayEditor from "./ImgOverlayBox.svelte";
 import { EventType, events } from "./libs/Events";
@@ -17,9 +18,9 @@ class ImgOverlayBox {
 
         this.plugin = plugin;
         this.plugin.eventBus.on(EventType.open_menu_image, ({ detail }) => {
-            detail.menu.addItem({
+            addIfVisible(detail.menu, "m.imgOverlay.add", {
                 label: tomatoI18n.添加图片遮挡层,
-                iconHTML: "🛡️🖼️",
+                icon: "iconEyeoff",
                 click: () => { this.overlayEditor(detail.element, detail.protyle); }
             });
         });
@@ -45,8 +46,8 @@ class ImgOverlayBox {
         if (!imgOverlayCheckbox.get()) return;
         const imgs = (detail.blockElements as HTMLElement[]).filter(e => e.querySelector(`span[data-type="img"]`))
         if (imgs.length > 0) {
-            detail.menu.addItem({
-                iconHTML: "🛡️🖼️",
+            addIfVisible(detail.menu, "m.imgOverlay.add", {
+                icon: "iconEyeoff",
                 label: tomatoI18n.添加图片遮挡层,
                 click: () => {
                     for (const element of imgs) {

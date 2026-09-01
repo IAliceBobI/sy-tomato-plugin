@@ -4,10 +4,14 @@
     import TomatoVIP from "./TomatoVIP.svelte";
     import {
         avoiding_cloud_synchronization_conflicts,
-        commentBoxAddUnderline,
+        commentBoxAnnoBg,
+        commentBoxAnnoLineType,
+        commentBoxAnnoMarkStyle,
+        commentBoxAnnoUnderlineThickness,
         commentBoxCheckbox,
         commentBoxMenu,
-        commentBoxSaveUnderDoc,
+        hiddenMenuItems,
+        commentBoxPanelSkin,
         commentBoxShowID,
         cssFlashThoughts,
         flashThoughtUseDialog,
@@ -51,8 +55,8 @@
     import { GraphBox定位到图中的节点, GraphBox打开块关系图 } from "./GraphBox";
     import { NoteBox拍照闪念全局 } from "./NoteBox";
     import { tomatoI18n } from "./tomatoI18n";
+    import { applyAnnoVisual } from "./Annotations";
     import HotkeyCap from "./HotkeyCap.svelte";
-    import { helpOpen } from "./helpOpen";
     import { PRESET_CLOCKS, MAX_CLOCKS, parseClocks, clocksToStore } from "./libs/TomatoClockList";
     import {
         AUDIO_PRESETS,
@@ -65,6 +69,8 @@
     } from "./libs/TomatoAudioList";
     import { bgUploadAssetName, isValidBgUrl, opacityPercentOf, opacityToStore } from "./libs/TomatoBg";
     import { onDestroy } from "svelte";
+    import { MENU_MANAGE_GROUPS, type ManagedMenuItem } from "./libs/menuItemRegistry";
+    import { menuKeyHidden, menuHiddenKeys } from "./libs/menuManager";
     import { siyuan } from "./libs/utils";
     import { tomatoClock } from "./TomatoClock";
 
@@ -106,6 +112,40 @@
     function onPositionChange() {
         void tomato_clocks_position_right.write();
         tomatoClock.remountStatusIcons();
+    }
+
+    // 右键菜单管理（□4）：checkbox 勾=显示；有独立开关的项绑 store（与各功能区开关同一数据），
+    // 无开关项读写 hiddenMenuItems 隐藏集。toggle 只改内存，面板关闭由 IndexConf 统一落盘。
+    let menuManageTick = $state(0);
+    // checkbox 忠实反映「菜单项当前是否显示」：隐藏集优先 + 有独立开关的还要开关开
+    // + 挂 master（功能区总开关）的还要总开关开（三层合成一个视图，master 关时勾了也不出现，
+    // 故 toggle 显示分支连 master 一并打开）；toggle 统一走隐藏集——隐藏=加 key，
+    // 显示=删 key 且确保开关开（有 store 的项在此开 = 功能区开关同步开，同一数据两个视图）
+    function menuItemSelected(item: ManagedMenuItem): boolean {
+        if (menuKeyHidden(item.key)) return false;
+        if (item.master && !item.master.get()) return false;
+        return item.store ? item.store.get() : true;
+    }
+    function toggleMenuItem(item: ManagedMenuItem, ev: Event) {
+        const target = ev.currentTarget as HTMLInputElement;
+        const checked = target?.checked ?? !menuItemSelected(item);
+        if (checked) {
+            hiddenMenuItems.set(menuHiddenKeys().filter((k: string) => k !== item.key));
+            item.store?.set(true);
+            item.master?.set(true);
+        } else {
+            const arr = [...menuHiddenKeys()];
+            if (!arr.includes(item.key)) arr.push(item.key);
+            hiddenMenuItems.set(arr);
+        }
+        menuManageTick++;
+    }
+    function showAllMenuItems() {
+        hiddenMenuItems.set([]);
+        for (const g of MENU_MANAGE_GROUPS) {
+            for (const it of g.items) it.store?.set(true);
+        }
+        menuManageTick++;
     }
 
     // 提示音选择化（□3）：下拉+试听+自定义展开。存储语义零迁移——选中预置=存打包路径，
@@ -255,11 +295,6 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$tomatoClockCheckbox} />
             {tomatoI18n.状态栏番茄钟}
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/KmCRdj1s7okXZOxkwsTcbPFXnNh?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
         </div>
         {#if $tomatoClockCheckbox}
             <div>
@@ -502,11 +537,6 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$noteBoxCheckbox} />
             {tomatoI18n.拍照闪念收集图片闪念到}
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/N3LkdvKGhowkTUx1r6OcxCjInec?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
         </div>
         {#if $noteBoxCheckbox}
             <div>
@@ -554,11 +584,6 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$commentBoxCheckbox} />
             {tomatoI18n.批注}
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/Svq2dIQpaob0kKx0l38ciftRnXl?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
         </div>
         {#if $commentBoxCheckbox}
             <div>
@@ -572,16 +597,100 @@
                 <HotkeyCap hk={CommentBox添加批注到日记} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$commentBoxAddUnderline} />
-                {tomatoI18n.批注添加下划线}
+                {tomatoI18n.批注标记形态}
+                <select
+                    class="b3-select"
+                    value={$commentBoxAnnoMarkStyle}
+                    onchange={(e) => {
+                        commentBoxAnnoMarkStyle.write(e.currentTarget.value);
+                        applyAnnoVisual();
+                    }}
+                >
+                    <option value="underline">{tomatoI18n.形态下划线式}</option>
+                    <option value="marker">{tomatoI18n.形态马克笔式}</option>
+                    <option value="frame">{tomatoI18n.形态花边框}</option>
+                </select>
             </div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$commentBoxSaveUnderDoc} />
-                {tomatoI18n.把批注保存在子文档否则保存在日记中}
-            </div>
+            {#if $commentBoxAnnoMarkStyle === "underline"}
+                <div>
+                    {tomatoI18n.批注线型}
+                    <select
+                        class="b3-select"
+                        value={$commentBoxAnnoLineType}
+                        onchange={(e) => {
+                            const v = e.currentTarget.value;
+                            // 圆圈串细档环宽不足半像素退化成实心点（spec §11.1.1）：自动升标准档
+                            if (v === "ring-bead" && commentBoxAnnoUnderlineThickness.get() === 1) {
+                                commentBoxAnnoUnderlineThickness.write(2);
+                            }
+                            commentBoxAnnoLineType.write(v);
+                            applyAnnoVisual();
+                        }}
+                    >
+                        <option value="solid">{tomatoI18n.线型实线}</option>
+                        <option value="dashed">{tomatoI18n.线型虚线}</option>
+                        <option value="dotted">{tomatoI18n.线型点线}</option>
+                        <option value="wavy">{tomatoI18n.线型波浪线}</option>
+                        <option value="double">{tomatoI18n.线型双线}</option>
+                        <option value="dot-bead">{tomatoI18n.线型圆点串}</option>
+                        <option
+                            value="ring-bead"
+                            disabled={$commentBoxAnnoUnderlineThickness === 1}
+                        >{tomatoI18n.线型圆圈串}</option>
+                    </select>
+                </div>
+                <div>
+                    <input
+                        type="checkbox"
+                        class="b3-switch"
+                        checked={$commentBoxAnnoBg}
+                        onchange={(e) => {
+                            commentBoxAnnoBg.write(e.currentTarget.checked);
+                            applyAnnoVisual();
+                        }}
+                    />
+                    {tomatoI18n.批注背景微底色}
+                </div>
+            {/if}
+            {#if $commentBoxAnnoMarkStyle !== "frame"}
+                <div>
+                    {$commentBoxAnnoMarkStyle === "marker" ? tomatoI18n.批注底色厚度 : tomatoI18n.批注下划线粗细}
+                    <select
+                        class="b3-select"
+                        value={String($commentBoxAnnoUnderlineThickness)}
+                        onchange={(e) => {
+                            const v = Number(e.currentTarget.value);
+                            commentBoxAnnoUnderlineThickness.write(v);
+                            applyAnnoVisual();
+                        }}
+                    >
+                        <option
+                            value="1"
+                            disabled={$commentBoxAnnoMarkStyle === "underline" && $commentBoxAnnoLineType === "ring-bead"}
+                        >{tomatoI18n.细}</option>
+                        <option value="2">{tomatoI18n.标准}</option>
+                        <option value="3">{tomatoI18n.粗}</option>
+                    </select>
+                </div>
+            {/if}
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$commentBoxShowID} />
                 {tomatoI18n.显示ID}
+            </div>
+            <div>
+                {tomatoI18n.面板皮肤}
+                <select
+                    class="b3-select"
+                    value={$commentBoxPanelSkin}
+                    onchange={(e) => {
+                        commentBoxPanelSkin.write(e.currentTarget.value);
+                    }}
+                >
+                    <option value="classic">{tomatoI18n.皮肤经典}</option>
+                    <option value="candy">{tomatoI18n.皮肤糖霜}</option>
+                    <option value="paper">{tomatoI18n.皮肤纸墨}</option>
+                    <option value="airy">{tomatoI18n.皮肤疏朗}</option>
+                </select>
             </div>
         {/if}
     </div>
@@ -590,11 +699,6 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$mindWireCheckbox} />
             {tomatoI18n.思维导线}
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/QNArdYNuuoH34qxGHdCcHmE6nic?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
         </div>
         {#if $mindWireCheckbox}
             <div>
@@ -652,11 +756,6 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$graphBoxCheckbox} />
             {tomatoI18n.块关系图}
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/UIRudM9EQoyri2x4okkcjbGZnug?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
         </div>
         {#if $graphBoxCheckbox}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
@@ -701,4 +800,35 @@
                 {@html tomatoI18n.块关系图帮助}
             </div>
         {/if}
+    </div>
+
+    <div class="settingBox">
+        <div class="section-title">{tomatoI18n.右键菜单管理}</div>
+        <div class="tomato-menu-manage-note">{tomatoI18n.右键菜单管理说明}</div>
+        <div class="tomato-menu-manage-toolbar">
+            <button
+                type="button"
+                class="b3-button b3-button--small"
+                onclick={showAllMenuItems}>{tomatoI18n.全部显示}</button
+            >
+        </div>
+        {#key menuManageTick}
+        {#each MENU_MANAGE_GROUPS as group (group.title())}
+            <div class="tomato-menu-manage-group">
+                <div class="tomato-menu-manage-group-title">{group.title()}</div>
+                {#each group.items as item (item.key)}
+                    <label class="fn__flex fn__flex-center tomato-menu-manage-item">
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            checked={menuItemSelected(item)}
+                            onchange={(ev) => toggleMenuItem(item, ev)}
+                        />
+                        <span class="fn__space"></span>
+                        <span class="tomato-menu-manage-label">{item.label()}</span>
+                    </label>
+                {/each}
+            </div>
+        {/each}
+        {/key}
     </div>

@@ -5,11 +5,12 @@ import { tomatoI18n } from "./tomatoI18n";
 import { getDocBlocks, OpenSyFile2 } from "./libs/docUtils";
 import { events } from "./libs/Events";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { IProtyle } from "siyuan";
 
 const LongContentOpsLock = "LongContentOpsLock";
 
-export const CpBox批量删除大量连续内容块 = winHotkey("alt+shift+;", "deleteBlocks", "🧹", () => tomatoI18n.批量删除大量连续内容块, false, deleteBlocksMenu)
+export const CpBox批量删除大量连续内容块 = winHotkey("alt+shift+;", "deleteBlocks", "iconTrashcan", () => tomatoI18n.批量删除大量连续内容块, false, deleteBlocksMenu)
 export const CpBox批量移动大量连续内容块 = winHotkey("alt+shift+'", "moveBlocks")
 export const CpBox批量复制大量连续内容块 = winHotkey("alt+shift+q", "copyBlocks")
 
@@ -68,24 +69,24 @@ class CpBox {
         });
         this.plugin.eventBus.on("open-menu-content", async ({ detail }) => {
             const menu = detail.menu;
+            addIfVisible(menu, CpBox批量删除大量连续内容块.langKey, {
+                label: CpBox批量删除大量连续内容块.langText(),
+                icon: CpBox批量删除大量连续内容块.icon,
+                accelerator: CpBox批量删除大量连续内容块.m,
+                click: deleteBlocks,
+            }, CpBox批量删除大量连续内容块.menu());
             if (CpBox批量删除大量连续内容块.menu()) {
-                menu.addItem({
-                    label: CpBox批量删除大量连续内容块.langText(),
-                    iconHTML: CpBox批量删除大量连续内容块.icon,
-                    accelerator: CpBox批量删除大量连续内容块.m,
-                    click: deleteBlocks,
-                });
-                menu.addItem({
+                addIfVisible(menu, "m.cpBox.clean2SubDoc", {
                     label: tomatoI18n.清理文档内容到子文档,
-                    iconHTML: "🚛",
+                    icon: "iconFolder",
                     accelerator: "",
                     click: () => {
                         this.moveAll2SubDoc(detail.protyle);
                     },
                 });
-                menu.addItem({
+                addIfVisible(menu, "m.cpBox.cleanAll", {
                     label: tomatoI18n.清理文档内容,
-                    iconHTML: "🧹",
+                    icon: "iconClear",
                     accelerator: "",
                     click: () => {
                         this.moveAll(detail.protyle);

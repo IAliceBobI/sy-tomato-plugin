@@ -10,10 +10,11 @@ import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 
 export const CardPriorityBox修改文档中闪卡优先级 = winHotkey("F6", "cardPrioritySet")
-export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8", "delay all cards spread on x days", "🌊🛑", () => tomatoI18n.分散推迟闪卡, true, cardPriorityBoxSpradDelayMenu)
+export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8", "delay all cards spread on x days", "iconSpreadEven", () => tomatoI18n.分散推迟闪卡, true, cardPriorityBoxSpradDelayMenu)
 export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9", "delay all cards")
 export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y", "resume all cards")
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { setGlobal, shuffleArray } from "stonev5-utils";
 import { mount } from "svelte";
 
@@ -31,15 +32,15 @@ class CardPriorityBox {
         if (!cardPriorityBoxCheckbox.get()) return;
         const cards = detail?.blockElements?.filter(e => getAttribute(e, "custom-riff-decks"))
         if (cards?.length > 0) {
-            detail.menu.addItem({
-                iconHTML: "🏆",
+            addIfVisible(detail.menu, "m.cardPriority.setPri", {
+                icon: "iconStar",
                 label: tomatoI18n.为闪卡设置优先级,
                 click: () => {
                     this.updatePrioritySelected(detail.blockElements);
                 }
             });
-            detail.menu.addItem({
-                iconHTML: "🛑",
+            addIfVisible(detail.menu, "m.cardPriority.stop", {
+                icon: "iconPause",
                 label: tomatoI18n.推迟与取消推迟,
                 click: (_e, event) => {
                     for (const e of detail.blockElements) {
@@ -150,32 +151,26 @@ class CardPriorityBox {
 
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
-            if (CardPriorityBox分散推迟闪卡.menu()) {
-                menu.addItem({
-                    label: CardPriorityBox分散推迟闪卡.langText(),
-                    iconHTML: CardPriorityBox分散推迟闪卡.icon,
-                    accelerator: CardPriorityBox分散推迟闪卡.m,
-                    click: () => delay(true),
-                });
-            }
+            addIfVisible(menu, CardPriorityBox分散推迟闪卡.langKey, {
+                label: CardPriorityBox分散推迟闪卡.langText(),
+                icon: CardPriorityBox分散推迟闪卡.icon,
+                accelerator: CardPriorityBox分散推迟闪卡.m,
+                click: () => delay(true),
+            }, CardPriorityBox分散推迟闪卡.menu());
 
-            if (cardPriorityBoxPriorityMenu.get()) {
-                menu.addItem({
-                    label: tomatoI18n.修改文档中闪卡优先级,
-                    iconHTML: "🌊🏆",
-                    accelerator: CardPriorityBox修改文档中闪卡优先级.m,
-                    click: cardPrioritySet,
-                });
-            }
+            addIfVisible(menu, CardPriorityBox修改文档中闪卡优先级.langKey, {
+                label: tomatoI18n.修改文档中闪卡优先级,
+                icon: "iconRiffCard",
+                accelerator: CardPriorityBox修改文档中闪卡优先级.m,
+                click: cardPrioritySet,
+            }, cardPriorityBoxPriorityMenu.get());
 
-            if (cardPriorityBoxPostponeCardMenu.get()) {
-                menu.addItem({
-                    label: tomatoI18n.推迟闪卡,
-                    accelerator: CardPriorityBox推迟闪卡.m,
-                    iconHTML: "🌊🛑",
-                    click: () => delay(),
-                });
-            }
+            addIfVisible(menu, CardPriorityBox推迟闪卡.langKey, {
+                label: tomatoI18n.推迟闪卡,
+                accelerator: CardPriorityBox推迟闪卡.m,
+                icon: "iconClock",
+                click: () => delay(),
+            }, cardPriorityBoxPostponeCardMenu.get());
         });
 
         this.observer = new MutationObserver((mutationsList) => {

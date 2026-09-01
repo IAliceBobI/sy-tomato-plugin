@@ -8,10 +8,11 @@ import { doGetBackLinks } from "./libs/bkUtils";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
-export const DbBkBox刷新数据库反链 = winHotkey("⇧⌥F9", "dbbkrefresh", "🔄💾", () => tomatoI18n.刷新数据库反链,)
+export const DbBkBox刷新数据库反链 = winHotkey("⇧⌥F9", "dbbkrefresh", "iconDatabase", () => tomatoI18n.刷新数据库反链,)
 
 class DbBkBox {
     plugin: BaseTomatoPlugin;
@@ -50,9 +51,9 @@ class DbBkBox {
     private refreshDBBKMenu(detail: TomatoMenu) {
         const menu = detail.menu;
         if (dbBkBoxRefreshMenu.get()) {
-            menu.addItem({
+            addIfVisible(menu, DbBkBox刷新数据库反链.langKey, {
                 label: DbBkBox刷新数据库反链.langText(),
-                iconHTML: DbBkBox刷新数据库反链.icon,
+                icon: DbBkBox刷新数据库反链.icon,
                 accelerator: DbBkBox刷新数据库反链.m,
                 click: () => {
                     this.refreshDBBK(detail.protyle)
@@ -255,17 +256,17 @@ class DbBkBox {
         const dbBlockID = dbDiv.getAttribute(DATA_NODE_ID)
         const avID = dbDiv.getAttribute(DATA_AV_ID)
         if (!avID) return;
-        menu.addItem({
+        addIfVisible(menu, DbBkBox刷新数据库反链.langKey, {
             label: DbBkBox刷新数据库反链.langText(),
-            iconHTML: DbBkBox刷新数据库反链.icon,
+            icon: DbBkBox刷新数据库反链.icon,
             accelerator: DbBkBox刷新数据库反链.m,
             click: () => {
                 this.refreshDBBK(protyle);
             },
-        });
-        menu.addItem({
+        }, dbBkBoxRefreshMenu.get());
+        addIfVisible(menu, "m.dbBk.moveDown", {
             label: tomatoI18n.将选中的内容移到下边,
-            iconHTML: "🚚👇",
+            icon: "iconDown",
             accelerator: "",
             click: () => {
                 const ids = divs.map(row => row.getAttribute(DATA_ID))
@@ -294,8 +295,8 @@ class DbBkBox {
                 if (!cleanMenu) {
                     cleanMenu = true;
                     menu.addItem({
-                        label: "🧹",
-                        iconHTML: "",
+                        label: tomatoI18n.清空筛选,
+                        icon: "iconClear",
                         accelerator: "",
                         click: () => {
                             const op = siyuan.transSetAttrViewFilters(avID, blockID, [{
@@ -309,8 +310,8 @@ class DbBkBox {
                 }
                 for (const span of cell.querySelectorAll(`span`)) {
                     menu.addItem({
-                        label: "🔍" + span.textContent,
-                        iconHTML: "",
+                        label: span.textContent,
+                        icon: "iconFilter",
                         accelerator: "",
                         click: () => {
                             const op = siyuan.transSetAttrViewFilters(avID, blockID, [{
@@ -328,8 +329,8 @@ class DbBkBox {
                         },
                     });
                     menu.addItem({
-                        label: "🚫" + span.textContent,
-                        iconHTML: "",
+                        label: span.textContent,
+                        icon: "iconClose",
                         accelerator: "",
                         click: () => {
                             siyuan.getAttributeView(avID).then(db => {
@@ -348,8 +349,8 @@ class DbBkBox {
             }
         }
         menu.addItem({
-            label: "🔍💯" + refTexts.join(",").slice(0, 20) + "...",
-            iconHTML: "",
+            label: refTexts.join(",").slice(0, 20) + "...",
+            icon: "iconCheck",
             accelerator: "",
             click: () => {
                 const op = siyuan.transSetAttrViewFilters(avID, blockID, [{

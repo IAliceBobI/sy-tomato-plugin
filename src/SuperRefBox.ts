@@ -2,11 +2,12 @@ import { dom2div, into } from "stonev5-utils";
 import { superRefBoxCheckBox, superRefBoxGlobalFixMenu, superRefBoxGlobalLnkMenu } from "./libs/stores";
 import { getBlockDiv, getTomatoPluginInstance, NewLute, setAttribute, siyuan, } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
 import { tomatoI18n } from "./tomatoI18n";
-export const SuperRefBox全局加固引用 = winHotkey("alt+shift+ctrl+1", "SuperRefBox全局加固引用", "🦸🔗", () => tomatoI18n.全局加固文档引用, false, superRefBoxGlobalLnkMenu)
-export const SuperRefBox全局修复引用 = winHotkey("alt+shift+ctrl+2", "SuperRefBox修复文档引用", "🦸🔗", () => tomatoI18n.全局修复文档引用, false, superRefBoxGlobalFixMenu)
+export const SuperRefBox全局加固引用 = winHotkey("alt+shift+ctrl+1", "SuperRefBox全局加固引用", "iconRef", () => tomatoI18n.全局加固文档引用, false, superRefBoxGlobalLnkMenu)
+export const SuperRefBox全局修复引用 = winHotkey("alt+shift+ctrl+2", "SuperRefBox修复文档引用", "iconRestore", () => tomatoI18n.全局修复文档引用, false, superRefBoxGlobalFixMenu)
 
 class SuperRefBox {
     async onload() {
@@ -20,17 +21,15 @@ class SuperRefBox {
             },
         });
         getTomatoPluginInstance().eventBus.on("open-menu-content", async ({ detail: { menu } }) => {
-            if (SuperRefBox全局加固引用.menu()) {
-                menu.addItem({
-                    label: SuperRefBox全局加固引用.langText(),
-                    iconHTML: SuperRefBox全局加固引用.icon,
-                    accelerator: SuperRefBox全局加固引用.m,
-                    click: async () => {
-                        await scanAllRefsFast()
-                        await siyuan.pushMsg(SuperRefBox全局加固引用.langText())
-                    }
-                });
-            }
+            addIfVisible(menu, SuperRefBox全局加固引用.langKey, {
+                label: SuperRefBox全局加固引用.langText(),
+                icon: SuperRefBox全局加固引用.icon,
+                accelerator: SuperRefBox全局加固引用.m,
+                click: async () => {
+                    await scanAllRefsFast()
+                    await siyuan.pushMsg(SuperRefBox全局加固引用.langText())
+                }
+            }, SuperRefBox全局加固引用.menu());
         });
 
         getTomatoPluginInstance().addCommand({
@@ -42,17 +41,15 @@ class SuperRefBox {
             },
         });
         getTomatoPluginInstance().eventBus.on("open-menu-content", async ({ detail: { menu, protyle } }) => {
-            if (SuperRefBox全局修复引用.menu()) {
-                menu.addItem({
-                    label: SuperRefBox全局修复引用.langText(),
-                    iconHTML: SuperRefBox全局修复引用.icon,
-                    accelerator: SuperRefBox全局修复引用.m,
-                    click: async () => {
-                        await fixRefs(events.getInfo(protyle).docID)
-                        await siyuan.pushMsg(SuperRefBox全局修复引用.langText())
-                    }
-                });
-            }
+            addIfVisible(menu, SuperRefBox全局修复引用.langKey, {
+                label: SuperRefBox全局修复引用.langText(),
+                icon: SuperRefBox全局修复引用.icon,
+                accelerator: SuperRefBox全局修复引用.m,
+                click: async () => {
+                    await fixRefs(events.getInfo(protyle).docID)
+                    await siyuan.pushMsg(SuperRefBox全局修复引用.langText())
+                }
+            }, SuperRefBox全局修复引用.menu());
         });
         events.addListener("super ref fasten 2025年8月30日16:52:04", (eventType, detail) => {
             if (eventType == EventType.loaded_protyle_static || eventType == EventType.destroy_protyle || eventType == EventType.loaded_protyle_dynamic || eventType == EventType.switch_protyle) {

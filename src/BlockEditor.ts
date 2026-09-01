@@ -1,13 +1,14 @@
 import { blockEditorBox, blockEditorMenu } from "./libs/stores";
 import { getAttribute, getTomatoPluginInstance, } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { tomatoI18n } from "./tomatoI18n";
 import BlockEditorSvelte from "./BlockEditor.svelte";
 import { mount, unmount } from "svelte";
 import { DestroyManager } from "./libs/destroyer";
 import { BlockNodeEnum } from "./libs/gconst";
 
-export const BlockEditor打开编辑器 = winHotkey("alt+shift+5", "BlockEditor打开编辑器", "📝", () => tomatoI18n.块编辑器, false, blockEditorMenu)
+export const BlockEditor打开编辑器 = winHotkey("alt+shift+5", "BlockEditor打开编辑器", "iconEdit", () => tomatoI18n.块编辑器, false, blockEditorMenu)
 
 class BlockEditor {
     private dm: DestroyManager;
@@ -20,14 +21,12 @@ class BlockEditor {
             callback: () => this.openBlockEditorByBlockID(),
         });
         getTomatoPluginInstance().eventBus.on("open-menu-content", async ({ detail: { menu } }) => {
-            if (BlockEditor打开编辑器.menu()) {
-                menu.addItem({
-                    label: BlockEditor打开编辑器.langText(),
-                    iconHTML: BlockEditor打开编辑器.icon,
-                    accelerator: BlockEditor打开编辑器.m,
-                    click: () => this.openBlockEditorByBlockID(),
-                });
-            }
+            addIfVisible(menu, BlockEditor打开编辑器.langKey, {
+                label: BlockEditor打开编辑器.langText(),
+                icon: BlockEditor打开编辑器.icon,
+                accelerator: BlockEditor打开编辑器.m,
+                click: () => this.openBlockEditorByBlockID(),
+            }, BlockEditor打开编辑器.menu());
         });
     }
     private openBlockEditorByBlockID() {

@@ -7,6 +7,7 @@ import CozeSearchBoxMenu from "./CozeSearchBoxMenu.svelte"
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cozeSearchBoxCheckbox, cozeSearchMenuShow } from "./libs/stores";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { mount } from "svelte";
 
@@ -51,9 +52,9 @@ class CozeSearchBox {
 
     aiMenu(detail: TomatoMenu) {
         const menu = detail.menu;
-        menu.addItem({
+        addIfVisible(menu, CozeSearchBoxHotkey.langKey, {
             label: "coze" + tomatoI18n.知识库问答,
-            iconHTML: "🔍",
+            icon: "iconSearch",
             accelerator: CozeSearchBoxHotkey.m,
             click: async () => {
                 const { selected, ids } = await events.selectedDivs(detail.protyle);

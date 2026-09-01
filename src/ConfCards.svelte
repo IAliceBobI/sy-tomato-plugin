@@ -1,6 +1,7 @@
 <script lang="ts">
-    // IndexConf 设置分区：闪卡工具 / 闪卡优先级 / 长内容工具。
+    // IndexConf 设置分区：闪卡工具 / 闪卡优先级。
     // 从 IndexConf.svelte 拆出（2026-08 重构），共享样式见 IndexConf.css。
+    // 2026-08-31 块配对工具 □1 归拢：长内容工具段迁 ConfBlocks.svelte。
     import TomatoVIP from "./TomatoVIP.svelte";
     import {
         auto_card_priority,
@@ -18,8 +19,6 @@
         card_priority_slider_hide,
         card_priority_stopBtn_hide,
         card_refresh_visible_only,
-        cpBoxCheckbox,
-        deleteBlocksMenu,
     } from "./libs/stores";
     import { siyuan } from "./libs/utils";
     import {
@@ -33,10 +32,8 @@
         CardPriorityBox推迟闪卡,
         CardPriorityBox修改文档中闪卡优先级,
     } from "./CardPriorityBox";
-    import { CpBox批量删除大量连续内容块, CpBox批量复制大量连续内容块, CpBox批量移动大量连续内容块 } from "./CpBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
-    import { helpOpen } from "./helpOpen";
 
     let { codeValid }: { codeValid: boolean } = $props();
     let codeNotValid = $derived(!codeValid);
@@ -47,11 +44,6 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$cardBoxCheckbox} />
             {tomatoI18n.闪卡工具}
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/HJVDdXzrfo3XgMxAwFTc1gyvnHc?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
         </div>
         {#if $cardBoxCheckbox}
             <div>
@@ -114,11 +106,6 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$cardPriorityBoxCheckbox} />
             {tomatoI18n.闪卡优先级}
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/KwZJdW9BeoHkiRxVg6jcLUnanqf?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
         </div>
         {#if $cardPriorityBoxCheckbox}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
@@ -184,40 +171,6 @@
                 {#if !$cardPrioritySetPriInterval || $cardPrioritySetPriInterval == "0"}
                     （{tomatoI18n.不扫描优先级}）
                 {/if}
-            </div>
-        {/if}
-    </div>
-    <!-- 长内容工具 -->
-    <div class="settingBox">
-        <div class="section-title">
-            <input type="checkbox" class="b3-switch" bind:checked={$cpBoxCheckbox} />
-            {tomatoI18n.长内容工具}
-            <strong>
-                <a href="https://awx9773btw.feishu.cn/docx/Njovdyosyo4pVExpeqOcH3ImnJu?from=from_copylink" onclick={helpOpen}>
-                    {tomatoI18n.帮助}</a
-                >
-            </strong>
-        </div>
-        {#if $cpBoxCheckbox}
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$deleteBlocksMenu} />
-                {tomatoI18n.menu添加右键菜单 + "：" + CpBox批量删除大量连续内容块.langText()}
-                <HotkeyCap hk={CpBox批量删除大量连续内容块} pluginName="sy-tomato-plugin"></HotkeyCap>
-            </div>
-
-            <div class="kbd">
-                {@html tomatoI18n.批量删除帮助}
-            </div>
-            <div>
-                {tomatoI18n.批量移动大量连续内容块}
-                <HotkeyCap hk={CpBox批量移动大量连续内容块} pluginName="sy-tomato-plugin"></HotkeyCap>
-            </div>
-            <div>
-                {tomatoI18n.批量复制大量连续内容块}
-                <HotkeyCap hk={CpBox批量复制大量连续内容块} pluginName="sy-tomato-plugin"></HotkeyCap>
-            </div>
-            <div class="kbd">
-                {@html tomatoI18n.批量移动复制帮助}
             </div>
         {/if}
     </div>

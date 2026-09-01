@@ -8,9 +8,10 @@ import { tomatoI18n } from "./tomatoI18n";
 import { domLnk, domRef } from "./libs/sydom";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 
-export const Tag2RefBox模糊查找引用Ref = winHotkey("shift+alt+4", "模糊查找引用Ref", "🔍", () => tomatoI18n.模糊查找引用 + "(ref)")
-export const Tag2RefBox模糊查找引用Lnk = winHotkey("shift+alt+7", "模糊查找引用Lnk", "🔍", () => tomatoI18n.模糊查找链接 + "(lnk)")
+export const Tag2RefBox模糊查找引用Ref = winHotkey("shift+alt+4", "模糊查找引用Ref", "iconSearch", () => tomatoI18n.模糊查找引用 + "(ref)")
+export const Tag2RefBox模糊查找引用Lnk = winHotkey("shift+alt+7", "模糊查找引用Lnk", "iconLink", () => tomatoI18n.模糊查找链接 + "(lnk)")
 
 class Tag2RefBox {
     public plugin: BaseTomatoPlugin;
@@ -40,8 +41,8 @@ class Tag2RefBox {
         });
         this.plugin.eventBus.on(EventType.open_menu_content, ({ detail }) => {
             if (tag2RefSearchRef.get()) {
-                detail.menu.addItem({
-                    iconHTML: Tag2RefBox模糊查找引用Ref.icon,
+                addIfVisible(detail.menu, Tag2RefBox模糊查找引用Ref.langKey, {
+                    icon: Tag2RefBox模糊查找引用Ref.icon,
                     accelerator: Tag2RefBox模糊查找引用Ref.m,
                     label: Tag2RefBox模糊查找引用Ref.langText(),
                     click: () => {
@@ -50,8 +51,8 @@ class Tag2RefBox {
                 });
             }
             if (tag2RefSearchLnk.get()) {
-                detail.menu.addItem({
-                    iconHTML: Tag2RefBox模糊查找引用Lnk.icon,
+                addIfVisible(detail.menu, Tag2RefBox模糊查找引用Lnk.langKey, {
+                    icon: Tag2RefBox模糊查找引用Lnk.icon,
                     accelerator: Tag2RefBox模糊查找引用Lnk.m,
                     label: Tag2RefBox模糊查找引用Lnk.langText(),
                     click: () => {

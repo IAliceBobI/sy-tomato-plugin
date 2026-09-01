@@ -3,13 +3,14 @@ import { getDocTracer } from "./libs/docUtils";
 import { events } from "./libs/Events";
 import { getTomatoPluginInstance, siyuan } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { tomatoI18n } from "./tomatoI18n";
 import PrefixArticles from "./PrefixArticles.svelte"
 import { newID } from "stonev5-utils";
 import { adaptHotkey, Dialog } from "siyuan";
 import { prefixArticlesEnable, prefixArticlesMenu, prefixArticlesSoftLimit } from "./libs/stores";
 import { mount } from "svelte";
-export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树", "📖", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
+export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树", "iconSort", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock", "iconFilesTomato", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 
 function __initPrefixArticles() {
@@ -37,17 +38,15 @@ function __initPrefixArticles() {
         });
         plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
-            if (PrefixArticles前缀文档树.menu()) {
-                menu.addItem({
-                    iconHTML: PrefixArticles前缀文档树.icon,
-                    accelerator: PrefixArticles前缀文档树.m,
-                    label: PrefixArticles前缀文档树.langText(),
-                    click: () => {
-                        const { name, docID } = events.getInfo(detail.protyle)
-                        findArticlesByPrefix(name, docID);
-                    },
-                });
-            }
+            addIfVisible(menu, PrefixArticles前缀文档树.langKey, {
+                icon: PrefixArticles前缀文档树.icon,
+                accelerator: PrefixArticles前缀文档树.m,
+                label: PrefixArticles前缀文档树.langText(),
+                click: () => {
+                    const { name, docID } = events.getInfo(detail.protyle)
+                    findArticlesByPrefix(name, docID);
+                },
+            }, PrefixArticles前缀文档树.menu());
         });
     } else {
         dm?.destroyBy();

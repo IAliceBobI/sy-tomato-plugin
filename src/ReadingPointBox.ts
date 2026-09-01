@@ -16,12 +16,13 @@ import { Dialog } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { mount } from "svelte";
 
 export type RPType = { dom: string, row?: Block, line?: string };
-export const ReadingPointBox设置阅读点 = winHotkey("F7", "addBookmark", "＋🔖", () => tomatoI18n.设置阅读点)
-export const ReadingPointBox跳到当前文档的阅读点 = winHotkey("alt+f5", "gotoBookmark", "🕊️🔖", () => tomatoI18n.跳到当前文档的阅读点)
-export const ReadingPointBox删除当前文档的阅读点 = winHotkey("⌘F7", "deleteBookmark", "🗑️🔖", () => tomatoI18n.删除当前文档的阅读点)
+export const ReadingPointBox设置阅读点 = winHotkey("F7", "addBookmark", "iconBookmark", () => tomatoI18n.设置阅读点)
+export const ReadingPointBox跳到当前文档的阅读点 = winHotkey("alt+f5", "gotoBookmark", "iconForward", () => tomatoI18n.跳到当前文档的阅读点)
+export const ReadingPointBox删除当前文档的阅读点 = winHotkey("⌘F7", "deleteBookmark", "iconTrashcan", () => tomatoI18n.删除当前文档的阅读点)
 export const ReadingPointBox查看阅读点 = winHotkey("ctrl+shift+enter", "showBookmarks", "", () => tomatoI18n.查看阅读点)
 
 class ReadingPointBox {
@@ -106,9 +107,9 @@ class ReadingPointBox {
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
             if (readingAddRPmenu.get()) {
-                menu.addItem({
+                addIfVisible(menu, ReadingPointBox设置阅读点.langKey, {
                     label: ReadingPointBox设置阅读点.langText(),
-                    iconHTML: ReadingPointBox设置阅读点.icon,
+                    icon: ReadingPointBox设置阅读点.icon,
                     accelerator: ReadingPointBox设置阅读点.m,
                     click: () => {
                         const blockID = detail?.element?.getAttribute("data-node-id") ?? "";
@@ -119,9 +120,9 @@ class ReadingPointBox {
                 });
             }
             if (readingAddJumpMenu.get()) {
-                menu.addItem({
+                addIfVisible(menu, ReadingPointBox跳到当前文档的阅读点.langKey, {
                     label: ReadingPointBox跳到当前文档的阅读点.langText(),
-                    iconHTML: ReadingPointBox跳到当前文档的阅读点.icon,
+                    icon: ReadingPointBox跳到当前文档的阅读点.icon,
                     accelerator: ReadingPointBox跳到当前文档的阅读点.m,
                     click: () => {
                         gotoBookmark(events.docID, this.plugin);
@@ -129,9 +130,9 @@ class ReadingPointBox {
                 });
             }
             if (readingAddDeleteMenu.get()) {
-                menu.addItem({
+                addIfVisible(menu, ReadingPointBox删除当前文档的阅读点.langKey, {
                     label: ReadingPointBox删除当前文档的阅读点.langText(),
-                    iconHTML: ReadingPointBox删除当前文档的阅读点.icon,
+                    icon: ReadingPointBox删除当前文档的阅读点.icon,
                     accelerator: ReadingPointBox删除当前文档的阅读点.m,
                     click: () => {
                         removeReadingPoint(events.docID);
@@ -144,9 +145,9 @@ class ReadingPointBox {
     blockIconEvent(detail: any) {
         if (!readingPointBoxCheckbox.get()) return;
         if (readingAddRPmenu.get()) {
-            detail.menu.addItem({
+            addIfVisible(detail.menu, ReadingPointBox设置阅读点.langKey, {
                 label: ReadingPointBox设置阅读点.langText(),
-                iconHTML: ReadingPointBox设置阅读点.icon,
+                icon: ReadingPointBox设置阅读点.icon,
                 accelerator: ReadingPointBox设置阅读点.m,
                 click: () => {
                     for (const element of detail.blockElements) {
@@ -160,9 +161,9 @@ class ReadingPointBox {
             });
         }
         if (readingAddJumpMenu.get()) {
-            detail.menu.addItem({
+            addIfVisible(detail.menu, ReadingPointBox跳到当前文档的阅读点.langKey, {
                 label: ReadingPointBox跳到当前文档的阅读点.langText(),
-                iconHTML: ReadingPointBox跳到当前文档的阅读点.icon,
+                icon: ReadingPointBox跳到当前文档的阅读点.icon,
                 accelerator: ReadingPointBox跳到当前文档的阅读点.m,
                 click: () => {
                     gotoBookmark(events.docID, this.plugin);

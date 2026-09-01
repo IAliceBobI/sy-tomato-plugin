@@ -5,12 +5,13 @@ import { events, EventType } from "./libs/Events";
 import { getAttribute, getID, isEditor, siyuan } from "./libs/utils";
 import { murmurHash3 } from "./libs/hash";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { tomatoI18n } from "./tomatoI18n";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { setGlobal } from "stonev5-utils";
 
-export const MindWire启用或禁用思维导线 = winHotkey("ctrl+alt+enter", "MindWire global", "🌍🧠", () => tomatoI18n.启用或禁用全局思维导线, false, mindWireGlobalMenu)
-export const MindWire启用或禁用文档思维导线 = winHotkey("ctrl+shift+z", "MindWire doc", "📜🧠", () => tomatoI18n.启用或禁用文档思维导线, false, mindWireDocMenu)
+export const MindWire启用或禁用思维导线 = winHotkey("ctrl+alt+enter", "MindWire global", "iconGlobalGraph", () => tomatoI18n.启用或禁用全局思维导线, false, mindWireGlobalMenu)
+export const MindWire启用或禁用文档思维导线 = winHotkey("ctrl+shift+z", "MindWire doc", "iconGraph", () => tomatoI18n.启用或禁用文档思维导线, false, mindWireDocMenu)
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
 class MindWire {
@@ -29,22 +30,18 @@ class MindWire {
 
     private mindMenu(detail: TomatoMenu) {
         const menu = detail.menu;
-        if (MindWire启用或禁用思维导线.menu()) {
-            menu.addItem({
-                label: MindWire启用或禁用思维导线.langText(),
-                iconHTML: MindWire启用或禁用思维导线.icon,
-                accelerator: MindWire启用或禁用思维导线.m,
-                click: () => this.globalEnable(),
-            });
-        }
-        if (MindWire启用或禁用文档思维导线.menu()) {
-            menu.addItem({
-                label: MindWire启用或禁用文档思维导线.langText(),
-                iconHTML: MindWire启用或禁用文档思维导线.icon,
-                accelerator: MindWire启用或禁用文档思维导线.m,
-                click: () => toggleDocMindWire(events.protyle?.protyle),
-            });
-        }
+        addIfVisible(menu, MindWire启用或禁用思维导线.langKey, {
+            label: MindWire启用或禁用思维导线.langText(),
+            icon: MindWire启用或禁用思维导线.icon,
+            accelerator: MindWire启用或禁用思维导线.m,
+            click: () => this.globalEnable(),
+        }, MindWire启用或禁用思维导线.menu());
+        addIfVisible(menu, MindWire启用或禁用文档思维导线.langKey, {
+            label: MindWire启用或禁用文档思维导线.langText(),
+            icon: MindWire启用或禁用文档思维导线.icon,
+            accelerator: MindWire启用或禁用文档思维导线.m,
+            click: () => toggleDocMindWire(events.protyle?.protyle),
+        }, MindWire启用或禁用文档思维导线.menu());
     }
 
     async onload(plugin: BaseTomatoPlugin) {

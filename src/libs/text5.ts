@@ -710,25 +710,6 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "Add annotation to new file";
         }
     }
-    public get 批注添加下划线() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "批注添加下划线";
-            case "es_ES":
-                return "Añadir subrayado a la anotación";
-            case "fr_FR":
-                return "Ajouter un soulignement à l'annotation";
-            case "ja_JP":
-                return "注釈に下線を追加";
-            case "zh_CHT":
-                return "批注添加下劃線";
-            case "it_IT":
-                return "Aggiungi sottolineatura all'annotazione";
-
-            default:
-                return "Add underline to annotation";
-        }
-    }
     public get 定位() {
         switch (this.lang) {
             case "zh_CN":

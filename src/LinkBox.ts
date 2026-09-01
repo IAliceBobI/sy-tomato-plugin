@@ -18,14 +18,15 @@ import { debugLog } from "./libs/logUtils";
 import { anchorEditExemptsVersionGuards, createTrailingDebouncer, decideGroupAction, deepScanVerdict, editingInsideGroup, monotonicHeal, pendingIsDeletionShaped, pivotSyncPeers, scanRecheckPlan, verMapGate, LivePeer, SyncPeerState, VerMapCache } from "./libs/syncDecision";
 import { newID } from "stonev5-utils";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { mount } from "svelte";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
-export const LinkBox查看所有同步位置 = winHotkey("F1", "list refs show all place", "🕒🔄", () => tomatoI18n.查看所有同步位置)
+export const LinkBox查看所有同步位置 = winHotkey("F1", "list refs show all place", "iconGraph", () => tomatoI18n.查看所有同步位置)
 export const LinkBox同步块选择 = winHotkey("⌘F1", "list refs select", "", () => tomatoI18n.同步块选择)
 export const LinkBox同步块创建 = winHotkey("⌘F2", "list refs create", "", () => tomatoI18n.同步块创建)
-export const LinkBoxbilink = winHotkey("⌥/", "bilink", "🔗", () => tomatoI18n.双向互链)
+export const LinkBoxbilink = winHotkey("⌥/", "bilink", "iconBoth", () => tomatoI18n.双向互链)
 export const LinkBox链接到块底部 = winHotkey("⌥F3", "lnk2bottom", "", () => tomatoI18n.链接到块底部)
 export const LinkBox双向互链选择块 = winHotkey("⌥F1", "bilinkSelectBlock", "", () => tomatoI18n.双向互链选择块)
 export const LinkBox双向互链创建往返链 = winHotkey("⌥F2", "bilinkSelectBlock roundtrip", "", () => tomatoI18n.双向互链创建往返链)
@@ -50,9 +51,31 @@ class LinkBox {
     }
 
     async onload(plugin: BaseTomatoPlugin) {
-        if (!linkBoxCheckbox.get()) return;
         this.plugin = plugin;
         await verifyKeyTomato()
+        // 2026-08-31 块配对 □1 解耦：同步块注册只看 linkBoxSyncBlock（UI 联动下其开启时
+        // 本就反向强制开 linkBoxCheckbox，正常路径行为不变）；互链族照旧看 linkBoxCheckbox
+        if (linkBoxCheckbox.get()) this.regBilinkCmds();
+        if (linkBoxSyncBlock.get()) await this.regSyncBlockCmds();
+    }
+
+    /** 单功能命令共用的第一步「锁源」：选中块记入 selectedDivs（老命令兼容层单例，□2 浮条不复用） */
+    private async markBlock(protyle: IProtyle) {
+        const { selected } = await events.selectedDivs(protyle);
+        // const allp = selected.map(i => i.getAttribute(gconst.DATA_TYPE))
+        //     .reduce((all, i) => all && i === gconst.BlockNodeEnum.NODE_PARAGRAPH, true)
+        if (selected.length > 0 /*&& allp*/) {
+            this.selectedDivs = selected;
+            const txt = utils.getAllContentEditableText(this.selectedDivs[0]);
+            await siyuan.pushMsg(`【${tomatoI18n.双向互链}】selected：${txt}`);
+        } else {
+            this.selectedDivs = [];
+            await siyuan.pushMsg(`【${tomatoI18n.双向互链}】${tomatoI18n.请先选中块}`);
+        }
+    }
+
+    /** 互链族（linkBoxCheckbox 开关下）：12 个单功能命令 + 互链右键菜单挂点 */
+    private regBilinkCmds() {
         this.plugin.addCommand({
             langKey: LinkBoxbilink.langKey,
             langText: LinkBoxbilink.langText(),
@@ -64,20 +87,6 @@ class LinkBox {
                     await this.addLink(div, docID, docName);
             },
         });
-
-        const markBlock = async (protyle: IProtyle) => {
-            const { selected } = await events.selectedDivs(protyle);
-            // const allp = selected.map(i => i.getAttribute(gconst.DATA_TYPE))
-            //     .reduce((all, i) => all && i === gconst.BlockNodeEnum.NODE_PARAGRAPH, true)
-            if (selected.length > 0 /*&& allp*/) {
-                this.selectedDivs = selected;
-                const txt = utils.getAllContentEditableText(this.selectedDivs[0]);
-                await siyuan.pushMsg(`【${tomatoI18n.双向互链}】selected：${txt}`);
-            } else {
-                this.selectedDivs = [];
-                await siyuan.pushMsg(`【${tomatoI18n.双向互链}】${tomatoI18n.请先选中块}`);
-            }
-        }
 
         this.plugin.addCommand({
             langKey: LinkBox链接到块底部.langKey,
@@ -124,7 +133,7 @@ class LinkBox {
             langKey: LinkBox双向互链选择块.langKey,
             langText: LinkBox双向互链选择块.langText(),
             hotkey: LinkBox双向互链选择块.m,
-            editorCallback: markBlock,
+            editorCallback: (protyle) => this.markBlock(protyle),
         });
         this.plugin.addCommand({
             langKey: LinkBox双向互链创建往返链.langKey,
@@ -145,7 +154,7 @@ class LinkBox {
             langText: LinkBox嵌入互链选择.langText(),
             hotkey: LinkBox嵌入互链选择.m,
             editorCallback: (protyle: IProtyle) => {
-                if (lastVerifyResult()) markBlock(protyle)
+                if (lastVerifyResult()) this.markBlock(protyle)
             }
         });
         this.plugin.addCommand({
@@ -168,7 +177,7 @@ class LinkBox {
             langKey: LinkBox关联两个块选择.langKey,
             langText: LinkBox关联两个块选择.langText(),
             hotkey: LinkBox关联两个块选择.m,
-            editorCallback: markBlock,
+            editorCallback: (protyle) => this.markBlock(protyle),
         });
         this.plugin.addCommand({
             langKey: LinkBox关联两个块创建.langKey,
@@ -188,7 +197,7 @@ class LinkBox {
             langKey: LinkBox互相插入引用于下方选择.langKey,
             langText: LinkBox互相插入引用于下方选择.langText(),
             hotkey: LinkBox互相插入引用于下方选择.m,
-            editorCallback: markBlock,
+            editorCallback: (protyle) => this.markBlock(protyle),
         });
         this.plugin.addCommand({
             langKey: LinkBox互相插入引用于下方创建.langKey,
@@ -206,88 +215,90 @@ class LinkBox {
 
         this.plugin.eventBus.on(EventType.open_menu_content, ({ detail }) => {
             this.addLnkByLnk(detail as any);
+        });
+    }
+
+    /** 同步块族（linkBoxSyncBlock 开关下）：3 个命令 + 同步块右键菜单挂点 + ws 同步监听 + 巡检 + 徽标 observer */
+    private async regSyncBlockCmds() {
+        this.plugin.addCommand({
+            langText: LinkBox查看所有同步位置.langText(),
+            langKey: LinkBox查看所有同步位置.langKey,
+            hotkey: LinkBox查看所有同步位置.m,
+            editorCallback: (protyle) => showSyncBlocks(protyle, this.plugin),
+        });
+        this.plugin.addCommand({
+            langKey: LinkBox同步块选择.langKey,
+            langText: LinkBox同步块选择.langText(),
+            hotkey: LinkBox同步块选择.m,
+            editorCallback: (protyle) => this.markBlock(protyle),
+        });
+        this.plugin.addCommand({
+            langKey: LinkBox同步块创建.langKey,
+            langText: LinkBox同步块创建.langText(),
+            hotkey: LinkBox同步块创建.m,
+            editorCallback: async (protyle: IProtyle) => {
+
+                const { selected } = await events.selectedDivs(protyle);
+                if (selected.length > 0 && this.selectedDivs?.length > 0) {
+                    await this.addSyncLink(protyle, this.selectedDivs, selected[0]);
+                } else {
+                    await siyuan.pushMsg(`【${tomatoI18n.双向互链}】${tomatoI18n.请先选中块}`);
+                }
+            },
+        });
+        this.plugin.eventBus.on(EventType.open_menu_content, ({ detail }) => {
             this.showSyncBlocksMenu(detail as any);
         });
-
-        if (linkBoxSyncBlock.get()) {
-            this.plugin.addCommand({
-                langText: LinkBox查看所有同步位置.langText(),
-                langKey: LinkBox查看所有同步位置.langKey,
-                hotkey: LinkBox查看所有同步位置.m,
-                editorCallback: (protyle) => showSyncBlocks(protyle, this.plugin),
-            });
-            this.plugin.addCommand({
-                langKey: LinkBox同步块选择.langKey,
-                langText: LinkBox同步块选择.langText(),
-                hotkey: LinkBox同步块选择.m,
-                editorCallback: markBlock,
-            });
-            this.plugin.addCommand({
-                langKey: LinkBox同步块创建.langKey,
-                langText: LinkBox同步块创建.langText(),
-                hotkey: LinkBox同步块创建.m,
-                editorCallback: async (protyle: IProtyle) => {
-
-                    const { selected } = await events.selectedDivs(protyle);
-                    if (selected.length > 0 && this.selectedDivs?.length > 0) {
-                        await this.addSyncLink(protyle, this.selectedDivs, selected[0]);
-                    } else {
-                        await siyuan.pushMsg(`【${tomatoI18n.双向互链}】${tomatoI18n.请先选中块}`);
+        events.addWsListener("link sync 2024-12-5 20:38:55", (detail) => {
+            if (!linkBoxSyncBlockAuto.get()) return;
+            for (const ops of getDoOperations(detail)) {
+                // sid 是内核广播自带的发起方会话 id：编辑器自身事务（打字）时即发起视图的
+                // protyle.id。传播时原样带上，内核才能排除「正在打字的视图」的回声
+                ops.sid = detail.sid;
+                debugLog("ws", `action=${ops.action} id=${ops.id} sid=${ops.sid ?? "-"}`)
+                switch (ops.action) {
+                    case "delete":
+                        ops.id = ops.parentID;
+                        ops.data = null;
+                        doSync(ops);
+                        break;
+                    case "update":
+                    case "move":
+                    case "insert":
+                        doSync(ops);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        // 主动巡检（设计 §5）：云端同步完成后与插件启动 5s 后各跑一次（sync_fail 不跑），
+        // 捕获插件关闭/未启用期间累积分叉，只标记不传播
+        this.plugin.eventBus.on(EventType.sync_end, () => { scanAllGroups() });
+        setTimeout(() => { scanAllGroups() }, 5 * 1000);
+        if (linkBoxAttrIconOnHide.get() && await verifyKeyTomato()) {
+            // ignore
+        } else {
+            this.observer = new MutationObserver((mutationsList) => {
+                for (const mutation of mutationsList) {
+                    // status 也要触发重挂徽标：冲突标记/清除是属性写入，不换 DOM 节点
+                    if (mutation.type === "attributes"
+                        && (mutation.attributeName === "custom-sync-version" || mutation.attributeName === "custom-sync-status")) {
+                        addBar(mutation.target as any);
                     }
-                },
-            });
-            events.addWsListener("link sync 2024-12-5 20:38:55", (detail) => {
-                if (!linkBoxSyncBlockAuto.get()) return;
-                for (const ops of getDoOperations(detail)) {
-                    // sid 是内核广播自带的发起方会话 id：编辑器自身事务（打字）时即发起视图的
-                    // protyle.id。传播时原样带上，内核才能排除「正在打字的视图」的回声
-                    ops.sid = detail.sid;
-                    debugLog("ws", `action=${ops.action} id=${ops.id} sid=${ops.sid ?? "-"}`)
-                    switch (ops.action) {
-                        case "delete":
-                            ops.id = ops.parentID;
-                            ops.data = null;
-                            doSync(ops);
-                            break;
-                        case "update":
-                        case "move":
-                        case "insert":
-                            doSync(ops);
-                            break;
-                        default:
-                            break;
-                    }
+                    mutation.addedNodes.forEach(addBar)
                 }
             });
-            // 主动巡检（设计 §5）：云端同步完成后与插件启动 5s 后各跑一次（sync_fail 不跑），
-            // 捕获插件关闭/未启用期间累积分叉，只标记不传播
-            this.plugin.eventBus.on(EventType.sync_end, () => { scanAllGroups() });
-            setTimeout(() => { scanAllGroups() }, 5 * 1000);
-            if (linkBoxAttrIconOnHide.get() && await verifyKeyTomato()) {
-                // ignore
-            } else {
-                this.observer = new MutationObserver((mutationsList) => {
-                    for (const mutation of mutationsList) {
-                        // status 也要触发重挂徽标：冲突标记/清除是属性写入，不换 DOM 节点
-                        if (mutation.type === "attributes"
-                            && (mutation.attributeName === "custom-sync-version" || mutation.attributeName === "custom-sync-status")) {
-                            addBar(mutation.target as any);
-                        }
-                        mutation.addedNodes.forEach(addBar)
-                    }
-                });
-                this.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
-            }
+            this.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
         }
     }
 
     blockIconEvent(detail: any) {
-        if (!linkBoxCheckbox.get()) return;
-        this.addLnkByLnk(detail);
-        this.showSyncBlocksMenu(detail);
+        if (linkBoxCheckbox.get()) this.addLnkByLnk(detail);
+        if (linkBoxSyncBlock.get()) this.showSyncBlocksMenu(detail);
     }
 
-    private async link2bottom(protyle: IProtyle, div: HTMLElement) {
+    async link2bottom(protyle: IProtyle, div: HTMLElement) {
         const docID = protyle?.block?.rootID;
         if (!docID) return;
         const newID = utils.NewNodeID();
@@ -304,7 +315,7 @@ class LinkBox {
         await OpenSyFile2(this.plugin, anchorID);
     }
 
-    private async delLnk(_protyle: IProtyle, div: HTMLElement) {
+    async delLnk(_protyle: IProtyle, div: HTMLElement) {
         const blockID = getAttribute(div, "data-node-id")
         let toIDs = getAttribute(div, "custom-lnk-to-ids")?.split(",") ?? []
         if (blockID && toIDs.length > 0) {
@@ -331,7 +342,7 @@ class LinkBox {
         }
     }
 
-    private async fixLnk(protyle: IProtyle, div: HTMLElement) {
+    async fixLnk(protyle: IProtyle, div: HTMLElement) {
         const id = div.getAttribute(gconst.DATA_NODE_ID);
         siyuan.pushMsg("fix broken link");
         const { newToIDs, realToIDs } = await (async () => {
@@ -362,7 +373,8 @@ class LinkBox {
         }
     }
 
-    private async addSyncLink(protyle: IProtyle, divs1: HTMLElement[], div2: HTMLElement) {
+    /** 同步块配对：divs1 打包超级块插到 div2 后（□2 起浮条复用，public） */
+    async addSyncLink(protyle: IProtyle, divs1: HTMLElement[], div2: HTMLElement) {
         const ids1 = divs1?.map(i => i.getAttribute(gconst.DATA_NODE_ID))
         const id2 = div2?.getAttribute(gconst.DATA_NODE_ID);
         if (!ids1 || ids1.length == 0 || !id2 || !protyle) return;
@@ -370,6 +382,18 @@ class LinkBox {
         const ops: IOperation[] = [];
         if (divs1.length === 1) {
             let { found } = findParentSuper(divs1[0])
+            // □3（□2 评审转出②）：detached 源（源文档未开、内核 getBlockDiv 兜底）在页面
+            // DOM 里没有祖先链，findParentSuper 恒落空——若源块本在既有同步组，落进下面
+            // 新建组分支会 transDeleteBlocks 删源块、把源从既有组拆出（数据破坏非降级）。
+            // 兜底：内核查 parent_id 拿父容器 DOM 再找 super（resolveSuperDiv 先例）。
+            if (!found && !divs1[0].isConnected) {
+                const rows = await siyuan.sql(`SELECT parent_id FROM blocks WHERE id = "${ids1[0]}" LIMIT 1`);
+                const parentID = rows?.[0]?.parent_id;
+                if (parentID) {
+                    const { div: pdiv } = await utils.getBlockDiv(parentID);
+                    if (pdiv) ({ found } = findParentSuper(pdiv));
+                }
+            }
             found = utils.cloneCleanDiv(found)?.div
             if (found) {
                 ops.push(...siyuan.transInsertBlocksAfter([found.outerHTML], id2));
@@ -404,7 +428,10 @@ class LinkBox {
         }, 1000);
     }
 
-    private async addEmbedLnkTwoDivs(protyle: IProtyle, divs1: HTMLElement[], div2: HTMLElement) {
+    /** 嵌入互链（VIP）：源以嵌入块插到目标后（□2 起浮条复用，public；VIP 门禁由调用方守）。
+     *  detached 源边界（□2 评审转出②，评估后接受不修）：findListTypeByElement 在 detached
+     *  div 上失效 → 列表项降级当普通块嵌入（domEmbedding 走 id 不依赖 DOM），后果轻微。 */
+    async addEmbedLnkTwoDivs(protyle: IProtyle, divs1: HTMLElement[], div2: HTMLElement) {
         const ids1 = divs1?.map(i => i.getAttribute(gconst.DATA_NODE_ID))
         const id2 = div2?.getAttribute(gconst.DATA_NODE_ID);
         if (!ids1 || ids1.length == 0 || !id2 || !protyle) return;
@@ -429,7 +456,8 @@ class LinkBox {
         }
     }
 
-    private async addLnkTwoDivs(protyle: IProtyle, div1: HTMLElement, div2: HTMLElement) {
+    /** 双向互链：两块互挂锚点链接（□2 起浮条复用，public） */
+    async addLnkTwoDivs(protyle: IProtyle, div1: HTMLElement, div2: HTMLElement) {
         const id1 = div1?.getAttribute(gconst.DATA_NODE_ID)
         const id2 = div2?.getAttribute(gconst.DATA_NODE_ID)
         if (!id1 || !id2 || !protyle) return;
@@ -489,8 +517,8 @@ class LinkBox {
         const element = selected?.at(0);
         const { found } = findParentSuper(element)
         if (found) {
-            detail.menu.addItem({
-                iconHTML: LinkBox查看所有同步位置.icon,
+            addIfVisible(detail.menu, LinkBox查看所有同步位置.langKey, {
+                icon: LinkBox查看所有同步位置.icon,
                 accelerator: LinkBox查看所有同步位置.m,
                 label: LinkBox查看所有同步位置.langText(),
                 click: () => showSyncBlocks(detail.protyle, this.plugin, found)
@@ -500,8 +528,8 @@ class LinkBox {
 
     private addLnkByLnk(detail: TomatoMenu) {
         if (linkBoxBilinkMenu.get()) {
-            detail.menu.addItem({
-                iconHTML: LinkBoxbilink.icon,
+            addIfVisible(detail.menu, LinkBoxbilink.langKey, {
+                icon: LinkBoxbilink.icon,
                 accelerator: LinkBoxbilink.m,
                 label: LinkBoxbilink.langText(),
                 click: async () => {

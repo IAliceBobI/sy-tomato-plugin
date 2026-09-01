@@ -302,6 +302,23 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
                 return "Make card within fragment, put in the subdocument of the fragment";
         }
     }
+    public get 制卡并入dailycard当天文档() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "制卡并入 dailycard 当天文档";
+            case "es_ES":
+                return "Las tarjetas se integran en el documento dailycard de hoy";
+            case "fr_FR":
+                return "Les cartes sont intégrées dans le document dailycard du jour";
+            case "ja_JP":
+                return "カードを当日の dailycard ドキュメントに統合";
+            case "zh_CHT":
+                return "製卡併入 dailycard 當天文檔";
+
+            default:
+                return "Cards go into today's dailycard document";
+        }
+    }
     public get cards前缀文件() {
         switch (this.lang) {
             case "zh_CN":

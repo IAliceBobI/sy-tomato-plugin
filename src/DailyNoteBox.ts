@@ -2,23 +2,23 @@ import { IProtyle } from "siyuan";
 import { events } from "./libs/Events";
 import { add_href, add_ref, cloneCleanDiv, closeTabByTitle, getAllText, getContextPath, getNotebookFirstOne, getOpenedEditors, getProtyleByDocID, Siyuan, siyuan, timeUtil, } from "./libs/utils";
 import { DATA_NODE_ID } from "./libs/gconst";
-import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyComment, dailyNoteCopyFlashCard, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveLeaveLnk, dailyNoteMoveToBottom, dailyNotetopbarleft, dailyNotetopbarright, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
+import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyFlashCard, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveLeaveLnk, dailyNoteMoveToBottom, dailyNotetopbarleft, dailyNotetopbarright, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { readingPointBox } from "./ReadingPointBox";
 import { domLnk, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
-import { DialogText } from "./libs/DialogText";
 import { isReadonly, OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { createAndOpenFastNote } from "./libs/switchDraft";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 
 export const DailyNoteBox上一个日志 = winHotkey("⌥Q", "previousNote", "iconLeft", () => tomatoI18n.上一个日志,)
 export const DailyNoteBox下一个日志 = winHotkey("⌥W", "nextNote", "iconRight", () => tomatoI18n.下一个日志,)
-export const DailyNoteBox移动内容到dailynote = winHotkey("shift+alt+6", "moveBlock2today", "🏑", () => tomatoI18n.移动内容到dailynote, false, dailyNoteGoToBottomMenu)
+export const DailyNoteBox移动内容到dailynote = winHotkey("shift+alt+6", "moveBlock2today", "iconCalendar", () => tomatoI18n.移动内容到dailynote, false, dailyNoteGoToBottomMenu)
 
-export const DailyNoteBox复制到dailynote = winHotkey("⌘⇧6", "DailyNoteBox复制到dailynote", "🌀", () => tomatoI18n.复制到dailynote)
-export const DailyNoteBox复制到dailynoteNewFile = winHotkey("⌥⇧C", "DailyNoteBox复制到dailynoteNewFile", "🌀📜", () => tomatoI18n.复制到dailynoteNewFile)
+export const DailyNoteBox复制到dailynote = winHotkey("⌘⇧6", "DailyNoteBox复制到dailynote", "iconCopy", () => tomatoI18n.复制到dailynote)
+export const DailyNoteBox复制到dailynoteNewFile = winHotkey("⌥⇧C", "DailyNoteBox复制到dailynoteNewFile", "iconFile", () => tomatoI18n.复制到dailynoteNewFile)
 
 class DailyNoteBox {
     private plugin: BaseTomatoPlugin;
@@ -27,28 +27,26 @@ class DailyNoteBox {
         if (!dailyNoteBoxCheckbox.get()) return;
         const protyle: IProtyle = detail.protyle;
 
-        if (DailyNoteBox移动内容到dailynote.menu()) {
-            detail.menu.addItem({
-                iconHTML: DailyNoteBox移动内容到dailynote.icon,
-                accelerator: DailyNoteBox移动内容到dailynote.m,
-                label: DailyNoteBox移动内容到dailynote.langText(),
-                click: () => {
-                    this.findDivs(protyle, false, false);
-                }
-            });
-        }
+        addIfVisible(detail.menu, DailyNoteBox移动内容到dailynote.langKey, {
+            icon: DailyNoteBox移动内容到dailynote.icon,
+            accelerator: DailyNoteBox移动内容到dailynote.m,
+            label: DailyNoteBox移动内容到dailynote.langText(),
+            click: () => {
+                this.findDivs(protyle, false, false);
+            }
+        }, DailyNoteBox移动内容到dailynote.menu());
 
         if (dailyNoteCopyMenu.get()) {
-            detail.menu.addItem({
-                iconHTML: DailyNoteBox复制到dailynote.icon,
+            addIfVisible(detail.menu, DailyNoteBox复制到dailynote.langKey, {
+                icon: DailyNoteBox复制到dailynote.icon,
                 accelerator: DailyNoteBox复制到dailynote.m,
                 label: tomatoI18n.复制到dailynote,
                 click: () => {
                     this.findDivs(protyle, true, false);
                 }
             });
-            detail.menu.addItem({
-                iconHTML: DailyNoteBox复制到dailynoteNewFile.icon,
+            addIfVisible(detail.menu, DailyNoteBox复制到dailynoteNewFile.langKey, {
+                icon: DailyNoteBox复制到dailynoteNewFile.icon,
                 accelerator: DailyNoteBox复制到dailynoteNewFile.m,
                 label: tomatoI18n.复制到dailynoteNewFile,
                 click: () => {
@@ -147,9 +145,9 @@ class DailyNoteBox {
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
             if (dailyNoteGoToBottomMenu.get()) {
-                menu.addItem({
+                addIfVisible(menu, DailyNoteBox移动内容到dailynote.langKey, {
                     label: DailyNoteBox移动内容到dailynote.langText(),
-                    iconHTML: DailyNoteBox移动内容到dailynote.icon,
+                    icon: DailyNoteBox移动内容到dailynote.icon,
                     accelerator: DailyNoteBox移动内容到dailynote.m,
                     click: () => {
                         this.findDivs(detail.protyle, false, false);
@@ -157,16 +155,16 @@ class DailyNoteBox {
                 });
             }
             if (dailyNoteCopyMenu.get()) {
-                menu.addItem({
-                    iconHTML: DailyNoteBox复制到dailynote.icon,
+                addIfVisible(menu, DailyNoteBox复制到dailynote.langKey, {
+                    icon: DailyNoteBox复制到dailynote.icon,
                     accelerator: DailyNoteBox复制到dailynote.m,
                     label: tomatoI18n.复制到dailynote,
                     click: () => {
                         this.findDivs(detail.protyle, true, false);
                     },
                 });
-                menu.addItem({
-                    iconHTML: DailyNoteBox复制到dailynoteNewFile.icon,
+                addIfVisible(menu, DailyNoteBox复制到dailynoteNewFile.langKey, {
+                    icon: DailyNoteBox复制到dailynoteNewFile.icon,
                     accelerator: DailyNoteBox复制到dailynoteNewFile.m,
                     label: tomatoI18n.复制到dailynoteNewFile,
                     click: () => {
@@ -292,16 +290,10 @@ class DailyNoteBox {
     private async findDivs(protyle: IProtyle, copy: boolean, newFile: boolean) {
         const { ids, selected } = await events.selectedDivs(protyle);
         const ro = await isReadonly(protyle)
-        if (!dailyNoteCopyComment.get() || !copy || dailyNoteCopySimple.get()) {
-            return this.doFindDivs(protyle, ids, selected, ro, copy, "", newFile);
-        } else {
-            new DialogText(tomatoI18n.添加批注, "", (text) => {
-                this.doFindDivs(protyle, ids, selected, ro, copy, text, newFile);
-            }, true);
-        }
+        this.doFindDivs(protyle, ids, selected, ro, copy, newFile);
     }
 
-    private async doFindDivs(protyle: IProtyle, ids: string[], selected: HTMLElement[], ro: string, copy = false, text = "", newFile: boolean) {
+    private async doFindDivs(protyle: IProtyle, ids: string[], selected: HTMLElement[], ro: string, copy = false, newFile: boolean) {
         let boxID = storeNoteBox_selectedNotebook.getOr();
         if (!boxID) boxID = events.boxID;
         try {
@@ -340,7 +332,6 @@ class DailyNoteBox {
                     }
                 }
 
-                if (text) newDivs.push(domNewLine("🗨️ " + text));
                 let ops = [];
                 if (dailyNoteCopyUpdateBG.get() && ro === "false") {
                     ops = siyuan.transUpdateBlocks(selected.map(div => {

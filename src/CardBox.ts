@@ -12,12 +12,13 @@ import { closeAllDialog } from "./libs/keyboard";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { CardPriorityBox修改文档中闪卡优先级, CardPriorityBox分散推迟闪卡 } from "./CardPriorityBox";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { verifyKeyTomato } from "./libs/user";
 import { mount } from "svelte";
 import CardBoxFloatSvelte from "./CardBoxFloat.svelte";
 import { setGlobal } from "stonev5-utils";
 
-export const CardBox用选中的行创建超级块超级块制卡取消制卡 = winHotkey("shift+ctrl+1", "addFlashCard", "🗃️", () => tomatoI18n.用选中的行创建超级块超级块制卡取消制卡, false, cardBoxSuperCard)
+export const CardBox用选中的行创建超级块超级块制卡取消制卡 = winHotkey("shift+ctrl+1", "addFlashCard", "iconRiffCard", () => tomatoI18n.用选中的行创建超级块超级块制卡取消制卡, false, cardBoxSuperCard)
 export const CardBox复习时删除当前闪卡 = winHotkey("alt+F9", "delCard", "", () => tomatoI18n.复习时删除当前闪卡)
 export const CardBox闪卡复习时打开闪卡设置 = winHotkey("⇧⌥U", "opensettings", "", () => tomatoI18n.闪卡复习时打开闪卡设置)
 export const CardBox删除内容块 = winHotkey("⌘⇧9", "del card block", "", () => tomatoI18n.删除内容块)
@@ -31,16 +32,14 @@ class CardBox {
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
         if (!cardBoxCheckbox.get()) return;
-        if (CardBox用选中的行创建超级块超级块制卡取消制卡.menu()) {
-            detail.menu.addItem({
-                accelerator: CardBox用选中的行创建超级块超级块制卡取消制卡.m,
-                iconHTML: CardBox用选中的行创建超级块超级块制卡取消制卡.icon,
-                label: CardBox用选中的行创建超级块超级块制卡取消制卡.langText(),
-                click: async () => {
-                    await addFlashCard(detail.protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get())
-                },
-            });
-        }
+        addIfVisible(detail.menu, CardBox用选中的行创建超级块超级块制卡取消制卡.langKey, {
+            accelerator: CardBox用选中的行创建超级块超级块制卡取消制卡.m,
+            icon: CardBox用选中的行创建超级块超级块制卡取消制卡.icon,
+            label: CardBox用选中的行创建超级块超级块制卡取消制卡.langText(),
+            click: async () => {
+                await addFlashCard(detail.protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get())
+            },
+        }, CardBox用选中的行创建超级块超级块制卡取消制卡.menu());
     }
 
     async onload(plugin: BaseTomatoPlugin) {
@@ -120,16 +119,14 @@ class CardBox {
         });
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
-            if (CardBox用选中的行创建超级块超级块制卡取消制卡.menu()) {
-                menu.addItem({
-                    label: CardBox用选中的行创建超级块超级块制卡取消制卡.langText(),
-                    iconHTML: CardBox用选中的行创建超级块超级块制卡取消制卡.icon,
-                    accelerator: CardBox用选中的行创建超级块超级块制卡取消制卡.m,
-                    click: async () => {
-                        await addFlashCard(detail.protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get())
-                    },
-                });
-            }
+            addIfVisible(menu, CardBox用选中的行创建超级块超级块制卡取消制卡.langKey, {
+                label: CardBox用选中的行创建超级块超级块制卡取消制卡.langText(),
+                icon: CardBox用选中的行创建超级块超级块制卡取消制卡.icon,
+                accelerator: CardBox用选中的行创建超级块超级块制卡取消制卡.m,
+                click: async () => {
+                    await addFlashCard(detail.protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get())
+                },
+            }, CardBox用选中的行创建超级块超级块制卡取消制卡.menu());
         });
         events.addListener("CardBox2025-5-9 23:55:35", (eventType, detail) => {
             if (eventType == EventType.loaded_protyle_static

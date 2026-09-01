@@ -209,22 +209,6 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
             default: return `Non-VIP limit is ${x} ${unit}`;
         }
     }
-    public get 文档正引说明() {
-        switch (this.lang) {
-            case "zh_CN": return "展示当前文档中所有正引内容";
-            case "es_ES": return "Mostrar todo el contenido citado positivamente en el documento actual";
-            case "fr_FR": return "Afficher tout le contenu cité positivement dans le document actuel";
-            case "ja_JP": return "現在のドキュメント内のすべての正引用内容を表示";
-            case "zh_CHT": return "展示當前文件中所有正引內容";
-            case "it_IT": return "Mostra tutti i contenuti citati positivamente nel documento corrente";
-            case "de_DE": return "Alle positiv zitierten Inhalte im aktuellen Dokument anzeigen";
-            case "he_IL": return "הצג את כל התוכן המצוטט באופן חיובי במסמך הנוכחי";
-            case "ru_RU": return "Показать все положительно цитируемое содержимое в текущем документе";
-            case "pl_PL": return "Pokaż całą pozytywnie cytowaną treść w bieżącym dokumencie";
-            case "en_US":
-            default: return "Show all positively cited content in the current document";
-        }
-    }
     public get 在当前文档中定位() {
         switch (this.lang) {
             case "zh_CN": return "在当前文档中定位";
@@ -367,22 +351,6 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
             case "pl_PL": return "Użyj prefiksu nazwy bieżącego dokumentu";
             case "en_US":
             default: return "Use the prefix of the current document name";
-        }
-    }
-    public get 把批注保存在子文档否则保存在日记中() {
-        switch (this.lang) {
-            case "zh_CN": return "把批注保存在子文档，否则保存在日记中";
-            case "es_ES": return "Guarda las anotaciones en el subdocumento, de lo contrario en el diario";
-            case "fr_FR": return "Enregistrez les annotations dans le sous-document, sinon dans le journal";
-            case "ja_JP": return "注釈はサブドキュメントに保存し、そうでなければ日記に保存します";
-            case "zh_CHT": return "將批註保存在子文件，否則保存在日誌中";
-            case "it_IT": return "Salva le annotazioni nel sottodocumento, altrimenti nel diario";
-            case "de_DE": return "Speichere Anmerkungen im Unterdokument, sonst im Tagebuch";
-            case "he_IL": return "שמור הערות במסמך המשנה, אחרת ביומן";
-            case "ru_RU": return "Сохраняйте аннотации в поддокументе, иначе в дневнике";
-            case "pl_PL": return "Zapisz adnotacje w poddokumencie, w przeciwnym razie w dzienniku";
-            case "en_US":
-            default: return "Save annotations in the subdocument, otherwise in the journal";
         }
     }
     public get 块关系图帮助() {
@@ -699,6 +667,273 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
             case "pl_PL": return "Koniec";
             case "en_US":
             default: return "End";
+        }
+    }
+    public get 清空筛选() {
+        switch (this.lang) {
+            case "zh_CN": return "清空筛选";
+            case "es_ES": return "Borrar filtro";
+            case "fr_FR": return "Effacer le filtre";
+            case "ja_JP": return "フィルターをクリア";
+            case "zh_CHT": return "清空篩選";
+            case "it_IT": return "Cancella filtro";
+            case "de_DE": return "Filter löschen";
+            case "he_IL": return "נקה מסנן";
+            case "ru_RU": return "Очистить фильтр";
+            case "pl_PL": return "Wyczyść filtr";
+            case "en_US":
+            default: return "Clear filter";
+        }
+    }
+    public get 右键菜单管理() {
+        switch (this.lang) {
+            case "zh_CN": return "右键菜单管理";
+            case "es_ES": return "Gestión del menú contextual";
+            case "fr_FR": return "Gestion du menu contextuel";
+            case "ja_JP": return "右クリックメニュー管理";
+            case "zh_CHT": return "右鍵選單管理";
+            case "it_IT": return "Gestione menu contestuale";
+            case "de_DE": return "Kontextmenü verwalten";
+            case "he_IL": return "ניהול תפריט הקשר";
+            case "ru_RU": return "Управление контекстным меню";
+            case "pl_PL": return "Zarządzanie menu kontekstowym";
+            case "en_US":
+            default: return "Context menu management";
+        }
+    }
+    public get 右键菜单管理说明() {
+        switch (this.lang) {
+            case "zh_CN": return "勾选 = 显示在右键菜单；取消勾选 = 隐藏（快捷键与命令面板不受影响）";
+            case "zh_CHT": return "勾選 = 顯示在右鍵選單；取消勾選 = 隱藏（快捷鍵與命令面板不受影響）";
+            case "ja_JP": return "チェック = 右クリックメニューに表示；解除 = 非表示（ショートカットとコマンドパレットには影響しません）";
+            case "en_US":
+            default: return "Checked = show in context menu; unchecked = hidden (hotkeys and command palette unaffected)";
+        }
+    }
+    public get 日记() {
+        switch (this.lang) {
+            case "zh_CN": return "日记";
+            case "es_ES": return "Diario";
+            case "fr_FR": return "Note quotidienne";
+            case "ja_JP": return "日記";
+            case "zh_CHT": return "日记";
+            case "it_IT": return "Nota quotidiana";
+            case "de_DE": return "Tagesnotiz";
+            case "he_IL": return "יומן";
+            case "ru_RU": return "Ежедневник";
+            case "pl_PL": return "Dziennik";
+            case "en_US":
+            default: return "Daily note";
+        }
+    }
+    public get 互链与引用() {
+        switch (this.lang) {
+            case "zh_CN": return "互链与引用";
+            case "es_ES": return "Enlaces y referencias";
+            case "fr_FR": return "Liens et références";
+            case "ja_JP": return "リンクと参照";
+            case "zh_CHT": return "互链与引用";
+            case "it_IT": return "Collegamenti e riferimenti";
+            case "de_DE": return "Links & Referenzen";
+            case "he_IL": return "קישורים והפניות";
+            case "ru_RU": return "Ссылки и упоминания";
+            case "pl_PL": return "Linki i odniesienia";
+            case "en_US":
+            default: return "Links & references";
+        }
+    }
+    public get 文档整理() {
+        switch (this.lang) {
+            case "zh_CN": return "文档整理";
+            case "es_ES": return "Herramientas de documentos";
+            case "fr_FR": return "Outils de documents";
+            case "ja_JP": return "ドキュメント整理";
+            case "zh_CHT": return "文档整理";
+            case "it_IT": return "Strumenti documento";
+            case "de_DE": return "Dokumentwerkzeuge";
+            case "he_IL": return "כלי מסמכים";
+            case "ru_RU": return "Инструменты документов";
+            case "pl_PL": return "Narzędzia dokumentów";
+            case "en_US":
+            default: return "Document tools";
+        }
+    }
+    public get 图片() {
+        switch (this.lang) {
+            case "zh_CN": return "图片";
+            case "es_ES": return "Imágenes";
+            case "fr_FR": return "Images";
+            case "ja_JP": return "画像";
+            case "zh_CHT": return "图片";
+            case "it_IT": return "Immagini";
+            case "de_DE": return "Bilder";
+            case "he_IL": return "תמונות";
+            case "ru_RU": return "Изображения";
+            case "pl_PL": return "Obrazy";
+            case "en_US":
+            default: return "Images";
+        }
+    }
+    public get 智能问答() {
+        switch (this.lang) {
+            case "zh_CN": return "智能问答";
+            case "es_ES": return "Preguntas y respuestas IA";
+            case "fr_FR": return "Q&R IA";
+            case "ja_JP": return "AI質問";
+            case "zh_CHT": return "智能问答";
+            case "it_IT": return "Q&R IA";
+            case "de_DE": return "KI-Fragen";
+            case "he_IL": return "שאלות ותשובות AI";
+            case "ru_RU": return "ИИ-вопросы";
+            case "pl_PL": return "Pytania AI";
+            case "en_US":
+            default: return "AI Q&A";
+        }
+    }
+    public get 数据库反链() {
+        switch (this.lang) {
+            case "zh_CN": return "数据库反链";
+            case "es_ES": return "Retroenlaces de base de datos";
+            case "fr_FR": return "Rétroliens de base de données";
+            case "ja_JP": return "データベースバックリンク";
+            case "zh_CHT": return "数据库反链";
+            case "it_IT": return "Retrocollegamenti database";
+            case "de_DE": return "Datenbank-Rückverweise";
+            case "he_IL": return "קישורים לאחור של מסד נתונים";
+            case "ru_RU": return "Обратные ссылки БД";
+            case "pl_PL": return "Odnośniki bazy danych";
+            case "en_US":
+            default: return "Database backlinks";
+        }
+    }
+    public get 导出() {
+        switch (this.lang) {
+            case "zh_CN": return "导出";
+            case "es_ES": return "Exportar";
+            case "fr_FR": return "Exporter";
+            case "ja_JP": return "エクスポート";
+            case "zh_CHT": return "导出";
+            case "it_IT": return "Esporta";
+            case "de_DE": return "Exportieren";
+            case "he_IL": return "ייצוא";
+            case "ru_RU": return "Экспорт";
+            case "pl_PL": return "Eksport";
+            case "en_US":
+            default: return "Export";
+        }
+    }
+    public get 全部显示() {
+        switch (this.lang) {
+            case "zh_CN": return "全部显示";
+            case "es_ES": return "Mostrar todo";
+            case "fr_FR": return "Tout afficher";
+            case "ja_JP": return "すべて表示";
+            case "zh_CHT": return "全部顯示";
+            case "it_IT": return "Mostra tutto";
+            case "de_DE": return "Alle anzeigen";
+            case "he_IL": return "הצג הכל";
+            case "ru_RU": return "Показать все";
+            case "pl_PL": return "Pokaż wszystko";
+            case "en_US":
+            default: return "Show all";
+        }
+    }
+    // □5 顶栏开关说明六键（spec §11.4）：首行一句结论，次行「开＝…关＝…」成对；
+    // 正/反/虚用方向符号（当前块 → 目标块）替代术语解释；虚引加「不是真实反链」防误信
+    public get 文档模式说明() {
+        switch (this.lang) {
+            case "zh_CN": return "按文档汇总：列出本文档通过块引用链接到的其他文档。\n开＝文档模式（每篇目标文档一张卡片）；关＝块模式，按光标所在块列出正引、反引、虚引。";
+            case "es_ES": return "Por documento: lista los demás documentos enlazados desde este mediante referencias de bloque.\nActivado = modo documento (una tarjeta por documento destino); desactivado = modo bloque, lista las referencias directas, inversas y virtuales del bloque actual.";
+            case "fr_FR": return "Par document : liste les autres documents liés depuis celui-ci via des références de bloc.\nActivé = mode document (une carte par document cible) ; désactivé = mode bloc, liste les références directes, inverses et virtuelles du bloc actuel.";
+            case "ja_JP": return "ドキュメント単位：このドキュメントからブロック参照でリンクされた他のドキュメントを一覧表示。\nオン＝ドキュメントモード（対象ドキュメントごとに1枚のカード）；オフ＝ブロックモード、カーソルブロックの順・逆・仮想参照を表示。";
+            case "zh_CHT": return "按文件彙總：列出本文件透過塊引用連結到的其他文件。\n開＝文件模式（每個目標文件一張卡片）；關＝塊模式，按游標所在塊列出正引、反引、虛引。";
+            case "it_IT": return "Per documento: elenca gli altri documenti collegati da questo tramite riferimenti a blocchi.\nAttivo = modalità documento (una scheda per documento di destinazione); disattivo = modalità blocco, elenca i riferimenti diretti, inversi e virtuali del blocco corrente.";
+            case "de_DE": return "Pro Dokument: listet alle anderen Dokumente, die dieses über Blockreferenzen verlinkt.\nEin = Dokumentmodus (eine Karte pro Zieldokument); Aus = Blockmodus, listet Vorwärts-/Rückwärts-/virtuelle Referenzen des aktuellen Blocks.";
+            case "he_IL": return "לפי מסמך: מפרט את כל המסמכים האחרים שמסמך זה מקשר אליהם באמצעות הפניות בלוקים.\nמופעל = מצב מסמך (כרטיס אחד לכל מסמך יעד); כבוי = מצב בלוק, הצגת ההפניות של הבלוק הנוכחי.";
+            case "ru_RU": return "По документу: перечисляет все другие документы, на которые этот документ ссылается блоковыми ссылками.\nВкл = режим документа (по карточке на целевой документ); выкл = режим блока — прямые, обратные и виртуальные ссылки текущего блока.";
+            case "pl_PL": return "Według dokumentu: wymienia wszystkie inne dokumenty, do których ten dokument łączy odniesieniami bloków.\nWł. = tryb dokumentu (po jednej karcie na dokument docelowy); wył. = tryb bloku, lista odniesień bieżącego bloku.";
+            case "en_US":
+            default: return "Per document: lists all other documents linked from this one via block refs.\nOn = document mode (one card per target doc); off = block mode, listing forward/backward/virtual refs of the current block.";
+        }
+    }
+    public get 正引过滤说明() {
+        switch (this.lang) {
+            case "zh_CN": return "正引＝从当前块出发：光标所在块通过块引用链接了谁（当前块 → 目标块）。\n开＝在面板列出这些被引用的块；关＝隐藏。";
+            case "es_ES": return "Directa = saliente: a qué bloques enlaza el bloque actual mediante referencias de bloque (bloque actual → destino).\nActivado = los lista en el panel; desactivado = oculta.";
+            case "fr_FR": return "Direct = sortant : vers quels blocs le bloc actuel pointe via des références de bloc (bloc actuel → cible).\nActivé = les liste dans le panneau ; désactivé = masque.";
+            case "ja_JP": return "順参照＝送り出し：現在のブロックがブロック参照でリンクしている先（現在ブロック → 参照先）。\nオン＝パネルに一覧表示；オフ＝非表示。";
+            case "zh_CHT": return "正引＝從當前塊出發：游標所在塊透過塊引用連結了誰（當前塊 → 目標塊）。\n開＝在面板列出這些被引用的塊；關＝隱藏。";
+            case "it_IT": return "Diretto = in uscita: a quali blocchi punta il blocco corrente tramite riferimenti a blocchi (blocco corrente → destinazione).\nAttivo = li elenca nel pannello; disattivo = nasconde.";
+            case "de_DE": return "Vorwärts = ausgehend: auf welche Blöcke der aktuelle Block per Blockreferenz verweist (aktueller Block → Ziel).\nEin = im Panel auflisten; Aus = ausblenden.";
+            case "he_IL": return "קדימה = יוצא: לאילו בלוקים הבלוק הנוכחי מקושר בהפניית בלוקים (בלוק נוכחי → יעד).\nמופעל = הצגה בפאנל; כבוי = הסתרה.";
+            case "ru_RU": return "Прямая = исходящая: на какие блоки текущий блок ссылается блоковыми ссылками (текущий блок → цель).\nВкл = показать в панели; выкл = скрыть.";
+            case "pl_PL": return "Bezpośrednie = wychodzące: do których bloków bieżący blok łączy odniesieniami bloków (blok bieżący → cel).\nWł. = lista w panelu; wył. = ukryj.";
+            case "en_US":
+            default: return "Forward = outgoing: which blocks the current block links to via block refs (current block → target).\nOn = list them in the panel; off = hide.";
+        }
+    }
+    public get 反引过滤说明() {
+        switch (this.lang) {
+            case "zh_CN": return "反引＝指向当前块：哪些块通过块引用链接到了光标所在块（来源块 → 当前块）。\n开＝列出这些引用来源；关＝隐藏。";
+            case "es_ES": return "Inversa = entrante: qué bloques enlazan al bloque actual mediante referencias de bloque (origen → bloque actual).\nActivado = los lista; desactivado = oculta.";
+            case "fr_FR": return "Indirect = entrant : quels blocs pointent vers le bloc actuel via des références de bloc (source → bloc actuel).\nActivé = les liste ; désactivé = masque.";
+            case "ja_JP": return "逆参照＝受け取り：どのブロックがブロック参照で現在のブロックにリンクしているか（参照元 → 現在ブロック）。\nオン＝一覧表示；オフ＝非表示。";
+            case "zh_CHT": return "反引＝指向當前塊：哪些塊透過塊引用連結到游標所在塊（來源塊 → 當前塊）。\n開＝列出這些引用來源；關＝隱藏。";
+            case "it_IT": return "Inverso = in entrata: quali blocchi puntano al blocco corrente tramite riferimenti a blocchi (origine → blocco corrente).\nAttivo = li elenca; disattivo = nasconde.";
+            case "de_DE": return "Rückwärts = eingehend: welche Blöcke per Blockreferenz auf den aktuellen Block verweisen (Quelle → aktueller Block).\nEin = auflisten; Aus = ausblenden.";
+            case "he_IL": return "אחורה = נכנס: אילו בלוקים מקושרים לבלוק הנוכחי בהפניית בלוקים (מקור → בלוק נוכחי).\nמופעל = הצגה; כבוי = הסתרה.";
+            case "ru_RU": return "Обратная = входящая: какие блоки ссылаются блоковыми ссылками на текущий блок (источник → текущий блок).\nВкл = показать; выкл = скрыть.";
+            case "pl_PL": return "Wsteczne = przychodzące: które bloki łączą odniesieniami bloków do bieżącego bloku (źródło → blok bieżący).\nWł. = lista; wył. = ukryj.";
+            case "en_US":
+            default: return "Backward = incoming: which blocks link to the current block via block refs (source → current block).\nOn = list them; off = hide.";
+        }
+    }
+    public get 虚引过滤说明() {
+        switch (this.lang) {
+            case "zh_CN": return "虚引＝没有真实链接的相似候选：按标题/内容文本匹配出与光标块相似的块。\n开＝列出这些「疑似引用」；关＝隐藏。虚引不是思源真实反链，仅供参考。";
+            case "es_ES": return "Virtual = texto similar sin enlace real: bloques cuyo título/contenido coincide con el bloque actual.\nActivado = lista esos candidatos; desactivado = oculta. Las referencias virtuales no son retroenlaces reales de SiYuan, solo orientativas.";
+            case "fr_FR": return "Virtuel = texte similaire sans lien réel : blocs dont le titre/contenu correspond au bloc actuel.\nActivé = liste ces candidats ; désactivé = masque. Les références virtuelles ne sont pas de vrais rétroliens SiYuan, à titre indicatif.";
+            case "ja_JP": return "仮想参照＝実リンクのない類似候補：タイトル/本文が現在のブロックと一致するブロック。\nオン＝該当候補を一覧表示；オフ＝非表示。仮想参照は思源の実逆リンクではないため参考情報です。";
+            case "zh_CHT": return "虛引＝沒有真實連結的相似候選：按標題/內容文字比對出與游標塊相似的塊。\n開＝列出這些「疑似引用」；關＝隱藏。虛引不是思源真實反鏈，僅供參考。";
+            case "it_IT": return "Virtuale = testo simile senza collegamento reale: blocchi il cui titolo/contenuto corrisponde al blocco corrente.\nAttivo = elenca questi candidati; disattivo = nasconde. I riferimenti virtuali non sono veri backlink di SiYuan, solo indicativi.";
+            case "de_DE": return "Virtuell = ähnlicher Text ohne echte Verknüpfung: Blöcke, deren Titel/Inhalt dem aktuellen Block entspricht.\nEin = diese Kandidaten auflisten; Aus = ausblenden. Virtuelle Referenzen sind keine echten SiYuan-Rückverweise, nur Hinweise.";
+            case "he_IL": return "וירטואלי = טקסט דומה ללא קישור אמיתי: בלוקים שהכותרת/התוכן שלהם תואם לבלוק הנוכחי.\nמופעל = הצגת מועמדים אלה; כבוי = הסתרה. הפניות וירטואליות אינן קישורים אחוריים אמיתיים של SiYuan, לעיון בלבד.";
+            case "ru_RU": return "Виртуальная = похожий текст без реальной ссылки: блоки, чей заголовок/текст совпадает с текущим блоком.\nВкл = показать этих кандидатов; выкл = скрыть. Виртуальные ссылки — не настоящие обратные ссылки SiYuan, только ориентир.";
+            case "pl_PL": return "Wirtualne = podobny tekst bez prawdziwego łącza: bloki, których tytuł/treść odpowiada bieżącemu blokowi.\nWł. = lista tych kandydatów; wył. = ukryj. Odwołania wirtualne to nie prawdziwe linki wsteczne SiYuan, tylko wskazówki.";
+            case "en_US":
+            default: return "Virtual = similar text, no real link: blocks whose title/content matches the current block.\nOn = list these look-alikes; off = hide. Virtual refs are not real SiYuan backlinks, for reference only.";
+        }
+    }
+    public get 批注分区说明() {
+        switch (this.lang) {
+            case "zh_CN": return "本文档番茄批注的总开关。\n开＝面板底部列出全部批注，点击条目跳回原文；关＝隐藏批注列表。";
+            case "es_ES": return "Interruptor principal de las anotaciones tomato de este documento.\nActivado = lista todas las anotaciones en la parte inferior del panel, haz clic para saltar al original; desactivado = oculta la lista.";
+            case "fr_FR": return "Interrupteur principal des annotations tomato de ce document.\nActivé = liste toutes les annotations en bas du panneau, cliquez pour revenir à l'original ; désactivé = masque la liste.";
+            case "ja_JP": return "このドキュメントのトマト注釈の総スイッチ。\nオン＝パネル下部にすべての注釈を一覧表示、クリックで元の場所へジャンプ；オフ＝一覧を非表示。";
+            case "zh_CHT": return "本文件番茄註釋的總開關。\n開＝面板底部列出全部註釋，點擊條目跳回原文；關＝隱藏註釋列表。";
+            case "it_IT": return "Interruttore principale delle annotazioni tomato di questo documento.\nAttivo = elenca tutte le annotazioni in fondo al pannello, clicca per tornare all'originale; disattivo = nasconde l'elenco.";
+            case "de_DE": return "Hauptschalter für die Tomato-Anmerkungen dieses Dokuments.\nEin = alle Anmerkungen unten im Panel auflisten, Klick springt zur Ursprungsstelle; Aus = Liste ausblenden.";
+            case "he_IL": return "מתג ראשי להערות העגבנייה של מסמך זה.\nמופעל = רשימת כל ההערות בתחתית הפאנל, לחיצה מקפיצה למקור; כבוי = הסתרת הרשימה.";
+            case "ru_RU": return "Главный выключатель томатных аннотаций этого документа.\nВкл = список всех аннотаций внизу панели, клик переходит к оригиналу; выкл = скрыть список.";
+            case "pl_PL": return "Główny przełącznik adnotacji pomidora tego dokumentu.\nWł. = lista wszystkich adnotacji na dole panelu, kliknięcie przenosi do oryginału; wył. = ukryj listę.";
+            case "en_US":
+            default: return "Master switch for tomato annotations of this document.\nOn = list all annotations at the bottom of the panel, click one to jump back; off = hide the list.";
+        }
+    }
+    public get 预览高度说明() {
+        switch (this.lang) {
+            case "zh_CN": return "卡片内嵌预览的最大高度（px）。\n数值越大，卡片预览越长、面板占用越多；出厂值 300。";
+            case "es_ES": return "Altura máxima (px) de la vista previa incrustada en cada tarjeta.\nCuanto mayor sea el valor, más largas las vistas previas y más espacio ocupa el panel; valor de fábrica 300.";
+            case "fr_FR": return "Hauteur maximale (px) de l'aperçu intégré à chaque carte.\nPlus la valeur est grande, plus les aperçus sont longs et plus le panneau prend de place ; valeur d'usine 300.";
+            case "ja_JP": return "各カード内プレビューの最大高さ（px）。\n値が大きいほどプレビューが長くなり、パネルの占める幅も増えます。初期値は300。";
+            case "zh_CHT": return "卡片內嵌預覽的最大高度（px）。\n數值越大，卡片預覽越長、面板佔用越多；出廠值 300。";
+            case "it_IT": return "Altezza massima (px) dell'anteprima incorporata in ogni scheda.\nValore più alto = anteprime più lunghe e pannello più ingombrante; valore di fabbrica 300.";
+            case "de_DE": return "Maximale Höhe (px) der in jeder Karte eingebetteten Vorschau.\nJe größer der Wert, desto länger die Vorschauen und desto mehr Platz braucht das Panel; Werkseinstellung 300.";
+            case "he_IL": return "גובה מרבי (px) של התצוגה המקדימה בכל כרטיס.\nערך גדול יותר = תצוגות ארוכות יותר ופאנל שתופס יותר מקום; ברירת מחדל 300.";
+            case "ru_RU": return "Максимальная высота (px) предпросмотра в карточке.\nБольше значение — длиннее предпросмотр и выше панель; заводское значение 300.";
+            case "pl_PL": return "Maksymalna wysokość (px) podglądu wewnątrz karty.\nWiększa wartość = dłuższe podglądy i więcej miejsca w panelu; wartość fabryczna 300.";
+            case "en_US":
+            default: return "Max height (px) of the preview embedded in each card.\nLarger value = longer previews and a taller panel; factory default 300.";
         }
     }
 }

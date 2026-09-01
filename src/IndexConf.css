@@ -9,7 +9,9 @@
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
-.tomato-settings-dialog .search-bar {
+/* 搜索框：升特异性 .settingBox.search-bar (0,3,0) 钉死——.search-bar 与 .settingBox
+ * (0,2,0) 同级打架，打包顺序变化会让 margin 被后者 2px 4px 覆盖（vision P2 实锤） */
+.tomato-settings-dialog .settingBox.search-bar {
     position: sticky;
     top: 0;
     background-color: var(--b3-theme-surface);
@@ -48,9 +50,10 @@
  *     拉色相区分（progressive --prog-card-bg 同公式先例）
  *   ④ 卡间距 12→16px、内衬 4→8px
  * 施工红线：禁止改上方旧规则本身的值（改了必被副本钉死），本规则完整重声明
- * margin/padding/background-color/border/border-radius，不依赖级联留旧值 */
+ * margin/padding/background-color/border/border-radius，不依赖级联留旧值
+ * □5 打磨（2026-08-31）：卡间距 16→24px（分区间距 24px/行间距 12px 统一拍板） */
 .tomato-settings-dialog section.conf-group {
-    margin: 16px 12px 0;
+    margin: 24px 12px 0;
     padding: 8px;
     background-color: color-mix(in srgb, var(--b3-theme-primary) 5%, var(--b3-theme-surface));
     border: 1px solid var(--b3-border-color);
@@ -68,7 +71,7 @@
     background-color: var(--b3-list-hover, var(--b3-theme-surface-lighter));
 }
 .tomato-settings-dialog .settingBox > div:not(:last-child) {
-    margin-bottom: 5px;
+    margin-bottom: 12px; /* □5 打磨：行间距 5→12px（分区间距 24px/行间距 12px 统一） */
 }
 .tomato-settings-dialog .settingBox > div:not(:first-child) {
     margin-left: 5%;
@@ -107,6 +110,15 @@
 /* chips 行同理：帮助行独占一整行（chips 换行后仍贴行尾不挤压） */
 .tomato-settings-dialog .settingBox > .tomato-chip-row > .helpText {
     flex: 1 0 100%; /* 帮助行独占一整行 */
+}
+/* ── 窄屏适配（□5 打磨 2026-08-31）：<480px 视口（≈设置 Dialog 同宽）行内说明
+ * 标签不再与 ~240px 弹性输入框同排挤成窄条，换行到控件下方独立一行；
+ * nowrap 保留（标签本身不折字）。同款选择器在源文件更后出现即胜出，
+ * progressive/recite 副本随三插件同步重建携带，无跨副本打架 */
+@media (max-width: 480px) {
+    .tomato-settings-dialog .settingBox > .tomato-input-row > .tomato-row-label {
+        flex: 1 0 100%;
+    }
 }
 /* ── 提示音选择化（□3）：下拉行 + 自定义展开行 ── */
 .tomato-settings-dialog .settingBox > .tomato-input-row > select.tomato-audio-select {
@@ -256,12 +268,13 @@
  * 弃用 :has(input) 结构推断——「纯标题行」与「带开关主开关行」「带帮助链接行」
  * 靠子元素结构无法稳定区分（近 bug：主开关行含 input 会被误排除/误命中） */
 .tomato-settings-dialog .section-title {
-    font-size: 15px;
+    font-size: 13px; /* □5 打磨：分区标题 15→13px（header 标题 15px > 分区 13px > 组小标题 12px 三级） */
     font-weight: 600;
     color: var(--b3-theme-on-surface);
 }
 /* ── □5 升格标题行节奏（2026-08-30 spec □5）──────────────────
- * 块首标题上缘 +4px 呼吸：块间距（20px）:标题→子行间距（5px）= 4:1，
+ * 块首标题上缘 +4px 呼吸：块间距（24px）:标题→子行间距（12px）= 2:1
+ * （2026-08-31 □5 打磨随 24/12 统一拍板更新），
  * 让「标题带分区」的节奏可感而不过度留白。纯新增规则（无任何旧规则碰行内
  * padding），progressive/recite 副本无同选择器规则，无双副本打架风险；
  * 值用 padding 不用 margin——.settingBox > div:not(:last-child) 的
@@ -321,6 +334,16 @@
     border: solid 1px var(--b3-theme-surface-lighter);
     border-radius: 4px;
     box-shadow: inset 0 -1px 0 var(--b3-theme-surface-lighter);
+}
+/* □9（2026-09-01）：HotkeyCap 根 span 此前全仓零样式定义，模板「文本<HotkeyCap>」直贴——
+   文本末字贴住键帽 1px 边框（六行一致的既有通病）。6px 与 .kbd padding 同档；
+   全仓用例键帽前均有文本（无行首用例）。recite 的 .rs-hk-row 是 flex 两端行，
+   右端键帽会被此规则顶缩 6px 与相邻开关行右轨不齐，下方归零覆盖（类名仅 recite 存在） */
+.tomato-settings-dialog .hotkey-wrap {
+    margin-left: 6px;
+}
+.tomato-settings-dialog .rs-hk-row .hotkey-wrap {
+    margin-left: 0;
 }
 /* 可点击键帽（HotkeyCap 组件）：hover 变主色、监听态高亮脉冲 */
 .tomato-settings-dialog .hotkey-cap {
@@ -508,7 +531,7 @@
     font-size: 12px;
     color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
 }
-/* 手动操作按钮组 */
+/* 手动操作按钮组：按钮+键帽两段式（pair 整体不拆行，wrap 时成对换行） */
 .tomato-settings-dialog .tomato-action-row {
     display: flex;
     flex-wrap: wrap;
@@ -516,7 +539,225 @@
     column-gap: 8px;
     row-gap: 6px;
 }
-.tomato-settings-dialog .tomato-action-kbd {
-    margin-left: 6px;
-    pointer-events: none;
+.tomato-settings-dialog .tomato-action-pair {
+    display: inline-flex;
+    align-items: center;
+    column-gap: 6px;
+}
+
+/* ── □3 header/footer 统一（2026-08-31）──────────────────────────
+ * header 类不带 .tomato-settings-dialog 作用域前缀：Dialog 模式下面板根在
+ * .b3-dialog__content 内，header 挂 .b3-dialog__header（作用域外）；页签模式
+ * （仿写）header 在面板根内，类名照挂。三插件共享本 css 各自打包，全局生效。 */
+.tomato-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    row-gap: 6px;
+    column-gap: 8px;
+}
+.tomato-header-title {
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.tomato-header-version {
+    font-size: 12px;
+    align-self: center;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+}
+/* Pro 徽标（仅已激活显示，display 由组件侧 $effect 接管） */
+.tomato-pro-badge {
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: var(--b3-border-radius);
+    color: var(--b3-theme-primary);
+    background: var(--b3-theme-primary-lightest);
+}
+.tomato-header-btns {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 4px;
+    margin-left: auto;
+}
+.tomato-header-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: var(--b3-border-radius);
+    background: transparent;
+    cursor: pointer;
+    color: var(--b3-theme-on-surface);
+}
+.tomato-header-btn:hover {
+    background: var(--b3-list-hover);
+}
+.tomato-header-btn svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+/* sticky footer（番茄/渐进）：52px 保存条贴 Dialog 可视底边。插件 Dialog 的内容挂
+ * .b3-dialog__body（padding 0，dev 3.8.2 实测层级），无需负 margin 拉伸——footer
+ * 天然全宽贴边；横向 padding 12px 与分区卡同节奏（vision P0+P2-3）；背景与容器
+ * 同色不透明，滚动内容从其下穿过 */
+.tomato-settings-dialog .settings-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 52px;
+    box-sizing: border-box;
+    margin: 16px 0 0;
+    padding: 6px 12px;
+    border-top: 1px solid var(--b3-border-color);
+    background: var(--b3-theme-surface);
+}
+/* 主色填充保存钮：思源 b3-button 无 primary variant（_button.scss 实查），自写 */
+.tomato-settings-dialog .settings-footer .tomato-save-btn {
+    border: 1px solid var(--b3-theme-primary);
+    background: var(--b3-theme-primary);
+    color: #fff;
+}
+.tomato-settings-dialog .settings-footer .tomato-save-btn:hover {
+    filter: brightness(1.08);
+}
+/* 付费状态条横向节奏（vision P1-1）：Dialog 型面板（番茄/渐进）给状态条 12px 横距
+ * 与搜索框/分区卡对齐——UpgradeBar 组件 scoped 的 margin:10px 0 无横距会贴面板边；
+ * 仿写在 Setting 页签内（无 .b3-dialog 祖先）不命中，其 16px 由自身根 padding 提供。
+ * 选择器 (0,3,0) 稳压组件 scoped 的 (0,2,0) */
+.b3-dialog .tomato-settings-dialog .upgrade-bar {
+    margin: 10px 12px;
+}
+/* ── 块配对工具 □1：高级折叠区（原生 details，2026-08-31）─────────────
+ * 老单功能快捷键键帽的收纳容器：零 JS 开合（收起内容仍在 DOM，searchSettings
+ * 的 textContent 匹配照常命中，命中行由 data-search-opened 协议自动展开——
+ * 见 libs/ui.ts searchSettings）；summary 复用分区标题样式 13px/600 */
+.tomato-settings-dialog details.settingBox > summary {
+    cursor: pointer;
+    user-select: none;
+    list-style: none; /* 去 Firefox 默认三角 */
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.tomato-settings-dialog details.settingBox > summary::-webkit-details-marker {
+    display: none; /* 去 Chromium 默认三角 */
+}
+.tomato-settings-dialog details.settingBox > summary.section-title {
+    padding-top: 4px; /* 对齐 .settingBox > div.section-title 的标题上缘呼吸 */
+}
+/* 自绘指示箭头：收起 › 展开 90° 下转（b3 主题变量，双主题自适应） */
+.tomato-settings-dialog details.settingBox > summary::after {
+    content: "›";
+    font-size: 15px;
+    line-height: 1;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+    transition: transform 0.15s ease;
+}
+.tomato-settings-dialog details.settingBox[open] > summary::after {
+    transform: rotate(90deg);
+}
+/* vision P1-1（块配对 □1 评审）：折叠区行距对齐分区行距 12px——行嵌在 .softBox 内，
+ * .settingBox > div:not(:last-child) 管不到；收窄到 details 内，不外溢 ConfBacklink 的 softBox */
+.tomato-settings-dialog details.settingBox .softBox > div:not(:last-child) {
+    margin-bottom: 12px;
+}
+/* vision P1-3：置灰行 pointer-events:none 连带废掉 VIP 徽标点击——徽标本职是灰档解锁
+ * 入口（TomatoVIP.svelte 注释自证）；恢复可点，视觉仍随行减淡（父行 opacity 合并渲染） */
+.tomato-settings-dialog .codeNotValid .tomato-vip-tag {
+    pointer-events: auto;
+}
+
+/* 右键菜单管理区（□4）：47 项 14 组 checkbox 总览。说明文案弱化、组分栏两列
+ * （窄屏一列自适应），行内 label 截断悬浮完整——与设置面板 spacing 体系（24/12）对齐 */
+.tomato-settings-dialog .tomato-menu-manage-note {
+    margin: 8px 0 12px;
+    font-size: 12px;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+    opacity: 0.75;
+}
+.tomato-settings-dialog .tomato-menu-manage-toolbar {
+    margin-bottom: 12px;
+}
+.tomato-settings-dialog .tomato-menu-manage-group {
+    margin-bottom: 12px;
+}
+.tomato-settings-dialog .tomato-menu-manage-group-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+    margin-bottom: 6px;
+}
+.tomato-settings-dialog .tomato-menu-manage-item {
+    margin-bottom: 4px;
+    cursor: pointer;
+}
+.tomato-settings-dialog .tomato-menu-manage-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── 块配对工具 □4 视觉精修（2026-08-31，唯一事实源 docs/tomato-block-pair-visual-spec.md §3）──
+ * 纪律：旧规则值被 progressive/recite 打包副本钉死，一律新规则高特异性重声明 */
+
+/* B1 softBox 重绘：surface 子卡替代硬编码浅蓝底（旧规则 :5-11 不动，双类升权覆盖） */
+.tomato-settings-dialog .softBox.softBox {
+    padding: 8px 10px;
+    background-color: var(--b3-theme-surface);
+    border: 1px solid var(--b3-border-color);
+    border-radius: 6px;
+    box-shadow: none;
+}
+/* B1 softBox 行距对齐分区 12px（原仅 details 内有，:660；全面板 softBox 同节奏） */
+.tomato-settings-dialog .settingBox .softBox > div:not(:last-child) {
+    margin-bottom: 12px;
+}
+/* B5 分区卡内多段分隔线（全面板，ConfEditor/ConfCards/ConfBlocks 同构同享）：
+ * > 直接子组合器确保不命中面板根的搜索框（.settingBox.search-bar） */
+.tomato-settings-dialog section.conf-group > .settingBox + .settingBox {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--b3-border-color);
+}
+/* B2 折叠区内容计数徽章：语言中性数字 chip，summary flex gap 天然就位 */
+.tomato-settings-dialog .setting-count {
+    flex: none;
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 16px;
+    border-radius: 8px;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+    background-color: var(--b3-theme-surface-lighter);
+    font-variant-numeric: tabular-nums;
+}
+/* B3 .kbd 帮助块内标题驯化：{@html} 的 h4/h5 吃 UA 默认标题边距把键帽撑成巨块——压平到 12px 档 */
+.tomato-settings-dialog .kbd h4 {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.tomato-settings-dialog .kbd h5 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.6;
+}
+/* B4 搜索高亮命中置灰行时提亮一档（配套 index.scss .tomato-highlight 重设计）：
+ * 50% 合成层把高亮信号乘法减半，:has() 命中期间提到 75%——仍暗于常态，未激活语义保留；
+ * 两选择器=命中落在行内后代（:has）与命中即行自身（searchSettings 直打行 div）；清空搜索自动回落 */
+.tomato-settings-dialog .codeNotValid:has(.tomato-highlight),
+.tomato-settings-dialog .codeNotValid.tomato-highlight {
+    opacity: 75%;
 }

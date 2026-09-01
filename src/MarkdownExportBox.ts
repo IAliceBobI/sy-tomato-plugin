@@ -1,3 +1,4 @@
+import { addIfVisible } from "./libs/menuManager";
 import { IProtyle } from "siyuan";
 import { exportBlackList, exportCleanFiles, exportCleanFilesOn, exportCleanPath, exportIntervalSec, exportIntervalSecOn, exportPath, exportPathWin, exportWhiteList, exportWL4All, markdownExportBoxCheckbox, markdownExportPics } from "./libs/stores";
 import { zipNways } from "./libs/functional";
@@ -88,9 +89,9 @@ class MarkdownExportBox {
                 .map(e => getAttribute(e, "data-node-id"))
                 .filter(i => !!i);
             if (ids.length > 0) {
-                detial.menu.addItem({
+                addIfVisible(detial.menu, "m.export.whiteList", {
                     label: tomatoI18n.添加到导出工作空间的白名单,
-                    iconHTML: "✅",
+                    icon: "iconCheck",
                     click: async () => {
                         const arr = pushUniq(null, ...exportWhiteList.get(), ...ids)
                         exportWhiteList.set(arr)
@@ -98,9 +99,9 @@ class MarkdownExportBox {
                         await siyuan.pushMsg(tomatoI18n.添加了x个文件夹(ids.length))
                     }
                 });
-                detial.menu.addItem({
+                addIfVisible(detial.menu, "m.export.blackList", {
                     label: tomatoI18n.添加到导出工作空间的黑名单,
-                    iconHTML: "🚫",
+                    icon: "iconClose",
                     click: async () => {
                         const arr = pushUniq(null, ...exportBlackList.get(), ...ids)
                         exportBlackList.set(arr)

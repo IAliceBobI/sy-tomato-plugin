@@ -11,24 +11,7 @@
   background-color: var(--b3-font-background5);
 }
 
-// comment
-.protyle-wysiwyg div[custom-tomato-comment] {
-  border-bottom: 3px dashed var(--b3-font-color10) !important;
-  border-radius: 0 !important;
-  padding-bottom: 1px !important;
-}
-
-.protyle-wysiwyg div[custom-tomato-key-comment] span[data-type='text'][style="background-color: var(--b3-font-background-tomato-key-comment);"] {
-  border-bottom: 3px dashed var(--b3-font-color12) !important;
-  border-radius: 0 !important;
-  padding-bottom: 1px !important;
-}
-
-.protyle-wysiwyg div[custom-comment-superblock-fold="1"] {
-  font-size: 0.9em !important;
-  color: var(--b3-font-color4);
-}
-
+// comment（旧产物链样式已随 □5 退役：虚线双键/data-inline-comment/superblock-fold）
 .protyle-wysiwyg div[custom-card-priority-stop] {
   opacity: 0.3;
 }
@@ -85,32 +68,15 @@
   }
 }
 
-.protyle-wysiwyg div[data-inline-comment] {
-  position: relative; // 为伪元素创建定位上下文
-}
-
-.protyle-wysiwyg div[data-inline-comment]::before {
-  content: "💬";
-  font-size: 0.8em;
-  position: absolute;
-  top: -0.7em;
-  color: var(--b3-font-color2);
-}
-
-.protyle-wysiwyg div[data-inline-comment]:hover::before {
-  content: attr(data-inline-comment);
-  font-size: 0.8em;
-  position: absolute;
-  top: -0.7em;
-  color: var(--b3-font-color2);
-  white-space: nowrap;
-}
-
-// settings search 
+// settings search（□4 重设计，spec docs/tomato-block-pair-visual-spec.md §3-B4②）：
+// 旧 x-large 橙字=命中即字号跳变（全面板 P2）；新信号=底色+内环纯绘制，命中行零位移。
+// 置灰行叠加减淡由 IndexConf.css 的 .codeNotValid:has(.tomato-highlight) 提亮规则配套
 .tomato-highlight {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  font-size: x-large;
   color: var(--b3-font-color2);
+  background-color: rgba(102, 60, 0, 0.12);
+  background-color: color-mix(in srgb, var(--b3-font-color2) 12%, transparent);
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--b3-font-color2) 35%, transparent);
 }
 
 .protyle-wysiwyg div[custom-tomato-line-blur] {
@@ -194,4 +160,468 @@
     background-color: var(--b3-theme-primary-lightest);
     border-radius: 4px;
     opacity: 0.55;
+}
+
+/* =====================================================================
+   番茄批注 · 视觉层（视觉稿 v1 · 2026-08-31，唯一事实源 docs/tomato-anno-visual-spec.md）
+   颜色一律走官方 b3 变量（自定义主题沿用变量名即自动适配，用户铁律）；
+   rgba/color-mix 仅作同色透明度派生（color-mix 后写覆盖 rgba 兜底）
+   ===================================================================== */
+.protyle-wysiwyg {
+  /* 单色系：番茄橙（b3-theme-secondary，亮 #ff9200/暗 #f3a92f；□7 换色拍板 b 案） */
+  --tomato-anno-color: var(--b3-theme-secondary);
+  /* 选区微底色：亮 12%（暗 15%，见下方暗色覆盖） */
+  --tomato-anno-bg: rgba(255, 146, 0, 0.12);
+  --tomato-anno-bg: color-mix(in srgb, var(--b3-theme-secondary) 12%, transparent);
+  --tomato-anno-bg-hover: rgba(255, 146, 0, 0.2);
+  --tomato-anno-bg-hover: color-mix(in srgb, var(--b3-theme-secondary) 20%, transparent);
+}
+
+/* 暗色主题（思源 loadAssets 权威判别 html[data-theme-mode]，不裸用 prefers-color-scheme）：
+   暗底上微底色提一档保可感，仍在拍板区间 8~15% 内 */
+html[data-theme-mode="dark"] .protyle-wysiwyg {
+  --tomato-anno-bg: rgba(255, 146, 0, 0.15);
+  --tomato-anno-bg: color-mix(in srgb, var(--b3-theme-secondary) 15%, transparent);
+  --tomato-anno-bg-hover: rgba(255, 146, 0, 0.24);
+  --tomato-anno-bg-hover: color-mix(in srgb, var(--b3-theme-secondary) 24%, transparent);
+}
+
+/* 块级批注：左缘色条 + 全块下划线（宿主 class 由 Annotations 运行时同步，spec §6）。
+   下划线走设置项（□1：线型/粗细/偏移变量由 applyAnnoVisual 注入，缺省 dashed/2px/3px；
+   形态档 marker/frame 不作用于块级——拍板：块级永远下划线+色条骨架，仅跟线型与粗细） */
+.protyle-wysiwyg .tomato-anno-block {
+  position: relative; /* 色条/热区伪元素的定位上下文（主题块级元素非必 relative，自兜底） */
+  text-decoration-line: underline;
+  text-decoration-style: var(--tomato-anno-underline-style, dashed);
+  text-decoration-color: var(--tomato-anno-color);
+  text-decoration-thickness: calc(var(--tomato-anno-underline-width, 2) * 1px);
+  text-underline-offset: var(--tomato-anno-underline-offset, 3px);
+  text-decoration-skip-ink: none;
+
+  &::before {
+    /* 可见色条：实色圆头，贴住块 4px padding 槽 */
+    content: "";
+    position: absolute;
+    left: -4px;
+    top: 4px;
+    bottom: 4px;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--tomato-anno-color);
+    transition: width 0.15s ease-out;
+  }
+
+  &::after {
+    /* 隐形热区：色条向左外扩 10px（hover 轻预览挂点） */
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 0;
+    bottom: 0;
+    width: 14px;
+  }
+
+  &:hover::before {
+    width: 4px;
+  }
+}
+
+/* 选区批注：下划线 + 微底色（下划线式基座=现状的变量化超集，□1）。
+   双限定（父块属性 + href 前缀）保证不碰普通链接；
+   span = 编辑器内行内链接形态，a = 导出/预览形态 */
+.protyle-wysiwyg div[custom-tomato-annotations] {
+  span[data-type="a"][data-href^="#tomato-anno-"],
+  a[href^="#tomato-anno-"] {
+    color: inherit;
+    text-decoration-line: underline;
+    text-decoration-style: var(--tomato-anno-underline-style, dashed);
+    text-decoration-color: var(--tomato-anno-color);
+    text-decoration-thickness: calc(var(--tomato-anno-underline-width, 2) * 1px);
+    text-underline-offset: var(--tomato-anno-underline-offset, 3px);
+    text-decoration-skip-ink: none;
+    background-color: var(--tomato-anno-bg);
+    border-radius: 2px;
+    padding: 0 2px; /* 只留横向：纵向 padding 会在多行选区行间串色 */
+    cursor: pointer;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: var(--tomato-anno-bg-hover);
+    }
+  }
+}
+
+/* =====================================================================
+   番茄批注 · 选区形态扩展（视觉稿 v2 · 2026-08-31，唯一事实源 spec §11）。
+   拍板实装：马克笔=M1 斜角手涂带 / 花边框=F2 文字流蝴蝶 / 装饰串线型=圆点+圆圈；
+   M2/F1/F3'/三角串数值存档于 spec 不实装。形态属性挂 html（与 data-theme-mode 同通道）。
+   ===================================================================== */
+
+/* 背景开关（下划线式子维度）：关=微底色与 hover 加深一并盖掉；
+   装饰串是 background-image 不受影响（spec §11.1.1 共存表） */
+html[data-tomato-anno-bg="off"] .protyle-wysiwyg div[custom-tomato-annotations] {
+  span[data-type="a"][data-href^="#tomato-anno-"],
+  a[href^="#tomato-anno-"] {
+    background-color: transparent;
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
+}
+
+/* 马克笔式变量（亮 22% hover 30% / 暗 28% hover 36%） */
+html[data-tomato-anno-style="marker"] .protyle-wysiwyg {
+  --tomato-anno-marker-band: rgba(255, 146, 0, 0.22);
+  --tomato-anno-marker-band: color-mix(in srgb, var(--b3-theme-secondary) 22%, transparent);
+  --tomato-anno-marker-band-hover: rgba(255, 146, 0, 0.3);
+  --tomato-anno-marker-band-hover: color-mix(in srgb, var(--b3-theme-secondary) 30%, transparent);
+}
+html[data-theme-mode="dark"][data-tomato-anno-style="marker"] .protyle-wysiwyg {
+  --tomato-anno-marker-band: rgba(255, 146, 0, 0.28);
+  --tomato-anno-marker-band: color-mix(in srgb, var(--b3-theme-secondary) 28%, transparent);
+  --tomato-anno-marker-band-hover: rgba(255, 146, 0, 0.36);
+  --tomato-anno-marker-band-hover: color-mix(in srgb, var(--b3-theme-secondary) 36%, transparent);
+}
+
+/* 马克笔式 M1 斜角手涂带：无下划线纯底色，带高=厚度档×3px（spec §11.2.1） */
+html[data-tomato-anno-style="marker"] .protyle-wysiwyg div[custom-tomato-annotations] {
+  span[data-type="a"][data-href^="#tomato-anno-"],
+  a[href^="#tomato-anno-"] {
+    text-decoration-line: none;
+    background-color: transparent;
+    background-image: linear-gradient(100deg,
+      transparent 0%, var(--tomato-anno-marker-band) 4%,
+      var(--tomato-anno-marker-band) 96%, transparent 100%);
+    background-size: 100% calc(var(--tomato-anno-underline-width, 2) * 3px);
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    border-radius: 0;
+
+    &:hover {
+      --tomato-anno-marker-band: var(--tomato-anno-marker-band-hover);
+    }
+  }
+}
+
+/* 花边框变量：底色亮 8% hover 14% / 暗 12% hover 18% + 蝴蝶 mask（v1 宽翅，spec §11.3.3） */
+html[data-tomato-anno-style="frame"] .protyle-wysiwyg {
+  --tomato-anno-frame-bg: rgba(255, 146, 0, 0.08);
+  --tomato-anno-frame-bg: color-mix(in srgb, var(--b3-theme-secondary) 8%, transparent);
+  --tomato-anno-frame-bg-hover: rgba(255, 146, 0, 0.14);
+  --tomato-anno-frame-bg-hover: color-mix(in srgb, var(--b3-theme-secondary) 14%, transparent);
+  /* mask 通道染色：SVG 只贡献 alpha，颜色由 background-color 的 b3 变量给（自动跟主题） */
+  --tomato-bfly: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3Cg id='h'%3E%3Cpath d='M10.9 12.3C11.2 8.9 9.3 5.6 6.1 5.3 3.4 5.1 1.3 7.2 1.3 9.9 1.3 12.7 3.6 14.9 6.5 14.7 8.8 14.6 10.7 13.6 10.9 12.3Z'/%3E%3Cpath d='M10.7 13.9C10.7 13.9 9.6 19 6.7 19 4.6 19 3.3 17.6 3.5 15.8 3.7 14.1 5.5 13.1 7.4 13.4 9.1 13.7 10.7 13.9 10.7 13.9Z'/%3E%3Cpath d='M11.6 8.3C11.2 7.2 10.4 6.3 9.4 5.9' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3Ccircle cx='9.3' cy='5.6' r='0.9'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23h'/%3E%3Cuse href='%23h' transform='matrix(-1 0 0 1 24 0)'/%3E%3Ccircle cx='12' cy='8.3' r='1.7'/%3E%3Cpath d='M12 9.4C13 9.4 13.7 10.7 13.7 12.4 13.7 14.6 13.1 16.8 12 17.9 10.9 16.8 10.3 14.6 10.3 12.4 10.3 10.7 11 9.4 12 9.4Z'/%3E%3C/svg%3E");
+}
+html[data-theme-mode="dark"][data-tomato-anno-style="frame"] .protyle-wysiwyg {
+  --tomato-anno-frame-bg: rgba(255, 146, 0, 0.12);
+  --tomato-anno-frame-bg: color-mix(in srgb, var(--b3-theme-secondary) 12%, transparent);
+  --tomato-anno-frame-bg-hover: rgba(255, 146, 0, 0.18);
+  --tomato-anno-frame-bg-hover: color-mix(in srgb, var(--b3-theme-secondary) 18%, transparent);
+}
+
+/* 花边框 F2 文字流蝴蝶：框体 + 首尾 ::before/::after 蝴蝶（inline-flow，折行跟首/末行零飘移，
+   spec §11.3.2/§11.4；clone 让每行完整胶囊） */
+html[data-tomato-anno-style="frame"] .protyle-wysiwyg div[custom-tomato-annotations] {
+  span[data-type="a"][data-href^="#tomato-anno-"],
+  a[href^="#tomato-anno-"] {
+    text-decoration-line: none;
+    background-color: var(--tomato-anno-frame-bg);
+    border: 1.5px solid var(--tomato-anno-color);
+    border-radius: 6px;
+    padding: 0 3px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+
+    &:hover {
+      background-color: var(--tomato-anno-frame-bg-hover);
+    }
+
+    &::before,
+    &::after {
+      content: "";
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      margin: 0 2px;
+      vertical-align: -3px;
+      background-color: var(--tomato-anno-color);
+      -webkit-mask: var(--tomato-bfly) center / contain no-repeat;
+      mask: var(--tomato-bfly) center / contain no-repeat;
+    }
+  }
+}
+
+/* 线型扩展档：圆点串 dot-bead（background 渐变通道替代下划线，spec §11.1.1；
+   padding-bottom 下探=inline 背景绘制区止于 content box，装饰须悬挂字底不咬字） */
+html[data-tomato-anno-underline="dot-bead"] .protyle-wysiwyg div[custom-tomato-annotations] {
+  span[data-type="a"][data-href^="#tomato-anno-"],
+  a[href^="#tomato-anno-"] {
+    text-decoration-line: none;
+    padding-bottom: calc(var(--tomato-anno-underline-width, 2) * 3px);
+    background-image: radial-gradient(circle,
+      var(--tomato-anno-color) calc(var(--tomato-anno-underline-width, 2) * 1.5px - 0.4px),
+      transparent calc(var(--tomato-anno-underline-width, 2) * 1.5px));
+    background-size: calc(var(--tomato-anno-underline-width, 2) * 7.5px) calc(var(--tomato-anno-underline-width, 2) * 3px);
+    background-position: 0 100%;
+    background-repeat: repeat-x;
+  }
+}
+
+/* 线型扩展档：圆圈串 ring-bead（四段色标圆环，环宽 max(1px, 档×0.6px)；档1 由设置侧禁用） */
+html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
+  --tomato-anno-ringw: max(1px, calc(var(--tomato-anno-underline-width, 2) * 0.6px));
+
+  div[custom-tomato-annotations] {
+    span[data-type="a"][data-href^="#tomato-anno-"],
+    a[href^="#tomato-anno-"] {
+      text-decoration-line: none;
+      padding-bottom: calc(var(--tomato-anno-underline-width, 2) * 3px);
+      background-image: radial-gradient(circle,
+        transparent calc(var(--tomato-anno-underline-width, 2) * 1.5px - var(--tomato-anno-ringw)),
+        var(--tomato-anno-color) calc(var(--tomato-anno-underline-width, 2) * 1.5px - var(--tomato-anno-ringw) + 0.3px),
+        var(--tomato-anno-color) calc(var(--tomato-anno-underline-width, 2) * 1.5px - 0.3px),
+        transparent calc(var(--tomato-anno-underline-width, 2) * 1.5px));
+      background-size: calc(var(--tomato-anno-underline-width, 2) * 7.5px) calc(var(--tomato-anno-underline-width, 2) * 3px);
+      background-position: 0 100%;
+      background-repeat: repeat-x;
+    }
+  }
+}
+
+/* 气泡公共壳：b3 卡片亮色系；JS 渲染挂 body、fixed 定位由组件内联 left/top 驱动 */
+.tomato-anno-pop {
+  position: fixed;
+  left: 0;
+  top: 0;
+  /* vision P0-1：气泡挂 body，不在 .protyle-wysiwyg 子树内，须自带主色变量
+     （head「批注」色标 ::before 用它；wysiwyg 作用域那份管编辑器内标记） */
+  --tomato-anno-color: var(--b3-theme-secondary);
+  background: var(--b3-theme-surface);
+  border: 1px solid var(--b3-border-color);
+  box-shadow: var(--b3-tooltips-shadow);
+  color: var(--b3-theme-on-surface);
+  text-align: left;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+
+  &.is-show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  &::after {
+    /* 朝向箭头：默认气泡在挂点上方，箭头朝下；横坐标由组件按锚点中心写入 CSS var */
+    content: "";
+    position: absolute;
+    left: var(--tomato-anno-arrow-x, 28px);
+    bottom: -4.5px;
+    width: 8px;
+    height: 8px;
+    background: var(--b3-theme-surface);
+    border-right: 1px solid var(--b3-border-color);
+    border-bottom: 1px solid var(--b3-border-color);
+    transform: rotate(45deg);
+  }
+
+  &--flip::after {
+    /* 翻转到挂点下方时箭头朝上 */
+    top: -4.5px;
+    bottom: auto;
+    border-right: none;
+    border-bottom: none;
+    border-left: 1px solid var(--b3-border-color);
+    border-top: 1px solid var(--b3-border-color);
+  }
+}
+
+/* hover 轻预览：列表式 + 时间戳 + 滚动，纯展示不接指针（点击穿透进查看） */
+.tomato-anno-pop--preview {
+  min-width: 220px;
+  max-width: 340px;
+  border-radius: var(--b3-border-radius);
+  pointer-events: none;
+}
+
+.tomato-anno-pop__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--b3-scroll-color);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+.tomato-anno-pop__item {
+  padding: 7px 12px;
+
+  + .tomato-anno-pop__item {
+    border-top: 1px solid var(--b3-border-color);
+  }
+
+  /* □4 多条目聚焦：foot 按钮作用于聚焦条目（默认首条），点击切换 */
+  &.is-selectable {
+    cursor: pointer;
+  }
+
+  &.is-focused {
+    background: var(--b3-theme-surface-lighter);
+  }
+}
+
+.tomato-anno-pop__meta {
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0.62;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 2px;
+}
+
+.tomato-anno-pop__text {
+  font-size: 13px;
+  line-height: 1.6;
+  word-break: break-word;
+
+  /* □4 富文本（spec §4：只读 b3-typography 子集——p/ul/ol/strong/em/code/链接） */
+  p {
+    margin: 0 0 6px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  ul,
+  ol {
+    margin: 0 0 6px;
+    padding-left: 18px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  li {
+    margin: 2px 0;
+  }
+
+  strong {
+    font-weight: 600;
+  }
+
+  code {
+    font-size: 0.92em;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--b3-theme-surface-lighter);
+  }
+
+  a {
+    color: var(--b3-protyle-inline-link-color);
+  }
+}
+
+/* 点击查看：只读卡片 + 预留编辑/删除按钮位 */
+.tomato-anno-pop--view {
+  min-width: 260px;
+  max-width: 400px;
+  border-radius: var(--b3-border-radius-b);
+}
+
+.tomato-anno-pop__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px 7px;
+  border-bottom: 1px solid var(--b3-border-color);
+}
+
+.tomato-anno-pop__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+
+  &::before {
+    /* 来源色标：8px 圆角方块，唯一允许的彩色点缀 */
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--tomato-anno-color);
+  }
+}
+
+.tomato-anno-pop__body {
+  padding: 4px 0;
+  max-height: 320px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.6;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--b3-scroll-color);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+.tomato-anno-pop__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 12px 10px;
+  border-top: 1px solid var(--b3-border-color);
+}
+
+.tomato-anno-btn {
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 12px;
+  border-radius: var(--b3-border-radius);
+  border: 1px solid var(--b3-border-color);
+  background: transparent;
+  color: var(--b3-theme-on-surface);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--b3-theme-surface-lighter);
+  }
+
+  /* □4 删除按钮：hover 转语义危险色（spec §4「删除态 danger 色」，基底仍 ghost 不动布局） */
+  &.tomato-anno-btn--danger:hover {
+    color: var(--b3-theme-error);
+    border-color: var(--b3-theme-error);
+    background: transparent;
+  }
+}
+
+// □5 面板 tooltip 自建单例（libs/panelTip.ts）：纯提示常驻不拦指针
+// （原生单例因同步悬浮要点链接而刻意可拦，面板提示无此需求）
+#tomato-panel-tip {
+  pointer-events: none;
 }

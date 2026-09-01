@@ -61,7 +61,7 @@ export function isLicenseSynced(stored: unknown, token: string): boolean {
     return typeof stored === "string" && stored === fingerprintOf(token);
 }
 
-// 云函数基地址，BuyTomato 在线购买（/activate）与这里（/redeem）同域共用
+// 云函数基地址，/redeem（兑换）与 /activate（找回激活码）同域共用
 export const FC_BASE_URL = "https://sy-license-waekiptpru.cn-hangzhou.fcapp.run";
 
 const REDEEM_URL = `${FC_BASE_URL}/redeem`;
@@ -90,9 +90,9 @@ export function redeemErrMsg(em?: string): string {
     return em || tomatoI18n.兑换失败;
 }
 
-// /activate 凭 userID 从云端取激活码并激活。BuyTomato 隐藏块「我已完成购买」与
-// 设置页激活区「找回激活码」两入口共用（成功路径一致：write 落盘 → resetKey →
-// verify → reload），仅提示语不同。2026-08-22 从 BuyTomato.svelte 迁入共用。
+// /activate 凭 userID 从云端取激活码并激活。设置页激活区「找回激活码」入口使用
+// （爱发电购买入口 2026-08-31 移除后现为唯一调用方；成功路径：write 落盘 →
+// resetKey → verify → reload）。2026-08-22 从 BuyTomato.svelte 迁入共用。
 export async function activateFromCloud(
     msg404: string, msgNet: string, plugin: Product,
 ) {

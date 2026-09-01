@@ -7,6 +7,7 @@ import html2canvas from 'html2canvas';
 import { getAllText, siyuan, } from "./libs/utils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -122,9 +123,9 @@ class ImgBox {
     private copyDivMenu(detail: TomatoMenu) {
         if (imgBoxShowMenu.get()) {
             const menu = detail.menu;
-            menu.addItem({
+            addIfVisible(menu, "m.imgBox.copyAsImage", {
                 label: tomatoI18n.复制为图片,
-                iconHTML: "🖼️📋",
+                icon: "iconCamera",
                 accelerator: ImgBoxHotKey.m,
                 click: async () => {
                     const { selected } = await events.selectedDivs(detail.protyle);

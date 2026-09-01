@@ -89,6 +89,8 @@ interface GetChildBlocks {
 
 type Block = {
     alias?: string;
+    /** □7 面板徽章类型标记：forward/backward/virtual（data 是 i18n 串随语言漂移，不可作判定） */
+    refKind?: "forward" | "backward" | "virtual";
     titles?: Set<string>;
     box?: string;
     content?: string;

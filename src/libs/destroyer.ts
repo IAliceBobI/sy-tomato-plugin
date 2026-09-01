@@ -9,6 +9,10 @@ export class DestroyManager {
         this.prefix = prefix;
         this.showMsg = showMsg;
     }
+    /** 已销毁态只读暴露（□4 AnnoEdit 草稿钩用：onMount 异步段落内判弹窗是否已被关闭） */
+    get destroyed(): boolean {
+        return this.destroied;
+    }
     setData(key: string, value: any) {
         this.data.set(key, value);
     }

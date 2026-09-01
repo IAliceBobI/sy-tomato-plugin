@@ -76,6 +76,10 @@
 
     function startDragTouch(e: TouchEvent) {
         if ((e.target as HTMLElement).closest("button")) return;
+        // body 已滚出滚动区（矮视口溢出时）则让位原生滚动，不拖拽不 preventDefault——
+        // 否则触摸永远滚不到被裁的按钮（review P2：恰恰在最需要滚的场景被劫持）
+        const b = (e.target as HTMLElement).closest(".floatbar-body") as HTMLElement | null;
+        if (b && b.scrollHeight > b.clientHeight) return;
         const t = e.touches[0];
         const offX = t.clientX - x;
         const offY = t.clientY - y;
@@ -198,5 +202,11 @@
         flex-wrap: wrap;
         gap: 4px;
         max-width: 100%;
+        /* 矮视口里按钮多到超 max-height 时（低频折行+高级四组），旧版溢出盒外悬出
+           视口不可达（□25：clamp 只保证盒在界内）；min-height:0 允许 flex 收缩，
+           溢出转为条内滚动，一切按钮可达 */
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
 </style>

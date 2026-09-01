@@ -3,7 +3,7 @@ import { getAttribute, removeAttribute, setAttribute, setFocusToEditableDiv, siy
 import { tomatoI18n } from "./tomatoI18n";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { events } from "./libs/Events";
-import { BlockNodeEnum, COMMENT_SUPERBLOCK_FOLD, TOMATO_ATTR_BAR } from "./libs/gconst";
+import { BlockNodeEnum, TOMATO_ATTR_BAR } from "./libs/gconst";
 import { findElement } from "./libs/listUtils";
 import { winHotkey } from "./libs/winHotkey";
 import AttrBar from "./AttrBar.svelte";
@@ -178,9 +178,6 @@ export function addFoldingAttrBarBtns() {
 
 function addBar(element: HTMLElement) {
     if (!element.getAttribute) return;
-    element.querySelectorAll(`div[${COMMENT_SUPERBLOCK_FOLD}]`).forEach(e => {
-        findTarget2addBar(e as any);
-    })
     findTarget2addBar(element);
     if (
         foldTypes.get().includes(BlockNodeEnum.NODE_LIST_ITEM) &&
@@ -194,7 +191,7 @@ function addBar(element: HTMLElement) {
 
 function findTarget2addBar(e: HTMLElement) {
     if (!e.lastElementChild) return;
-    if (foldTypes.get().includes(getAttribute(e, "data-type")) || e.hasAttribute(COMMENT_SUPERBLOCK_FOLD)) {
+    if (foldTypes.get().includes(getAttribute(e, "data-type"))) {
         if (e.lastElementChild.classList.contains("protyle-attr")) {
             e.lastElementChild.querySelectorAll(`div[${TOMATO_ATTR_BAR}]`).forEach(e => e.parentElement.removeChild(e));
             mount(AttrBar, {

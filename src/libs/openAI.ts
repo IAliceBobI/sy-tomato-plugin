@@ -8,12 +8,12 @@ export function buildMessages(text: string): ChatCompletionMessageParam[] {
     return [{ role: "user", content: text }];
 }
 
-// 2. 发起流式请求 —— 这步炸 = 配置/网络/模型问题
+// 2. 发起流式请求 —— 这步炸 = 配置/网络/模型问题；signal 可选（□8 批注 AI 讨论区 Esc 中断用）
 export async function createStream(
-    openai: OpenAI, model: string, messages: ChatCompletionMessageParam[]
+    openai: OpenAI, model: string, messages: ChatCompletionMessageParam[], signal?: AbortSignal
 ): Promise<Stream<ChatCompletionChunk> | undefined> {
     try {
-        return await openai.chat.completions.create({ model, messages, stream: true });
+        return await openai.chat.completions.create({ model, messages, stream: true }, signal ? { signal } : undefined);
     } catch (e) {
         console.error(e, messages);
         return undefined;
@@ -71,6 +71,28 @@ export function getOfficialConfig(): { apiKey: string; baseURL: string; model: s
     }
 }
 
+/** 两级兜底取思源 AI 配置（□8 批注 AI 讨论区；recite aiGrade.getAIConfig 同款语义回迁共享库）：
+ *  window.siyuan.config 是启动快照，思源启动后才配的密钥拿不到 → /api/system/getConf 实时读。
+ *  两级都无 → undefined 由调用方弹引导。 */
+export async function getAIConfig(): Promise<{ apiKey: string; baseURL: string; model: string } | undefined> {
+    const snap = getOfficialConfig();
+    if (snap) return snap;
+    try {
+        const ret = await siyuan.getConf();
+        const providers = (ret?.conf?.ai as any)?.providers as SiyuanAIProvider[] | undefined;
+        if (Array.isArray(providers)) {
+            for (const p of providers) {
+                if (!p?.enabled || !p.apiKey || !p.baseURL) continue;
+                const m = (p.models || []).find((mm) => mm?.enabled && mm.name);
+                if (m) return { apiKey: p.apiKey, baseURL: p.baseURL, model: m.name };
+            }
+        }
+    } catch (e) {
+        console.warn("[tomato] getConf fallback failed:", e);
+    }
+    return undefined;
+}
+
 export class OpenAIClient {
     private openai: OpenAI;
     constructor(apiKey: string, baseURL: string) {
@@ -81,8 +103,8 @@ export class OpenAIClient {
         });
     }
 
-    async createStreamPublic(model: string, messages: ChatCompletionMessageParam[]) {
-        return createStream(this.openai, model, messages);
+    async createStreamPublic(model: string, messages: ChatCompletionMessageParam[], signal?: AbortSignal) {
+        return createStream(this.openai, model, messages, signal);
     }
 
     // 非流式一次拿全（recite AI 拆分用：整篇送 AI 回 JSON 定位，无逐块写回不必流式）。

@@ -85,6 +85,12 @@ export function searchSettings(settingsDiv: HTMLElement, searchKey: string) {
         e.classList.remove("tomato-highlight")
     })
     if (sk) {
+        // 搜索时自动展开折叠区（details，块配对 □1 起）：textContent 匹配不受收起影响，但
+        // 收起状态用户看不到命中行；打标 data-search-opened，清空搜索时只还原这些（用户手动展开的不动）
+        settingsDiv.querySelectorAll("details:not([open])").forEach(e => {
+            (e as HTMLDetailsElement).dataset.searchOpened = "1";
+            (e as HTMLDetailsElement).open = true;
+        });
         candidates.forEach((e) => {
             if (e.hasAttribute("data-search")) return;
             if (e.hasAttribute("data-hide")) {
@@ -110,6 +116,12 @@ export function searchSettings(settingsDiv: HTMLElement, searchKey: string) {
                 e.classList.add("tomato-highlight")
             }
         })
+    } else {
+        // 搜索清空：收回搜索时自动展开的折叠区（data-search-opened 区分用户手动展开）
+        settingsDiv.querySelectorAll("details[data-search-opened]").forEach(e => {
+            delete (e as HTMLDetailsElement).dataset.searchOpened;
+            (e as HTMLDetailsElement).open = false;
+        });
     }
 }
 

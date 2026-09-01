@@ -113,6 +113,8 @@ export function winHotkey(m: string, langKey: string, icon?: string, langText?: 
         return ac;
     }
 
-    return { m, w, langKey, icon, langText, menu, cmd };
+    // □30 门禁可视化：vip 标志暴露给渲染层（渐进浮条 Pro 钮打灰档类），单一事实源
+    // 仍是本函数第五参；menu() 的 vip 门职责不变（命令/菜单通道照旧拦）
+    return { m, w, langKey, icon, langText, menu, cmd, vip: !!vip };
 }
 

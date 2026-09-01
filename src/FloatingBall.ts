@@ -10,6 +10,7 @@ import { floatingballDocList, floatingballDocMenu, floatingballDocTabMenu, float
 import { lastVerifyResult } from "./libs/user";
 import { getTomatoPluginInstance } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
+import { addIfVisible } from "./libs/menuManager";
 import { tomatoI18n } from "./tomatoI18n";
 import { mount } from "svelte";
 
@@ -49,8 +50,8 @@ export class FloatingBall {
     }
 }
 
-export const FloatingBall添加文档 = winHotkey("shift+alt+ctrl+f5", "绑定文档到悬浮按钮", "🔗", () => tomatoI18n.绑定文档到悬浮按钮, false, floatingballDocMenu)
-export const FloatingBallTab添加文档 = winHotkey("shift+alt+h", "FloatingBallTab添加文档", "🔗", () => tomatoI18n.绑定文档到Tab, false, floatingballDocTabMenu)
+export const FloatingBall添加文档 = winHotkey("shift+alt+ctrl+f5", "绑定文档到悬浮按钮", "iconPin", () => tomatoI18n.绑定文档到悬浮按钮, false, floatingballDocMenu)
+export const FloatingBallTab添加文档 = winHotkey("shift+alt+h", "FloatingBallTab添加文档", "iconLayout", () => tomatoI18n.绑定文档到Tab, false, floatingballDocTabMenu)
 
 export function linkDoc2floatBall(addDoc_docName: string, addDoc_docIcon: string, addDoc_useDialog: number) {
     if (addDoc_docName) {
@@ -101,28 +102,24 @@ export function loadFloatingBall() {
             });
             getTomatoPluginInstance().eventBus.on("open-menu-content", ({ detail }) => {
                 const menu = detail.menu;
-                if (FloatingBall添加文档.menu()) {
-                    menu.addItem({
-                        iconHTML: FloatingBall添加文档.icon,
-                        accelerator: FloatingBall添加文档.m,
-                        label: FloatingBall添加文档.langText(),
-                        click: () => {
-                            const { name } = events.getInfo(detail.protyle)
-                            linkDoc2floatBall(name, "", FloatingBallDocType_float.id);
-                        },
-                    });
-                }
-                if (FloatingBallTab添加文档.menu()) {
-                    menu.addItem({
-                        iconHTML: FloatingBallTab添加文档.icon,
-                        accelerator: FloatingBallTab添加文档.m,
-                        label: FloatingBallTab添加文档.langText(),
-                        click: () => {
-                            const { name } = events.getInfo(detail.protyle)
-                            linkDoc2floatBall(name, "", FloatingBallDocType_tab.id);
-                        },
-                    });
-                }
+                addIfVisible(menu, FloatingBall添加文档.langKey, {
+                    icon: FloatingBall添加文档.icon,
+                    accelerator: FloatingBall添加文档.m,
+                    label: FloatingBall添加文档.langText(),
+                    click: () => {
+                        const { name } = events.getInfo(detail.protyle)
+                        linkDoc2floatBall(name, "", FloatingBallDocType_float.id);
+                    },
+                }, FloatingBall添加文档.menu());
+                addIfVisible(menu, FloatingBallTab添加文档.langKey, {
+                    icon: FloatingBallTab添加文档.icon,
+                    accelerator: FloatingBallTab添加文档.m,
+                    label: FloatingBallTab添加文档.langText(),
+                    click: () => {
+                        const { name } = events.getInfo(detail.protyle)
+                        linkDoc2floatBall(name, "", FloatingBallDocType_tab.id);
+                    },
+                }, FloatingBallTab添加文档.menu());
             });
         }
         {

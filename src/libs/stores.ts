@@ -297,6 +297,9 @@ const settingFactory = <T>(key: TSK, defaultValue: T, file: string, _void: TSK) 
             }
         },
         set(value: T) {
+            // 注意：set 写内存 store + settingCfg[key]，不落盘≠会话级——之后任何整文件
+            // saveData（其他键的 write()/设置面板保存）都会搭车把它持久化；要确定不落盘
+            // 得用会话级裸 store，要确定落盘紧跟 write()（渐进 digSubrankOpen P1-1 教训）
             save(value);
         },
         // 返回落盘 Promise：调用方紧跟 reload/跳转时必须 await，否则 saveData 的
@@ -339,6 +342,8 @@ export const cssRefStyle = settingFactory("cssRefStyle", false, STORAGE_SETTINGS
 export const exportWL4All = settingFactory("exportWL4All", false, STORAGE_SETTINGS, null as TSK);
 export const exportWhiteList = settingFactory("exportWhiteList", [], STORAGE_SETTINGS, null as TSK);
 export const exportBlackList = settingFactory("exportBlackList", [], STORAGE_SETTINGS, null as TSK);
+// 右键菜单逐项隐藏（□4）：存「已隐藏菜单项 key 集合」，空=全显示；key 体系=winHotkey langKey 或 m.<模块>.<语义> 前缀
+export const hiddenMenuItems = settingFactory("hiddenMenuItems", [], STORAGE_SETTINGS, null as TSK);
 // 默认开启（2026-08-22 用户拍板：干净路径是默认形态，无需选择）；已存储过旧值的用户不受影响。
 export const exportCleanPath = settingFactory("exportCleanPath", true, STORAGE_SETTINGS, null as TSK);
 export const showDocAttrs = settingFactory("showDocAttrs", false, STORAGE_SETTINGS, null as TSK);
@@ -426,6 +431,18 @@ export const linkBoxSyncScanDeep = settingFactory("linkBoxSyncScanDeep", true, S
 export const linkBoxSyncRemapChildID = settingFactory("linkBoxSyncRemapChildID", false, STORAGE_SETTINGS, null as TSK);
 export const linkBoxLnkTitle = settingFactory("linkBoxLnkTitle", false, STORAGE_SETTINGS, null as TSK);
 export const linkBoxUseLnkOrRef = settingFactory("linkBoxUseLnkOrRef", false, STORAGE_SETTINGS, null as TSK);
+// 块配对接力浮条（□2 V1）：入口非功能，开关正交（图标亮灰跟随各功能总开关）
+export const pairBarEnabled = settingFactory("pairBarEnabled", true, STORAGE_SETTINGS, null as TSK);
+export const pairBarDefaultFunc = settingFactory("pairBarDefaultFunc", "", STORAGE_SETTINGS, null as TSK);
+// 「上次功能」记忆（R4 起直跳退役）：执行成功即写；funcs 面板高亮上次功能用（只高亮不抢焦点）
+export const pairBarLastFunc = settingFactory("pairBarLastFunc", "", STORAGE_SETTINGS, null as TSK);
+// 「最近用过的块」（R4 预填增强）：执行成功写首源块 id；出场无选区无光标时合成伪 stash
+// 预填第一框的兜底源（优先级 stash > 最近块 > 空；跨文档/已删块消费时校验存在性）
+export const pairBarLastSrcID = settingFactory("pairBarLastSrcID", "", STORAGE_SETTINGS, null as TSK);
+export const pairBarEntryHotkey = settingFactory("pairBarEntryHotkey", true, STORAGE_SETTINGS, null as TSK);
+export const pairBarEntryStatus = settingFactory("pairBarEntryStatus", true, STORAGE_SETTINGS, null as TSK);
+export const pairBarEntryMenu = settingFactory("pairBarEntryMenu", true, STORAGE_SETTINGS, null as TSK);
+export const pairBarEntryIconMenu = settingFactory("pairBarEntryIconMenu", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteBoxCheckbox = settingFactory("dailyNoteBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteGoToBottom = settingFactory("dailyNoteGoToBottom", false, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteGoToBottomMenu = settingFactory("dailyNoteGoToBottomMenu", true, STORAGE_SETTINGS, null as TSK);
@@ -440,7 +457,6 @@ export const dailyNoteCopyUseRef = settingFactory("dailyNoteCopyUseRef", true, S
 export const dailyNoteCopyUpdateBG = settingFactory("dailyNoteCopyUpdateBG", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyInsertPR = settingFactory("dailyNoteCopyInsertPR", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyShowPath = settingFactory("dailyNoteCopyShowPath", true, STORAGE_SETTINGS, null as TSK);
-export const dailyNoteCopyComment = settingFactory("dailyNoteCopyComment", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyFlashCard = settingFactory("dailyNoteCopyFlashCard", false, STORAGE_SETTINGS, null as TSK);
 export const imgOverlayCheckbox = settingFactory("imgOverlayCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const backLinkBottomBoxCheckbox = settingFactory("backLinkBottomBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
@@ -537,16 +553,35 @@ export const fastNoteBoxDocPrefix = settingFactory("fastNoteBoxDocPrefix", true,
 export const commentBoxCheckbox = settingFactory("commentBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const commentBoxMenu = settingFactory("commentBoxMenu", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxMaxProtyleHeight = settingFactory("commentBoxMaxProtyleHeight", 300, STORAGE_SETTINGS, null as TSK);
+export const commentBoxAnnoUnderlineThickness = settingFactory("commentBoxAnnoUnderlineThickness", 2, STORAGE_SETTINGS, null as TSK);
+// □1 标记形态主档：underline 下划线式（现状）/ marker 马克笔式 / frame 花边框（文字流蝴蝶），
+// spec §11（docs/tomato-anno-visual-spec.md）
+export const commentBoxAnnoMarkStyle = settingFactory("commentBoxAnnoMarkStyle", "underline", STORAGE_SETTINGS, null as TSK);
+// □1 线型（下划线式子维度）：五谱 solid/dashed/dotted/wavy/double + 装饰串 dot-bead/ring-bead
+// （后两档走 background 渐变通道替代下划线，spec §11.1.1）
+export const commentBoxAnnoLineType = settingFactory("commentBoxAnnoLineType", "dashed", STORAGE_SETTINGS, null as TSK);
+// □1 背景微底色开关（下划线式子维度；marker/frame 形态下不生效不显示）
+export const commentBoxAnnoBg = settingFactory("commentBoxAnnoBg", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxForwardRef = settingFactory("commentBoxForwardRef", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxBackwardRef = settingFactory("commentBoxBackwardRef", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxVirtualRef = settingFactory("commentBoxVirtualRef", true, STORAGE_SETTINGS, null as TSK);
+// □7 面板批注分区开关；□5（2026-09-01）默认值改开——用户推翻 □7「默认关」旧拍板
+// （存量已持久化过该键的环境不受影响，settingFactory.load 存储值优先）
+export const commentBoxAnnotations = settingFactory("commentBoxAnnotations", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxAddFlashCard = settingFactory("commentBoxAddFlashCard", false, STORAGE_SETTINGS, null as TSK);
-export const commentBoxAddTime = settingFactory("commentBoxAddTime", false, STORAGE_SETTINGS, null as TSK);
-export const commentBoxAddKeepText = settingFactory("commentBoxAddKeepText", true, STORAGE_SETTINGS, null as TSK);
-export const commentBoxAddUnderline = settingFactory("commentBoxAddUnderline", true, STORAGE_SETTINGS, null as TSK);
-export const commentBoxSaveUnderDoc = settingFactory("commentBoxSaveUnderDoc", true, STORAGE_SETTINGS, null as TSK);
+// □5 旧批注链设置退役（2026-08-31）：commentBoxAddTime/AddKeepText/AddUnderline/SaveUnderDoc、
+// dailyNoteCopyComment 随产物链删除；存量值留在 tomato-settings.json 不迁移不清理
 export const commentBoxShowID = settingFactory("commentBoxShowID", false, STORAGE_SETTINGS, null as TSK);
 export const commentBoxStaticOutlink = settingFactory("commentBoxStaticOutlink", false, STORAGE_SETTINGS, null as TSK);
+// □2 面板皮肤四档：classic 经典（v1 现状，默认零回归）/ candy 糖霜 / paper 纸墨 / airy 疏朗，
+// spec §10（docs/tomato-commentbox-visual-spec.md）——面板根 data-skin 分档，多皮肤 CSS 共存
+export const commentBoxPanelSkin = settingFactory("commentBoxPanelSkin", "classic", STORAGE_SETTINGS, null as TSK);
+// 批注弹窗编辑器形态（2026-09-01）：rich=内嵌 Protyle（默认，现状语义）；plain=纯文本 textarea
+// 秒开（跳过草稿块+SQL 索引等待+protyle 挂载整条链）。弹窗内切换钮切换即 write=记住选择。
+export const commentBoxAnnoEditorMode = settingFactory("commentBoxAnnoEditorMode", "rich", STORAGE_SETTINGS, null as TSK);
+// 批注编辑器字号（px，两模式统一；2026-09-01 用户反馈字体小→可调+记忆）。默认 16=思源正文档，
+// 比 Dialog 基准 14 大一档；范围 12~22 由 AnnoEdit 内 clamp。
+export const commentBoxAnnoEditorFontSize = settingFactory("commentBoxAnnoEditorFontSize", 16, STORAGE_SETTINGS, null as TSK);
 
 // ---------------
 
@@ -556,10 +591,21 @@ export const digestGlobalSigle = settingFactory("digestGlobalSigle", "0", STORAG
 // （双击摘抄浮钮与锁图标旁两钮退役——摘抄入口统一收进浮条/⌥Z/⇧⌥Z）。
 export const digestAddReadingpoint = settingFactory("digestAddReadingpoint", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const digest2dailycard = settingFactory("digest2dailycard", false, STORAGE_Prog_SETTINGS, null as TSK);
+// □3 制卡统一归置（2026-09-01 拍板方案 A）：默认制卡（⌥E/浮条制卡钮）并入当日 daily card
+// 文档；存量用户无此 key 读默认 true 即集中（发版 notes 说明），关掉回落 cards 夹旧路线
+// （cardUnderPiece 分叉保持原语义）
+export const card2dailycard = settingFactory("card2dailycard", true, STORAGE_Prog_SETTINGS, null as TSK);
 // v5 火苗档位：每日目标片数（"1"/"3"/"5"，默认 3）——滚筒欠债=Σ max(0, 当日q−当日已读)
 export const dailyQuota = settingFactory("dailyQuota", "3", STORAGE_Prog_SETTINGS, null as TSK);
-export const digestmenu = settingFactory("digestmenu", true, STORAGE_Prog_SETTINGS, null as TSK);
-export const piecesmenu = settingFactory("piecesmenu", true, STORAGE_Prog_SETTINGS, null as TSK);
+// □3 右键退役默认关（2026-09-01 用户拍板：浮条已覆盖同款能力，右键默认清爽；设置项
+// 保留可开回，旧持久化值留着无害——存过 true 的存量用户不受影响）。涉及三开关：
+// digestmenu/piecesmenu/ProgressiveJumpMenu；重访调度族无开关恒显示，不在退役面。
+export const digestmenu = settingFactory("digestmenu", false, STORAGE_Prog_SETTINGS, null as TSK);
+export const piecesmenu = settingFactory("piecesmenu", false, STORAGE_Prog_SETTINGS, null as TSK);
+// □7 块图标菜单独立开关（2026-09-01）：□3 三开关原一拖二连带块图标菜单（点块前小圆点
+// 弹的菜单）默认关，超出「右键清爽」拍板字面口径；拆独立门默认开（意图型入口不构成
+// 右键不清爽），管块图标菜单的渐进两项：跳到分片或回到原文 / 渐进阅读摘抄模式。
+export const blockIconMenu = settingFactory("blockIconMenu", true, STORAGE_Prog_SETTINGS, null as TSK);
 // v5 □7 设置砍半：words2dailycard/finishPieceCreateAt/PieceSummaryBoxmenu/merg2newBookEnable/
 // getAllPieceNotesEnable/multilineMarkEnable/send2* 六件/makeCard* 两件/summary2dailynote/
 // PieceMoving*/ProgressiveViewAllMenu 共 18 个显隐与计划流 store 退役（旧持久化值留着无害）。
@@ -572,7 +618,7 @@ export const flashcardUseLink = settingFactory("flashcardUseLink", true, STORAGE
 export const digestNoBacktraceLink = settingFactory("digestNoBacktraceLink", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const pieceNoBacktraceLink = settingFactory("pieceNoBacktraceLink", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveStart2learn = settingFactory("ProgressiveStart2learn", true, STORAGE_Prog_SETTINGS, null as TSK);
-export const ProgressiveJumpMenu = settingFactory("ProgressiveJumpMenu", true, STORAGE_Prog_SETTINGS, null as TSK);
+export const ProgressiveJumpMenu = settingFactory("ProgressiveJumpMenu", false, STORAGE_Prog_SETTINGS, null as TSK);
 // □12 退役（2026-08-30，旧持久化值留着无害）：markOriginText（制卡/摘抄在原文写 + 链接、
 // & 链接与 style 背景落盘）——摘抄标记零触碰统一，原文痕迹唯一机制=digestMarker span 渲染态。
 // v5 □12 语义更新：markOriginTextBG 从「写 style 到 .sy」改为「CSS div:has(> .prog-digest-mark)
@@ -593,6 +639,10 @@ export const floatbarMainBtns = settingFactory(
 // □10 已发布行为兼容
 export const floatbarFlatCollapsed = settingFactory(
     "floatbarFlatCollapsed", false, STORAGE_Prog_SETTINGS, null as TSK);
+// □2 ✂ 摘抄子排开合持久记忆（2026-09-01 用户反馈推翻 2026-08-31「每次出场重新展开」拍板）：
+// 收起/展开跨分片、跨会话记住用户选择；未存过值=开（与已发布的默认展开兼容）
+export const digSubrankOpen = settingFactory(
+    "digSubrankOpen", true, STORAGE_Prog_SETTINGS, null as TSK);
 
 // ---------------
 export const navSourceBlock = settingFactory("navSourceBlock", true, STORAGE_SETTINGS, null as TSK);

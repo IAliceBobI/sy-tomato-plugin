@@ -267,23 +267,6 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
                 return "temporarily hide the link of this document";
         }
     }
-    public get 清空() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "清空";
-            case "es_ES":
-                return "vaciar";
-            case "fr_FR":
-                return "vider";
-            case "ja_JP":
-                return "クリア";
-            case "zh_CHT":
-                return "清空";
-
-            default:
-                return "clear";
-        }
-    }
 
     public get 点击查看搜索语法() {
         switch (this.lang) {
