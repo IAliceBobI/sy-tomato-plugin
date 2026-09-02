@@ -19,7 +19,6 @@
         back_link_refresh_off,
         back_link_remove_refs,
         back_link_show_floatUI,
-        back_link_show_path,
         bk_refresh_interval_sec,
         bk_visible_only,
         bk启用禁用文档的底部反链menu,
@@ -88,11 +87,6 @@
             <div>
                 <input type="number" min="0" class="b3-text-field" bind:value={$back_link_mention_count} />
                 {tomatoI18n.mentionDocs最大展开的提及文件数}
-            </div>
-
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$back_link_show_path} />
-                {tomatoI18n.显示路径}
             </div>
 
             <div class="softBox">

@@ -492,23 +492,6 @@ export abstract class TomatoI18nABC8 extends TomatoI18nABC9 {
                 return "Add text to link";
         }
     }
-    public get 列数量留空为自动计算() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "列数量，留空为自动计算";
-            case "es_ES":
-                return "Número de columnas, dejar en blanco para cálculo automático";
-            case "fr_FR":
-                return "Nombre de colonnes, laisser vide pour calcul automatique";
-            case "ja_JP":
-                return "列数、空白の場合は自動計算";
-            case "zh_CHT":
-                return "列數量，留空為自動計算";
-
-            default:
-                return "Number of columns, leave blank for automatic calculation";
-        }
-    }
     public get 复制文档为标准Markdown() {
         switch (this.lang) {
             case "zh_CN":
@@ -817,23 +800,6 @@ export abstract class TomatoI18nABC8 extends TomatoI18nABC9 {
 
             default:
                 return "Add blank line at the end";
-        }
-    }
-    public get 简洁模式切换() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "正常/简洁模式切换";
-            case "es_ES":
-                return "Cambio entre modo normal/simplificado";
-            case "fr_FR":
-                return "Basculement entre le mode normal/simplifié";
-            case "ja_JP":
-                return "通常/シンプルモード切り替え";
-            case "zh_CHT":
-                return "正常/簡潔模式切換";
-
-            default:
-                return "Toggle normal/concise mode";
         }
     }
     public get 显示文档属性() {

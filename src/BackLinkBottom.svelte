@@ -1,9 +1,12 @@
 <script lang="ts">
+    // 底部反链面板 · 表达层（□4 视觉翻新，spec=docs/tomato-bk-bottom-visual-spec.md 唯一事实源）
+    // 机制零改动带：doGetBackLinks 数据流（含 bkState/unchanged 短路）、navigator.locks 锁、
+    // idsFilter 置底存储、keepHeight 滚动补偿、MutationObserver、refConceptClick 组合点击、
+    // moveProtyle protyle 复用、块属性 key 全集、BKMaker 生命周期。
     import { onDestroy, onMount } from "svelte";
     import {
         NewLute,
         NewNodeID,
-        Siyuan,
         add_href,
         attrNewLine,
         cleanDivOnly,
@@ -18,6 +21,7 @@
         siyuan,
         sleep,
     } from "./libs/utils";
+    import { debugLog } from "./libs/logUtils";
     import {
         getConceptTrees,
         sortDiv,
@@ -26,15 +30,14 @@
         createProtyle,
         closeProtyle,
     } from "./libs/bkUtils";
-    import { Dialog, Protyle } from "siyuan";
+    import { makeBkListState } from "./libs/bkRevision";
+    import { Dialog, Menu, Protyle } from "siyuan";
     import { BlockNodeEnum, DATA_ID, DATA_NODE_ID } from "./libs/gconst";
     import { BKMaker, showBkConTree } from "./BackLinkBottomBox";
     import { SearchEngine } from "./libs/search";
     import { events } from "./libs/Events";
     import { domBlankLine, domLnk, domNewLine } from "./libs/sydom";
     import { OpenSyFile2 } from "./libs/docUtils";
-    import BackLinkBottomAutoRefresh from "./BackLinkBottomAutoRefresh.svelte";
-    import BackLinkBottomOnceRefresh from "./BackLinkBottomOnceRefresh.svelte";
     import { writable } from "svelte/store";
     import {
         back_link_concept_fold,
@@ -42,7 +45,6 @@
         back_link_embed,
         back_link_max_size,
         back_link_mention_count,
-        back_link_more_btns,
         back_link_move_here,
         back_link_move_to_dailynote,
         back_link_move_with_backlink,
@@ -62,6 +64,8 @@
     type SavedQuery = { global: string; local: string };
     const QUERYABLE_ELEMENT = "QUERYABLE_ELEMENT";
     const ICONS_SIZE = 12;
+    /** 截断态正文 3 行 × 18px line-height（spec §2.3 高度预算） */
+    const CLAMP_MAX = "54px";
     const queryableElementAttr = $state({});
     const lute = NewLute();
 
@@ -85,48 +89,27 @@
     let hierarchyConcepts: Block[] = $state([]);
     let linkItems: LinkItem[] = $state([]);
     let linkItemsHierarchy: LinkItem[] = $state([]);
-    let block2lnks: Map<string, Set<LinkItem>> = $state(new Map());
     let searchText = $state("");
     let globalSearchText = $state("");
-    let searchFieldEle: HTMLInputElement = $state();
     let keepHeight: HTMLElement = $state();
-    let modeSwitchBtn: HTMLButtonElement = $state();
+    let gridEle: HTMLElement = $state();
     let hideThis = $state(false);
     let expandStatus = $state(true);
-    let divBorderColor: string = $state();
     let page = $state(0);
     let searchList: SavedQuery[] = $state([]);
-    const BACKLINKBOTTOMID = "backLinkBottomStyle2024831185229";
+    let refDocCount: number = $state(0);
+    let menDocCount: number = $state(0);
+    // □3 knownRevision 状态：组件级跨轮询存活，数据未变时轮询近零开销
+    const bkState = makeBkListState();
+    let sortBy = $state(SortType.UpdatedDESC);
+    // 手动列数覆盖（空=自动，custom-bkColCount 语义与存储零迁移，spec §2.2）
+    let colCount: string = $state();
+    const idsFilter = storeAttrManager();
+    onDestroy(() => {});
+    export function destroy() {}
+
     $effect(() => {
         maker.shouldFreeze = !$autoRefreshChecked;
-        if ($autoRefreshChecked) {
-            divBorderColor = "rgba(225, 7, 185, 0.05)";
-        } else {
-            divBorderColor = "";
-        }
-    });
-    $effect(() => {
-        if ($back_link_more_btns) {
-            if (modeSwitchBtn) modeSwitchBtn.textContent = "🍀";
-            const e = document.getElementById(BACKLINKBOTTOMID);
-            e?.parentElement?.removeChild(e);
-        }
-    });
-    $effect(() => {
-        if (!$back_link_more_btns) {
-            if (modeSwitchBtn) modeSwitchBtn.textContent = "🛠️";
-            const e = document.getElementById(BACKLINKBOTTOMID);
-            if (!e) {
-                let style = document.createElement("style");
-                style.id = BACKLINKBOTTOMID;
-                style.innerText = `
-                    [modeHide] {
-                        display: none !important;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-        }
     });
     $effect(() => {
         for (const b of backLinks) {
@@ -136,37 +119,6 @@
             }
         }
     });
-    let refDocCount: number = $state(0);
-    let menDocCount: number = $state(0);
-
-    let protyleDivWidth: string = $state();
-    let colCount: string = $state();
-    let sortBy = $state(SortType.UpdatedDESC);
-    let bkWidth: number = $state();
-    const modeHide = { modeHide: "1" };
-    $effect(() => {
-        if (bkWidth < 900 || Number(colCount) == 1) {
-            protyleDivWidth = "100%";
-        } else if (Number(colCount) > 1) {
-            protyleDivWidth = `calc(100% / ${Number(colCount)} - 5 * 5px)`;
-        } else {
-            let start = 900;
-            let count = 2;
-            let max = 30;
-            while (max-- > 0) {
-                if (bkWidth >= start && bkWidth < start + 400) {
-                    protyleDivWidth = `calc(100% / ${count} - 5 * 5px)`;
-                    break;
-                }
-                start += 400;
-                count++;
-            }
-        }
-    });
-    const idsFilter = storeAttrManager();
-    onDestroy(() => {});
-    export function destroy() {}
-
     $effect(() => {
         if (refDocCount < 0) refDocCount = 0;
     });
@@ -182,7 +134,6 @@
     }
 
     onMount(() => {
-        // console.time("onMount:" + maker.docName);
         paddingBottom();
 
         colCount = attrs["custom-bkColCount"] ?? "";
@@ -196,10 +147,6 @@
         if (!isValidNumber(menDocCount)) menDocCount = $back_link_mention_count;
 
         queryableElementAttr[QUERYABLE_ELEMENT] = "1";
-
-        if (events.isMobile) {
-            protyleDivWidth = "100%";
-        }
 
         (async () => {
             maker.refreshBK = async () => getBackLinks({ ifAvailable: true });
@@ -223,7 +170,6 @@
                 } catch (e) {}
             }
         })();
-        // console.timeEnd("onMount:" + maker.docName);
 
         const observer = new MutationObserver((mutations) => {
             mutations.forEach(function (mutation) {
@@ -239,11 +185,16 @@
         });
         protyle.protyle.wysiwyg.element.style.paddingBottom = "0px";
 
+        // 列宽变化（分屏拖动/列数覆盖）重测截断溢出：display:none 的卡量高恒 0 须换地方补测
+        const gridRO = new ResizeObserver(() => remeasureClamp());
+        if (gridEle) gridRO.observe(gridEle);
+
         dm.add("svelte clean", () => {
             const tmp = backLinks;
             backLinks = [];
             closeProtyle(...tmp);
             observer.disconnect();
+            gridRO.disconnect();
         });
 
         return () => {
@@ -271,14 +222,7 @@
                     if (caller && caller !== ON_LOAD) {
                         start = new Date().getTime();
                     }
-                    const {
-                        linkItems: a,
-                        backLinks: b,
-                        block2lnks: bl,
-                        hierarchyConcepts: h,
-                        linkItemsHierarchy: hi,
-                        maxPage: mp,
-                    } = await doGetBackLinks(
+                    const ret = await doGetBackLinks(
                         maker.docID,
                         globalSearchText,
                         sortBy,
@@ -287,25 +231,43 @@
                         maker.docName,
                         idsFilter,
                         page,
+                        bkState,
                     );
+                    if (ret?.unchanged) {
+                        // 列表级 revision 未变：来源/计数全没变，UI 零动作（近零开销轮询）
+                        debugLog("bk.get", `unchanged skip caller=${caller}`, "bk");
+                        return;
+                    }
+                    const {
+                        linkItems: a,
+                        backLinks: b,
+                        hierarchyConcepts: h,
+                        linkItemsHierarchy: hi,
+                        maxPage: mp,
+                    } = ret;
                     linkItems = a;
                     linkItemsHierarchy = hi;
                     if (caller == REFRESH) {
                         closeProtyle(...backLinks);
+                        carryExpanded(backLinks, b);
                         paddingBottom();
                         setTimeout(() => {
                             paddingBottom(false);
                         }, 3000);
                     } else if (caller == ON_PAGE) {
                         closeProtyle(...backLinks);
+                        carryExpanded(backLinks, b);
                         paddingBottom();
                     } else {
                         moveProtyle(backLinks, b);
                     }
                     backLinks = b;
-                    block2lnks = bl;
+                    // keyed each 对同 id 卡复用 DOM 不重跑 @attach：新对象 clampOverflow
+                    // 恒 undefined，必须统一补测（rAF 后 DOM 已 patch，读布局安全）
+                    requestAnimationFrame(remeasureClamp);
                     maxPage = mp;
                     hierarchyConcepts = h;
+                    debugLog("bk.get", `caller=${caller} docs=${b.length}/${mp + 1}p concepts=${a.length} g="${globalSearchText}" l="${searchText}"`, "bk");
                     if (start > 0) {
                         const end = new Date().getTime();
                         siyuan.pushMsg(
@@ -334,11 +296,24 @@
             if (n) {
                 n.protyle = o.protyle;
                 n.ob = o.ob;
+                // 展示态随卡走（protyle 复用同款通道）：数据变更轮询不把用户已展开的卡收回去
+                n.expanded = o.expanded;
                 o.protyle = null;
                 o.ob = null;
             }
         }
         closeProtyle(...olds);
+    }
+
+    /** REFRESH/ON_PAGE 分支 protyle 整体重建，但仍搬运 expanded 展示态（刷新不收卡） */
+    function carryExpanded(
+        olds: BacklinkSv<Protyle>[],
+        news: BacklinkSv<Protyle>[],
+    ) {
+        for (const o of olds) {
+            const n = news.find((n) => n.blockID == o.blockID);
+            if (n) n.expanded = o.expanded;
+        }
     }
 
     function refreshNow() {
@@ -378,10 +353,6 @@
     }
 
     async function search() {
-        if (searchFieldEle) {
-            const calced = (Math.max(searchText.length, 20) + 10) * 8;
-            searchFieldEle.style.width = calced + "px";
-        }
         if (!searchText.trim()) {
             maker.container
                 .querySelectorAll(`[${QUERYABLE_ELEMENT}]`)
@@ -402,7 +373,45 @@
                     }
                 });
         }
+        remeasureClamp();
         go2Top();
+    }
+
+    /** 显隐/换列后重测截断溢出（display:none 期间量高恒 0，恢复显示须补测） */
+    function remeasureClamp() {
+        for (const body of maker.container.querySelectorAll<HTMLElement>(
+            ".bk-body.clamped",
+        )) {
+            const inner = body.querySelector<HTMLElement>(".bk-body-inner");
+            const card = body.closest<HTMLElement>(".bk-card");
+            const bl = card && backLinks.find((b) => b.id === card.id);
+            if (bl && inner) {
+                bl.clampOverflow = inner.scrollHeight > inner.clientHeight + 4;
+            }
+        }
+    }
+
+    /** 卡片创建时初测：正文是否超 3 行（决定截断态渐隐+提示条是否渲染）；
+     *  图片异步加载会推高 scrollHeight，对未就绪的图挂一次性监听补测 */
+    function measureClamp(index: number) {
+        return (node: HTMLElement) => {
+            const measure = () => {
+                const bl = backLinks.at(index);
+                if (bl)
+                    bl.clampOverflow =
+                        node.scrollHeight > node.clientHeight + 4;
+            };
+            measure();
+            node.querySelectorAll("img").forEach((img) => {
+                if (!img.complete) {
+                    img.addEventListener(
+                        "load",
+                        () => remeasureClamp(),
+                        { once: true },
+                    );
+                }
+            });
+        };
     }
 
     function refClick(id: string) {
@@ -560,13 +569,6 @@
     function isBottom(backLink: BacklinkSv) {
         return idsFilter.getListString().has(backLink.blockID);
     }
-    function modeSwitch() {
-        if ($back_link_more_btns) {
-            back_link_more_btns.write(false);
-        } else {
-            back_link_more_btns.write(true);
-        }
-    }
     function getSearchListIdx(item: SavedQuery) {
         return searchList.findIndex((i) => {
             return i.global == item.global && i.local == item.local;
@@ -577,29 +579,28 @@
             "custom-bkSavedQueries": JSON.stringify(searchList),
         });
     }
-    async function clickSavedQuery(event: MouseEvent, item: SavedQuery) {
-        if (event.ctrlKey || event.altKey) {
-            const idx = getSearchListIdx(item);
-            if (idx > -1) {
-                searchList.splice(idx, 1);
-                searchList = searchList;
-                await saveSearchList();
-            }
+    async function clickSavedQuery(item: SavedQuery) {
+        if (item.global) {
+            globalSearchText = item.global;
+            await doGlobalSearch();
         } else {
-            if (item.global) {
-                globalSearchText = item.global;
-                await doGlobalSearch();
-            } else {
-                globalSearchText = "";
-            }
-            if (item.local) {
-                searchText = item.local;
-                setTimeout(() => {
-                    search();
-                }, 1000);
-            } else {
-                searchText = "";
-            }
+            globalSearchText = "";
+        }
+        if (item.local) {
+            searchText = item.local;
+            setTimeout(() => {
+                search();
+            }, 1000);
+        } else {
+            searchText = "";
+        }
+    }
+    async function delSavedQuery(item: SavedQuery) {
+        const idx = getSearchListIdx(item);
+        if (idx > -1) {
+            searchList.splice(idx, 1);
+            searchList = searchList;
+            await saveSearchList();
         }
     }
     async function doGlobalSearch() {
@@ -612,232 +613,407 @@
     function go2Top() {
         getDocLastElement(protyle?.protyle).scrollIntoView();
     }
+
+    // ---------------- 卡头路径解析（spec §4.1/§4.3） ----------------
+
+    function docPathOf(backLink: BacklinkSv) {
+        return (
+            backLink.bk.blockPaths.find(
+                (p) => p.type == BlockNodeEnum.NODE_DOCUMENT,
+            ) ?? {
+                id: backLink.blockID,
+                name: backLink.backlink?.name ?? "",
+            }
+        );
+    }
+    /** 中间段（非文档、非末块）：路径段开关开启时渲染为压缩纯文本 */
+    function midPathsOf(backLink: BacklinkSv) {
+        const paths = backLink.bk.blockPaths;
+        return paths
+            .slice(0, -1)
+            .filter((p) => p.type != BlockNodeEnum.NODE_DOCUMENT);
+    }
+    function pathTextOf(backLink: BacklinkSv) {
+        const mids = midPathsOf(backLink).map((p) =>
+            htmlUnescape(p.name ?? "")
+                .split("/")
+                .pop(),
+        );
+        return mids.length ? "…" + mids.join("/") + "/" : "";
+    }
+    function fullPathOf(backLink: BacklinkSv) {
+        return backLink.bk.blockPaths
+            .map((p) => htmlUnescape(p.name ?? ""))
+            .filter(Boolean)
+            .join(" / ");
+    }
+    function locateIDOf(backLink: BacklinkSv) {
+        const last = backLink.bk.blockPaths[
+            backLink.bk.blockPaths.length - 1
+        ];
+        return last?.id ?? backLink.blockID;
+    }
+
+    // ---------------- ⋯ 偏好菜单 / 卡 ⋯ 菜单（spec §3.2/§3.4） ----------------
+
+    /** independent 第三参防单例被同次 click 冒泡清空（debugging.md「思源 Menu 单例」坑） */
+    function newIndependentMenu(id: string): Menu {
+        return new (Menu as any)(id, undefined, true) as Menu;
+    }
+    function openAt(anchor: HTMLElement, menu: Menu) {
+        const rect = anchor.getBoundingClientRect();
+        setTimeout(() => menu.open({ x: rect.left, y: rect.bottom + 4 }), 0);
+    }
+    function menuGroup(menu: Menu, label: string) {
+        menu.addItem({
+            type: "readonly",
+            label,
+            bind: (el) => el.classList.add("tomato-bk-menu-group"),
+        } as any);
+    }
+    /** 数字行：input 即时写块属性/store（与旧常驻输入框 oninput 行为一致，仅位置移入菜单） */
+    function menuNumRow(
+        label: string,
+        value: string,
+        opt: { onFocus?: () => void; onInput: (v: string) => void },
+    ): HTMLElement {
+        const row = document.createElement("div");
+        row.className = "tomato-bk-menu-row";
+        const lab = document.createElement("span");
+        lab.className = "tomato-bk-menu-row__label";
+        lab.textContent = label;
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "b3-text-field tomato-bk-menu-row__input";
+        input.value = value;
+        if (opt.onFocus) input.addEventListener("focus", opt.onFocus);
+        input.addEventListener("input", () => opt.onInput(input.value));
+        row.append(lab, input);
+        return row;
+    }
+    function menuSwitchRow(
+        label: string,
+        checked: boolean,
+        onToggle: (v: boolean) => void,
+    ): HTMLElement {
+        const row = document.createElement("div");
+        row.className = "tomato-bk-menu-row";
+        const lab = document.createElement("span");
+        lab.className = "tomato-bk-menu-row__label";
+        lab.textContent = label;
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.className = "b3-switch b3-switch--menu";
+        input.checked = checked;
+        input.addEventListener("change", () => onToggle(input.checked));
+        row.append(lab, input);
+        return row;
+    }
+
+    function openPrefMenu(anchor: HTMLElement) {
+        const menu = newIndependentMenu("tomatoBkPrefMenu");
+        menu.element.style.minWidth = "240px";
+        menuGroup(menu, tomatoI18n.范围);
+        menu.addItem({
+            element: menuNumRow(
+                tomatoI18n.maxBkDocs最大展开的反链文件数,
+                String(refDocCount),
+                {
+                    onFocus: () => ($autoRefreshChecked = true),
+                    onInput: (v) => {
+                        refDocCount = Number(v) || 0;
+                        page = 0;
+                        siyuan.setBlockAttrs(maker.docID, {
+                            "custom-bkRefDocCount": String(refDocCount),
+                        });
+                    },
+                },
+            ),
+        });
+        menu.addItem({
+            element: menuNumRow(
+                tomatoI18n.mentionDocs最大展开的提及文件数,
+                String(menDocCount),
+                {
+                    onFocus: () => ($autoRefreshChecked = true),
+                    onInput: (v) => {
+                        menDocCount = Number(v) || 0;
+                        page = 0;
+                        siyuan.setBlockAttrs(maker.docID, {
+                            "custom-bkMenDocCount": String(menDocCount),
+                        });
+                    },
+                },
+            ),
+        });
+        menuGroup(menu, tomatoI18n.布局);
+        menu.addItem({
+            element: menuNumRow(tomatoI18n.列数, colCount ?? "", {
+                onFocus: () => ($autoRefreshChecked = false),
+                onInput: (v) => {
+                    colCount = v;
+                    siyuan.setBlockAttrs(maker.docID, {
+                        "custom-bkColCount": v,
+                    });
+                    setTimeout(remeasureClamp, 50);
+                },
+            }),
+        });
+        menu.addItem({
+            element: menuNumRow(
+                tomatoI18n.预览高度,
+                $back_link_protyle_height,
+                {
+                    onInput: (v) => {
+                        back_link_protyle_height.write(v);
+                    },
+                },
+            ),
+        });
+        menu.addSeparator();
+        menuGroup(menu, tomatoI18n.显示);
+        menu.addItem({
+            element: menuSwitchRow(
+                tomatoI18n.暂时隐藏本文档链接,
+                hideThis,
+                (v) => (hideThis = v),
+            ),
+        });
+        menu.addItem({
+            element: menuSwitchRow(
+                tomatoI18n.路径段显示,
+                $back_link_show_path,
+                (v) => back_link_show_path.write(v),
+            ),
+        });
+        menuGroup(menu, tomatoI18n.工具);
+        menu.addItem({
+            icon: "iconGraph",
+            label: tomatoI18n.openConceptForest打开层级概念,
+            click: () => {
+                const roots = getConceptTrees(linkItemsHierarchy);
+                showBkConTree(roots);
+            },
+        });
+        menu.addItem({
+            icon: "iconKey",
+            label: tomatoI18n.插入相关的层级概念,
+            click: () => {
+                insertConcepts(maker.plugin, maker.docID, hierarchyConcepts);
+            },
+        });
+        openAt(anchor, menu);
+    }
+
+    /** 卡 ⋯ 菜单：9 动作收纳（各动作行为逐字沿用旧常驻按钮，spec §3.4；开关关闭的项不渲染）。
+     *  菜单开着期间轮询可能已换新对象数组：闭包捕获的 backLink 过期（置底 priSort 对
+     *  数组外旧对象无效且无自愈），各 click 一律按 blockID 现查活对象（reasoning 评审 P1-3） */
+    function openCardMenu(anchor: HTMLElement, backLink: BacklinkSv) {
+        const menu = newIndependentMenu("tomatoBkCardMenu");
+        const live = () =>
+            backLinks.find((x) => x.blockID === backLink.blockID) ?? backLink;
+        if ($back_link_move_here) {
+            menu.addItem({
+                icon: "iconMove",
+                label: tomatoI18n.移动到文档,
+                click: async () => {
+                    $autoRefreshChecked = false;
+                    siyuan.pushMsg("Move");
+                    await move2doc(live());
+                },
+            });
+        }
+        if ($back_link_move_to_dailynote) {
+            menu.addItem({
+                icon: "iconCalendar",
+                label: tomatoI18n.移动到Dailynote,
+                click: async () => {
+                    $autoRefreshChecked = false;
+                    siyuan.pushMsg("Calendar");
+                    await move2dailynote(live());
+                },
+            });
+        }
+        if ($back_link_remove_refs && !backLink.isMention) {
+            menu.addItem({
+                icon: "iconUnpin",
+                label: tomatoI18n.把指向当前文档的引用删除,
+                click: async () => {
+                    siyuan.pushMsg("Unpin");
+                    await removeRefs(live().bk.dom, maker.docID);
+                    await sleep(1000);
+                    await getBackLinks({ mode: "exclusive" }, "unpin");
+                },
+            });
+        }
+        if ($back_link_copy) {
+            menu.addItem({
+                icon: "iconCopy",
+                label: tomatoI18n.复制到文档,
+                click: async () => {
+                    siyuan.pushMsg("Copy");
+                    await copy2doc(live());
+                },
+            });
+        }
+        if ($back_link_embed) {
+            menu.addItem({
+                icon: "iconSQL",
+                label: tomatoI18n.嵌入到文档,
+                click: async () => {
+                    siyuan.pushMsg("SQL");
+                    await embed2doc(live());
+                },
+            });
+        }
+        if ($back_link_ref) {
+            menu.addItem({
+                icon: "iconRef",
+                label: tomatoI18n.引用到文档,
+                click: async () => {
+                    siyuan.pushMsg("Ref");
+                    await ref2doc(live());
+                },
+            });
+        }
+        const bl = live();
+        if (isBottom(bl)) {
+            menu.addItem({
+                icon: "iconRestore",
+                label: tomatoI18n.恢复到原来的位置,
+                click: () => {
+                    $autoRefreshChecked = true;
+                    idsFilter.delListString(backLink.blockID);
+                    idsFilter.save();
+                    priSort(false, bl);
+                    getBackLinks({ mode: "exclusive" }, "pri");
+                },
+            });
+        } else {
+            menu.addItem({
+                icon: "iconDown",
+                label: tomatoI18n.永久置于底部,
+                click: () => {
+                    $autoRefreshChecked = false;
+                    idsFilter.addListString(backLink.blockID);
+                    idsFilter.save();
+                    priSort(true, bl);
+                },
+            });
+        }
+        menu.addItem({
+            icon: "iconUp",
+            label: tomatoI18n.滑动到顶部,
+            click: () => go2Top(),
+        });
+        openAt(anchor, menu);
+    }
 </script>
 
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- ///////////////////////////////////////////////////// -->
-<!-- https://learn.svelte.dev/tutorial/if-blocks -->
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-<div>
-    <div class="search-bar">
-        <!-- <hr bind:this={splitHR} {...modeHide} /> -->
-        <!-- 简洁模式 -->
-        <button
-            bind:this={modeSwitchBtn}
-            title={tomatoI18n.简洁模式切换}
-            class="bk_label"
-            onclick={modeSwitch}>🍀</button
-        >
-        <!-- 跳上去 -->
-        <button
-            title={tomatoI18n.跳转顶部}
-            class="bk_label b3-label__text"
-            onclick={() => {
-                const titleEle = document.querySelector(
-                    `div.protyle-wysiwyg--attr[data-node-id="${maker.docID}"]`,
-                );
-                titleEle?.scrollIntoView();
-            }}
-        >
-            {@html icon("Up", ICONS_SIZE)}
-        </button>
-        <!-- 概念栏 -->
-        <div class="bk_flex" {...modeHide}>
-            <!-- 最大展开的反链文件数 -->
-            <label
-                class="conceptMargin"
-                title={tomatoI18n.maxBkDocs最大展开的反链文件数}
+<div class="bk-panel">
+    <div class="bk-toolbar">
+        <!-- 控制行：自动/暂停 + 立即刷新 + 分页 + 排序 + 收缩概念区 + ⋯ 偏好（spec §3.1） -->
+        <div class="bk-toolbar-row">
+            <input
+                type="checkbox"
+                class="b3-switch bk-toggle b3-tooltips b3-tooltips__s"
+                aria-label={`${tomatoI18n.自动刷新}（${$autoRefreshChecked
+                    ? tomatoI18n.刷新中
+                    : tomatoI18n.不刷新}）`}
+                bind:checked={$autoRefreshChecked}
+            />
+            <button
+                class="bk-icon-btn b3-tooltips b3-tooltips__s"
+                aria-label={tomatoI18n.立即刷新}
+                onclick={() => refreshNow()}>{@html icon("Refresh", 14)}</button
             >
-                <input
-                    class="b3-text-field numInput"
-                    bind:value={refDocCount}
-                    onfocus={() => ($autoRefreshChecked = true)}
-                    oninput={() => {
-                        page = 0;
-                        siyuan.setBlockAttrs(maker.docID, {
-                            "custom-bkRefDocCount": refDocCount.toString(),
-                        });
-                    }}
-                />
-            </label>
-            <!-- 最大展开的提及文件数 -->
-            <label
-                class="conceptMargin"
-                title={tomatoI18n.mentionDocs最大展开的提及文件数}
-            >
-                <input
-                    class="b3-text-field numInput"
-                    bind:value={menDocCount}
-                    onfocus={() => ($autoRefreshChecked = true)}
-                    oninput={() => {
-                        page = 0;
-                        siyuan.setBlockAttrs(maker.docID, {
-                            "custom-bkMenDocCount": menDocCount.toString(),
-                        });
-                    }}
-                />
-            </label>
-            <!-- 分页 -->
-            <label class="conceptMargin">
+            <span class="bk-pager">
                 <button
-                    title={tomatoI18n.上一页}
-                    class="bk_label"
+                    class="bk-icon-btn b3-tooltips b3-tooltips__s"
+                    aria-label={tomatoI18n.上一页}
                     onclick={() => {
                         page = Math.max(0, page - 1);
                         refreshOnPage();
-                    }}
+                    }}>{@html icon("Back", ICONS_SIZE)}</button
                 >
-                    ⏪</button
-                >
+                <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
                 <strong
+                    class="bk-pager-num b3-tooltips b3-tooltips__s"
+                    aria-label={tomatoI18n.回到第一页}
                     onclick={() => {
                         page = 0;
                         refreshOnPage();
-                    }}
-                    title={tomatoI18n.回到第一页}>{page + 1}/{maxPage}</strong
+                    }}>{page + 1}/{maxPage}</strong
                 >
                 <button
-                    title={tomatoI18n.下一页}
-                    class="bk_label"
+                    class="bk-icon-btn b3-tooltips b3-tooltips__s"
+                    aria-label={tomatoI18n.下一页}
                     onclick={() => {
                         page++;
                         refreshOnPage();
-                    }}>⏩</button
+                    }}>{@html icon("Forward", ICONS_SIZE)}</button
                 >
-            </label>
-            <!-- 收缩此双链栏 -->
-            <label class="conceptMargin">
-                <button
-                    title={tomatoI18n.foldRefBar收缩此双链栏}
-                    class="bk_label"
-                    onclick={() => expand()}
-                    >{expandStatus ? "🔥" : "💧"}</button
-                >
-            </label>
-            <!-- 层级概念 -->
-            <label class="conceptMargin">
-                <button
-                    title={tomatoI18n.openConceptForest打开层级概念}
-                    class="bk_label"
-                    onclick={() => {
-                        const roots = getConceptTrees(linkItemsHierarchy);
-                        showBkConTree(roots);
-                    }}>🌲</button
-                >
-            </label>
-            <!-- 插入相关概念 -->
-            <label class="conceptMargin">
-                <button
-                    title={tomatoI18n.插入相关的层级概念}
-                    class="bk_label"
-                    onclick={() => {
-                        insertConcepts(
-                            maker.plugin,
-                            maker.docID,
-                            hierarchyConcepts,
-                        );
-                    }}>🔑</button
-                >
-            </label>
-            <!-- 暂时隐藏本文档链接 -->
-            <label class="conceptMargin">
-                <button
-                    title={tomatoI18n.暂时隐藏本文档链接}
-                    class="bk_label b3-label__text"
-                    onclick={() => (hideThis = !hideThis)}
-                >
-                    {hideThis ? "🙈" : "👀"}
-                </button>
-            </label>
-            <!-- 创建时间升序 -->
-            <label class="conceptMargin">
-                <select
-                    class="b3-select"
-                    bind:value={sortBy}
-                    onfocus={() => ($autoRefreshChecked = false)}
-                    onchange={() => {
-                        getBackLinks({ mode: "exclusive" }, "sort");
-                        siyuan.setBlockAttrs(maker.docID, {
-                            "custom-bkSortBy": sortBy,
-                        });
-                    }}
-                >
-                    <option value={SortType.AlphanumASC}>
-                        {tomatoI18n.标题自然数升序}
-                    </option>
-                    <option value={SortType.AlphanumDESC}>
-                        {tomatoI18n.标题自然数降序}
-                    </option>
-                    <option value={SortType.NameASC}>
-                        {tomatoI18n.标题字母升序}
-                    </option>
-                    <option value={SortType.NameDESC}>
-                        {tomatoI18n.标题字母降序}
-                    </option>
-                    <option value={SortType.CreatedASC}>
-                        {tomatoI18n.创建时间升序}
-                    </option>
-                    <option value={SortType.CreatedDESC}>
-                        {tomatoI18n.创建时间降序}
-                    </option>
-                    <option value={SortType.UpdatedASC}>
-                        {tomatoI18n.修改时间升序}
-                    </option>
-                    <option value={SortType.UpdatedDESC}>
-                        {tomatoI18n.修改时间降序}
-                    </option>
-                </select></label
+            </span>
+            <select
+                class="b3-select bk-sort"
+                aria-label={tomatoI18n.排序}
+                bind:value={sortBy}
+                onfocus={() => ($autoRefreshChecked = false)}
+                onchange={() => {
+                    getBackLinks({ mode: "exclusive" }, "sort");
+                    siyuan.setBlockAttrs(maker.docID, {
+                        "custom-bkSortBy": sortBy,
+                    });
+                }}
             >
-            <!-- 列数量 -->
-            <label
-                title={tomatoI18n.列数量留空为自动计算}
-                class="conceptMargin"
+                <option value={SortType.AlphanumASC}>
+                    {tomatoI18n.标题自然数升序}
+                </option>
+                <option value={SortType.AlphanumDESC}>
+                    {tomatoI18n.标题自然数降序}
+                </option>
+                <option value={SortType.NameASC}>
+                    {tomatoI18n.标题字母升序}
+                </option>
+                <option value={SortType.NameDESC}>
+                    {tomatoI18n.标题字母降序}
+                </option>
+                <option value={SortType.CreatedASC}>
+                    {tomatoI18n.创建时间升序}
+                </option>
+                <option value={SortType.CreatedDESC}>
+                    {tomatoI18n.创建时间降序}
+                </option>
+                <option value={SortType.UpdatedASC}>
+                    {tomatoI18n.修改时间升序}
+                </option>
+                <option value={SortType.UpdatedDESC}>
+                    {tomatoI18n.修改时间降序}
+                </option>
+            </select>
+            <button
+                class="bk-icon-btn bk-fold b3-tooltips b3-tooltips__s"
+                aria-label={tomatoI18n.foldRefBar收缩此双链栏}
+                onclick={() => expand()}
             >
-                <input
-                    placeholder="col"
-                    class="b3-text-field numInput"
-                    bind:value={colCount}
-                    onfocus={() => ($autoRefreshChecked = false)}
-                    oninput={() =>
-                        siyuan.setBlockAttrs(maker.docID, {
-                            "custom-bkColCount": colCount,
-                        })}
-                />
-            </label>
-            <!-- 高度 -->
-            <label title={tomatoI18n.高度} class="conceptMargin">
-                <input
-                    placeholder="200"
-                    class="b3-text-field numInput"
-                    bind:value={$back_link_protyle_height}
-                    oninput={() => {
-                        back_link_protyle_height.write();
-                    }}
-                />
-            </label>
-            <!-- 概念 -->
-            {#if expandStatus}
+                {#if expandStatus}
+                    {@html icon("Contract", 14)}
+                {:else}
+                    <span class="bk-fold-count"
+                        >{tomatoI18n.概念}·{linkItems.length}</span
+                    >
+                    {@html icon("Expand", 14)}
+                {/if}
+            </button>
+            <button
+                class="bk-icon-btn b3-tooltips b3-tooltips__s"
+                aria-label={tomatoI18n.偏好设置}
+                onclick={(e) => openPrefMenu(e.currentTarget)}>{@html icon("More", 14)}</button
+            >
+        </div>
+        <!-- 概念行（收缩时整行消失，仅控制行收缩钮带计数） -->
+        {#if expandStatus}
+            <div class="bk-concepts">
                 {#each linkItems as { text, id, count, attrs } (id)}
                     {#if /\d{4}-\d{2}-\d{2}/.test(text)}
                         <span></span>
@@ -845,97 +1021,81 @@
                         <span></span>
                     {:else}
                         <button
-                            {...{ "tomato-bk-ref": "1" }}
                             {...attrs}
-                            title={`[[${text}]]: ${tomatoI18n.conceptBarTitle点击}`}
-                            {...attrs}
-                            class="bk_label b3-label__text"
+                            class="bk-chip b3-tooltips b3-tooltips__s"
+                            aria-label={`${text}\n${tomatoI18n.组合点击提示}`}
                             onclick={(event) =>
                                 refConceptClick(event, text, id)}
-                            >[[ {text} ]]
-                            <span class="bk_ref_count">{count}</span></button
                         >
+                            {text}<span class="bk-chip-count">{count}</span>
+                        </button>
                     {/if}
                 {/each}
-            {:else if linkItems.length > 0}
-                <!-- 展开此双链栏 -->
-                <button
-                    title={tomatoI18n.foldRefBar收缩此双链栏}
-                    class="bk_label b3-label__text"
-                    onclick={() => {
-                        expand();
-                    }}
-                >
-                    [[ ··· ]]
-                </button>
-            {/if}
-        </div>
-        <!-- 搜索精细过滤 -->
-        <div class="bk_flex" {...modeHide}>
-            <!-- 搜索 -->
-            <label title={tomatoI18n.搜索反链提及}>
-                <input
-                    class="b3-text-field searchField"
-                    placeholder={tomatoI18n.ctrl点击清空enter搜索}
-                    onblur={() => paddingBottom(false)}
-                    onfocus={() => {
-                        paddingBottom();
-                        $autoRefreshChecked = false;
-                    }}
-                    bind:value={globalSearchText}
-                    onclick={(event) => {
-                        if (event.altKey || event.ctrlKey) {
-                            globalSearchText = "";
-                            doGlobalSearch();
-                        }
-                    }}
-                    onkeypress={(event) => {
-                        if (event.key === "Enter") {
-                            doGlobalSearch();
-                        }
-                    }}
-                />
-            </label>
-            <!-- 精细过滤 -->
-            <label title={tomatoI18n.过滤下面显示的反链提及}>
-                <input
-                    bind:this={searchFieldEle}
-                    class="b3-text-field searchField"
-                    placeholder={tomatoI18n.ctrl点击清空enter搜索}
-                    onclick={(event) => {
-                        if (event.altKey || event.ctrlKey) {
-                            searchText = "";
-                            search();
-                        }
-                        $autoRefreshChecked = false;
-                    }}
-                    onblur={() => paddingBottom(false)}
-                    onfocus={() => {
-                        paddingBottom();
-                        $autoRefreshChecked = false;
-                    }}
-                    bind:value={searchText}
-                    onkeypress={(event) => {
-                        if (event.key === "Enter") {
-                            search();
-                        }
-                    }}
-                />
-                <button
-                    class="bk_label b3-label__text"
-                    title={tomatoI18n.点击查看搜索语法}
-                    onclick={() =>
-                        new Dialog({
-                            width: events.isMobile ? "90vw" : "700px",
-                            height: events.isMobile ? "180svw" : null,
-                            title: tomatoI18n.搜索语法,
-                            content: tomatoI18n.SEARCH_HELP,
-                        })}>{@html icon("Help", ICONS_SIZE)}</button
-                >
-            </label>
+            </div>
+        {/if}
+        <!-- 搜索行：全局重查 + 本地过滤 双框语义（spec §7） -->
+        <div class="bk-searchbar">
+            <input
+                type="text"
+                class="b3-text-field bk-search"
+                placeholder={tomatoI18n.全局搜索占位}
+                aria-label={tomatoI18n.搜索反链提及}
+                onblur={() => paddingBottom(false)}
+                onfocus={() => {
+                    paddingBottom();
+                    $autoRefreshChecked = false;
+                }}
+                bind:value={globalSearchText}
+                onclick={(event) => {
+                    if (event.altKey || event.ctrlKey) {
+                        globalSearchText = "";
+                        doGlobalSearch();
+                    }
+                }}
+                onkeypress={(event) => {
+                    if (event.key === "Enter") {
+                        doGlobalSearch();
+                    }
+                }}
+            />
+            <input
+                type="text"
+                class="b3-text-field bk-search"
+                placeholder={tomatoI18n.本地过滤占位}
+                aria-label={tomatoI18n.过滤下面显示的反链提及}
+                onclick={(event) => {
+                    if (event.altKey || event.ctrlKey) {
+                        searchText = "";
+                        search();
+                    }
+                    $autoRefreshChecked = false;
+                }}
+                onblur={() => paddingBottom(false)}
+                onfocus={() => {
+                    paddingBottom();
+                    $autoRefreshChecked = false;
+                }}
+                bind:value={searchText}
+                onkeypress={(event) => {
+                    if (event.key === "Enter") {
+                        search();
+                    }
+                }}
+            />
             <button
-                title={tomatoI18n.保存查询条件}
-                class="bk_label"
+                class="bk-icon-btn b3-tooltips b3-tooltips__s"
+                aria-label={tomatoI18n.点击查看搜索语法}
+                onclick={() =>
+                    new Dialog({
+                        width: events.isMobile ? "90vw" : "700px",
+                        height: events.isMobile ? "180svw" : null,
+                        title: tomatoI18n.搜索语法,
+                        content: tomatoI18n.SEARCH_HELP,
+                    })}>{@html icon("Help", ICONS_SIZE)}</button
+            >
+            <button
+                class="bk-icon-btn b3-tooltips b3-tooltips__s"
+                aria-label={tomatoI18n.保存查询条件}
                 onclick={() => {
                     if (globalSearchText || searchText) {
                         const item = {
@@ -949,261 +1109,158 @@
                             saveSearchList();
                         }
                     }
-                }}
+                }}>{@html icon("Add", 14)}</button
             >
-                💾</button
-            >
-            {#each searchList as i}
-                <label title={tomatoI18n.点击查询ctrl点击删除}>
+            {#each searchList as i (i.global + "#" + i.local)}
+                <span class="bk-saved-chip">
                     <button
-                        class="bk_label b3-label__text"
+                        class="bk-chip b3-tooltips b3-tooltips__s"
+                        aria-label={tomatoI18n.点击应用查询}
+                        onclick={() => clickSavedQuery(i)}
+                    >
+                        {`${i.global}${i.local ? "#" + i.local : ""}`}
+                    </button>
+                    <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+                    <span
+                        class="bk-chip-x b3-tooltips b3-tooltips__s"
+                        aria-label={tomatoI18n.删除此查询}
                         onclick={(e) => {
-                            clickSavedQuery(e, i);
-                        }}
+                            e.stopPropagation();
+                            delSavedQuery(i);
+                        }}>{@html icon("Close", ICONS_SIZE)}</span
                     >
-                        {`${i.global}${i.local ? "#" + i.local : ""}`}</button
-                    >
-                </label>
+                </span>
             {/each}
         </div>
     </div>
-    <!-- 反链、提及 -->
-    <div class="bk_protyle" bind:clientWidth={bkWidth}>
-        <!-- 遍历每一个反链，渲染出来 -->
+    <!-- 卡片网格：auto-fill 自动档 + 手动列数覆盖（spec §2.2；移动端恒 1 列，inline 覆盖不生效） -->
+    <div
+        class="bk-grid"
+        class:mobile={events.isMobile}
+        style={!events.isMobile &&
+        colCount &&
+        Number(colCount) > 0
+            ? `grid-template-columns: repeat(${Number(colCount)}, minmax(0, 1fr));`
+            : ""}
+        bind:this={gridEle}
+    >
         {#each backLinks as backLink, index (backLink.id)}
-            {#if hideThis && backLink.attrs.isThisDoc}
-                <span></span>
-            {:else}
-                <!-- 要设置每一个反链与反链之间的框框，以及他们的间隔 -->
-                <div
+            {#if !(hideThis && backLink.attrs.isThisDoc)}
+                <article
                     id={backLink.id}
                     {...queryableElementAttr}
                     {...backLink.attrs}
-                    style="background-color: {divBorderColor}; width: {protyleDivWidth};"
-                    class="buttom-bk-borderedDiv borderedDiv"
+                    class="bk-card"
+                    class:order-ref={!backLink.isMention}
+                    class:order-men={backLink.isMention}
                 >
-                    <!-- 序号-->
-                    <span
-                        class:order-men={backLink.isMention}
-                        class:order-ref={!backLink.isMention}
-                        class="bk_label b3-label__text">({index + 1})</span
-                    >
-
-                    <!-- 路径 -->
-                    {#each backLink.bk.blockPaths as blockPath, i (blockPath.id)}
-                        <span
-                            {...backLink.attrs}
-                            title={htmlUnescape(blockPath.name)}
-                            class="bk_label b3-label__text"
-                        >
-                            {#if i == backLink.bk.blockPaths.length - 1}
-                                <!-- 向上扩散 -->
-                                {#if backLink.parentID}
-                                    <button
-                                        title={`${tomatoI18n.定位}(${tomatoI18n.引用已向上传递})`}
-                                        class:order-men={backLink.isMention}
-                                        class:order-ref={!backLink.isMention}
-                                        {...backLink.attrs}
-                                        class="bk_label b3-label__text"
-                                        onclick={() => refClick(blockPath.id)}
-                                        >🚀</button
-                                    >
-                                {:else}
-                                    <button
-                                        title={tomatoI18n.定位}
-                                        class:order-men={backLink.isMention}
-                                        class:order-ref={!backLink.isMention}
-                                        {...backLink.attrs}
-                                        class="bk_label b3-label__text"
-                                        onclick={() => refClick(blockPath.id)}
-                                        >🔍</button
-                                    >
-                                {/if}
-                            {:else if blockPath.type == BlockNodeEnum.NODE_DOCUMENT}
-                                <!-- 路径：文档名 -->
-                                <button
-                                    class:order-men={backLink.isMention}
-                                    class:order-ref={!backLink.isMention}
-                                    {...backLink.attrs}
-                                    class="bk_label b3-label__text"
-                                    title={`[[${blockPath.name}]]: ${tomatoI18n.conceptBarTitle点击}`}
-                                    onclick={(event) => {
-                                        refConceptClick(
-                                            event,
-                                            blockPath.name.split("/").pop(),
-                                            blockPath.id,
-                                        );
-                                    }}
-                                    >{@html blockPath.name
-                                        .split("/")
-                                        .pop()}</button
-                                >
-                            {:else if $back_link_show_path}
-                                <button
-                                    class:order-men={backLink.isMention}
-                                    class:order-ref={!backLink.isMention}
-                                    {...backLink.attrs}
-                                    class="bk_label b3-label__text"
-                                    onclick={() => refClick(blockPath.id)}
-                                    >{"[*]"}</button
-                                >
-                            {/if}
-                        </span>
-                    {/each}
-
-                    <!-- 内部工具 -->
-                    <span {...modeHide}>
-                        {#if $back_link_move_here}
-                            <button
-                                class="gap bk_label b3-button b3-button--text"
-                                title={tomatoI18n.移动到文档}
-                                onclick={async () => {
-                                    $autoRefreshChecked = false;
-                                    siyuan.pushMsg("Move");
-                                    await move2doc(backLink);
-                                }}>{@html icon("Move")}</button
-                            >
-                        {/if}
-                        {#if $back_link_move_to_dailynote}
-                            <button
-                                class="gap bk_label b3-button b3-button--text"
-                                title={tomatoI18n.移动到Dailynote}
-                                onclick={async () => {
-                                    $autoRefreshChecked = false;
-                                    siyuan.pushMsg("Calendar");
-                                    await move2dailynote(backLink);
-                                }}>{@html icon("Calendar")}</button
-                            >
-                        {/if}
-                        {#if $back_link_remove_refs && !backLink.isMention}
-                            <button
-                                class="gap bk_label b3-button b3-button--text"
-                                title={tomatoI18n.把指向当前文档的引用删除}
-                                onclick={async () => {
-                                    siyuan.pushMsg("Unpin");
-                                    await removeRefs(
-                                        backLink.bk.dom,
-                                        maker.docID,
-                                    );
-                                    await sleep(1000);
-                                    await getBackLinks(
-                                        { mode: "exclusive" },
-                                        "unpin",
-                                    );
-                                }}>{@html icon("Unpin")}</button
-                            >
-                        {/if}
-                        {#if $back_link_copy}
-                            <button
-                                class="gap bk_label b3-button b3-button--text"
-                                title={tomatoI18n.复制到文档}
-                                onclick={async () => {
-                                    siyuan.pushMsg("Copy");
-                                    await copy2doc(backLink);
-                                }}>{@html icon("Copy")}</button
-                            >
-                        {/if}
-                        {#if $back_link_embed}
-                            <button
-                                class="gap bk_label b3-button b3-button--text"
-                                title={tomatoI18n.嵌入到文档}
-                                onclick={async () => {
-                                    siyuan.pushMsg("SQL");
-                                    await embed2doc(backLink);
-                                }}>{@html icon("SQL")}</button
-                            >
-                        {/if}
-                        {#if $back_link_ref}
-                            <button
-                                class="gap bk_label b3-button b3-button--text"
-                                title={tomatoI18n.引用到文档}
-                                onclick={async () => {
-                                    siyuan.pushMsg("Ref");
-                                    await ref2doc(backLink);
-                                }}>{@html icon("Ref")}</button
-                            >
-                        {/if}
+                    <!-- 卡头：色点 | 文档名 | 定位 | ⋯（spec §4.1/§4.3） -->
+                    <header class="bk-card-head">
+                        <i class="bk-dot" aria-hidden="true"></i>
                         {#if isBottom(backLink)}
-                            <button
-                                class="gap bk_label b3-button b3-button--text"
-                                title={tomatoI18n.恢复到原来的位置}
-                                onclick={() => {
-                                    $autoRefreshChecked = true;
-                                    idsFilter.delListString(backLink.blockID);
-                                    idsFilter.save();
-                                    priSort(false, backLink);
-                                    getBackLinks({ mode: "exclusive" }, "pri");
-                                }}>⏫</button
-                            >
-                        {:else}
-                            <button
-                                class="gap bk_label b3-button b3-button--text"
-                                title={tomatoI18n.永久置于底部}
-                                onclick={() => {
-                                    $autoRefreshChecked = false;
-                                    idsFilter.addListString(backLink.blockID);
-                                    idsFilter.save();
-                                    priSort(true, backLink);
-                                }}>⏬</button
+                            <span
+                                class="bk-bottom-mark b3-tooltips b3-tooltips__s"
+                                aria-label={tomatoI18n.永久置于底部}
+                                >{@html icon("Down", 10)}</span
                             >
                         {/if}
-                        <!-- 滑动到顶部 -->
-                        <button
-                            title={tomatoI18n.滑动到顶部}
-                            class="b3-button b3-button--text tomato-button"
-                            onclick={go2Top}
-                        >
-                            ⬆️</button
-                        >
-                        <!-- 自动刷新 -->
-                        <BackLinkBottomAutoRefresh {autoRefreshChecked} />
-                        <!-- 立即刷新 -->
-                        <BackLinkBottomOnceRefresh callback={refreshNow} />
-                    </span>
-
-                    <!-- 反链，提及，概念 -->
-                    <!-- 概念 -->
-                    <span
-                        onclick={() => ($autoRefreshChecked = false)}
-                        style="font-size: {Siyuan.config.editor.fontSize -
-                            6}px;"
-                    >
-                        {#each [...(block2lnks.get(backLink.blockID) ?? [])] as linkItem}
-                            {#if linkItem.id != maker.docID && !backLink.bk.blockPaths.find((v) => v.id == linkItem.id)}
-                                <button
-                                    title={`[[${linkItem.text}]]: ${tomatoI18n.conceptBarTitle点击}`}
-                                    class="bk_label b3-label__text"
-                                    onclick={(event) =>
-                                        refConceptClick(
-                                            event,
-                                            linkItem.text,
-                                            linkItem.id,
-                                        )}>{linkItem.text}</button
-                                >
+                        {#if $back_link_show_path}
+                            {@const pathText = pathTextOf(backLink)}
+                            {#if pathText}
+                                <span class="bk-path">{pathText}</span>
                             {/if}
-                        {/each}
-                    </span>
-
+                        {/if}
+                        <button
+                            class="bk-doc-name b3-tooltips b3-tooltips__s"
+                            aria-label={`${fullPathOf(backLink)}\n${tomatoI18n.组合点击提示}`}
+                            onclick={(event) =>
+                                refConceptClick(
+                                    event,
+                                    docPathOf(backLink).name
+                                        ?.split("/")
+                                        .pop(),
+                                    docPathOf(backLink).id,
+                                )}
+                        >
+                            {docPathOf(backLink).name?.split("/").pop()}
+                        </button>
+                        <button
+                            class="bk-icon-btn b3-tooltips b3-tooltips__s"
+                            aria-label={backLink.parentID
+                                ? `${tomatoI18n.定位}(${tomatoI18n.引用已向上传递})`
+                                : tomatoI18n.定位}
+                            onclick={() => refClick(locateIDOf(backLink))}
+                        >
+                            {@html icon(backLink.parentID ? "Up" : "Focus", 14)}
+                        </button>
+                        <button
+                            class="bk-icon-btn b3-tooltips b3-tooltips__s"
+                            aria-label={tomatoI18n.卡片操作}
+                            onclick={(e) =>
+                                openCardMenu(e.currentTarget, backLink)}
+                        >
+                            {@html icon("More", 14)}
+                        </button>
+                    </header>
                     {#if backLink.edit === true}
-                        <!-- 可以编辑 -->
+                        <!-- 编辑态：挂 protyle（机制沿现状） -->
                         <div {@attach mountProtyle(index)}></div>
                     {:else}
-                        <!-- 不能编辑 -->
+                        <!-- 截断态点击=展开；展开态点击=进编辑（spec §4.2） -->
+                        <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
                         <div
-                            class="protyle-wysiwyg"
+                            class="bk-body protyle-wysiwyg"
+                            class:clamped={!backLink.expanded}
+                            class:overflowing={backLink.clampOverflow}
                             onclick={() => {
                                 $autoRefreshChecked = false;
-                                backLinks.at(index).edit = true;
+                                // 框选文本结束的 click 不切态（选区非 collapsed 即用户在选字）
+                                if (!window.getSelection()?.isCollapsed) {
+                                    return;
+                                }
+                                if (backLink.expanded) {
+                                    backLinks.at(index).edit = true;
+                                } else {
+                                    backLinks.at(index).expanded = true;
+                                }
                             }}
                         >
                             <div
-                                style="max-height: {$back_link_protyle_height}px; overflow: auto;"
+                                class="bk-body-inner"
+                                style={`max-height: ${backLink.expanded
+                                    ? Number($back_link_protyle_height) + "px"
+                                    : CLAMP_MAX};`}
+                                {@attach measureClamp(index)}
                             >
                                 {@html backLink.bk.dom}
                             </div>
+                            {#if !backLink.expanded && backLink.clampOverflow}
+                                <button
+                                    class="bk-hint bk-hint--float"
+                                    onclick={(e) => {
+                                        e.stopPropagation();
+                                        $autoRefreshChecked = false;
+                                        backLinks.at(index).expanded = true;
+                                    }}
+                                >
+                                    {tomatoI18n.展开全文}
+                                    {@html icon("Down", ICONS_SIZE)}
+                                </button>
+                            {:else if backLink.expanded}
+                                <button
+                                    class="bk-hint bk-hint--row"
+                                    onclick={(e) => {
+                                        e.stopPropagation();
+                                        backLinks.at(index).expanded = false;
+                                    }}
+                                >
+                                    {tomatoI18n.收起}
+                                    {@html icon("Up", ICONS_SIZE)}
+                                </button>
+                            {/if}
                         </div>
                     {/if}
-                </div>
+                </article>
             {/if}
         {/each}
     </div>
@@ -1211,70 +1268,283 @@
 <div bind:this={keepHeight}></div>
 
 <style>
-    .search-bar {
+    /* ---- 工具栏（sticky 贴顶，spec §3.1） ---- */
+    .bk-toolbar {
         position: sticky;
-        top: 0px;
-        background-color: var(--b3-theme-background);
+        top: 0;
         z-index: 1;
+        background: var(--b3-theme-background);
+        padding: 4px 2px 2px;
     }
-    /* .modeSwitchBtn {
-        margin-left: -20px;
-        margin-bottom: -80px;
-        float: left;
-    }
-    .goUpBtn {
-        margin-left: -40px;
-        margin-bottom: -80px;
-        float: left;
-    } */
-    .numInput {
-        width: 50px;
-    }
-    .order-men {
-        color: var(--b3-font-color9);
-    }
-    .order-ref {
-        color: var(--b3-font-color11);
-    }
-    .searchField {
-        width: auto;
-    }
-    .conceptMargin {
-        margin-left: 2px;
-        margin-right: 2px;
-    }
-    .bk_flex {
-        /* display: flex; */
+    .bk-toolbar-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
         flex-wrap: wrap;
-        margin: 5px;
     }
-    .bk_protyle {
-        /* padding-bottom: 100%; */
+    .bk-toggle {
+        flex-shrink: 0;
+        /* spec §3.1 mini toggle 28×16（b3-switch 原生 26×16，放大一档到 spec 值） */
+        width: 28px;
+        height: 16px;
+    }
+    .bk-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        min-width: 20px;
+        min-height: 20px;
+        padding: 1px 3px;
+        border: none;
+        border-radius: var(--b3-border-radius);
+        background: transparent;
+        color: var(--b3-theme-on-surface);
+        cursor: pointer;
+    }
+    .bk-icon-btn:hover {
+        background: var(--b3-list-hover);
+    }
+    .bk-icon-btn :global(svg) {
+        pointer-events: none;
+    }
+    .bk-pager {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+    }
+    .bk-pager-num {
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        color: var(--b3-theme-on-surface);
+        cursor: pointer;
+        padding: 0 2px;
+    }
+    .bk-sort {
+        font-size: 12px;
+        height: 22px;
+        max-width: 130px;
+        padding: 0 4px;
+    }
+    .bk-fold-count {
+        font-size: 12px;
+        color: var(--b3-theme-on-surface-light);
+        white-space: nowrap;
+    }
+    /* ---- 概念行 + 搜索行 ---- */
+    .bk-concepts {
         display: flex;
         flex-wrap: wrap;
+        gap: 4px;
+        margin: 4px 0 0;
     }
-    .borderedDiv {
-        padding: 5px;
-        margin: 5px;
+    .bk-searchbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        margin-top: 4px;
     }
-    [isThisDoc="true"] {
-        color: var(--b3-font-color7);
+    .bk-search {
+        flex: 1 1 160px;
+        min-width: 120px;
+        max-width: 320px;
+        height: 24px;
+        font-size: 12px;
     }
-    .bk_ref_count {
-        color: var(--b3-font-color8);
-        font-size: smaller;
-    }
-    .gap {
-        margin: auto;
-    }
-    .bk_label {
-        border: transparent;
-        background-color: transparent;
-    }
-    .hide {
-        display: none;
-    }
-    .clickable {
+    .bk-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        max-width: 200px;
+        padding: 1px 6px;
+        border: none;
+        border-radius: 999px;
+        background: var(--b3-theme-surface);
+        color: var(--b3-theme-on-surface);
+        font-size: 12px;
         cursor: pointer;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .bk-chip:hover {
+        background: var(--b3-list-hover);
+    }
+    .bk-chip-count {
+        font-size: 11px;
+        color: var(--b3-theme-on-surface-light);
+    }
+    .bk-saved-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+    }
+    .bk-chip-x {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 16px;
+        min-height: 16px;
+        border-radius: 50%;
+        color: var(--b3-theme-on-surface-light);
+        cursor: pointer;
+    }
+    .bk-chip-x:hover {
+        color: var(--b3-theme-error);
+        background: var(--b3-list-hover);
+    }
+    .bk-chip-x :global(svg) {
+        pointer-events: none;
+    }
+    /* ---- 卡片网格（spec §2.2：446px 起 2 列） ---- */
+    .bk-grid {
+        display: grid;
+        gap: 6px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        margin-top: 4px;
+    }
+    .bk-grid.mobile {
+        grid-template-columns: 1fr;
+    }
+    /* ---- 卡片（spec §2.3/§2.4/§4） ---- */
+    .bk-card {
+        position: relative;
+        /* 卡内 .bk-hint--float 与 sticky 工具栏同 z 档时按树序穿透（vision P1-A）：
+           整卡自沉一档，hint 仍压得过卡内渐隐 ::after */
+        z-index: 0;
+        padding: 5px 8px;
+        border: 1px solid var(--b3-border-color);
+        border-radius: var(--b3-border-radius);
+        background: var(--b3-theme-background);
+    }
+    .bk-card:hover {
+        border-color: color-mix(
+            in srgb,
+            var(--b3-theme-primary) 35%,
+            transparent
+        );
+    }
+    .order-ref {
+        --bk-semi: var(--b3-font-color11);
+    }
+    .order-men {
+        --bk-semi: var(--b3-font-color9);
+    }
+    .bk-card[isThisDoc="true"] {
+        --bk-semi: var(--b3-font-color7);
+    }
+    .bk-card-head {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        height: 20px;
+        margin-bottom: 3px;
+    }
+    .bk-dot {
+        flex-shrink: 0;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--bk-semi);
+    }
+    .bk-bottom-mark {
+        flex-shrink: 0;
+        display: inline-flex;
+        color: var(--b3-theme-on-surface-light);
+    }
+    .bk-bottom-mark :global(svg) {
+        pointer-events: none;
+    }
+    .bk-path {
+        flex-shrink: 1;
+        min-width: 0;
+        font-size: 12px;
+        color: var(--b3-theme-on-surface-light);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .bk-doc-name {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        background: transparent;
+        padding: 0;
+        text-align: left;
+        font-size: 12px;
+        color: var(--bk-semi);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+    /* ---- 卡片正文三态（spec §4.1/§4.2） ---- */
+    .bk-body {
+        position: relative;
+        /* 抵消 .protyle-wysiwyg 全局 16px/24px padding（不吃 90px 密度预算） */
+        padding: 0;
+    }
+    .bk-body-inner {
+        font-size: calc(var(--b3-font-size) - 1px);
+        line-height: 18px;
+    }
+    .bk-body.clamped .bk-body-inner {
+        max-height: 54px;
+        overflow: hidden;
+    }
+    .bk-body:not(.clamped) .bk-body-inner {
+        overflow: auto;
+    }
+    /* 渐隐浮叠末行之上，不占高度；仅确有溢出才渲染 */
+    .bk-body.clamped.overflowing::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 28px;
+        background: linear-gradient(
+            transparent,
+            var(--b3-theme-background)
+        );
+        pointer-events: none;
+    }
+    .bk-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        border: none;
+        background: transparent;
+        padding: 1px 0;
+        font-size: 12px;
+        color: var(--b3-theme-primary);
+        cursor: pointer;
+    }
+    .bk-hint :global(svg) {
+        pointer-events: none;
+    }
+    /* 截断态提示条：浮叠于渐隐遮罩之上（绝对定位不吃 90px 预算） */
+    .bk-hint--float {
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 20px;
+        z-index: 1;
+    }
+    /* 展开态提示条：正文底下的常驻行（可滚动内容之上，不用遮罩） */
+    .bk-hint--row {
+        width: 100%;
+        margin-top: 2px;
+        border-top: 1px solid var(--b3-border-color);
+        background: var(--b3-theme-background);
+    }
+    /* 运行时挂载的 protyle 容器：Svelte scoped 摸不到（spec §12 附录 3） */
+    .bk-card :global(.protyle) {
+        overflow: auto;
+    }
+    @media (max-width: 460px) {
+        .bk-search {
+            flex-basis: 100%;
+            max-width: none;
+        }
     }
 </style>

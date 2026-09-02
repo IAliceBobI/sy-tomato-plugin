@@ -4,7 +4,7 @@ import * as gconst from "./libs/gconst";
 import { bilinkWithInsertingRefs, clean_broken_href, extractLinksFromElement, getAttribute, getDoOperations, joinByComma, linkTwoElementsWithRef, setAttribute, siyuan, } from "./libs/utils";
 import * as utils from "./libs/utils";
 import { AttrBuilder, findElementByAttr, findListTypeByElement } from "./libs/listUtils";
-import { linkBoxAttrIconOnHide, linkBoxBilinkMenu, linkBoxCheckbox, linkBoxLnkTitle, linkBoxSyncBlock, linkBoxSyncBlockAuto, linkBoxSyncHref, linkBoxSyncRef, linkBoxSyncRemapChildID, linkBoxSyncScanDeep, linkBoxUseLnkOrRef } from "./libs/stores";
+import { linkBoxAttrIconOnHide, linkBoxBilinkMenu, linkBoxLnkTitle, linkBoxSyncBlockAuto, linkBoxSyncHref, linkBoxSyncRef, linkBoxSyncRemapChildID, linkBoxSyncScanDeep, linkBoxUseLnkOrRef, pairBarEnabled } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { PROTYLE_WYSIWYG_SELECT, TOMATO_CONTROL_SYNC } from "./libs/gconst";
 import { OpenSyFile2 } from "./libs/docUtils";
@@ -13,6 +13,7 @@ import { DestroyManager } from "./libs/destroyer";
 import LinkBoxDialog from "./LinkBox.svelte";
 import LinkBoxBar from "./LinkBoxBar.svelte";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
+import { regPairCmd } from "./libs/pairCmdRegistry";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { debugLog } from "./libs/logUtils";
 import { anchorEditExemptsVersionGuards, createTrailingDebouncer, decideGroupAction, deepScanVerdict, editingInsideGroup, monotonicHeal, pendingIsDeletionShaped, pivotSyncPeers, scanRecheckPlan, verMapGate, LivePeer, SyncPeerState, VerMapCache } from "./libs/syncDecision";
@@ -53,10 +54,12 @@ class LinkBox {
     async onload(plugin: BaseTomatoPlugin) {
         this.plugin = plugin;
         await verifyKeyTomato()
-        // 2026-08-31 块配对 □1 解耦：同步块注册只看 linkBoxSyncBlock（UI 联动下其开启时
-        // 本就反向强制开 linkBoxCheckbox，正常路径行为不变）；互链族照旧看 linkBoxCheckbox
-        if (linkBoxCheckbox.get()) this.regBilinkCmds();
-        if (linkBoxSyncBlock.get()) await this.regSyncBlockCmds();
+        // R5 □1 总开关化：块配对工具一个总开关管全部命令注册（互链族+同步块族）。
+        // 开关控制注册，中途改开关需 reload 生效；「同步块强开互链」联动随三 store 退役删除
+        if (pairBarEnabled.get()) {
+            this.regBilinkCmds();
+            await this.regSyncBlockCmds();
+        }
     }
 
     /** 单功能命令共用的第一步「锁源」：选中块记入 selectedDivs（老命令兼容层单例，□2 浮条不复用） */
@@ -74,9 +77,16 @@ class LinkBox {
         }
     }
 
-    /** 互链族（linkBoxCheckbox 开关下）：12 个单功能命令 + 互链右键菜单挂点 */
+    /** addCommand+速查登记二合一（R5 □3）：⋯ 菜单速查子菜单点击查表直调
+     *  （regBilinkCmds/regSyncBlockCmds 共用；类箭头方法保 this） */
+    private addPairCmd = (cmd: any) => {
+        this.plugin.addCommand(cmd);
+        regPairCmd(cmd.langKey, cmd.editorCallback ?? cmd.callback);
+    };
+
+    /** 互链族：12 个单功能命令 + 互链右键菜单挂点（注册链由 pairBarEnabled 总开关管） */
     private regBilinkCmds() {
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBoxbilink.langKey,
             langText: LinkBoxbilink.langText(),
             hotkey: LinkBoxbilink.m,
@@ -88,7 +98,7 @@ class LinkBox {
             },
         });
 
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox链接到块底部.langKey,
             langText: LinkBox链接到块底部.langText(),
             hotkey: LinkBox链接到块底部.m,
@@ -100,7 +110,7 @@ class LinkBox {
             },
         });
 
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox修复双向链接.langKey,
             langText: LinkBox修复双向链接.langText(),
             hotkey: LinkBox修复双向链接.m,
@@ -114,7 +124,7 @@ class LinkBox {
                 }
             },
         });
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox删除双向链接.langKey,
             langText: LinkBox删除双向链接.langText(),
             hotkey: LinkBox删除双向链接.m,
@@ -129,13 +139,13 @@ class LinkBox {
             },
         });
 
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox双向互链选择块.langKey,
             langText: LinkBox双向互链选择块.langText(),
             hotkey: LinkBox双向互链选择块.m,
             editorCallback: (protyle) => this.markBlock(protyle),
         });
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox双向互链创建往返链.langKey,
             langText: LinkBox双向互链创建往返链.langText(),
             hotkey: LinkBox双向互链创建往返链.m,
@@ -149,7 +159,7 @@ class LinkBox {
             },
         });
 
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox嵌入互链选择.langKey,
             langText: LinkBox嵌入互链选择.langText(),
             hotkey: LinkBox嵌入互链选择.m,
@@ -157,7 +167,7 @@ class LinkBox {
                 if (lastVerifyResult()) this.markBlock(protyle)
             }
         });
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox嵌入互链创建.langKey,
             langText: LinkBox嵌入互链创建.langText(),
             hotkey: LinkBox嵌入互链创建.m,
@@ -173,13 +183,13 @@ class LinkBox {
             },
         });
 
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox关联两个块选择.langKey,
             langText: LinkBox关联两个块选择.langText(),
             hotkey: LinkBox关联两个块选择.m,
             editorCallback: (protyle) => this.markBlock(protyle),
         });
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox关联两个块创建.langKey,
             langText: LinkBox关联两个块创建.langText(),
             hotkey: LinkBox关联两个块创建.m,
@@ -193,13 +203,13 @@ class LinkBox {
             },
         });
 
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox互相插入引用于下方选择.langKey,
             langText: LinkBox互相插入引用于下方选择.langText(),
             hotkey: LinkBox互相插入引用于下方选择.m,
             editorCallback: (protyle) => this.markBlock(protyle),
         });
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox互相插入引用于下方创建.langKey,
             langText: LinkBox互相插入引用于下方创建.langText(),
             hotkey: LinkBox互相插入引用于下方创建.m,
@@ -218,21 +228,21 @@ class LinkBox {
         });
     }
 
-    /** 同步块族（linkBoxSyncBlock 开关下）：3 个命令 + 同步块右键菜单挂点 + ws 同步监听 + 巡检 + 徽标 observer */
+    /** 同步块族：3 个命令 + 同步块右键菜单挂点 + ws 同步监听 + 巡检 + 徽标 observer */
     private async regSyncBlockCmds() {
-        this.plugin.addCommand({
+        this.addPairCmd({
             langText: LinkBox查看所有同步位置.langText(),
             langKey: LinkBox查看所有同步位置.langKey,
             hotkey: LinkBox查看所有同步位置.m,
             editorCallback: (protyle) => showSyncBlocks(protyle, this.plugin),
         });
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox同步块选择.langKey,
             langText: LinkBox同步块选择.langText(),
             hotkey: LinkBox同步块选择.m,
             editorCallback: (protyle) => this.markBlock(protyle),
         });
-        this.plugin.addCommand({
+        this.addPairCmd({
             langKey: LinkBox同步块创建.langKey,
             langText: LinkBox同步块创建.langText(),
             hotkey: LinkBox同步块创建.m,
@@ -294,8 +304,10 @@ class LinkBox {
     }
 
     blockIconEvent(detail: any) {
-        if (linkBoxCheckbox.get()) this.addLnkByLnk(detail);
-        if (linkBoxSyncBlock.get()) this.showSyncBlocksMenu(detail);
+        // click_blockicon 挂点在 index.ts 常驻监听（不走注册链），此处须自守总开关
+        if (!pairBarEnabled.get()) return;
+        this.addLnkByLnk(detail);
+        this.showSyncBlocksMenu(detail);
     }
 
     async link2bottom(protyle: IProtyle, div: HTMLElement) {

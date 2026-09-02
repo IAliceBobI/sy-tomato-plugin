@@ -642,6 +642,12 @@
  * 老单功能快捷键键帽的收纳容器：零 JS 开合（收起内容仍在 DOM，searchSettings
  * 的 textContent 匹配照常命中，命中行由 data-search-opened 协议自动展开——
  * 见 libs/ui.ts searchSettings）；summary 复用分区标题样式 13px/600 */
+/* R5 □4 P2-2：相邻折叠区粘连——.settingBox 纵向 margin 仅 2px，四连排 hover 高亮时
+ * 灰块边界感差；details 之间补 8px 呼吸。首块上缘间距仍由原级联决定（上方 softBox
+ * 的 margin-bottom 12px 折叠而来），本规则只管 details 相邻对 */
+.tomato-settings-dialog details.settingBox + details.settingBox {
+    margin-top: 8px;
+}
 .tomato-settings-dialog details.settingBox > summary {
     cursor: pointer;
     user-select: none;
@@ -655,6 +661,10 @@
 }
 .tomato-settings-dialog details.settingBox > summary.section-title {
     padding-top: 4px; /* 对齐 .settingBox > div.section-title 的标题上缘呼吸 */
+    /* vision P1（R5 □1 评审）：summary 与其内容 softBox 左缘对齐（同 5% 缩进列）——
+       4 个折叠区连排后 summary 凸出内容的归属模糊被放大；details 非 div 不吃
+       .settingBox > div:not(:first-child) 的 5%，须在此显式补 */
+    margin-left: 5%;
 }
 /* 自绘指示箭头：收起 › 展开 90° 下转（b3 主题变量，双主题自适应） */
 .tomato-settings-dialog details.settingBox > summary::after {
@@ -743,6 +753,13 @@
     font-variant-numeric: tabular-nums;
 }
 /* B3 .kbd 帮助块内标题驯化：{@html} 的 h4/h5 吃 UA 默认标题边距把键帽撑成巨块——压平到 12px 档 */
+/* R5 □4 P2-1：思源 .b3-dialog__content 带 word-break:break-all（component/_dialog.scss:74）
+ * 被帮助块整段继承——aacc1/[文档1] 等占位符 token 被拦腰断行、行尾孤立字母「a」；
+ * normal 恢复默认：CJK 字间照常断行不溢出，拉丁/方括号 token 整词不拆
+ * （progressive DigestAllDialog/ShowAllBooks 同款坑同款解法先例） */
+.tomato-settings-dialog .kbd {
+    word-break: normal;
+}
 .tomato-settings-dialog .kbd h4 {
     margin: 0 0 4px;
     font-size: 12px;

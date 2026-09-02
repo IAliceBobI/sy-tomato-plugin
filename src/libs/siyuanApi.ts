@@ -742,17 +742,19 @@ export const siyuan = {
     async getRefIDs(id: string) {
         return siyuan.call("/api/block/getRefIDs", { id });
     },
-    async getBackmentionDoc(defID: string, refTreeID: string, keyword: string = ""): Promise<GetBackmentionDoc> {
+    async getBackmentionDoc(defID: string, refTreeID: string, keyword: string = "", knownRevision = ""): Promise<GetBackmentionDoc> {
         const containChildren = (Siyuan.config.editor as any).backlinkContainChildren;
-        const args = { defID, refTreeID, keyword, containChildren };
+        const args = { defID, refTreeID, keyword, containChildren, knownRevision };
+        if (!knownRevision) delete (args as any).knownRevision;
         return siyuan.call("/api/ref/getBackmentionDoc", args);
     },
-    async getBacklinkDoc(defID: string, refTreeID: string, keyword: string = ""): Promise<GetBacklinkDoc> {
+    async getBacklinkDoc(defID: string, refTreeID: string, keyword: string = "", knownRevision = ""): Promise<GetBacklinkDoc> {
         const containChildren = (Siyuan.config.editor as any).backlinkContainChildren;
-        const args = { defID, refTreeID, keyword, containChildren };
+        const args = { defID, refTreeID, keyword, containChildren, knownRevision };
+        if (!knownRevision) delete (args as any).knownRevision;
         return siyuan.call("/api/ref/getBacklinkDoc", args);
     },
-    async getBacklink2(id: string, k = "", mk = "", sort = "3", mSort = "3"): Promise<GetBacklink2> {
+    async getBacklink2(id: string, k = "", mk = "", sort = "3", mSort = "3", knownRevision = ""): Promise<GetBacklink2> {
         const containChildren = (Siyuan.config.editor as any).backlinkContainChildren;
         //     SortModeNameASC                // 0：文件名字母升序
         //     SortModeNameDESC               // 1：文件名字母降序
@@ -771,7 +773,8 @@ export const siyuan = {
         //     SortModeSubDocCountDESC        // 14：子文档数降序
         //     SortModeFileTree               // 15：使用文档树排序规则
         //     SortModeUnassigned = 256       // 256：未指定排序规则，按照笔记本优先于文档树获取排序规则
-        const args = { id, k, mk, sort, mSort, containChildren };
+        const args = { id, k, mk, sort, mSort, containChildren, knownRevision };
+        if (!knownRevision) delete (args as any).knownRevision;
         return siyuan.call("/api/ref/getBacklink2", args);
     },
     async appendDailyNoteBlock(notebook: string, data: string, dataType: "markdown" | "dom" = "markdown"): Promise<gconst.TransactionData[]> {

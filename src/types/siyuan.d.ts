@@ -30,6 +30,9 @@ interface GetBacklink2 {
     linkRefsCount: number;
     mentionsCount: number;
     mk: string;
+    /** knownRevision 命中时响应只含此二字段，数据字段全空（kernel/api/ref.go） */
+    unchanged?: boolean;
+    revision?: string;
 }
 
 interface Backlink2 {
@@ -48,10 +51,15 @@ interface Backlink2 {
 
 interface GetBackmentionDoc {
     backmentions: Backlink[];
+    /** knownRevision 命中时响应只含此二字段（kernel/api/ref.go backlinkContextResult） */
+    unchanged?: boolean;
+    revision?: string;
 }
 
 interface GetBacklinkDoc {
     backlinks: Backlink[];
+    unchanged?: boolean;
+    revision?: string;
 }
 
 interface Backlink {

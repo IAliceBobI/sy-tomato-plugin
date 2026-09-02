@@ -38,10 +38,6 @@
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.buttom-bk-borderedDiv {
-  border: 1px solid var(--b3-theme-surface-lighter);
-}
-
 .protyle-wysiwyg div[custom-sync-block-id] {
   border: 1px dashed var(--b3-font-color5);
 }
@@ -120,17 +116,38 @@
 //   animation: tomatoFadeIn 0.3s forwards 3;
 // }
 
-#tomato-mind-wire-svg-container {
+/* =====================================================================
+   思维导线 · 渲染层地基（□1 内容坐标系，唯一事实源 docs/tomato-mindwire-visual-spec.md §2/§5.1）
+   层挂滚动容器内随内容走（零滚动监听）、线全长画足由容器 overflow 裁剪；
+   层整体 pointer-events:none（词级命中走廊/残端 chip 属 □3/□4 白名单再开）；
+   z-index ≤10 插件浮层安全档；块级线保持直线/裸端点/dasharray "10" 现状（§4.9）
+   ===================================================================== */
+.tomato-mind-wire-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tomato-mind-wire-svg {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  overflow: visible;
   pointer-events: none;
-  z-index: 1;
 }
 
-.tomato-mind-wire-connector-animation {
+.tomato-mind-wire-path {
+  fill: none;
+  stroke: var(--tomato-mind-wire-accent, var(--b3-font-color4));
+  // stroke-linecap 不设（块级现状 butt；词级 round 见 --word 修饰类）
+}
+
+.tomato-mind-wire-path--flow {
   animation: tomato-mind-wire-flow 2s linear infinite;
 }
 
@@ -141,6 +158,85 @@
 
   to {
     stroke-dashoffset: 0;
+  }
+}
+
+/* =====================================================================
+   思维导线 · 词级导线（□2 数据链，spec §3.3/§4.1.3）
+   锚词=「点」语言（底缘 5px 实心圆点，线色+背景色隔离环）：与批注橙虚线下划线
+   正交区分；前缀限定选择器不碰批注/普通链接；圆点 absolute 伪元素零布局占位。
+   accent 变量由渲染管线按关系色写 span inline（免费档全线 color4 兜底）。
+   ===================================================================== */
+// 词级 path 修饰类：round 圆头短虚线更精致（块级保持 butt 现状，spec §4.1.3）
+.tomato-mind-wire-path--word {
+  stroke-linecap: round;
+}
+
+.protyle-wysiwyg span[data-type="a"][data-href^="#tomato-mindwire-"] {
+  color: inherit;
+  text-decoration-line: none;
+  background-color: transparent;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.15s;
+
+  // 圆点中心 ≈ 字底+4.5px，曲线起点 y=rect.bottom+8 与之衔接（spec §4.1.1）
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -7px;
+    width: 5px;
+    height: 5px;
+    margin-left: -2.5px;
+    border-radius: 50%;
+    background: var(--tomato-mind-wire-accent, var(--b3-font-color4));
+    box-shadow: 0 0 0 1px var(--b3-theme-background);
+    transition: transform 0.15s ease-out;
+  }
+
+  // hover 高亮两端（□3 线交互消费，样式先行待命）
+  &.tomato-mind-wire-hot {
+    background-color: color-mix(in srgb, var(--tomato-mind-wire-accent, var(--b3-font-color4)) 18%, transparent);
+    border-radius: 2px;
+
+    &::after {
+      transform: scale(1.4);
+    }
+  }
+
+  // 跳转目标闪高亮（□3 消费，双脉冲 1.1s，spec §4.6）
+  &.tomato-mind-wire-flash {
+    animation: tomato-mind-wire-flash 1.1s ease-out 1;
+    border-radius: 3px;
+  }
+
+  // 跨行锚词：::after 定位盒是浏览器实现定义（与 JS 端点 fragment 不一致），
+  // 圆点改由渲染层 svg circle 画（点线同心），CSS 点藏掉（□2 P0-1）
+  &.tomato-mind-wire-ml::after {
+    display: none;
+  }
+}
+
+@keyframes tomato-mind-wire-flash {
+  0% {
+    background-color: transparent;
+  }
+
+  20% {
+    background-color: color-mix(in srgb, var(--tomato-mind-wire-accent, var(--b3-font-color4)) 28%, transparent);
+  }
+
+  45% {
+    background-color: color-mix(in srgb, var(--tomato-mind-wire-accent, var(--b3-font-color4)) 6%, transparent);
+  }
+
+  65% {
+    background-color: color-mix(in srgb, var(--tomato-mind-wire-accent, var(--b3-font-color4)) 22%, transparent);
+  }
+
+  100% {
+    background-color: transparent;
   }
 }
 // 状态栏番茄钟 □1（2026-08-29）：常驻倒计时文本 + 正在计时档位高亮（运行中/暂停两态）
@@ -624,4 +720,77 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
 // （原生单例因同步悬浮要点链接而刻意可拦，面板提示无此需求）
 #tomato-panel-tip {
   pointer-events: none;
+}
+
+// □3 默认关可发现性入口条（bk-bottom 战役 spec §10）：普通文档流元素非浮层，
+// 计数=0 完全不渲染；点击整条=enableBK 挂载面板。□4 终值：开启钮 button 化（语义）。
+.tomato-bk-entry-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  margin: 4px 0;
+  padding: 0 8px;
+  font-size: 12px;
+  color: var(--b3-theme-on-surface-light);
+  cursor: pointer;
+  background: transparent;
+
+  &:hover {
+    background: var(--b3-theme-surface);
+  }
+
+  .tomato-bk-entry-bar__text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  button.tomato-bk-entry-bar__btn {
+    flex-shrink: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    color: var(--b3-theme-primary);
+    cursor: pointer;
+  }
+}
+
+/* =====================================================================
+   □4 底部反链面板 · ⋯ 偏好菜单内嵌行（spec §3.2）
+   菜单项挂 body 层 Menu 元素，组件 scoped CSS 够不着，只能落全局表。
+   ===================================================================== */
+.tomato-bk-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+
+  .tomato-bk-menu-row__label {
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    color: var(--b3-theme-on-surface);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tomato-bk-menu-row__input {
+    flex-shrink: 0;
+    width: 56px;
+    height: 22px;
+    font-size: 12px;
+  }
+}
+
+// 偏好菜单分组标题：readonly 菜单项 + 弱色小字（内核 aiProviderUi 分组同款机制）
+.b3-menu__item.tomato-bk-menu-group {
+  padding: 6px 16px 0;
+  font-size: 11px;
+  color: var(--b3-theme-on-surface-light);
+  cursor: default;
 }

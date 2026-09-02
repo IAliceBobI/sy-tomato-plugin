@@ -80,33 +80,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
         }
     }
 
-    public get ctrl点击清空enter搜索(): string {
-        switch (this.lang) {
-            case "zh_CN":
-                return "ctrl点击清空,enter搜索";
-            case "es_ES":
-                return "ctrl+clic para borrar, enter para buscar";
-            case "fr_FR":
-                return "ctrl+clic pour effacer, entrée pour rechercher";
-            case "ja_JP":
-                return "ctrl+クリックでクリア、enterで検索";
-            case "zh_CHT":
-                return "ctrl點擊清空,enter搜索";
-            case "it_IT":
-                return "ctrl+clicca per cancellare, invio per cercare";
-            case "de_DE":
-                return "ctrl+Klick zum Löschen, Enter zum Suchen";
-            case "he_IL":
-                return "ctrl+לחץ כדי לנקות, enter כדי לחפש";
-            case "ru_RU":
-                return "ctrl+клик для очистки, enter для поиска";
-            case "pl_PL":
-                return "ctrl+kliknij, aby wyczyścić, enter, aby wyszukać";
-            case "en_US":
-            default:
-                return "ctrl+click to clear, enter to search";
-        }
-    }
     public get shiftEnter2write() {
         // 补充缺失的语言
         switch (this.lang) {

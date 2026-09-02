@@ -36,6 +36,40 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
                 return "Jump to Backlinks at the Bottom";
         }
     }
+    public get 底部反链入口文案() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "底部反链 · 本文档有 {n} 条反链";
+            case "es_ES":
+                return "Retroenlaces · {n} en este documento";
+            case "fr_FR":
+                return "Rétroliens · {n} dans ce document";
+            case "ja_JP":
+                return "バックリンク · この文書に {n} 件";
+            case "zh_CHT":
+                return "底部反鏈 · 本文件有 {n} 條反鏈";
+
+            default:
+                return "Backlinks · {n} in this doc";
+        }
+    }
+    public get 开启() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "开启";
+            case "es_ES":
+                return "Activar";
+            case "fr_FR":
+                return "Activer";
+            case "ja_JP":
+                return "有効にする";
+            case "zh_CHT":
+                return "開啟";
+
+            default:
+                return "Enable";
+        }
+    }
     public get 在标题下添加跳转到底部的按钮() {
         switch (this.lang) {
             case "zh_CN":
@@ -890,6 +924,332 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
 
             default:
                 return "Minimalist unordered list style";
+        }
+    }
+
+    // ---- □4 底部反链面板视觉翻新（spec §7.1，docs/tomato-bk-bottom-visual-spec.md）----
+
+    public get 展开全文() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "展开全文";
+            case "zh_CHT":
+                return "展開全文";
+            case "ja_JP":
+                return "全文を表示";
+            case "es_ES":
+                return "Expandir";
+            case "fr_FR":
+                return "Déplier";
+
+            default:
+                return "Expand";
+        }
+    }
+    public get 收起() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "收起";
+            case "zh_CHT":
+                return "收起";
+            case "ja_JP":
+                return "折りたたむ";
+            case "es_ES":
+                return "Contraer";
+            case "fr_FR":
+                return "Replier";
+
+            default:
+                return "Collapse";
+        }
+    }
+    public get 偏好设置() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "偏好设置";
+            case "zh_CHT":
+                return "偏好設定";
+            case "ja_JP":
+                return "環境設定";
+            case "es_ES":
+                return "Preferencias";
+            case "fr_FR":
+                return "Préférences";
+
+            default:
+                return "Preferences";
+        }
+    }
+    public get 卡片操作() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "卡片操作";
+            case "zh_CHT":
+                return "卡片操作";
+            case "ja_JP":
+                return "カード操作";
+            case "es_ES":
+                return "Acciones de tarjeta";
+            case "fr_FR":
+                return "Actions de carte";
+
+            default:
+                return "Card actions";
+        }
+    }
+    public get 自动刷新() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "自动刷新";
+            case "zh_CHT":
+                return "自動刷新";
+            case "ja_JP":
+                return "自動更新";
+            case "es_ES":
+                return "Actualización automática";
+            case "fr_FR":
+                return "Actualisation automatique";
+
+            default:
+                return "Auto refresh";
+        }
+    }
+    public get 全局搜索占位() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "搜索反链/提及（重查数据源，Enter）";
+            case "zh_CHT":
+                return "搜尋反鏈/提及（重新查詢資料來源，Enter）";
+            case "ja_JP":
+                return "バックリンク・言及を検索（再検索、Enter）";
+            case "es_ES":
+                return "Buscar referencias y menciones (reconsulta, Enter)";
+            case "fr_FR":
+                return "Rechercher réf. et mentions (relance la requête, Entrée)";
+
+            default:
+                return "Search refs & mentions (re-queries, Enter)";
+        }
+    }
+    public get 本地过滤占位() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "过滤下方卡片（仅筛选已显示，Enter）";
+            case "zh_CHT":
+                return "過濾下方卡片（僅篩選已顯示，Enter）";
+            case "ja_JP":
+                return "表示中のカードを絞り込む（表示のみ、Enter）";
+            case "es_ES":
+                return "Filtrar tarjetas mostradas (solo visualización, Enter)";
+            case "fr_FR":
+                return "Filtrer les cartes affichées (affichage seul, Entrée)";
+
+            default:
+                return "Filter shown cards (display-only, Enter)";
+        }
+    }
+    public get 点击应用查询() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "点击应用查询";
+            case "zh_CHT":
+                return "點擊應用查詢";
+            case "ja_JP":
+                return "クリックで適用";
+            case "es_ES":
+                return "Haz clic para aplicar";
+            case "fr_FR":
+                return "Cliquer pour appliquer";
+
+            default:
+                return "Click to apply";
+        }
+    }
+    public get 删除此查询() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "删除此查询";
+            case "zh_CHT":
+                return "刪除此查詢";
+            case "ja_JP":
+                return "このクエリを削除";
+            case "es_ES":
+                return "Eliminar esta consulta";
+            case "fr_FR":
+                return "Supprimer cette requête";
+
+            default:
+                return "Delete this query";
+        }
+    }
+    public get 组合点击提示() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "点击打开 · Alt=或 Shift=非 Ctrl=与";
+            case "zh_CHT":
+                return "點擊打開 · Alt=或 Shift=非 Ctrl=與";
+            case "ja_JP":
+                return "クリックで開く · Alt=OR Shift=NOT Ctrl=AND";
+            case "es_ES":
+                return "Clic para abrir · Alt=O Shift=NO Ctrl=Y";
+            case "fr_FR":
+                return "Cliquer pour ouvrir · Alt=OU Shift=NON Ctrl=ET";
+
+            default:
+                return "Click to open · Alt=OR Shift=NOT Ctrl=AND";
+        }
+    }
+    public get 路径段显示() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "路径段显示";
+            case "zh_CHT":
+                return "路徑段顯示";
+            case "ja_JP":
+                return "パスセグメントを表示";
+            case "es_ES":
+                return "Mostrar segmentos de ruta";
+            case "fr_FR":
+                return "Afficher les segments de chemin";
+
+            default:
+                return "Show path segments";
+        }
+    }
+    public get 列数() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "列数（留空=自动）";
+            case "zh_CHT":
+                return "列數（留空=自動）";
+            case "ja_JP":
+                return "列数（空欄=自動）";
+            case "es_ES":
+                return "Columnas (vacío = automático)";
+            case "fr_FR":
+                return "Colonnes (vide = auto)";
+
+            default:
+                return "Columns (blank = auto)";
+        }
+    }
+    public get 预览高度() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "预览高度";
+            case "zh_CHT":
+                return "預覽高度";
+            case "ja_JP":
+                return "プレビュー高さ";
+            case "es_ES":
+                return "Altura de vista previa";
+            case "fr_FR":
+                return "Hauteur d'aperçu";
+
+            default:
+                return "Preview height";
+        }
+    }
+    public get 范围() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "范围";
+            case "zh_CHT":
+                return "範圍";
+            case "ja_JP":
+                return "範囲";
+            case "es_ES":
+                return "Alcance";
+            case "fr_FR":
+                return "Portée";
+
+            default:
+                return "Scope";
+        }
+    }
+    public get 布局() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "布局";
+            case "zh_CHT":
+                return "佈局";
+            case "ja_JP":
+                return "レイアウト";
+            case "es_ES":
+                return "Diseño";
+            case "fr_FR":
+                return "Disposition";
+
+            default:
+                return "Layout";
+        }
+    }
+    public get 显示() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "显示";
+            case "zh_CHT":
+                return "顯示";
+            case "ja_JP":
+                return "表示";
+            case "es_ES":
+                return "Pantalla";
+            case "fr_FR":
+                return "Affichage";
+
+            default:
+                return "Display";
+        }
+    }
+    public get 工具() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "工具";
+            case "zh_CHT":
+                return "工具";
+            case "ja_JP":
+                return "ツール";
+            case "es_ES":
+                return "Herramientas";
+            case "fr_FR":
+                return "Outils";
+
+            default:
+                return "Tools";
+        }
+    }
+    public get 概念() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "概念";
+            case "zh_CHT":
+                return "概念";
+            case "ja_JP":
+                return "概念";
+            case "es_ES":
+                return "Conceptos";
+            case "fr_FR":
+                return "Concepts";
+
+            default:
+                return "Concepts";
+        }
+    }
+    public get 排序() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "排序";
+            case "zh_CHT":
+                return "排序";
+            case "ja_JP":
+                return "並べ替え";
+            case "es_ES":
+                return "Ordenar";
+            case "fr_FR":
+                return "Trier";
+
+            default:
+                return "Sort";
         }
     }
 }

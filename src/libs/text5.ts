@@ -652,26 +652,6 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "virref";
         }
     }
-    public get 高度() {
-        // 补充缺失的语言
-        switch (this.lang) {
-            case "zh_CN":
-                return "高度";
-            case "es_ES":
-                return "altura";
-            case "fr_FR":
-                return "hauteur";
-            case "ja_JP":
-                return "高さ";
-            case "zh_CHT":
-                return "高度";
-            case "it_IT":
-                return "altezza";
-
-            default:
-                return "height";
-        }
-    }
     public get 添加批注到日记() {
         switch (this.lang) {
             case "zh_CN":
@@ -942,25 +922,6 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
 
             default:
                 return "Save search conditions";
-        }
-    }
-    public get 点击查询ctrl点击删除() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "点击查询，ctrl点击删除";
-            case "es_ES":
-                return "Clic para consultar, Ctrl + clic para eliminar";
-            case "fr_FR":
-                return "Cliquer pour rechercher, Ctrl + clic pour supprimer";
-            case "ja_JP":
-                return "クリックで検索、Ctrl + クリックで削除";
-            case "zh_CHT":
-                return "點擊查詢，Ctrl + 點擊刪除";
-            case "it_IT":
-                return "Clic per cercare, Ctrl + clic per eliminare";
-
-            default:
-                return "Click to search, Ctrl + click to delete";
         }
     }
     public get 添加空间ID() {

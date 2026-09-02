@@ -5,6 +5,7 @@ import { tomatoI18n } from "../tomatoI18n";
 import { getHierarchyConcepts, OpenSyFile2 } from "./docUtils";
 import { back_link_passup_heading, back_link_passup_quote, back_link_passup_super, storeAttrManager } from "./stores";
 import { SortType } from "./types";
+import { applyDocResponse, applyListResponse, BkListState, knownDocRevision, knownListRevision, makeBkQueryKey, pruneBkDocs, resetBkStateIfQueryChanged } from "./bkRevision";
 import { newID } from "stonev5-utils";
 
 // export async function shouldInsertDiv(lastID: string, docID: string) {
@@ -325,33 +326,54 @@ export async function doGetBackLinks(
     menDocCount = Number.MAX_SAFE_INTEGER,
     docName: string,
     idsFilter: ReturnType<typeof storeAttrManager> = null,
-    page = 0
+    page = 0,
+    bkState: BkListState = null,
 ) {
+    // □3 knownRevision：queryKey 含 keyword/排序/分页（翻页必全量）；未变携带上轮 revision，
+    // 列表级 unchanged → 文档级请求与本地重组全部跳过（近零开销轮询）
+    if (bkState) {
+        resetBkStateIfQueryChanged(bkState, makeBkQueryKey(globalSearchText, globalSearchText, sortBy, page, refDocCount, menDocCount));
+    }
+    const listResp = await siyuan.getBacklink2(docID, globalSearchText, globalSearchText, sortBy, sortBy, bkState ? knownListRevision(bkState) : "");
+    if (bkState && applyListResponse(bkState, listResp)) {
+        return { unchanged: true } as any;
+    }
     const allRefs: RefCollector = new Map();
     const allRefsHierarchy: RefCollector = new Map();
     const task3 = getHierarchyConcepts(docName).then(async ret => {
         await Promise.all(ret.map((r) => addRef(null, r.content, r.id, docID, allRefsHierarchy)))
         return ret;
     });
-    const { backLinks, bkDocs } = await siyuan.getBacklink2(docID, globalSearchText, globalSearchText, sortBy, sortBy)
+    const { backLinks, bkDocs } = await Promise.resolve(listResp)
         .then(async bkDocs => {
             if (!bkDocs) return { bks: [], bkDocs };
+            // 文档级缓存 key 加 bk:/me: 前缀：同一来源文档的引用与提及是两个 API、两个 revision 域
             const bkTask = bkDocs.backlinks.slice(page * refDocCount, (page + 1) * refDocCount)
                 .map(async bkDoc => {
-                    const items = await siyuan.getBacklinkDoc(docID, bkDoc.id, globalSearchText);
-                    return items.backlinks.map(bkItem => {
+                    const key = "bk:" + bkDoc.id;
+                    const resp = await siyuan.getBacklinkDoc(docID, bkDoc.id, globalSearchText, bkState ? knownDocRevision(bkState, key) : "");
+                    const items = bkState ? applyDocResponse(bkState, key, { unchanged: resp?.unchanged, revision: resp?.revision, items: resp?.backlinks ?? [] }) : (resp?.backlinks ?? []);
+                    return items.map(bkItem => {
                         return { isMention: false, bkDoc, bkItem }
                     });
                 });
             const meTask = bkDocs.backmentions.slice(page * menDocCount, (page + 1) * menDocCount)
                 .map(async bkDoc => {
-                    const items = await siyuan.getBackmentionDoc(docID, bkDoc.id, globalSearchText);
-                    return items.backmentions.map(bkItem => {
+                    const key = "me:" + bkDoc.id;
+                    const resp = await siyuan.getBackmentionDoc(docID, bkDoc.id, globalSearchText, bkState ? knownDocRevision(bkState, key) : "");
+                    const items = bkState ? applyDocResponse(bkState, key, { unchanged: resp?.unchanged, revision: resp?.revision, items: resp?.backmentions ?? [] }) : (resp?.backmentions ?? []);
+                    return items.map(bkItem => {
                         return { isMention: true, bkDoc, bkItem }
                     })
                 });
             const bk = Promise.all(bkTask).then(i => i.flat());
             const me = Promise.all(meTask).then(i => i.flat());
+            if (bkState) {
+                pruneBkDocs(bkState, [
+                    ...bkDocs.backlinks.map(d => "bk:" + d.id),
+                    ...bkDocs.backmentions.map(d => "me:" + d.id),
+                ]);
+            }
             return { bks: [...(await bk), ...(await me)], bkDocs };
         })
         .then(async t => {
@@ -523,6 +545,9 @@ export function closeProtyle(...bks: BacklinkSv<Protyle>[]) {
         bk.ob?.disconnect();
         bk.ob = null;
         bk.protyle?.destroy();
+        // 内核 destroy() 不把 element 从 DOM 摘除（只摘 class/observers，2026-09-01 查内核源码
+        // 实证）——卡 DOM 若被 keyed each 复用，尸体 element 会残留在卡内与新实例堆叠，必须自摘
+        bk.protyle?.protyle?.element?.remove();
         bk.protyle = null;
     }
 }

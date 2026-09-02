@@ -1,7 +1,8 @@
 <script lang="ts">
-    // 块配对功能优先浮条（R3 □2 V4 换代）：funcs 态=六功能钮面板（门禁灰+VIP 徽标，
-    // 上次功能主色高亮 R4）；slots 态按功能框数渲染（两框=[源可多,目标]、三框=搬运[起始,结束,目标]）+搬运移动/复制
-    // 切换+✓ 主色确认（框齐才亮，带影响面预览「移动 N 块」）；当前功能图标常驻框区左侧
+    // 块配对功能优先浮条（R3 □2 V4 换代）：funcs 态=六功能钮面板（VIP 徽标+灰态仅 VIP 档，
+    // 上次功能主色高亮 R4）；slots 态按功能框数渲染（两框=[源可多,目标]、三框=搬运[起始,结束,目标]，
+    // 删除档框 ③ 纯视图收起）+搬运三档[移动|复制|删除]切换（R5 □2，不跨出场记忆）+✓ 主色确认
+    // （框齐才亮，带影响面预览「移动 N 块」；删除档 ✓ 错误色实底）；当前功能图标常驻框区左侧
     // 可点击回 funcs 换功能。⋯菜单/拖动记忆/帮助入口/✕ 收条保留（第一轮落地勿破坏）。
     // 纯 UI——状态与副作用全在 PairBarBox 控制器（pairState 是控制器传入的 store）。
     import { tomatoI18n } from "./tomatoI18n";
@@ -13,9 +14,39 @@
         pairFirstEmpty,
         pairGateErr,
         type PairFuncSpec,
+        type PairTransportMode,
     } from "./libs/pairBarState";
-    import { cpBoxCheckbox, linkBoxCheckbox, linkBoxSyncBlock } from "./libs/stores";
     import { vipVerified } from "./libs/user";
+    // tooltip 键位行消费的老命令 winHotkey 常量（R5 □3）：langKey→常量映射，与 ⋯ 菜单
+    // 速查子菜单同一批常量（PairBarBox.more）=同源不漂移；.w() 调用时现读 keymap
+    import {
+        LinkBox双向互链选择块,
+        LinkBox双向互链创建往返链,
+        LinkBox嵌入互链选择,
+        LinkBox嵌入互链创建,
+        LinkBox关联两个块选择,
+        LinkBox关联两个块创建,
+        LinkBox互相插入引用于下方选择,
+        LinkBox互相插入引用于下方创建,
+        LinkBox同步块选择,
+        LinkBox同步块创建,
+    } from "./LinkBox";
+    import {
+        CpBox批量删除大量连续内容块,
+        CpBox批量移动大量连续内容块,
+        CpBox批量复制大量连续内容块,
+    } from "./CpBox";
+
+    const HK_BY_LANG = new Map(
+        [
+            LinkBox双向互链选择块, LinkBox双向互链创建往返链,
+            LinkBox嵌入互链选择, LinkBox嵌入互链创建,
+            LinkBox关联两个块选择, LinkBox关联两个块创建,
+            LinkBox互相插入引用于下方选择, LinkBox互相插入引用于下方创建,
+            LinkBox同步块选择, LinkBox同步块创建,
+            CpBox批量删除大量连续内容块, CpBox批量移动大量连续内容块, CpBox批量复制大量连续内容块,
+        ].map(h => [h.langKey, h])
+    );
 
     let {
         pairState,
@@ -26,7 +57,7 @@
         pairState: import("svelte/store").Writable<import("./libs/pairBarState").PairState>;
         api: {
             pickFunc(id: string): void; backToFuncs(): void; confirm(): void;
-            clearBox(slot: 1 | 2 | 3): void; cancel(): void; toggleCopy(): void;
+            clearBox(slot: 1 | 2 | 3): void; cancel(): void; setMode(mode: PairTransportMode): void;
             dragStart(): void; dragEnd(): void;
             slotDragOver(e: DragEvent, slot: 1 | 2 | 3): void; slotDrop(e: DragEvent, slot: 1 | 2 | 3): void;
             more(anchor: HTMLElement): void;
@@ -39,14 +70,9 @@
         lastFunc: string;
     } = $props();
 
-    // 门禁上下文：图标亮灰跟随各功能总开关（开关正交）+ VIP（嵌入互链）。
+    // 门禁上下文（R5 □1 总开关化：功能级开关门禁退役，图标灰态只剩 VIP=嵌入互链）。
     // vip 读 store（□2 评审转出③：模块变量读取非响应式，验证后灰态滞后到重挂）
     let gateCtx = $derived.by(() => ({
-        gates: {
-            linkBoxCheckbox: $linkBoxCheckbox,
-            linkBoxSyncBlock: $linkBoxSyncBlock,
-            cpBoxCheckbox: $cpBoxCheckbox,
-        },
         vip: $vipVerified === true,
     }));
 
@@ -54,21 +80,37 @@
 
     // ---- funcs 面板 ----
 
-    /** 功能钮灰态：面板态只看门禁（框未填无 srcMulti/sameTarget 可预判）；点了也有纯函数层兜底 */
+    /** 功能钮灰态：面板态只看 VIP 门禁（R5 总开关化，其余功能恒可用）；点了也有纯函数层兜底 */
     function fnErr(f: PairFuncSpec) {
         return pairGateErr(f, gateCtx);
     }
     function errText(err: string | null, f: PairFuncSpec) {
         if (err === "vipGated") return tomatoI18n.需要Pro(label(f.labelKey));
-        if (err === "funcGated") return tomatoI18n.功能未开启(label(f.labelKey));
         if (err === "srcMulti") return tomatoI18n.仅支持单块源(label(f.labelKey));
         if (err === "sameTarget") return tomatoI18n.目标与源相同;
         return label(f.labelKey);
     }
 
+    /** 可用态 tooltip 键位行（R5 □3）：互链族/同步块=[选, 建] 两键、搬运=[移, 复, 删] 三键，
+     *  .w() 现读 keymap 与速查同源；灰态/VIP 态不追加（错误提示语义不变） */
+    function hkLine(f: PairFuncSpec) {
+        if (!f.hkKeys) return "";
+        const ks = f.hkKeys.map(k => HK_BY_LANG.get(k)?.w() ?? "").filter(Boolean);
+        if (ks.length === 0) return "";
+        if (f.id === "transport") return `${tomatoI18n.移动} ${ks[0]} · ${tomatoI18n.复制} ${ks[1]} · ${tomatoI18n.删除} ${ks[2]}`;
+        return `${tomatoI18n.选择} ${ks[0]} · ${tomatoI18n.创建} ${ks[1]}`;
+    }
+
     // ---- slots 框区 ----
 
+    /** 数据形态框数（spec.boxes=最大框数）：框 ② 语义分支（结束框 vs 目标框）、
+     *  emptyLabel、等目标 hint 均按它——不随删除档视图收起变化 */
     let boxes = $derived(pairBoxCount($pairState.func));
+    /** 有效框数：删除档框 ③ 纯视图收起（数据保留，切回 move/copy 自动重显） */
+    let box3Visible = $derived(pairBoxCount($pairState.func, $pairState.transportMode) === 3);
+    let mode = $derived($pairState.transportMode);
+    /** 删除档：无目标框语义（sameTarget 预判/目标通道全不适用） */
+    let isDelMode = $derived($pairState.func === "transport" && mode === "delete");
     let filled = $derived(pairBoxesFilled($pairState));
     let nextEmpty = $derived(pairFirstEmpty($pairState));
     let curSpec = $derived(PAIR_FUNCS.find(f => f.id === $pairState.func) ?? PAIR_FUNCS[0]);
@@ -77,19 +119,22 @@
         const gate = pairGateErr(curSpec, gateCtx);
         if (gate) return gate;
         if (!curSpec.multiSrc && $pairState.srcIDs.length > 1) return "srcMulti";
-        const t = $pairState.tgtID;
-        if (t) {
-            const src = boxes === 3 ? [$pairState.srcIDs[0], $pairState.endID] : $pairState.srcIDs;
-            if (src.includes(t)) return "sameTarget";
+        if (!isDelMode) {
+            const t = $pairState.tgtID;
+            if (t) {
+                const src = boxes === 3 ? [$pairState.srcIDs[0], $pairState.endID] : $pairState.srcIDs;
+                if (src.includes(t)) return "sameTarget";
+            }
         }
         return null;
     });
     /** ✓ 亮出：框齐 + 无拦截 + 搬运区间已解析（rangeCount null=跨文档/未解析） */
     let canConfirm = $derived(filled && !okBlock && ($pairState.func !== "transport" || $pairState.rangeCount != null));
-    /** ✓ 影响面预览：搬运=移动/复制 N 块（区间数），其余=功能名 */
+    /** ✓ 影响面预览：搬运=移动/复制/删除 N 块（区间数），其余=功能名 */
     let impactText = $derived.by(() => {
         if ($pairState.func === "transport") {
-            return $pairState.copyMode ? tomatoI18n.复制块数($pairState.rangeCount) : tomatoI18n.移动块数($pairState.rangeCount);
+            if (mode === "delete") return tomatoI18n.删除块数($pairState.rangeCount);
+            return mode === "copy" ? tomatoI18n.复制块数($pairState.rangeCount) : tomatoI18n.移动块数($pairState.rangeCount);
         }
         return label(curSpec.labelKey);
     });
@@ -105,6 +150,15 @@
         e.dataTransfer?.setData(PAIR_DRAG_MIME, "1"); // Firefox 须 setData 才启动
         if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
         api.dragStart();
+    }
+
+    // ✓ 武装期（R5 □2 vision P1-1）：切档（尤其 move→delete）后框 ③ 卸载令浮条收缩、
+    // 居中锚定下 ✓ 左移到刚点过的档位原位——机械连点第二击会直达红 ✓ 执行删除（零
+    // 弹窗）。切档后短暂武装期内忽略 ✓ 点击；有意两步操作间隔远大于此不受影响。
+    let okArmedAt = $state(0);
+    function guardOkClick() {
+        if (Date.now() - okArmedAt < 350) return;
+        api.confirm();
     }
 
     // 框位拖拽悬停高亮（dragover 无 CSS 伪类，dragenter/leave 计数器法）
@@ -173,7 +227,7 @@
                         class:off={!!err}
                         class:last={isLast}
                         aria-disabled={!!err ? "true" : undefined}
-                        aria-label={isLast ? `${label(f.labelKey)} · ${tomatoI18n.上次使用}` : errText(err, f)}
+                        aria-label={err ? errText(err, f) : `${label(f.labelKey)}${isLast ? ` · ${tomatoI18n.上次使用}` : ""}\n${hkLine(f)}`.trimEnd()}
                         onclick={() => { if (!err) api.pickFunc(f.id); }}
                     >
                         <svg><use xlink:href={"#" + f.icon}></use></svg>
@@ -259,8 +313,8 @@
                     <span class="pairbar-slot-empty">{emptyLabel(2)}</span>
                 {/if}
             </div>
-            {#if boxes === 3}
-                <!-- 框 ③（仅搬运）：目标块 -->
+            {#if box3Visible}
+                <!-- 框 ③（仅搬运；删除档纯视图收起——数据保留切回自动重显）：目标块 -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
                     class="pairbar-slot"
@@ -285,22 +339,28 @@
                 </div>
             {/if}
             {#if $pairState.func === "transport"}
-                <!-- 搬运移动/复制切换：分段控件两档（vision P1：单字按钮无供应性易读成
-                     说明文字）——当前项主色高亮，点已在项=no-op 不翻转；aria-pressed 表达当前档 -->
-                <span class="pairbar-toggle" role="group" aria-label="{tomatoI18n.移动}/{tomatoI18n.复制}">
-                    <button class:cur={!$pairState.copyMode} aria-pressed={!$pairState.copyMode ? "true" : "false"}
-                        onclick={() => { if ($pairState.copyMode) api.toggleCopy(); }}>{tomatoI18n.移动}</button>
-                    <button class:cur={$pairState.copyMode} aria-pressed={$pairState.copyMode ? "true" : "false"}
-                        onclick={() => { if (!$pairState.copyMode) api.toggleCopy(); }}>{tomatoI18n.复制}</button>
+                <!-- 搬运三档分段控件（R5 □2：[移动|复制|删除]；vision P1 教训沿：单字按钮无
+                     供应性易读成说明文字——当前项主色淡底，点已在项=no-op 不翻转；aria-pressed
+                     表达当前档。删除档无确认弹窗（思源历史可恢复+用户零弹窗立场），危险信号
+                     由 ✓ 钮错误色实底+「删除 N 块」承担；transportMode 不跨出场记忆） -->
+                <span class="pairbar-toggle" role="group" aria-label="{tomatoI18n.移动}/{tomatoI18n.复制}/{tomatoI18n.删除}">
+                    <button class:cur={mode === "move"} aria-pressed={mode === "move" ? "true" : "false"}
+                        onclick={() => { if (mode !== "move") { api.setMode("move"); okArmedAt = Date.now(); } }}>{tomatoI18n.移动}</button>
+                    <button class:cur={mode === "copy"} aria-pressed={mode === "copy" ? "true" : "false"}
+                        onclick={() => { if (mode !== "copy") { api.setMode("copy"); okArmedAt = Date.now(); } }}>{tomatoI18n.复制}</button>
+                    <button class:cur={mode === "delete"} aria-pressed={mode === "delete" ? "true" : "false"}
+                        onclick={() => { if (mode !== "delete") { api.setMode("delete"); okArmedAt = Date.now(); } }}>{tomatoI18n.删除}</button>
                 </span>
             {/if}
-            <!-- ✓ 显式确认（鼠标流通道；键盘流=快捷键框齐即执行）：框齐才亮，带影响面预览 -->
+            <!-- ✓ 显式确认（鼠标流通道；键盘流=快捷键框齐即执行）：框齐才亮，带影响面预览。
+                 删除档=思源错误色实底（红化轻提示，零弹窗拍板） -->
             <button
                 class="pairbar-ok b3-tooltips b3-tooltips__s"
                 class:off={!canConfirm}
+                class:danger={isDelMode}
                 disabled={!canConfirm}
                 aria-label={okTip}
-                onclick={() => api.confirm()}
+                onclick={guardOkClick}
             >
                 <svg><use xlink:href="#iconCheck"></use></svg>
                 <span class="pairbar-ok-text">{impactText}</span>
@@ -581,6 +641,17 @@
         opacity: 0.5;
         filter: grayscale(1);
         cursor: not-allowed;
+    }
+    /* 删除档 ✓（R5 □2）：错误色实底=红化轻提示（零弹窗拍板）；hover 须自带变体——
+       :not(:disabled):hover 特异性高于 .danger，漏写会被主色 hover 压回。
+       color 显式 on-error：不随 on-primary 走——自定义浅主色主题 on-primary 为深色时
+       红底深字对比塌（vision P2-2） */
+    .pairbar-ok.danger {
+        background: var(--b3-theme-error);
+        color: var(--b3-theme-on-error);
+    }
+    .pairbar-ok.danger:not(:disabled):hover {
+        background: color-mix(in srgb, var(--b3-theme-error) 85%, black);
     }
     .pairbar-ok svg {
         width: 14px;

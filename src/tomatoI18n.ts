@@ -12,13 +12,41 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Block pairing bar";
         }
     }
-    public get 接力浮条() {
+    // R5 □1 总开关化（2026-09-01）：ConfBlocks 分区标题改名 + 三个子选项折叠区标题
+    public get 块配对工具() {
         switch (this.lang) {
-            case "zh_CN": return "接力浮条";
-            case "zh_CHT": return "接力浮條";
-            case "ja_JP": return "リレーバー";
+            case "zh_CN": return "块配对工具";
+            case "zh_CHT": return "塊配對工具";
+            case "ja_JP": return "ブロックペアツール";
             case "en_US":
-            default: return "Relay bar";
+            default: return "Block pairing tools";
+        }
+    }
+    public get 同步块选项() {
+        switch (this.lang) {
+            case "zh_CN": return "同步块选项";
+            case "zh_CHT": return "同步塊選項";
+            case "ja_JP": return "同期ブロック設定";
+            case "en_US":
+            default: return "Sync block options";
+        }
+    }
+    public get 互链与引用选项() {
+        switch (this.lang) {
+            case "zh_CN": return "互链与引用选项";
+            case "zh_CHT": return "互鏈與引用選項";
+            case "ja_JP": return "相互リンクと参照設定";
+            case "en_US":
+            default: return "Bilink & reference options";
+        }
+    }
+    public get 长内容工具选项() {
+        switch (this.lang) {
+            case "zh_CN": return "长内容工具选项";
+            case "zh_CHT": return "長內容工具選項";
+            case "ja_JP": return "長文コンテンツツール設定";
+            case "en_US":
+            default: return "Long content tools";
         }
     }
     public get 默认功能() {
@@ -129,15 +157,6 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "目標がソースと同じです";
             case "en_US":
             default: return "Target is the same as source";
-        }
-    }
-    public 功能未开启(name: string) {
-        switch (this.lang) {
-            case "zh_CN": return `「${name}」未开启，请在设置中开启`;
-            case "zh_CHT": return `「${name}」未開啟，請在設置中開啟`;
-            case "ja_JP": return `「${name}」は無効です。設定で有効にしてください`;
-            case "en_US":
-            default: return `"${name}" is disabled. Enable it in settings`;
         }
     }
     public 需要Pro(name: string) {
@@ -255,6 +274,34 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Last used";
         }
     }
+    // R5 □3 快捷键速查：⋯ 菜单子菜单标题+组名×2（同步块/长内容工具/选择复用基类现有裸键）+tooltip 键位行「创建」动词
+    public get 快捷键速查() {
+        switch (this.lang) {
+            case "zh_CN": return "快捷键速查";
+            case "zh_CHT": return "快捷鍵速查";
+            case "ja_JP": return "ショートカット一覧";
+            case "en_US":
+            default: return "Hotkey cheatsheet";
+        }
+    }
+    public get 互链族() {
+        switch (this.lang) {
+            case "zh_CN": return "互链族";
+            case "zh_CHT": return "互鏈族";
+            case "ja_JP": return "相互リンク";
+            case "en_US":
+            default: return "Bilinks";
+        }
+    }
+    public get 创建() {
+        switch (this.lang) {
+            case "zh_CN": return "创建";
+            case "zh_CHT": return "建立";
+            case "ja_JP": return "作成";
+            case "en_US":
+            default: return "Create";
+        }
+    }
     public 换功能(name: string) {
         switch (this.lang) {
             case "zh_CN": return `更换功能（当前：${name}）`;
@@ -316,6 +363,25 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return n == null ? "複製" : `${n} 個のブロックを複製`;
             case "en_US":
             default: return n == null ? "Copy" : `Copy ${n} block${n === 1 ? "" : "s"}`;
+        }
+    }
+    // R5 □2 搬运三档（2026-09-01）：删除档 ✓ 影响面预览 + 执行完成 toast（同源取数）
+    public 删除块数(n: number | null) {
+        switch (this.lang) {
+            case "zh_CN": return n == null ? "删除" : `删除 ${n} 块`;
+            case "zh_CHT": return n == null ? "刪除" : `刪除 ${n} 塊`;
+            case "ja_JP": return n == null ? "削除" : `${n} 個のブロックを削除`;
+            case "en_US":
+            default: return n == null ? "Delete" : `Delete ${n} block${n === 1 ? "" : "s"}`;
+        }
+    }
+    public 已删除块数(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `已删除 ${n} 块`;
+            case "zh_CHT": return `已刪除 ${n} 塊`;
+            case "ja_JP": return `${n} 個のブロックを削除しました`;
+            case "en_US":
+            default: return `Deleted ${n} block${n === 1 ? "" : "s"}`;
         }
     }
 

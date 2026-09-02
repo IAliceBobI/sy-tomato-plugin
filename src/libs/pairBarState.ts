@@ -11,6 +11,10 @@ import { cloneCleanDiv } from "./blockUtils";
 
 export type PairPhase = "idle" | "funcs" | "slots";
 export type PairFuncID = "bilink" | "embedBilink" | "refOnly" | "insRefs" | "sync" | "transport";
+/** 搬运三档（R5 □2）：delete=起止两框闭区间删除（目标框纯视图收起，tgtID 数据保留）；
+ *  不跨出场记忆——每次出场重置回 move（破坏性操作不被「上次用过」自动恢复，风险不对称） */
+export type PairTransportMode = "move" | "copy" | "delete";
+/** funcGated 仅剩「非法功能 id」兜底语义（R5 □1 总开关化：功能级开关门禁退役，只剩 VIP 档） */
 export type PairErr = "noSource" | "noTarget" | "sameTarget" | "funcGated" | "vipGated" | "srcMulti";
 
 export interface PairState {
@@ -30,7 +34,7 @@ export interface PairState {
     tgtSummary: string;
     /** 焦点框：点编辑器块回填进焦点框；null=框齐点块不改框（治旧 target 态点块即执行误触） */
     focusSlot: 1 | 2 | 3 | null;
-    copyMode: boolean;
+    transportMode: PairTransportMode;
     /** 三框区间块数预览（控制器回填：起止齐后解析区间长度；null=未解析/跨文档。纯函数层不读写） */
     rangeCount: number | null;
 }
@@ -38,8 +42,6 @@ export interface PairState {
 export interface PairFuncSpec {
     id: PairFuncID;
     icon: string;
-    /** 功能总开关 store 名（图标灰态+点击拦截）：浮条是入口非功能，开关正交 */
-    gate: "linkBoxCheckbox" | "linkBoxSyncBlock" | "cpBoxCheckbox";
     vip: boolean;
     /** 同步块/嵌入互链/搬运用全部源；互链族取第一个（沿 markBlock 语义） */
     multiSrc: boolean;
@@ -47,16 +49,22 @@ export interface PairFuncSpec {
     boxes: 2 | 3;
     /** i18n 文案 key（tomatoI18n getter 名） */
     labelKey: string;
+    /** tooltip 键位行的老命令 winHotkey langKey 引用（R5 □3）：互链族/同步块=[选, 建]，
+     *  transport=[移, 复, 删]。只存 langKey 字符串（渲染层查常量表调 .w() 现读 keymap，
+     *  与速查子菜单同一批常量=同源不漂移；本层不 import LinkBox/CpBox，单测链不受牵连） */
+    hkKeys?: readonly [string, string] | readonly [string, string, string];
 }
 
-/** 六功能 spec：id 顺序即浮条图标横排顺序，也是设置默认功能下拉顺序（勿随意重排） */
+/** 六功能 spec：id 顺序即浮条图标横排顺序，也是设置默认功能下拉顺序（勿随意重排）。
+ *  R5 □1 总开关化：gate 字段退役——功能注册全由 pairBarEnabled 总开关管（命令注册制，
+ *  开关关=功能压根不在，浮条无需按功能灰态）；浮条灰态只剩 VIP 档 */
 export const PAIR_FUNCS: PairFuncSpec[] = [
-    { id: "bilink", icon: "iconLink", gate: "linkBoxCheckbox", vip: false, multiSrc: false, boxes: 2, labelKey: "双向互链" },
-    { id: "embedBilink", icon: "iconSQL", gate: "linkBoxCheckbox", vip: true, multiSrc: true, boxes: 2, labelKey: "嵌入互链" },
-    { id: "refOnly", icon: "iconRef", gate: "linkBoxCheckbox", vip: false, multiSrc: false, boxes: 2, labelKey: "关联两个块" },
-    { id: "insRefs", icon: "iconBoth", gate: "linkBoxCheckbox", vip: false, multiSrc: false, boxes: 2, labelKey: "互相插入引用" },
-    { id: "sync", icon: "iconRefresh", gate: "linkBoxSyncBlock", vip: false, multiSrc: true, boxes: 2, labelKey: "同步块" },
-    { id: "transport", icon: "iconMove", gate: "cpBoxCheckbox", vip: false, multiSrc: true, boxes: 3, labelKey: "搬运" },
+    { id: "bilink", icon: "iconLink", vip: false, multiSrc: false, boxes: 2, labelKey: "双向互链", hkKeys: ["bilinkSelectBlock", "bilinkSelectBlock roundtrip"] },
+    { id: "embedBilink", icon: "iconSQL", vip: true, multiSrc: true, boxes: 2, labelKey: "嵌入互链", hkKeys: ["bilinkSelectBlock embed", "bilinkCreateLnk"] },
+    { id: "refOnly", icon: "iconRef", vip: false, multiSrc: false, boxes: 2, labelKey: "关联两个块", hkKeys: ["bilinkSelectBlockRefOnly", "bilinkCreateLnkRefOnly"] },
+    { id: "insRefs", icon: "iconBoth", vip: false, multiSrc: false, boxes: 2, labelKey: "互相插入引用", hkKeys: ["bidirection refs select", "bidirection refs create"] },
+    { id: "sync", icon: "iconRefresh", vip: false, multiSrc: true, boxes: 2, labelKey: "同步块", hkKeys: ["list refs select", "list refs create"] },
+    { id: "transport", icon: "iconMove", vip: false, multiSrc: true, boxes: 3, labelKey: "搬运", hkKeys: ["moveBlocks", "copyBlocks", "deleteBlocks"] },
 ];
 
 export const initialPairState: PairState = {
@@ -70,7 +78,7 @@ export const initialPairState: PairState = {
     tgtID: null,
     tgtSummary: "",
     focusSlot: 1,
-    copyMode: false,
+    transportMode: "move",
     rangeCount: null,
 };
 
@@ -121,20 +129,17 @@ export interface PairEvent {
     lastSrc?: boolean;
 }
 
-/** 门禁上下文：gates=三功能总开关快照，vip=lastVerifyResult() */
+/** 门禁上下文（R5 □1 总开关化后只剩 VIP 档）：vip=lastVerifyResult() */
 export interface PairGateCtx {
-    gates: Record<string, boolean>;
     vip: boolean;
 }
 
 /** 门禁上下文缺省值：不设防（控制器总会传真实快照；纯函数层面缺上下文≠拦截） */
-const UNGATED: PairGateCtx = { gates: { linkBoxCheckbox: true, linkBoxSyncBlock: true, cpBoxCheckbox: true }, vip: true };
+const UNGATED: PairGateCtx = { vip: true };
 
-/** 图标灰态/点击拦截统一判据：VIP 功能未验证 → vipGated；总开关未开 → funcGated；放行 null */
+/** 图标灰态/点击拦截统一判据：VIP 功能未验证 → vipGated；放行 null */
 export function pairGateErr(spec: PairFuncSpec, ctx?: Partial<PairGateCtx>): PairErr | null {
-    const c = { gates: { ...UNGATED.gates, ...ctx?.gates }, vip: ctx?.vip ?? UNGATED.vip };
-    if (spec.vip && !c.vip) return "vipGated";
-    if (!c.gates[spec.gate]) return "funcGated";
+    if (spec.vip && !(ctx?.vip ?? UNGATED.vip)) return "vipGated";
     return null;
 }
 
@@ -142,17 +147,22 @@ type PairResult = { state: PairState; err?: PairErr; attemptFunc?: PairFuncID };
 
 // ---------------- 框数/就绪判定（UI 与转移函数共用） ----------------
 
-/** 功能框数：搬运 3、其余 2；func 未设按两框缺省（不该出现的态，防御） */
-export function pairBoxCount(func: PairFuncID | null | undefined): 2 | 3 {
-    return PAIR_FUNCS.find(f => f.id === func)?.boxes ?? 2;
+/** 功能框数：搬运 3、其余 2；func 未设按两框缺省（不该出现的态，防御）。
+ *  R5 □2 搬运三档：mode 参=当前「有效框数」——transport+delete 返回 2（目标框纯视图收起）；
+ *  缺省调用恒返回 spec.boxes（最大框数=数据形态框数——填/清的框 ② 语义分支与换功能
+ *  映射类别判定用它，不受删除档视图收起影响）。 */
+export function pairBoxCount(func: PairFuncID | null | undefined, mode?: PairTransportMode): 2 | 3 {
+    const n = PAIR_FUNCS.find(f => f.id === func)?.boxes ?? 2;
+    return n === 3 && mode === "delete" ? 2 : n;
 }
 
 /** 第一个未填的框号（填框推进目标）：框 i 填没填 = 目标框看 tgtID、其余看对应字段；
- *  全填返回 null（框齐） */
+ *  全填返回 null（框齐）。删除档=起止两框齐即框齐（目标框纯视图不参与判定） */
 export function pairFirstEmpty(s: PairState): 1 | 2 | 3 | null {
     const boxes = pairBoxCount(s.func);
     if (s.srcIDs.length === 0) return 1;
     if (boxes === 3 && !s.endID) return 2;
+    if (s.func === "transport" && s.transportMode === "delete") return null;
     if (!s.tgtID) return boxes;
     return null;
 }
@@ -183,8 +193,8 @@ function prefilledFromStash(func: PairFuncID, stash: PairEvent | null): Pick<Pai
  * - slots → 填下一空框（两框源框多块整组入/其余取首块）；这一填正好框齐则立即
  *   执行（拍板 A 三步合一，✓ 是鼠标流通道）；框本已齐（无框可填）=直接执行。
  */
-export function pairTrigger(s: PairState, ev: PairEvent, opts: { defaultFunc?: PairFuncID | ""; gates?: Record<string, boolean>; vip?: boolean }): PairResult & { runFunc?: PairFuncID } {
-    const ctx = { gates: opts.gates, vip: opts.vip };
+export function pairTrigger(s: PairState, ev: PairEvent, opts: { defaultFunc?: PairFuncID | ""; vip?: boolean }): PairResult & { runFunc?: PairFuncID } {
+    const ctx = { vip: opts.vip };
     if (s.phase === "idle") {
         // 预选功能只认设置里的默认功能（显式配置，R4 2026-09-01 起「上次功能」直跳退役：
         // 老用户被上次恰好用的功能直跳框态咬过——出场一律先面板自己选；lastFunc 只存面板高亮）
@@ -229,7 +239,7 @@ export function pairTrigger(s: PairState, ev: PairEvent, opts: { defaultFunc?: P
  * - 重选同一功能（回面板后）：框内容原样恢复（暂存重填拍板）。
  * - 换功能：按新功能框数映射现有内容——2→3 源组首/末块进起止；3→2 控制器可传
  *   rangeIDs（区间解析结果整段进源框），缺省回落起/止两端；2→2 原样保留只换功能。
- * 目标框与 copyMode 恒保留。门禁失败不进框态（面板上本就灰态，此为点击兜底）。
+ * 目标框与 transportMode 恒保留。门禁失败不进框态（面板上本就灰态，此为点击兜底）。
  */
 export function pairPickFunc(s: PairState, func: PairFuncID, ctx?: Partial<PairGateCtx>, opts?: { rangeIDs?: string[] }): PairResult {
     if (s.phase !== "funcs") return { state: s };
@@ -272,8 +282,10 @@ export function pairPickFunc(s: PairState, func: PairFuncID, ctx?: Partial<PairG
  */
 export function pairFillBox(s: PairState, slot: 1 | 2 | 3, ev: PairEvent): PairResult {
     if (s.phase !== "slots" || ev.ids.length === 0) return { state: s };
+    // 有效框数守卫：删除档框 ③ 通道关闭（slot>2 no-op）
+    if (slot > pairBoxCount(s.func, s.transportMode)) return { state: s };
+    // 框 ② 语义分支用最大框数（数据形态）：transport 框 ② 恒=结束框，不随删除档变
     const boxes = pairBoxCount(s.func);
-    if (slot > boxes) return { state: s };
     let next: PairState;
     if (slot === 1) {
         if (boxes === 2) {
@@ -301,9 +313,10 @@ export function pairFillBox(s: PairState, slot: 1 | 2 | 3, ev: PairEvent): PairR
     return { state: { ...next, focusSlot: pairFirstEmpty(next) ?? null } };
 }
 
-/** chip ✕ 删框：清该框，焦点落回该框待重填 */
+/** chip ✕ 删框：清该框，焦点落回该框待重填。删除档框 ③ no-op（tgtID 残留数据不动）；
+ *  框 ② 语义按最大框数：transport 恒清结束框 */
 export function pairClearBox(s: PairState, slot: 1 | 2 | 3): PairState {
-    if (s.phase !== "slots" || slot > pairBoxCount(s.func)) return s;
+    if (s.phase !== "slots" || slot > pairBoxCount(s.func, s.transportMode)) return s;
     if (slot === 1) return { ...s, srcIDs: [], srcSummary: "", focusSlot: 1, rangeCount: null };
     if (slot === 2 && pairBoxCount(s.func) === 3) return { ...s, endID: null, endSummary: "", focusSlot: 2, rangeCount: null };
     return { ...s, tgtID: null, tgtSummary: "", focusSlot: pairBoxCount(s.func) };
@@ -321,19 +334,23 @@ export function pairBackToFuncs(s: PairState): PairState {
  * ✓ 显式确认即执行（原 V3 runFunc 语义；框齐才亮钮，此函数仍全量校验兜底）：
  * 框缺块 → 门禁 → 单源功能遇多源（srcMulti）→ 目标命中源（两框=源组/三框=起止，
  * 区间内部命中由控制器执行前用区间解析拦截）→ 回 idle，控制器按 runFunc 执行。
+ * 删除档（R5 □2）无目标框语义：noTarget/sameTarget 均豁免（tgtID 纯残留数据）。
  */
 export function pairConfirm(s: PairState, ctx?: Partial<PairGateCtx>): PairResult & { runFunc?: PairFuncID } {
     if (s.phase !== "slots") return { state: s };
     const boxes = pairBoxCount(s.func);
     if (s.srcIDs.length === 0 || (boxes === 3 && !s.endID)) return { state: s, err: "noSource" };
-    if (!s.tgtID) return { state: s, err: "noTarget" };
+    const isDel = s.func === "transport" && s.transportMode === "delete";
+    if (!isDel && !s.tgtID) return { state: s, err: "noTarget" };
     const spec = PAIR_FUNCS.find(f => f.id === s.func);
     if (!spec) return { state: s, err: "funcGated" };
     const gate = pairGateErr(spec, ctx);
     if (gate) return { state: s, err: gate };
     if (!spec.multiSrc && s.srcIDs.length > 1) return { state: s, err: "srcMulti" };
-    const src = boxes === 3 ? [s.srcIDs[0], s.endID!] : s.srcIDs;
-    if (src.includes(s.tgtID)) return { state: s, err: "sameTarget" };
+    if (!isDel) {
+        const src = boxes === 3 ? [s.srcIDs[0], s.endID!] : s.srcIDs;
+        if (src.includes(s.tgtID)) return { state: s, err: "sameTarget" };
+    }
     return { state: initialPairState, runFunc: s.func };
 }
 
@@ -352,10 +369,12 @@ export function pairCancel(_s: PairState): PairState {
     return initialPairState;
 }
 
-/** 搬运「移动/复制」二选一切换：选中搬运进框态即可切（与目标框并行操作），其余 no-op */
-export function pairToggleCopy(s: PairState): PairState {
-    if (s.phase !== "slots" || s.func !== "transport") return s;
-    return { ...s, copyMode: !s.copyMode };
+/** 搬运三档切换（R5 □2：move|copy|delete）：选中搬运进框态即可切（与填框并行操作），
+ *  其余 no-op；切档=纯视图态**不触发框间映射**——tgtID/endID 数据保留，切回 move/copy
+ *  目标框自动重显（起止未变 rangeCount 也不动，「删除 N 块」与「移动 N 块」同源）。 */
+export function pairSetMode(s: PairState, mode: PairTransportMode): PairState {
+    if (s.phase !== "slots" || s.func !== "transport" || s.transportMode === mode) return s;
+    return { ...s, transportMode: mode };
 }
 
 /** 搬运 ops 构造（依赖注入 trans 工厂保纯函数可测；reasoning 评审 P0-1：复制必须

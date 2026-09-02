@@ -381,23 +381,22 @@
         const bks = [...map.values()]
             .sort((a, b) => b.sort - a.sort)
             .map((row) => {
-                // □7 性能：不再立即 createProtyle——复用迁移的保留实例，新建的懒到进视口（mountProtyle）
+                // □7 性能：不再立即 createProtyle——复用迁移的保留实例，新建的懒到进视口（mountProtyle）。
+                // 迁移只读不写：旧数组（当前 $state）上的 bk 绝不能就地置 null——那是 $state 深层写，
+                // 会在 await getRows 的间隙触发 @attach effect 重跑、读到 protyle=null 走 io 分支重建实例，
+                // 卡内 protyle 因此成对堆叠（2026-09-01「感情卡×3」bug 根因，Loki 打点实证）。
+                // 销毁侧改由 closeProtyle 按「保留名单」排除迁移块，旧数组保持原样直到整体替换。
                 const bk = backLinks.find((b) => b.blockID === row.id);
-                const protyle = bk?.protyle ?? null;
-                const ob = bk?.ob ?? null;
-                if (bk) {
-                    bk.protyle = null;
-                    bk.ob = null;
-                }
                 return {
                     blockID: row.id,
-                    protyle,
-                    ob,
+                    protyle: bk?.protyle ?? null,
+                    ob: bk?.ob ?? null,
                     row,
                 } as BacklinkSv<Protyle>;
             });
 
-        closeProtyle(...backLinks);
+        const kept = new Set(bks.map((bk) => bk.blockID));
+        closeProtyle(...backLinks.filter((bk) => !kept.has(bk.blockID)));
 
         const rows = await siyuan.getRows(
             bks.map((bk) => bk.blockID),
@@ -458,9 +457,15 @@
     const lazyObservers = new Set<IntersectionObserver>();
 
     function attachNow(node: HTMLElement, backLink: BacklinkSv<Protyle>) {
-        if (!backLink.protyle?.protyle?.element) return;
+        const el = backLink.protyle?.protyle?.element;
+        if (!el) return;
         node.style.minHeight = "auto";
-        node.appendChild(backLink.protyle.protyle.element);
+        // 兜底扫孤儿：本卡 body 里只允许存在当前 protyle 的 element——任何历史残留
+        // （上游竞态漏销毁的实例，内核 destroy 不摘 DOM）就地清掉，卡内永不堆叠
+        for (const c of [...node.children]) {
+            if (c !== el) c.remove();
+        }
+        node.appendChild(el);
 
         const protyleDiv = document.getElementById(
             getProtyleID(backLink),
@@ -488,9 +493,10 @@
         attachNow(node, backLink);
     }
 
-    function mountProtyle(index: number) {
+    // attach 直持本卡 backLink（each 绑定的 item），闭包即真实配对——严禁 index 反查数组：
+    // 数组在 await 间隙/重排的中间态与闭包 index 错位，会把别的卡的 protyle 挂进本卡
+    function mountProtyle(backLink: BacklinkSv<Protyle>) {
         return (node: HTMLElement) => {
-            const backLink = backLinks.at(index);
             if (backLink?.protyle?.protyle?.element) {
                 attachNow(node, backLink);
                 return;
@@ -500,8 +506,7 @@
                     if (!entries.some((en) => en.isIntersecting)) return;
                     obs.disconnect();
                     lazyObservers.delete(obs);
-                    const bk = backLinks.at(index);
-                    if (bk && !bk.protyle) ensureProtyle(bk, node);
+                    if (!backLink.protyle) ensureProtyle(backLink, node);
                 },
                 { root: null, rootMargin: "300px 0px" },
             );
@@ -853,7 +858,7 @@
         {/if}
     {:else}
         <div class="tomato-grid">
-            {#each backLinks as backLink, index (backLink.blockID)}
+            {#each backLinks as backLink (backLink.blockID)}
                 <div class="tomato-card">
                     <div class="tomato-card__head">
                         <span
@@ -906,7 +911,7 @@
                     <div
                         id={getProtyleID(backLink)}
                         class="tomato-card__body"
-                        {@attach mountProtyle(index)}
+                        {@attach mountProtyle(backLink)}
                     ></div>
                 </div>
             {/each}

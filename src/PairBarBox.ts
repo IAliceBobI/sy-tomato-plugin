@@ -29,13 +29,14 @@ import {
     pairFillBox,
     pairFirstEmpty,
     pairPickFunc,
-    pairToggleCopy,
+    pairSetMode,
     pairTrigger,
     resolveRangeIDs,
     type PairErr,
     type PairEvent,
     type PairFuncID,
     type PairState,
+    type PairTransportMode,
 } from "./libs/pairBarState";
 import {
     bilinkWithInsertingRefs,
@@ -45,9 +46,6 @@ import {
 } from "./libs/utils";
 import * as utils from "./libs/utils";
 import {
-    cpBoxCheckbox,
-    linkBoxCheckbox,
-    linkBoxSyncBlock,
     pairBarDefaultFunc,
     pairBarEnabled,
     pairBarEntryHotkey,
@@ -68,8 +66,26 @@ import {
     LinkBox修复双向链接,
     LinkBox删除双向链接,
     LinkBox链接到块底部,
+    LinkBox双向互链选择块,
+    LinkBox双向互链创建往返链,
+    LinkBox嵌入互链选择,
+    LinkBox嵌入互链创建,
+    LinkBox关联两个块选择,
+    LinkBox关联两个块创建,
+    LinkBox互相插入引用于下方选择,
+    LinkBox互相插入引用于下方创建,
+    LinkBox查看所有同步位置,
+    LinkBox同步块选择,
+    LinkBox同步块创建,
     linkBox,
 } from "./LinkBox";
+import {
+    CpBox批量删除大量连续内容块,
+    CpBox批量移动大量连续内容块,
+    CpBox批量复制大量连续内容块,
+    LongContentOpsLock,
+} from "./CpBox";
+import { getPairCmd } from "./libs/pairCmdRegistry";
 import PairBar from "./PairBar.svelte";
 
 // 默认键位 ⌥⇧V：四插件 winHotkey 全量 + 官方 keymap 排除后 alt+shift 系唯一空位
@@ -91,7 +107,8 @@ type PairBarApi = {
     confirm: () => void;
     clearBox: (slot: 1 | 2 | 3) => void;
     cancel: () => void;
-    toggleCopy: () => void;
+    /** 搬运三档切换（R5 □2）：纯视图态，切档不触发框间映射 */
+    setMode: (mode: PairTransportMode) => void;
     dragStart: () => void;
     dragEnd: () => void;
     /** 框位 dragover/drop（拖块进框：认领思源 gutter 块拖拽，控制器判 MIME+preventDefault） */
@@ -230,7 +247,6 @@ class PairBarBox {
         let cur = get(this.state);
         const opts = {
             defaultFunc: (pairBarDefaultFunc.get() || "") as PairFuncID | "",
-            gates: this.gates(),
             vip: lastVerifyResult() === true,
         };
         if (cur.phase === "idle") {
@@ -358,7 +374,7 @@ class PairBarBox {
         // 旧快照写回=幽灵 funcs/slots 态，fillFromEditor 同款防线）
         cur = get(this.state);
         if (cur.phase !== "funcs") return;
-        const r = pairPickFunc(cur, funcID, { gates: this.gates(), vip: lastVerifyResult() === true }, opts);
+        const r = pairPickFunc(cur, funcID, this.gates(), opts);
         if (r.err) {
             await this.toastErr(r.err, funcID);
             return;
@@ -389,7 +405,7 @@ class PairBarBox {
     async confirm() {
         const cur = get(this.state);
         if (cur.phase !== "slots") return;
-        const r = pairConfirm(cur, { gates: this.gates(), vip: lastVerifyResult() === true });
+        const r = pairConfirm(cur, this.gates());
         if (r.err) {
             await this.toastErr(r.err, cur.func);
             return;
@@ -402,8 +418,8 @@ class PairBarBox {
         this.hideBar();
     }
 
-    toggleCopy() {
-        this.state.update(pairToggleCopy);
+    setMode(mode: PairTransportMode) {
+        this.state.update(s => pairSetMode(s, mode));
     }
 
     // ---------------- 三框区间解析（wysiwyg 顶层平铺序闭区间） ----------------
@@ -441,6 +457,7 @@ class PairBarBox {
      *  independent 第三参防单例被同次 click 冒泡清空；open 包 setTimeout 防边缘。 */
     more(anchor: HTMLElement) {
         const menu = new (Menu as any)("tomatoPairBarMore", undefined, true) as Menu;
+        menu.addItem(this.quickRefItem());
         menu.addItem({
             label: LinkBox链接到块底部.langText(),
             accelerator: LinkBox链接到块底部.m,
@@ -465,16 +482,60 @@ class PairBarBox {
         setTimeout(() => menu.open({ x: rect.left, y: rect.bottom + 4 }), 0);
     }
 
-    /** 3 条单功能执行链（LinkBox 老命令开放直调）：门禁→源解析（框 1 优先，
+    /** 快捷键速查子菜单（R5 □3）：四组=浮条触发+互链族 8+同步块 3+长内容 3，项可点执行。
+     *  键位 .w() 现读 keymap（每次点 ⋯ 现构造菜单=永远新鲜，沿状态栏 tooltip 先例）；
+     *  点击查 langKey→callback 注册表直调（登记点=LinkBox/CpBox addCommand，总开关关
+     *  =表空=落空，正确语义）；VIP 门禁（嵌入互链）在命令 callback 内部自验不变。
+     *  组名用 disabled 菜单项（灰显不可点=纯标题语义）。 */
+    private quickRefItem(): any {
+        type Hk = { langKey: string; langText(): string; w(): string };
+        const groups: Array<[string, Hk[]]> = [
+            [tomatoI18n.互链族, [
+                LinkBox双向互链选择块, LinkBox双向互链创建往返链,
+                LinkBox嵌入互链选择, LinkBox嵌入互链创建,
+                LinkBox关联两个块选择, LinkBox关联两个块创建,
+                LinkBox互相插入引用于下方选择, LinkBox互相插入引用于下方创建,
+            ]],
+            [tomatoI18n.同步块, [
+                LinkBox查看所有同步位置, LinkBox同步块选择, LinkBox同步块创建,
+            ]],
+            [tomatoI18n.长内容工具, [
+                CpBox批量删除大量连续内容块, CpBox批量移动大量连续内容块, CpBox批量复制大量连续内容块,
+            ]],
+        ];
+        const submenu: any[] = [{
+            label: PairBar触发.langText(),
+            icon: PairBar触发.icon,
+            accelerator: PairBar触发.w(),
+            // 浮条已开着：点击=同一触发器推进一步（funcs 收面板/slots 填下一空框），与快捷键/状态栏同款
+            click: () => void this.trigger(),
+        }];
+        for (const [group, cmds] of groups) {
+            submenu.push({ type: "separator" }, { label: group, disabled: true });
+            for (const c of cmds) {
+                submenu.push({
+                    label: c.langText(),
+                    accelerator: c.w(),
+                    click: () => this.runQuickCmd(c.langKey),
+                });
+            }
+        }
+        return { label: tomatoI18n.快捷键速查, icon: "iconKeymap", submenu };
+    }
+
+    /** 速查直调（R5 □3）：先收浮条再执行（一次性操作不进接力流，沿 runOverflowCmd 先例）；
+     *  editorCallback 型命令传当前 protyle，callback 型（长内容）忽略该参 */
+    private runQuickCmd(langKey: string) {
+        const fn = getPairCmd(langKey);
+        if (!fn) return;
+        const protyle = this.curProtyle();
+        this.hideBar();
+        void fn(protyle);
+    }
+
+    /** 3 条单功能执行链（LinkBox 老命令开放直调）：源解析（框 1 优先，
      *  框空取当前光标块新鲜读）→先收浮条再执行（一次性操作不进接力流） */
     private async runOverflowCmd(func: "lnk2bottom" | "fixLnk" | "delLnk") {
-        const fnLabel = func === "lnk2bottom" ? LinkBox链接到块底部.langText()
-            : func === "fixLnk" ? LinkBox修复双向链接.langText()
-                : LinkBox删除双向链接.langText();
-        if (!linkBoxCheckbox.get()) {
-            await siyuan.pushMsg(tomatoI18n.功能未开启(fnLabel));
-            return;
-        }
         const cur = get(this.state);
         let div: HTMLElement | null = null;
         if (cur.srcIDs.length > 0) {
@@ -738,8 +799,9 @@ class PairBarBox {
         return live ?? (await utils.getBlockDiv(id))?.div ?? null;
     }
 
-    /** 确认执行前置：搬运先解析区间（文档平铺闭区间）+ 区间含目标拦截；
-     *  其余功能源=框 1 源组（单源功能执行时取首块）。目标解析失败清目标框 */
+    /** 确认执行前置：搬运先解析区间（文档平铺闭区间）+ 区间含目标拦截；删除档整段
+     *  删除分流（无目标/protyle 需求）；其余功能源=框 1 源组（单源功能执行时取首块）。
+     *  目标解析失败清目标框 */
     private async execConfirm(st: PairState, func: PairFuncID) {
         let srcIDs = st.srcIDs;
         if (func === "transport") {
@@ -748,9 +810,15 @@ class PairBarBox {
                 await siyuan.pushMsg(tomatoI18n.起止须同文档);
                 return;
             }
-            // 目标落在区间内部（非端点，sameTarget 端点检查抓不到）：move 会把目标搬进自己
-            if (st.tgtID && range.includes(st.tgtID)) {
+            const isDel = st.transportMode === "delete";
+            // 目标落在区间内部（非端点，sameTarget 端点检查抓不到）：move 会把目标搬进自己；
+            // 删除档无目标框语义，tgtID 纯残留数据不参与拦截
+            if (!isDel && st.tgtID && range.includes(st.tgtID)) {
                 await siyuan.pushMsg(tomatoI18n.目标与源相同);
+                return;
+            }
+            if (isDel) {
+                await this.execDelete(range);
                 return;
             }
             srcIDs = range;
@@ -814,6 +882,32 @@ class PairBarBox {
         }
     }
 
+    /** 删除档执行（R5 □2 搬运三档）：闭区间 ids 整段 deleteBlocks（思源删除可从历史
+     *  恢复，按拍板零确认弹窗）；并发防护=LongContentOpsLock（跨入口：老批量删除命令
+     *  同锁）+ busy 哨兵（浮条多入口防重入）。lastFunc 记面板高亮；lastSrcID 不记——
+     *  源块已删，记了下次出场解析不到白发一次内核请求。 */
+    private async execDelete(ids: string[]) {
+        if (this.busy) return;
+        this.busy = true;
+        try {
+            // 先收浮条再执行（与 execChain 同款：执行期间状态条不再响应）
+            this.state.set(initialPairState);
+            this.hideBar();
+            await navigator.locks.request(LongContentOpsLock, { ifAvailable: true }, async (lock) => {
+                if (!lock) {
+                    await siyuan.pushMsg(tomatoI18n.请等待上个操作完成);
+                    return;
+                }
+                await siyuan.deleteBlocks(ids);
+                await siyuan.pushMsg(tomatoI18n.已删除块数(ids.length));
+                pairBarLastFunc.set("transport");
+                void pairBarLastFunc.write();
+            });
+        } finally {
+            this.busy = false;
+        }
+    }
+
     private async executeWith(st: PairState, srcDivs: HTMLElement[], target: HTMLElement, protyle: IProtyle): Promise<boolean> {
         const spec = PAIR_FUNCS.find(f => f.id === st.func);
         if (!spec || !target) return false;
@@ -835,7 +929,8 @@ class PairBarBox {
                 await linkBox.addSyncLink(protyle, useAll, target);
                 break;
             case "transport":
-                await this.transport(useAll, target, st.copyMode);
+                // 删除档在 execConfirm 已分流走 execDelete，此分支只剩 move/copy
+                await this.transport(useAll, target, st.transportMode === "copy");
                 break;
         }
         return true;
@@ -911,11 +1006,7 @@ class PairBarBox {
     }
 
     private gates() {
-        return {
-            linkBoxCheckbox: linkBoxCheckbox.get(),
-            linkBoxSyncBlock: linkBoxSyncBlock.get(),
-            cpBoxCheckbox: cpBoxCheckbox.get(),
-        };
+        return { vip: lastVerifyResult() === true };
     }
 
     private labelOf(func?: PairFuncID | null) {
@@ -931,9 +1022,6 @@ class PairBarBox {
                 break;
             case "sameTarget":
                 await siyuan.pushMsg(tomatoI18n.目标与源相同);
-                break;
-            case "funcGated":
-                await siyuan.pushMsg(tomatoI18n.功能未开启(this.labelOf(func)));
                 break;
             case "vipGated":
                 await siyuan.pushMsg(tomatoI18n.需要Pro(this.labelOf(func)));
@@ -970,8 +1058,7 @@ class PairBarBox {
             confirm: () => void this.confirm(),
             clearBox: s => this.clearBox(s),
             cancel: () => this.cancel(),
-            toggleCopy: () => this.toggleCopy(),
-            dragStart: () => this.dragStart(),
+            setMode: m => this.setMode(m),            dragStart: () => this.dragStart(),
             dragEnd: () => this.dragEnd(),
             slotDragOver: (e, s) => this.slotDragOver(e, s),
             slotDrop: (e, s) => void this.slotDrop(e, s),

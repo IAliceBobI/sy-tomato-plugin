@@ -21,7 +21,7 @@ declare global {
                 confirm: () => Promise<void>;
                 clearBox: (slot: 1 | 2 | 3) => void;
                 cancel: () => void;
-                toggleCopy: () => void;
+                setMode: (mode: "move" | "copy" | "delete") => void;
             };
             save?: () => void;
             rmContentEmptyRefs?: () => void;
