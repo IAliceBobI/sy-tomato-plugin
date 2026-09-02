@@ -1,10 +1,12 @@
 <script lang="ts">
-    // IndexConf 设置分区：状态栏番茄钟 / 拍照闪念 / 批注 / 思维导线 / 块关系图。
+    // IndexConf 设置分区：状态栏番茄钟 / 拍照闪念 / 批注 / 块关系图。
     // 从 IndexConf.svelte 拆出（2026-08 重构），共享样式见 IndexConf.css。
     import TomatoVIP from "./TomatoVIP.svelte";
+    import NotebookSelect from "./NotebookSelect.svelte";
     import {
         avoiding_cloud_synchronization_conflicts,
         commentBoxAnnoBg,
+        commentBoxAnnoDraftNotebook,
         commentBoxAnnoLineType,
         commentBoxAnnoMarkStyle,
         commentBoxAnnoUnderlineThickness,
@@ -25,14 +27,6 @@
         graphMaxPBlocks,
         graph定位到图中的节点Menu,
         graph打开块关系图Menu,
-        mindWireCheckbox,
-        mindWireColorfull,
-        mindWireDocMenu,
-        mindWireDynamicLine,
-        mindWireGlobalMenu,
-        mindWireLine,
-        mindWireStarRefOnly,
-        mindWireWidth,
         noteBoxAllKinds,
         noteBoxCheckbox,
         tomatoClockCheckbox,
@@ -49,14 +43,13 @@
         tomato_clocks_opacity,
         tomato_clocks_position_right,
     } from "./libs/stores";
-    import { lastVerifyResult } from "./libs/user";
     import { CommentBoxTab批注, CommentBox添加批注到日记 } from "./CommentBox";
-    import { MindWire启用或禁用思维导线, MindWire启用或禁用文档思维导线 } from "./MindWire";
     import { GraphBox定位到图中的节点, GraphBox打开块关系图 } from "./GraphBox";
     import { NoteBox拍照闪念全局 } from "./NoteBox";
     import { tomatoI18n } from "./tomatoI18n";
     import { applyAnnoVisual } from "./Annotations";
     import HotkeyCap from "./HotkeyCap.svelte";
+    import ConfHelpIcon from "./ConfHelpIcon.svelte";
     import { PRESET_CLOCKS, MAX_CLOCKS, parseClocks, clocksToStore } from "./libs/TomatoClockList";
     import {
         AUDIO_PRESETS,
@@ -295,6 +288,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$tomatoClockCheckbox} />
             {tomatoI18n.状态栏番茄钟}
+            <ConfHelpIcon token="KmCRdj1s7okXZOxkwsTcbPFXnNh" />
         </div>
         {#if $tomatoClockCheckbox}
             <div>
@@ -537,6 +531,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$noteBoxCheckbox} />
             {tomatoI18n.拍照闪念收集图片闪念到}
+            <ConfHelpIcon token="N3LkdvKGhowkTUx1r6OcxCjInec" />
         </div>
         {#if $noteBoxCheckbox}
             <div>
@@ -584,6 +579,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$commentBoxCheckbox} />
             {tomatoI18n.批注}
+            <ConfHelpIcon token="Svq2dIQpaob0kKx0l38ciftRnXl" />
         </div>
         {#if $commentBoxCheckbox}
             <div>
@@ -596,6 +592,16 @@
                 {tomatoI18n.menu添加右键菜单}
                 <HotkeyCap hk={CommentBox添加批注到日记} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
+            <div>
+                {tomatoI18n.批注草稿存放笔记本}
+                <NotebookSelect
+                    bare
+                    store={commentBoxAnnoDraftNotebook}
+                    emptyLabel={() => tomatoI18n.草稿笔记本自动}
+                    emptyTitle={() => tomatoI18n.草稿笔记本自动说明}
+                ></NotebookSelect>
+            </div>
+            <div>{tomatoI18n.草稿笔记本自动说明}</div>
             <div>
                 {tomatoI18n.批注标记形态}
                 <select
@@ -694,68 +700,13 @@
             </div>
         {/if}
     </div>
-    <!-- 思维导线 -->
-    <div class="settingBox">
-        <div class="section-title">
-            <input type="checkbox" class="b3-switch" bind:checked={$mindWireCheckbox} />
-            {tomatoI18n.思维导线}
-        </div>
-        {#if $mindWireCheckbox}
-            <div>
-                {tomatoI18n.思维导线帮助}
-            </div>
-            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$mindWireGlobalMenu} />
-                {tomatoI18n.menu添加右键菜单}:
-                {MindWire启用或禁用思维导线.langText()}
-                <HotkeyCap hk={MindWire启用或禁用思维导线} pluginName="sy-tomato-plugin"></HotkeyCap>
-            </div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$mindWireDocMenu} />
-                {tomatoI18n.menu添加右键菜单}:
-                {MindWire启用或禁用文档思维导线.langText()}
-                <HotkeyCap hk={MindWire启用或禁用文档思维导线} pluginName="sy-tomato-plugin"></HotkeyCap>
-            </div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$mindWireStarRefOnly} />
-                {tomatoI18n.只关联星号引用}
-            </div>
-            <div class:codeNotValid>
-                <input
-                    disabled={codeNotValid}
-                    type="checkbox"
-                    class="b3-switch"
-                    bind:checked={$mindWireLine}
-                />
-                {tomatoI18n.使用实线}<TomatoVIP {codeValid}></TomatoVIP>
-            </div>
-            <div class:codeNotValid>
-                <input
-                    disabled={codeNotValid}
-                    type="checkbox"
-                    class="b3-switch"
-                    bind:checked={$mindWireColorfull}
-                />
-                {tomatoI18n.使用多种颜色}<TomatoVIP {codeValid}></TomatoVIP>
-            </div>
-            {#if !($mindWireLine && lastVerifyResult())}
-                <div>
-                    <input type="checkbox" class="b3-switch" bind:checked={$mindWireDynamicLine} />
-                    {tomatoI18n.流动线条效果}
-                </div>
-            {/if}
-            <div>
-                <input class="b3-text-field" type="number" min="0.1" bind:value={$mindWireWidth} />
-                {tomatoI18n.线条宽度}
-            </div>
-        {/if}
-    </div>
+    <!-- 思维导线：2026-09-02 □5 迁出为独立分区 ConfMindWire.svelte（spec §4.8），IndexConf 挂卡 -->
     <!-- 块关系图 -->
     <div class="settingBox">
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$graphBoxCheckbox} />
             {tomatoI18n.块关系图}
+            <ConfHelpIcon token="UIRudM9EQoyri2x4okkcjbGZnug" />
         </div>
         {#if $graphBoxCheckbox}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>

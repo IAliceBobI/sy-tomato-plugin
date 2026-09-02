@@ -9,6 +9,7 @@
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
+    import ConfHelpIcon from "./ConfHelpIcon.svelte";
     import { saveRestorePagePosition } from "./libs/utils";
     import UpgradeBar from "./UpgradeBar.svelte";
     import { lastVerifyResult } from "./libs/user";
@@ -24,6 +25,7 @@
     import ConfBacklink from "./ConfBacklink.svelte";
     import ConfCards from "./ConfCards.svelte";
     import ConfBlocks from "./ConfBlocks.svelte";
+    import ConfMindWire from "./ConfMindWire.svelte";
     import ConfDailyNote from "./ConfDailyNote.svelte";
     import ConfMisc from "./ConfMisc.svelte";
     interface Props {
@@ -101,7 +103,7 @@
     <!-- 快捷键 -->
     <section class="conf-group">
         <div class="settingBox">
-            <div class="section-title">{tomatoI18n.快捷键如有冲突请调整}</div>
+            <div class="section-title">{tomatoI18n.快捷键如有冲突请调整}<ConfHelpIcon token="XyFPdPBbsol477xl5TFcX9Ttn2e" /></div>
             <div>
                 {tomatoSettingsOpenHK.langText()}<HotkeyCap hk={tomatoSettingsOpenHK} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
@@ -123,6 +125,7 @@
     <section class="conf-group"><ConfBacklink {codeValid}></ConfBacklink></section>
     <section class="conf-group"><ConfCards {codeValid}></ConfCards></section>
     <section class="conf-group"><ConfBlocks {codeValid}></ConfBlocks></section>
+    <section class="conf-group"><ConfMindWire {codeValid}></ConfMindWire></section>
     <section class="conf-group"><ConfDailyNote {codeValid}></ConfDailyNote></section>
     <section class="conf-group"><ConfMisc {codeValid}></ConfMisc></section>
     <!-- save（□3）：52px sticky footer 收底，主色「保存并关闭」（原面板末位 outline 保存行退役） -->

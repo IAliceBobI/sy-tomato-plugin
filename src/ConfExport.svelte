@@ -34,6 +34,7 @@
     import { SuperRefBox全局修复引用, SuperRefBox全局加固引用 } from "./SuperRefBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
+    import ConfHelpIcon from "./ConfHelpIcon.svelte";
     import { onDestroy } from "svelte";
     import { destroyPanelTip, hidePanelTip, showPanelTip } from "./libs/panelTip";
 
@@ -54,6 +55,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$markdownExportBoxCheckbox} />
             {tomatoI18n.导出工作空间}
+            <ConfHelpIcon token="UmNxds5JLo4m1qxc7j3cOvh4ncc" />
         </div>
         {#if $markdownExportBoxCheckbox}
             <!-- ① 导出范围 -->
@@ -256,6 +258,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$blockEditorBox} />
             块编辑器
+            <ConfHelpIcon token="AheDdwG35ol3qWxYPeYc8HennJf" />
         </div>
         {#if $blockEditorBox}
             <div>
@@ -270,6 +273,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxCheckBox} />
             引用修复工具
+            <ConfHelpIcon token="WTgxdUINHoYXHbxmU87cxs5knfd" />
         </div>
         {#if $superRefBoxCheckBox}
             <div>这是一个实验功能，请提前备份好。</div>

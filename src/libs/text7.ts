@@ -903,36 +903,36 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
     public get 移动到下一分片内() {
         switch (this.lang) {
             case "zh_CN":
-                return "移动到下一分片内";
+                return "移到下一分片";
             case "es_ES":
                 return "Mover al siguiente fragmento";
             case "fr_FR":
                 return "Passer au fragment suivant";
             case "ja_JP":
-                return "次のフラグメントに移動する";
+                return "次のフラグメントへ移動";
             case "zh_CHT":
-                return "移動到下一片段內";
+                return "移到下一片段";
 
             default:
-                return "Move to the next fragment";
+                return "Move to next fragment";
         }
     }
 
     public get 移动到上一分片内() {
         switch (this.lang) {
             case "zh_CN":
-                return "移动到上一分片内";
+                return "移到上一分片";
             case "es_ES":
                 return "Mover al fragmento anterior";
             case "fr_FR":
                 return "Passer au fragment précédent";
             case "ja_JP":
-                return "前のフラグメントに移動する";
+                return "前のフラグメントへ移動";
             case "zh_CHT":
-                return "移動到上一片段內";
+                return "移到上一片段";
 
             default:
-                return "Move to the previous fragment";
+                return "Move to previous fragment";
         }
     }
 
@@ -1028,20 +1028,20 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
     public get 跳到分片或回到原文() {
         switch (this.lang) {
             case "zh_CN":
-                return "跳到分片或回到原文";
+                return "跳到分片/原文";
             case "es_ES":
-                return "Saltar al fragmento o volver al texto original";
+                return "Saltar al fragmento / original";
             case "fr_FR":
-                return "Aller au fragment ou revenir au texte original";
+                return "Aller au fragment / original";
             case "ja_JP":
-                return "フラグメントにジャンプまたは原文に戻る";
+                return "フラグメント／原文へ";
             case "zh_CHT":
-                return "跳到分片或回到原文";
+                return "跳到分片/原文";
             case "it_IT":
-                return "Vai al frammento o torna al testo originale";
+                return "Vai al frammento / originale";
 
             default:
-                return "Jump to fragment or return to original text";
+                return "Jump to fragment / original";
         }
     }
     public get 提取笔记到底部() {
@@ -1093,18 +1093,18 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
     }
     public get 收集内容到文件() {
         switch (this.lang) {
-            case "zh_CN": return "收集内容到文件";
-            case "es_ES": return "Recopilar contenido en un archivo";
-            case "fr_FR": return "Collecter le contenu dans un fichier";
-            case "ja_JP": return "コンテンツをファイルに収集";
-            case "zh_CHT": return "收集內容到檔案";
-            case "it_IT": return "Raccogli contenuto in un file";
-            case "de_DE": return "Inhalt in eine Datei sammeln";
-            case "he_IL": return "לאסוף תוכן לקובץ";
-            case "ru_RU": return "Собрать содержимое в файл";
-            case "pl_PL": return "Zbierz zawartość do pliku";
+            case "zh_CN": return "收集到文件";
+            case "es_ES": return "Recopilar en un archivo";
+            case "fr_FR": return "Collecter dans un fichier";
+            case "ja_JP": return "ファイルに収集";
+            case "zh_CHT": return "收集到檔案";
+            case "it_IT": return "Raccogli in un file";
+            case "de_DE": return "In eine Datei sammeln";
+            case "he_IL": return "אסוף לקובץ";
+            case "ru_RU": return "Собрать в файл";
+            case "pl_PL": return "Zbierz do pliku";
             case "en_US":
-            default: return "Collect content to a file";
+            default: return "Collect to a file";
         }
     }
     public get 收集内容到文件功能总是收集到dailynote() {

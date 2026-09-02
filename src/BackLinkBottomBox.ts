@@ -1,16 +1,14 @@
-import { Dialog, IProtyle, Protyle } from "siyuan";
+import { IProtyle, Protyle } from "siyuan";
 import { EventType, events } from "./libs/Events";
 import {
-    ConTreeNode,
     disableBK, enableBK,
 } from "./libs/bkUtils";
-import { icon, isCardUI, isFloatUI, isProtyleVisible, isSearchUI, siyuan, } from "./libs/utils";
+import { icon, isCardUI, isPopoverUI, isProtyleVisible, isSearchUI, siyuan, } from "./libs/utils";
 import { MarkKey, TEMP_CONTENT, TOMATO_BK_IGNORE } from "./libs/gconst";
 import BackLinkBottom from "./BackLinkBottom.svelte";
 import { DestroyManager } from "./libs/destroyer";
-import BKConTree from "./BackLinkBottomConTree.svelte";
 import { tomatoI18n } from "./tomatoI18n";
-import { back_link_dailynote_off, back_link_default_off, back_link_goto_bottom_btn, backLinkBottomBoxCheckbox, fastNoteBoxDisableBK, back_link_show_floatUI, bk启用禁用文档的底部反链menu, back_link_refresh_off, bk_refresh_interval_sec, bk_visible_only } from "./libs/stores";
+import { back_link_dailynote_off, back_link_default_off, back_link_goto_bottom_btn, backLinkBottomBoxCheckbox, fastNoteBoxDisableBK, bk启用禁用文档的底部反链menu, back_link_refresh_off, bk_refresh_interval_sec, bk_visible_only } from "./libs/stores";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
@@ -38,7 +36,6 @@ export class BKMaker {
     public shouldFreeze: boolean; // maker.shouldFreeze = !$autoRefreshChecked;
     public container: HTMLElement;
     public docID: string;
-    public docName: string;
     public lockName: string;
     public protyle: IProtyle;
     public plugin: BaseTomatoPlugin;
@@ -210,6 +207,13 @@ class BackLinkBottomBox {
                             debugLog("bk.evt.skip", "TOMATO_BK_IGNORE on element", "bk");
                             return;
                         }
+                        // 悬浮浮层（.block__popover，含纯预览/编辑浮窗，无 DOM 二分）内的
+                        // protyle 一概不挂面板/入口条（□1 吞面板根因）。上提到 attrs 往返
+                        // 之前：同步拒掉，覆盖 disabled 分支 mountBkEntryBar 的姊妹入口
+                        if (isPopoverUI(detail)) {
+                            debugLog("bk.evt.skip", "popoverUI", "bk");
+                            return;
+                        }
 
                         const docID = protyle.block.rootID;
                         if (!docID) {
@@ -250,8 +254,8 @@ class BackLinkBottomBox {
         if (!docID) return;
         if (BKMaker.installed(docID)) return;
         const attrs = await siyuan.getBlockAttrs(docID);
-        if (!back_link_show_floatUI.get() && isFloatUI(detail)) {
-            debugLog("bk.evt.skip", "floatUI hidden", "bk");
+        if (isPopoverUI(detail)) {
+            debugLog("bk.evt.skip", "popoverUI", "bk");
             return;
         }
         if (isSearchUI(detail)) {
@@ -276,8 +280,6 @@ class BackLinkBottomBox {
         maker.disabled = false;
         debugLog("bk.mount", `doTheWork doc=${docID} type=${eventType}`, "bk");
 
-        // update current doc
-        maker.docName = protyle.title?.editElement?.textContent;
         maker.doTheWork(detail, attrs);
         if (back_link_goto_bottom_btn.get() && await verifyKeyTomato() && !events.isMobile) {
             this.addIcon2Title(maker);
@@ -392,28 +394,6 @@ async function isBkOff(nextDocID: string, attrs?: AttrType) {
     } else {
         return v === "1";
     }
-}
-
-export async function showBkConTree(trees: Map<string, ConTreeNode>) {
-    const dm = new DestroyManager();
-    const id = newID();
-    const dialog = new Dialog({
-        title: tomatoI18n.hierarchical层级概念深林,
-        content: `<div id="${id}"></div>`,
-        width: events.isMobile ? "90vw" : "700px",
-        destroyCallback: () => {
-            dm.destroyBy("1")
-        },
-    });
-    const d = mount(BKConTree, {
-        target: dialog.element.querySelector("#" + id),
-        props: {
-            trees,
-            dm,
-        }
-    });
-    dm.add("1", () => { dialog.destroy() })
-    dm.add("2", () => { d.destroy() })
 }
 
 export const backLinkBottomBox = new BackLinkBottomBox();

@@ -447,25 +447,6 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
                 return "After moving the content, add a link pointing to the original location";
         }
     }
-    public get 插入相关的层级概念() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "插入相关的层级概念";
-            case "es_ES":
-                return "Concepto de jerarquía relacionado de inserción";
-            case "fr_FR":
-                return "Insérer le concept de hiérarchie connexe";
-            case "ja_JP":
-                return "関連する階層概念を挿入";
-            case "zh_CHT":
-                return "插入相關的層級概念";
-            case "it_IT":
-                return "Inserisci il concetto gerarchico correlato";
-
-            default:
-                return "Insert related hierarchical concepts";
-        }
-    }
     public get 给引用加上效果() {
         switch (this.lang) {
             case "zh_CN":
@@ -503,26 +484,6 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
 
             default:
                 return "Custom Icon";
-        }
-    }
-    public get 在悬浮窗内显示底部反链() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "在悬浮窗内显示底部反链";
-            case "es_ES":
-                return "Mostrar el enlace inverso inferior en la ventana flotante";
-            case "fr_FR":
-                return "Afficher le lien inverse inférieur dans la fenêtre flottante";
-            case "ja_JP":
-                return "フロートウィンドウ内に下部逆リンクを表示する";
-            case "zh_CHT":
-                return "在懸浮窗內顯示底部反鏈";
-            case "it_IT":
-                return "Visualizza il link inverso inferiore nella finestra flottante";
-
-                return "Display the bottom backlink in the floating window";
-            default:
-                return "";
         }
     }
     // TypeScript get property: translate and fill the rest langs on returns for me, give me typescript function. dont modify function name what i give you.
@@ -1201,23 +1162,6 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
                 return "Display";
         }
     }
-    public get 工具() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "工具";
-            case "zh_CHT":
-                return "工具";
-            case "ja_JP":
-                return "ツール";
-            case "es_ES":
-                return "Herramientas";
-            case "fr_FR":
-                return "Outils";
-
-            default:
-                return "Tools";
-        }
-    }
     public get 概念() {
         switch (this.lang) {
             case "zh_CN":
@@ -1250,6 +1194,41 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
 
             default:
                 return "Sort";
+        }
+    }
+    // □4 面板宽度切换按钮（2026-09-02）：aria-label 描述点击后的动作语义
+    public get 宽度跟随编辑器() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "宽度：跟随编辑器";
+            case "zh_CHT":
+                return "寬度：跟隨編輯器";
+            case "ja_JP":
+                return "幅：エディタに合わせる";
+            case "es_ES":
+                return "Ancho: ajustar al editor";
+            case "fr_FR":
+                return "Largeur : aligner sur l'éditeur";
+
+            default:
+                return "Width: fit editor";
+        }
+    }
+    public get 宽度全屏展开() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "宽度：全屏展开";
+            case "zh_CHT":
+                return "寬度：全屏展開";
+            case "ja_JP":
+                return "幅：全幅に広げる";
+            case "es_ES":
+                return "Ancho: pantalla completa";
+            case "fr_FR":
+                return "Largeur : pleine largeur";
+
+            default:
+                return "Width: full";
         }
     }
 }

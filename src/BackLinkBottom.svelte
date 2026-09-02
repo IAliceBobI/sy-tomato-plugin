@@ -23,18 +23,19 @@
     } from "./libs/utils";
     import { debugLog } from "./libs/logUtils";
     import {
-        getConceptTrees,
         sortDiv,
         doGetBackLinks,
-        insertConcepts,
         createProtyle,
         closeProtyle,
+        conceptChipVisible,
     } from "./libs/bkUtils";
     import { makeBkListState } from "./libs/bkRevision";
+    import { clearSearchMarksFor, isSearchMarkSupported, setSearchMarksFor, whenContentReady } from "./libs/searchMark";
     import { Dialog, Menu, Protyle } from "siyuan";
     import { BlockNodeEnum, DATA_ID, DATA_NODE_ID } from "./libs/gconst";
-    import { BKMaker, showBkConTree } from "./BackLinkBottomBox";
+    import { BKMaker } from "./BackLinkBottomBox";
     import { SearchEngine } from "./libs/search";
+    import { applyBkWidthMode } from "./libs/bkWidthMode";
     import { events } from "./libs/Events";
     import { domBlankLine, domLnk, domNewLine } from "./libs/sydom";
     import { OpenSyFile2 } from "./libs/docUtils";
@@ -43,6 +44,7 @@
         back_link_concept_fold,
         back_link_copy,
         back_link_embed,
+        back_link_follow_width,
         back_link_max_size,
         back_link_mention_count,
         back_link_move_here,
@@ -86,14 +88,16 @@
     let autoRefreshChecked = writable(!maker.shouldFreeze);
     let maxPage = $state(1);
     let backLinks: BacklinkSv<Protyle>[] = $state([]);
-    let hierarchyConcepts: Block[] = $state([]);
     let linkItems: LinkItem[] = $state([]);
-    let linkItemsHierarchy: LinkItem[] = $state([]);
     let searchText = $state("");
     let globalSearchText = $state("");
     let keepHeight: HTMLElement = $state();
     let gridEle: HTMLElement = $state();
     let hideThis = $state(false);
+    // □2：计数与 chips 渲染同源（此前计数用全量 length、渲染各自过滤，日期项数了不画）
+    let visibleConcepts = $derived(
+        linkItems.filter((it) => conceptChipVisible(it, hideThis)),
+    );
     let expandStatus = $state(true);
     let page = $state(0);
     let searchList: SavedQuery[] = $state([]);
@@ -104,6 +108,18 @@
     let sortBy = $state(SortType.UpdatedDESC);
     // 手动列数覆盖（空=自动，custom-bkColCount 语义与存储零迁移，spec §2.2）
     let colCount: string = $state();
+    // □4 宽度模式（全局 store，任一面板切换所有已挂面板同步）：全宽=容器 margin 清空
+    // （历史现状）；跟随=margin 对齐 wysiwyg inline padding（内容盒与编辑器文字列对齐）。
+    // 移动端不参与（窄屏跟随无意义）。分屏/窗口变化由 onMount 的 style observer 同步。
+    let followWidth = $derived(!events.isMobile && $back_link_follow_width);
+    $effect(() => {
+        if (maker.container) {
+            applyBkWidthMode(maker.container, followWidth ? "follow" : "full", protyle.protyle.wysiwyg.element);
+        }
+    });
+    function toggleWidthMode() {
+        back_link_follow_width.write(!back_link_follow_width.get());
+    }
     const idsFilter = storeAttrManager();
     onDestroy(() => {});
     export function destroy() {}
@@ -175,6 +191,11 @@
             mutations.forEach(function (mutation) {
                 if (mutation.attributeName === "style") {
                     protyle.protyle.wysiwyg.element.style.paddingBottom = "0px";
+                    // □4 内核 setPadding 重写 inline padding（窗口/分屏拖动）：跟随模式的 margin 同步重算
+                    // （followWidth 是 $derived 惰性求值，非响应式回调里读到的总是最新值）
+                    if (followWidth && maker.container) {
+                        applyBkWidthMode(maker.container, "follow", protyle.protyle.wysiwyg.element);
+                    }
                 }
             });
         });
@@ -195,6 +216,7 @@
             closeProtyle(...tmp);
             observer.disconnect();
             gridRO.disconnect();
+            clearSearchMarksFor(bkState); // □3 编辑态马克笔随组件卸载摘槽位（Highlight 协议：卸载即消失；不动别家面板）
         });
 
         return () => {
@@ -228,7 +250,6 @@
                         sortBy,
                         refDocCount,
                         menDocCount,
-                        maker.docName,
                         idsFilter,
                         page,
                         bkState,
@@ -241,12 +262,9 @@
                     const {
                         linkItems: a,
                         backLinks: b,
-                        hierarchyConcepts: h,
-                        linkItemsHierarchy: hi,
                         maxPage: mp,
                     } = ret;
                     linkItems = a;
-                    linkItemsHierarchy = hi;
                     if (caller == REFRESH) {
                         closeProtyle(...backLinks);
                         carryExpanded(backLinks, b);
@@ -262,11 +280,13 @@
                         moveProtyle(backLinks, b);
                     }
                     backLinks = b;
+                    // □3 数据刷新三分支汇合点：新对象 edit 态自然退出，及时重写槽位
+                    // 清掉残留 Range（锚定 detached DOM 的整棵 wysiwyg 树不可 GC，评审 P2）
+                    rebuildSearchMarks();
                     // keyed each 对同 id 卡复用 DOM 不重跑 @attach：新对象 clampOverflow
                     // 恒 undefined，必须统一补测（rAF 后 DOM 已 patch，读布局安全）
                     requestAnimationFrame(remeasureClamp);
                     maxPage = mp;
-                    hierarchyConcepts = h;
                     debugLog("bk.get", `caller=${caller} docs=${b.length}/${mp + 1}p concepts=${a.length} g="${globalSearchText}" l="${searchText}"`, "bk");
                     if (start > 0) {
                         const end = new Date().getTime();
@@ -332,6 +352,15 @@
     }
 
     // protyle
+    /** □3 提及马克笔：编辑态高亮全量重建——收集当前所有编辑态卡写入本组件槽位
+     *  （bkState=owner，多面板并存互不踩，评审 P1-1），聚合重建统一注册名。
+     *  所有应用/失效路径收敛到 attach 单入口；数据刷新（backLinks=b 后）与
+     *  hideThis 隐藏也补调一次，及时清掉 detached DOM 上的残留 Range（P2）。 */
+    function rebuildSearchMarks() {
+        setSearchMarksFor(bkState, backLinks
+            .filter((b) => b.edit === true && b.protyle?.protyle?.wysiwyg)
+            .map((b) => ({ root: b.protyle.protyle.wysiwyg.element, keywords: b.keywords ?? [] })));
+    }
     function mountProtyle(index: number) {
         return (node: HTMLElement) => {
             node.style.minHeight = "auto";
@@ -349,6 +378,10 @@
                     $back_link_protyle_height + "px"; // set height
             }
             node.appendChild(backLink.protyle.protyle.element);
+            // □3 编辑态马克笔：等内核把 blockId 内容载入 wysiwyg 再建 Range（立即建=零命中）
+            if (isSearchMarkSupported() && backLink.keywords?.length) {
+                whenContentReady(backLink.protyle?.protyle, rebuildSearchMarks);
+            }
         };
     }
 
@@ -776,7 +809,10 @@
             element: menuSwitchRow(
                 tomatoI18n.暂时隐藏本文档链接,
                 hideThis,
-                (v) => (hideThis = v),
+                (v) => {
+                    hideThis = v;
+                    rebuildSearchMarks(); // □3 被隐藏卡的 protyle 元素摘出 DOM，残留 Range 及时清（同 P2）
+                },
             ),
         });
         menu.addItem({
@@ -785,22 +821,6 @@
                 $back_link_show_path,
                 (v) => back_link_show_path.write(v),
             ),
-        });
-        menuGroup(menu, tomatoI18n.工具);
-        menu.addItem({
-            icon: "iconGraph",
-            label: tomatoI18n.openConceptForest打开层级概念,
-            click: () => {
-                const roots = getConceptTrees(linkItemsHierarchy);
-                showBkConTree(roots);
-            },
-        });
-        menu.addItem({
-            icon: "iconKey",
-            label: tomatoI18n.插入相关的层级概念,
-            click: () => {
-                insertConcepts(maker.plugin, maker.docID, hierarchyConcepts);
-            },
         });
         openAt(anchor, menu);
     }
@@ -991,6 +1011,15 @@
                     {tomatoI18n.修改时间降序}
                 </option>
             </select>
+            {#if !events.isMobile}
+                <button
+                    class="bk-icon-btn b3-tooltips b3-tooltips__s"
+                    aria-label={followWidth ? tomatoI18n.宽度全屏展开 : tomatoI18n.宽度跟随编辑器}
+                    onclick={toggleWidthMode}
+                >
+                    {#if followWidth}{@html icon("Fullscreen", 14)}{:else}{@html icon("FullscreenExit", 14)}{/if}
+                </button>
+            {/if}
             <button
                 class="bk-icon-btn bk-fold b3-tooltips b3-tooltips__s"
                 aria-label={tomatoI18n.foldRefBar收缩此双链栏}
@@ -999,9 +1028,7 @@
                 {#if expandStatus}
                     {@html icon("Contract", 14)}
                 {:else}
-                    <span class="bk-fold-count"
-                        >{tomatoI18n.概念}·{linkItems.length}</span
-                    >
+                    <span class="bk-fold-count">{tomatoI18n.概念}·{visibleConcepts.length}</span>
                     {@html icon("Expand", 14)}
                 {/if}
             </button>
@@ -1014,22 +1041,16 @@
         <!-- 概念行（收缩时整行消失，仅控制行收缩钮带计数） -->
         {#if expandStatus}
             <div class="bk-concepts">
-                {#each linkItems as { text, id, count, attrs } (id)}
-                    {#if /\d{4}-\d{2}-\d{2}/.test(text)}
-                        <span></span>
-                    {:else if hideThis && attrs.isThisDoc}
-                        <span></span>
-                    {:else}
-                        <button
-                            {...attrs}
-                            class="bk-chip b3-tooltips b3-tooltips__s"
-                            aria-label={`${text}\n${tomatoI18n.组合点击提示}`}
-                            onclick={(event) =>
-                                refConceptClick(event, text, id)}
-                        >
-                            {text}<span class="bk-chip-count">{count}</span>
-                        </button>
-                    {/if}
+                {#each visibleConcepts as { text, id, count, attrs } (id)}
+                    <button
+                        {...attrs}
+                        class="bk-chip b3-tooltips b3-tooltips__s"
+                        aria-label={`${text}\n${tomatoI18n.组合点击提示}`}
+                        onclick={(event) =>
+                            refConceptClick(event, text, id)}
+                    >
+                        {text}<span class="bk-chip-count">{count}</span>
+                    </button>
                 {/each}
             </div>
         {/if}

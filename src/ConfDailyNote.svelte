@@ -31,6 +31,7 @@
     } from "./DailyNoteBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
+    import ConfHelpIcon from "./ConfHelpIcon.svelte";
 
     let { codeValid }: { codeValid: boolean } = $props();
     let codeNotValid = $derived(!codeValid);
@@ -41,6 +42,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteBoxCheckbox} />
             {tomatoI18n.dailynote工具}
+            <ConfHelpIcon token="MuXadWNNEoSsuExVj7dcZcY1nJb" />
         </div>
         {#if $dailyNoteBoxCheckbox}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>

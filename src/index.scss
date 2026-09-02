@@ -145,6 +145,8 @@
   fill: none;
   stroke: var(--tomato-mind-wire-accent, var(--b3-font-color4));
   // stroke-linecap 不设（块级现状 butt；词级 round 见 --word 修饰类）
+  // hover 加粗由 JS inline 写 stroke-width（□3 走廊 enter/leave），transition 提供平滑
+  transition: stroke-width 0.15s ease-out;
 }
 
 .tomato-mind-wire-path--flow {
@@ -175,7 +177,6 @@
 .protyle-wysiwyg span[data-type="a"][data-href^="#tomato-mindwire-"] {
   color: inherit;
   text-decoration-line: none;
-  background-color: transparent;
   cursor: pointer;
   position: relative;
   transition: background-color 0.15s;
@@ -216,11 +217,17 @@
   &.tomato-mind-wire-ml::after {
     display: none;
   }
+
+  // 长文降级 D11（□4 spec §4.1.5）：>120 条藏圆点（线端点本身即视觉锚；
+  // 跨行端的 svg circle 由渲染层按降级态跳过），线数回落 clearWordMarks 摘类恢复
+  &.tomato-mind-wire-nodot::after {
+    display: none;
+  }
 }
 
 @keyframes tomato-mind-wire-flash {
   0% {
-    background-color: transparent;
+    background-color: var(--tomato-mind-wire-word-bg, transparent);
   }
 
   20% {
@@ -236,9 +243,180 @@
   }
 
   100% {
-    background-color: transparent;
+    background-color: var(--tomato-mind-wire-word-bg, transparent);
   }
 }
+
+/* =====================================================================
+   思维导线 · 线交互（□3，spec §4.5/§5.1）——命中走廊+迷你条
+   层/svg 默认 pointer-events:none，白名单=走廊（stroke）/迷你条（auto）可命中，
+   正文交互零遮挡；触屏走廊加宽（stroke-width 是 presentation attribute 可覆盖）
+   ===================================================================== */
+.tomato-mind-wire-hit {
+  fill: none;
+  stroke: none;
+  stroke-width: 18px;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .tomato-mind-wire-hit {
+    stroke-width: 28px;
+  }
+}
+
+/* =====================================================================
+   思维导线 · 线头残端 chip（□4，spec §4.2/§5.1）——单端离屏时可见端锚词旁的
+   去向标签。双 chip 预建挂层内随内容走（位置/方向由内容序定死），滚动期 JS 只
+   切 --off 显隐；--off 用 visibility（保布局供挂载期测宽，切换不触发重排）。
+   命中白名单：pointer-events:auto（层默认 none）；热区 ::before 外扩 11px（44px 级触屏）
+   ===================================================================== */
+.tomato-mind-wire-stub {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  font-size: 11px;
+  line-height: 20px;
+  color: var(--b3-theme-on-surface);
+  background: var(--b3-theme-surface);
+  border: 1px solid var(--b3-border-color);
+  border-radius: 6px;
+  box-shadow: var(--b3-tooltips-shadow);
+  cursor: pointer;
+  pointer-events: auto; // 白名单：可命中
+  transform: translateX(-50%); // 居中锚定（JS 按层宽钳制中心 x）
+
+  // 44px 级触屏热区：视觉 ~22px，命中外扩 11px
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -11px;
+  }
+
+  &:hover {
+    background: var(--b3-list-hover, var(--b3-theme-surface-lighter));
+  }
+
+  // 双端同屏/双端离屏隐藏：visibility 保布局（offsetWidth 可测），断命中
+  &--off {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  &-arrow {
+    width: 12px;
+    height: 12px;
+    flex: none;
+    color: var(--tomato-mind-wire-accent, var(--b3-font-color4));
+  }
+
+  // 上态 chevron 翻转（sprite #iconArrowDown 单源）
+  &--up &-arrow {
+    transform: rotate(180deg);
+  }
+
+  &-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex: none;
+    background: var(--tomato-mind-wire-accent, var(--b3-font-color4));
+  }
+
+  &-label {
+    // 8 字 CJK 全宽需 ~102px：96px 时 JS 8 字截断后再被 CSS 裁成 7 字+…（双重截断），
+    // 102px 让 JS 层成为唯一有效截断（□5 拍板，spec §4.2 已回写）
+    max-width: 102px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// 线中点迷你条（§4.5）：命令式挂层内，JS 定位 left/top=线中点、<40px 层顶加 --below
+.tomato-mind-wire-toolbar {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 4px;
+  background: var(--b3-theme-surface);
+  border: 1px solid var(--b3-border-color);
+  border-radius: 6px;
+  box-shadow: var(--b3-tooltips-shadow);
+  pointer-events: auto;
+  // 白名单：可命中
+  transform: translate(-50%, calc(-100% - 8px));
+  z-index: 1;
+
+  &--below {
+    transform: translate(-50%, 8px);
+  }
+}
+
+.tomato-mind-wire-rel-dot {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--dot, var(--b3-font-color5));
+
+  // 色点 10px，色由 inline style color=--b3-font-colorN 提供
+  &::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &[aria-pressed="true"]::after {
+    box-shadow: 0 0 0 1.5px var(--b3-theme-surface), 0 0 0 3px currentColor;
+  }
+
+  &:hover {
+    background: var(--b3-list-hover, var(--b3-theme-surface-lighter));
+    border-radius: 4px;
+  }
+}
+
+.tomato-mind-wire-toolbar-sep {
+  width: 1px;
+  height: 14px;
+  margin: 0 2px;
+  background: var(--b3-border-color);
+}
+
+.tomato-mind-wire-x {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--b3-theme-on-surface);
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  &:hover {
+    color: var(--b3-theme-error);
+    background: var(--b3-list-hover, var(--b3-theme-surface-lighter));
+    border-radius: 4px;
+  }
+}
+
 // 状态栏番茄钟 □1（2026-08-29）：常驻倒计时文本 + 正在计时档位高亮（运行中/暂停两态）
 #tomato-countdown {
     cursor: pointer;
@@ -793,4 +971,41 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
   font-size: 11px;
   color: var(--b3-theme-on-surface-light);
   cursor: default;
+}
+
+// □3 提及马克笔·编辑态（libs/searchMark.ts）：CSS Custom Highlight API 统一注册名。
+// 色值对齐内核 search-mark（app/src/protyle/index.ts:104 同款变量），自动跟随主题；
+// 无前缀选择器=名字唯一无需命名空间（官方带 per-protyle uuid 前缀是隔离多实例）。
+// 变量定义在主题 css 的 :root（daylight/midnight theme.css），全局可解析。
+::highlight(bk-search-mark) {
+  background-color: var(--b3-highlight-background);
+  color: var(--b3-highlight-color);
+}
+
+/* =====================================================================
+   思维导线 · 二期 □3 增补：方向感知锚点 + 锚词常态淡背景
+   （唯一事实源 docs/tomato-mindwire-visual-spec.md §12，2026-09-02）
+   ===================================================================== */
+
+// 锚词常态淡背景（D14）：关系色 10%（暗 13%）——「这个字是线的端头」的常态信号，
+// 触屏无 hover 也可辨（非 hover 等价天然满足）。变量化供 flash keyframes 首尾帧
+// 引用（防首尾 transparent 洗掉常态底的二次闪烁）。hot 18% 特异性更高，单值覆盖
+// 不叠加（勿在此再加混合）
+.protyle-wysiwyg span[data-type="a"][data-href^="#tomato-mindwire-"] {
+  --tomato-mind-wire-word-bg: color-mix(in srgb, var(--tomato-mind-wire-accent, var(--b3-font-color4)) 10%, transparent);
+  background-color: var(--tomato-mind-wire-word-bg);
+  border-radius: 2px; // 常态底色有了可见边界，圆角对齐 hot 档
+}
+
+// 暗色提档：思源权威判别通道 html[data-theme-mode]（批注段同款，不裸用 prefers-color-scheme）；
+// 暗底同比例混合可感性低，批注 12→15 先例同构收 13%
+html[data-theme-mode="dark"] .protyle-wysiwyg span[data-type="a"][data-href^="#tomato-mindwire-"] {
+  --tomato-mind-wire-word-bg: color-mix(in srgb, var(--tomato-mind-wire-accent, var(--b3-font-color4)) 13%, transparent);
+}
+
+// 顶缘锚圆点（D13）：对端在上方时本端词顶出线，点翻字顶上方悬浮（底缘镜像：
+// 中心≈字顶−4.5px，与曲线起点 y=top−8 衔接）；隔离环/hot scale(1.4) 规格沿用
+.protyle-wysiwyg span[data-type="a"][data-href^="#tomato-mindwire-"].tomato-mind-wire-top::after {
+  bottom: auto;
+  top: -7px;
 }

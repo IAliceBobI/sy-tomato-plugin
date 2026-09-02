@@ -29,6 +29,7 @@ import {
     pairFillBox,
     pairFirstEmpty,
     pairPickFunc,
+    pairRangeSyncWanted,
     pairSetMode,
     pairTrigger,
     resolveRangeIDs,
@@ -304,8 +305,10 @@ class PairBarBox {
             return;
         }
         this.state.set(r.state);
-        // 填的是结束框（三框）→ 起止齐了，解析区间并提示跨文档
-        if (k === 2 && pairBoxCount(cur.func) === 3) void this.syncRangeCount(true);
+        // 填的是起/止框且起止齐 → 解析区间并提示跨文档。□1 顺序洞：只认槽 2 会令
+        // 「先结束框后起始框」的填法 rangeCount 恒 null（✓ 三档恒灰）；填目标框不触发
+        //（起止未变，防重复跨文档提示）
+        if (k !== 3 && pairRangeSyncWanted(r.state)) void this.syncRangeCount(true);
     }
 
     /** 点编辑器块回填进焦点框（两框源框多块整组入；焦点框有内容=直接覆盖） */
@@ -321,7 +324,8 @@ class PairBarBox {
             return;
         }
         this.state.set(r.state);
-        if (slot === 2 && pairBoxCount(cur.func) === 3) void this.syncRangeCount(true);
+        // □1 顺序洞：填起/止任一框且起止齐即解析（槽 1 后填同样触发）；目标框不触发防重复跨文档提示
+        if (slot !== 3 && pairRangeSyncWanted(r.state)) void this.syncRangeCount(true);
     }
 
     /** 框位 dragover：认领思源 gutter 块拖拽才放行（AV 族变体键解析不出块 id 不认领，
@@ -353,7 +357,8 @@ class PairBarBox {
             return;
         }
         this.state.set(r.state);
-        if (slot === 2 && pairBoxCount(cur.func) === 3) void this.syncRangeCount(true);
+        // □1 顺序洞：填起/止任一框且起止齐即解析（多块整组进框①=首末同时进起止，原 slot===2 判据漏此路径）
+        if (slot !== 3 && pairRangeSyncWanted(r.state)) void this.syncRangeCount(true);
     }
 
     /** chip ✕ 删框：清该框焦点落回（PairBar 组件回调） */
@@ -438,16 +443,21 @@ class PairBarBox {
     }
 
     /** 三框起止齐后回填区间预览数（✓ 影响面文本「移动 N 块」）；解析失败置 null。
-     *  warnCrossDoc：由「填结束框」的动作调用时提示起止不同文档（其余路径静默） */
+     *  warnCrossDoc：由填起/止框的动作调用时提示起止不同文档（其余路径静默） */
     private async syncRangeCount(warnCrossDoc = false): Promise<void> {
         const cur = get(this.state);
-        if (cur.phase !== "slots" || cur.func !== "transport" || !cur.srcIDs[0] || !cur.endID) {
+        if (!pairRangeSyncWanted(cur)) {
             if (cur.rangeCount !== null) this.state.update(s => ({ ...s, rangeCount: null }));
             return;
         }
         const range = await this.resolveRange(cur.srcIDs[0], cur.endID);
         const n = range ? range.length : null;
-        this.state.update(s => (s.rangeCount === n ? s : { ...s, rangeCount: n }));
+        // await 窗口内起/止框被改（清框重填/覆盖）时旧解析结果不得写回（慢 sync 后落
+        // 会压掉新对的预览数，旧 null 落最后=✓ 卡灰——同款症状的窄产道，评审 P1；
+        // syncEndSummary 同款「对身份」守卫先例）
+        this.state.update(s => (s.srcIDs[0] === cur.srcIDs[0] && s.endID === cur.endID
+            ? (s.rangeCount === n ? s : { ...s, rangeCount: n })
+            : s));
         if (!range && warnCrossDoc) await siyuan.pushMsg(tomatoI18n.起止须同文档);
     }
 

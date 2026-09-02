@@ -757,35 +757,70 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
 
     public get 执行摘抄() {
         switch (this.lang) {
-            case "zh_CN": return "执行摘抄";
-            case "es_ES": return "Ejecutar resaltado";
-            case "fr_FR": return "Exécuter l'extrait";
-            case "ja_JP": return "抜粋を実行";
-            case "zh_CHT": return "執行摘抄";
-            case "it_IT": return "Esegui estratto";
-            case "de_DE": return "Auszug ausführen";
-            case "he_IL": return "בצע ציטוט";
-            case "ru_RU": return "Выполнить выдержку";
-            case "pl_PL": return "Wykonaj cytowanie";
+            case "zh_CN": return "摘抄";
+            case "es_ES": return "Extraer";
+            case "fr_FR": return "Extraire";
+            case "ja_JP": return "抜粋";
+            case "zh_CHT": return "摘抄";
+            case "it_IT": return "Estrai";
+            case "de_DE": return "Extrahieren";
+            case "he_IL": return "צטט";
+            case "ru_RU": return "Выписать";
+            case "pl_PL": return "Cytuj";
             case "en_US":
-            default: return "Execute highlight";
+            default: return "Digest";
+        }
+    }
+
+    // 2026-09-02 用户反馈落地：「留档（纯摘抄）」与「背诵（摘抄并制卡）」分别独立命令/快捷键
+    public get 执行摘抄留档() {
+        switch (this.lang) {
+            case "zh_CN": return "摘抄留档";
+            case "es_ES": return "Extraer (archivo)";
+            case "fr_FR": return "Extraire (archivage)";
+            case "ja_JP": return "抜粋（保存）";
+            case "zh_CHT": return "摘抄留檔";
+            case "it_IT": return "Estrai (archivio)";
+            case "de_DE": return "Extrahieren (Archiv)";
+            case "he_IL": return "צטט (ארכיון)";
+            case "ru_RU": return "Выписать (архив)";
+            case "pl_PL": return "Cytuj (archiwum)";
+            case "en_US":
+            default: return "Digest (archive)";
+        }
+    }
+
+    public get 执行摘抄背诵() {
+        switch (this.lang) {
+            case "zh_CN": return "摘抄背诵";
+            case "es_ES": return "Extraer (memorizar)";
+            case "fr_FR": return "Extraire (mémorisation)";
+            case "ja_JP": return "抜粋（暗記）";
+            case "zh_CHT": return "摘抄背誦";
+            case "it_IT": return "Estrai (memorizzazione)";
+            case "de_DE": return "Extrahieren (Auswendiglernen)";
+            case "he_IL": return "צטט (שינון)";
+            case "ru_RU": return "Выписать (заучивание)";
+            case "pl_PL": return "Cytuj (zapamiętywanie)";
+            case "en_US":
+            default: return "Digest (recite)";
         }
     }
 
     public get 执行摘抄并断句() {
         switch (this.lang) {
-            case "zh_CN": return "执行摘抄并断句";
-            case "es_ES": return "Ejecutar resaltado y segmentación de frases";
-            case "fr_FR": return "Exécuter l'extrait et segmentation des phrases";
-            case "ja_JP": return "抜粋と文分割を実行";
-            case "zh_CHT": return "執行摘抄並斷句";
-            case "it_IT": return "Esegui estratto e suddivisione delle frasi";
-            case "de_DE": return "Auszug und Satzunterteilung ausführen";
-            case "he_IL": return "בצע הצבעה ופצל משפטים";
-            case "ru_RU": return "Выполнить выдержку и разбиение на предложения";
-            case "pl_PL": return "Wykonaj cytowanie i podział zdań";
+            case "zh_CN": return "摘抄并断句";
+            case "es_ES": return "Extraer y segmentar";
+            case "fr_FR": return "Extraire et segmenter";
+            case "ja_JP": return "抜粋と文分割";
+            case "zh_CHT": return "摘抄並斷句";
+            case "it_IT": return "Estrai e suddividi";
+            case "de_DE": return "Extrahieren und unterteilen";
+            case "he_IL": return "צטט ופצל";
+            case "ru_RU": return "Выписать с разбиением";
+            case "pl_PL": return "Cytuj i podziel";
             case "en_US":
-            default: return "Execute highlight and sentence splitting";
+            default: return "Digest with sentence splitting";
         }
     }
 

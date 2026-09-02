@@ -47,6 +47,7 @@
     import { PairBar触发 } from "./PairBarBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
+    import ConfHelpIcon from "./ConfHelpIcon.svelte";
 
     let { codeValid }: { codeValid: boolean } = $props();
     let codeNotValid = $derived(!codeValid);
@@ -60,6 +61,7 @@
     <div class="section-title">
         <input type="checkbox" class="b3-switch" bind:checked={$pairBarEnabled} />
         {tomatoI18n.块配对工具}
+        <ConfHelpIcon token="TYSCdAHHFoZUhrxy7IdcBri6n1c" />
     </div>
     {#if $pairBarEnabled}
         <div>
@@ -99,7 +101,7 @@
         </div>
         <!-- 同步块选项（自 ConfLinks.svelte 迁入再入折叠区；VIP 两开关与子选项 store 原样） -->
         <details class="settingBox">
-            <summary class="section-title">{tomatoI18n.同步块选项}</summary>
+            <summary class="section-title">{tomatoI18n.同步块选项}<ConfHelpIcon token="NaSudYNaBoeGqZxnyHFc9QQVneb" /></summary>
             <div class="softBox">
                 <div>
                     <input
@@ -164,7 +166,7 @@
         </details>
         <!-- 互链与引用选项（自 ConfLinks.svelte 迁入再入折叠区；键帽在高级折叠区） -->
         <details class="settingBox">
-            <summary class="section-title">{tomatoI18n.互链与引用选项}</summary>
+            <summary class="section-title">{tomatoI18n.互链与引用选项}<ConfHelpIcon token="DmGUdmtacol9ANxy0Encl1ownfP" /></summary>
             <div class="softBox">
                 <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
                 <div>
@@ -183,7 +185,7 @@
         </details>
         <!-- 长内容工具选项（自 ConfCards.svelte 迁入再入折叠区，aacc 帮助文案原样） -->
         <details class="settingBox">
-            <summary class="section-title">{tomatoI18n.长内容工具选项}</summary>
+            <summary class="section-title">{tomatoI18n.长内容工具选项}<ConfHelpIcon token="Njovdyosyo4pVExpeqOcH3ImnJu" /></summary>
             <div class="softBox">
                 <div>
                     <input type="checkbox" class="b3-switch" bind:checked={$deleteBlocksMenu} />

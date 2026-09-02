@@ -18,7 +18,6 @@
         back_link_ref,
         back_link_refresh_off,
         back_link_remove_refs,
-        back_link_show_floatUI,
         bk_refresh_interval_sec,
         bk_visible_only,
         bk启用禁用文档的底部反链menu,
@@ -59,6 +58,7 @@
     } from "./ToolbarBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
+    import ConfHelpIcon from "./ConfHelpIcon.svelte";
 
     const ICONS_SIZE = 14;
 
@@ -71,6 +71,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$backLinkBottomBoxCheckbox} />
             {tomatoI18n.底部反链}
+            <ConfHelpIcon token="SVELdPHKYoGMj1xkmF3cIPg3nZd" />
         </div>
         {#if $backLinkBottomBoxCheckbox}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
@@ -135,11 +136,6 @@
             </div>
 
             <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$back_link_show_floatUI} />
-                {tomatoI18n.在悬浮窗内显示底部反链}
-            </div>
-
-            <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$back_link_default_off} />
                 {tomatoI18n.defaultBkDisabled底部反链默认关闭}
             </div>
@@ -192,6 +188,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$toolbarBoxCheckbox} />
             {tomatoI18n.开启toolbar按钮}
+            <ConfHelpIcon token="NDgJd64mmo7c0Wxj42RcNv2Tnaf" />
         </div>
         {#if $toolbarBoxCheckbox}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
@@ -237,6 +234,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$readingPointBoxCheckbox} />
             {tomatoI18n.阅读点}
+            <ConfHelpIcon token="KQOWdXzT8o05LlxPfJCcBHNEnYc" />
         </div>
         {#if $readingPointBoxCheckbox}
             <div>
@@ -297,6 +295,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$imgBoxCheckbox} />
             {tomatoI18n.复制为图片}<HotkeyCap hk={ImgBoxHotKey} pluginName="sy-tomato-plugin"></HotkeyCap>
+            <ConfHelpIcon token="QGx5d437SoArUyxZ6c3cqhmfnnb" />
         </div>
         {#if $imgBoxCheckbox}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>

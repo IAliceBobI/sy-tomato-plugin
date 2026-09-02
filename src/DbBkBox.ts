@@ -152,7 +152,7 @@ class DbBkBox {
                 return { avID, pkID, mSelectID, contentID, viewID, blockID, updatedID, createdID }
             });
 
-        const { linkItems, backLinks, block2mSelect, block2lnks } = await doGetBackLinks(docID, "", "", dbBkBoxMaxBacklinkSize.get(), 0, docName)
+        const { linkItems, backLinks, block2mSelect, block2lnks } = await doGetBackLinks(docID, "", "", dbBkBoxMaxBacklinkSize.get(), 0)
 
         const { avID, mSelectID, contentID, blockID, updatedID, createdID } = await taskInitAv;
 

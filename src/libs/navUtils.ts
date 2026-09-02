@@ -124,32 +124,6 @@ export async function OpenSyFile2(
 //     }
 // }
 
-export async function getHierarchyConcepts(docName: string) {
-    const con = hierarchyArr(docName).map(i => `content="${i}"`);
-    con.push(`content like "%${docName}%"`);
-    return siyuan
-        .sql(`select id,content from blocks where type='d' and ( ${con.join(" or ")} )`)
-        .then(rows => rows?.sort((a, b) => a.content.localeCompare(b.content)));
-}
-
-function hierarchyArr(text: string) {
-    const set = new Set<string>();
-    if (text) {
-        const pathList = text.replaceAll("丨", "|").split("|").map(i => i.trim()).filter(i => i.length > 0);
-        constructPath(pathList.slice());
-        constructPath(pathList.slice().reverse());
-        pathList.forEach(i => set.add(i));
-    }
-    return [...set.values()];
-    function constructPath(path: string[]) {
-        while (path.length > 0) {
-            set.add(path.join("|"));
-            set.add(path.join(" | "));
-            path.pop();
-        }
-    }
-}
-
 export function getDockByType(type: string) {
     const layout: any = (window.siyuan as any)?.layout;
     if (layout?.leftDock?.data[type] != null) {

@@ -5,7 +5,7 @@ type wsCB = (detail: WsMain) => any;
 
 type Func = (...args: any[]) => any;
 
-type LinkElementAttr = { isThisDoc: boolan }
+type LinkElementAttr = { isThisDoc: boolean }
 type LinkItem = { conceptTree: string[], text: string, count: number, id: string, dataNodeIDSet: Set<string>, blockIDs: Set<string>, attrs: LinkElementAttr };
 type RefCollector = Map<string, LinkItem>;
 type Overlays = { overlays: Overlay[], originWidth: number }
@@ -15,6 +15,9 @@ type Overlay = { left: number, top: number, width: number, height: number, angle
 type TSK = keyof TomatoSettings
 
 type TomatoSettings = {
+    annoCollectScope: string,
+    annoCollectDest: string,
+    annoCollectTargetDoc: string,
     dailyQuota: string,
     prefixArticlesSoftLimit: string,
     toolbarTidyExt: string,
@@ -256,9 +259,9 @@ type TomatoSettings = {
     back_link_ref: boolean,
     back_link_move_here: boolean,
     back_link_move_with_backlink: boolean,
-    back_link_show_floatUI: boolean,
     back_link_protyle_height: string,
     back_link_show_path: boolean,
+    back_link_follow_width: boolean,
     back_link_passup_heading: boolean,
     back_link_passup_quote: boolean,
     back_link_passup_super: boolean,
@@ -447,6 +450,9 @@ type BacklinkSv<T = any> = {
     protyle: T;
     ob: MutationObserver;
     row?: Block; // commentbox用.
+    /** □3 提及马克笔：本卡来源文档响应的 keywords（编辑态 CSS Highlight 高亮用，
+     *  官方 searchMarkRender 同源）；空数组=无高亮 */
+    keywords?: string[];
 };
 
 type EventsReadingPoint = { docID: string, blockID: string, title: string, time: Date };

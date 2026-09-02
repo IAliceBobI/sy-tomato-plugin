@@ -69,6 +69,7 @@
     import { Tag2RefBox模糊查找引用Lnk, Tag2RefBox模糊查找引用Ref } from "./Tag2RefBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
+    import ConfHelpIcon from "./ConfHelpIcon.svelte";
 
     let { codeValid }: { codeValid: boolean } = $props();
     let codeNotValid = $derived(!codeValid);
@@ -79,6 +80,7 @@
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$imgOverlayCheckbox} />
             {tomatoI18n.图片遮挡}
+            <ConfHelpIcon token="SLSWdFITgo7q4ex4q6ScIuGin2g" />
         </div>
     </div>
     <!-- 数据库反链 -->
@@ -86,6 +88,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxCheckbox} />
             {tomatoI18n.数据库充当反链}
+            <ConfHelpIcon token="W4WxdA0Bzo0O7UxwHFFcAHUUnSd" />
         </div>
         {#if $dbBkBoxCheckbox}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
@@ -116,6 +119,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$mixBoxCheckbox} />
             {tomatoI18n.杂项许多小功能}
+            <ConfHelpIcon token="Yw4UdhdaTo25dhxtiPUcPnNzn3c" />
         </div>
         {#if $mixBoxCheckbox}
             <!-- 显示文档属性 -->
@@ -223,6 +227,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$tag2RefBoxCheckbox} />
             {tomatoI18n.文本转引用}
+            <ConfHelpIcon token="OikodVWC1oJK16xUfm9cmpfAnQd" />
         </div>
         {#if $tag2RefBoxCheckbox}
             <div>
@@ -258,6 +263,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$listBoxCheckbox} />
             {tomatoI18n.列表工具}
+            <ConfHelpIcon token="GbeDdl1Bro3laRxlfqrcl10OnTc" />
         </div>
         {#if $listBoxCheckbox}
             <div>
@@ -279,6 +285,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$aiBoxCheckbox} />
             {AIBoxHotkey.langText()}<HotkeyCap hk={AIBoxHotkey} pluginName="sy-tomato-plugin"></HotkeyCap>
+            <ConfHelpIcon token="Kbuvd9lbhoDWTCxggz9cxQgJnAH" />
         </div>
         {#if $aiBoxCheckbox}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
@@ -293,6 +300,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$cozeSearchBoxCheckbox} />
             coze{tomatoI18n.知识库问答}<HotkeyCap hk={CozeSearchBoxHotkey} pluginName="sy-tomato-plugin"></HotkeyCap>
+            <ConfHelpIcon token="ENZfd6zfKoTZPqxZxf2c4uWVnow" />
         </div>
         {#if $cozeSearchBoxCheckbox}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
@@ -328,6 +336,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$fastNoteBoxCheckbox} />
             {tomatoI18n.快速笔记}
+            <ConfHelpIcon token="DNZ1dYORAoHpm7xdPaecyb6Pnrh" />
         </div>
         {#if $fastNoteBoxCheckbox}
             <div>{tomatoI18n.快捷键如有冲突请调整}</div>

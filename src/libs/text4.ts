@@ -364,8 +364,17 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
             case "zh_CN":
                 return `
 <div >
+<p><strong>组合点击（无需记语法）</strong></p>
 <p>
-    <strong>输入的<span class="fn__code">关键词</span>之间用
+    概念栏的标签和卡片头部的文档名都可以直接点出筛选条件：
+    按住 <span class="fn__code">Ctrl</span> 点击 = 同时包含；
+    按住 <span class="fn__code">Shift</span> 点击 = 排除；
+    按住 <span class="fn__code">Shift+Alt</span> 点击 = 任一即可（与上一个条件组成任选组）；
+    按住 <span class="fn__code">Alt</span> 点击 = 只看这个（再点一次取消）；
+    直接点击 = 跳转到对应文档。</p>
+<hr>
+<p>
+    <strong>手写语法：输入的<span class="fn__code">关键词</span>之间用
     <span class="fn__code">空格</span>隔开，
     如果关键词前面加上<span class="fn__code">感叹号</span>，
     代表反链中不能有此关键词。</strong></p>
@@ -392,13 +401,26 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     但不包含<span class="fn__code">老王</span>，
     也不包含<span class="fn__code">王总</span>的反链。</p>
 <br>
+<p>
+    <span class="fn__code">|</span> 组内也可以用<span class="fn__code">!</span>，
+    比如 <span class="fn__code">小明|!老王</span> 代表「包含<span class="fn__code">小明</span>，或不含<span class="fn__code">老王</span>」。
+    另外，全角<span class="fn__code">！</span>、<span class="fn__code">丨</span>、<span class="fn__code">｜</span>会自动识别。</p>
 </div>
 `;
             case "es_ES":
                 return `
 <div >
+<p><strong>Clic combinado (sin necesidad de aprender la sintaxis)</strong></p>
 <p>
-    <strong>Introduce las <span class="fn__code">palabras clave</span> separadas por
+    Las etiquetas de la fila de conceptos y los nombres de documento de las cabeceras de las tarjetas permiten construir filtros con clics:
+    mantén <span class="fn__code">Ctrl</span> y haz clic = debe contener todos;
+    mantén <span class="fn__code">Shift</span> y haz clic = excluir;
+    mantén <span class="fn__code">Shift+Alt</span> y haz clic = basta con uno de ellos (forma un grupo «cualquiera» con la condición anterior);
+    mantén <span class="fn__code">Alt</span> y haz clic = solo este (otro clic para cancelar);
+    clic simple = abrir el documento correspondiente.</p>
+<hr>
+<p>
+    <strong>Sintaxis manual: introduce las <span class="fn__code">palabras clave</span> separadas por
     <span class="fn__code">espacios</span>,
     si una palabra clave lleva un <span class="fn__code">signo de exclamación</span> delante,
     significa que esta palabra clave no puede aparecer en el enlace de retroceso.</strong></p>
@@ -417,17 +439,30 @@ ni <span class="fn__code">Jefe</span>.</p>
 <p>
     <strong>Por ejemplo:</strong> 
     <span class="fn__code">Pepe María|Ana|Luisa !Juan !Jefe</span>,
-    buscará enlaces de retroceso que contengan <span class="fn__code">Pepe</span> y al menos uno de <span class="fn__code">María</span>, <span class="fn__code">Ana</span>, o <span class="fn__code">Luisa</span>,
-    pero no <span class="fn__code">Juan</span>,
-    ni <span class="fn__code">Jefe</span>.</p>
+buscará enlaces de retroceso que contengan <span class="fn__code">Pepe</span> y al menos uno de <span class="fn__code">María</span>, <span class="fn__code">Ana</span>, o <span class="fn__code">Luisa</span>,
+pero no <span class="fn__code">Juan</span>,
+ni <span class="fn__code">Jefe</span>.</p>
 <br>
+<p>
+    Dentro de un grupo con <span class="fn__code">|</span> también puedes usar <span class="fn__code">!</span>:
+    <span class="fn__code">Pepe|!Juan</span> significa «contiene <span class="fn__code">Pepe</span>, o no contiene <span class="fn__code">Juan</span>».
+    Los caracteres a ancho completo <span class="fn__code">！</span>, <span class="fn__code">丨</span> y <span class="fn__code">｜</span> se reconocen automáticamente.</p>
 </div>
 `;
             case "fr_FR":
                 return `
 <div >
+<p><strong>Clic combiné (sans apprendre la syntaxe)</strong></p>
 <p>
-    <strong>Entrez les <span class="fn__code">mots clés</span> séparés par des
+    Les étiquettes de la ligne de concepts et les noms de document des cartes permettent de composer des filtres par clic :
+    maintenez <span class="fn__code">Ctrl</span> et cliquez = doit contenir tous ;
+    maintenez <span class="fn__code">Shift</span> et cliquez = exclure ;
+    maintenez <span class="fn__code">Shift+Alt</span> et cliquez = au moins un suffit (forme un groupe « au moins un » avec la condition précédente) ;
+    maintenez <span class="fn__code">Alt</span> et cliquez = seulement celui-ci (recliquez pour annuler) ;
+    clic simple = ouvrir le document correspondant.</p>
+<hr>
+<p>
+    <strong>Syntaxe manuelle : entrez les <span class="fn__code">mots clés</span> séparés par des
     <span class="fn__code">espaces</span>,
     si un mot clé est précédé d'un <span class="fn__code">point d'exclamation</span>,
     cela signifie que ce mot clé ne peut pas apparaître dans le backlink.</strong></p>
@@ -446,17 +481,30 @@ ni <span class="fn__code">Chef</span>.</p>
 <p>
     <strong>Par exemple :</strong> 
     <span class="fn__code">Paul Marie|Anne|Louise !Jean !Chef</span>,
-    recherchera les backlinks contenant <span class="fn__code">Paul</span> et au moins un de <span class="fn__code">Marie</span>, <span class="fn__code">Anne</span>, ou <span class="fn__code">Louise</span>,
-    mais pas <span class="fn__code">Jean</span>,
-    ni <span class="fn__code">Chef</span>.</p>
+recherchera les backlinks contenant <span class="fn__code">Paul</span> et au moins un de <span class="fn__code">Marie</span>, <span class="fn__code">Anne</span>, ou <span class="fn__code">Louise</span>,
+mais pas <span class="fn__code">Jean</span>,
+ni <span class="fn__code">Chef</span>.</p>
 <br>
+<p>
+    Au sein d'un groupe avec <span class="fn__code">|</span>, vous pouvez aussi utiliser <span class="fn__code">!</span> :
+    <span class="fn__code">Paul|!Jean</span> signifie « contient <span class="fn__code">Paul</span>, ou ne contient pas <span class="fn__code">Jean</span> ».
+    Les caractères pleine largeur <span class="fn__code">！</span>, <span class="fn__code">丨</span> et <span class="fn__code">｜</span> sont reconnus automatiquement.</p>
 </div>
 `;
             case "ja_JP":
                 return `
 <div >
+<p><strong>組み合わせクリック（文法を覚える必要なし）</strong></p>
 <p>
-    <strong><span class="fn__code">キーワード</span>を
+    概念行のタグやカード上部のドキュメント名もクリックで絞り込み条件を組み立てられます：
+    <span class="fn__code">Ctrl</span> を押しながらクリック = すべてを含む；
+    <span class="fn__code">Shift</span> を押しながらクリック = 除外；
+    <span class="fn__code">Shift+Alt</span> を押しながらクリック = いずれか一つを含めばよい（直前の条件と「いずれか」グループを組む）；
+    <span class="fn__code">Alt</span> を押しながらクリック = これだけ表示（もう一度クリックで解除）；
+    そのままクリック = 対応するドキュメントへ移動。</p>
+<hr>
+<p>
+    <strong>手書き文法：<span class="fn__code">キーワード</span>を
     <span class="fn__code">スペース</span>で区切って入力してください。
     キーワードの前に<span class="fn__code">感嘆符</span>をつけると、
     そのキーワードを含まないバックリンクが検索されます。</strong></p>
@@ -473,13 +521,26 @@ ni <span class="fn__code">Chef</span>.</p>
     <strong>例えば：</strong> 
     <span class="fn__code">シンジ ミサト|レイ|アスカ !ゲンドウ !総司令</span>と入力すると、<span class="fn__code">シンジ</span>と<span class="fn__code">ミサト</span>、<span class="fn__code">レイ</span>、<span class="fn__code">アスカ</span>のいずれかを含み、<span class="fn__code">ゲンドウ</span>と<span class="fn__code">総司令</span>を含まないバックリンクが検索されます。</p>
 <br>
+<p>
+    <span class="fn__code">|</span> グループ内でも <span class="fn__code">!</span> が使えます：
+    <span class="fn__code">シンジ|!ゲンドウ</span> は「<span class="fn__code">シンジ</span>を含む、または<span class="fn__code">ゲンドウ</span>を含まない」を意味します。
+    なお、全角の <span class="fn__code">！</span>・<span class="fn__code">丨</span>・<span class="fn__code">｜</span> も自動認識されます。</p>
 </div>
 `;
             case "zh_CHT":
                 return `
 <div >
+<p><strong>組合點擊（無需記語法）</strong></p>
 <p>
-    <strong>輸入的<span class="fn__code">關鍵詞</span>之間用
+    概念欄的標籤和卡片頭部的文件名都可以直接點出篩選條件：
+    按住 <span class="fn__code">Ctrl</span> 點擊 = 同時包含；
+    按住 <span class="fn__code">Shift</span> 點擊 = 排除；
+    按住 <span class="fn__code">Shift+Alt</span> 點擊 = 任一即可（與上一個條件組成任選組）；
+    按住 <span class="fn__code">Alt</span> 點擊 = 只看這個（再點一次取消）；
+    直接點擊 = 跳轉對應文件。</p>
+<hr>
+<p>
+    <strong>手寫語法：輸入的<span class="fn__code">關鍵詞</span>之間用
     <span class="fn__code">空格</span>隔開，
     如果關鍵詞前面加上<span class="fn__code">驚嘆號</span>，
     代表反鏈中不能有此關鍵詞。</strong></p>
@@ -506,14 +567,27 @@ ni <span class="fn__code">Chef</span>.</p>
     但不包含<span class="fn__code">老王</span>，
     也不包含<span class="fn__code">王總</span>的反鏈。</p>
 <br>
+<p>
+    <span class="fn__code">|</span> 組內也可以用<span class="fn__code">!</span>，
+    比如 <span class="fn__code">小明|!老王</span> 代表「包含<span class="fn__code">小明</span>，或不含<span class="fn__code">老王</span>」。
+    另外，全角<span class="fn__code">！</span>、<span class="fn__code">丨</span>、<span class="fn__code">｜</span>會自動識別。</p>
 </div>
 `;
 
             default:
                 return `
 <div >
+<p><strong>Combo clicks (no syntax to memorize)</strong></p>
 <p>
-    <strong>Separate the entered <span class="fn__code">keywords</span> with
+    The tags in the concept row and the document names on card headers build filters with clicks:
+    hold <span class="fn__code">Ctrl</span> and click = must contain all;
+    hold <span class="fn__code">Shift</span> and click = exclude;
+    hold <span class="fn__code">Shift+Alt</span> and click = any one of them is enough (forms an any-of group with the previous condition);
+    hold <span class="fn__code">Alt</span> and click = only this one (click again to cancel);
+    plain click = open the corresponding document.</p>
+<hr>
+<p>
+    <strong>Manual syntax: separate the entered <span class="fn__code">keywords</span> with
     <span class="fn__code">spaces</span>. If a keyword is preceded by a <span class="fn__code">!</span>,
     it means that the backlink should not contain this keyword.</strong></p>
 <br>
@@ -539,6 +613,10 @@ it means that as long as one of these keywords appears, it will match.</strong><
     but not containing <span class="fn__code">Oldman</span>,
     nor <span class="fn__code">Boss</span>.</p>
 <br>
+<p>
+    Inside a <span class="fn__code">|</span> group you can also use <span class="fn__code">!</span>:
+    <span class="fn__code">John|!Oldman</span> means "contains <span class="fn__code">John</span>, or does not contain <span class="fn__code">Oldman</span>".
+    Full-width <span class="fn__code">！</span>, <span class="fn__code">丨</span> and <span class="fn__code">｜</span> are recognized automatically.</p>
 </div>
 `;
         }

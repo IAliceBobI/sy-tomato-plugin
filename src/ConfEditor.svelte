@@ -33,6 +33,7 @@
     import { removeFromArr } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
+    import ConfHelpIcon from "./ConfHelpIcon.svelte";
     import { PrefixArticles前缀文档树 } from "./PrefixArticles";
 
     let { codeValid }: { codeValid: boolean } = $props();
@@ -43,6 +44,7 @@
     <div class="settingBox">
         <div class="section-title">
             {tomatoI18n.文档树工具}
+            <ConfHelpIcon token="NXSPd81W4oxUJrxW2XsctewUn5g" />
         </div>
     </div>
     <!-- 多行选择 -->
@@ -50,6 +52,7 @@
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$addSelectionBtnsMobile} />
             {tomatoI18n.移动端编辑器右上角添加多行选择按钮}
+            <ConfHelpIcon token="Gh0udnFdGoiu8txrgE2c3SQenxf" />
         </div>
     </div>
     <div class="settingBox">
@@ -152,6 +155,7 @@
     <div class="settingBox">
         <div class="section-title">
             {tomatoI18n.块折叠助手}： {tomatoI18n.在块的右上角显示折叠图标}
+            <ConfHelpIcon token="RqDsdlLkwolnUgxyEmVcDuv8nwd" />
         </div>
         <div>
             <!-- 超级块 -->
@@ -257,6 +261,7 @@
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesEnable} />
             {tomatoI18n.前缀文档树}
+            <ConfHelpIcon token="WD3Nd8WCxozzE4xXIJucpFBPn9a" />
         </div>
         {#if $prefixArticlesEnable}
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>

@@ -655,16 +655,30 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    border-radius: 6px; /* R5 □5：hover 灰条圆角（恒定，仅背景随 hover 变） */
+    transition: background-color 0.15s;
 }
 .tomato-settings-dialog details.settingBox > summary::-webkit-details-marker {
     display: none; /* 去 Chromium 默认三角 */
 }
 .tomato-settings-dialog details.settingBox > summary.section-title {
-    padding-top: 4px; /* 对齐 .settingBox > div.section-title 的标题上缘呼吸 */
     /* vision P1（R5 □1 评审）：summary 与其内容 softBox 左缘对齐（同 5% 缩进列）——
        4 个折叠区连排后 summary 凸出内容的归属模糊被放大；details 非 div 不吃
-       .settingBox > div:not(:first-child) 的 5%，须在此显式补 */
-    margin-left: 5%;
+       .settingBox > div:not(:first-child) 的 5%，须在此显式补。
+       R5 □5：padding/margin 恒定（非 hover 态挂载），hover 只换背景零抖动；
+       左 padding 6px 由 margin-left 减 6px 抵消——文字仍落 5% 列，灰条左缘贴内容列 */
+    padding: 4px 6px; /* 对齐 .settingBox > div.section-title 的标题上缘呼吸（top 不变） */
+    margin-left: calc(5% - 6px);
+}
+/* R5 □5（用户拍板「高亮随 summary 收缩」）：details 整行 hover 不再全宽铺灰——
+   全宽灰条左缘凸出 5% 缩进列 ~35px 与内容 softBox 错位（□1 只修了文字对齐、hover
+   背景没跟上）。details:hover 压回透明（(0,3,1) 稳压 .settingBox:hover 的 (0,3,0)，
+   与样式注入顺序无关），灰条只包 summary 标题行；整行 hover 触发区保留，纯视觉收缩 */
+.tomato-settings-dialog details.settingBox:hover {
+    background-color: transparent;
+}
+.tomato-settings-dialog details.settingBox:hover > summary {
+    background-color: var(--b3-list-hover, var(--b3-theme-surface-lighter));
 }
 /* 自绘指示箭头：收起 › 展开 90° 下转（b3 主题变量，双主题自适应） */
 .tomato-settings-dialog details.settingBox > summary::after {

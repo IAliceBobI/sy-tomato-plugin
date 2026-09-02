@@ -89,24 +89,6 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
         }
     }
 
-    public get hierarchical层级概念深林() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "层级概念深林（建议文档名类似：'AA | BB | CC'）";
-            case "es_ES":
-                return "Bosque de conceptos jerárquicos (se sugiere un nombre de documento similar a: 'AA | BB | CC')";
-            case "fr_FR":
-                return "Forêt de concepts hiérarchiques (nom de document suggéré : 'AA | BB | CC')";
-            case "ja_JP":
-                return "階層的な概念の森（ドキュメント名は 'AA | BB | CC' のようにすることを推奨）";
-            case "zh_CHT":
-                return "層級概念深林（建議文件名類似：'AA | BB | CC'）";
-
-            default:
-                return "Hierarchical Concept Forest (Suggested document name similar to: 'AA | BB | CC')";
-        }
-    }
-
     public get createdRef创建引用成功() {
         switch (this.lang) {
             case "zh_CN":
@@ -212,24 +194,6 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
 
             default:
                 return "Hide all dailynotes"
-        }
-    }
-
-    public get openConceptForest打开层级概念() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "打开层级概念（适用于，反链中有多个类似这样结构的引用 'AA | BB | CC'）";
-            case "es_ES":
-                return "Abrir concepto jerárquico (aplicable a, en los enlaces inversos con varias referencias de esta estructura 'AA | BB | CC')";
-            case "fr_FR":
-                return "Ouvrir le concept hiérarchique (applicable à, dans les liens inverses avec plusieurs références de cette structure 'AA | BB | CC')";
-            case "ja_JP":
-                return "階層的な概念を開く（反リンクにこのような構造の参照 'AA | BB | CC' が複数ある場合に適用）";
-            case "zh_CHT":
-                return "打開層級概念（適用於，反鏈中有多個類似這樣結構的引用 'AA | BB | CC'）";
-
-            default:
-                return "Open hierarchical concept (applicable to, in backlinks with multiple references of this structure 'AA | BB | CC')"
         }
     }
 

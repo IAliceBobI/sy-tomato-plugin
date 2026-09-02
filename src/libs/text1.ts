@@ -539,18 +539,18 @@ export abstract class TomatoI18nABC extends TomatoI18nABC2 {
 
     public get 渐进阅读摘抄模式() {
         switch (this.lang) {
-            case "zh_CN": return "渐进阅读(摘抄模式)";
-            case "es_ES": return "Lectura progresiva (modo extracto)";
-            case "fr_FR": return "Lecture progressive (mode extrait)";
-            case "ja_JP": return "段階的読書（抜粋モード）";
-            case "zh_CHT": return "漸進閱讀（摘抄模式）";
-            case "it_IT": return "Lettura progressiva (modalità estratto)";
-            case "de_DE": return "Progressives Lesen (Auszugmodus)";
-            case "he_IL": return "קריאה מקדמת (מצב תמצית)";
-            case "ru_RU": return "Постепенное чтение (режим выписки)";
-            case "pl_PL": return "Czytanie postępowe (tryb cytatów)";
+            case "zh_CN": return "进入摘抄模式";
+            case "es_ES": return "Entrar en modo extracto";
+            case "fr_FR": return "Entrer en mode extrait";
+            case "ja_JP": return "抜粋モードに入る";
+            case "zh_CHT": return "進入摘抄模式";
+            case "it_IT": return "Entra in modalità estratto";
+            case "de_DE": return "In den Auszugsmodus wechseln";
+            case "he_IL": return "היכנס למצב תמצית";
+            case "ru_RU": return "Войти в режим выписки";
+            case "pl_PL": return "Wejdź w tryb cytatów";
             case "en_US":
-            default: return "Incremental reading (excerpt mode)";
+            default: return "Enter excerpt mode";
         }
     }
 

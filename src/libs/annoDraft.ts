@@ -1,19 +1,26 @@
 // □4 批注草稿链：草稿文档懒查找/懒创建 + 每弹窗独立草稿块（即用即删）+ 启动清扫。
 // 拍板（handoff □4 mini-spec 倾向落地）：**关闭即删**——重开编辑弹窗从属性 text 回填草稿块，
 // 等价「续写上条内容」且无残留态可管理；崩溃/中断残留由启动清扫兜底。
-// - 草稿文档 = 全局单文档 ".tomato-批注草稿"，落在 storeNoteBox 选定笔记本（getOr 兜底链：设置→当前笔记本）；
-//   查找走 lsNotebooks × getIDsByHPath 文件树直查（无 SQL 索引延迟，AGENTS 踩坑表口径），命中任意笔记本即复用
+// - 草稿文档 = 全局单文档 ".tomato-批注草稿"。落点（2026-09-02 二轮拍板「藏上个月」）：
+//   选定笔记本（用户设置 commentBoxAnnoDraftNotebook > 官方日记本判定 local-dailynoteid/单本 > 当前笔记本）
+//   > 本内最近一篇日记的「上一个月目录」（当月在用易被翻见，上月是过去式无感；月段名非 YYYY-MM 时
+//   退化到日记的祖父层；无日记结构则落本根）。上月目录不存在=自动造空月份文档（与真实月份同构）。
+//   首次创建定终身：之后按标题全库扫描复用，跨月不搬家；设置面板默认显示日记本
+//   （initAnnoDraftNotebookDefault 启动注入内存，不落盘=未配置语义不丢）
 // - 每次开编辑弹窗预置 id 建独立超级块草稿（多窗口天然隔离）；保存/关闭即删，删除失败静默（清扫兜底）
 // - 清扫只清不建：启动时若找到草稿文档则清空子块（注：多窗口同工作区极端场景会误伤他窗在编辑的草稿，
 //   单窗口为主流用法，接受该边界——属性是 source of truth，草稿丢了重开编辑即恢复）
 import { siyuan } from "./utils";
-import { storeNoteBox_selectedNotebook } from "./stores";
+import { commentBoxAnnoDraftNotebook, DRAFT_NOTEBOOK_KEY } from "./stores";
+import { events } from "./Events";
 import { stripDraftShell } from "./annoKramdown";
 
 export const DRAFT_DOC_TITLE = ".tomato-批注草稿";
-const DRAFT_HPATH = `/${DRAFT_DOC_TITLE}`;
 /** 模块级缓存：同会话重复开弹窗免查；reload=新代模块自然失效（window.eval 无模块缓存，AGENTS 踩坑表） */
 let cachedDocID = "";
+/** 缓存已解析的草稿安家目录（hpath，""=本根；null=失效待重解析）+ 所属 box；壳删重建时免 conf+SQL 两查 */
+let cachedDraftHome: string | null = null;
+let cachedDraftHomeBox = "";
 
 /** 活跃草稿登记簿（globalThis 跨模块代共享）：deploy 钩子的插件 reload 是惰性的——下次 UI 动作才真正换模块，
  *  新代 onload 的清扫会与「同一次点击刚打开的编辑弹窗草稿」赛跑误删（e2e 实锤两次）；
@@ -29,18 +36,20 @@ function activeDrafts(): DraftsMap {
 
 const DRAFT_ACTIVE_GRACE_MS = 10 * 60 * 1000;
 
+/** 按标题全库找草稿壳（hpath 随落点可变，不能按路径直查）。
+ *  SQL 按标题取文档行有索引延迟（AGENTS 踩坑表）——场景过筛：旧壳索引自早已就绪；
+ *  新壳走 cachedDocID；用户手删壳后 SQL 残留 ~6s 由 checkBlockExist 校验识破（不赌索引） */
 async function findDraftDocID(): Promise<string> {
     if (cachedDocID) {
         if (await siyuan.checkBlockExist(cachedDocID)) return cachedDocID;
         cachedDocID = ""; // 用户手删草稿文档 → 懒重建（mini-spec）
     }
     try {
-        for (const book of await siyuan.lsNotebooks(false)) {
-            const ids = await siyuan.getIDsByHPath(DRAFT_HPATH, book.id);
-            const hit = Array.isArray(ids) ? ids[0] ?? "" : "";
-            if (hit) {
-                cachedDocID = hit;
-                return hit;
+        const rows = (await siyuan.sql(`select id from blocks where type='d' and content='${DRAFT_DOC_TITLE}'`)) ?? [];
+        for (const r of rows) {
+            if (r?.id && (await siyuan.checkBlockExist(r.id))) {
+                cachedDocID = r.id;
+                return r.id;
             }
         }
     } catch (e) {
@@ -49,17 +58,134 @@ async function findDraftDocID(): Promise<string> {
     return "";
 }
 
+/** 官方「日记本」判定（纯函数，单测覆盖；与前端 openDailyNote 同源语义，app/src/util/mount.ts）：
+ *  local-dailynoteid（官方 key 历史拼写）= 上次建日记用的笔记本，须 open 有效；
+ *  仅一个 open 笔记本时直选它（官方同款）；其余情况无确定日记本返回 ""（落点链滑到当前笔记本）。
+ *  注：内核没有「日记本」配置项——DailyNoteSavePath 是 box 级且出厂人人有默认值，不可作判定（2026-09-02 查内核源码定案） */
+export function dailyNotebookFromStorage(
+    storage: Record<string, unknown> | undefined | null,
+    openBooks: { id?: string }[]
+): string {
+    const last = storage?.["local-dailynoteid"];
+    if (typeof last === "string" && last && openBooks.some((b) => b.id === last)) return last;
+    if (openBooks.length === 1) return openBooks[0].id ?? "";
+    return "";
+}
+
+/** 解析「用户点日记会去哪」：storage 镜像 + open 笔记本快照。失败返回 ""（落点链滑到下一档） */
+export async function resolveDailyNotebookID(): Promise<string> {
+    try {
+        const storage = (window.siyuan as any)?.storage as Record<string, unknown> | undefined;
+        return dailyNotebookFromStorage(storage, (await siyuan.lsNotebooks(false)) ?? []);
+    } catch (e) {
+        console.warn("[tomato anno] resolve daily notebook failed:", e);
+        return "";
+    }
+}
+
+/** 启动注入默认值（不落盘）：仅当用户从未配置过该键（undefined，非显式空串）且解析到日记本时写内存——
+ *  目的一是设置面板默认显示日记本（知情透明），二是创建链直接取到值；显式选空=每次真解析跟随 */
+export async function initAnnoDraftNotebookDefault(plugin: { settingCfg?: Record<string, unknown> }): Promise<void> {
+    if (plugin.settingCfg && plugin.settingCfg[DRAFT_NOTEBOOK_KEY] !== undefined) return;
+    const id = await resolveDailyNotebookID();
+    if (id) commentBoxAnnoDraftNotebook.set(id);
+}
+
+/** 月目录名退一月（纯函数，单测覆盖）：'2026-09'→'2026-08'、'2026-01'→'2025-12'；非 YYYY-MM 返回 "" */
+export function prevMonthName(name: string): string {
+    const m = /^(\d{4})-(\d{2})$/.exec(name.trim());
+    if (!m) return "";
+    const y = parseInt(m[1], 10);
+    const mo = parseInt(m[2], 10);
+    if (mo < 1 || mo > 12) return "";
+    const py = mo === 1 ? y - 1 : y;
+    const pm = mo === 1 ? 12 : mo - 1;
+    return `${py}-${String(pm).padStart(2, "0")}`;
+}
+
+/** 最近日记 → 草稿安家的目录 hpath（纯函数，单测覆盖）：
+ *  优先「日记父目录的上一月」（当月在用易见，上月=过去式无感）；跨年退月时若祖父段是年层（YYYY）
+ *  同步退年（与真实历史目录一致）；月段名非 YYYY-MM（定制模板）退化到祖父层（年层，同样冷门）；
+ *  日记挂得太浅（无月层概念）返回 ""（上层落本根） */
+export function draftHomeInDiary(diaryHPath: string): string {
+    const segs = diaryHPath.split("/").filter(Boolean);
+    if (segs.length < 3) return ""; // 日记直挂首段（如 /daily note/2026-09-02）：无月层
+    const monthSeg = segs[segs.length - 2].trim();
+    const stemSegs = segs.slice(0, segs.length - 2);
+    const prev = prevMonthName(monthSeg);
+    if (prev) {
+        if (/^\d{4}-01$/.test(monthSeg)) {
+            const yearIdx = stemSegs.length - 1;
+            if (/^\d{4}$/.test((stemSegs[yearIdx] ?? "").trim())) {
+                stemSegs[yearIdx] = String(parseInt(stemSegs[yearIdx], 10) - 1);
+            }
+        }
+        return "/" + stemSegs.join("/") + "/" + prev;
+    }
+    if (segs.length >= 4) return "/" + stemSegs.join("/"); // 月段解析失败：退到祖父层
+    return "";
+}
+
+/** 路径首段名（box conf 的 dailyNoteSavePath 首段=日记根目录名，作 SQL like 锚） */
+export function hPathFirstSeg(p: string): string {
+    return (p.split("/").map((s) => s.trim()).filter(Boolean)[0] ?? "");
+}
+
+/** 本内最近一篇日记的 hpath：box conf 日记模板首段作锚 → SQL 最新 type='d'。
+ *  box conf 拿不到/无日记/查无结果返回 ""（落本根）。注：目录文档同为 type='d' 且可能 id 更新，
+ *  若取到中间层目录，draftHomeInDiary 对其退层失败会自然落空——可接受的边界（取最新命中的主路径是叶子日记） */
+async function latestDiaryHPath(box: string): Promise<string> {
+    try {
+        // siyuan.call 已解包响应 data 层（siyuanApi 先例：sql 直接把返回当数组用）
+        const resp = (await siyuan.call("/api/notebook/getNotebookConf", { notebook: box })) as {
+            conf?: { dailyNoteSavePath?: string };
+        };
+        const root = hPathFirstSeg(resp?.conf?.dailyNoteSavePath ?? "");
+        if (!root) return "";
+        const row = await siyuan.sqlOne(
+            `select hpath from blocks where box="${box}" and type='d' and hpath like "/${root}/%" order by id desc limit 1`
+        );
+        return (row as { hpath?: string })?.hpath ?? "";
+    } catch (e) {
+        console.warn("[tomato anno] latest diary lookup failed:", e);
+        return "";
+    }
+}
+
 export async function ensureDraftDocID(): Promise<string> {
     const found = await findDraftDocID();
     if (found) return found;
-    const box = storeNoteBox_selectedNotebook.getOr();
+    // 选定笔记本：用户设置 > 官方日记本判定（注入未完成的竞态兜底）> 当前笔记本
+    let box = commentBoxAnnoDraftNotebook.get();
+    if (!box) box = await resolveDailyNotebookID();
+    if (!box) box = events.boxID;
     if (!box) return "";
+    // 落点目录：最近日记的上月目录（缓存命中免 conf+SQL 两查；""=落本根）
+    let home: string;
+    if (cachedDraftHomeBox === box && cachedDraftHome !== null) {
+        home = cachedDraftHome;
+    } else {
+        home = draftHomeInDiary(await latestDiaryHPath(box));
+        cachedDraftHomeBox = box;
+        cachedDraftHome = home;
+    }
+    const docHPath = home ? `${home}/${DRAFT_DOC_TITLE}` : `/${DRAFT_DOC_TITLE}`;
     try {
-        const id = await siyuan.createDocWithMd(box, DRAFT_HPATH, "");
-        if (id) cachedDocID = id;
-        return id ?? "";
+        // 中间目录（如空月份）不存在则先造（与真实月份文档同构；不赌 createDocWithMd 自动建层）
+        if (home) {
+            const ids = await siyuan.getIDsByHPath(home, box);
+            if (!(Array.isArray(ids) ? ids[0] : ids)) await siyuan.createDocWithMd(box, home, "");
+        }
+        const id = await siyuan.createDocWithMd(box, docHPath, "");
+        if (id) {
+            cachedDocID = id;
+            return id;
+        }
+        cachedDraftHome = null; // 落点失效（如目录被删）：清缓存让下次重解析
+        return "";
     } catch (e) {
         console.warn("[tomato anno] create draft doc failed:", e);
+        cachedDraftHome = null;
         return "";
     }
 }

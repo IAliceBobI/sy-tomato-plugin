@@ -9,6 +9,9 @@
 export interface BkDocCacheEntry {
     revision: string;
     items: unknown[];
+    /** □3 提及马克笔：getBacklinkDoc/getBackmentionDoc 响应 keywords（编辑态高亮
+     *  用）。unchanged 响应不含此字段，与 items 同走缓存。 */
+    keywords: string[];
 }
 
 export interface BkListState {
@@ -57,13 +60,21 @@ export function applyListResponse(state: BkListState, resp: { unchanged?: boolea
 }
 
 /**
- * getBacklinkDoc/getBackmentionDoc 响应落地。unchanged → 返回缓存 items（同引用，
- * 上轮一定查过才有 revision 可带）；否则记录 revision+items 并原样返回新 items。
+ * getBacklinkDoc/getBackmentionDoc 响应落地。unchanged → 返回缓存 items+keywords
+ * （同引用，上轮一定查过才有 revision 可带）；否则记录 revision+items+keywords 并
+ * 原样返回。keywords 响应缺省（老内核/引用侧空关键词）归一为空数组。
  */
-export function applyDocResponse<T>(state: BkListState, docID: string, resp: { unchanged?: boolean; revision?: string; items: T[] }): T[] {
-    if (resp?.unchanged) return (state.docs.get(docID)?.items ?? []) as T[];
-    if (resp?.revision) state.docs.set(docID, { revision: resp.revision, items: resp.items });
-    return resp.items;
+export function applyDocResponse<T>(state: BkListState, docID: string, resp: {
+    unchanged?: boolean; revision?: string; items: T[]; keywords?: string[];
+}): { items: T[]; keywords: string[] } {
+    if (resp?.unchanged) {
+        const cached = state.docs.get(docID);
+        return { items: (cached?.items ?? []) as T[], keywords: cached?.keywords ?? [] };
+    }
+    if (resp?.revision) {
+        state.docs.set(docID, { revision: resp.revision, items: resp.items, keywords: resp.keywords ?? [] });
+    }
+    return { items: resp.items, keywords: resp.keywords ?? [] };
 }
 
 /** 以本轮来源文档集合修剪缓存（消失的文档不留孤儿，防长期驻留增长） */

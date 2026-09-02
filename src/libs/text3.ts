@@ -1127,18 +1127,18 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
     public get 渐进学习的设置() {
         switch (this.lang) {
             case "zh_CN":
-                return "渐进学习的设置";
+                return "渐进学习设置";
             case "es_ES":
-                return "Configuración de aprendizaje progresivo";
+                return "Ajustes de aprendizaje progresivo";
             case "fr_FR":
                 return "Paramètres d'apprentissage progressif";
             case "ja_JP":
-                return "段階的な学習の設定";
+                return "段階学習の設定";
             case "zh_CHT":
-                return "漸進學習的設定";
+                return "漸進學習設定";
 
             default:
-                return "Progressive Learning Settings";
+                return "Progressive learning settings";
         }
     }
     public get 按标点断句列表() {

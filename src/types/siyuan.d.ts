@@ -54,12 +54,16 @@ interface GetBackmentionDoc {
     /** knownRevision 命中时响应只含此二字段（kernel/api/ref.go backlinkContextResult） */
     unchanged?: boolean;
     revision?: string;
+    /** □3 提及马克笔：关键词数组（提及卡无搜索词也非空——mentionKeywords 来自文档名
+     *  分词，kernel/model/backlink.go GetBackmentionDoc）；unchanged 响应不含，走 bkRevision 缓存 */
+    keywords?: string[];
 }
 
 interface GetBacklinkDoc {
     backlinks: Backlink[];
     unchanged?: boolean;
     revision?: string;
+    keywords?: string[];
 }
 
 interface Backlink {

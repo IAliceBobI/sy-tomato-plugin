@@ -150,6 +150,25 @@ export function blocksUnderRange(container: HTMLElement, range: Range): HTMLElem
     ) as HTMLElement[];
 }
 
+/** 词级导线选区有效性（MindWire currentTextRange 提纯，二期 □1 工具条/快捷键通道复用）：
+ *  非 collapsed + 有实文本 + 单块（setInlineMark 'a' 跨块静默失败）+ 非代码块。
+ *  实文本剥零宽空格后判（内核同款语义 toolbar/index.ts:240——块重建后选区常落在
+ *  ZWSP 上，不剥会被热键抓成空词起点）。工具条点击/快捷键触发时选区被顶掉，
+ *  回退 protyle.toolbar.range 走同一判定。 */
+export function normalizeWordRange(range: Range | null | undefined): Range | null {
+    if (!range || range.collapsed) return null;
+    // startContainer 已脱离文档 = 陈旧兜底 range（内核事务重建块 DOM 后 toolbar.range 残留
+    // 旧引用，closest 在脱离子树上照样命中块 div 会误判有效——评审 P1-2；window 选区恒 connected 零误伤）
+    if (!range.startContainer?.isConnected) return null;
+    if (!range.toString().replace(/\u200b/g, "").trim()) return null;
+    const asEl = (n: Node) => (n.nodeType === 3 ? n.parentElement : (n as HTMLElement));
+    const startBlock = asEl(range.startContainer)?.closest?.("div[data-node-id]");
+    const endBlock = asEl(range.endContainer)?.closest?.("div[data-node-id]");
+    if (!startBlock || !endBlock || startBlock !== endBlock) return null;
+    if (startBlock.getAttribute("data-type") === "NodeCodeBlock") return null;
+    return range;
+}
+
 export function getID(e: HTMLElement | Element | Node, attrs?: string[]) {
     const s = getSyElement(e, attrs);
     if (s) {
@@ -231,13 +250,20 @@ export function dom2div(dom: string) {
 
 export function isSearchUI(protyle: Protyle) {
     const e = protyle?.protyle?.element as HTMLElement;
-    return e?.id === "searchPreview"
+    // searchUnRefPreview=搜索「未引用块」预览，与 searchPreview 同场景（内核 search/util.ts:252/262）
+    return e?.id === "searchPreview" || e?.id === "searchUnRefPreview"
 }
 
-export function isFloatUI(protyle: Protyle) {
+/** 内核悬浮浮层（BlockPanel 容器 .block__popover，内核 Panel.ts:71）内的 protyle：
+ * 悬停块引/反链计数弹出的预览浮层加载也 emit loaded-protyle-static，守卫链不认
+ * 会把完整反链面板挂进浮层、盖住真面板（2026-09-02 □1 实锤）。浮层编辑器容器
+ * 一律带 block__edit 类（Panel.ts:553，纯预览与可编辑浮窗无 DOM 二分），故只认
+ * popover 容器祖先、不豁免 block__edit，一律无条件拦——「在悬浮窗内显示底部反链」
+ * 设置项与 block__edit 判定 isFloatUI 恒等于 popover 内=死开关/死代码，已随
+ * □7 a1（2026-09-02 用户拍板）整体退役。 */
+export function isPopoverUI(protyle: Protyle) {
     const e = protyle?.protyle?.element as HTMLElement;
-    if (e.classList.contains("block__edit")) return true;
-    return false;
+    return !!e?.closest(".block__popover");
 }
 
 export function isCardUI(protyle: Protyle) {

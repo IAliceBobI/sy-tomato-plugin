@@ -172,6 +172,14 @@ export function pairBoxesFilled(s: PairState): boolean {
     return pairFirstEmpty(s) === null;
 }
 
+/** 区间预览解析触发判据（控制器填框后调 syncRangeCount 的条件；2026-09-02 □1）：搬运
+ *  三框起止两端齐即触发——与填框顺序无关。「只在填槽 2 时解析」的顺序洞：先填结束框
+ *  后补起始框（清框①重填/多块整组进框①/覆盖起/止任一端同款）rangeCount 恒 null 或停
+ *  留旧值 → ✓ 三档恒灰/预览数错。纯函数层不写 rangeCount（控制器异步解析回填）。 */
+export function pairRangeSyncWanted(s: PairState): boolean {
+    return s.phase === "slots" && s.func === "transport" && !!s.srcIDs[0] && !!s.endID;
+}
+
 /** 从选区暂存预填框区（出场直跳/funcs 点功能共用）：两框整组进源框；三框首/末进起止框
  *  （光标 cursorOnly 只进起始，结束留空——光标≠选区，单块区间仍可手选同块达成） */
 function prefilledFromStash(func: PairFuncID, stash: PairEvent | null): Pick<PairState, "srcIDs" | "srcSummary" | "endID" | "endSummary"> {

@@ -1,8 +1,7 @@
 import { IProtyleOptions, Lute, Plugin, Protyle } from "siyuan";
 import { BLOCK_REF, BlockNodeEnum, DATA_ID, DATA_NODE_ID, DATA_SUBTYPE, DATA_TYPE, IN_BOOK_INDEX, SPACE, STATICLINK, TOMATO_BK_IGNORE, TOMATO_BK_STATIC, UPDATED } from "./gconst";
-import { NewLute, NewNodeID, cleanDivOnly, dom2div, getAttribute, getID, get_siyuan_lnk_md, isValidNumber, set_href, siyuan } from "./utils";
+import { NewLute, cleanDivOnly, dom2div, getAttribute, getID, isValidNumber, set_href, siyuan } from "./utils";
 import { tomatoI18n } from "../tomatoI18n";
-import { getHierarchyConcepts, OpenSyFile2 } from "./docUtils";
 import { back_link_passup_heading, back_link_passup_quote, back_link_passup_super, storeAttrManager } from "./stores";
 import { SortType } from "./types";
 import { applyDocResponse, applyListResponse, BkListState, knownDocRevision, knownListRevision, makeBkQueryKey, pruneBkDocs, resetBkStateIfQueryChanged } from "./bkRevision";
@@ -166,14 +165,17 @@ export async function scanAllRef(backlinkSv: BacklinkSv, div: HTMLElement, docID
     }
 }
 
+/** 概念 chip 可见性唯一判定源（□2）：hideThis=「暂时隐藏本文档链接」即时 UI 开关不进数据层。
+ *  计数与 chips 渲染必须同用本函数，否则数画分裂。
+ *  日期口径（□6 锚点收紧）：名字的**末段**就是日期（可带路径前缀/c 前缀/@第N周-星期X 后缀）
+ *  才算日记文档名不当概念——「2026-01-01 发布计划」类正常概念名不再误拦。 */
+export function conceptChipVisible(concept: Pick<LinkItem, "text" | "attrs">, hideThis: boolean): boolean {
+    if (/(^|\/)c?\d{4}-\d{2}-\d{2}(@第\d+周-星期.{1})?$/.test(concept.text)) return false;
+    return !(hideThis && concept.attrs.isThisDoc);
+}
+
 export async function addRef(backlinkSv: BacklinkSv, txt: string, id: string, docID: string, allRefs: RefCollector, dataNodeID?: string) {
     if (txt.trim() == "*") return;
-    // if (
-    //     Array.from(
-    //         txt.matchAll(/^c?\d{4}-\d{2}-\d{2}(@第\d+周-星期.{1})?$/g),
-    //     ).length > 0
-    // )
-    //     return;
 
     if (!dataNodeID) dataNodeID = id;
     const key = id + txt;
@@ -207,70 +209,6 @@ export async function disableBK(docID: string) {
 export async function enableBK(docID: string) {
     await siyuan.setBlockAttrs(docID, { "custom-off-tomatobacklink": "2" } as AttrType);
     await siyuan.pushMsg(tomatoI18n.启用底部反链);
-}
-
-export class ConTreeNode {
-    value: LinkItem;
-    children = new Map<string, ConTreeNode>();
-    constructor(items: LinkItem[], value = null) {
-        this.value = value;
-        items.forEach(i => {
-            this.children.set(i.text, new ConTreeNode([], i));
-        })
-    }
-    group() {
-        let tidy: boolean;
-        do {
-            tidy = false;
-            for (const cn1 of this.children.values()) {
-                for (const cn2 of this.children.values()) {
-                    const t1 = cn1.value.text;
-                    const t2 = cn2.value.text;
-                    if (t1 === t2) continue;
-                    else if (t1.startsWith(t2)) {
-                        cn2.children.set(t1, cn1);
-                        this.children.delete(t1);
-                        tidy = true;
-                    } else if (t2.startsWith(t1)) {
-                        cn1.children.set(t2, cn2);
-                        this.children.delete(t2);
-                        tidy = true;
-                    }
-                }
-            }
-        } while (tidy);
-    }
-}
-
-class ConTree {
-    private linkItems: LinkItem[];
-    private root: ConTreeNode;
-    constructor(linkItems: LinkItem[]) {
-        this.linkItems = linkItems.map((i) => {
-            i.text = i.text
-            .replaceAll("丨", "|")
-                .split("|")
-                .map((i) => i.trim())
-                .join("|");
-            return i;
-        })
-        this.root = new ConTreeNode(this.linkItems);
-    }
-    build() {
-        this.doBuild(this.root);
-        return this.root.children;
-    }
-    private doBuild(node: ConTreeNode) {
-        node.group();
-        for (const cn of node.children.values()) {
-            this.doBuild(cn);
-        }
-    }
-}
-
-export function getConceptTrees(linkItems: LinkItem[]) {
-    const tree = new ConTree(linkItems);
-    return tree.build();
 }
 
 export function delGutter(e: HTMLElement) {
@@ -324,7 +262,6 @@ export async function doGetBackLinks(
     sortBy = "",
     refDocCount = Number.MAX_SAFE_INTEGER,
     menDocCount = Number.MAX_SAFE_INTEGER,
-    docName: string,
     idsFilter: ReturnType<typeof storeAttrManager> = null,
     page = 0,
     bkState: BkListState = null,
@@ -339,11 +276,6 @@ export async function doGetBackLinks(
         return { unchanged: true } as any;
     }
     const allRefs: RefCollector = new Map();
-    const allRefsHierarchy: RefCollector = new Map();
-    const task3 = getHierarchyConcepts(docName).then(async ret => {
-        await Promise.all(ret.map((r) => addRef(null, r.content, r.id, docID, allRefsHierarchy)))
-        return ret;
-    });
     const { backLinks, bkDocs } = await Promise.resolve(listResp)
         .then(async bkDocs => {
             if (!bkDocs) return { bks: [], bkDocs };
@@ -352,18 +284,22 @@ export async function doGetBackLinks(
                 .map(async bkDoc => {
                     const key = "bk:" + bkDoc.id;
                     const resp = await siyuan.getBacklinkDoc(docID, bkDoc.id, globalSearchText, bkState ? knownDocRevision(bkState, key) : "");
-                    const items = bkState ? applyDocResponse(bkState, key, { unchanged: resp?.unchanged, revision: resp?.revision, items: resp?.backlinks ?? [] }) : (resp?.backlinks ?? []);
+                    const { items, keywords } = bkState
+                        ? applyDocResponse(bkState, key, { unchanged: resp?.unchanged, revision: resp?.revision, items: resp?.backlinks ?? [], keywords: resp?.keywords })
+                        : { items: resp?.backlinks ?? [], keywords: resp?.keywords ?? [] };
                     return items.map(bkItem => {
-                        return { isMention: false, bkDoc, bkItem }
+                        return { isMention: false, bkDoc, bkItem, keywords }
                     });
                 });
             const meTask = bkDocs.backmentions.slice(page * menDocCount, (page + 1) * menDocCount)
                 .map(async bkDoc => {
                     const key = "me:" + bkDoc.id;
                     const resp = await siyuan.getBackmentionDoc(docID, bkDoc.id, globalSearchText, bkState ? knownDocRevision(bkState, key) : "");
-                    const items = bkState ? applyDocResponse(bkState, key, { unchanged: resp?.unchanged, revision: resp?.revision, items: resp?.backmentions ?? [] }) : (resp?.backmentions ?? []);
+                    const { items, keywords } = bkState
+                        ? applyDocResponse(bkState, key, { unchanged: resp?.unchanged, revision: resp?.revision, items: resp?.backmentions ?? [], keywords: resp?.keywords })
+                        : { items: resp?.backmentions ?? [], keywords: resp?.keywords ?? [] };
                     return items.map(bkItem => {
-                        return { isMention: true, bkDoc, bkItem }
+                        return { isMention: true, bkDoc, bkItem, keywords }
                     })
                 });
             const bk = Promise.all(bkTask).then(i => i.flat());
@@ -379,7 +315,7 @@ export async function doGetBackLinks(
         .then(async t => {
             const bks = t.bks
                 .filter(i => i.bkItem?.dom != null)
-                .map(({ isMention, bkItem, bkDoc }) => {
+                .map(({ isMention, bkItem, bkDoc, keywords }) => {
                     const bkDiv = dom2div(bkItem.dom);
                     const dataType = bkDiv.getAttribute(DATA_TYPE)
                     if (dataType === BlockNodeEnum.NODE_BLOCK_QUERY_EMBED) return;
@@ -402,6 +338,7 @@ export async function doGetBackLinks(
                         blockID: id,
                         atBottom: idsFilter?.getListString()?.has(id) ?? false,
                         sortBy,
+                        keywords,
                     } as BacklinkSv;
                 })
                 .filter(i => i != null);
@@ -433,11 +370,8 @@ export async function doGetBackLinks(
     const task2 = bkOnly.map((backLink) =>
         scanAllRef(backLink, backLink.bkDiv, docID, allRefs),
     );
-    await Promise.all([...task1, ...task2, task3]);
+    await Promise.all([...task1, ...task2]);
     const linkItems = [...allRefs.values()].sort((a, b) =>
-        a.text.localeCompare(b.text),
-    );
-    const linkItemsHierarchy = [...allRefs.values(), ...allRefsHierarchy.values()].sort((a, b) =>
         a.text.localeCompare(b.text),
     );
     backLinks.sort((a, b) => {
@@ -488,25 +422,7 @@ export async function doGetBackLinks(
     })();
 
     await Promise.all(taskGetDom);
-    return { linkItems, linkItemsHierarchy, backLinks, block2mSelect, block2lnks, hierarchyConcepts: await task3, maxPage }
-}
-
-export async function insertConcepts(plugin: Plugin, docID: string, hierarchyConcepts: Block[]) {
-    return siyuan
-        .sqlSpan(`select markdown from spans where root_id="${docID}" limit 10000000`)
-        .then(rows => rows.map(row => row.markdown).join("") + " " + docID)
-        .then(text => hierarchyConcepts.filter(row => !text.includes(row.id)))
-        .then(cons => cons.map(row => {
-            const id = NewNodeID();
-            return { id, lnk: `${get_siyuan_lnk_md(row.id, row.content)}\n{: id="${id}"}` };
-        }))
-        .then(async lnks => {
-            if (lnks.length > 0) {
-                await siyuan.insertBlockAsChildOf(lnks.map(l => l.lnk).join("\n"), docID)
-                await OpenSyFile2(plugin, lnks[0].id);
-            }
-            siyuan.pushMsg(`${lnks.length}/${hierarchyConcepts.length} have been inserted already.`, 2000)
-        });
+    return { linkItems, backLinks, block2mSelect, block2lnks, maxPage }
 }
 
 export function createProtyle(blockId: string, plugin: Plugin, render?: IProtyleOptions['render']) {

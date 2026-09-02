@@ -19,18 +19,18 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
     public get 开始随机学习() {
         switch (this.lang) {
-            case "zh_CN": return "开始随机学习";
-            case "es_ES": return "Comenzar aprendizaje aleatorio";
-            case "fr_FR": return "Démarrer l'apprentissage aléatoire";
-            case "ja_JP": return "ランダム学習を開始";
-            case "zh_CHT": return "開始隨機學習";
-            case "it_IT": return "Inizia apprendimento casuale";
-            case "de_DE": return "Zufälliges Lernen beginnen";
-            case "he_IL": return "התחל ללמוד באופן אקראי";
-            case "ru_RU": return "Начать случайное обучение";
-            case "pl_PL": return "Rozpocznij losowe uczenie się";
+            case "zh_CN": return "开始随机阅读";
+            case "es_ES": return "Comenzar lectura aleatoria";
+            case "fr_FR": return "Démarrer la lecture aléatoire";
+            case "ja_JP": return "ランダム読書を開始";
+            case "zh_CHT": return "開始隨機閱讀";
+            case "it_IT": return "Inizia lettura casuale";
+            case "de_DE": return "Zufälliges Lesen beginnen";
+            case "he_IL": return "התחל קריאה אקראית";
+            case "ru_RU": return "Начать случайное чтение";
+            case "pl_PL": return "Rozpocznij losowe czytanie";
             case "en_US":
-            default: return "Start Random Learning";
+            default: return "Start random reading";
         }
     }
     public get 查看所有渐进学习文档() {
@@ -51,18 +51,18 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
     }
     public get 添加当前文档到渐进阅读分片模式() {
         switch (this.lang) {
-            case "zh_CN": return "添加当前文档到渐进阅读（分片模式）";
-            case "es_ES": return "Agregar documento actual a lectura progresiva (modo fragmentado)";
-            case "fr_FR": return "Ajouter le document actuel à la lecture progressive (mode fragmenté)";
-            case "ja_JP": return "現在のドキュメントをプログレッシブラーニングに追加（フラグメントモード）";
-            case "zh_CHT": return "添加當前文檔到漸進閱讀（分片模式）";
-            case "it_IT": return "Aggiungi il documento corrente alla lettura progressiva (modalità frammento)";
-            case "de_DE": return "Aktuelles Dokument dem progressiven Lesen hinzufügen (Fragmentmodus)";
-            case "he_IL": return "הוסף את המסמך הנוכחי ללימוד ההדרגתי (מצב פיצ'רים)";
-            case "ru_RU": return "Добавить текущий документ в режим прогрессивного чтения (фрагментный режим)";
-            case "pl_PL": return "Dodaj bieżący dokument do czytania postępowego (tryb fragmentów)";
+            case "zh_CN": return "加入渐进阅读";
+            case "es_ES": return "Añadir a la lectura progresiva";
+            case "fr_FR": return "Ajouter à la lecture progressive";
+            case "ja_JP": return "プログレッシブラーニングに追加";
+            case "zh_CHT": return "加入漸進閱讀";
+            case "it_IT": return "Aggiungi alla lettura progressiva";
+            case "de_DE": return "Zum progressiven Lesen hinzufügen";
+            case "he_IL": return "הוסף ללמידה ההדרגתית";
+            case "ru_RU": return "Добавить в прогрессивное чтение";
+            case "pl_PL": return "Dodaj do czytania postępowego";
             case "en_US":
-            default: return "Add Current Document to Progressive Reading (Fragment Mode)";
+            default: return "Add to progressive reading";
         }
     }
     public get 请选择段落块进行跳转() {
@@ -370,37 +370,17 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
 
     public get 思维导线帮助() {
         switch (this.lang) {
-            case "zh_CN": return "引用渲染为连线。可根据引用，在段落块间添加连线";
-            case "es_ES": return "Las referencias se representan como conexiones. Puedes añadir conexiones entre bloques de párrafos según las referencias";
-            case "fr_FR": return "Les références sont rendues sous forme de connexions. Vous pouvez ajouter des connexions entre les blocs de paragraphes en fonction des références";
-            case "ja_JP": return "参照は接続線として描画されます。参照に応じて、段落ブロック間の接続線を追加できます";
-            case "zh_CHT": return "引用渲染為連線。可根據引用，在段落塊間添加連線";
-            case "it_IT": return "Le citazioni vengono rese come connessioni. È possibile aggiungere collegamenti tra blocchi di paragrafi in base alle citazioni";
-            case "de_DE": return "Referenzen werden als Verbindungen dargestellt. Anhand von Referenzen können Sie Verbindungen zwischen Absatzblöcken hinzufügen";
-            case "he_IL": return "הפניות מצוירות כקווים חיבור. ניתן להוסיף קווי חיבור בין בלוקי פסקאות על פי הפניות";
-            case "ru_RU": return "Ссылки отображаются в виде соединительных линий. Можно добавлять линии между блоками абзацев на основе ссылок";
-            case "pl_PL": return "Cytowania są renderowane jako połączenia. Możesz dodawać połączenia między blokami akapitów na podstawie cytowań";
+            // □5 改文案（spec §6）：旧「引用渲染为连线」说明退役，改为划词连线操作说明；
+            // 二期 D 帮助收口补「先在目标文档启用」前提句（用户「没法操作」的根因是缺此前提）
+            // 其余语种 default(en) 兜底（旧多语种译文语义已过时，不再逐语种维护）
+            case "zh_CN": return "需先在目标文档启用思维导线（⌘⇧Z 或右键菜单）并开启「划词连线」；划选第一个词点「关联起点」，再划选第二个词点「连到」即成线；悬停线可改关系色/删除，点击残端跳到另一端";
+            case "zh_CHT": return "需先在目標文檔啟用思維導線（⌘⇧Z 或右鍵選單）並開啟「劃詞連線」；劃選第一個詞點「關聯起點」，再劃選第二個詞點「連到」即成線；懸停線可改關係色/刪除，點擊殘端跳到另一端";
+            case "ja_JP": return "先にドキュメントで思考ガイドを有効化し（⌘⇧Z または右クリックメニュー）「語を選んで線を引く」をオンに。語を選んで「関連起点」をクリックし、別の語を選んで「連接先」をクリックすると線が引かれます。線にホバーすると関係色の変更・削除ができ、残端をクリックすると反対側へジャンプします";
             case "en_US":
-            default: return "References are rendered as connections. You can add connections between paragraph blocks based on references"
+            default: return "Enable mindwire for the target document first (⌘⇧Z or context menu) and turn on word wires. Select a word and pick \"Link start\", then select another and pick \"Connect to\". Hover a wire to recolor or delete; tap a stub to jump to the other end";
         }
     }
 
-    public get 流动线条效果() {
-        switch (this.lang) {
-            case "zh_CN": return "流动线条效果";
-            case "es_ES": return "Efecto de líneas fluidas";
-            case "fr_FR": return "Effet de lignes fluides";
-            case "ja_JP": return "流動線効果";
-            case "zh_CHT": return "流動線條效果";
-            case "it_IT": return "Effetto linee fluide";
-            case "de_DE": return "Fließende Linien Effekt";
-            case "he_IL": return "אפקט קווי זרימה";
-            case "ru_RU": return "Эффект текущих линий";
-            case "pl_PL": return "Efekt płynących linii";
-            case "en_US":
-            default: return "Flowing lines effect";
-        }
-    }
 
     public get 启用思维导线() {
         switch (this.lang) {
@@ -572,36 +552,14 @@ export abstract class TomatoI18nABC11 extends TomatoI18nABC12 {
         }
     }
 
-    public get 使用实线() {
-        switch (this.lang) {
-            case "zh_CN": return "使用实线";
-            case "es_ES": return "Usar línea sólida";
-            case "fr_FR": return "Utiliser une ligne pleine";
-            case "ja_JP": return "実線を使用";
-            case "zh_CHT": return "使用實線";
-            case "it_IT": return "Usa linea continua";
-            case "de_DE": return "Durchgezogene Linie verwenden";
-            case "he_IL": return "השתמש בקו מלא";
-            case "ru_RU": return "Использовать сплошную линию";
-            case "pl_PL": return "Użyj ciągłej linii";
-            case "en_US":
-            default: return "Use solid line";
-        }
-    }
     public get 使用多种颜色() {
         switch (this.lang) {
-            case "zh_CN": return "使用多种颜色";
-            case "es_ES": return "Usar múltiples colores";
-            case "fr_FR": return "Utiliser plusieurs couleurs";
-            case "ja_JP": return "複数の色を使用";
-            case "zh_CHT": return "使用多種顏色";
-            case "it_IT": return "Usa più colori";
-            case "de_DE": return "Mehrere Farben verwenden";
-            case "he_IL": return "השתמש במספר צבעים";
-            case "ru_RU": return "Использовать несколько цветов";
-            case "pl_PL": return "Użyj wielu kolorów";
+            // □5 改文案（spec §6/D7）：键名零迁移，显示文案改为「关系配色」语义
+            case "zh_CN": return "关系配色";
+            case "zh_CHT": return "關係配色";
+            case "ja_JP": return "関係配色";
             case "en_US":
-            default: return "Use multiple colors";
+            default: return "Relation colors";
         }
     }
     public get 线条宽度() {

@@ -18,6 +18,7 @@
     import type { IProtyle, Dock } from "siyuan";
     import { onDestroy, onMount } from "svelte";
     import { commentBox, CommentBox刷新文档正引 } from "./CommentBox";
+    import { openAnnoCollectDialog } from "./AnnoCollectDialog";
     import {
         deleteBlock,
         getAttribute,
@@ -710,6 +711,15 @@
                     onchange={() => commentBoxAnnotations.write()}
                 />
             </label>
+            <button
+                class="tomato-icon-btn"
+                aria-label={tomatoI18n.收集批注说明}
+                onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                onmouseleave={hidePanelTip}
+                onclick={() => openAnnoCollectDialog(docID || events.docID)}
+            >
+                <svg><use xlink:href="#iconDownload"></use></svg>
+            </button>
         </span>
         <span class="tomato-toolbar__group">
             <label

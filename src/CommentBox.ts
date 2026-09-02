@@ -1,7 +1,7 @@
 import { adaptHotkey, Custom, IProtyle, openTab, Tab } from "siyuan";
 import { events, EventType } from "./libs/Events";
 import CommentBoxSvelte from "./CommentBox.svelte";
-import { commentBoxCheckbox, commentBoxMenu } from "./libs/stores";
+import { annoCollectDest, annoCollectTargetDoc, commentBoxCheckbox, commentBoxMenu } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
@@ -11,6 +11,8 @@ import { newID } from "stonev5-utils";
 import { verifyKeyTomato } from "./libs/user";
 import { mount } from "svelte";
 import { annotations } from "./Annotations";
+import { quickCollect, cachedDocName } from "./libs/annoCollect";
+import { openAnnoCollectDialog } from "./AnnoCollectDialog";
 
 const DOCK_TYPE = "dock_CommentBox";
 const TAB_TYPE = "custom_tab_CommentBox"
@@ -70,6 +72,18 @@ class CommentBox {
             },
         });
 
+        // 批注收集（2026-09-02）：无默认快捷键（新键须过 winHotkey 规范化+官方 keymap
+        // 全仓比对流程，留给用户键位设置自绑），故不走 winHotkey 工厂（m 空会 throw）。
+        // 按上次记忆的 dest 直接执行 + pushMsg 回执
+        this.plugin.addCommand({
+            langKey: "anno collect",
+            langText: tomatoI18n.收集批注,
+            editorCallback: (protyle: IProtyle) => {
+                const dest = annoCollectDest.get();
+                void quickCollect(protyle.block.rootID, dest === "clipboard" || dest === "file" ? dest : "daily");
+            },
+        });
+
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
             if (commentBoxMenu.get()) {
@@ -81,6 +95,9 @@ class CommentBox {
                         this.findDivs(detail.protyle, false);
                     },
                 });
+                // 3.8.x 右键块任意处走 gutter 菜单（click-blockicon）、选中文本右键才走
+                // open-menu-content——两通道都挂（与「添加批注」对齐），见 addCollectItems
+                this.addCollectItems(menu, detail.protyle);
             }
         });
 
@@ -170,8 +187,44 @@ class CommentBox {
                     this.findDivs(protyle, false);
                 }
             });
+            this.addCollectItems(detail.menu, protyle);
         }
     }
+
+    /** 批注收集右键项（spec §5.3，快通道平铺）：范围沿用上次记忆，文件项有目标记忆才显示。
+     *  必须同步构建——内核在事件同步段 show 菜单，async addItem 赶不上显示；
+     *  文件名走 cachedDocName 缓存。挂两通道：click-blockicon（右键块任意处）+
+     *  open-menu-content（选中文本右键）——「添加批注」同款双挂。
+     *  注：嵌套 submenu 在内核「插件」组渲染链上不显示（dev 3.8.2 e2e 实锤）——降级平铺。 */
+    private addCollectItems(menu: any, protyle: IProtyle) {
+        const rootID = protyle?.block?.rootID;
+        if (!rootID) return;
+        const targetDoc = annoCollectTargetDoc.get();
+        const targetName = cachedDocName(targetDoc);
+        addIfVisible(menu, "anno collect", {
+            icon: "iconDownload",
+            label: tomatoI18n.收集批注,
+            click: () => openAnnoCollectDialog(rootID),
+        });
+        addIfVisible(menu, "m.annoCollect.clipboard", {
+            icon: "iconCopy",
+            label: `${tomatoI18n.收集批注} → ${tomatoI18n.剪贴板}`,
+            click: () => void quickCollect(rootID, "clipboard"),
+        });
+        addIfVisible(menu, "m.annoCollect.daily", {
+            icon: "iconCalendar",
+            label: `${tomatoI18n.收集批注} → ${tomatoI18n.当天日记}`,
+            click: () => void quickCollect(rootID, "daily"),
+        });
+        if (targetDoc && targetName) {
+            addIfVisible(menu, "m.annoCollect.file", {
+                icon: "iconFile",
+                label: `${tomatoI18n.收集批注} → ${tomatoI18n.收集到文件}：《${targetName}》`,
+                click: () => void quickCollect(rootID, "file"),
+            });
+        }
+    }
+
 
     private async findDivs(protyle: IProtyle, _newFile: boolean) {
         // □3 起改走新批注链路（属性存储+锚点标记）；旧 CommentInput 产物链 □5 删净
