@@ -1,5 +1,5 @@
 import { DATA_NODE_ID, DocAttrShowKey, SPACE } from "./libs/gconst";
-import { cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefSquareBrackets, cssRefStyle, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, showDocAttrs } from "./libs/stores";
+import { cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefEffect, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, showDocAttrs } from "./libs/stores";
 import { verifyKeyTomato } from "./libs/user";
 import { getAttribute, Siyuan } from "./libs/utils";
 
@@ -18,9 +18,7 @@ export function loadCss() {
 function _loadCss() {
     load_cardPriorityBoxCheckbox();
 
-    load_cssRefStyle();
-
-    load_cssRefSquareBrackets();
+    load_cssRefEffect();
 
     load_superblock_border();
 
@@ -91,7 +89,6 @@ async function load_cardPriorityBoxCheckbox() {
             div[cardPriBar] {
                 display: inherit;
             }
-            // box-shadow: 0 0 0 3px var(--b3-protyle-inline-mark-background) inset !important;
         }
         div[cardPriBar] {
             display: none;
@@ -100,44 +97,55 @@ async function load_cardPriorityBoxCheckbox() {
     document.head.appendChild(style);
 }
 
-async function load_cssRefStyle() {
-    if (!cssRefStyle.get()) return;
+// 引用效果五档（2026-09-03 多档化，cssRefStyle/cssRefSquareBrackets 双开关合并）：
+// none=思源默认 / brackets=淡显双方括号 / icon=去色半透明链接图标 / shadow=悬停浮起+色线（旧款精修）/
+// highlight=悬停淡黄底色。颜色全走 --b3-* 主题变量，明暗模式自动适配；inline 元素禁布局位移
+// （无 padding/margin/字号变化，方括号与图标的 ::before 宽度是既有档位的可接受代价）。
+async function load_cssRefEffect() {
+    const effect = cssRefEffect.get();
+    if (effect === "none") return;
     let style = document.createElement('style');
-    /* box-shadow 水平偏移量 | 垂直偏移量 | 模糊半径 | 阴影颜色 */
-    style.innerText = `
-        // span[data-type="block-ref"]:before {
-        //     content: "🔗";
-        //     opacity: 0.5;
-        //     font-size: xx-small;
-        // }
-        span[data-type="block-ref"]:hover {
-            text-shadow: 2px 2px 4px var(--b3-font-color2);
-            box-shadow: 0px 1.5px 0px var(--b3-font-color3);
-        }
-    `;
+    const css: Record<string, string> = {
+        // 0.2 在深色主题几乎隐形，0.3 两种模式稳定可辨；豁免行防与「渲染为标签」叠成 [["@xx]] 双重注记
+        "brackets": `
+            span[data-type="block-ref"]::before { content: "[["; opacity: 0.3; }
+            span[data-type="block-ref"]::after { content: "]]"; opacity: 0.3; }
+            span[tomato-ref-as-tag]::before { content: none; }
+            span[tomato-ref-as-tag]::after { content: none; }
+        `,
+        // grayscale 去 emoji 彩色渲染（跨平台不一致且抢戏），克制度由颜色通道承担、字号保持同体系
+        "icon": `
+            span[data-type="block-ref"]::before {
+                content: "🔗";
+                opacity: 0.45;
+                filter: grayscale(1);
+                font-size: 0.9em;
+            }
+            span[tomato-ref-as-tag]::before { content: none; }
+        `,
+        // 旧款 2px 2px 4px 右下投影偏重且与下划线不同轴（观感「字发虚」）；精修为正下 1px+2px 模糊，
+        // 与 box-shadow 色线同轴成「双线」，140ms 过渡消除 hover 闪现（静态外观零变化）
+        "shadow": `
+            span[data-type="block-ref"] {
+                transition: text-shadow 140ms ease, box-shadow 140ms ease;
+            }
+            span[data-type="block-ref"]:hover {
+                text-shadow: 0 1px 2px var(--b3-font-color2);
+                box-shadow: 0 2px 0 var(--b3-font-color3);
+            }
+        `,
+        // 淡黄底与思源划词标记同族（--b3-font-background2）；刻意不加 padding/border-radius 防撑开行内盒
+        "highlight": `
+            span[data-type="block-ref"] {
+                transition: background-color 140ms ease;
+            }
+            span[data-type="block-ref"]:hover {
+                background-color: var(--b3-font-background2);
+            }
+        `,
+    };
+    style.innerText = css[effect] ?? "";
     document.head.appendChild(style);
-}
-
-function load_cssRefSquareBrackets() {
-    if (!cssRefSquareBrackets.get()) return;
-    if (cssRefStyle.get()) return;
-    let style = document.createElement('style');
-    // style.id = 'tomato-cssRefSquareBrackets';
-    style.innerText = `
-        span[data-type="block-ref"]::before {
-            content:"[[";
-            opacity: 0.2;
-        }
-        span[data-type="block-ref"]::after {
-            content:"]]";
-            opacity: 0.2;
-        }
-    `;
-    document.head.appendChild(style);
-    // var styleElement = document.getElementById('customStyle');
-    // if (styleElement) {
-    //   styleElement.parentNode.removeChild(styleElement);
-    // }
 }
 
 async function load_cssRefAsTags() {

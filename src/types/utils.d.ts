@@ -112,6 +112,7 @@ type TomatoSettings = {
     imgBoxShowMenu: boolean,
     aiBoxMenuShow: boolean,
     digest2dailycard: boolean,
+    digestLanding: string,
     card2dailycard: boolean,
     mobileTopBar: boolean,
     cardAppendTime: boolean,
@@ -144,6 +145,8 @@ type TomatoSettings = {
     cssListBackgound: boolean,
     cssNattyList: boolean,
     cssRefStyle: string,
+    // 引用效果五档（2026-09-03 多档化）；旧 cssRefStyle/cssRefSquareBrackets 布尔仅迁移期读取
+    cssRefEffect: "none" | "brackets" | "icon" | "shadow" | "highlight",
     keepLazyLoadStore: string,
     awaysExitFocusStore: string,
     cssRefAsTags: string,

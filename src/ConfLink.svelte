@@ -41,8 +41,7 @@
         spaceRefLinkType,
         tag_to_ref_add_card,
         tag_to_ref_add_pinyin,
-        cssRefSquareBrackets,
-        cssRefStyle,
+        cssRefEffect,
         cssRefAsTags,
     } from "./libs/stores";
     import { cleanDataview, icon } from "./libs/utils";
@@ -315,18 +314,26 @@
             </div>
         {/if}
     </div>
-    <!-- 引用前后加上括号（自 ConfEditor.svelte 语义归位反链与引用域） -->
+    <!-- 引用效果（多档化：原「引用前后加上括号」+「给引用加上效果」双开关合并，2026-09-03） -->
     <div class="settingBox">
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$cssRefSquareBrackets} />
-            {tomatoI18n.引用前后加上括号}
+        <div class="section-title">
+            {tomatoI18n.引用效果}
+            <ConfHelpIcon token="RefStyleHelpDoc09x3Q1w2E3" />
         </div>
-    </div>
-    <!-- 给引用加上效果 -->
-    <div class="settingBox">
+        <div>{tomatoI18n.引用效果说明}</div>
         <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$cssRefStyle} />
-            {tomatoI18n.给引用加上效果}
+            {tomatoI18n.引用效果样式}
+            <select
+                class="b3-select"
+                value={$cssRefEffect}
+                onchange={(e) => cssRefEffect.write(e.currentTarget.value)}
+            >
+                <option value="none">{tomatoI18n.引用效果无}</option>
+                <option value="brackets">{tomatoI18n.引用效果双方括号}</option>
+                <option value="icon">{tomatoI18n.引用效果链接图标}</option>
+                <option value="shadow">{tomatoI18n.引用效果悬停阴影}</option>
+                <option value="highlight">{tomatoI18n.引用效果悬停高亮}</option>
+            </select>
         </div>
     </div>
     <!-- 将指定的引用渲染为标签 -->

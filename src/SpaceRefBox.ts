@@ -11,7 +11,7 @@ import { spaceRefEnabled, spaceRefLinkType } from "./libs/stores";
 import { verifyKeyTomato } from "./libs/user";
 import { debugLog } from "./libs/logUtils";
 import { DATA_NODE_ID, DATA_TYPE, BlockNodeEnum } from "./libs/gconst";
-import { extractWord, decide, type TitleRow } from "./libs/spaceRefCore";
+import { extractWord, decide, triggerConsume, type TitleRow } from "./libs/spaceRefCore";
 import { titleCache } from "./libs/titleCache";
 
 // spec 触发条件 2 的白名单：段落/标题/引述/列表项（data-type 实值为 Node* 全名，
@@ -72,6 +72,9 @@ class SpaceRefBox {
             debugLog("spaceRef", "trigger");
             const ext = this.cursorContext(el);
             if (!ext) return debugLog("spaceRef", "decision=skip-empty");
+            // 触发前缀（2026-09-03 英文误触修复）：词前须紧跟 @@，否则本次空格只是普通打字
+            const consume = triggerConsume(ext.anchor);
+            if (!consume) return debugLog("spaceRef", "decision=skip-no-prefix");
             const titles = await titleCache.get();
             const d = decide(ext.word, titles);
             debugLog("spaceRef", `word=${ext.word} decision=${d.kind}`);
@@ -97,7 +100,7 @@ class SpaceRefBox {
             const edit = getContenteditableElement(fresh);
             if (!edit) return debugLog("spaceRef", "abandon=no-edit");
             const beforeHTML = fresh.outerHTML;
-            if (!this.replaceWordWithRef(edit, ext.word, ext.anchor, title)) {
+            if (!this.replaceWordWithRef(edit, ext.word, ext.anchor, title, consume)) {
                 return debugLog("spaceRef", "abandon=anchor-not-found");
             }
 
@@ -145,17 +148,20 @@ class SpaceRefBox {
     }
 
     // DOM 锚定替换（replaceAnchored 的 DOM 层同语义实现）：在 edit 的文本流里找「锚+词」
-    // 最后一次出现的区间，把词替换成引用 span。词跨文本节点（词内被行内标记拆开）→ 放弃。
+    // 最后一次出现的区间，把词替换成引用 span；consume>0 时锚尾 @@ 前缀随词一起消费。
+    // 词跨文本节点（词内被行内标记拆开）→ 放弃。
     // 词由取词边界保证不含空白/标点（\p{P} 覆盖 <>&"），内联进 HTML 无需转义。
-    private replaceWordWithRef(edit: Element, word: string, anchor: string, title: TitleRow): boolean {
+    private replaceWordWithRef(edit: Element, word: string, anchor: string, title: TitleRow, consume: number): boolean {
         const walker = document.createTreeWalker(edit, NodeFilter.SHOW_TEXT);
         const nodes: Text[] = [];
         for (let n = walker.nextNode(); n; n = walker.nextNode()) nodes.push(n as Text);
         const idx = nodes.map(t => t.data).join("").lastIndexOf(anchor + word);
         if (idx < 0) return false;
         // splitText/offset 全按 UTF-16 单元（与 DOM API 一致），码点数只用于 decide 的词长拦截
-        const wordStart = idx + anchor.length;
-        const wordEnd = wordStart + word.length;
+        // 区间=「@@+词」整体：起点=词前 consume 个字符，终点=词尾（勿写成 wordStart+word.length——
+        // 那会把终点也前移 consume，span 只盖住 @@ 而原词残留，e2e 实锤）
+        const wordStart = idx + anchor.length - consume;
+        const wordEnd = wordStart + consume + word.length;
         let pos = 0;
         for (const t of nodes) {
             const len = t.data.length;

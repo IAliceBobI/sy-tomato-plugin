@@ -31,6 +31,14 @@ export function extractWord(textBeforeCursor: string): { word: string; anchor: s
 
 const codePoints = (s: string) => [...s].length;
 
+/** 触发前缀（2026-09-03 英文误触修复）：词前须紧跟 ≥2 个 @（半/全角可混），
+ *  空格触发后锚尾没有 @@ 一律跳过——英文/数字/无前缀中文词永不转换。
+ *  返回值=替换时应整段消费的前缀长度；@@@（Tag2RefBox 搜已有习惯）也全吃，不残留。 */
+export function triggerConsume(anchor: string): number {
+    const m = /[@＠]+$/.exec(anchor);
+    return m && m[0].length >= 2 ? m[0].length : 0;
+}
+
 /** 决策（静默，按序）：边界拦截 → 精确（=== 区分大小写，多条 updated 最新）→
  *  单字只许精确 → 包含（不区分大小写，content 码点最短，平手 updated 最新）→ 新建。 */
 export function decide(word: string, titles: TitleRow[]): Decision {
@@ -54,12 +62,13 @@ export function decide(word: string, titles: TitleRow[]): Decision {
 }
 
 /** 锚定替换：md 串中找「锚+词」组合的最后一个匹配位（锚为空则词的最后一次出现），
- *  只替换该处词为 syntax。锚与词都匹配不上 → null（Box 层记 Loki 后放弃本次）。 */
-export function replaceAnchored(md: string, word: string, anchor: string, syntax: string): string | null {
+ *  只替换该处词为 syntax；consume>0 时锚尾 consume 个字符（@@ 前缀）随词一起被替换。
+ *  锚与词都匹配不上 → null（Box 层记 Loki 后放弃本次）。 */
+export function replaceAnchored(md: string, word: string, anchor: string, syntax: string, consume = 0): string | null {
     const needle = anchor + word;
     const idx = md.lastIndexOf(needle);
     if (idx < 0) return null;
-    return md.slice(0, idx + anchor.length) + syntax + md.slice(idx + needle.length);
+    return md.slice(0, idx + anchor.length - consume) + syntax + md.slice(idx + needle.length);
 }
 
 export function refSyntaxFor(type: "ref" | "lnk", title: TitleRow): string {

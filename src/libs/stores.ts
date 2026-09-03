@@ -346,6 +346,15 @@ export const foldTypesNODE_HEADING = settingFactory("foldTypesNODE_HEADING", fal
 export const addSelectionBtnsMobile = settingFactory("addSelectionBtnsMobile", true, STORAGE_SETTINGS, null as TSK);
 export const addSelectionBtnsDesktop = settingFactory("addSelectionBtnsDesktop", true, STORAGE_SETTINGS, null as TSK);
 export const cssRefStyle = settingFactory("cssRefStyle", false, STORAGE_SETTINGS, null as TSK);
+// 引用效果多档化（2026-09-03）：cssRefStyle/cssRefSquareBrackets 双开关合并为单枚举
+// none/brackets/icon/shadow/highlight；旧开关保留存储仅供迁移读取，面板不再展示
+export const cssRefEffect = settingFactory("cssRefEffect", "none", STORAGE_SETTINGS, null as TSK);
+
+/** 旧双开关 → cssRefEffect 迁移映射：style 开启时旧实现里括号被短路静默失效，
+ *  故双开与只开 style 同落 shadow，迁移后渲染与迁移前完全一致 */
+export function refEffectFromLegacy(styleOn: boolean, bracketsOn: boolean): string {
+    return styleOn ? "shadow" : bracketsOn ? "brackets" : "none";
+}
 export const exportWL4All = settingFactory("exportWL4All", false, STORAGE_SETTINGS, null as TSK);
 export const exportWhiteList = settingFactory("exportWhiteList", [], STORAGE_SETTINGS, null as TSK);
 export const exportBlackList = settingFactory("exportBlackList", [], STORAGE_SETTINGS, null as TSK);
@@ -602,7 +611,12 @@ export const digestGlobalSigle = settingFactory("digestGlobalSigle", "0", STORAG
 // doubleClick2DigestMobile/Desktop + add2piecesBtn2lockIcon + add2digBtn2lockIcon
 // （双击摘抄浮钮与锁图标旁两钮退役——摘抄入口统一收进浮条/⌥Z/⇧⌥Z）。
 export const digestAddReadingpoint = settingFactory("digestAddReadingpoint", false, STORAGE_Prog_SETTINGS, null as TSK);
+/** 期1 □2 退役（2026-09-03）：并入 digestLanding 三档枚举（true→"daily" 迁移见 progressive index.ts loadStore）；
+ *  store 留作迁移读源，勿新增使用，旧持久化值留着无害 */
 export const digest2dailycard = settingFactory("digest2dailycard", false, STORAGE_Prog_SETTINGS, null as TSK);
+// 期1 □2 摘抄落点三档（2026-09-03 群反馈设计定稿）：central=集中归档（书→摘抄总夹/digest-书名，
+// 非书→札记匣，默认）/ source=源文档下方（老版行为回归）/ daily=原 digest2dailycard 语义
+export const digestLanding = settingFactory("digestLanding", "central", STORAGE_Prog_SETTINGS, null as TSK);
 // □3 制卡统一归置（2026-09-01 拍板方案 A）：默认制卡（⌥E/浮条制卡钮）并入当日 daily card
 // 文档；存量用户无此 key 读默认 true 即集中（发版 notes 说明），关掉回落 cards 夹旧路线
 // （cardUnderPiece 分叉保持原语义）
