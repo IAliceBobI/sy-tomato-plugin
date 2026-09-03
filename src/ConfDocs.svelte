@@ -1,11 +1,13 @@
 <script lang="ts">
-    // IndexConf 设置分区：DailyNote 工具。
-    // 从 IndexConf.svelte 拆出（2026-08 重构），共享样式见 IndexConf.css。
-    // 2026-08-31 块配对工具 □1 归拢：同步块/双向互链两段迁 ConfBlocks.svelte，
-    // 本组件更名自 ConfLinks.svelte。
+    // 设置域组件（□2 设置页重划）：文档管理——文档树工具 / 前缀文档树（自 ConfEditor.svelte
+    // 迁入）+ DailyNote（原 ConfDailyNote 全部）。各卡整块迁入（内部一行不动），
+    // 共享样式见 IndexConf.css。
     import TomatoVIP from "./TomatoVIP.svelte";
     import NotebookSelect from "./NotebookSelect.svelte";
     import {
+        prefixArticlesEnable,
+        prefixArticlesMenu,
+        prefixArticlesSoftLimit,
         dailyNoteBoxCheckbox,
         dailyNoteCopyAnchorText,
         dailyNoteCopyFlashCard,
@@ -22,6 +24,7 @@
         dailyNotetopbarleft,
         dailyNotetopbarright,
     } from "./libs/stores";
+    import { PrefixArticles前缀文档树 } from "./PrefixArticles";
     import {
         DailyNoteBox上一个日志,
         DailyNoteBox下一个日志,
@@ -37,6 +40,33 @@
     let codeNotValid = $derived(!codeValid);
 </script>
 
+    <!-- 文档树工具 -->
+    <div class="settingBox">
+        <div class="section-title">
+            {tomatoI18n.文档树工具}
+            <ConfHelpIcon token="NXSPd81W4oxUJrxW2XsctewUn5g" />
+        </div>
+    </div>
+    <!-- 前缀文档树 -->
+    <div class="settingBox">
+        <div class="section-title">
+            <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesEnable} />
+            {tomatoI18n.前缀文档树}
+            <ConfHelpIcon token="WD3Nd8WCxozzE4xXIJucpFBPn9a" />
+        </div>
+        {#if $prefixArticlesEnable}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesMenu} />
+                {tomatoI18n.menu添加右键菜单}: {PrefixArticles前缀文档树.langText()}
+                <HotkeyCap hk={PrefixArticles前缀文档树} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                <input class="b3-text-field" bind:value={$prefixArticlesSoftLimit} />
+                {tomatoI18n.最大列出的文件数量}
+            </div>
+        {/if}
+    </div>
     <!-- DailyNote -->
     <div class="settingBox">
         <div class="section-title">
@@ -48,19 +78,17 @@
             <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$dailyNotetopbarleft} />
-                {tomatoI18n.topbar添加图标}:
-                {DailyNoteBox上一个日志.langText()}
+                {tomatoI18n.topbar添加图标}: {DailyNoteBox上一个日志.langText()}
                 <HotkeyCap hk={DailyNoteBox上一个日志} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$dailyNotetopbarright} />
-                {tomatoI18n.topbar添加图标}:
-                {DailyNoteBox下一个日志.langText()}
+                {tomatoI18n.topbar添加图标}: {DailyNoteBox下一个日志.langText()}
                 <HotkeyCap hk={DailyNoteBox下一个日志} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteGoToBottomMenu} />
-                {tomatoI18n.menu添加右键菜单}： {DailyNoteBox移动内容到dailynote.langText()}
+                {tomatoI18n.menu添加右键菜单}: {DailyNoteBox移动内容到dailynote.langText()}
                 <HotkeyCap hk={DailyNoteBox移动内容到dailynote} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
@@ -99,7 +127,7 @@
             {/if}
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteCopyMenu} />
-                {tomatoI18n.menu添加右键菜单}： {tomatoI18n.复制到dailynote}
+                {tomatoI18n.menu添加右键菜单}: {tomatoI18n.复制到dailynote}
             </div>
 
             <div>

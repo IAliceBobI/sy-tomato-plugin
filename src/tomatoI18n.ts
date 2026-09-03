@@ -646,6 +646,16 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "No annotations";
         }
     }
+    // 划词工具条批注入口（□4 2026-09-03）设置开关文案
+    public get 划词工具条批注入口() {
+        switch (this.lang) {
+            case "zh_CN": return "划词工具条入口";
+            case "zh_CHT": return "劃詞工具條入口";
+            case "ja_JP": return "選択ツールバー入口";
+            case "en_US":
+            default: return "Text-selection toolbar entry";
+        }
+    }
     // 批注收集（2026-09-02）新增键：小窗/右键级联/命令/回执
     public get 收集批注() {
         switch (this.lang) {
@@ -6528,7 +6538,7 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
-    // ===== 思维导线设置分区（□5，spec §4.8/§6）：ConfMindWire.svelte 专用 =====
+    // ===== 思维导线设置分区（□5，spec §4.8/§6，现居 ConfVisual.svelte 可视化域） =====
     public get 划词连线() {
         switch (this.lang) {
             case "zh_CN": return "词级导线（划词连线）";
@@ -6586,10 +6596,135 @@ export class TomatoI18n extends TomatoI18nABC {
     public get 关系配色帮助() {
         switch (this.lang) {
             case "zh_CN": return "词级线按关系类型着色：呼应/伏笔/比喻/对比/因果";
-            case "zh_CHT": return "詞級線按關係類型著色：呼應/伏筆/比喻/對比/因果";
+            case "zh_CHT": return "詞級線按關係類型著色：呼應/伏線/比喩/對比/因果";
             case "ja_JP": return "語レベルの線は関係タイプで着色します：呼応/伏線/比喩/対比/因果";
             case "en_US":
             default: return "Word wires are colored by relation: echo / foreshadow / metaphor / contrast / cause";
+        }
+    }
+    // 设置页重划 □1（2026-09-03）：左侧导航 9 域文案（「番茄钟」「闪卡」复用既有 key——
+    // 闪卡在基类 text11.ts 十语种全档）。域=分区名非功能名，六语种全档；英文从短（窄导航列 148px）
+    public get 反链与引用() {
+        switch (this.lang) {
+            case "zh_CN": return "反链与引用";
+            case "zh_CHT": return "反鏈與引用";
+            case "es_ES": return "Enlaces y refs.";
+            case "fr_FR": return "Rétroliens et réf.";
+            case "ja_JP": return "バックリンクと参照";
+            case "en_US":
+            default: return "Backlinks & refs";
+        }
+    }
+    public get AI与批注() {
+        switch (this.lang) {
+            case "zh_CN": return "AI 与批注";
+            case "zh_CHT": return "AI 與批註";
+            case "es_ES": return "IA y anotaciones";
+            case "fr_FR": return "IA et annotations";
+            case "ja_JP": return "AIと注釈";
+            case "en_US":
+            default: return "AI & annotations";
+        }
+    }
+    public get 可视化() {
+        switch (this.lang) {
+            case "zh_CN": return "可视化";
+            case "zh_CHT": return "可視化";
+            case "es_ES": return "Visualización";
+            case "fr_FR": return "Visualisation";
+            case "ja_JP": return "ビジュアル";
+            case "en_US":
+            default: return "Visualization";
+        }
+    }
+    public get 编辑与块() {
+        switch (this.lang) {
+            case "zh_CN": return "编辑与块";
+            case "zh_CHT": return "編輯與塊";
+            case "es_ES": return "Edición y bloques";
+            case "fr_FR": return "Édition et blocs";
+            case "ja_JP": return "編集とブロック";
+            case "en_US":
+            default: return "Editing & blocks";
+        }
+    }
+    public get 速记() {
+        switch (this.lang) {
+            case "zh_CN": return "速记";
+            case "zh_CHT": return "速記";
+            case "es_ES": return "Captura rápida";
+            case "fr_FR": return "Capture rapide";
+            case "ja_JP": return "クイックメモ";
+            case "en_US":
+            default: return "Quick capture";
+        }
+    }
+    public get 文档管理() {
+        switch (this.lang) {
+            case "zh_CN": return "文档管理";
+            case "zh_CHT": return "文檔管理";
+            case "es_ES": return "Documentos";
+            case "fr_FR": return "Documents";
+            case "ja_JP": return "ドキュメント管理";
+            case "en_US":
+            default: return "Documents";
+        }
+    }
+    public get 通用() {
+        switch (this.lang) {
+            case "zh_CN": return "通用";
+            case "zh_CHT": return "通用";
+            case "es_ES": return "General";
+            case "fr_FR": return "Général";
+            case "ja_JP": return "一般";
+            case "en_US":
+            default: return "General";
+        }
+    }
+    // 空格转引用（SpaceRefBox，2026-09-03）：词+空格静默转引用
+    public get 空格转引用() {
+        switch (this.lang) {
+            case "zh_CN": return "空格转引用";
+            case "zh_CHT": return "空格轉引用";
+            case "ja_JP": return "スペースで参照化";
+            case "en_US":
+            default: return "Space to reference";
+        }
+    }
+    public get 空格转引用说明() {
+        switch (this.lang) {
+            case "zh_CN": return "文本中输入一个词后敲一个空格，自动转换为引用；没有匹配文档时自动新建空文档再引用";
+            case "zh_CHT": return "文字中輸入一個詞後敲一個空格，自動轉換為引用；沒有匹配文檔時自動新建空文檔再引用";
+            case "ja_JP": return "テキストで単語を入力してスペースを打つと参照に変換；該当文書がなければ空文書を新規作成して参照します";
+            case "en_US":
+            default: return "Type a word then a space in text to turn it into a reference; if no document matches, an empty one is created silently";
+        }
+    }
+    public get 空格转引用形态() {
+        switch (this.lang) {
+            case "zh_CN": return "产物形态";
+            case "zh_CHT": return "產物形態";
+            case "ja_JP": return "挿入形式";
+            case "en_US":
+            default: return "Insert as";
+        }
+    }
+    public get 空格转引用块引用() {
+        switch (this.lang) {
+            case "zh_CN": return "块引用";
+            case "zh_CHT": return "塊引用";
+            case "ja_JP": return "ブロック参照";
+            case "en_US":
+            default: return "Block ref";
+        }
+    }
+    public get 空格转引用文档链接() {
+        switch (this.lang) {
+            case "zh_CN": return "文档链接";
+            case "zh_CHT": return "文檔鏈接";
+            case "ja_JP": return "文書リンク";
+            case "en_US":
+            default: return "Doc link";
         }
     }
 }

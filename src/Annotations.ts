@@ -1,7 +1,7 @@
 // □3 批注编排层：创建链路（输入弹窗→写属性→写标记→失败铁律）+ .tomato-anno-block class
 // 同步渲染 + hover 轻预览/点击查看气泡管理。
 // □4 增量：编辑（气泡→编辑弹窗内嵌 Protyle 草稿）+ 删除（confirm→摘标记+删属性+跨块同步）
-// + 草稿清扫接线（onload）。架构契约（handoff □3/□4 + docs/tomato-anno-visual-spec.md）：
+// + 草稿清扫接线（onload）。架构契约（handoff □3/□4；视觉规格随 2026-09-03 docs 清理入 git 历史）：
 // - 数据先落（batchSetBlockAttrs），标记后写（setInlineMark 逐块）；写失败=toast+弹窗不关+输入保留
 // - 选区级=blockSubRanges 拆最近块逐块挂同 href 锚点 span；块级=顶层块属性+左缘色条 class
 // - 顺序防丢失：属性先写（kernel 是 source of truth，setInlineMark 重建块 DOM 时带上属性）
@@ -236,12 +236,12 @@ class Annotations {
         (globalThis as any)[CLEANUP_REG] = null;
     }
 
-    // ---------- 创建链路（旧 findDivs 的新流程，入口语义不变：右键菜单/⇧⌥F） ----------
+    // ---------- 创建链路（旧 findDivs 的新流程，入口语义不变：右键菜单/⌥⇧F） ----------
 
-    /** 创建链路（入口语义不变：右键菜单/⇧⌥F）。□2 统一：弹窗=AnnoEdit 完整功能面
+    /** 创建链路（入口语义不变：右键菜单/⌥⇧F）。□2 统一：弹窗=AnnoEdit 完整功能面
      *  （内嵌 Protyle 草稿+问 AI，与编辑同一 Dialog 形态/同一份尺寸记忆）；写链 doSave 不变 */
     async create(protyle: IProtyle) {
-        const t0 = Date.now(); // debugLog 打点锚：量化创建弹窗各段耗时（debugging.md loki 节）
+        const t0 = Date.now(); // debugLog 打点锚：量化创建弹窗各段耗时（debugging/plugin-eng.md loki 节）
         if (this.editOpening || document.querySelector(".b3-dialog--open")) return; // 已有弹窗/取数中不重入
         this.editOpening = true;
         try {

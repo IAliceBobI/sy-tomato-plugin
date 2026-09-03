@@ -20,6 +20,10 @@
     padding: 8px 10px;
     border: 1px solid var(--b3-theme-surface-lighter);
     border-radius: var(--b3-border-radius);
+    /* 终审 P2-f：sticky 实高 ~46px 与 --tomato-sticky-top 52px 间 6px 缝露出滚动内容
+     * （桌面=域标题/内容从缝里划过，窄屏=tab 条上方同源）；不透明同色补条向下盖 6px，
+     * 一行同时封桌面与窄屏两处缝（vision 终审配方，替代 agg-title::before 只盖桌面侧） */
+    box-shadow: 0 6px 0 var(--b3-theme-surface);
 }
 /* 搜索框拉满面板宽度自适应（2026-08-24 用户反馈：配置页宽而搜索栏太窄） */
 .tomato-settings-dialog .search-bar input.b3-text-field {
@@ -228,7 +232,7 @@
     row-gap: 6px; /* 窄面板 chips 换行时行间不贴脸（与 column-gap 拉开层级） */
 }
 .tomato-settings-dialog .tomato-chip {
-    padding: 1px 10px; /* 1+1px 边框 + 20px 行高 = 24px 总高，与 b3-switch 同档 */
+    padding: 1px 8px; /* 1+1px 边框 + 20px 行高 = 24px 总高，与 b3-switch 同档；终审 P2-a 10→8：番茄钟 chips 行拥挤，「添加」+行标签稳定掉行 */
     font-family: inherit;
     font-size: 12px;
     line-height: 20px;
@@ -257,10 +261,10 @@
     cursor: not-allowed;
 }
 .tomato-settings-dialog .tomato-chip-input {
-    width: 96px; /* 窄数字输入，占位长则自然裁剪 */
+    width: 80px; /* 窄数字输入，占位长则自然裁剪；终审 P2-a 96→80 配合 chips 收窄 */
 }
 .tomato-settings-dialog .tomato-chip-add {
-    padding: 1px 10px; /* 压 b3-button 默认 padding，与 chip 同高 */
+    padding: 1px 8px; /* 压 b3-button 默认 padding，与 chip 同高（同步 P2-a 收窄） */
     font-size: 12px;
     line-height: 20px;
 }
@@ -702,8 +706,9 @@
     pointer-events: auto;
 }
 
-/* 右键菜单管理区（□4）：47 项 14 组 checkbox 总览。说明文案弱化、组分栏两列
- * （窄屏一列自适应），行内 label 截断悬浮完整——与设置面板 spacing 体系（24/12）对齐 */
+/* 右键菜单管理区（□4）：47 项 14 组 checkbox 总览。说明文案弱化、组纵排单列，
+ * 行内 label 截断悬浮完整——与设置面板 spacing 体系（24/12）对齐（终审 P2-e：
+ * 原注释声称「组分栏两列」从未实现，改注与实现一致） */
 .tomato-settings-dialog .tomato-menu-manage-note {
     margin: 8px 0 12px;
     font-size: 12px;
@@ -792,3 +797,121 @@
 .tomato-settings-dialog .codeNotValid.tomato-highlight {
     opacity: 75%;
 }
+/* ── □1 左侧导航双栏（2026-09-03 设置页重划）─────────────────────────
+ * 红线：渐进/recite 的 Settings 根节点同挂 .tomato-settings-dialog（直接 import 本 css），
+ * 双栏样式全部限定在 .tomato-settings-nav 子树，公共类零改动，两家面板不受卷入。
+ * 布局：保持 .b3-dialog__body 为真滚动容器（不换内层滚动，saveRestorePagePosition/
+ * searchSettings 的容器假设不破坏），导航列 sticky 贴可视顶、长内容从其右滚过。
+ * --tomato-sticky-top：sticky 搜索栏实高（padding 8×2 + input 28 + border 2 + 缝），
+ * 导航列 sticky 偏移与锚点 scroll-margin 共用一处调（vision □1 P0-2 抽变量建议）；
+ * 挂双栏容器上（新作用域类内子树继承可达，公共类零触碰） */
+.tomato-settings-dialog .tomato-settings-nav {
+    --tomato-sticky-top: 52px;
+    display: flex;
+    align-items: flex-start;
+}
+.tomato-settings-dialog .tomato-nav-list {
+    position: sticky;
+    top: var(--tomato-sticky-top);
+    /* 4：盖内容流即可；footer z5 在底边（矮视口 sticky 导航下缘不压保存条，vision P2-6） */
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    width: 148px;
+    box-sizing: border-box;
+    /* 顶距对齐右列首卡 margin-top 24px（section.conf-group □5 卡间距节奏，vision P2-5） */
+    margin: 24px 0 12px 12px;
+    padding: 6px;
+    background-color: var(--b3-theme-surface);
+    /* 暗色可见性：surface-lighter 在 midnight 下近隐身（□5 分区卡同判定先例，vision P2-4） */
+    border: 1px solid var(--b3-border-color);
+    border-radius: var(--b3-border-radius);
+}
+/* □3 搜索命中域高亮（2026-09-03 设置页重划）：聚合视图下标亮有命中的域，与 --active
+ * 互斥（搜索态模板抑制 active——右侧是聚合视图非单域，避免「active 却不见该域」误导）；
+ * 点击命中域=清空搜索跳该域。□1 的 inert/淡化过渡态随聚合视图落地退役（此规则替换之）。
+ * 选择器带 .tomato-nav-list 升特异性 (0,3,0)：基类 (0,2,0) 源顺序在后，同特异性会被
+ * 其 color 覆盖（vision □3 首轮 P0-1 实锤——只加粗不变色），升特异性与源顺序解耦 */
+.tomato-settings-dialog .tomato-nav-list .tomato-nav-item--hit,
+.tomato-settings-dialog .tomato-nav-list .tomato-nav-item--hit:hover {
+    color: var(--b3-theme-primary);
+    font-weight: 600;
+}
+/* □3 聚合视图域标题行：9 域同屏时的域界标（单域视图不渲染——导航已示位）。
+ * 主色与导航 hit 同色（域=导航概念，vision P1-1）；sticky 让长滚动中当前域始终有
+ * 指示（vision P1-2）——底色与父卡 tint 同值实色（color-mix 无 alpha）防文字穿透，
+ * z3 低于导航列 z4；字号级差=域 14/600 主色 > 卡 section-title 13/600 常规色 */
+.tomato-settings-dialog .tomato-settings-nav .tomato-agg-title {
+    position: sticky;
+    top: var(--tomato-sticky-top);
+    z-index: 3;
+    padding: 6px 8px 2px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--b3-theme-primary);
+    background-color: color-mix(in srgb, var(--b3-theme-primary) 5%, var(--b3-theme-surface));
+}
+.tomato-settings-dialog .tomato-nav-item {
+    padding: 6px 10px;
+    border: none;
+    background: transparent;
+    border-radius: var(--b3-border-radius);
+    color: var(--b3-theme-on-surface);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: left;
+    cursor: pointer;
+}
+.tomato-settings-dialog .tomato-nav-item:hover {
+    background-color: var(--b3-list-hover);
+}
+.tomato-settings-dialog .tomato-nav-item--active,
+.tomato-settings-dialog .tomato-nav-item--active:hover {
+    background-color: var(--b3-theme-primary-lightest);
+    color: var(--b3-theme-primary);
+}
+.tomato-settings-dialog .tomato-nav-content {
+    flex: 1 1 0;
+    min-width: 0;
+}
+/* 锚点滚动落点让位 sticky 搜索栏（实高 ~47px）+ 8px 视觉呼吸——8px 时目标卡标题被
+ * 搜索栏整个吃掉（vision □1 P0-2：点导航后首卡无头截断） */
+.tomato-settings-dialog [data-nav-anchor] {
+    scroll-margin-top: calc(var(--tomato-sticky-top) + 8px);
+}
+/* 窄屏（沿 settings-panel-unify 480 断点）：双栏收单栏，导航变横滚 tab 条。
+ * tab 条须 sticky 贴搜索栏之下——static 时一点 tab 触发锚点滚动、tab 条即滚出视口
+ * 整体蒸发，「一次性导航」（vision □1 P0-1）；层叠由 z 解消（搜索栏 10 > tab 4） */
+@media (max-width: 480px) {
+    .tomato-settings-dialog .tomato-settings-nav {
+        display: block;
+    }
+    .tomato-settings-dialog .tomato-nav-list {
+        position: sticky;
+        top: var(--tomato-sticky-top);
+        flex-direction: row;
+        width: auto;
+        margin: 10px 12px;
+        padding: 4px;
+        overflow-x: auto;
+        /* 分层线：内容从 tab 条下滚过（底色已不透明） */
+        border-bottom: 1px solid var(--b3-border-color);
+        border-radius: var(--b3-border-radius);
+        scrollbar-width: thin;
+    }
+    .tomato-settings-dialog .tomato-nav-item {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+    /* 窄屏锚点落点让位双层 sticky（搜索栏 + tab 条，vision □1 P0-1 配套） */
+    .tomato-settings-dialog [data-nav-anchor] {
+        scroll-margin-top: 104px;
+    }
+    /* 窄屏聚合域标题同样让位双层 sticky（tab 条 z4 盖住 z3 的标题须下移到其下） */
+    .tomato-settings-dialog .tomato-settings-nav .tomato-agg-title {
+        top: 104px;
+    }
+}
+

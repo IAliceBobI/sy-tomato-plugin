@@ -509,20 +509,20 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
     public get 移动到Dailynote() {
         switch (this.lang) {
             case "zh_CN":
-                return "移动到 Dailynote";
+                return "移动到dailynote";
             case "es_ES":
-                return "Mover a Dailynote";
+                return "Mover a dailynote";
             case "fr_FR":
-                return "Déplacer vers Dailynote";
+                return "Déplacer vers dailynote";
             case "ja_JP":
-                return "Dailynoteに移動";
+                return "dailynoteに移動";
             case "zh_CHT":
-                return "移動到 Dailynote";
+                return "移動到dailynote";
             case "it_IT":
-                return "Sposta su Dailynote";
+                return "Sposta su dailynote";
 
             default:
-                return "Move to Dailynote";
+                return "Move to dailynote";
         }
     }
     public get 把指向当前文档的引用删除() {

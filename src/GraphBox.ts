@@ -19,7 +19,7 @@ const DOCK_TYPE = "dock_GraphBox"
 const TAB_TYPE = "custom_tab_GraphBox"
 
 export const GraphBox定位到图中的节点 = winHotkey("⌘⌥E", "graphLocateNode", "", () => tomatoI18n.定位到图中的节点)
-export const GraphBox打开块关系图 = winHotkey("⇧⌥E", "graphLocateNode open", "iconGraphTomato", () => tomatoI18n.打开块关系图)
+export const GraphBox打开块关系图 = winHotkey("⇧⌥E", "graphLocateNode open", "iconGraph", () => tomatoI18n.打开块关系图)
 
 class GraphBox {
     plugin: BaseTomatoPlugin;
@@ -63,7 +63,7 @@ class GraphBox {
         if (!events.isMobile) {
             if (graphAddTopbarIcon.get()) {
                 plugin.addTopBar({
-                    icon: "iconGraphTomato",
+                    icon: "iconGraph",
                     title: tomatoI18n.打开块关系图,
                     position: "left",
                     callback: () => this.openGraphTab(),
@@ -186,7 +186,7 @@ class GraphBox {
             app: this.plugin.app,
             position: "right",
             custom: {
-                icon: "iconGraphTomato",
+                icon: "iconGraph",
                 title: tomatoI18n.块关系图,
                 data: { docID: events.docID, blockID: events.lastBlockID }, // getCursorElement
                 id: this.plugin.name + TAB_TYPE
@@ -199,13 +199,13 @@ class GraphBox {
         if (!events.isMobile) {
             addIfVisible(menu, GraphBox定位到图中的节点.langKey, {
                 label: GraphBox定位到图中的节点.langText(),
-                icon: "iconGraphTomato",
+                icon: "iconGraph",
                 accelerator: GraphBox定位到图中的节点.m,
                 click: () => this.locateNode(detail.protyle),
             }, graph定位到图中的节点Menu.get());
             addIfVisible(menu, GraphBox打开块关系图.langKey, {
                 label: GraphBox打开块关系图.langText(),
-                icon: "iconGraphTomato",
+                icon: "iconGraph",
                 accelerator: GraphBox打开块关系图.m,
                 click: () => this.openGraphTab(),
             }, graph打开块关系图Menu.get());
@@ -231,7 +231,7 @@ class GraphBox {
             config: {
                 position: "LeftBottom",
                 size: { width: 1000, height: 1000 },
-                icon: "iconGraphTomato",
+                icon: "iconGraph",
                 title: tomatoI18n.块关系图,
                 hotkey: "⌥⌘Z",
             },
@@ -251,7 +251,7 @@ class GraphBox {
                 const eleID = newID();
                 if (events.isMobile) {
                     dock.element.innerHTML = `<div class="toolbar toolbar--border toolbar--dark">
-                        <svg class="toolbar__icon"><use xlink:href="#iconGraphTomato"></use></svg>
+                        <svg class="toolbar__icon"><use xlink:href="#iconGraph"></use></svg>
                             <div class="toolbar__text">${tomatoI18n.块关系图}</div>
                         </div>
                         <div id="${eleID}"></div>
@@ -260,7 +260,7 @@ class GraphBox {
                     dock.element.innerHTML = `<div class="fn__flex-1 fn__flex-column">
                         <div class="block__icons">
                             <div class="block__logo">
-                                <svg class="block__logoicon"><use xlink:href="#iconGraphTomato"></use></svg>${tomatoI18n.块关系图}
+                                <svg class="block__logoicon"><use xlink:href="#iconGraph"></use></svg>${tomatoI18n.块关系图}
                             </div>
                             <div class="block__logo">
                                 <button id="${landscapeSwitchBtnID}" class="b3-button b3-button--outline tomato-button">${tomatoI18n.切换横向与纵向}</button>

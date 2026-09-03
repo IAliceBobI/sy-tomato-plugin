@@ -1,9 +1,6 @@
 <script lang="ts">
-    // IndexConf 设置分区：思维导线（词级划词连线 + 块级引用/互链线共用设置）。
-    // 2026-09-02 □5 归位：mindWire 9+1 键自 ConfClock.svelte 迁出为独立分区卡
-    // （spec tomato-mindwire-visual-spec.md §4.8；插 ConfBlocks 之后——同为关系类工具）。
-    // 线型三档由「使用实线/流动线条效果」两 checkbox 改为 chip 分段控件，存储键零迁移
-    // （spec §4.1.3：虚线=line false+dyn false / 流动=line false+dyn true / 实线=line true，Pro）。
+    // 设置域组件（□2 设置页重划）：可视化——思维导线（原 ConfMindWire 全部）+ 块关系图
+    // （自 ConfClock.svelte 块关系图段整块迁入）。各卡内部一行不动，共享样式见 IndexConf.css。
     import TomatoVIP from "./TomatoVIP.svelte";
     import {
         mindWireCheckbox,
@@ -15,10 +12,19 @@
         mindWireStarRefOnly,
         mindWireWidth,
         mindWireWordWire,
+        graphAddTopbarIcon,
+        graphBoxCheckbox,
+        graphClick2Locate,
+        graphHideStructEdges,
+        graphMaxAllBlocks,
+        graphMaxPBlocks,
+        graph定位到图中的节点Menu,
+        graph打开块关系图Menu,
     } from "./libs/stores";
     import { siyuan } from "./libs/siyuanApi";
     import { lastVerifyResult } from "./libs/user";
     import { MindWire启用或禁用思维导线, MindWire启用或禁用文档思维导线, MindWire划词连线 } from "./MindWire";
+    import { GraphBox定位到图中的节点, GraphBox打开块关系图 } from "./GraphBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
@@ -128,6 +134,57 @@
                     {/each}
                 </div>
             {/if}
+        </div>
+    {/if}
+</div>
+<!-- 块关系图 -->
+<div class="settingBox">
+    <div class="section-title">
+        <input type="checkbox" class="b3-switch" bind:checked={$graphBoxCheckbox} />
+        {tomatoI18n.块关系图}
+        <ConfHelpIcon token="UIRudM9EQoyri2x4okkcjbGZnug" />
+    </div>
+    {#if $graphBoxCheckbox}
+        <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$graph定位到图中的节点Menu} />
+            {tomatoI18n.menu添加右键菜单}: {GraphBox定位到图中的节点.langText()}
+            <HotkeyCap hk={GraphBox定位到图中的节点} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$graph打开块关系图Menu} />
+            {tomatoI18n.menu添加右键菜单}: {GraphBox打开块关系图.langText()}
+            <HotkeyCap hk={GraphBox打开块关系图} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$graphAddTopbarIcon} />
+            {tomatoI18n.添加顶栏图标}
+        </div>
+        <div class:codeNotValid>
+            <input
+                disabled={codeNotValid}
+                type="checkbox"
+                class="b3-switch"
+                bind:checked={$graphClick2Locate}
+            />
+            {tomatoI18n.左键点击节点跳转到文档}<TomatoVIP {codeValid}></TomatoVIP>
+        </div>
+
+        <div>
+            <input class="b3-text-field" bind:value={$graphMaxPBlocks} />
+            {tomatoI18n.最大连续段落块数量}
+        </div>
+
+        <div>
+            <input class="b3-text-field" bind:value={$graphMaxAllBlocks} />
+            {tomatoI18n.最大节点数量}
+        </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$graphHideStructEdges} />
+            隐藏结构连线（仅显示引用形成的连线）
+        </div>
+        <div>
+            {@html tomatoI18n.块关系图帮助}
         </div>
     {/if}
 </div>

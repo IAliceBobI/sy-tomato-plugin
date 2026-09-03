@@ -11,7 +11,7 @@ import { adaptHotkey, Dialog } from "siyuan";
 import { prefixArticlesEnable, prefixArticlesMenu, prefixArticlesSoftLimit } from "./libs/stores";
 import { mount } from "svelte";
 export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树", "iconSort", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
-export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock", "iconFilesTomato", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
+export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock", "iconFiles", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 
 function __initPrefixArticles() {
     const plugin = getTomatoPluginInstance();

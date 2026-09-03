@@ -150,9 +150,12 @@ export function wordWireGeometry(
 }
 
 /** 线中点迷你条锚位（spec §4.5）：left/top=中点（上浮 8px 由 CSS transform 承担）；
- *  距层顶 <40px 翻到线下方（below 变体 translateY(+8px)，防被滚动容器顶裁） */
-export function toolbarPos(mid: Pt): { left: number; top: number; below: boolean } {
-    return { left: mid.x, top: mid.y, below: mid.y < 40 };
+ *  距层顶 <40px 翻到线下方（below 变体 translateY(+8px)，防被滚动容器顶裁）。
+ *  □5 P2 补：条挂内容坐标随滚动走，上浮 8px+条高 ~28px 后越**滚动视口顶**同样被容器
+ *  overflow 裁掉（DOM alive/computed visible 但用户看不见，vision 像素实锤）——below
+ *  判定改按 viewTop=scrollTop 与层顶取严：中点离两顶任一 <40px 即翻下方 */
+export function toolbarPos(mid: Pt, viewTop = 0): { left: number; top: number; below: boolean } {
+    return { left: mid.x, top: mid.y, below: mid.y < Math.max(40, viewTop + 40) };
 }
 
 // ---------------------------------------------------------------------------
@@ -204,6 +207,73 @@ export function stubEdgeShift(chipTop: number, view: { top: number; bottom: numb
     if (chipTop < view.top) return view.top - chipTop + 4;
     if (chipTop + CHIP_H > view.bottom) return view.bottom - chipTop - CHIP_H - 4;
     return 0;
+}
+
+/** 水平矩形（内容坐标；stubAvoidShift/toolbarAvoidShift 的障碍/浮件输入形） */
+export interface HRect {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+}
+
+/** 浮件与障碍的水平重叠判定（垂直相交 + 水平重叠，均严格不等——贴边=恰好留出间隙的分隔） */
+function hOverlaps(f: HRect, o: HRect): boolean {
+    return f.top < o.bottom && f.bottom > o.top && f.left < o.right && f.right > o.left;
+}
+
+/** 残端 chip 水平避让（□5 P1：chip 下置压字）：chip 矩形与障碍（chip 占位带内的文本块
+ *  矩形，含窄标题块）垂直相交且水平重叠时，推到障碍联合区间外留 CLEAR 间隙，位移取小侧；
+ *  两侧都推不进层内（层缘留 8px 与 clampStubX 同款）→ tight=true 由 CSS 毛玻璃紧凑态兜底
+ *  （缩小牺牲可读性、整体半透明双文字互透更难读，vision □5 评审否掉） */
+export function stubAvoidShift(chip: HRect, obstacles: HRect[], layerW: number): { dx: number; tight: boolean } {
+    const CLEAR = 12;
+    const chipW = chip.right - chip.left;
+    const inBand = obstacles.filter((o) => chip.top < o.bottom && chip.bottom > o.top);
+    if (!inBand.some((o) => hOverlaps(chip, o))) return { dx: 0, tight: false };
+    // 联合区间：垂直带内障碍按水平位置排序，间隙容不下 chip（<chipW+2×CLEAR）即连成一段
+    // ——避免推出近端障碍又落进远端障碍、或挤进视觉上仍贴字的窄缝
+    const spans = inBand.map((o) => ({ left: o.left, right: o.right })).sort((a, b) => a.left - b.left);
+    const merged: { left: number; right: number }[] = [];
+    for (const s of spans) {
+        const last = merged[merged.length - 1];
+        if (last && s.left - last.right < chipW + 2 * CLEAR) last.right = Math.max(last.right, s.right);
+        else merged.push({ left: s.left, right: s.right });
+    }
+    // chip 所在段=与 chip 水平重叠的联合段（入段前提已保证存在）
+    const seg = merged.find((m) => chip.left < m.right && chip.right > m.left)!;
+    const okAt = (dx: number) => {
+        const nl = chip.left + dx;
+        const nr = chip.right + dx;
+        return nl >= 8 && nr <= layerW - 8 && !inBand.some((o) => nl < o.right && nr > o.left);
+    };
+    const cand: number[] = [];
+    const dr = seg.right + CLEAR - chip.left;
+    if (okAt(dr)) cand.push(dr);
+    const dl = seg.left - CLEAR - chip.right;
+    if (okAt(dl)) cand.push(dl);
+    if (!cand.length) return { dx: 0, tight: true };
+    cand.sort((a, b) => Math.abs(a) - Math.abs(b));
+    return { dx: cand[0], tight: false };
+}
+
+/** 迷你条避弧水平让位（□5 P2：迷你条与弧交叠）：条与弧 bbox（细线近似为盒，外扩 8px
+ *  线宽/视觉余量）相交时推到盒外留 12px，位移取小侧——近垂直弧下移无效只水平让
+ *  （vision □5 评审）；layerW 可选，传入时越界侧不可行（层 overflow 裁切比压弧更伤） */
+export function toolbarAvoidShift(bar: HRect, arcBox: HRect | null, layerW = Infinity): number {
+    if (!arcBox || !hOverlaps(bar, arcBox)) return 0;
+    const PAD = 8;
+    const CLEAR = 12;
+    const box = { left: arcBox.left - PAD, right: arcBox.right + PAD, top: arcBox.top - PAD, bottom: arcBox.bottom + PAD };
+    const okAt = (dx: number) => bar.left + dx >= 8 && bar.right + dx <= layerW - 8;
+    const cand: number[] = [];
+    const dr = box.right + CLEAR - bar.left;
+    if (okAt(dr)) cand.push(dr);
+    const dl = box.left - CLEAR - bar.right;
+    if (okAt(dl)) cand.push(dl);
+    if (!cand.length) return 0; // 两侧越层：保持原位（瞬态条可容忍，不硬推）
+    cand.sort((a, b) => Math.abs(a) - Math.abs(b));
+    return cand[0];
 }
 
 /** 残端 chip 水平钳制：中心 x 限制在 [8+半宽, 层宽−8−半宽]，左右留 8px 边距；

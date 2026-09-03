@@ -3,7 +3,7 @@
 // 分隔线后「取消激活」（仅开发者 isMe，弱态——原三面板的 DevDeactivate 行收编于此，
 // 菜单点击时实时判 isMe，天然规避 user 冷启动未填充）。
 // 各插件传 action 回调；label 可覆盖（recite 特有文案走 plugin.i18n，缺省 tomatoI18n）。
-// 构造三坑（debugging.md「思源 Menu 单例 vs 插件自建菜单」）：independent 第三参防
+// 构造三坑（debugging/kernel.md「思源 Menu 单例 vs 插件自建菜单」）：independent 第三参防
 // 单例被同次 click 冒泡清空；open 包 setTimeout 防边缘；iconHTML 的 svg 必须自带
 // 尺寸（裸 svg 无 CSS 命中按替换元素默认 300×150 撑爆菜单项）。
 import { Menu } from "siyuan";

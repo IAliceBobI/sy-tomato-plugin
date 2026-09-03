@@ -91,7 +91,7 @@ import PairBar from "./PairBar.svelte";
 
 // 默认键位 ⌥⇧V：四插件 winHotkey 全量 + 官方 keymap 排除后 alt+shift 系唯一空位
 // （⌥⇧P 被官方命令面板占用，其余字母/数字/标点均被占；键位可在思源键位表改）
-export const PairBar触发 = winHotkey("alt+shift+v", "pairBarTrigger", "iconPairTomato", () => tomatoI18n.块配对浮条);
+export const PairBar触发 = winHotkey("alt+shift+v", "pairBarTrigger", "iconBoth", () => tomatoI18n.块配对浮条);
 
 const BAR_ROOT_ID = "tomato-pair-bar-root";
 const GB_CLEANUP_KEY = "tomatoPairBarCleanup";
@@ -206,7 +206,7 @@ class PairBarBox {
     private addMenuItem(detail: any) {
         if (!pairBarEnabled.get()) return;
         addIfVisible(detail?.menu, PairBar触发.langKey, {
-            icon: "iconPairTomato",
+            icon: "iconBoth",
             accelerator: PairBar触发.m,
             label: PairBar触发.langText(),
             click: () => void this.trigger(),
@@ -215,7 +215,7 @@ class PairBarBox {
 
     private mountStatusButton() {
         const t = document.createElement("template");
-        t.innerHTML = `<div class="toolbar__item ariaLabel"><svg><use xlink:href="#iconPairTomato"></use></svg></div>`;
+        t.innerHTML = `<div class="toolbar__item ariaLabel"><svg><use xlink:href="#iconBoth"></use></svg></div>`;
         const el = t.content.firstElementChild as HTMLElement;
         el.addEventListener("click", () => {
             if (!pairBarEntryStatus.get()) return;

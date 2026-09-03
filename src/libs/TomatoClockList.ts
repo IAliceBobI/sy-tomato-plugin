@@ -1,7 +1,7 @@
 // TomatoClockList —— 番茄钟时长档位串（store key tomato-clocks）的解析/序列化（□2 chips 配置化数据层）。
 // 语义沿 addStatusIcons 既有 wash：>0 通过（0 档=隐藏取消位，不进用户配置）、全半角逗号、
 // 去重升序；store 保持逗号串，老数据直接兼容。纯逻辑，不碰 DOM 与 siyuan API；
-// UI 接线（chips/即时重挂）在 ConfClock.svelte 与 TomatoClock.ts。
+// UI 接线（chips/即时重挂）在 ConfPomodoro.svelte 与 TomatoClock.ts。
 
 /** 预设常用档（分钟）；chips 平铺顺序即此序 */
 export const PRESET_CLOCKS = [5, 10, 15, 20, 25, 30, 45, 60];

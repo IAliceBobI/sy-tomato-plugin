@@ -3,8 +3,9 @@ import { EventType, events } from "./libs/Events";
 import {
     disableBK, enableBK,
 } from "./libs/bkUtils";
-import { icon, isCardUI, isPopoverUI, isProtyleVisible, isSearchUI, siyuan, } from "./libs/utils";
-import { MarkKey, TEMP_CONTENT, TOMATO_BK_IGNORE } from "./libs/gconst";
+import { getOpenedEditors, icon, isCardUI, isPopoverUI, isProtyleVisible, isSearchUI, removeBkDomResidue, siyuan, } from "./libs/utils";
+import { installedBkWithGen, isBacklinkUI } from "./libs/domUtils";
+import { MarkKey, TEMP_CONTENT, TOMATO_BK_IGNORE, BKMAKER_ADD, BKENTRY_ADD, BKGEN_ADD } from "./libs/gconst";
 import BackLinkBottom from "./BackLinkBottom.svelte";
 import { DestroyManager } from "./libs/destroyer";
 import { tomatoI18n } from "./tomatoI18n";
@@ -19,8 +20,12 @@ import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { mount } from "svelte";
 
-const BKMAKER_ADD = "BKMAKER_ADD";
-const BKENTRY_ADD = "BKENTRY_ADD";
+// □10 评审 P2① 代际标记：插件 reload 整轮重跑模块顶层（前端 loader window.eval
+// 无模块缓存），计数器挂 globalThis 跨代递增（盐前缀键防跨插件撞名）。旧实例
+// in-flight handler 在新实例 removeAll() 之后落地挂载的容器由 installed() 按
+// 代际识别摘除，旧实例轮询 interval 依 running() 判活、摘除后自清。
+const gBkGen = globalThis as { __tomato_zZmqus5PtYRi_bkGen?: number };
+const BK_GEN = String((gBkGen.__tomato_zZmqus5PtYRi_bkGen = (gBkGen.__tomato_zZmqus5PtYRi_bkGen ?? 0) + 1));
 
 function bkEntryDivID(docID: string) {
     return "tomatoBKEntry" + docID;
@@ -69,6 +74,7 @@ export class BKMaker {
             this.protyle = protyle.protyle;
             this.container = document.createElement("div");
             this.container.setAttribute(BKMAKER_ADD, BKMaker.getBkDivID(this.docID));
+            this.container.setAttribute(BKGEN_ADD, BK_GEN);
             this.container.id = this.id;
             this.insertBkPanel(this.container);
             this.container.style.paddingLeft = "0px"
@@ -119,11 +125,21 @@ export class BKMaker {
     }
 
     static installed(docID: string) {
-        return document.querySelector(`div[${BKMAKER_ADD}="${BKMaker.getBkDivID(docID)}"]`) != null
+        // 异代容器（旧实例 in-flight 挂载的孤儿）就地摘除并视为未安装，
+        // 语义实现在 domUtils.installedBkWithGen（单测在那里，□10 评审 P2①）
+        return installedBkWithGen(BKMaker.getBkDivID(docID), BK_GEN)
     }
 
     static removeBkDiv(docID: string) {
         document.querySelectorAll(`div[${BKMAKER_ADD}="${BKMaker.getBkDivID(docID)}"]`).forEach(e => e.parentElement.removeChild(e))
+    }
+
+    /** 插件 reload 后旧实例的 Svelte 容器/入口条成 DOM 孤儿，installed() 见残留即跳过
+     * 重挂 → 面板永久僵尸（切页签才自愈）。onload 全量摘除；旧实例轮询 interval 依
+     * running()（getElementById）判活，残留摘除后下个 tick 自清。语义实现在
+     * domUtils.removeBkDomResidue（单测在那里）。 */
+    static removeAll() {
+        removeBkDomResidue();
     }
 
     async refreshBacklinks() {
@@ -159,6 +175,8 @@ class BackLinkBottomBox {
 
     async onload(plugin: BaseTomatoPlugin) {
         debugLog("bk.onload", `checkbox=${backLinkBottomBoxCheckbox.get()}`, "bk");
+        // 无论开关状态，reload 后先清上一实例残留（□10 缺陷 A）
+        BKMaker.removeAll();
         if (!backLinkBottomBoxCheckbox.get()) return;
 
         this.plugin = plugin;
@@ -202,58 +220,122 @@ class BackLinkBottomBox {
                     if (lock) {
                         const protyle = detail.protyle as IProtyle;
                         debugLog("bk.evt", `${eventType} doc=${protyle?.block?.rootID ?? "?"} el=${!!protyle?.element}`, "bk");
-                        if (!protyle?.element) return;
-                        if (protyle.element.getAttribute(TOMATO_BK_IGNORE)) {
-                            debugLog("bk.evt.skip", "TOMATO_BK_IGNORE on element", "bk");
-                            return;
-                        }
-                        // 悬浮浮层（.block__popover，含纯预览/编辑浮窗，无 DOM 二分）内的
-                        // protyle 一概不挂面板/入口条（□1 吞面板根因）。上提到 attrs 往返
-                        // 之前：同步拒掉，覆盖 disabled 分支 mountBkEntryBar 的姊妹入口
-                        if (isPopoverUI(detail)) {
-                            debugLog("bk.evt.skip", "popoverUI", "bk");
-                            return;
-                        }
-
-                        const docID = protyle.block.rootID;
-                        if (!docID) {
-                            debugLog("bk.evt.skip", "no rootID", "bk");
-                            return;
-                        }
-
-                        if (events.isMobile) {
-                            [...document.querySelectorAll(`[${BKMAKER_ADD}],div[${BKENTRY_ADD}]`)]
-                                .forEach(d => d.parentElement?.removeChild(d));
-                        }
-
-                        const attrs = await siyuan.getBlockAttrs(docID);
-                        const disabled = await isBkOff(docID, attrs);
-                        if (disabled) {
-                            debugLog("bk.evt.skip", `disabled doc=${docID}`, "bk");
-                            BKMaker.removeBkDiv(docID);
-                            protyle.wysiwyg.element.style.paddingBottom = "200px";
-                            // □3 默认关可发现性：计数>0 才渲染 28px 极轻入口条（spec §10）
-                            if (back_link_default_off.get()) {
-                                this.mountBkEntryBar(detail, docID);
-                            }
-                            return;
-                        }
-
-                        removeBkEntryBar(docID);
-                        await this.attachMaker(detail, eventType);
+                        await this.handleProtyle(detail, eventType, { clearResidue: events.isMobile });
                     }
                 });
             }
         });
+
+        // reload 清残留后主动补挂：不切页签/不点编辑器就没有 protyle 事件，面板
+        // 不会自己回来（□10 缺陷 A 空窗期）。走 handleProtyle 与事件路径同一条
+        // 决策链（□10 评审 P2②：TOMATO_BK_IGNORE 下沉、disabled 分支的 default_off
+        // 入口条复活一并对齐——此前 resweep 直达 attachMaker 绕过元素级忽略标记）。
+        for (const ed of getOpenedEditors()) {
+            this.handleProtyle(ed.protyle, "reload-resweep")
+                .catch(e => debugLog("bk.resweep", `attach failed: ${e}`, "bk"));
+        }
     }
 
-    /** 从环境检查到 BKMaker 挂载的完整链（事件驱动与入口条开启钮共用） */
-    private async attachMaker(detail: Protyle, eventType = "") {
+    /** 单 protyle 的挂载决策链（事件路径与 onload resweep 共用，□10 评审 P2②）：
+     * 环境守卫（IGNORE/popover/反链面板/搜索/闪卡/docflow）→ 可选清场 → disabled
+     * 分支（摘面板+腾位+default_off 入口条）→ attachMaker。detail 为事件 detail
+     * 或 Protyle 包装类（结构同构，均以 .protyle 取 IProtyle）。
+     * opts.clearResidue：移动端单实例复用（切文档不重建）的全量清残留——只允许
+     * 事件路径传，且必须在 IGNORE/popover 守卫**之后**：BK 面板自家卡片的自建
+     * protyle（带 TOMATO_BK_IGNORE）载入也发 loaded-protyle-static、靠 IGNORE 早退，
+     * 清场若在其前会把承载卡片的活面板整锅摘掉=移动端面板挂上即自毁（评审 P0-1）；
+     * resweep 循环多编辑器同样不可清（互相摘刚挂的面板）。 */
+    private async handleProtyle(detail: Protyle, eventType: string, opts?: { clearResidue?: boolean }) {
+        const protyle = detail?.protyle;
+        if (!protyle?.element) return;
+        if (protyle.element.getAttribute(TOMATO_BK_IGNORE)) {
+            debugLog("bk.evt.skip", "TOMATO_BK_IGNORE on element", "bk");
+            return;
+        }
+        // 悬浮浮层（.block__popover，含纯预览/编辑浮窗，无 DOM 二分）内的
+        // protyle 一概不挂面板/入口条（□1 吞面板根因）。上提到 attrs 往返
+        // 之前：同步拒掉，覆盖 disabled 分支 mountBkEntryBar 的姊妹入口
+        if (isPopoverUI(detail)) {
+            debugLog("bk.evt.skip", "popoverUI", "bk");
+            return;
+        }
+        // 以下环境守卫与 attachMaker 内同名守卫幂等双查：disabled 分支也必须拦
+        // ——resweep 的 getAllEditor 含内核反链面板/搜索预览内的编辑器，disabled
+        // 文档的预览 protyle 走 disabled 分支会把 200px 垫高+入口条插进 dock
+        // 面板（评审 P1-3）；enabled 路径由 attachMaker 兜底入口条开启钮。
+        if (isBacklinkUI(detail)) {
+            debugLog("bk.evt.skip", "backlinkUI/dialogUI", "bk");
+            return;
+        }
+        if (isSearchUI(detail)) {
+            debugLog("bk.evt.skip", "searchUI", "bk");
+            return;
+        }
+        if (isCardUI(detail)) {
+            debugLog("bk.evt.skip", "cardUI", "bk");
+            return;
+        }
+        if (isDocFlow(detail)) {
+            debugLog("bk.evt.skip", "docFlow", "bk");
+            return;
+        }
+
+        const docID = protyle.block.rootID;
+        if (!docID) {
+            debugLog("bk.evt.skip", "no rootID", "bk");
+            return;
+        }
+
+        if (opts?.clearResidue) {
+            removeBkDomResidue();
+        }
+
+        const attrs = await siyuan.getBlockAttrs(docID);
+        const disabled = await isBkOff(docID, attrs);
+        if (disabled) {
+            debugLog("bk.evt.skip", `disabled doc=${docID}`, "bk");
+            BKMaker.removeBkDiv(docID);
+            protyle.wysiwyg.element.style.paddingBottom = "200px";
+            // □3 默认关可发现性：计数>0 才渲染 28px 极轻入口条（spec §10）
+            if (back_link_default_off.get()) {
+                this.mountBkEntryBar(detail, docID);
+            }
+            return;
+        }
+
+        removeBkEntryBar(docID);
+        await this.attachMaker(detail, eventType, attrs);
+    }
+
+    /** 从环境检查到 BKMaker 挂载的完整链（handleProtyle 与入口条开启钮两路直达）。
+     * attrsIn：调用方已取过 attrs 时透传省一次 API 往返（也收窄 reload 代际竞态
+     * 窗口）；入口条路径不传——enableBK 刚写过属性，须重取。 */
+    private async attachMaker(detail: Protyle, eventType = "", attrsIn?: AttrType) {
         const protyle = detail?.protyle;
         const docID = protyle?.block?.rootID;
         if (!docID) return;
         if (BKMaker.installed(docID)) return;
-        const attrs = await siyuan.getBlockAttrs(docID);
+        const attrs = attrsIn ?? await siyuan.getBlockAttrs(docID);
+        // TOMATO_BK_IGNORE 下沉（□10 评审 P2②）：元素级忽略标记原先只在事件路径
+        // 查，resweep（getAllEditor）/入口条路径绕过。本地属性读取零开销，事件
+        // 路径经 handleProtyle 的双查保持幂等。
+        if (protyle?.element?.getAttribute?.(TOMATO_BK_IGNORE)) {
+            debugLog("bk.evt.skip", "TOMATO_BK_IGNORE on element", "bk");
+            return;
+        }
+        // 文档级禁用：入口条路径直达本函数，缺此检查 reload 会给 custom-off
+        // 文档/默认关用户强行复活面板（评审 P0）。入口条路径安全：enableBK 先
+        // setBlockAttrs 写 "2" 再进来，重取 attrs 必放行。
+        if (await isBkOff(docID, attrs)) {
+            debugLog("bk.evt.skip", `isBkOff doc=${docID}`, "bk");
+            return;
+        }
+        // 内核反链面板（sy__backlink 三型）/对话框内的编辑器不在事件守卫链覆盖面，
+        // resweep 会误挂（评审 P1）；tomato 自家面板容器在页签编辑器内容区、不在其内。
+        if (isBacklinkUI(detail)) {
+            debugLog("bk.evt.skip", "backlinkUI/dialogUI", "bk");
+            return;
+        }
         if (isPopoverUI(detail)) {
             debugLog("bk.evt.skip", "popoverUI", "bk");
             return;
@@ -397,3 +479,33 @@ async function isBkOff(nextDocID: string, attrs?: AttrType) {
 }
 
 export const backLinkBottomBox = new BackLinkBottomBox();
+
+// ---- □13 数据失效通道（databaseIndexCommit 分发）----
+// 内核列表级 revision 不含块内容（ref_revision.go），纯内容编辑 → unchanged 短路 →
+// 卡片内容永驻缓存；官方反链面板靠内核索引提交广播主动失效。Events.addWsListener
+// 无 remove API（Map.set 同名覆盖）：多面板实例各自注册会互相覆盖+卸载残留死闭包，
+// 注册表收敛在模块级单点，组件登记回调、卸载时注销。
+export type BkIndexCommitPayload = { rootIDs: Set<string>; full: boolean };
+const bkIndexCommitTargets = new Set<(d: BkIndexCommitPayload) => void>();
+
+/** 面板登记失效回调（回调内自判 bkIndexCommitRelated 相关性与失效/刷新时机），
+ * 返回注销函数 */
+export function registerBkIndexCommitTarget(cb: (d: BkIndexCommitPayload) => void) {
+    bkIndexCommitTargets.add(cb);
+    return () => bkIndexCommitTargets.delete(cb);
+}
+
+events.addWsListener("tomato bk data invalidation 2026-09-03", (ws: WsMain) => {
+    if (ws?.cmd !== "databaseIndexCommit") return;
+    const d = ws.data as { rootIDs?: string[]; backlinkChanged?: boolean; backlinkFull?: boolean };
+    if (!d?.backlinkChanged) return;
+    const payload: BkIndexCommitPayload = { rootIDs: new Set(d.rootIDs ?? []), full: d.backlinkFull === true };
+    debugLog("bk.invalidate", `roots=${payload.rootIDs.size} full=${payload.full}`, "bk");
+    for (const cb of [...bkIndexCommitTargets]) {
+        try {
+            cb(payload);
+        } catch (e) {
+            debugLog("bk.invalidate", `cb failed: ${e}`, "bk");
+        }
+    }
+});

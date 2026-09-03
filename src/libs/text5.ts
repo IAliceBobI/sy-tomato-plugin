@@ -652,23 +652,21 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "virref";
         }
     }
-    public get 添加批注到日记() {
+    public get 添加批注() {
         switch (this.lang) {
             case "zh_CN":
-                return "添加批注到日记";
+                return "添加批注";
             case "es_ES":
-                return "Agregar anotación al diario";
+                return "Agregar anotación";
             case "fr_FR":
-                return "Ajouter une annotation au journal";
+                return "Ajouter une annotation";
             case "ja_JP":
-                return "日記に注釈を追加";
+                return "注釈を追加";
             case "zh_CHT":
-                return "添加批注到日記";
-            case "it_IT":
-                return "Aggiungi annotazione al diario";
+                return "添加批註";
 
             default:
-                return "Add annotation to journal";
+                return "Add annotation";
         }
     }
     public get 添加批注到新文件() {

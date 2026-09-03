@@ -509,6 +509,8 @@ export const storeCopyStdMD = settingFactory("storeCopyStdMD", false, STORAGE_SE
 export const tag2RefBoxCheckbox = settingFactory("tag2RefBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const tag2RefSearchRef = settingFactory("tag2RefSearchRef", true, STORAGE_SETTINGS, null as TSK);
 export const tag2RefSearchLnk = settingFactory("tag2RefSearchLnk", true, STORAGE_SETTINGS, null as TSK);
+export const spaceRefEnabled = settingFactory("spaceRefEnabled", false, STORAGE_SETTINGS, null as TSK);
+export const spaceRefLinkType = settingFactory("spaceRefLinkType", "ref", STORAGE_SETTINGS, null as TSK);
 export const tag_to_ref_add_card = settingFactory("tag-to-ref-add-card", false, STORAGE_SETTINGS, null as TSK);
 export const tag_to_ref_add_pinyin = settingFactory("tag-to-ref-add-pinyin", false, STORAGE_SETTINGS, null as TSK);
 export const noteBoxCheckbox = settingFactory("noteBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
@@ -560,6 +562,8 @@ export const fastNoteBoxDelAfterCreating = settingFactory("fastNoteBoxDelAfterCr
 export const fastNoteBoxDocPrefix = settingFactory("fastNoteBoxDocPrefix", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxCheckbox = settingFactory("commentBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const commentBoxMenu = settingFactory("commentBoxMenu", true, STORAGE_SETTINGS, null as TSK);
+// 划词工具条批注入口（□4 2026-09-03）：官方划词菜单直加批注钮；默认开，gates 还叠批注总开关
+export const commentBoxAnnoToolbar = settingFactory("commentBoxAnnoToolbar", true, STORAGE_SETTINGS, null as TSK);
 export const commentBoxMaxProtyleHeight = settingFactory("commentBoxMaxProtyleHeight", 300, STORAGE_SETTINGS, null as TSK);
 export const commentBoxAnnoUnderlineThickness = settingFactory("commentBoxAnnoUnderlineThickness", 2, STORAGE_SETTINGS, null as TSK);
 // □1 标记形态主档：underline 下划线式（现状）/ marker 马克笔式 / frame 花边框（文字流蝴蝶），

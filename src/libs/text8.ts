@@ -284,7 +284,7 @@ export abstract class TomatoI18nABC8 extends TomatoI18nABC9 {
     public get 移动到DailyNote时总是移动到底部() {
         switch (this.lang) {
             case "zh_CN":
-                return "移动、复制到DailyNote时总是在底部";
+                return "移动、复制到dailynote时总是在底部";
             case "es_ES":
                 return "Mover o copiar a DailyNote siempre al final";
             case "fr_FR":
@@ -292,7 +292,7 @@ export abstract class TomatoI18nABC8 extends TomatoI18nABC9 {
             case "ja_JP":
                 return "DailyNoteに移動またはコピーするときは常に最後に";
             case "zh_CHT":
-                return "移動、複製到DailyNote時總是在底部";
+                return "移動、複製到dailynote時總是在底部";
 
             default:
                 return "Move or copy to DailyNote always at the bottom";

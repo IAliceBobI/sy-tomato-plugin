@@ -778,7 +778,7 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
     public get 打开DailyNote时总是跳到底部() {
         switch (this.lang) {
             case "zh_CN":
-                return "打开DailyNote时，总是跳到底部。";
+                return "打开dailynote时，总是跳到底部";
             case "es_ES":
                 return "Al abrir DailyNote, siempre saltar al final.";
             case "fr_FR":
@@ -786,7 +786,7 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
             case "ja_JP":
                 return "DailyNoteを開くときは、常に下にジャンプします。";
             case "zh_CHT":
-                return "打開DailyNote時，總是跳到底部。";
+                return "打開dailynote時，總是跳到底部";
 
             default:
                 return "Always jump to the bottom when opening DailyNote.";

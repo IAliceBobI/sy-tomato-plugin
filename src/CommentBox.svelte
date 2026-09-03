@@ -7,14 +7,22 @@
     let wsGen = $state(0); // ws 事务代数：只前进不重置（比较式失效，刷新失败不清脏）
     const docContentCache = new Map<string, string>(); // 目标文档级：def_block_root_id → docContent
 
-    eventsShared.addWsListener("tomato commentbox perf 2026-08-31", () => {
+    eventsShared.addWsListener("tomato commentbox perf 2026-08-31", (ws: WsMain) => {
+        // □13 减噪：databaseIndexCommit 每次索引批量提交都广播（原被 Events 上游
+        // 过滤，放行后到了这里），只在本批 rootIDs 命中缓存目标或 backlinkFull 时
+        // 才算内容变化；跳过无关广播=代数不涨，消费方正确视为数据仍新鲜
+        if (ws?.cmd === "databaseIndexCommit") {
+            const d = ws.data as { rootIDs?: string[]; backlinkFull?: boolean };
+            const hit = d?.backlinkFull || (d?.rootIDs ?? []).some(id => docContentCache.has(id));
+            if (!hit) return;
+        }
         wsGen++;
         docContentCache.clear();
     });
 </script>
 
 <script lang="ts">
-    import { confirm, Protyle } from "siyuan";
+    import { confirm, Protyle, getAllEditor } from "siyuan";
     import type { IProtyle, Dock } from "siyuan";
     import { onDestroy, onMount } from "svelte";
     import { commentBox, CommentBox刷新文档正引 } from "./CommentBox";
@@ -74,10 +82,9 @@
 
     interface Props {
         dock: Dock;
-        isDock?: boolean;
     }
 
-    let { dock, isDock = true }: Props = $props();
+    let { dock }: Props = $props();
     let backLinks: BacklinkSv<Protyle>[] = $state([]);
     let refs: Ref[] = $state([]);
     let stop = false;
@@ -126,23 +133,37 @@
     onMount(() => {
         updateStop();
         // 滚动即弃 tip 防线已上提 panelTip 模块级单例（□3），组件层不再挂
-        if (isDock) {
-            commentBox.svelteCallback = svelteCallback;
-            commentBox.svelteResize = updateStop;
-            return () => {
-                commentBox.svelteCallback = null;
-                commentBox.svelteResize = null;
-                release();
-            };
-        } else {
-            commentBox.svelteCallbackTab = svelteCallback;
-            commentBox.svelteResizeTab = updateStop;
-            return () => {
-                commentBox.svelteCallbackTab = null;
-                commentBox.svelteResizeTab = null;
-                release();
-            };
-        }
+        // （tab 宿主退役 2026-09-03，恒 dock 注册）
+        commentBox.svelteCallback = svelteCallback;
+        commentBox.svelteResize = updateStop;
+        // 首开即载（2026-09-03）：不等 click_editorcontent，主动对当前编辑器跑一次，
+        // 面板展开即出内容或空态（唯一入口的首次体验，vision P1-1）。目标兜底
+        // events.protyle?.protyle（依赖事件已发生，纯加载页为 null）→ getAllEditor
+        // 现取；展开有宽度过渡动画（clientWidth 渐增，stop=true 会吞调用），轮询至
+        // 尺寸就绪再踢，上限 3s
+        const pickFirst = () => events.protyle?.protyle
+            ?? getAllEditor().find((e) => e.protyle?.block?.rootID)?.protyle;
+        const kick = () => {
+            const first = pickFirst();
+            if (!first) return false;
+            updateStop();
+            if (!stop) {
+                svelteCallback(first);
+                return true;
+            }
+            return false;
+        };
+        const t0 = Date.now();
+        const poll = () => {
+            if (kick()) return;
+            if (Date.now() - t0 < 3000) setTimeout(poll, 120);
+        };
+        poll();
+        return () => {
+            commentBox.svelteCallback = null;
+            commentBox.svelteResize = null;
+            release();
+        };
     });
 
     function release() {
@@ -264,7 +285,13 @@
 
     async function _svelteCallback_block(protyle: IProtyle, force = false) {
         const e = getCursorElement();
-        if (!e) return;
+        if (!e) {
+            // 无光标兜底（2026-09-03 入口收敛后首开体验）：dock 刚展开/编辑器无焦点时
+            // docID 用当前文档兜底、引用侧直接放空态——面板不再死白（vision P1-1）
+            docID = protyle.block.rootID;
+            blockLoaded = true;
+            return;
+        }
         const id = getAttribute(e, "data-node-id");
         docID = protyle.block.rootID; // 提前：id 缺失的早退也更新 docID（供批注分区/ShowID 用）
         if (id == null) return;

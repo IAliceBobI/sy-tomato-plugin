@@ -21,6 +21,11 @@ export const TOMATO_CONTROL_ELEMENT = "tomato-control-card-priority";
 export const TOMATO_CONTROL_SYNC = "tomato-control-sync";
 export const TOMATO_BK_IGNORE = "tomato-bk-ignore";
 export const TOMATO_BK_STATIC = "custom-tomato-bk-static";
+// 底部反链面板 DOM 挂载标记三件（面板容器/入口条/代际）——BackLinkBottomBox 挂载侧
+// 与 domUtils 查询/摘除侧共用，单源在此防字面量镜像漂移（□10 评审 P2）
+export const BKMAKER_ADD = "BKMAKER_ADD";
+export const BKENTRY_ADD = "BKENTRY_ADD";
+export const BKGEN_ADD = "BKGEN_ADD";
 export const STATICLINK = "custom-staticlink";
 export const READINGPOINT = "custom-tomato-readingpoint";
 export const ClassActive = 'layout__wnd--active';

@@ -243,7 +243,8 @@ class Events {
             if (detail.cmd === "backgroundtask") return;
             if (detail.cmd === "statusbar") return;
             if (detail.cmd === "reloadPlugin") return;
-            if (detail.cmd === "databaseIndexCommit") return;
+            // databaseIndexCommit 不再过滤（□13）：它是反链面板的数据失效信号
+            // （纯内容编辑对列表级 revision 不可见，官方面板靠它主动失效）
             if (detail.cmd === "syncing") return;
             this.invokeWs(detail);
         });

@@ -1,5 +1,5 @@
 // 背景图自定义（设置面板翻新 □4）数据层：透明度 store↔滑块映射 + 背景 URL 合法性 + 上传文件名。
-// 纯逻辑无 DOM；UI 在 ConfClock.svelte，挂载链路在 TomatoClock（addColorDiv/预览三件套）。
+// 纯逻辑无 DOM；UI 在 ConfPomodoro.svelte，挂载链路在 TomatoClock（addColorDiv/预览三件套）。
 // 存储语义零迁移：tomato_clocks_opacity 保持 "0.16" 小数串（滑块整数百分比双向映射）；
 // 明暗两行 URL 各自独立（VS Code 式，用户偏好锚），空串=未设置（计时中无背景）。
 

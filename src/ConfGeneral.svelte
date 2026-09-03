@@ -1,10 +1,19 @@
 <script lang="ts">
-    // IndexConf 设置分区：导出工作空间 / 块编辑器 / 引用修复工具。
-    // 从 IndexConf.svelte 拆出（2026-08 重构），共享样式见 IndexConf.css。
+    // 设置域组件（□2 设置页重划）：通用——全局快捷键（原 IndexConf 内联段）/ 右键菜单管理
+    // （自 ConfClock.svelte 迁入）/ 导出工作空间（自 ConfExport.svelte 迁入）/ 杂项（自
+    // ConfMisc.svelte 迁入）。各卡整块迁入（内部一行不动），共享样式见 IndexConf.css。
     import TomatoVIP from "./TomatoVIP.svelte";
+    import HotkeyCap from "./HotkeyCap.svelte";
+    import ConfHelpIcon from "./ConfHelpIcon.svelte";
+    import { tomatoI18n } from "./tomatoI18n";
+    import { tomatoSettingsOpenHK } from ".";
+    import { ScheduleCopyID } from "./Schedule";
+    import { addFoldCmd折叠, addFoldCmd展开 } from "./fold";
+    import { SPACE } from "./libs/gconst";
+    import { onDestroy } from "svelte";
+    import { MENU_MANAGE_GROUPS, type ManagedMenuItem } from "./libs/menuItemRegistry";
+    import { menuKeyHidden, menuHiddenKeys } from "./libs/menuManager";
     import {
-        blockEditorBox,
-        blockEditorMenu,
         exportBlackList,
         exportCleanFiles,
         exportCleanFilesOn,
@@ -17,9 +26,18 @@
         markdownExportBoxCheckbox,
         markdownExportPics,
         exportCleanPath,
-        superRefBoxCheckBox,
-        superRefBoxGlobalFixMenu,
-        superRefBoxGlobalLnkMenu,
+        hiddenMenuItems,
+        mixBoxCheckbox,
+        showDocAttrs,
+        storeCopyStdMD,
+        storeFillMemoMenu,
+        storeInsertXml,
+        storeRefreshStaticBkLnk,
+        storeMoveDocContentHere,
+        storeMergeDoc,
+        mixBoxPinyin,
+        storeOpenRefsMenu,
+        storeOpenRefsClick,
     } from "./libs/stores";
     import { getHpath, icon } from "./libs/utils";
     import { events } from "./libs/Events";
@@ -30,16 +48,61 @@
         MarkdownExport增量导出,
         MarkdownExport确保导出符合配置,
     } from "./MarkdownExportBox";
-    import { BlockEditor打开编辑器 } from "./BlockEditor";
-    import { SuperRefBox全局修复引用, SuperRefBox全局加固引用 } from "./SuperRefBox";
-    import { tomatoI18n } from "./tomatoI18n";
-    import HotkeyCap from "./HotkeyCap.svelte";
-    import ConfHelpIcon from "./ConfHelpIcon.svelte";
-    import { onDestroy } from "svelte";
     import { destroyPanelTip, hidePanelTip, showPanelTip } from "./libs/panelTip";
+    import {
+        MixBox使内容模糊,
+        MixBox内容制表,
+        MixBox列出当前文档与子文档中没被引用的文档,
+        MixBox删除块以及闪卡,
+        MixBox删除所有flag书签,
+        MixBox复制文档为标准Markdown,
+        MixBox复制文档为纯文本,
+        MixBox定位所有引用Menu,
+        MixBox将选择文字与其拼音加入文档的别名,
+        MixBox将选择文字加入文档的别名,
+        MixBox收集当前文档与子文档所有的未完成任务,
+        MixBox添加一个flag书签,
+        MixBox空格隔开的所有内容都转为引用,
+        MixBox跳转到剪贴板中ID的块,
+        MixBox锁定内容,
+    } from "./MixBox";
 
     let { codeValid }: { codeValid: boolean } = $props();
     let codeNotValid = $derived(!codeValid);
+
+    // 右键菜单管理（□4）：checkbox 勾=显示；有独立开关的项绑 store（与各功能区开关同一数据），
+    // 无开关项读写 hiddenMenuItems 隐藏集。toggle 只改内存，面板关闭由 IndexConf 统一落盘。
+    let menuManageTick = $state(0);
+    // checkbox 忠实反映「菜单项当前是否显示」：隐藏集优先 + 有独立开关的还要开关开
+    // + 挂 master（功能区总开关）的还要总开关开（三层合成一个视图，master 关时勾了也不出现，
+    // 故 toggle 显示分支连 master 一并打开）；toggle 统一走隐藏集——隐藏=加 key，
+    // 显示=删 key 且确保开关开（有 store 的项在此开 = 功能区开关同步开，同一数据两个视图）
+    function menuItemSelected(item: ManagedMenuItem): boolean {
+        if (menuKeyHidden(item.key)) return false;
+        if (item.master && !item.master.get()) return false;
+        return item.store ? item.store.get() : true;
+    }
+    function toggleMenuItem(item: ManagedMenuItem, ev: Event) {
+        const target = ev.currentTarget as HTMLInputElement;
+        const checked = target?.checked ?? !menuItemSelected(item);
+        if (checked) {
+            hiddenMenuItems.set(menuHiddenKeys().filter((k: string) => k !== item.key));
+            item.store?.set(true);
+            item.master?.set(true);
+        } else {
+            const arr = [...menuHiddenKeys()];
+            if (!arr.includes(item.key)) arr.push(item.key);
+            hiddenMenuItems.set(arr);
+        }
+        menuManageTick++;
+    }
+    function showAllMenuItems() {
+        hiddenMenuItems.set([]);
+        for (const g of MENU_MANAGE_GROUPS) {
+            for (const it of g.items) it.store?.set(true);
+        }
+        menuManageTick++;
+    }
 
     // □3 迁 panelTip：设置弹窗 b3-dialog__body 同为 ov:auto 滚动容器，b3-tooltips__n 纯 CSS
     // 气泡贴顶/贴缘即裁；滚动即弃防线已上提 panelTip 模块级单例（勿在组件层再挂）。
@@ -49,6 +112,22 @@
     onDestroy(destroyPanelTip);
 </script>
 
+    <!-- 快捷键 -->
+    <div class="settingBox">
+        <div class="section-title">{tomatoI18n.快捷键如有冲突请调整}<ConfHelpIcon token="XyFPdPBbsol477xl5TFcX9Ttn2e" /></div>
+        <div>
+            {tomatoSettingsOpenHK.langText()}<HotkeyCap hk={tomatoSettingsOpenHK} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <div>
+            {ScheduleCopyID.langText() + SPACE}<HotkeyCap hk={ScheduleCopyID} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <div>
+            {addFoldCmd折叠.langText()}<HotkeyCap hk={addFoldCmd折叠} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <div>
+            {addFoldCmd展开.langText()}<HotkeyCap hk={addFoldCmd展开} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+    </div>
     <!-- 导出工作空间（2026-08 翻新 spec：docs/tomato-export-settings-revamp.md）。
          组序 = 范围 → 目录 → 输出选项 → 自动调度 → 手动操作；store/VIP 门控/添加通道零变化 -->
     <div class="settingBox">
@@ -253,44 +332,142 @@
             </div>
         {/if}
     </div>
-    <!-- 块编辑器 -->
+    <!-- 右键菜单管理 -->
     <div class="settingBox">
-        <div class="section-title">
-            <input type="checkbox" class="b3-switch" bind:checked={$blockEditorBox} />
-            块编辑器
-            <ConfHelpIcon token="AheDdwG35ol3qWxYPeYc8HennJf" />
+        <div class="section-title">{tomatoI18n.右键菜单管理}</div>
+        <div class="tomato-menu-manage-note">{tomatoI18n.右键菜单管理说明}</div>
+        <div class="tomato-menu-manage-toolbar">
+            <button
+                type="button"
+                class="b3-button b3-button--small"
+                onclick={showAllMenuItems}>{tomatoI18n.全部显示}</button
+            >
         </div>
-        {#if $blockEditorBox}
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$blockEditorMenu} />
-                {tomatoI18n.menu添加右键菜单 + "：" + BlockEditor打开编辑器.langText()}
-                <HotkeyCap hk={BlockEditor打开编辑器} pluginName="sy-tomato-plugin"></HotkeyCap>
+        {#key menuManageTick}
+        {#each MENU_MANAGE_GROUPS as group (group.title())}
+            <div class="tomato-menu-manage-group">
+                <div class="tomato-menu-manage-group-title">{group.title()}</div>
+                {#each group.items as item (item.key)}
+                    <label class="fn__flex fn__flex-center tomato-menu-manage-item">
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            checked={menuItemSelected(item)}
+                            onchange={(ev) => toggleMenuItem(item, ev)}
+                        />
+                        <span class="fn__space"></span>
+                        <span class="tomato-menu-manage-label">{item.label()}</span>
+                    </label>
+                {/each}
             </div>
-        {/if}
+        {/each}
+        {/key}
     </div>
-    <!-- 修复引用 -->
+    <!-- 杂项 -->
     <div class="settingBox">
         <div class="section-title">
-            <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxCheckBox} />
-            引用修复工具
-            <ConfHelpIcon token="WTgxdUINHoYXHbxmU87cxs5knfd" />
+            <input type="checkbox" class="b3-switch" bind:checked={$mixBoxCheckbox} />
+            {tomatoI18n.杂项许多小功能}
+            <ConfHelpIcon token="Yw4UdhdaTo25dhxtiPUcPnNzn3c" />
         </div>
-        {#if $superRefBoxCheckBox}
-            <div>这是一个实验功能，请提前备份好。</div>
-            <div>打开或关闭文档时，自动对当前文档中的引用进行加固处理</div>
-            <div>经过加固的引用，在原文的ID改变后，可以被修复重新指向新原文。 （原文被删除，但保留拷贝的副本）</div>
+        {#if $mixBoxCheckbox}
+            <!-- 显示文档属性 -->
             <div>
-                经过加固的引用，原文被删除后，可以凭借引用属性上的快照'复活'原文。 （快照可能只有部分， 比如原文是列表）
+                <input type="checkbox" class="b3-switch" bind:checked={$showDocAttrs} />
+                {tomatoI18n.显示文档属性}
             </div>
             <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxGlobalFixMenu} />
-                {tomatoI18n.menu添加右键菜单 + "：" + SuperRefBox全局修复引用.langText()}
-                <HotkeyCap hk={SuperRefBox全局修复引用} pluginName="sy-tomato-plugin"></HotkeyCap>
+                {MixBox删除块以及闪卡.langText()}
+                <HotkeyCap hk={MixBox删除块以及闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxGlobalLnkMenu} />
-                {tomatoI18n.menu添加右键菜单 + "：" + SuperRefBox全局加固引用.langText()}
-                <HotkeyCap hk={SuperRefBox全局加固引用} pluginName="sy-tomato-plugin"></HotkeyCap>
+                {MixBox内容制表.langText()}
+                <HotkeyCap hk={MixBox内容制表} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                {MixBox使内容模糊.langText()}
+                <HotkeyCap hk={MixBox使内容模糊} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                {MixBox跳转到剪贴板中ID的块.langText()}
+                <HotkeyCap hk={MixBox跳转到剪贴板中ID的块} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                {MixBox添加一个flag书签.langText()}
+                <HotkeyCap hk={MixBox添加一个flag书签} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                {MixBox删除所有flag书签.langText()}
+                <HotkeyCap hk={MixBox删除所有flag书签} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                {MixBox空格隔开的所有内容都转为引用.langText()}
+                <HotkeyCap hk={MixBox空格隔开的所有内容都转为引用} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                {MixBox收集当前文档与子文档所有的未完成任务.langText()}
+                <HotkeyCap hk={MixBox收集当前文档与子文档所有的未完成任务} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                {MixBox列出当前文档与子文档中没被引用的文档.langText()}
+                <HotkeyCap hk={MixBox列出当前文档与子文档中没被引用的文档} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                {MixBox将选择文字加入文档的别名.langText()}<HotkeyCap hk={MixBox将选择文字加入文档的别名} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                {MixBox复制文档为纯文本.langText()}<HotkeyCap hk={MixBox复制文档为纯文本} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$storeFillMemoMenu} />
+                {tomatoI18n.menu添加右键菜单}: {MixBox锁定内容.langText()}<HotkeyCap hk={MixBox锁定内容} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$storeInsertXml} />
+                {tomatoI18n.menu添加右键菜单}: {tomatoI18n.插入空的脑图流程图文件}
+            </div>
+
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$storeRefreshStaticBkLnk} />
+                {tomatoI18n.menu添加右键菜单}: {tomatoI18n.刷新静态反链}
+            </div>
+
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$storeMoveDocContentHere} />
+                {tomatoI18n.menu添加右键菜单}: {tomatoI18n.把文档内容移动到这里}
+            </div>
+
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$storeMergeDoc} />
+                {tomatoI18n.menu添加右键菜单}: {tomatoI18n.合并文档到这里}
+            </div>
+
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$mixBoxPinyin} />
+                {tomatoI18n.menu添加右键菜单}: {MixBox将选择文字与其拼音加入文档的别名.langText()}<HotkeyCap hk={MixBox将选择文字与其拼音加入文档的别名} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$storeOpenRefsMenu} />
+                {tomatoI18n.menu添加右键菜单}: {MixBox定位所有引用Menu.langText()}<HotkeyCap hk={MixBox定位所有引用Menu} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+
+            <div class:codeNotValid>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$storeOpenRefsClick}
+                    disabled={codeNotValid}
+                    class:codeNotValid
+                />
+                {tomatoI18n.点击引用数打开所有引用}<TomatoVIP {codeValid}></TomatoVIP>
+            </div>
+
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$storeCopyStdMD} />
+                {tomatoI18n.menu添加右键菜单}: {MixBox复制文档为标准Markdown.langText()}<HotkeyCap hk={MixBox复制文档为标准Markdown} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
         {/if}
     </div>

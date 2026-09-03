@@ -10,7 +10,7 @@ import { addIfVisible } from "./libs/menuManager";
 import { tomatoI18n } from "./tomatoI18n";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { debugLog } from "./libs/logUtils";
-import { blockWirePath, clampStubX, getEdgePoint, shiftRect, stubDir, stubEdgeShift, stubPos, toContentRect, toolbarPos, wireViewState, wordWireGeometry } from "./libs/mindWireGeom";
+import { blockWirePath, clampStubX, getEdgePoint, shiftRect, stubAvoidShift, stubDir, stubEdgeShift, stubPos, toolbarAvoidShift, toolbarPos, toContentRect, wireViewState, wordWireGeometry } from "./libs/mindWireGeom";
 import { RELATIONS_ATTR, RELATION_COLOR, RelationKey, WORD_WIRE_HREF_PREFIX, checkWireEnd, cleanupRelations, groupWordWires, makeWireId, mergeTipKeepHotkey, parseRelations, relationColor, reviveWordPending, wireIdFromHref, wordClip, wordWireTip } from "./libs/mindWireData";
 import MindWirePending from "./MindWirePending.svelte";
 
@@ -21,7 +21,7 @@ export const MindWire启用或禁用文档思维导线 = winHotkey("ctrl+shift+z
 // ⌥⌘L 撞官方 keymap editor.table.moveToLeft（e2e 实锤：官方分支先吞+幽灵 Enter 触发
 // 全局导线开关）；官方 ⌥⌘ 字母仅 H/O/V/Y 空闲（H 有 macOS「隐藏其他」系统键嫌疑），
 // 取 Y（Y 形分叉=连线意象；winHotkey 官方 keymap 对照是注释态，静态比对看不见这类撞）
-export const MindWire划词连线 = winHotkey("ctrl+alt+y", "MindWire word", "iconLink", () => tomatoI18n.划词连线)
+export const MindWire划词连线 = winHotkey("ctrl+alt+y", "MindWire word", "iconWire", () => tomatoI18n.划词连线)
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
 // ---------------------------------------------------------------------------
@@ -44,6 +44,8 @@ const TOOLBAR_CLASS = "tomato-mind-wire-toolbar";
 const STUB_CLASS = "tomato-mind-wire-stub";
 /** 残端 chip 隐藏态（双端同屏/双端离屏）：visibility 保布局（挂载期 offsetWidth 可测），滚动期切换不触发重排 */
 const STUB_OFF_CLASS = "tomato-mind-wire-stub--off";
+/** chip 水平避让无可推位兜底态（□5 P1）：满行段落推不出 12px 间隙时毛玻璃紧凑态（背景 88%+blur2） */
+const STUB_TIGHT_CLASS = "tomato-mind-wire-stub--tight";
 const CONTENT_ATTR = "tomato-mind-wire-content";
 const ACCENT_VAR = "--tomato-mind-wire-accent";
 /** 两步流菜单项 key（menuManager 隐藏集体系，spec §4.3） */
@@ -291,13 +293,24 @@ async function drawWireLayer(protyle: IProtyle, wl: WireLayer) {
             }
         }
         dlog(`draw ok root=${protyle.block.rootID} pairs=${n} word=${nw} scrollTop=${sc.scrollTop}`);
-        // 残端 chip 水平钳制（spec §4.2）：挂载循环结束后统一测量（免逐个交错读写
-        // 强制回流）；visibility 隐藏态保布局，offsetWidth 可测。最后按当前滚动位首判显隐
+        // 残端 chip 水平钳制（spec §4.2）+ 占位带避让（□5 P1）：挂载循环结束后统一测量
+        // （免逐个交错读写强制回流）；visibility 隐藏态保布局，offsetWidth 可测。避让先于
+        // 钳制（避让后的位置仍受层缘 8px 钳制约束）；最后按当前滚动位首判显隐
         const layerW = wl.layer.clientWidth;
         for (const rec of wl.stubs) {
             for (const c of rec.chips) {
                 const half = c.offsetWidth / 2;
-                if (half > 0) c.style.left = clampStubX(parseFloat(c.style.left), half, layerW) + "px";
+                if (half <= 0) continue;
+                const left = parseFloat(c.style.left);
+                const top = parseFloat(c.style.top);
+                const h = c.offsetHeight || 24;
+                const obstacles = probeChipObstacles(wl, { left: left - half, top, w: half * 2, h });
+                if (obstacles.length) {
+                    const { dx, tight } = stubAvoidShift({ left: left - half, right: left + half, top, bottom: top + h }, obstacles, layerW);
+                    if (tight) c.classList.add(STUB_TIGHT_CLASS);
+                    else if (dx) c.style.left = left + dx + "px";
+                }
+                c.style.left = clampStubX(parseFloat(c.style.left), half, layerW) + "px";
             }
         }
         updateStubs(wl);
@@ -523,7 +536,8 @@ function attachWireInteraction(
     };
     const showToolbar = () => {
         removeWireToolbar();
-        const pos = toolbarPos(mid);
+        // viewTop=当前滚动位（□5 P2：中点贴视口顶时上浮会被容器 overflow 裁掉，翻 below）
+        const pos = toolbarPos(mid, wl.scroller.scrollTop);
         const bar = document.createElement("div");
         bar.className = TOOLBAR_CLASS + (pos.below ? " tomato-mind-wire-toolbar--below" : "");
         bar.style.left = pos.left + "px";
@@ -553,6 +567,18 @@ function attachWireInteraction(
         bar.addEventListener("pointerleave", hideToolbar);
         wl.layer.appendChild(bar);
         wireToolbar = bar;
+        // □5 P2 避弧：弧 bbox（细线近似为盒）与条相交时水平让位（近垂直弧下移无效，
+        // vision □5 评审）——挂层后测实矩形换算内容坐标，让位后不再二次钳制（瞬态件）
+        const bb = path.getBBox();
+        if (bb.width || bb.height) {
+            const lr = wl.layer.getBoundingClientRect();
+            const br = bar.getBoundingClientRect();
+            const dx = toolbarAvoidShift(
+                { left: br.left - lr.left, right: br.right - lr.left, top: br.top - lr.top, bottom: br.bottom - lr.top },
+                { left: bb.x, right: bb.x + bb.width, top: bb.y, bottom: bb.y + bb.height },
+                wl.layer.clientWidth);
+            if (dx) bar.style.left = parseFloat(bar.style.left) + dx + "px";
+        }
     };
 
     hit.addEventListener("pointerenter", (e) => {
@@ -584,9 +610,62 @@ function attachWireInteraction(
 // 下端离屏）；滚动事件 rAF 节流只切显隐，线本体/裁剪零滚动监听（D1 不破）。
 // ---------------------------------------------------------------------------
 
+/** chip 占位带文本探测（□5 P1）：box=层内容坐标拟占位矩形，3 点采样（横向 25/50/75%），
+ *  命中 wysiwyg 内文本时返回该行行盒（Range.getClientRects 取含采样点的 rect，行级水平
+ *  边界——块盒满宽会把段落末行右侧空白误判成无空隙）。采样带在视口外时同步虚拟滚动
+ *  （设-探-恢复，scroll 事件异步派发，同步窗口内无监听执行=零闪烁）。层 pointer-events:none
+ *  与 chip visibility:hidden 都被 elementFromPoint 穿透；弧 path 不在 wysiwyg 内天然排除 */
+function probeChipObstacles(wl: WireLayer, box: { left: number; top: number; w: number; h: number }): { left: number; right: number; top: number; bottom: number }[] {
+    const out: { left: number; right: number; top: number; bottom: number }[] = [];
+    const seen = new Set<Element>();
+    for (const xr of [0.25, 0.5, 0.75]) {
+        const lr = wl.layer.getBoundingClientRect();
+        const vx = lr.left + box.left + box.w * xr;
+        const vy = lr.top + box.top + box.h / 2;
+        // 带中点在视口外：虚拟滚动挪到视口中部（保存-恢复防浮点漂移）
+        const needScroll = vy < 0 || vy > window.innerHeight;
+        const saved = wl.scroller.scrollTop;
+        if (needScroll) wl.scroller.scrollTop = saved + vy - window.innerHeight / 2;
+        try {
+            const lr2 = needScroll ? wl.layer.getBoundingClientRect() : lr;
+            const y2 = lr.top + box.top + box.h / 2 - (lr.top - lr2.top);
+            const el = document.elementFromPoint(vx, y2);
+            if (!el?.closest?.(".protyle-wysiwyg")) continue;
+            if (!Array.from(el.childNodes).some((n) => n.nodeType === 3 && (n.textContent ?? "").trim())) continue;
+            if (seen.has(el)) continue;
+            // 行盒=命中元素内与采样点同行的 text node 矩形联合（文字实宽；块盒满宽会把
+            // 段落末行右侧空白误判成无空隙、窄标题误判成满行——selectNodeContents 整块
+            // 在 Chromium 返回聚合块盒，不可用）
+            const range = document.createRange();
+            const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+            let left = Infinity, right = -Infinity, top = Infinity, bottom = -Infinity;
+            for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+                if (!(n.textContent ?? "").trim()) continue;
+                range.selectNode(n);
+                for (const r of range.getClientRects()) {
+                    if (y2 >= r.top && y2 <= r.bottom && r.width > 0) {
+                        left = Math.min(left, r.left);
+                        right = Math.max(right, r.right);
+                        top = Math.min(top, r.top);
+                        bottom = Math.max(bottom, r.bottom);
+                    }
+                }
+            }
+            if (right < left) continue;
+            seen.add(el);
+            const org = wl.layer.getBoundingClientRect();
+            out.push({ left: left - org.left, right: right - org.left, top: top - org.top, bottom: bottom - org.top });
+        } finally {
+            if (needScroll) wl.scroller.scrollTop = saved;
+        }
+    }
+    return out;
+}
+
 /** 残端 chip 制造（spec §4.2 模板）：chevron+色点+目标词标签（8 字截断），
  *  accent=线色同源；点击=jumpWire（滚到离屏端+双端闪，离屏端检测在役）。
- *  availAbove=锚上方可用空间（词级；上态 <38px 下置防贴碰，spec §4.2 □5 拍板） */
+ *  availAbove=锚上方可用空间（词级；上态 <38px 下置防贴碰，spec §4.2 □5 拍板）。
+ *  □5 P1：上置位拟占带内有字形（availAbove 块级测不到的块内上一行/贴邻窄块）也下置 */
 function makeStub(
     wl: WireLayer, anchor: { cx: number; top: number; bottom: number }, dir: "down" | "up",
     word: string, color: string, onJump: () => void, availAbove = Infinity,
@@ -606,6 +685,12 @@ function makeStub(
     chip.setAttribute("aria-label", `${tomatoI18n.连到}：「${wordClip(word.trim(), 8)}」`);
     chip.addEventListener("click", onJump);
     wl.layer.appendChild(chip);
+    if (dir === "up" && pos.top === anchor.top - 38) {
+        const w = chip.offsetWidth;
+        if (w && probeChipObstacles(wl, { left: pos.left - w / 2, top: pos.top, w, h: 24 }).length) {
+            chip.style.top = anchor.bottom + 14 + "px";
+        }
+    }
     return chip;
 }
 
@@ -1015,17 +1100,17 @@ class MindWire {
         if (!currentTextRange()) return;
         addIfVisible(menu, WORD_MENU_KEY, pending ? {
             label: wordWireTip(pending.word, tomatoI18n.关联起点, tomatoI18n.连到),
-            icon: "iconLink",
+            icon: "iconWire",
             click: () => void this.finishWordWire(protyle),
         } : {
             label: tomatoI18n.关联起点,
-            icon: "iconLink",
+            icon: "iconWire",
             click: () => this.startWordWire(protyle),
         });
         if (pending) {
             addIfVisible(menu, WORD_MENU_KEY, {
                 label: tomatoI18n.关联起点,
-                icon: "iconLink",
+                icon: "iconWire",
                 click: () => this.startWordWire(protyle),
             });
         }
@@ -1106,7 +1191,7 @@ class MindWire {
     updateProtyleToolbar(toolbar: Array<string | IMenuItem>): Array<string | IMenuItem> {
         toolbar.push({
             name: WORD_TOOLBAR_NAME,
-            icon: "iconLink",
+            icon: "iconWire",
             tip: wordWireTip(pending?.word ?? null, tomatoI18n.关联起点, tomatoI18n.连到),
             hotkey: MindWire划词连线.m,
             // 官方 click 实参=Protyle 包装类（ToolbarItem 调 getInstance()=>this），

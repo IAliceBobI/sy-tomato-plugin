@@ -306,6 +306,13 @@
     pointer-events: none;
   }
 
+  // □5 P1 水平避让无可推位兜底（满行段落推不出 12px 间隙）：背景降不透明度+毛玻璃，
+  // 被盖文字轻透轮廓、前景保持实心可读（vision □5：缩小牺牲可读性、整体半透明互透更差）
+  &--tight {
+    background: color-mix(in srgb, var(--b3-theme-surface) 88%, transparent);
+    backdrop-filter: blur(2px);
+  }
+
   &-arrow {
     width: 12px;
     height: 12px;

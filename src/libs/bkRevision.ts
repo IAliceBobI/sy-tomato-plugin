@@ -85,6 +85,46 @@ export function pruneBkDocs(state: BkListState, liveDocIDs: Iterable<string>) {
     }
 }
 
+// ---- □13 数据失效通道（databaseIndexCommit）----
+// 内核列表级 revision 只含 Path 元数据（kernel/api/ref_revision.go：ID/Box/Name/
+// Number/HPath/Type/NodeType/SubType/Depth/Count/Folded——不含块内容也不含
+// updated），纯内容编辑（引用块文字改）对列表 hash 不可见 → unchanged 短路 →
+// 卡片内容永驻缓存。官方反链面板靠内核索引提交广播（ws databaseIndexCommit
+// {rootIDs, backlinkChanged, backlinkFull}）主动失效（app/src Backlink.ts
+// markIndexDirty：pendingRootIDs 命中的 contexts 丢弃 knownRevision 全量重查）。
+
+/** 失效：列表 revision 必清（列表 hash 感知不到内容）；docs 级 revision 含 DOM，
+ * 仅清 rootIDs 命中的来源文档（"bk:"/"me:" 双域键剥前缀比对）；不传 rootIDs
+ * （手动立即刷新）全清。items 缓存保留——revision 已空，下一轮请求必全量回填。 */
+export function invalidateBkRevisions(state: BkListState, rootIDs?: Set<string>) {
+    if (state == null) return;
+    state.listRevision = "";
+    if (rootIDs == null) {
+        for (const d of state.docs.values()) d.revision = "";
+        return;
+    }
+    for (const [key, d] of state.docs) {
+        const docID = key.replace(/^(bk|me):/, "");
+        if (rootIDs.has(docID)) d.revision = "";
+    }
+}
+
+/** 相关性（三态，□13 评审 P1-1）：返回 "src"=来源文档（已查过的 bk:/me: 域）命中
+ * 或 backlinkFull——引用块被编辑/增删，可即时重查；"self"=仅面板目标文档命中——
+ * 普通打字也广播，只失效不即时刷（REFRESH 分支整卡重建会闪烁+滚动归零，下轮
+ * 轮询自然全量；保留 self 判定是为「目标文档改名→提及集合变化」的正确性）；
+ * false=不相关（其他文档编辑不减噪）。对齐官方 markIndexDirty 只认来源文档集合。 */
+export function bkIndexCommitRelated(state: BkListState, panelDocID: string, rootIDs: Set<string>, full: boolean): "src" | "self" | false {
+    if (full) return "src";
+    if (state?.docs) {
+        for (const key of state.docs.keys()) {
+            if (rootIDs.has(key.replace(/^(bk|me):/, ""))) return "src";
+        }
+    }
+    if (rootIDs?.has(panelDocID)) return "self";
+    return false;
+}
+
 // ---- 入口条计数缓存（默认关可发现性）----
 // getBacklink2 的 unchanged 响应不带 linkRefsCount/mentionsCount，计数必须缓存。
 // 模块级缓存跨组件生命周期（入口条随文档开关频繁建撤，计数语义是文档级的）。

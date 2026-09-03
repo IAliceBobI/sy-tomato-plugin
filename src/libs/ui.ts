@@ -69,8 +69,13 @@ export function createNumIcon(num: number) {
 export function searchSettings(settingsDiv: HTMLElement, searchKey: string) {
     const sk = searchKey.toLocaleLowerCase();
     // 过滤候选：面板直接子元素（激活卡/搜索栏/保存行）+ 卡片壳（conf-group）内的单个
-    // settingBox——2026-08 卡片化重构后 settingBox 不再是直接子元素，粒度仍保持「单条」
-    const groups = getChildElements(settingsDiv);
+    // settingBox——2026-08 卡片化重构后 settingBox 不再是直接子元素，粒度仍保持「单条」。
+    // 2026-09-03 □1 双栏壳：conf-group 被包进 .tomato-nav-content 不再是直接子元素，深收
+    // querySelectorAll 兼容新旧两种结构（渐进/recite 旧结构行为等价）
+    const groups = [
+        ...getChildElements(settingsDiv).filter((e) => !e.classList.contains("conf-group")),
+        ...(settingsDiv.querySelectorAll(".conf-group") as NodeListOf<HTMLElement>),
+    ];
     const candidates = groups.flatMap((e) =>
         e.classList.contains("conf-group")
             ? ([...e.querySelectorAll(".settingBox")] as HTMLElement[])

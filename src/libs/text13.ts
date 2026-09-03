@@ -275,11 +275,11 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
     }
     public get 移动内容到dailynote后原文改为链接() {
         switch (this.lang) {
-            case "zh_CN": return "移动内容到 dailynote 后，原文改为链接";
+            case "zh_CN": return "移动内容到dailynote后，原文改为链接";
             case "es_ES": return "Después de mover el contenido a dailynote, el texto original se convierte en un enlace";
             case "fr_FR": return "Après avoir déplacé le contenu vers dailynote, le texte original devient un lien";
             case "ja_JP": return "内容をdailynoteに移動した後、元のテキストはリンクに変更されます";
-            case "zh_CHT": return "移動內容到 dailynote 後，原文改為連結";
+            case "zh_CHT": return "移動內容到dailynote後，原文改為連結";
             case "it_IT": return "Dopo aver spostato il contenuto su dailynote, il testo originale viene trasformato in un link";
             case "de_DE": return "Nach dem Verschieben des Inhalts zu dailynote wird der Originaltext zu einem Link";
             case "he_IL": return "לאחר העברת התוכן ל-dailynote, הטקסט המקורי הופך לקישור";

@@ -1,7 +1,7 @@
 <script lang="ts">
-    // IndexConf 设置分区：闪卡工具 / 闪卡优先级。
-    // 从 IndexConf.svelte 拆出（2026-08 重构），共享样式见 IndexConf.css。
-    // 2026-08-31 块配对工具 □1 归拢：长内容工具段迁 ConfBlocks.svelte。
+    // 设置域组件（□2 设置页重划）：闪卡——闪卡工具 / 闪卡优先级（原 ConfCards 全部）+
+    // 图片遮挡 + 鼠标悬浮显示闪卡挖空的内容（两卡顺势归位闪卡域）。
+    // 各卡整块迁入（内部一行不动），共享样式见 IndexConf.css。
     import TomatoVIP from "./TomatoVIP.svelte";
     import {
         auto_card_priority,
@@ -19,6 +19,8 @@
         card_priority_slider_hide,
         card_priority_stopBtn_hide,
         card_refresh_visible_only,
+        imgOverlayCheckbox,
+        cssShowFlashCardBlank,
     } from "./libs/stores";
     import { siyuan } from "./libs/utils";
     import {
@@ -62,8 +64,7 @@
 
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxSuperCard} />
-                {tomatoI18n.menu添加右键菜单}:
-                {tomatoI18n.用选中的行创建超级块超级块制卡取消制卡}<HotkeyCap hk={CardBox用选中的行创建超级块超级块制卡取消制卡} pluginName="sy-tomato-plugin"></HotkeyCap>
+                {tomatoI18n.menu添加右键菜单}: {tomatoI18n.用选中的行创建超级块超级块制卡取消制卡}<HotkeyCap hk={CardBox用选中的行创建超级块超级块制卡取消制卡} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxCardtab} />
@@ -176,4 +177,19 @@
                 {/if}
             </div>
         {/if}
+    </div>
+    <!-- 图片遮挡（自 ConfMisc.svelte 顺势归位闪卡域） -->
+    <div class="settingBox">
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$imgOverlayCheckbox} />
+            {tomatoI18n.图片遮挡}
+            <ConfHelpIcon token="SLSWdFITgo7q4ex4q6ScIuGin2g" />
+        </div>
+    </div>
+    <!-- 鼠标悬浮显示闪卡挖空的内容（自 ConfEditor.svelte 顺势归位闪卡域） -->
+    <div class="settingBox">
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$cssShowFlashCardBlank} />
+            {tomatoI18n.鼠标悬浮显示闪卡挖空的内容}
+        </div>
     </div>

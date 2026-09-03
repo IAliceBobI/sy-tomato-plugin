@@ -169,6 +169,20 @@ export function normalizeWordRange(range: Range | null | undefined): Range | nul
     return range;
 }
 
+/** 批注选区有效性（□4 划词工具条通道）：非 collapsed + 未脱离文档 + 落在本编辑器内。
+ *  与 normalizeWordRange 的差异：批注允许跨块选区（blockSubRanges 逐块拆），不吃它的
+ *  单块/非代码块约束；分屏守卫同款——别把 A 屏选区写进 B 屏（MindWire wordWireRange
+ *  评审 P1-1）。protyle 缺省（无编辑器上下文）时只做前两档判定 */
+export function annoRangeUsable(range: Range | null | undefined, protyle?: IProtyle): boolean {
+    if (!range || range.collapsed) return false;
+    // startContainer 已脱离文档 = 陈旧兜底 range（内核事务重建块 DOM 后 toolbar.range 残留
+    // 旧引用，normalizeWordRange P1-2 同款），写回全局 selection 会造出幽灵选区
+    if (!range.startContainer?.isConnected) return false;
+    const el = protyle?.wysiwyg?.element;
+    if (el && !el.contains(range.startContainer)) return false;
+    return true;
+}
+
 export function getID(e: HTMLElement | Element | Node, attrs?: string[]) {
     const s = getSyElement(e, attrs);
     if (s) {
@@ -269,6 +283,46 @@ export function isPopoverUI(protyle: Protyle) {
 export function isCardUI(protyle: Protyle) {
     const e = protyle?.protyle?.element as HTMLElement;
     return e?.classList?.contains("card__block");
+}
+
+/** 内核反链面板（sy__backlink 三型容器）/对话框（b3-dialog）内的编辑器：不发
+ * loaded-protyle 事件、事件守卫链覆盖不到，onload resweep（getAllEditor 全量）
+ * 会给它们误挂面板（□10 评审 P1）；tomato 自家面板容器在页签编辑器内容区、
+ * 不在其内。 */
+export function isBacklinkUI(protyle: Protyle) {
+    const e = protyle?.protyle?.element as HTMLElement;
+    return !!e?.closest(".sy__backlink, .b3-dialog");
+}
+
+/** 面板容器的代际标记属性（□10 评审 P2①），常量单源 gconst.BKGEN_ADD。 */
+
+/** BKMaker.installed 的代际增强版：容器无代际标记（极老版本插件挂的残留）或
+ * 代数**低于**当前模块实例（旧实例 in-flight handler 在新实例 removeAll() 之后
+ * 落地挂载的孤儿，窗口≈一次 API 往返）→ 就地摘除并返回 false；旧实例轮询
+ * interval 依 running()（getElementById）判活、摘除后自清。容器代**更高**＝更新
+ * 实例已挂载（反向交错：旧 handler 恢复晚于新面板落地）→ 返回 true 让旧 handler
+ * 自然跳过——双向字符串不等会把新面板摘掉、挂出旧闭包僵尸（评审 P1-2）；页内
+ * 计数器单调递增、页 reload 归零必伴随 DOM 同灭，不存在「容器代更高却应被
+ * 当前实例替换」的合法场景。 */
+export function installedBkWithGen(bkDivID: string, gen: string): boolean {
+    const el = document.querySelector(`div[${gconst.BKMAKER_ADD}="${bkDivID}"]`);
+    if (el == null) return false;
+    const cur = el.getAttribute(gconst.BKGEN_ADD);
+    if (cur == null || Number(cur) < Number(gen)) {
+        el.remove();
+        return false;
+    }
+    return true;
+}
+
+/** 全量摘除底部反链的 DOM 残留（面板容器 BKMAKER_ADD / 入口条 BKENTRY_ADD）。
+ * 插件 reload 把旧实例 Svelte 树打孤儿后，BKMaker.installed() 见残留容器跳过重挂
+ * → 该文档面板永久僵尸、仅切页签自愈（□10 缺陷 A）。onload 时调用本函数清场；
+ * 旧实例轮询 interval 依 running()（getElementById）判活，残留摘除后下个 tick 自清。
+ * 属性名常量单源 gconst.ts（□10 评审 P2）。 */
+export function removeBkDomResidue() {
+    [...document.querySelectorAll(`[${gconst.BKMAKER_ADD}],div[${gconst.BKENTRY_ADD}]`)]
+        .forEach(d => d.parentElement?.removeChild(d));
 }
 
 export function isCardByUpLook(e: HTMLElement) {

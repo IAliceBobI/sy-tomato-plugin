@@ -16,7 +16,7 @@ import {
     superRefBoxGlobalLnkMenu, tag2RefSearchLnk, tag2RefSearchRef, aiBoxMenuShow,
 } from "./stores";
 import { DailyNoteBox移动内容到dailynote } from "../DailyNoteBox";
-import { CommentBox添加批注到日记 } from "../CommentBox";
+import { CommentBox添加批注 } from "../CommentBox";
 import { CardBox用选中的行创建超级块超级块制卡取消制卡 } from "../CardBox";
 import { CardPriorityBox分散推迟闪卡 } from "../CardPriorityBox";
 import { LinkBoxbilink, LinkBox查看所有同步位置 } from "../LinkBox";
@@ -62,7 +62,7 @@ export const MENU_MANAGE_GROUPS: MenuManageGroup[] = [
     {
         title: () => tomatoI18n.批注,
         items: [
-            { key: "comment box", label: () => CommentBox添加批注到日记.langText(), store: commentBoxMenu },
+            { key: "comment box", label: () => CommentBox添加批注.langText(), store: commentBoxMenu },
         ],
     },
     {

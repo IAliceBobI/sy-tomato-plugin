@@ -754,6 +754,11 @@ export const siyuan = {
         if (!knownRevision) delete (args as any).knownRevision;
         return siyuan.call("/api/ref/getBacklinkDoc", args);
     },
+    /** 手动刷新前置（□13，对齐官方 refresh 按钮）：内核 FlushTxQueue+refreshRefsByDefID
+     * 重建 refs 索引——刚编辑完索引可能还在队列未提交，直接查询会拿到旧数据 */
+    async refreshBacklink(id: string) {
+        return siyuan.call("/api/ref/refreshBacklink", { id });
+    },
     async getBacklink2(id: string, k = "", mk = "", sort = "3", mSort = "3", knownRevision = ""): Promise<GetBacklink2> {
         const containChildren = (Siyuan.config.editor as any).backlinkContainChildren;
         //     SortModeNameASC                // 0：文件名字母升序

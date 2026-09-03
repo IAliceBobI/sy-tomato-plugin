@@ -1,5 +1,5 @@
 // 提示音选择化数据层（设置面板翻新 □3）：预置音色登记表 + 存储值↔下拉选项映射 + 自定义 URL 合法性。
-// 纯逻辑无 DOM；UI 在 ConfClock.svelte，播放链路在 TomatoClock.playNoticeAudio。
+// 纯逻辑无 DOM；UI 在 ConfPomodoro.svelte，播放链路在 TomatoClock.playNoticeAudio。
 // 存储语义零迁移：tomato_clocks_audio 空=默认双音；选中预置=存它的打包路径（内核 serve，播放链路零改动）；
 // 其余一切值（含存量 Windows 本地路径——Chromium 安全模型必拒，面板上回落 custom 并标红引导换 assets 路径）。
 

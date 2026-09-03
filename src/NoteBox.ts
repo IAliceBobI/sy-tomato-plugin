@@ -75,7 +75,7 @@ class NoteBox {
         this.addTab();
         if (events.isMobile) {
             this.plugin.addTopBar({
-                icon: "iconCameraTomato",
+                icon: "iconCamera",
                 title: tomatoI18n.拍照闪念,
                 position: "left",
                 callback: () => {
@@ -83,7 +83,7 @@ class NoteBox {
                 },
             });
             const syncIcon = this.plugin.addTopBar({
-                icon: "iconCloudTomatoEnd",
+                icon: "iconCloudSucc",
                 title: tomatoI18n.同步数据,
                 position: "left",
                 callback: () => {
@@ -92,14 +92,18 @@ class NoteBox {
             });
             events.addListener("note-box ws 2024-12-15 09:11:501", (eventType, detail) => {
                 if (eventType === EventType.sync_fail) {
-                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoFail")
+                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudError")
+                    // 线性图标三态仅 3~4px 形态差，补状态色保辨识（vision P1：失败态须醒目）
+                    syncIcon.style.color = "var(--b3-theme-error)"
                     siyuan.pushMsg(detail.msg, 3000);
                 }
                 if (eventType === EventType.sync_start) {
-                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoStart")
+                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloud")
+                    syncIcon.style.color = ""
                 }
                 if (eventType === EventType.sync_end) {
-                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudTomatoEnd")
+                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudSucc")
+                    syncIcon.style.color = "var(--b3-theme-primary)"
                 }
             });
         }
@@ -220,7 +224,7 @@ class NoteBox {
             config: {
                 position: "LeftBottom",
                 size: { width: 200, height: 0 },
-                icon: "iconCameraTomato",
+                icon: "iconCamera",
                 title: tomatoI18n.拍照闪念,
                 hotkey: "⌥⌘W",
             },
@@ -356,7 +360,7 @@ class NoteBox {
             const noteBoxTab = await openTab({ // custom
                 app: this.plugin.app,
                 custom: {
-                    icon: "iconCameraTomato",
+                    icon: "iconCamera",
                     title: tomatoI18n.拍照闪念 + suffix,
                     data: {},
                     id: this.plugin.name + TAB_TYPE

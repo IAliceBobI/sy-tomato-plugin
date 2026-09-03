@@ -56,13 +56,16 @@
         // 快照偶尔带出的同步块导出标签不渲染（裸标签对用户是噪音）
         md = md.replace(/<synced_reference[\s\S]*?><\/synced_reference>/g, "");
         const out: string[] = [];
-        let list: string[] = [];
+        // 有序/无序分流（2026-09-03 vision P1）：`1.` 与 `-` 混收同一 ul 会把步骤编号
+        // 渲染成圆点，丢失两步流语义；按标记类型切列表（切换点=新列表）
+        let list: { ordered: boolean; items: string[] } | null = null;
         let quote: string[] = [];
         let code: string[] | null = null;
         const flushList = () => {
-            if (list.length) {
-                out.push(`<ul>${list.map((i) => `<li>${i}</li>`).join("")}</ul>`);
-                list = [];
+            if (list) {
+                const tag = list.ordered ? "ol" : "ul";
+                out.push(`<${tag}>${list.items.map((i) => `<li>${i}</li>`).join("")}</${tag}>`);
+                list = null;
             }
         };
         const flushQuote = () => {
@@ -101,10 +104,15 @@
                 out.push(`<h${h[1].length + 2}>${inline(h[2])}</h${h[1].length + 2}>`);
                 continue;
             }
-            const li = line.match(/^(?:[-*]|\d+\.)\s+(.*)$/);
+            const li = line.match(/^(?:[-*]|(\d+\.))\s+(.*)$/);
             if (li) {
                 flushQuote();
-                list.push(inline(li[1]));
+                const ordered = li[1] !== undefined;
+                if (!list || list.ordered !== ordered) {
+                    flushList();
+                    list = { ordered, items: [] };
+                }
+                list.items.push(inline(li[2]));
                 continue;
             }
             if (line.startsWith(">")) {
@@ -194,11 +202,15 @@
     .help-body :global(code) {
         padding: 1px 4px;
         border-radius: 3px;
-        background: var(--b3-theme-surface, #f5f5f5);
+        /* rgba 底 + 主题边框（vision P1）：--b3-theme-surface 与弹窗容器同色零对比，
+           明暗主题下都靠 6% 黑 + 边框提供键帽感 */
+        background: rgba(0, 0, 0, 0.06);
+        border: 1px solid var(--b3-border-color, #eee);
     }
     .help-body :global(pre code) {
         padding: 0;
         background: none;
+        border: none;
     }
     .help-body :global(.help-media) {
         display: inline-block;

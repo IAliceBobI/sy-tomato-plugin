@@ -6,7 +6,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
     public get 闪念插入到Dailynote顶端() {
         switch (this.lang) {
             case "zh_CN":
-                return "闪念插入到Dailynote顶端。";
+                return "闪念插入到dailynote顶端";
             case "es_ES":
                 return "Insertar flash en la parte superior de Dailynote.";
             case "fr_FR":
@@ -14,7 +14,7 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
             case "ja_JP":
                 return "フラッシュをDailynoteの先頭に挿入します。";
             case "zh_CHT":
-                return "閃念插入到Dailynote頂端。";
+                return "閃念插入到dailynote頂端";
 
             default:
                 return "Insert flash at the top of Dailynote.";

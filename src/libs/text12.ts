@@ -1,23 +1,6 @@
 import { TomatoI18nABC13 } from "./text13";
 
 export abstract class TomatoI18nABC12 extends TomatoI18nABC13 {
-    public get 打开批注页签() {
-        switch (this.lang) {
-            case "zh_CN": return "打开批注页签";
-            case "es_ES": return "Abrir pestaña de anotaciones";
-            case "fr_FR": return "Ouvrir l'onglet d'annotation";
-            case "ja_JP": return "注釈タブを開く";
-            case "zh_CHT": return "打開批註頁籤";
-            case "it_IT": return "Apri scheda annotazioni";
-            case "de_DE": return "Annotationen-Tab öffnen";
-            case "he_IL": return "פתח את לשונית ההערות";
-            case "ru_RU": return "Открыть вкладку аннотаций";
-            case "pl_PL": return "Otwórz zakładkę adnotacji";
-            case "en_US":
-            default: return "Open annotation tab";
-        }
-    }
-
     public get 所有原文都加引用() {
         switch (this.lang) {
             case "zh_CN": return "所有原文都加引用";
