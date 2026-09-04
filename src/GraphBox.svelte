@@ -72,6 +72,9 @@
     let canvasHeight: number = $state();
     let canvasWidth: number = $state();
     let lastDocID = "";
+    // □2 闪烁治理指纹：同文档且 updated 未变 = 图数据必然未变，changeDoc 整次短路
+    // （「打开所在文档」新页签/重复 loaded 事件/轮询必刷的白跑全被挡在构建前，零闪烁零成本）
+    let lastFingerprint = "";
     let currentDocName = ""; // 完整加载时 getData 需要文档名（根节点 label）
     let stop = false;
     // 布局形态四态（期7）：lr/tb=横排文字，vlr/vtb=竖排文字（writing-mode）；
@@ -142,11 +145,15 @@
         data().expandTo = expandTo;
         // 期7 ¶ 链中段定位重定向：目标块已并进 ¶ 大节点 → 图上节点=链头（GraphControl locateID 消费）
         data().paraRedirectOf = (id: string) => paraRedirect.get(id) ?? id;
+        // 二期 □2 定位兜底数据通道：图内全块 id 集（locateNode 上爬祖先时的「图内」判定）
+        data().graphIDsOf = () => new Set(allRows.map(r => r.id));
         // 期4 块→图定位链路消费：图当前文档/通道态/块上限（locateNode 的 toast 分支文案依据）
         data().getGraphState = () => ({
             mode: graphMode,
             docID: lastDocID,
             maxBlocks: graphMaxAllBlocks.get(),
+            // 二期 □2：文档真实块数（precheck count）——「超上限」文案只留给真超限（cnt > maxBlocks）
+            blockCount: graphStat?.cnt,
         });
 
         if (landscapeSwitchBtnID) {
@@ -223,6 +230,14 @@
             colorMode = "dark";
         }
         const docID = protyle.block.rootID;
+        // □2 指纹短路：毫秒级 updated SQL 远贱于 getBlockDOM（巨书 25~39s），同文档未编辑
+        // 直接跳过整次重建——节点 DOM 原样保留（引用不变=视觉零闪烁），折叠/视图态不受扰
+        const updatedRow = await siyuan.sqlOne(`SELECT updated FROM blocks WHERE id = "${docID}" AND type = "d"`);
+        const fingerprint = `${docID}|${updatedRow?.updated ?? ""}`;
+        if (fingerprint === lastFingerprint) {
+            gbLog("graph.short_circuit", `doc=${docID.slice(0, 8)} unchanged`);
+            return;
+        }
         currentDocName = docName;
         const taskLayoutForm = getLayoutForm(docID);
 
@@ -262,6 +277,7 @@
         if (isNewDoc) {
             lastDocID = docID;
         }
+        lastFingerprint = fingerprint; // 构建真正落地才落指纹（中途丢弃/异常不落）
         await relayout(!refreshOnly);
         if (isNewDoc && data()?.locateID) {
             data()?.locateID($nodes.at(0)?.id);
@@ -302,6 +318,9 @@
 
         // 期3（spec §8/§9）：📄 emoji 与 [X] 文字前缀退役——块类型图标/文档图标/《文档名》
         // 改由 GraphNode 按 data 字段（blockType/isDoc/docName）渲染，label 只装纯文本
+        // 三期 □2：av/tb 无可读文本，占位文案兜底（提取层 noContentBlockLabel 返回空）
+        if (row.type === "av") return tomatoI18n.属性视图块;
+        if (row.type === "tb") return tomatoI18n.分割线块;
         return (row.content ?? "").slice(0, 30);
     }
 
@@ -336,7 +355,9 @@
         const groupIds = new Set<string>();
         for (const row of allRows) {
             if (!vis.visibleIds.has(row.id)) continue;
-            // 思源块类型码：超级块='s'（NodeSuperBlock）、引述块='b'（NodeBlockquote）
+            // 思源块类型码：超级块='s'（NodeSuperBlock）、引述块='b'（NodeBlockquote）。
+            // 三期 B'（2026-09-04 方向修正）：列表容器 l 退出 subflow 族——列表改脑图式
+            // 树形分叉（i=分叉节点+吸收项内文本），容器壳语义只剩 s 与 b
             if ((row.type === "s" || row.type === "b") && !collapsedSet.has(row.id)
                 && (tree.childrenOf.get(row.id) ?? []).some(cid => vis.visibleIds.has(cid))) {
                 groupIds.add(row.id);
@@ -494,6 +515,7 @@
     async function onManualRefresh() {
         gbLog("graph.manual_refresh", `doc=${(lastDocID || "").slice(0, 8)}`);
         if (!lastDocID) return;
+        lastFingerprint = ""; // 手动刷新=强制重建语义，绕过指纹短路
         await changeDoc({
             title: { editElement: { textContent: currentDocName || lastDocID } },
             block: { rootID: lastDocID },
@@ -784,6 +806,68 @@
 
         const tDagre = performance.now();
         dagre.layout(dagreGraph, { ranker: "network-simplex" });
+
+        // 三期 □1：脑图式 y 接管——dagre 的 crossing reduction（median 排序）不保证
+        // 输入序（实测同层整列与文档序相反；换 ranker 同序=ordering 阶段与 ranker 无关），
+        // 且子节点 y 贴 rank 邻居而非父（分叉感断裂）。y 布局整体接管为经典脑图算法：
+        // 结构边序（=文档 DFS 序）先序遍历，叶子自上而下堆叠、内部节点 y=子树首尾中位
+        // （子贴父、兄弟文档序）；x/rank 沿用 dagre。手动拖拽固定的子树整树保持 dagre
+        // 原位占位（savedPositions 语义优先）；跨文档补块的孤儿节点不在结构树内、保持原位
+        const NODE_GAP = 40; // 与 dagre 默认 nodesep 视觉密度同族
+        const docOrderSiblings = new Map<string, string[]>();
+        edges.forEach((edge) => {
+            if ((edge as any).data?.isRef) return; // 结构边（父子）才承载文档序
+            const s = nodeIdTop(edge.source), t = nodeIdTop(edge.target);
+            if (s === t) return;
+            const arr = docOrderSiblings.get(s) ?? docOrderSiblings.set(s, []).get(s)!;
+            if (!arr.includes(t)) arr.push(t);
+        });
+        const fixedTop = new Set(topNodes.filter(n => savedPositions[n.id]).map(n => n.id));
+        const readRange = (id: string): [number, number] => {
+            const n = dagreGraph.node(id);
+            let min = n.y - n.height / 2, max = n.y + n.height / 2;
+            for (const k of docOrderSiblings.get(id) ?? []) {
+                const [a, b] = readRange(k);
+                min = Math.min(min, a); max = Math.max(max, b);
+            }
+            return [min, max];
+        };
+        let yCursor = 0;
+        const yAssigned = new Map<string, number>();
+        const subtreeY = (id: string): [number, number] => {
+            const node = dagreGraph.node(id);
+            const h = node?.height ?? nodeHeight;
+            const kids = docOrderSiblings.get(id) ?? [];
+            if (fixedTop.has(id) || kids.length === 0) {
+                // fixed 整树保持 dagre 原位（子树成员都不动）；叶子按游标堆叠
+                const y = fixedTop.has(id) ? node.y : yCursor + h / 2;
+                if (!fixedTop.has(id)) yCursor += h + NODE_GAP;
+                yAssigned.set(id, y);
+                return fixedTop.has(id) ? readRange(id) : [y - h / 2, y + h / 2];
+            }
+            let min = Infinity, max = -Infinity;
+            for (const k of kids) {
+                if (fixedTop.has(k)) {
+                    const [a, b] = readRange(k);
+                    yCursor = Math.max(yCursor, b + NODE_GAP);
+                    min = Math.min(min, a); max = Math.max(max, b);
+                } else {
+                    const [a, b] = subtreeY(k);
+                    min = Math.min(min, a); max = Math.max(max, b);
+                }
+            }
+            const y = (min + max) / 2;
+            yAssigned.set(id, y);
+            return [min, max];
+        };
+        // 结构真根=不在任何兄弟集合内的源点（doc/孤儿）；带子的顶层分叉节点（如嵌套
+        // 列表项）不是根——重复跑会把其子树二次分配到游标尾端（e2e 实锤）
+        const kidSet = new Set<string>();
+        docOrderSiblings.forEach(kids => kids.forEach(k => kidSet.add(k)));
+        for (const root of topNodes.map(n => n.id)) {
+            if (docOrderSiblings.has(root) && !kidSet.has(root) && !fixedTop.has(root)) subtreeY(root);
+        }
+        yAssigned.forEach((y, id) => { dagreGraph.node(id).y = y; });
         gbLog("graph.dagre", `nodes=${nodes.length} tops=${topNodes.length} edges=${edges.length} ${Math.round(performance.now() - tDagre)}ms`);
 
         // 顶层节点绝对位置（savedPositions 固定 + 碰撞检测均只作用顶层——容器内子节点跟随容器）
@@ -926,11 +1010,25 @@
         if (await copyToClipboard(text)) siyuan.pushMsg(tomatoI18n.已复制, 2000);
     }
 
+    // 图上右键菜单单例通道（三期 □1）：independent Menu 每次新建不清旧——右键不产
+    // click 事件，旧实例的 window click 捕获关闭监听等不到触发，元素悬在 body=
+    // 「连点右键叠一排菜单」根因。开新前显式关旧（close()=摘监听+element.remove，
+    // 双拆兜底）；节点/边两 handler 共用同一单例
+    let liveCtxMenu: Menu | null = null;
+    function closeLiveCtxMenu() {
+        if (!liveCtxMenu) return;
+        try { liveCtxMenu.close(); } catch { /* 已被全局点击拆过的二次拆除 */ }
+        liveCtxMenu.element?.remove?.();
+        liveCtxMenu = null;
+    }
+
     // 节点右键：思源原生 Menu（independent 第三参防单例被同次冒泡清空；open 包 setTimeout）
     function handleNodeContextMenu({ event, node }: { event: MouseEvent; node: Node }) {
         event.preventDefault();
+        closeLiveCtxMenu();
         const d = node.data as any;
         const menu = new (Menu as any)("tomatoGraphNodeMenu", undefined, true) as Menu;
+        liveCtxMenu = menu;
         menu.addItem({ label: tomatoI18n.在编辑器中显示, click: () => void showBlockInEditor(node.id) });
         menu.addItem({ label: tomatoI18n.打开所在文档, click: () => void OpenSyFile2(plugin, node.id) });
         menu.addSeparator();
@@ -972,7 +1070,9 @@
         const d = (edge as any).data;
         if (!d?.isRef) return;
         event.preventDefault();
+        closeLiveCtxMenu();
         const menu = new (Menu as any)("tomatoGraphEdgeMenu", undefined, true) as Menu;
+        liveCtxMenu = menu;
         menu.addItem({ label: tomatoI18n.复制锚文本, click: () => void copyText(String(edge.label ?? "")) });
         menu.addSeparator();
         menu.addItem({

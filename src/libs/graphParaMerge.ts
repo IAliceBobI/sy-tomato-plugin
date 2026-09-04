@@ -39,7 +39,8 @@ export interface ParaMergeResult {
 
 /**
  * 段落链合并（applyRowsAndLinks 之后、buildTreeIndex/computeVisible 之前调用一次）：
- * - 链子树（含链中段嵌套容器子树）全部文本按 DFS 序合并进链头 ¶ 节点
+ * - 链子树中的 **p 子孙**按 DFS 序合并进链头 ¶ 节点（二期 □1 收窄：非 p 子孙
+ *   保留为链头的正常子节点——串链白名单=仅连续 p 后链头子树实际纯 p，此处防御性收窄）
  * - 链成员从 rows 剔除；结构边 source/target 落链内 → 重定向后自环丢弃；
  *   引用边端点落链内 → 重定向到链头（多条重定向撞端点对时保留多条，id 加序号保唯一）
  */
@@ -54,7 +55,8 @@ export function mergeParagraphChains(rows: Block[], links: GraphEdgeSpec[]): Par
         return { rows, links, paraByText: empty, paraCount: new Map<string, number>(), linkRedirect: new Map<string, string>() };
     }
 
-    // 链成员=各链头子树全部（BFS 序与 DFS 序对纯链等价；嵌套容器子树先深后广——用前序 DFS）
+    // 链成员=各链头子树中的 p 子孙（DFS 前序）。二期 □1 合并白名单=仅 p：
+    // 非 p 子孙（列表/引述等结构承载者）保留为链头的正常子节点，不剔不重定向不进文本
     const linkRedirect = new Map<string, string>();
     const paraByText = new Map<string, string>();
     const paraCount = new Map<string, number>();
@@ -65,6 +67,7 @@ export function mergeParagraphChains(rows: Block[], links: GraphEdgeSpec[]): Par
         const stack = [...(tree.childrenOf.get(h) ?? [])];
         while (stack.length) {
             const cur = stack.shift()!;
+            if (tree.byId.get(cur)?.type !== "p") continue; // 非 p 子孙=链头的正常子节点（子树整体保留）
             linkRedirect.set(cur, h);
             count++;
             if (tree.byId.get(cur)?.content) frags.push(tree.byId.get(cur)!.content);

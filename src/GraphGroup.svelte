@@ -9,6 +9,7 @@
     let { data, targetPosition, sourcePosition }: NodeProps = $props();
     // data: { groupKind: "sb"|"bq", vMark?, collapsed, hiddenCount, hasChildren, toggle }
     // vMark：容器内子块排布方向（随全局横纵切换更新）⇉/⇓，缺字形回退 →/↓
+    // 三期 B'：list groupKind 退役（列表改脑图式树形分叉，容器壳只剩 sb/bq）
 
     const groupKind = $derived(((data as any).groupKind ?? "sb") as "sb" | "bq");
 
@@ -71,7 +72,9 @@
         width: 100%;
         height: 100%;
         padding: 28px 10px 10px;
-        border: 1px dashed var(--b3-border-color);
+        /* 二期 □1 vision 实审：b3-border-color 在暗色下与底色近同、嵌套壳不可辨——
+         * 描边加深一档（与 .gg-mark 同色族），亮暗两帧容器轮廓均可辨 */
+        border: 1.5px dashed var(--b3-theme-on-surface-light);
         border-radius: var(--b3-border-radius);
         background: var(--b3-theme-surface);
     }

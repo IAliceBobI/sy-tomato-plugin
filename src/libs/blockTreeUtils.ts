@@ -58,6 +58,38 @@ function getContentWithoutRefs(element: HTMLElement): string {
     return clone.textContent || "";
 }
 
+/** 无正文块的 label 提取（graphbox 三期 □2，2026-09-04）：块全集进图后节点可辨。
+ *  通道按 getBlockDOM 实测形态（6808 探查）：
+ *  - query_embed：顶层 data-content（SQL 原文；公式块 m 同款通道）
+ *  - html：子元素 <protyle-html data-content>（顶层无此属性），剥标签留可读文字
+ *  - iframe：内层 iframe[src]；widget：内层 iframe[data-src] 取 /widgets/<名> 的挂件名段
+ *  - video/audio：内层媒体元素 src 取文件名（剥查询串）
+ *  - av/tb 无可读文本，返回空——占位文案（i18n）归渲染层 GraphBox.rowLabel
+ *  截断归 rowLabel 的 30 字裁剪，此处给全文（hover tooltip 同源）。 */
+export function noContentBlockLabel(div: HTMLElement, type: string): string {
+    switch (type) {
+        case "query_embed":
+            return div.getAttribute("data-content")?.trim() ?? "";
+        case "html":
+            return (div.querySelector("protyle-html")?.getAttribute("data-content") ?? "")
+                .replace(/<[^>]*>/g, "").trim();
+        case "iframe":
+            return div.querySelector("iframe")?.getAttribute("src") ?? "";
+        case "widget": {
+            const el = div.querySelector("iframe");
+            const src = el?.getAttribute("data-src") || el?.getAttribute("src") || "";
+            return src.match(/\/widgets\/([^/?#]+)/)?.[1] ?? src;
+        }
+        case "video":
+        case "audio": {
+            const src = div.querySelector("video, audio")?.getAttribute("src") ?? "";
+            return src.split(/[?#]/)[0].split("/").filter(Boolean).pop() ?? "";
+        }
+        default:
+            return "";
+    }
+}
+
 export async function fillChildren(root: Block, div: HTMLElement, setContent: boolean, emptyContent: boolean, level: number, maxLevel: number) {
     if (level > maxLevel) return;
     if (!root.children) root.children = [];
@@ -81,6 +113,10 @@ export async function fillChildren(root: Block, div: HTMLElement, setContent: bo
                 if (!emptyContent) {
                     if (!child.content) continue;
                 }
+            } else {
+                // 无正文块 label（graphbox □2）：GraphBox 是唯一 setContent=true 调用方，
+                // 其他调用方（CpBox 等走 setContent=false）不进此分支零影响
+                child.content = noContentBlockLabel(e, child.type);
             }
         }
         child.subtype = e.getAttribute(DATA_SUBTYPE);

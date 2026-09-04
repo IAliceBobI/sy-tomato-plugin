@@ -1,16 +1,13 @@
-<!-- FloatingActionButton.svelte -->
+<!-- 悬浮文档 float 打开方式的实现件（期1 保留，props 从 FloatingDocItem 换统一 BallItem） -->
 <script lang="ts">
     import { onMount } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
     import { confirm, Protyle } from "siyuan";
     import { getTomatoPluginInstance } from "./libs/utils";
-    import { floatingballDocList } from "./libs/stores";
+    import { floatingballBallList } from "./libs/stores";
     import { OpenSyFile2 } from "./libs/docUtils";
-    import {
-        getFloatingBallDocBtn,
-        getFloatingBallProtyleDialog,
-    } from "./FloatingBall";
-    import { arrayDeleteFromLeft } from "stonev5-utils";
+    import { getFloatingBall, getFloatingBallProtyleDialog } from "./FloatingBall";
+    import { unbindBall } from "./actions/docAction";
     import { tomatoI18n } from "./tomatoI18n";
     import DialogSvelte from "./libs/DialogSvelte.svelte";
     export function destroy() {}
@@ -18,10 +15,10 @@
     interface Props {
         dm: DestroyManager;
         key: string;
-        item: FloatingDocItem;
+        ball: BallItem;
     }
 
-    let { dm, key, item = $bindable() }: Props = $props();
+    let { dm, key, ball }: Props = $props();
 
     let protyleTarget: HTMLElement = $state();
     let show = $state(true);
@@ -31,7 +28,7 @@
             getTomatoPluginInstance().app,
             protyleTarget,
             {
-                blockId: item.docID,
+                blockId: ball.action.docID,
                 action: ["cb-get-focus"],
                 render: {
                     background: false,
@@ -47,10 +44,10 @@
     });
 
     function exitProtyle() {
-        item.openOnCreate = false;
-        floatingballDocList.write();
-        getFloatingBallDocBtn(item);
-        getFloatingBallProtyleDialog(item)?.destroyBy();
+        ball.action.openOnCreate = false;
+        floatingballBallList.write();
+        getFloatingBall(ball);
+        getFloatingBallProtyleDialog(ball)?.destroyBy();
     }
 </script>
 
@@ -59,7 +56,7 @@
     <DialogSvelte
         hideScrollbar={true}
         bind:show
-        title={item.docName}
+        title={ball.action.docName}
         savePositionKey={`${key}#floatingDialog`}
     >
         {#snippet dialogInner()}
@@ -67,13 +64,7 @@
                 title={tomatoI18n.解除悬浮球与文档之间的绑定}
                 onclick={() => {
                     confirm(tomatoI18n.解除悬浮球与文档之间的绑定, "⚠️", () => {
-                        item.openOnCreate = false;
-                        arrayDeleteFromLeft($floatingballDocList, (i) => {
-                            return i.docID != item.docID;
-                        });
-                        floatingballDocList.write();
-                        getFloatingBallProtyleDialog(item)?.destroyBy();
-                        getFloatingBallDocBtn(item)?.destroyBy();
+                        unbindBall(ball);
                     });
                 }}
                 class="b3-button b3-button--outline space">⛓️‍💥</button
@@ -84,7 +75,7 @@
             >
             <button
                 onclick={() => {
-                    OpenSyFile2(getTomatoPluginInstance(), item.docID);
+                    OpenSyFile2(getTomatoPluginInstance(), ball.action.docID);
                     exitProtyle();
                 }}
                 class="b3-button b3-button--outline space">🎯</button

@@ -1,6 +1,6 @@
 {
   "name": "sy-tomato-plugin",
-  "version": "5.5.2",
+  "version": "5.6.0",
   "description": "思源笔记工具箱插件：状态栏番茄钟、AI 问答、块关系图、数据库反链等",
   "private": true,
   "type": "module",

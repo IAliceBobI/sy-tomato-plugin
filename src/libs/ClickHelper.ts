@@ -15,7 +15,9 @@ export class ClickHelper {
         const dx = event.clientX - this.startX;
         const dy = event.clientY - this.startY;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 5) {
+        // 4 = FloatingBallHelper.DRAG_THRESHOLD 同源：d<4 点击 / d≥4 拖拽，边界互斥
+        // （旧值 5 会在 4~5px 区间「既拖又点」双触发）
+        if (distance < 4) {
             cb(event);
         }
     }

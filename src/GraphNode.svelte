@@ -31,12 +31,13 @@
         e.stopPropagation();
     }
 
-    // 块类型 → 内置图标（spec §9，13 席全命中内置库；未识别回退 [X] 文字）
+    // 块类型 → 内置图标（spec §9；三期 □2：补 tb=iconLine、iframe 原 iconEmbed 无 symbol 改
+    // iconGlobe、widget 自 iconHTML5 改 iconPlugin 消与 html 同形——全席位经 sprite 实测存在）
     const TYPE_ICON: Record<string, string> = {
         c: "iconCode", m: "iconMath", t: "iconTable",
-        widget: "iconHTML5", html: "iconHTML5", iframe: "iconEmbed",
+        widget: "iconPlugin", html: "iconHTML5", iframe: "iconGlobe",
         query_embed: "iconSQL", av: "iconDatabase",
-        video: "iconVideo", audio: "iconRecord",
+        video: "iconVideo", audio: "iconRecord", tb: "iconLine",
         l: "iconList", i: "iconListItem", b: "iconQuote", s: "iconSuper",
     };
     const blockType = $derived((data as any).blockType as string | undefined);
@@ -70,7 +71,7 @@
         class="gn" class:gn-v={textV} class:gn-v--2col={textV && v2col} class:gn-collapsed={(data as any).collapsed}
         role="group"
         ondblclick={onDblClick}
-        aria-label={(data as any).fullText ?? (data as any).label}
+        aria-label={(data as any).fullText || (data as any).label}
         onmouseenter={(e) => showPanelTip(e.currentTarget as HTMLElement)}
         onmouseleave={hidePanelTip}
     >

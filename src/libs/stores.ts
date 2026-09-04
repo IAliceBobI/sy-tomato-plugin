@@ -548,6 +548,8 @@ export const floatingballDocList = settingFactory("floatingballDocList", [] as F
 export const floatingballDocMenu = settingFactory("floatingballDocMenu", true, STORAGE_SETTINGS, null as TSK);
 export const floatingballDocTabMenu = settingFactory("floatingballDocTabMenu", true, STORAGE_SETTINGS, null as TSK);
 export const floatingballKeyboardList = settingFactory("floatingballKeyboardList", [] as FloatingKeyboardItem[], STORAGE_SETTINGS, null as TSK);
+// 悬浮球翻新期1：统一球列表（旧 doc/keyboard 两列表启动时迁移进来后清空，见 FloatingBall.ts）
+export const floatingballBallList = settingFactory("floatingballBallList", [] as BallItem[], STORAGE_SETTINGS, null as TSK);
 export const markdownExportPics = settingFactory("markdownExportPics", false, STORAGE_SETTINGS, null as TSK);
 export const mindWireCheckbox = settingFactory("mindWireCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const mindWireEnable = settingFactory("mindWireEnable", true, STORAGE_SETTINGS, null as TSK);
@@ -637,6 +639,12 @@ export const piecesmenu = settingFactory("piecesmenu", false, STORAGE_Prog_SETTI
 // 弹的菜单）默认关，超出「右键清爽」拍板字面口径；拆独立门默认开（意图型入口不构成
 // 右键不清爽），管块图标菜单的渐进两项：跳到分片或回到原文 / 渐进阅读摘抄模式。
 export const blockIconMenu = settingFactory("blockIconMenu", true, STORAGE_Prog_SETTINGS, null as TSK);
+// 可见性期4 □4 B②：右键菜单四项各自开关（默认全开=拍板 A 不 breaking）。digestmenu
+// 存量键默认 false 不动（旧语义兼容）；替代通道——整篇摘抄=快捷键+命令面板，
+// 重访调度/复访节奏=浮条 ✧ + 期3 复习计划面板。
+export const wholeDigestMenu = settingFactory("wholeDigestMenu", true, STORAGE_Prog_SETTINGS, null as TSK);
+export const reviewSchedMenu = settingFactory("reviewSchedMenu", true, STORAGE_Prog_SETTINGS, null as TSK);
+export const revisitRhythmMenu = settingFactory("revisitRhythmMenu", true, STORAGE_Prog_SETTINGS, null as TSK);
 // v5 □7 设置砍半：words2dailycard/finishPieceCreateAt/PieceSummaryBoxmenu/merg2newBookEnable/
 // getAllPieceNotesEnable/multilineMarkEnable/send2* 六件/makeCard* 两件/summary2dailynote/
 // PieceMoving*/ProgressiveViewAllMenu 共 18 个显隐与计划流 store 退役（旧持久化值留着无害）。

@@ -1,11 +1,12 @@
 import { Dock, IEventBusMap, IProtyle } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { graphAddTopbarIcon, graphBoxCheckbox, graphMaxAllBlocks, graph定位到图中的节点Menu, graph打开块关系图Menu } from "./libs/stores";
+import { graphAddTopbarIcon, graphBoxCheckbox, graph定位到图中的节点Menu, graph打开块关系图Menu } from "./libs/stores";
 import { siyuan, getDoOperations, sleep } from "./libs/utils";
 import { events, EventType } from "./libs/Events";
 import GraphBoxSvelte from "./GraphBox.svelte";
 import { tomatoI18n } from "./tomatoI18n";
 import { getDocBlocks } from "./libs/docUtils";
+import { unfoldBlocks, nearestGraphAncestor } from "./libs/graphUnfold";
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
@@ -81,10 +82,13 @@ class GraphBox {
                 || eventType == EventType.loaded_protyle_dynamic
                 || eventType == EventType.switch_protyle
             ) {
-                // 切换文档：直接刷新图（内容完全不同，无需时间戳比对）
+                // 切换文档：直接刷新图（内容完全不同，无需时间戳比对）。
+                // □2 闪烁治理：不再重置 lastRefreshedUpdated——重置会让下个 3s 轮询
+                // 时间戳比对必不等→第二次重建（「打开所在文档」闪两下的第二闪）；
+                // 同文档重复事件由 svelte 侧指纹短路挡住，切文档后轮询即便白跑一次
+                // 也被短路（视觉零伤害）
                 const newDocID = detail?.protyle?.block?.rootID;
                 if (newDocID) {
-                    this.lastRefreshedUpdated = ""; // 重置时间戳，下次轮询/编辑时会重新获取
                     this.getData()?.changeDoc(detail?.protyle);
                 }
             }
@@ -187,11 +191,16 @@ class GraphBox {
     locateNodeMenu(detail: TomatoMenu) {
         const menu = detail.menu;
         if (!events.isMobile) {
+            // 菜单打开时预取目标块（定位光标化）：菜单项被点击时全局 selection 已被
+            // 点菜单动作破坏（focusNode 落到菜单 DOM），实时取光标块必空——只有块
+            // 选中态 CSS 类通道幸存，这就是「必须选中块才能定位」的根因。事件触发
+            // 此刻光标仍在块内，闭包捕获（划词工具条同款纪律）。
+            const presetID = events.selectedDivsSync(detail.protyle).ids?.[0];
             addIfVisible(menu, GraphBox定位到图中的节点.langKey, {
                 label: GraphBox定位到图中的节点.langText(),
                 icon: "iconGraphBox",
                 accelerator: GraphBox定位到图中的节点.m,
-                click: () => this.locateNode(detail.protyle),
+                click: () => this.locateNode(detail.protyle, presetID),
             }, graph定位到图中的节点Menu.get());
             addIfVisible(menu, GraphBox打开块关系图.langKey, {
                 label: GraphBox打开块关系图.langText(),
@@ -204,10 +213,11 @@ class GraphBox {
 
     // 期4 块→图定位完整链路：开 dock→图上非该文档自动切换→expandTo→居中脉冲→
     // 找不到 toast 原因（骨架态/超上限），永不静默（现状病灶=dock 未开/文档不同/折叠/截断全静默）
-    private async locateNode(protyle?: IProtyle) {
+    // presetID=菜单打开时预取的目标块（光标在块内即可定位）；命令通道无预取走实时取块
+    private async locateNode(protyle?: IProtyle, presetID?: string) {
         const { ids, docID, docName } = await events.selectedDivs(protyle);
-        const id = ids?.[0] || events.lastBlockID;
-        gbLog("graph.locate_req", `id=${(id || "").slice(0, 8)} doc=${(docID || "").slice(0, 8)}`);
+        const id = presetID || ids?.[0] || events.lastBlockID;
+        gbLog("graph.locate_req", `id=${(id || "").slice(0, 8)} doc=${(docID || "").slice(0, 8)}${presetID ? " src=menu-preset" : ""}`);
         if (!id) {
             siyuan.pushMsg(tomatoI18n.定位需先选中块, 3000);
             return;
@@ -225,14 +235,34 @@ class GraphBox {
         const found = await data.locateID(id);
         gbLog("graph.locate_done", `found=${found}`);
         if (!found) {
+            // 二期 □2 定位兜底：目标块不在图内（¶ 合并/截断剔除等）→ 沿真实 parent 链
+            // 上爬最近的图内祖先重定向定位（永不静默也永不误导——「超上限」只留给真超限）
+            const anc = await this.locateGraphAncestor(data, id);
+            if (anc && await data.locateID(anc)) {
+                siyuan.pushMsg(tomatoI18n.定位已并入所在节点, 3000);
+                return;
+            }
             const st = data.getGraphState?.();
-            siyuan.pushMsg(
-                st?.mode === "skeleton"
-                    ? tomatoI18n.定位骨架未含此块
-                    : tomatoI18n.定位超上限.replace("%1", `${st?.maxBlocks ?? graphMaxAllBlocks.get()}`),
-                4000,
-            );
+            if (st?.mode === "skeleton") {
+                siyuan.pushMsg(tomatoI18n.定位骨架未含此块, 4000);
+            } else if (st?.blockCount && st.maxBlocks && st.blockCount > st.maxBlocks) {
+                siyuan.pushMsg(tomatoI18n.定位超上限.replace("%1", `${st.maxBlocks}`), 4000);
+            } else {
+                siyuan.pushMsg(tomatoI18n.定位未找到, 4000);
+            }
         }
+    }
+
+    /** 二期 □2：SQL 拉当前文档全量 id→parent_id 映射，沿链上爬最近图内祖先（跨文档块查无父=undefined） */
+    private async locateGraphAncestor(data: GraphDockData<GraphBoxSvelte>, id: string): Promise<string | undefined> {
+        const st = data.getGraphState?.();
+        const graphIDs = data.graphIDsOf?.();
+        if (!st?.docID || !graphIDs) return undefined;
+        const rows = await siyuan.sql(
+            `select id,parent_id from blocks where root_id="${st.docID}" limit 100000`,
+        );
+        const parentOf = new Map(rows.map(r => [r.id, r.parent_id]));
+        return nearestGraphAncestor(id, pid => parentOf.get(pid) ?? undefined, graphIDs);
     }
 
     // changeDoc 只读 title.editElement.textContent 与 block.rootID 两字段；events 单例侧
@@ -398,99 +428,6 @@ export class ColorSelector {
     }
 }
 
-function seriesAllNodes(root: Block) {
-    const children = root?.children?.slice();
-    const len = children?.length;
-    if (!(len > 0)) return;
-    for (let i = 1; i < children.length; i++) {
-        const c = children[i];
-        if (c.type === 'h') continue;
-        const p = children[i - 1];
-        p.children.push(c);
-        c.parent = p;
-        c.parent_id = p.id;
-        c.data = 'm'
-    }
-    root.children = children.filter(c => c.data !== 'm')
-    children.forEach(c => delete c.data)
-    return root;
-}
-
-function parallelHeanders(root: Block, subtypeParent: string, subtypeChild: string) {
-    const children = root?.children?.slice();
-    const len = children?.length;
-    if (!(len > 0)) return;
-    let found = false;
-    let p: Block;
-    for (let i = 1; i < children.length; i++) {
-        if (children[i - 1].subtype === subtypeParent) {
-            p = children[i - 1];
-            if (!p.children) p.children = [];
-        }
-        if (children[i - 1].subtype < subtypeParent) {
-            p = null;
-        }
-        const c = children[i];
-        if (p && c.subtype === subtypeChild) {
-            p.children.push(c);
-            c.parent = p;
-            c.parent_id = p.id;
-            c.data = 'm'
-            found = true;
-        }
-    }
-    if (found) {
-        root.children = children.filter(c => c.data !== 'm')
-        children.forEach(c => delete c.data)
-    }
-    return root;
-}
-
-function shortenList(block: Block) {
-    if (!block) return;
-    // block.isInList = true;
-    if (!(block?.children?.length > 0)) return;
-    if (block.type === 'i' || block.type === 'l') {
-        block.children.forEach(c => c.parent_id = block.parent_id)
-        block.data = 'del'
-    }
-    block.children.forEach(shortenList);
-}
-
-function unfoldBlocks(root: Block, all: Block[] = []) {
-    if (!root) return;
-    all.push(root);
-    if (root.type === 'l') {
-        shortenList(root)
-    } else if (root.subtype === 'col') {
-        // ignore
-    } else {
-        seriesAllNodes(root);
-
-        parallelHeanders(root, "h5", "h6");
-        parallelHeanders(root, "h4", "h6");
-        parallelHeanders(root, "h3", "h6");
-        parallelHeanders(root, "h2", "h6");
-        parallelHeanders(root, "h1", "h6");
-
-        parallelHeanders(root, "h4", "h5");
-        parallelHeanders(root, "h3", "h5");
-        parallelHeanders(root, "h2", "h5");
-        parallelHeanders(root, "h1", "h5");
-
-        parallelHeanders(root, "h3", "h4");
-        parallelHeanders(root, "h2", "h4");
-        parallelHeanders(root, "h1", "h4");
-
-        parallelHeanders(root, "h2", "h3");
-        parallelHeanders(root, "h1", "h3");
-
-        parallelHeanders(root, "h1", "h2");
-    }
-    root.children?.forEach(c => unfoldBlocks(c, all));
-    return all;
-}
-
 function shortenParagraphLink(rows: Block[], maxPBlocks: number) {
     if (maxPBlocks >= 2) {
         const ps: Block[] = [];
@@ -577,11 +514,10 @@ export async function getData(docID: string, docName: string, maxPBlocks: number
             return rows;
         })
         .then(rows => rows.filter(r => {
-            if (r.type === 'i' || r.type === 'l') {
-                if (!(r.children?.length > 0)) {
-                    return false;
-                }
-            }
+            // 三期 B'：i 恒保留（树内=吸收后的分叉节点；跨文档补块=SQL content 直填），
+            // 仅无内容孤儿 i 防御性丢弃；l 壳已被 shortenList 剔除，此处只拦跨文档补块的空壳 l
+            if (r.type === 'l') return (r.children?.length ?? 0) > 0;
+            if (r.type === 'i') return (r.children?.length ?? 0) > 0 || !!r.content;
             return true;
         }));
 

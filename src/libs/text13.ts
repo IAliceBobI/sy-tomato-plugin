@@ -508,20 +508,20 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
             default: return "Bind document to tab";
         }
     }
-    public get ctrl点击删除按钮() {
+    public get 删除悬浮球() {
         switch (this.lang) {
-            case "zh_CN": return "ctrl点击删除按钮";
-            case "es_ES": return "Ctrl clic para eliminar el botón";
-            case "fr_FR": return "Ctrl-clic pour supprimer le bouton";
-            case "ja_JP": return "Ctrlクリックでボタンを削除";
-            case "zh_CHT": return "ctrl點擊刪除按鈕";
-            case "it_IT": return "Ctrl clic per eliminare il pulsante";
-            case "de_DE": return "Strg-Klick, um die Schaltfläche zu löschen";
-            case "he_IL": return "Ctrl קליק למחיקת הכפתור";
-            case "ru_RU": return "Ctrl-клик для удаления кнопки";
-            case "pl_PL": return "Ctrl kliknij, aby usunąć przycisk";
+            case "zh_CN": return "删除悬浮球";
+            case "es_ES": return "Eliminar bola flotante";
+            case "fr_FR": return "Supprimer la boule flottante";
+            case "ja_JP": return "フローティングボールを削除";
+            case "zh_CHT": return "刪除懸浮球";
+            case "it_IT": return "Elimina la sfera fluttuante";
+            case "de_DE": return "Schwebende Kugel löschen";
+            case "he_IL": return "מחק כדור צף";
+            case "ru_RU": return "Удалить плавающий шар";
+            case "pl_PL": return "Usuń pływającą kulę";
             case "en_US":
-            default: return "Ctrl click to delete button";
+            default: return "Delete floating ball";
         }
     }
     public get 如果块很多请放到超级块内否则会很慢() {
@@ -952,6 +952,470 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
             case "pl_PL": return "Maksymalna wysokość (px) podglądu wewnątrz karty.\nWiększa wartość = dłuższe podglądy i więcej miejsca w panelu; wartość fabryczna 300.";
             case "en_US":
             default: return "Max height (px) of the preview embedded in each card.\nLarger value = longer previews and a taller panel; factory default 300.";
+        }
+    }
+    public get 编辑() {
+        switch (this.lang) {
+            case "zh_CN": return "编辑";
+            case "zh_CHT": return "編輯";
+            case "en_US":
+            default: return "Edit";
+            case "ja_JP": return "編集";
+            case "de_DE": return "Bearbeiten";
+            case "fr_FR": return "Modifier";
+            case "es_ES": return "Editar";
+            case "it_IT": return "Modifica";
+            case "ru_RU": return "Редактировать";
+            case "pl_PL": return "Edytuj";
+            case "he_IL": return "ערוך";
+        }
+    }
+    public get 停用() {
+        switch (this.lang) {
+            case "zh_CN": return "停用";
+            case "zh_CHT": return "停用";
+            case "en_US":
+            default: return "Disable";
+            case "ja_JP": return "無効化";
+            case "de_DE": return "Deaktivieren";
+            case "fr_FR": return "Désactiver";
+            case "es_ES": return "Desactivar";
+            case "it_IT": return "Disattiva";
+            case "ru_RU": return "Отключить";
+            case "pl_PL": return "Wyłącz";
+            case "he_IL": return "השבת";
+        }
+    }
+    public get 启用() {
+        switch (this.lang) {
+            case "zh_CN": return "启用";
+            case "zh_CHT": return "啟用";
+            case "en_US":
+            default: return "Enable";
+            case "ja_JP": return "有効化";
+            case "de_DE": return "Aktivieren";
+            case "fr_FR": return "Activer";
+            case "es_ES": return "Activar";
+            case "it_IT": return "Attiva";
+            case "ru_RU": return "Включить";
+            case "pl_PL": return "Włącz";
+            case "he_IL": return "הפעל";
+        }
+    }
+    public get 编辑悬浮球() {
+        switch (this.lang) {
+            case "zh_CN": return "编辑悬浮球";
+            case "zh_CHT": return "編輯懸浮球";
+            case "en_US":
+            default: return "Edit floating ball";
+            case "ja_JP": return "フローティングボールを編集";
+            case "de_DE": return "Schwebende Kugel bearbeiten";
+            case "fr_FR": return "Modifier la boule flottante";
+            case "es_ES": return "Editar bola flotante";
+            case "it_IT": return "Modifica la sfera fluttuante";
+            case "ru_RU": return "Редактировать плавающий шар";
+            case "pl_PL": return "Edytuj pływającą kulę";
+            case "he_IL": return "ערוך כדור צף";
+        }
+    }
+    public get 图标emoji或短字() {
+        switch (this.lang) {
+            case "zh_CN": return "图标（emoji 或短字）";
+            case "zh_CHT": return "圖示（emoji 或短字）";
+            case "en_US":
+            default: return "Icon (emoji or short text)";
+            case "ja_JP": return "アイコン（emoji か短いテキスト）";
+            case "de_DE": return "Symbol (Emoji oder kurzer Text)";
+            case "fr_FR": return "Icône (emoji ou texte court)";
+            case "es_ES": return "Icono (emoji o texto corto)";
+            case "it_IT": return "Icona (emoji o testo breve)";
+            case "ru_RU": return "Значок (эмодзи или короткий текст)";
+            case "pl_PL": return "Ikona (emoji lub krótki tekst)";
+            case "he_IL": return "אייקון (אימוג'י או טקסט קצר)";
+        }
+    }
+    public get 名称tooltip与标签用() {
+        switch (this.lang) {
+            case "zh_CN": return "名称（tooltip 与标签显示用）";
+            case "zh_CHT": return "名稱（tooltip 與標籤顯示用）";
+            case "en_US":
+            default: return "Name (shown as tooltip & label)";
+            case "ja_JP": return "名前（tooltip とラベル表示用）";
+            case "de_DE": return "Name (als Tooltip & Label)";
+            case "fr_FR": return "Nom (infobulle et étiquette)";
+            case "es_ES": return "Nombre (tooltip y etiqueta)";
+            case "it_IT": return "Nome (tooltip ed etichetta)";
+            case "ru_RU": return "Имя (подсказка и метка)";
+            case "pl_PL": return "Nazwa (tooltip i etykieta)";
+            case "he_IL": return "שם (לטולטיפ ותווית)";
+        }
+    }
+    public get 大小() {
+        switch (this.lang) {
+            case "zh_CN": return "大小";
+            case "zh_CHT": return "大小";
+            case "en_US":
+            default: return "Size";
+            case "ja_JP": return "サイズ";
+            case "de_DE": return "Größe";
+            case "fr_FR": return "Taille";
+            case "es_ES": return "Tamaño";
+            case "it_IT": return "Dimensione";
+            case "ru_RU": return "Размер";
+            case "pl_PL": return "Rozmiar";
+            case "he_IL": return "גודל";
+        }
+    }
+    public get 球大小小档() {
+        switch (this.lang) {
+            case "zh_CN": return "小（28px）";
+            case "zh_CHT": return "小（28px）";
+            case "en_US":
+            default: return "Small (28px)";
+            case "ja_JP": return "小（28px）";
+            case "de_DE": return "Klein (28px)";
+            case "fr_FR": return "Petit (28px)";
+            case "es_ES": return "Pequeño (28px)";
+            case "it_IT": return "Piccolo (28px)";
+            case "ru_RU": return "Малый (28px)";
+            case "pl_PL": return "Mały (28px)";
+            case "he_IL": return "קטן (28px)";
+        }
+    }
+    public get 球大小中档() {
+        switch (this.lang) {
+            case "zh_CN": return "中（36px）";
+            case "zh_CHT": return "中（36px）";
+            case "en_US":
+            default: return "Medium (36px)";
+            case "ja_JP": return "中（36px）";
+            case "de_DE": return "Mittel (36px)";
+            case "fr_FR": return "Moyen (36px)";
+            case "es_ES": return "Mediano (36px)";
+            case "it_IT": return "Medio (36px)";
+            case "ru_RU": return "Средний (36px)";
+            case "pl_PL": return "Średni (36px)";
+            case "he_IL": return "בינוני (36px)";
+        }
+    }
+    public get 球大小大档() {
+        switch (this.lang) {
+            case "zh_CN": return "大（44px）";
+            case "zh_CHT": return "大（44px）";
+            case "en_US":
+            default: return "Large (44px)";
+            case "ja_JP": return "大（44px）";
+            case "de_DE": return "Groß (44px)";
+            case "fr_FR": return "Grand (44px)";
+            case "es_ES": return "Grande (44px)";
+            case "it_IT": return "Grande (44px)";
+            case "ru_RU": return "Большой (44px)";
+            case "pl_PL": return "Duży (44px)";
+            case "he_IL": return "גדול (44px)";
+        }
+    }
+    public get 透明度() {
+        switch (this.lang) {
+            case "zh_CN": return "透明度";
+            case "zh_CHT": return "透明度";
+            case "en_US":
+            default: return "Opacity";
+            case "ja_JP": return "不透明度";
+            case "de_DE": return "Deckkraft";
+            case "fr_FR": return "Opacité";
+            case "es_ES": return "Opacidad";
+            case "it_IT": return "Opacità";
+            case "ru_RU": return "Непрозрачность";
+            case "pl_PL": return "Krycie";
+            case "he_IL": return "שקיפות";
+        }
+    }
+    public get 在球下方常显名称标签() {
+        switch (this.lang) {
+            case "zh_CN": return "在球下方常显名称标签";
+            case "zh_CHT": return "在球下方常顯名稱標籤";
+            case "en_US":
+            default: return "Show name label below ball";
+            case "ja_JP": return "球の下に名前ラベルを常時表示";
+            case "de_DE": return "Namenslabel unter der Kugel anzeigen";
+            case "fr_FR": return "Afficher le nom sous la boule";
+            case "es_ES": return "Mostrar etiqueta de nombre bajo la bola";
+            case "it_IT": return "Mostra etichetta nome sotto la sfera";
+            case "ru_RU": return "Показывать имя под шаром";
+            case "pl_PL": return "Pokaż etykietę nazwy pod kulą";
+            case "he_IL": return "הצג תווית שם מתחת לכדור";
+        }
+    }
+    public get 打开方式() {
+        switch (this.lang) {
+            case "zh_CN": return "打开方式";
+            case "zh_CHT": return "打開方式";
+            case "en_US":
+            default: return "Open with";
+            case "ja_JP": return "開き方";
+            case "de_DE": return "Öffnen mit";
+            case "fr_FR": return "Ouvrir avec";
+            case "es_ES": return "Abrir con";
+            case "it_IT": return "Apri con";
+            case "ru_RU": return "Открыть с помощью";
+            case "pl_PL": return "Otwórz za pomocą";
+            case "he_IL": return "פתח באמצעות";
+        }
+    }
+    public get 默认浏览器() {
+        switch (this.lang) {
+            case "zh_CN": return "默认浏览器";
+            case "zh_CHT": return "預設瀏覽器";
+            case "en_US":
+            default: return "Default browser";
+            case "ja_JP": return "既定のブラウザ";
+            case "de_DE": return "Standardbrowser";
+            case "fr_FR": return "Navigateur par défaut";
+            case "es_ES": return "Navegador predeterminado";
+            case "it_IT": return "Browser predefinito";
+            case "ru_RU": return "Браузер по умолчанию";
+            case "pl_PL": return "Domyślna przeglądarka";
+            case "he_IL": return "דפדפן ברירת מחדל";
+        }
+    }
+    public get 思源内打开() {
+        switch (this.lang) {
+            case "zh_CN": return "思源内打开";
+            case "zh_CHT": return "思源內打開";
+            case "en_US":
+            default: return "Open in SiYuan";
+            case "ja_JP": return "SiYuan 内で開く";
+            case "de_DE": return "In SiYuan öffnen";
+            case "fr_FR": return "Ouvrir dans SiYuan";
+            case "es_ES": return "Abrir en SiYuan";
+            case "it_IT": return "Apri in SiYuan";
+            case "ru_RU": return "Открыть в SiYuan";
+            case "pl_PL": return "Otwórz w SiYuan";
+            case "he_IL": return "פתח ב-SiYuan";
+        }
+    }
+    public get 键位重新绑定请先删后加() {
+        switch (this.lang) {
+            case "zh_CN": return "键位（重新绑定请在设置中删除后添加）";
+            case "zh_CHT": return "鍵位（重新綁定請在設置中刪除後添加）";
+            case "en_US":
+            default: return "Hotkey (to rebind: delete in settings, then re-add)";
+            case "ja_JP": return "キー（再設定は設定で削除後に追加）";
+            case "de_DE": return "Hotkey (zum Neubinden: in Einstellungen löschen und neu hinzufügen)";
+            case "fr_FR": return "Raccourci (pour réassocier : supprimer puis réajouter dans les réglages)";
+            case "es_ES": return "Atajo (para reasignar: elimina y vuelve a añadir en ajustes)";
+            case "it_IT": return "Scorciatoia (per riassegnare: elimina nelle impostazioni e riaggiungi)";
+            case "ru_RU": return "Горячая клавиша (для смены: удалите в настройках и добавьте заново)";
+            case "pl_PL": return "Skrót (aby zmienić: usuń w ustawieniach i dodaj ponownie)";
+            case "he_IL": return "קיצור מקלדת (לשינוי: מחק בהגדרות והוסף מחדש)";
+        }
+    }
+    public get 命令重新绑定请先删后加() {
+        switch (this.lang) {
+            case "zh_CN": return "命令（重新绑定请在设置中删除后添加）";
+            case "zh_CHT": return "命令（重新綁定請在設置中刪除後添加）";
+            case "en_US":
+            default: return "Command (to rebind: delete in settings, then re-add)";
+            case "ja_JP": return "コマンド（再設定は設定で削除後に追加）";
+            case "de_DE": return "Befehl (zum Neubinden: in Einstellungen löschen und neu hinzufügen)";
+            case "fr_FR": return "Commande (pour réassocier : supprimer puis réajouter dans les réglages)";
+            case "es_ES": return "Comando (para reasignar: elimina y vuelve a añadir en ajustes)";
+            case "it_IT": return "Comando (per riassegnare: elimina nelle impostazioni e riaggiungi)";
+            case "ru_RU": return "Команда (для смены: удалите в настройках и добавьте заново)";
+            case "pl_PL": return "Polecenie (aby zmienić: usuń w ustawieniach i dodaj ponownie)";
+            case "he_IL": return "פקודה (לשינוי: מחק בהגדרות והוסף מחדש)";
+        }
+    }
+    public get 当天日记特殊球() {
+        switch (this.lang) {
+            case "zh_CN": return "当天日记（特殊球，固定指向当前日记）";
+            case "zh_CHT": return "當天日記（特殊球，固定指向當天日記）";
+            case "en_US":
+            default: return "Today's daily note (special ball, always today)";
+            case "ja_JP": return "当日の日記（特殊ボール、常に当日）";
+            case "de_DE": return "Tagesnotiz von heute (Spezialkugel, immer heute)";
+            case "fr_FR": return "Journal du jour (boule spéciale, toujours aujourd'hui)";
+            case "es_ES": return "Diario de hoy (bola especial, siempre hoy)";
+            case "it_IT": return "Diario di oggi (sfera speciale, sempre oggi)";
+            case "ru_RU": return "Дневник за сегодня (особый шар, всегда сегодняшний)";
+            case "pl_PL": return "Dzisiejsza notatka (specjalna kula, zawsze dzisiejsza)";
+            case "he_IL": return "יומן היום (כדור מיוחד, תמיד היום)";
+        }
+    }
+    public get URL须以http开头() {
+        switch (this.lang) {
+            case "zh_CN": return "URL 须以 http(s):// 开头";
+            case "zh_CHT": return "URL 須以 http(s):// 開頭";
+            case "en_US":
+            default: return "URL must start with http(s)://";
+            case "ja_JP": return "URL は http(s):// で始まる必要があります";
+            case "de_DE": return "URL muss mit http(s):// beginnen";
+            case "fr_FR": return "L'URL doit commencer par http(s)://";
+            case "es_ES": return "La URL debe empezar por http(s)://";
+            case "it_IT": return "L'URL deve iniziare con http(s)://";
+            case "ru_RU": return "URL должен начинаться с http(s)://";
+            case "pl_PL": return "Adres URL musi zaczynać się od http(s)://";
+            case "he_IL": return "כתובת ה-URL חייבת להתחיל ב-http(s)://";
+        }
+    }
+    public get 站点拒绝内嵌已改用浏览器打开() {
+        switch (this.lang) {
+            case "zh_CN": return "站点拒绝内嵌，已改用浏览器打开";
+            case "zh_CHT": return "站點拒絕內嵌，已改用瀏覽器打開";
+            case "en_US":
+            default: return "Site refused embedding, opened in browser instead";
+            case "ja_JP": return "サイトが埋め込みを拒否したため、ブラウザで開きました";
+            case "de_DE": return "Seite verhindert Einbettung, im Browser geöffnet";
+            case "fr_FR": return "Le site refuse l'intégration, ouvert dans le navigateur";
+            case "es_ES": return "El sitio rechazó el embebido, se abrió en el navegador";
+            case "it_IT": return "Il sito rifiuta l'incorporamento, aperto nel browser";
+            case "ru_RU": return "Сайт запретил встраивание, открыт в браузере";
+            case "pl_PL": return "Witryna odmówiła osadzenia, otwarto w przeglądarce";
+            case "he_IL": return "האתר סירב להטמעה, נפתח בדפדפן";
+        }
+    }
+    public get 未找到命令() {
+        switch (this.lang) {
+            case "zh_CN": return "未找到命令";
+            case "zh_CHT": return "未找到命令";
+            case "en_US":
+            default: return "Command not found";
+            case "ja_JP": return "コマンドが見つかりません";
+            case "de_DE": return "Befehl nicht gefunden";
+            case "fr_FR": return "Commande introuvable";
+            case "es_ES": return "Comando no encontrado";
+            case "it_IT": return "Comando non trovato";
+            case "ru_RU": return "Команда не найдена";
+            case "pl_PL": return "Nie znaleziono polecenia";
+            case "he_IL": return "הפקודה לא נמצאה";
+        }
+    }
+    public get 官方快捷键() {
+        switch (this.lang) {
+            case "zh_CN": return "官方快捷键";
+            case "zh_CHT": return "官方快捷鍵";
+            case "en_US":
+            default: return "Official hotkey";
+            case "ja_JP": return "公式ホットキー";
+            case "de_DE": return "Offizieller Hotkey";
+            case "fr_FR": return "Raccourci officiel";
+            case "es_ES": return "Atajo oficial";
+            case "it_IT": return "Scorciatoia ufficiale";
+            case "ru_RU": return "Официальная горячая клавиша";
+            case "pl_PL": return "Oficjalny skrót";
+            case "he_IL": return "קיצור רשמי";
+        }
+    }
+    public get 插件命令() {
+        switch (this.lang) {
+            case "zh_CN": return "插件命令";
+            case "zh_CHT": return "插件命令";
+            case "en_US":
+            default: return "Plugin command";
+            case "ja_JP": return "プラグインコマンド";
+            case "de_DE": return "Plugin-Befehl";
+            case "fr_FR": return "Commande du plugin";
+            case "es_ES": return "Comando del plugin";
+            case "it_IT": return "Comando del plugin";
+            case "ru_RU": return "Команда плагина";
+            case "pl_PL": return "Polecenie wtyczki";
+            case "he_IL": return "פקודת פלאגין";
+        }
+    }
+    public get 外链() {
+        switch (this.lang) {
+            case "zh_CN": return "外链";
+            case "zh_CHT": return "外鏈";
+            case "en_US":
+            default: return "External link";
+            case "ja_JP": return "外部リンク";
+            case "de_DE": return "Externer Link";
+            case "fr_FR": return "Lien externe";
+            case "es_ES": return "Enlace externo";
+            case "it_IT": return "Link esterno";
+            case "ru_RU": return "Внешняя ссылка";
+            case "pl_PL": return "Link zewnętrzny";
+            case "he_IL": return "קישור חיצוני";
+        }
+    }
+    public get 绑定外链到悬浮按钮() {
+        switch (this.lang) {
+            case "zh_CN": return "绑定外链到悬浮按钮";
+            case "zh_CHT": return "綁定外鏈到懸浮按鈕";
+            case "en_US":
+            default: return "Bind external link to floating ball";
+            case "ja_JP": return "外部リンクをフローティングボールにバインド";
+            case "de_DE": return "Externen Link an schwebende Kugel binden";
+            case "fr_FR": return "Lier le lien externe à la boule flottante";
+            case "es_ES": return "Vincular enlace externo a la bola flotante";
+            case "it_IT": return "Collega link esterno alla sfera fluttuante";
+            case "ru_RU": return "Привязать внешнюю ссылку к плавающему шару";
+            case "pl_PL": return "Powiąż link zewnętrzny z pływającą kulą";
+            case "he_IL": return "קשר קישור חיצוני לכדור צף";
+        }
+    }
+    public get 搜索命令或分组名() {
+        switch (this.lang) {
+            case "zh_CN": return "搜索命令/分组名…";
+            case "zh_CHT": return "搜索命令/分組名…";
+            case "en_US":
+            default: return "Search command/group…";
+            case "ja_JP": return "コマンド/グループ名を検索…";
+            case "de_DE": return "Befehl/Gruppe suchen…";
+            case "fr_FR": return "Rechercher commande/groupe…";
+            case "es_ES": return "Buscar comando/grupo…";
+            case "it_IT": return "Cerca comando/gruppo…";
+            case "ru_RU": return "Поиск команды/группы…";
+            case "pl_PL": return "Szukaj polecenia/grupy…";
+            case "he_IL": return "חפש פקודה/קבוצה…";
+        }
+    }
+    public get 搜索文档名() {
+        switch (this.lang) {
+            case "zh_CN": return "搜索文档名…";
+            case "zh_CHT": return "搜索文檔名…";
+            case "en_US":
+            default: return "Search document name…";
+            case "ja_JP": return "ドキュメント名を検索…";
+            case "de_DE": return "Dokumentname suchen…";
+            case "fr_FR": return "Rechercher un nom de document…";
+            case "es_ES": return "Buscar nombre de documento…";
+            case "it_IT": return "Cerca nome documento…";
+            case "ru_RU": return "Поиск по имени документа…";
+            case "pl_PL": return "Szukaj nazwy dokumentu…";
+            case "he_IL": return "חפש שם מסמך…";
+        }
+    }
+    public get 拖拽排序() {
+        switch (this.lang) {
+            case "zh_CN": return "拖拽排序";
+            case "zh_CHT": return "拖拽排序";
+            case "en_US":
+            default: return "Drag to reorder";
+            case "ja_JP": return "ドラッグで並べ替え";
+            case "de_DE": return "Ziehen zum Sortieren";
+            case "fr_FR": return "Glisser pour réordonner";
+            case "es_ES": return "Arrastra para reordenar";
+            case "it_IT": return "Trascina per riordinare";
+            case "ru_RU": return "Перетащите для сортировки";
+            case "pl_PL": return "Przeciągnij, aby zmienić kolejność";
+            case "he_IL": return "גרור לסידור";
+        }
+    }
+    public get 解锁() {
+        switch (this.lang) {
+            case "zh_CN": return "解锁";
+            case "zh_CHT": return "解鎖";
+            case "en_US":
+            default: return "Unlock";
+            case "ja_JP": return "ロック解除";
+            case "de_DE": return "Entsperren";
+            case "fr_FR": return "Déverrouiller";
+            case "es_ES": return "Desbloquear";
+            case "it_IT": return "Sblocca";
+            case "ru_RU": return "Разблокировать";
+            case "pl_PL": return "Odblokuj";
+            case "he_IL": return "בטל נעילה";
         }
     }
 }
