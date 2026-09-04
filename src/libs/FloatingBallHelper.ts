@@ -62,6 +62,7 @@ export class FloatingBallHelper {
         const touchmove = this.touchmove.bind(this);
         const mouseup = this.mouseup.bind(this);
         const touchend = this.touchend.bind(this);
+        const touchcancel = this.touchcancel.bind(this);
 
         this.div.addEventListener("mousedown", mousedown);
         this.div.addEventListener("touchstart", touchstart, { passive: false });
@@ -70,7 +71,8 @@ export class FloatingBallHelper {
         document.addEventListener("mousemove", mousemove);
         document.addEventListener("touchmove", touchmove, { passive: false });
         document.addEventListener("mouseup", mouseup);
-        document.addEventListener("touchend", touchend);
+        document.addEventListener("touchend", touchend, { passive: false });
+        document.addEventListener("touchcancel", touchcancel);
         this.dm.add("EventListener", () => {
             this.clearLongPress();
             this.div.removeEventListener("mousedown", mousedown);
@@ -81,6 +83,7 @@ export class FloatingBallHelper {
             document.removeEventListener("touchmove", touchmove);
             document.removeEventListener("mouseup", mouseup);
             document.removeEventListener("touchend", touchend);
+            document.removeEventListener("touchcancel", touchcancel);
         });
     }
 
@@ -110,13 +113,11 @@ export class FloatingBallHelper {
         this.applyPosition();
     }
 
-    // 触摸开始：按钮上不拦截（点击优先）但同样起长按计时；按钮外走拖拽。
+    // 触摸开始：球视觉本体就是 button（wrapper 由它撑满、label 不可点），触摸必落其上，
+    // 一律武装拖拽——点/拖由位移阈值区分、长按由计时（超时弹菜单）。preventDefault 勿加：
+    // 会杀 touchend 后浏览器合成的 mouse 事件（点击链=button 上 ClickHelper）。防滚动劫持
+    // 由 CSS touch-action:none（wrapper+button 两层）承担，touchmove 拖拽中再 preventDefault 兜底。
     private touchstart(e: TouchEvent) {
-        const target = e.target as HTMLElement;
-        const onButton = !!target.closest("button");
-        if (!onButton) {
-            e.preventDefault();
-        }
         const touch = e.touches[0];
         this.longPressFired = false;
         this.dragStartX = touch.clientX;
@@ -128,12 +129,10 @@ export class FloatingBallHelper {
             this.cancelDrag();
             openBallMenu(this.item, touch.clientX, touch.clientY);
         }, LONG_PRESS_MS);
-        if (!onButton) {
-            this.mousedown({
-                clientX: touch.clientX,
-                clientY: touch.clientY,
-            } as MouseEvent);
-        }
+        this.mousedown({
+            clientX: touch.clientX,
+            clientY: touch.clientY,
+        } as MouseEvent);
     }
 
     private touchmove(e: TouchEvent) {
@@ -153,10 +152,16 @@ export class FloatingBallHelper {
             clientX: touch.clientX,
             clientY: touch.clientY,
         } as MouseEvent);
+        // 拖拽中阻止浏览器把触摸接管为滚动/下拉刷新（touch-action:none 之外的事件层兜底，
+        // 老容器/特殊 webview 下 CSS 失效时仍保触摸流完整）
+        if (this.isDragging) {
+            e.preventDefault();
+        }
     }
 
     private touchend(e: TouchEvent) {
         this.clearLongPress();
+        const wasDragging = this.isDragging;
         if (this.longPressFired) {
             // 长按已触发：吞掉本次抬手（阻止合成 click 执行动作）
             e.preventDefault();
@@ -164,7 +169,18 @@ export class FloatingBallHelper {
             this.cancelDrag();
             return;
         }
+        // 拖拽松手同样吞合成 click——球跟手，触点下就是球本体，click 必中球=意外
+        // 触发动作（拖完弹 Dialog 实锤）；tap 场景不吞（ClickHelper 靠合成事件链）
+        if (wasDragging) e.preventDefault();
         this.mouseup();
+    }
+
+    // 系统手势/来电等打断拖拽（touch 流被取消不 guarantees touchend）：收尾防悬在
+    // dragging 态；菜单/动效状态一并复位（recite 浮条 pointercancel 同款教训）
+    private touchcancel() {
+        this.clearLongPress();
+        this.longPressFired = false;
+        this.cancelDrag();
     }
 
     private mouseup() {

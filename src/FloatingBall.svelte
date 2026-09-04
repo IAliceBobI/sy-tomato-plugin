@@ -66,8 +66,12 @@
         display: flex;
         cursor: pointer;
         /* 尺寸由内层球本体撑起（正方形成立=几何函数 size 假设落地）；标签绝对定位球外不占流 */
+        /* 移动端拖拽防滚动劫持：touch-action 生效看触摸起始元素，wrapper+button 两层都声明
+           （recite 浮条同款先例）；与 Helper 的 touchmove 拖拽中 preventDefault 成对 */
+        touch-action: none;
     }
     .floating-button button {
+        touch-action: none;
         width: var(--bs, 36px);
         height: var(--bs, 36px);
         padding: 0;
