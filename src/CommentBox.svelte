@@ -27,6 +27,7 @@
     import { onDestroy, onMount } from "svelte";
     import { commentBox, CommentBox刷新文档正引 } from "./CommentBox";
     import { openAnnoCollectDialog } from "./AnnoCollectDialog";
+    import { quickCollect } from "./libs/annoCollect";
     import {
         deleteBlock,
         getAttribute,
@@ -746,6 +747,24 @@
                 onclick={() => openAnnoCollectDialog(docID || events.docID)}
             >
                 <svg><use xlink:href="#iconDownload"></use></svg>
+            </button>
+            <button
+                class="tomato-icon-btn"
+                aria-label={tomatoI18n.收集到当天日记说明}
+                onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                onmouseleave={hidePanelTip}
+                onclick={() => void quickCollect(docID || events.docID, "daily")}
+            >
+                <svg><use xlink:href="#iconCalendar"></use></svg>
+            </button>
+            <button
+                class="tomato-icon-btn"
+                aria-label={tomatoI18n.收集到剪贴板说明}
+                onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                onmouseleave={hidePanelTip}
+                onclick={() => void quickCollect(docID || events.docID, "clipboard")}
+            >
+                <svg><use xlink:href="#iconCopy"></use></svg>
             </button>
         </span>
         <span class="tomato-toolbar__group">

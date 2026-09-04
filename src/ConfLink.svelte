@@ -1,7 +1,8 @@
 <script lang="ts">
-    // 设置域组件（□2 设置页重划）：反链与引用——底部反链 / 数据库反链 / 引用修复 / 互链与引用
-    // 选项（自 ConfBlocks 折叠区迁入，pairBarEnabled 门控原样）/ 文本转引用 / 引用外观三卡
-    // （引用括号·效果·渲染为标签，自 ConfEditor 语义归位）。
+    // 设置域组件（□2 设置页重划）：反链与引用——底部反链 / 数据库反链 / 引用修复 / 文本转引用
+    // / 引用外观三卡（引用括号·效果·渲染为标签，自 ConfEditor 语义归位）。互链与引用选项折叠区
+    // 系块配对族配置（pairBarEnabled 门控自证），曾按「引用」字面误归本域，2026-09-03 归位
+    // ConfEditBlock 块配对卡。
     // 各卡整块迁入（内部一行不动），共享样式见 IndexConf.css。
     import TomatoVIP from "./TomatoVIP.svelte";
     import {
@@ -30,10 +31,6 @@
         superRefBoxCheckBox,
         superRefBoxGlobalFixMenu,
         superRefBoxGlobalLnkMenu,
-        linkBoxBilinkMenu,
-        linkBoxLnkTitle,
-        linkBoxUseLnkOrRef,
-        pairBarEnabled,
         tag2RefBoxCheckbox,
         tag2RefSearchLnk,
         tag2RefSearchRef,
@@ -48,7 +45,6 @@
     import { BK启用禁用文档的底部反链 } from "./BackLinkBottomBox";
     import { DbBkBox刷新数据库反链 } from "./DbBkBox";
     import { SuperRefBox全局修复引用, SuperRefBox全局加固引用 } from "./SuperRefBox";
-    import { LinkBoxbilink } from "./LinkBox";
     import { Tag2RefBox模糊查找引用Lnk, Tag2RefBox模糊查找引用Ref } from "./Tag2RefBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
@@ -234,27 +230,6 @@
             </div>
         {/if}
     </div>
-    <!-- 互链与引用选项（自 ConfBlocks.svelte 折叠区迁入；外层块配对总开关门控原样保留） -->
-    {#if $pairBarEnabled}
-        <details class="settingBox">
-            <summary class="section-title">{tomatoI18n.互链与引用选项}<ConfHelpIcon token="DmGUdmtacol9ANxy0Encl1ownfP" /></summary>
-            <div class="softBox">
-                <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
-                <div>
-                    <input type="checkbox" class="b3-switch" bind:checked={$linkBoxBilinkMenu} />
-                    {tomatoI18n.menu添加右键菜单}: {LinkBoxbilink.langText()}
-                </div>
-                <div>
-                    <input type="checkbox" class="b3-switch" bind:checked={$linkBoxLnkTitle} />
-                    {tomatoI18n.给链接加文字}
-                </div>
-                <div>
-                    <input type="checkbox" class="b3-switch" bind:checked={$linkBoxUseLnkOrRef} />
-                    {tomatoI18n.使用链接否则用引用}
-                </div>
-            </div>
-        </details>
-    {/if}
     <!-- 文本转引用 -->
     <div class="settingBox">
         <div class="section-title">

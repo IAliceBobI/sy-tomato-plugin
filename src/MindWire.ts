@@ -17,7 +17,7 @@ import MindWirePending from "./MindWirePending.svelte";
 const dlog = (msg: string) => debugLog("mindwire", msg, "mindwire");
 
 export const MindWire启用或禁用思维导线 = winHotkey("ctrl+alt+enter", "MindWire global", "iconGlobalGraph", () => tomatoI18n.启用或禁用全局思维导线, false, mindWireGlobalMenu)
-export const MindWire启用或禁用文档思维导线 = winHotkey("ctrl+shift+z", "MindWire doc", "iconGraph", () => tomatoI18n.启用或禁用文档思维导线, false, mindWireDocMenu)
+export const MindWire启用或禁用文档思维导线 = winHotkey("ctrl+shift+z", "MindWire doc", "iconWire", () => tomatoI18n.启用或禁用文档思维导线, false, mindWireDocMenu)
 // ⌥⌘L 撞官方 keymap editor.table.moveToLeft（e2e 实锤：官方分支先吞+幽灵 Enter 触发
 // 全局导线开关）；官方 ⌥⌘ 字母仅 H/O/V/Y 空闲（H 有 macOS「隐藏其他」系统键嫌疑），
 // 取 Y（Y 形分叉=连线意象；winHotkey 官方 keymap 对照是注释态，静态比对看不见这类撞）

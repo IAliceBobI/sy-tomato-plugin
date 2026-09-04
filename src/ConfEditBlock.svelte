@@ -11,6 +11,9 @@
         linkBoxSyncRef,
         linkBoxSyncScanDeep,
         linkBoxSyncRemapChildID,
+        linkBoxBilinkMenu,
+        linkBoxLnkTitle,
+        linkBoxUseLnkOrRef,
         pairBarDefaultFunc,
         pairBarEnabled,
         pairBarEntryHotkey,
@@ -137,6 +140,27 @@
                 {tomatoI18n.块图标菜单入口}
             </div>
         </div>
+        <!-- 互链与引用选项（LinkBox 族行为开关。老家 ConfBlocks.svelte 折叠区，□2 曾按「引用」
+             字面误归 ConfLink 反链域，2026-09-03 归位块配对卡——外层 pairBarEnabled 门控随卡体
+             {#if} 天然成立，不再单独挂） -->
+        <details class="settingBox">
+            <summary class="section-title">{tomatoI18n.互链与引用选项}<ConfHelpIcon token="DmGUdmtacol9ANxy0Encl1ownfP" /></summary>
+            <div class="softBox">
+                <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+                <div>
+                    <input type="checkbox" class="b3-switch" bind:checked={$linkBoxBilinkMenu} />
+                    {tomatoI18n.menu添加右键菜单}: {LinkBoxbilink.langText()}
+                </div>
+                <div>
+                    <input type="checkbox" class="b3-switch" bind:checked={$linkBoxLnkTitle} />
+                    {tomatoI18n.给链接加文字}
+                </div>
+                <div>
+                    <input type="checkbox" class="b3-switch" bind:checked={$linkBoxUseLnkOrRef} />
+                    {tomatoI18n.使用链接否则用引用}
+                </div>
+            </div>
+        </details>
         <!-- 同步块选项（自 ConfLinks.svelte 迁入再入折叠区；VIP 两开关与子选项 store 原样） -->
         <details class="settingBox">
             <summary class="section-title">{tomatoI18n.同步块选项}<ConfHelpIcon token="NaSudYNaBoeGqZxnyHFc9QQVneb" /></summary>

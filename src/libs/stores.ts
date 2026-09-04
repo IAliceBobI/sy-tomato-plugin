@@ -376,8 +376,13 @@ export const awaysExitFocusStore = settingFactory("awaysExitFocusStore", false, 
 export const graphBoxCheckbox = settingFactory("graphBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const graphMaxPBlocks = settingFactory("graphMaxPBlocks", 20, STORAGE_SETTINGS, null as TSK);
 export const graphMaxAllBlocks = settingFactory("graphMaxAllBlocks", 800, STORAGE_SETTINGS, null as TSK);
-export const graphClick2Locate = settingFactory("graphClick2Locate", false, STORAGE_SETTINGS, null as TSK);
-export const graphHideStructEdges = settingFactory("graphHideStructEdges", true, STORAGE_SETTINGS, null as TSK);
+// graphbox 期1（2026-09-03）：结构边默认显示（树回归）。存量用户已存的 petal 值不受影响（settingFactory 语义）。
+export const graphHideStructEdges = settingFactory("graphHideStructEdges", false, STORAGE_SETTINGS, null as TSK);
+// graphbox 期2（2026-09-04）：折叠机制默认展开层级（"1"|"2"|"3"|"all"，按标题层级 h1=1；段落链折叠独立于档位）
+export const graphDefaultExpandLevel = settingFactory("graphDefaultExpandLevel", "2", STORAGE_SETTINGS, null as TSK);
+// graphbox 期7（2026-09-04）：默认布局形态（"lr"|"tb"|"vlr"|"vtb"；文档无 custom-graph-layout 时用，
+// 顶栏循环钮写的 per-doc 持久化优先）
+export const graphDefaultLayout = settingFactory("graphDefaultLayout", "lr", STORAGE_SETTINGS, null as TSK);
 export const graphAddTopbarIcon = settingFactory("graphAddTopbarIcon", true, STORAGE_SETTINGS, null as TSK);
 export const graph打开块关系图Menu = settingFactory("graphopengraphMenu", true, STORAGE_SETTINGS, null as TSK);
 export const graph定位到图中的节点Menu = settingFactory("graphlocatetographMenu", true, STORAGE_SETTINGS, null as TSK);

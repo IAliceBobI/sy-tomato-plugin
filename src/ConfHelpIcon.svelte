@@ -9,7 +9,7 @@
     let { token }: { token: string } = $props();
     // token 是一次性 props（挂载时分篇文档 id 定死不响应变化），模板字符串取初始值是故意的
     // svelte-ignore state_referenced_locally
-    const url = `https://awx9773btw.feishu.cn/docx/${token}?from=from_copylink`;
+    const url = `https://my.feishu.cn/docx/${token}?from=from_copylink`;
     const open = () => openHelpDialog(url, helpDocs);
 </script>
 

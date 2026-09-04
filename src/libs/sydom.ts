@@ -1,6 +1,6 @@
 import { Lute } from "siyuan";
 import { BLOCK_REF, BlockNodeEnum, CONTENT_EDITABLE, DATA_AV_ID, DATA_ID, DATA_NODE_ID, DATA_NODE_INDEX, DATA_SUBTYPE, DATA_TYPE, WEB_ZERO_SPACE } from "./gconst";
-import { joinArray, dom2div, NewLute, NewNodeID, siyuan, cloneCleanDiv, setAttribute } from "./utils";
+import { joinArray, dom2div, NewConfiguredLute, NewNodeID, siyuan, cloneCleanDiv, setAttribute } from "./utils";
 import { DocTracer } from "./docUtils";
 
 export function domHeading(id: string, text: string, subtype = "h1") {
@@ -312,7 +312,7 @@ export class DomParaBuilder extends DomBuilder {
  */
 export function md2Divs(md: string, attrs?: AttrType, lute?: Lute): HTMLElement[] {
     if (!md?.trim()) return [];
-    if (!lute) lute = NewLute();
+    if (!lute) lute = NewConfiguredLute();
     const host = document.createElement("div");
     host.innerHTML = lute.Md2BlockDOM(md);
     const divs = [...host.children].filter((el): el is HTMLElement => el instanceof HTMLElement);
@@ -452,7 +452,7 @@ export class AvBuilder extends DomBuilder {
 }
 
 export function text2divs(text: string, lute?: Lute) {
-    if (!lute) lute = NewLute();
+    if (!lute) lute = NewConfiguredLute();
     return text
         .split("\n")
         .map(i => i.trim())

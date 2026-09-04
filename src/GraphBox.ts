@@ -1,29 +1,36 @@
-import { Custom, Dock, IEventBusMap, IProtyle, openTab } from "siyuan";
+import { Dock, IEventBusMap, IProtyle } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { graphAddTopbarIcon, graphBoxCheckbox, graph定位到图中的节点Menu, graph打开块关系图Menu } from "./libs/stores";
-import { siyuan, getDoOperations } from "./libs/utils";
+import { graphAddTopbarIcon, graphBoxCheckbox, graphMaxAllBlocks, graph定位到图中的节点Menu, graph打开块关系图Menu } from "./libs/stores";
+import { siyuan, getDoOperations, sleep } from "./libs/utils";
 import { events, EventType } from "./libs/Events";
 import GraphBoxSvelte from "./GraphBox.svelte";
 import { tomatoI18n } from "./tomatoI18n";
 import { getDocBlocks } from "./libs/docUtils";
-import { DestroyManager } from "./libs/destroyer";
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { mount } from "svelte";
+import { debugLog } from "./libs/logUtils";
+import { skeletonTreeFromHeadings, type HeadingRow } from "./libs/graphSkeleton";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
 const DOCK_TYPE = "dock_GraphBox"
 
-const TAB_TYPE = "custom_tab_GraphBox"
+// graphbox 期1 打点：graphbox 族统一 app="graphbox" stream label（logcli 查 {job="tomato-plugin",app="graphbox"}）
+function gbLog(tag: string, msg: string) {
+    debugLog(tag, msg, "graphbox");
+}
+
+// 大文档「完整加载」后进入全量态：3s 轮询与 ws 自动刷新均降级手动（handoff □1 档 3）。
+// 会话级 Set 不持久化——插件重载后重新预检回骨架态，用户再次「完整加载」才进全量态。
+export const graphFullLoadedBigDocs = new Set<string>();
 
 export const GraphBox定位到图中的节点 = winHotkey("⌘⌥E", "graphLocateNode", "", () => tomatoI18n.定位到图中的节点)
-export const GraphBox打开块关系图 = winHotkey("⇧⌥E", "graphLocateNode open", "iconGraph", () => tomatoI18n.打开块关系图)
+export const GraphBox打开块关系图 = winHotkey("⇧⌥E", "graphLocateNode open", "iconGraphBox", () => tomatoI18n.打开块关系图)
 
 class GraphBox {
     plugin: BaseTomatoPlugin;
-    private customTab: (options: any) => Custom;
     private dock: Dock;
     // 智能刷新相关
     private lastRefreshedUpdated: string = ""; // 上次刷新时的文档 updated 时间戳
@@ -42,7 +49,6 @@ class GraphBox {
     _onload(plugin: BaseTomatoPlugin) {
         if (!graphBoxCheckbox.get()) return;
 
-        this.customTab;
         this.plugin = plugin;
         if (!events.isMobile) {
             this.addDock(); // 添加后有 bug，手机端在文档数更新后，无法显示 topbar icons.
@@ -58,15 +64,15 @@ class GraphBox {
             langText: GraphBox打开块关系图.langText(),
             langKey: GraphBox打开块关系图.langKey,
             hotkey: GraphBox打开块关系图.m,
-            callback: () => this.openGraphTab(),
+            callback: () => this.openGraphDock(),
         });
         if (!events.isMobile) {
             if (graphAddTopbarIcon.get()) {
                 plugin.addTopBar({
-                    icon: "iconGraph",
+                    icon: "iconGraphBox",
                     title: tomatoI18n.打开块关系图,
                     position: "left",
-                    callback: () => this.openGraphTab(),
+                    callback: () => this.openGraphDock(),
                 });
             }
         }
@@ -105,29 +111,6 @@ class GraphBox {
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             this.locateNodeMenu(detail as any);
         });
-
-        this.customTab = this.plugin.addTab({
-            type: TAB_TYPE,
-            init(this) {
-                const id = newID();
-                this.element.innerHTML = `<div id="${id}"></div>`;
-                this.data.sm = new DestroyManager();
-                const svelte = mount(GraphBoxSvelte, {
-                    target: this.element.querySelector("#" + id),
-                    props: {
-                        dock: this as any,
-                        plugin,
-                        landscapeSwitchBtnID: "",
-                    }
-                });
-                this.data.sm.add("custom", () => { this.destroy(); });
-                this.data.sm.add("svelte", () => { svelte.destroy(); });
-            },
-            beforeDestroy() { },
-            destroy() {
-                this.data.sm.destroyBy("custom");
-            }
-        });
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
@@ -152,6 +135,11 @@ class GraphBox {
     // 检查文档 updated 时间戳，决定是否需要刷新
     private async checkAndRefresh(docID: string) {
         try {
+            if (graphFullLoadedBigDocs.has(docID)) return; // 巨书全量态：自动刷新降级手动（Panel 刷新按钮）
+            // 期4 P1：定位脉冲窗口内不刷新（expandTo 写属性→ws 回流的 changeDoc 会重建节点
+            // DOM 打断脉冲+fitView 打回 setCenter）；窗口后 updated 若仍≠last 会正常补刷
+            const d = this.getData() as any;
+            if (d?.suppressAutoRefreshUntil && Date.now() < d.suppressAutoRefreshUntil) return;
             // 查询文档当前的 updated 时间戳
             const row = await siyuan.sqlOne(`SELECT updated FROM blocks WHERE id = "${docID}" AND type = "d"`);
             const currentUpdated = row?.updated;
@@ -161,9 +149,9 @@ class GraphBox {
                 return;
             }
 
-            // 时间戳有变化，执行刷新
+            // 时间戳有变化，执行刷新；refreshOnly=同文档内容刷新不 fitView（保用户/定位视图）
             this.lastRefreshedUpdated = currentUpdated || "";
-            this.getData()?.changeDoc(events.protyle?.protyle);
+            this.getData()?.changeDoc(events.protyle?.protyle, true);
         } catch (e) {
             console.warn("[GraphBox] checkAndRefresh error:", e);
         }
@@ -181,17 +169,19 @@ class GraphBox {
         }
     }
 
-    async openGraphTab() {
-        await openTab({
-            app: this.plugin.app,
-            position: "right",
-            custom: {
-                icon: "iconGraph",
-                title: tomatoI18n.块关系图,
-                data: { docID: events.docID, blockID: events.lastBlockID }, // getCursorElement
-                id: this.plugin.name + TAB_TYPE
-            },
-        });
+    // 期4：页签通道退役统一 dock——幂等激活左下 dock 并拉取当前编辑器文档
+    // （首次开启 dock init 异步挂 svelte，轮询等就绪；图空/非当前文档时主动 changeDoc）
+    openGraphDock() {
+        this.ensureDockVisible();
+        (async () => {
+            for (let i = 0; i < 40 && !this.getData()?.svelte; i++) await sleep(50);
+            const data = this.getData();
+            const curDoc = events.docID;
+            if (data?.svelte && curDoc && data.getGraphState?.().docID !== curDoc) {
+                const { docName } = await events.selectedDivs(events.protyle?.protyle);
+                await data.changeDoc(this.protyleForChangeDoc(undefined, curDoc, docName));
+            }
+        })();
     }
 
     locateNodeMenu(detail: TomatoMenu) {
@@ -199,22 +189,80 @@ class GraphBox {
         if (!events.isMobile) {
             addIfVisible(menu, GraphBox定位到图中的节点.langKey, {
                 label: GraphBox定位到图中的节点.langText(),
-                icon: "iconGraph",
+                icon: "iconGraphBox",
                 accelerator: GraphBox定位到图中的节点.m,
                 click: () => this.locateNode(detail.protyle),
             }, graph定位到图中的节点Menu.get());
             addIfVisible(menu, GraphBox打开块关系图.langKey, {
                 label: GraphBox打开块关系图.langText(),
-                icon: "iconGraph",
+                icon: "iconGraphBox",
                 accelerator: GraphBox打开块关系图.m,
-                click: () => this.openGraphTab(),
+                click: () => this.openGraphDock(),
             }, graph打开块关系图Menu.get());
         }
     }
 
-    private async locateNode(protyle: IProtyle) {
-        const { ids } = await events.selectedDivs(protyle)
-        await this.getData()?.locateID(ids[0]);
+    // 期4 块→图定位完整链路：开 dock→图上非该文档自动切换→expandTo→居中脉冲→
+    // 找不到 toast 原因（骨架态/超上限），永不静默（现状病灶=dock 未开/文档不同/折叠/截断全静默）
+    private async locateNode(protyle?: IProtyle) {
+        const { ids, docID, docName } = await events.selectedDivs(protyle);
+        const id = ids?.[0] || events.lastBlockID;
+        gbLog("graph.locate_req", `id=${(id || "").slice(0, 8)} doc=${(docID || "").slice(0, 8)}`);
+        if (!id) {
+            siyuan.pushMsg(tomatoI18n.定位需先选中块, 3000);
+            return;
+        }
+        this.ensureDockVisible();
+        for (let i = 0; i < 60 && !this.getData()?.svelte; i++) await sleep(50); // dock init 异步挂载
+        const data = this.getData();
+        if (!data?.svelte || !data.changeDoc) {
+            siyuan.pushMsg(tomatoI18n.定位dock未就绪, 3000);
+            return;
+        }
+        if (docID && data.getGraphState?.().docID !== docID) {
+            await data.changeDoc(this.protyleForChangeDoc(protyle, docID, docName));
+        }
+        const found = await data.locateID(id);
+        gbLog("graph.locate_done", `found=${found}`);
+        if (!found) {
+            const st = data.getGraphState?.();
+            siyuan.pushMsg(
+                st?.mode === "skeleton"
+                    ? tomatoI18n.定位骨架未含此块
+                    : tomatoI18n.定位超上限.replace("%1", `${st?.maxBlocks ?? graphMaxAllBlocks.get()}`),
+                4000,
+            );
+        }
+    }
+
+    // changeDoc 只读 title.editElement.textContent 与 block.rootID 两字段；events 单例侧
+    // protyle 的 title 可能未渲染（标题异步/未激活页签）→ docName 空被 _changeDoc_ 静默
+    // return（期4 e2e 实锤）。真 protyle 标题空时按同款两字段伪造（docName 走 selectedDivs
+    // 的 getDocNameByBlockID 兜底链，永不为空）
+    private protyleForChangeDoc(protyle: IProtyle | undefined, docID: string, docName?: string): IProtyle {
+        const p = protyle ?? events.protyle?.protyle;
+        if (p?.title?.editElement?.textContent) return p;
+        return {
+            title: { editElement: { textContent: docName || docID } },
+            block: { rootID: docID },
+        } as unknown as IProtyle;
+    }
+
+    // 幂等确保 dock 面板可见——toggleModel(type, show=true) 对已激活面板是 toggle 收起语义
+    // （内核 dock/index.ts show 分支先摘 active），先判激活态；panelVisible=false 的
+    // restorePanel 分支可安全重入（仅展开面板区不收起）。
+    // type 必须用内核 addDock 的完整键 plugin.name+DOCK_TYPE（DOM data-type/toggleModel/
+    // leftDock.data 三处同源；传裸 DOCK_TYPE=querySelector 落空+内核 target null 直接
+    // TypeError，2026-09-04 e2e 实锤）
+    private ensureDockVisible() {
+        const layoutDock = (window.siyuan as any).layout?.leftDock;
+        if (!layoutDock) return;
+        const fullType = this.plugin.name + DOCK_TYPE;
+        const item = document.querySelector(`.dock__item[data-type="${fullType}"]`);
+        const active = item?.classList.contains("dock__item--active");
+        if (!active || layoutDock.panelVisible === false) {
+            layoutDock.toggleModel(fullType, true);
+        }
     }
 
     private getData(model?: Dock): GraphDockData<GraphBoxSvelte> {
@@ -231,7 +279,7 @@ class GraphBox {
             config: {
                 position: "LeftBottom",
                 size: { width: 1000, height: 1000 },
-                icon: "iconGraph",
+                icon: "iconGraphBox",
                 title: tomatoI18n.块关系图,
                 hotkey: "⌥⌘Z",
             },
@@ -251,7 +299,7 @@ class GraphBox {
                 const eleID = newID();
                 if (events.isMobile) {
                     dock.element.innerHTML = `<div class="toolbar toolbar--border toolbar--dark">
-                        <svg class="toolbar__icon"><use xlink:href="#iconGraph"></use></svg>
+                        <svg class="toolbar__icon"><use xlink:href="#iconGraphBox"></use></svg>
                             <div class="toolbar__text">${tomatoI18n.块关系图}</div>
                         </div>
                         <div id="${eleID}"></div>
@@ -260,15 +308,16 @@ class GraphBox {
                     dock.element.innerHTML = `<div class="fn__flex-1 fn__flex-column">
                         <div class="block__icons">
                             <div class="block__logo">
-                                <svg class="block__logoicon"><use xlink:href="#iconGraph"></use></svg>${tomatoI18n.块关系图}
-                            </div>
-                            <div class="block__logo">
-                                <button id="${landscapeSwitchBtnID}" class="b3-button b3-button--outline tomato-button">${tomatoI18n.切换横向与纵向}</button>
+                                <svg class="block__logoicon"><use xlink:href="#iconGraphBox"></use></svg>${tomatoI18n.块关系图}
                             </div>
                             <span class="fn__flex-1 fn__space"></span>
+                            <span id="${landscapeSwitchBtnID}" role="button" tabindex="0"
+                                  class="block__icon b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.切换布局形态.replace("%1", tomatoI18n.形态横排向右)}">
+                                <svg><use id="${landscapeSwitchBtnID}-icon" xlink:href="#iconGraphLayoutLR"></use></svg>
+                            </span>
                             <span data-type="min" class="block__icon b3-tooltips b3-tooltips__sw" aria-label="Min"><svg><use xlink:href="#iconMin"></use></svg></span>
                         </div>
-                        <div id="${eleID}"></div>
+                        <div id="${eleID}" class="fn__flex-1"></div>
                     </div>`;
                 }
                 this.dock = dock as any;
@@ -470,17 +519,29 @@ function shortenParagraphLink(rows: Block[], maxPBlocks: number) {
     return rows;
 }
 
+function refsSqlFor(docID: string) {
+    // limit 必须显式给：思源 SQL API 对不带 limit 的查询默认截 64 行（AGENTS「SQL 截尾」坑，
+    // 2026-09-04 dev 实测 100 条引用边只回 64——全量管线历史行为一并修掉）
+    return `
+        select root_id,def_block_parent_id,content,def_block_root_id,def_block_id,block_id from refs
+        where root_id="${docID}"
+        or def_block_parent_id="${docID}"
+        or def_block_root_id="${docID}"
+        or def_block_id="${docID}"
+        or block_id="${docID}"
+        limit 100000
+    `;
+}
+
 export async function getData(docID: string, docName: string, maxPBlocks: number, blockLimit: number) {
-    const taskRefs = siyuan.sqlRef(`
-        select root_id,def_block_parent_id,content,def_block_root_id,def_block_id,block_id from refs 
-        where root_id="${docID}" 
-        or def_block_parent_id="${docID}" 
-        or def_block_root_id="${docID}" 
-        or def_block_id="${docID}" 
-        or block_id="${docID}" 
-    `);
+    const tRefs = performance.now();
+    const taskRefs = siyuan.sqlRef(refsSqlFor(docID));
+    taskRefs.then(rs => gbLog("graph.sql_ref", `refs=${rs.length} ${Math.round(performance.now() - tRefs)}ms`));
     let refs: Ref[];
-    const rows = await getDocBlocks(docID, docName, true, false)
+    const tDom = performance.now();
+    const domP = getDocBlocks(docID, docName, true, false);
+    domP.then(() => gbLog("graph.get_block_dom", `${Math.round(performance.now() - tDom)}ms`));
+    const rows = await domP
         .then(({ root }) => unfoldBlocks(root))
         .then(rows => shortenParagraphLink(rows, maxPBlocks))
         .then(rows => rows.filter(r => r.data !== 'del'))
@@ -501,7 +562,6 @@ export async function getData(docID: string, docName: string, maxPBlocks: number
             const ids = refs
                 .map((r) => {
                     r.isRef = true;
-                    r.content = r.content?.slice(0, 4) ?? "";
                     return [
                         r.root_id,
                         r.def_block_parent_id,
@@ -537,5 +597,57 @@ export async function getData(docID: string, docName: string, maxPBlocks: number
             row.docName = otherName;
         }
     }
+    gbLog("graph.tree_build", `rows=${rows.length} links=${refs.length}`);
     return { rows, links: refs };
+}
+
+// graphbox 期1 预检：count+length 毫秒级（AGENTS 性能锚点：巨书 getBlockDOM 25~39s/24MB 绝不无脑全量）。
+// 失败返回 null，调用方按 full 容错（= 现状行为）。索引延迟（刚建文档回旧行）可容忍——骨架只是预览。
+export async function precheckDocSize(docID: string): Promise<{ cnt: number; totalLen: number } | null> {
+    try {
+        const t0 = performance.now();
+        const row: any = await siyuan.sqlOne(`select count(*) as cnt, sum(length) as totalLen from blocks where root_id="${docID}"`);
+        const stat = { cnt: row?.cnt ?? 0, totalLen: row?.totalLen ?? 0 };
+        gbLog("graph.precheck", `doc=${docID.slice(0, 8)} blocks=${stat.cnt} len=${stat.totalLen} ${Math.round(performance.now() - t0)}ms`);
+        return stat;
+    } catch (e) {
+        gbLog("graph.precheck_err", `${e}`);
+        return null;
+    }
+}
+
+// graphbox 期1 骨架轻通道：SQL 标题行拼章节树 + 引用边照画（refs SQL 独立便宜）+ 跨文档端点补节点。
+// 产物与全量 getData 同构 {rows, links}，渲染层 applyRowsAndLinks 零分叉。
+export async function getGraphSkeleton(docID: string, docName: string) {
+    const t0 = performance.now();
+    const headings = (await siyuan.sql(
+        // limit 显式给：思源 SQL API 无 limit 默认截 64 行（2026-09-04 dev 实测 100 标题只回 64）
+        `select id,content,subtype,hpath from blocks where root_id="${docID}" and type='h' order by id limit 100000`
+    )) as HeadingRow[] ?? [];
+    gbLog("graph.skeleton_sql", `headings=${headings.length} ${Math.round(performance.now() - t0)}ms`);
+    const { rows, links } = skeletonTreeFromHeadings(docID, docName, headings);
+    const rowIDs = new Set(rows.map(r => r.id));
+    const refs = await siyuan.sqlRef(refsSqlFor(docID));
+    const ids = refs
+        .map((r) => {
+            r.isRef = true;
+            return [r.root_id, r.def_block_parent_id, r.def_block_root_id, r.def_block_id, r.block_id];
+        })
+        .flat()
+        .filter(i => i && !rowIDs.has(i));
+    rows.push(...await siyuan.getRows([...new Set(ids)], "content,type,subtype,root_id,parent_id", false));
+    const docNameCache = new Map<string, string>();
+    for (const row of rows) {
+        if (row.root_id != docID) {
+            const otherID = row.root_id;
+            let otherName = docNameCache.get(otherID);
+            if (!otherName) {
+                otherName = (await siyuan.getRowByID(otherID))?.content;
+                docNameCache.set(otherID, otherName);
+            }
+            row.docName = otherName;
+        }
+    }
+    gbLog("graph.skeleton_build", `rows=${rows.length} links=${links.length + refs.length}`);
+    return { rows, links: [...links, ...refs] };
 }

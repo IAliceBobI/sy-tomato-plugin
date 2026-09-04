@@ -1016,3 +1016,18 @@ html[data-theme-mode="dark"] .protyle-wysiwyg span[data-type="a"][data-href^="#t
   bottom: auto;
   top: -7px;
 }
+
+// graphbox 期4 单击轻联动：编辑器对应块淡高亮 2s 渐隐（不滚动不抢焦点）。
+// animation 不带 fill-mode，结束后回块原背景（标记色块视觉上被淡蓝盖后渐隐还原）。
+.protyle-wysiwyg .tomato-graph-flash {
+  animation: tomato-graph-flash 2s ease-out;
+}
+
+@keyframes tomato-graph-flash {
+  0% {
+    background-color: var(--b3-theme-primary-lightest);
+  }
+  100% {
+    background-color: transparent;
+  }
+}

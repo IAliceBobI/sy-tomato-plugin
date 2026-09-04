@@ -68,12 +68,21 @@
 {/if}
 
 <style>
+    /* 引用边锚文本标签（spec §3.3 定稿）：淡蓝底=与引用边同通道编码；
+     * pointer-events none=纯展示，挡拖拽即 bug */
     :global(.edge-label-custom) {
-        background: var(--b3-theme-background, #fff);
-        padding: 2px 6px;
-        border-radius: 3px;
+        background: var(--b3-theme-primary-lightest);
+        color: var(--b3-theme-on-background);
         font-size: 11px;
-        border: 1px solid var(--b3-border-color, #ddd);
+        line-height: 1.3;
+        padding: 1px 6px;
+        border: 1px solid color-mix(in srgb, var(--b3-theme-primary) 30%, transparent);
+        border-radius: 4px;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
         white-space: nowrap;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        pointer-events: none;
     }
 </style>

@@ -80,6 +80,11 @@
 .tomato-settings-dialog .settingBox > div:not(:first-child) {
     margin-left: 5%;
 }
+/* □3 批注卡「右键菜单项」五行：label 直接子代逃过上面 > div 缩进规则（ConfGeneral 里
+ * 同款 label 包在 .tomato-menu-manage-group div 内不受影响），补齐与卡内开关行同列 */
+.tomato-settings-dialog .settingBox > label.tomato-menu-manage-item {
+    margin-left: 5%;
+}
 /* ── 行内帮助行（2026-08-30 spec □2）──────────────────────────
  * 放在所属行 div 内部第二段（非兄弟节点）：天然紧贴所属行、searchSettings 按行过滤不受影响；
  * 属于缩进列（.settingBox > div:not(:first-child) 的 5%）内部内容，不再额外缩进。

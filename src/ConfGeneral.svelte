@@ -11,7 +11,14 @@
     import { addFoldCmd折叠, addFoldCmd展开 } from "./fold";
     import { SPACE } from "./libs/gconst";
     import { onDestroy } from "svelte";
-    import { MENU_MANAGE_GROUPS, type ManagedMenuItem } from "./libs/menuItemRegistry";
+    import {
+        MENU_MANAGE_GROUPS,
+        EXPORT_CARD_MENU_ITEMS,
+        ANNO_CARD_MENU_ITEMS,
+        menuItemSelected,
+        nextHiddenKeys,
+        type ManagedMenuItem,
+    } from "./libs/menuItemRegistry";
     import { menuKeyHidden, menuHiddenKeys } from "./libs/menuManager";
     import {
         exportBlackList,
@@ -70,36 +77,33 @@
     let { codeValid }: { codeValid: boolean } = $props();
     let codeNotValid = $derived(!codeValid);
 
-    // 右键菜单管理（□4）：checkbox 勾=显示；有独立开关的项绑 store（与各功能区开关同一数据），
-    // 无开关项读写 hiddenMenuItems 隐藏集。toggle 只改内存，面板关闭由 IndexConf 统一落盘。
+    // 右键菜单管理（□4）：checkbox 勾=显示；三层合成判定与隐藏集变更走 menuItemRegistry
+    // 共享纯函数（ConfAI 批注卡同用，勿在组件层复制）。toggle 只改内存，面板关闭由
+    // IndexConf 统一落盘。显示分支连 store/master 一并打开（功能区总开关关着时勾了也不出现）
     let menuManageTick = $state(0);
-    // checkbox 忠实反映「菜单项当前是否显示」：隐藏集优先 + 有独立开关的还要开关开
-    // + 挂 master（功能区总开关）的还要总开关开（三层合成一个视图，master 关时勾了也不出现，
-    // 故 toggle 显示分支连 master 一并打开）；toggle 统一走隐藏集——隐藏=加 key，
-    // 显示=删 key 且确保开关开（有 store 的项在此开 = 功能区开关同步开，同一数据两个视图）
-    function menuItemSelected(item: ManagedMenuItem): boolean {
-        if (menuKeyHidden(item.key)) return false;
-        if (item.master && !item.master.get()) return false;
-        return item.store ? item.store.get() : true;
-    }
+    const itemShown = (item: ManagedMenuItem) => menuItemSelected(item, menuKeyHidden);
     function toggleMenuItem(item: ManagedMenuItem, ev: Event) {
         const target = ev.currentTarget as HTMLInputElement;
-        const checked = target?.checked ?? !menuItemSelected(item);
+        const checked = target?.checked ?? !itemShown(item);
+        hiddenMenuItems.set(nextHiddenKeys(menuHiddenKeys(), item.key, checked));
         if (checked) {
-            hiddenMenuItems.set(menuHiddenKeys().filter((k: string) => k !== item.key));
             item.store?.set(true);
             item.master?.set(true);
-        } else {
-            const arr = [...menuHiddenKeys()];
-            if (!arr.includes(item.key)) arr.push(item.key);
-            hiddenMenuItems.set(arr);
         }
         menuManageTick++;
     }
     function showAllMenuItems() {
         hiddenMenuItems.set([]);
-        for (const g of MENU_MANAGE_GROUPS) {
-            for (const it of g.items) it.store?.set(true);
+        // □3 补全：功能卡常量（导出白/黑名单、批注五项）一并恢复——否则「全部显示」清了
+        // 隐藏集却不开它们的 master（总开关），勾选态照旧 false，恢复语义缺口
+        const all = [
+            ...MENU_MANAGE_GROUPS.flatMap((g) => g.items),
+            ...EXPORT_CARD_MENU_ITEMS,
+            ...ANNO_CARD_MENU_ITEMS,
+        ];
+        for (const it of all) {
+            it.store?.set(true);
+            it.master?.set(true);
         }
         menuManageTick++;
     }
@@ -228,6 +232,24 @@
                 </div>
             {/if}
 
+            <!-- 白/黑名单右键菜单入口（2026-09-03 归位：自右键菜单管理卡迁入，语义严格属于导出
+                 工作空间且运行时注册本就受本卡总开关门控，开关行随 {#if} 卡体隐藏两边一致）。
+                 文档树右键命令的显隐开关，行式沿杂项卡「添加右键菜单:」前缀防读成名单过滤功能开关；
+                 无独立 store 走 hiddenMenuItems 隐藏集，{#key} 同管理卡防 toggle 后 checkbox 不刷新 -->
+            {#key menuManageTick}
+                {#each EXPORT_CARD_MENU_ITEMS as item (item.key)}
+                    <div>
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            checked={itemShown(item)}
+                            onchange={(ev) => toggleMenuItem(item, ev)}
+                        />
+                        {tomatoI18n.menu添加右键菜单}: {item.label()}
+                    </div>
+                {/each}
+            {/key}
+
             <!-- ② 导出目录（placeholder 修正：Windows 显示 Windows 风格示例、其他平台显示 POSIX 风格示例；
                  旧代码两分支互换且 Windows 误挂 $exportPath，见 spec §3.2 行为修正） -->
             <div class="tomato-group-title">{tomatoI18n.导出目录}</div>
@@ -352,7 +374,7 @@
                         <input
                             type="checkbox"
                             class="b3-switch"
-                            checked={menuItemSelected(item)}
+                            checked={itemShown(item)}
                             onchange={(ev) => toggleMenuItem(item, ev)}
                         />
                         <span class="fn__space"></span>

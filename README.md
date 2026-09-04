@@ -59,8 +59,8 @@ A 24-in-1 productivity toolbox for SiYuan: time management, document editing, fl
 
 ## Docs & Community
 
-- 📖 **[Documentation](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)** (Chinese, with GIFs & videos for every feature)
-- 🙏 [Acknowledgments](https://awx9773btw.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
+- 📖 **[Documentation](https://my.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)** (Chinese, with GIFs & videos for every feature)
+- 🙏 [Acknowledgments](https://my.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
 - 💬 [QQ Group](https://pd.qq.com/s/r3jz0g16) (Chinese) — feedback and feature requests
 - 💬 [Feishu Group](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=f08gff0c-d6b0-4a0d-8323-c8a0553e4fff&qr_code=true) (Chinese) — feedback and feature requests
 - 📱 Scan to join: ![Group QR codes (left: QQ Channel, right: Feishu)](group-qr.png)

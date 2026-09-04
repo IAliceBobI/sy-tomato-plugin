@@ -97,7 +97,7 @@ const BAR_ROOT_ID = "tomato-pair-bar-root";
 const GB_CLEANUP_KEY = "tomatoPairBarCleanup";
 const DROP_HINT_CLS = "tomato-pairbar-droptarget";
 // 帮助文档（体验增强 □2）：篇目含用法速览/六功能一览/小贴士；token 快照已在 help.json
-const PAIRBAR_HELP_URL = "https://awx9773btw.feishu.cn/docx/TYSCdAHHFoZUhrxy7IdcBri6n1c";
+const PAIRBAR_HELP_URL = "https://my.feishu.cn/docx/TYSCdAHHFoZUhrxy7IdcBri6n1c";
 
 type PairBarApi = {
     /** funcs 面板点功能钮 → 进框态（换功能时控制器带区间映射） */

@@ -22,6 +22,7 @@
         commentBoxAnnoToolbar,
         commentBoxPanelSkin,
         commentBoxShowID,
+        hiddenMenuItems,
     } from "./libs/stores";
     import { AIBoxHotkey } from "./AIBox";
     import { CozeSearchBoxHotkey } from "./CozeSearchBox";
@@ -30,6 +31,26 @@
     import { applyAnnoVisual } from "./Annotations";
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
+    import {
+        ANNO_CARD_MENU_ITEMS,
+        menuItemSelected,
+        nextHiddenKeys,
+        type ManagedMenuItem,
+    } from "./libs/menuItemRegistry";
+    import { menuKeyHidden, menuHiddenKeys } from "./libs/menuManager";
+
+    // 右键菜单项逐项显隐（□3 2026-09-04）：与 ConfGeneral 管理卡同款薄包装——三层合成
+    // 判定与隐藏集变更在 menuItemRegistry 共享纯函数，勿在组件层复制；勾任一项自动开
+    // 总开关（master）。toggle 只改内存，面板关闭由 IndexConf 统一落盘。
+    let menuManageTick = $state(0);
+    const itemShown = (item: ManagedMenuItem) => menuItemSelected(item, menuKeyHidden);
+    function toggleMenuItem(item: ManagedMenuItem, ev: Event) {
+        const target = ev.currentTarget as HTMLInputElement;
+        const checked = target?.checked ?? !itemShown(item);
+        hiddenMenuItems.set(nextHiddenKeys(menuHiddenKeys(), item.key, checked));
+        if (checked) item.master?.set(true);
+        menuManageTick++;
+    }
 </script>
 
     <!-- 人工智能 -->
@@ -97,6 +118,25 @@
                 {tomatoI18n.menu添加右键菜单}
                 <HotkeyCap hk={CommentBox添加批注} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
+            <!-- 右键菜单项逐项显隐（□3）：数据源 ANNO_CARD_MENU_ITEMS，样式沿用管理卡同款
+                 （IndexConf.css 共享）；收集四项已是命令（无默认键，思源键位设置可自绑），
+                 file 项的「有目标记忆才显示」是数据前提，开关只管用户意图 -->
+            <div class="tomato-group-title">{tomatoI18n.右键菜单项}</div>
+            {#key menuManageTick}
+                {#each ANNO_CARD_MENU_ITEMS as item (item.key)}
+                    <label class="fn__flex fn__flex-center tomato-menu-manage-item">
+                        <input
+                            type="checkbox"
+                            class="b3-switch"
+                            checked={itemShown(item)}
+                            onchange={(ev) => toggleMenuItem(item, ev)}
+                        />
+                        <span class="fn__space"></span>
+                        <span class="tomato-menu-manage-label">{item.label()}</span>
+                    </label>
+                {/each}
+            {/key}
+            <div class="helpText">{tomatoI18n.收集到文件项说明}</div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$commentBoxAnnoToolbar} />
                 {tomatoI18n.划词工具条批注入口}

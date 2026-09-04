@@ -24,7 +24,7 @@ import { mount } from "svelte";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
-export const LinkBox查看所有同步位置 = winHotkey("F1", "list refs show all place", "iconGraph", () => tomatoI18n.查看所有同步位置)
+export const LinkBox查看所有同步位置 = winHotkey("F1", "list refs show all place", "iconLink", () => tomatoI18n.查看所有同步位置)
 export const LinkBox同步块选择 = winHotkey("⌘F1", "list refs select", "", () => tomatoI18n.同步块选择)
 export const LinkBox同步块创建 = winHotkey("⌘F2", "list refs create", "", () => tomatoI18n.同步块创建)
 export const LinkBoxbilink = winHotkey("⌥/", "bilink", "iconBoth", () => tomatoI18n.双向互链)

@@ -792,25 +792,7 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
                 return "Insert references mutually below - Create";
         }
     }
-    public get 切换横向与纵向() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "切换横向与纵向";
-            case "es_ES":
-                return "Cambiar entre horizontal y vertical";
-            case "fr_FR":
-                return "Basculer entre horizontal et vertical";
-            case "ja_JP":
-                return "横向と縦向を切り替える";
-            case "zh_CHT":
-                return "切換橫向與縱向";
-            case "it_IT":
-                return "Cambia tra orizzontale e verticale";
-
-            default:
-                return "Switch between horizontal and vertical";
-        }
-    }
+    // 「切换横向与纵向」随期7 四态形态循环钮退役删除（新文案=切换布局形态，tomatoI18n）
     public get 删除所选段落() {
         switch (this.lang) {
             case "zh_CN":
@@ -847,25 +829,6 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
 
             default:
                 return "Adding reading point";
-        }
-    }
-    public get 左键点击节点跳转到文档() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "左键点击节点跳转到文档";
-            case "es_ES":
-                return "Haz clic con el botón izquierdo en el nodo para ir al documento";
-            case "fr_FR":
-                return "Cliquez avec le bouton gauche sur le nœud pour accéder au document";
-            case "ja_JP":
-                return "ノードを左クリックしてドキュメントに移動";
-            case "zh_CHT":
-                return "左鍵點擊節點跳轉到文件";
-            case "it_IT":
-                return "Fai clic sinistro sul nodo per accedere al documento";
-
-            default:
-                return "Left-click the node to navigate to the document";
         }
     }
     public get 极简无序列表样式() {

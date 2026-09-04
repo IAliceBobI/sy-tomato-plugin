@@ -84,6 +84,36 @@ class CommentBox {
             },
         });
 
+        // 三直发项命令化（2026-09-04 □2 拍板）：同上无默认键留用户键位设置自绑；langKey 与
+        // 右键菜单项同一 key（菜单/命令面板显隐走 hiddenMenuItems 一处藏两处消失）；file 项
+        // 无「菜单有目标记忆才显示」前提——命令无记忆时 fallback 开收集小窗，不闷声没反应
+        this.plugin.addCommand({
+            langKey: "anno collect clipboard",
+            langText: `${tomatoI18n.收集批注} → ${tomatoI18n.剪贴板}`,
+            editorCallback: (protyle: IProtyle) => {
+                void quickCollect(protyle.block.rootID, "clipboard");
+            },
+        });
+        this.plugin.addCommand({
+            langKey: "anno collect daily",
+            langText: `${tomatoI18n.收集批注} → ${tomatoI18n.当天日记}`,
+            editorCallback: (protyle: IProtyle) => {
+                void quickCollect(protyle.block.rootID, "daily");
+            },
+        });
+        this.plugin.addCommand({
+            langKey: "anno collect file",
+            langText: `${tomatoI18n.收集批注} → ${tomatoI18n.收集到文件}`,
+            editorCallback: (protyle: IProtyle) => {
+                const rootID = protyle.block.rootID;
+                if (annoCollectTargetDoc.get()) {
+                    void quickCollect(rootID, "file");
+                } else {
+                    openAnnoCollectDialog(rootID);
+                }
+            },
+        });
+
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
             if (commentBoxMenu.get()) {
@@ -144,18 +174,18 @@ class CommentBox {
             label: tomatoI18n.收集批注,
             click: () => openAnnoCollectDialog(rootID),
         });
-        addIfVisible(menu, "m.annoCollect.clipboard", {
+        addIfVisible(menu, "anno collect clipboard", {
             icon: "iconCopy",
             label: `${tomatoI18n.收集批注} → ${tomatoI18n.剪贴板}`,
             click: () => void quickCollect(rootID, "clipboard"),
         });
-        addIfVisible(menu, "m.annoCollect.daily", {
+        addIfVisible(menu, "anno collect daily", {
             icon: "iconCalendar",
             label: `${tomatoI18n.收集批注} → ${tomatoI18n.当天日记}`,
             click: () => void quickCollect(rootID, "daily"),
         });
         if (targetDoc && targetName) {
-            addIfVisible(menu, "m.annoCollect.file", {
+            addIfVisible(menu, "anno collect file", {
                 icon: "iconFile",
                 label: `${tomatoI18n.收集批注} → ${tomatoI18n.收集到文件}：《${targetName}》`,
                 click: () => void quickCollect(rootID, "file"),

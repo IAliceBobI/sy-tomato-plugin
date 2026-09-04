@@ -4,11 +4,12 @@
 import { parseAnnotations } from "./annotationsAttr";
 import type { AnnoPanelItem } from "./annoPanelList";
 import { siyuan } from "./utils";
-import { NewLute } from "./globals";
+import { NewConfiguredLute } from "./globals";
 import { lastVerifyResult, isMe } from "./user";
 import { resolveDailyNotebookID } from "./annoDraft";
+import { events } from "./Events";
 import { tomatoI18n } from "../tomatoI18n";
-import { annoCollectScope, annoCollectDest, annoCollectTargetDoc } from "./stores";
+import { annoCollectScope, annoCollectDest, annoCollectTargetDoc, commentBoxAnnoDraftNotebook } from "./stores";
 import { debugLog } from "./logUtils";
 // openUnlockDialog 走动态 import：unlockDialog → UnlockDialog.svelte 链会把 svelte 组件
 // 卷进本模块，单测（node 环境无 svelte 插件）suite 级挂掉；CJS 打包动态导入被内联无副作用
@@ -46,15 +47,25 @@ export function subtreePrefix(path: string): string {
     return path.slice(0, -3) + "/";
 }
 
-/** 片段：按码点截 limit 加 …，文本内 " 转义 \"（块引用锚文本语法要求） */
+/** 片段：按码点截 limit 加 …，文本内 " 转义 \"（块引用锚文本语法要求）；
+ *  换行折叠为空格——跨块批注 sel.txt 与容器块 content 天然含 \n，锚文本是行内语法 */
 export function clipSnippet(txt: string, limit = 100): string {
-    const cps = [...txt];
-    const cut = cps.length > limit ? cps.slice(0, limit).join("") + "…" : txt;
+    const flat = txt.replace(/\s*(?:\r\n|\r|\n)+\s*/g, " ").trim();
+    const cps = [...flat];
+    const cut = cps.length > limit ? cps.slice(0, limit).join("") + "…" : flat;
     return cut.replaceAll('"', '\\"');
 }
 
 export function refLineMarkdown(hostID: string, snippet: string): string {
     return `> ((${hostID} "${snippet}"))`;
+}
+
+/** 「收集 → 当天日记」落本：用户设置（含启动注入的官方默认，initAnnoDraftNotebookDefault）
+ *  > 官方判定；皆空返回 "" 报错指路——不兜底当前笔记本（静默落随手所在本太魔法；
+ *  草稿链有第三档是草稿语义无感，收集是用户明确要「去日记」的动作）。
+ *  与草稿链 ensureDraftDocID 前两档同序（annoDraft.ts）。 */
+export function dailyCollectBoxID(configured: string, officialResolved: string): string {
+    return configured || officialResolved;
 }
 
 export function sectionHeadingMD(scopeName: string, md: string, attrValue: string): string {
@@ -219,7 +230,16 @@ async function findSectionHeading(targetDocID: string, attrValue: string): Promi
  *  （e2e 实锤 ## 标题/块引用全落成 p，引用跳转失效），须先 Md2BlockDOM。 */
 let _lute: { Md2BlockDOM: (md: string) => string } | null = null;
 function luteForCollect(): { Md2BlockDOM: (md: string) => string } {
-    if (!_lute) _lute = NewLute() as any; // 惰性：模块顶层建会在单测 node 环境炸（无 globalThis.Lute）
+    if (_lute) return _lute;
+    // 裸 NewLute 不解析块引用等行内语法（SetBlockRef 等旗标默认关）——引用行整条落成
+    // 字面 ((id "…")) 文本、卡片富文本全平（2026-09-04 群反馈「收集后没转成引用」根因，
+    // annodaily 实例 DOM 实锤 span[data-type=block-ref] 计数为 0）。首选编辑器共享 Lute
+    // （官方 getLute 全配置单例，与粘贴通道同款、随用户编辑器设置）；无编辑器时兜底
+    // 自建实例开最小旗标集（BlockRef 管 引用行，Spin/WYSIWYG/TextMark 管卡片富文本）。
+    // 惰性：模块顶层建会在单测 node 环境炸（无 globalThis.Lute）
+    const shared = (events.protyle as unknown as { lute?: { Md2BlockDOM: (md: string) => string } })?.lute;
+    if (shared?.Md2BlockDOM) _lute = shared;
+    else _lute = NewConfiguredLute() as unknown as { Md2BlockDOM: (md: string) => string };
     return _lute;
 }
 
@@ -298,7 +318,7 @@ export async function runCollect(input: CollectInput): Promise<void> {
         }
         let targetDocID = input.targetDoc ?? "";
         if (dest === "daily") {
-            const box = await resolveDailyNotebookID();
+            const box = dailyCollectBoxID(commentBoxAnnoDraftNotebook.get(), await resolveDailyNotebookID());
             if (!box) {
                 siyuan.pushMsg(tomatoI18n.未找到日记笔记本);
                 return;

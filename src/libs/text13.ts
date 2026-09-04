@@ -704,10 +704,28 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
     public get 右键菜单管理说明() {
         switch (this.lang) {
             case "zh_CN": return "勾选 = 显示在右键菜单；取消勾选 = 隐藏（快捷键与命令面板不受影响）";
-            case "zh_CHT": return "勾選 = 顯示在右鍵選單；取消勾選 = 隱藏（快捷鍵與命令面板不受影響）";
+            case "zh_CHT": return "勾選 = 顯示在右鍵選單；解除勾選 = 隱藏（快捷鍵與命令面板不受影響）";
             case "ja_JP": return "チェック = 右クリックメニューに表示；解除 = 非表示（ショートカットとコマンドパレットには影響しません）";
             case "en_US":
             default: return "Checked = show in context menu; unchecked = hidden (hotkeys and command palette unaffected)";
+        }
+    }
+    public get 右键菜单项() {
+        switch (this.lang) {
+            case "zh_CN": return "右键菜单项";
+            case "zh_CHT": return "右鍵選單項目";
+            case "ja_JP": return "右クリックメニュー項目";
+            case "en_US":
+            default: return "Context menu items";
+        }
+    }
+    public get 收集到文件项说明() {
+        switch (this.lang) {
+            case "zh_CN": return "收集到文件一项须先收集过一次（记住目标文件）才会在右键菜单出现；收集四项均无默认快捷键，可在思源的键位设置中自行绑定";
+            case "zh_CHT": return "收集到檔案一項須先收集過一次（記住目標檔案）才會在右鍵選單出現；收集四項均無預設快捷鍵，可在思源的鍵位設定中自行綁定";
+            case "ja_JP": return "ファイルへ収集は一度収集したことがある（対象ファイルを記憶）場合にのみ右クリックメニューに表示されます。収集4項目ともデフォルトのショートカットはなく、SiYuanのキー設定で割り当てられます";
+            case "en_US":
+            default: return "Collect to file appears in the context menu only after collecting once (target file remembered); the four collect items have no default hotkeys — bind your own in SiYuan keymap settings";
         }
     }
     public get 日记() {

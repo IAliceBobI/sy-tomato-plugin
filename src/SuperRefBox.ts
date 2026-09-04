@@ -1,6 +1,6 @@
 import { dom2div, into } from "stonev5-utils";
 import { superRefBoxCheckBox, superRefBoxGlobalFixMenu, superRefBoxGlobalLnkMenu } from "./libs/stores";
-import { getBlockDiv, getTomatoPluginInstance, NewLute, setAttribute, siyuan, } from "./libs/utils";
+import { getBlockDiv, getTomatoPluginInstance, NewConfiguredLute, setAttribute, siyuan, } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
 import { IProtyle } from "siyuan";
@@ -97,7 +97,7 @@ async function _fixMissingRef(docID?: string) {
     refAttrs = refAttrs.mapfilter(i => i);
 
     const ops: IOperation[] = []
-    const lute = NewLute()
+    const lute = NewConfiguredLute() // 快照含引用/加粗，须开行内语法旗标（裸 NewLute 落字面）
     for (let { name, value, block_id } of refAttrs) {
         if (set.has(name)) continue;
         const div = dom2div(lute.Md2BlockDOM(value))

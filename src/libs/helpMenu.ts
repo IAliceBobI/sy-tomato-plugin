@@ -10,6 +10,7 @@ import { Menu } from "siyuan";
 import { tomatoI18n } from "../tomatoI18n";
 import { isMe } from "./user";
 import { deactivateDev } from "./devDeactivate";
+import { devProPreview, toggleDevProPreview } from "./devProPreview";
 
 const icon = (id: string) =>
     `<svg class="b3-menu__icon" style="width:14px;height:14px"><use xlink:href="#${id}"></use></svg>`;
@@ -55,6 +56,15 @@ export function openHelpMenu(ev: MouseEvent, a: HelpMenuActions) {
     }
     if (isMe()) {
         menu.addSeparator();
+        // 作者查看模式（devProPreview）：已激活后皇冠/货架 Pro 角标全隐身，toggle 让
+        // 付费标记强制回归（只标注不锁功能）；图标二态体现开关，菜单点击即关、
+        // 角标经 store 响应式在已开面板即时跟随
+        const pv = menu.addItem({
+            iconHTML: icon(devProPreview.get() ? "iconEye" : "iconEyeoff"),
+            label: "显示付费标记",
+            click: () => toggleDevProPreview(),
+        });
+        pv.style.opacity = "0.55";
         const el = menu.addItem({
             iconHTML: icon("iconClose"),
             label: "取消激活",

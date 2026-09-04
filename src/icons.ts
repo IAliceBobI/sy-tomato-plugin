@@ -12,6 +12,12 @@
 // 2026-09-03 二次升级（批注双入口 icon 统一·方案 A 拍板）：别名 path 从「原样实心」换成对应内置线性
 // icon 的 path 原文（symbol id/viewBox/path 均与内置版一致，仅 id 带 Tomato 后缀）——存量 dock 布局
 // reload 即显示线性，与新声明视觉统一；空白防线（symbol 名继续存在）不变。
+// iconGraphBox（2026-09-04 graphbox 期5）：块关系图专属——三小方块节点树 LR（根左中+双子右上/右下），
+// 方块=块语义，与官方 iconGraph 三实心圆方圆对比（此前七处借用 iconGraph 与官方关系图撞脸）。
+// Lucide 24×24 stroke 1.7 与 iconQuoteTomato/iconCameraTomato 同族；连线端点全落方块边中点（vision 评审定稿）。
+// iconGraphTomato 别名升级（同期）：实测主实例+dev local.json 各有 1 处存量 dock 引用（非零引用孤儿），
+// 删除会重演 09-03 dock 空白事故——保留 symbol 名换 iconGraphBox 同款 path（视觉统一，reload 即生效）。
+// MindWire/LinkBox 借用 iconGraph 同期退役：MindWire→iconWire（自有），LinkBox→iconLink（同步位置语义）。
 export const ICONS = `
 <symbol id="iconTomatoVIP" viewBox="0 0 32 32"  fill="goldenrod">
     <path d="M2.288 12.643l23.487 12.853c0.286 0.153 0.477 0.45 0.477 0.791 0 0.082-0.011 0.161-0.032 0.237l0.001-0.006c-0.119 0.395-0.479 0.678-0.905 0.678-0.004 0-0.009 0-0.013 0h-19.439c-0.958 0-1.766-0.684-1.885-1.595l-1.691-12.956z"></path>
@@ -31,10 +37,57 @@ export const ICONS = `
 <symbol id="iconFilesTomato" viewBox="40 -920 880 880">
     <path d="M300-172.31v-416q0-29.92 21.5-50.8Q343-660 372.92-660h414.77q29.92 0 51.12 21.19Q860-617.61 860-587.69v299.23L671.54-100H372.31q-29.92 0-51.12-21.19Q300-142.39 300-172.31ZM101-703.08Q95.39-733 112.66-757q17.26-24 47.19-29.61L569.23-859q29.92-5.61 53.92 11.66 24 17.26 29.62 47.19l9.23 52.46h-61.23L593-791.54q-.77-4.23-4.62-6.73-3.84-2.5-8.46-1.73l-409.53 72.77q-5.39.77-8.08 5-2.69 4.23-1.93 9.62l51.93 293.31v178.22q-14.85-7.84-25.39-21.5-10.53-13.65-13.53-31.11L101-703.08Zm259 115.39v415.38q0 5.39 3.46 8.85t8.85 3.46H640v-160h160v-267.69q0-5.39-3.46-8.85t-8.85-3.46H372.31q-5.39 0-8.85 3.46t-3.46 8.85ZM580-380Z"/>
 </symbol>
-<symbol id="iconGraphTomato" viewBox="30 -930 900 900">
-    <path d="M286.99-100.39q-44.68 0-76.03-31.29-31.34-31.3-31.34-76.01 0-36.31 21.92-64.81t55.38-37.81v-340.15q-33.46-9.31-55.38-37.81t-21.92-64.81q0-44.55 31.27-75.73Q242.17-860 286.86-860q44.68 0 76.02 31.3 31.35 31.3 31.35 76.01 0 36.31-21.73 64.61-21.73 28.31-55.58 37.62v192q23.85-24 55.7-37.96 31.84-13.96 68.92-13.96h76.92q51.76 0 88-36.73 36.23-36.74 36.23-88.66v-14.69q-33.46-9.31-55.19-37.62-21.73-28.3-21.73-64.61 0-44.71 31.2-76.01 31.2-31.3 75.77-31.3 44.57 0 76.1 31.3 31.54 31.3 31.54 76.01 0 36.31-21.92 64.61-21.92 28.31-55.77 37.62v14.69q0 76.94-53.89 131.16-53.88 54.22-130.34 54.22h-76.92q-51.92 0-88.27 36.69-36.35 36.68-36.35 89.08v14.31q33.85 9.31 55.58 37.81 21.73 28.5 21.73 64.81 0 44.71-31.28 76.01-31.28 31.29-75.96 31.29Zm.13-605.38q19.88 0 33.5-13.59 13.61-13.6 13.61-33.7 0-20.09-13.6-33.71-13.6-13.61-33.71-13.61-19.69 0-33.5 13.8-13.8 13.81-13.8 33.5 0 19.7 13.8 33.5 13.81 13.81 33.7 13.81Zm385.76 0q19.89 0 33.5-13.59 13.62-13.6 13.62-33.7 0-20.09-13.6-33.71-13.6-13.61-33.71-13.61-19.69 0-33.5 13.8-13.81 13.81-13.81 33.5 0 19.7 13.81 33.5 13.81 13.81 33.69 13.81ZM287.12-160.38q19.88 0 33.5-13.6 13.61-13.6 13.61-33.69 0-20.1-13.6-33.72Q307.03-255 286.92-255q-19.69 0-33.5 13.81-13.8 13.8-13.8 33.5 0 19.69 13.8 33.5 13.81 13.81 33.7 13.81Zm-.2-592.7Zm385.77 0ZM286.92-207.69Z"/>
+<symbol id="iconGraphBox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="9" width="6" height="6"/>
+    <rect x="15.5" y="2.5" width="6" height="6"/>
+    <rect x="15.5" y="15.5" width="6" height="6"/>
+    <path d="M8.5 12H12"/>
+    <path d="M12 5.5v13"/>
+    <path d="M12 5.5h3.5"/>
+    <path d="M12 18.5h3.5"/>
+</symbol>
+<symbol id="iconGraphTomato" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="9" width="6" height="6"/>
+    <rect x="15.5" y="2.5" width="6" height="6"/>
+    <rect x="15.5" y="15.5" width="6" height="6"/>
+    <path d="M8.5 12H12"/>
+    <path d="M12 5.5v13"/>
+    <path d="M12 5.5h3.5"/>
+    <path d="M12 18.5h3.5"/>
 </symbol>
 <symbol id="iconCameraTomato" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
     <path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/>
+</symbol>
+<symbol id="iconDocTomato" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M13.5 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/>
+    <path d="M13.5 3v5.5H19"/>
+    <path d="M9 13h6"/><path d="M9 16.5h4"/>
+</symbol>
+<!-- iconGraphLayout*（2026-09-04 graphbox 期7）：布局形态四态循环钮——三节点链语法
+     （spec §20 vision 定稿）：矩形长宽比=文字横竖（横扁方=横排/竖长条=竖排），链条走向=树生长方向。
+     与 iconGraphBox「三方块节点树」同家族（24×24 stroke1.7 round） -->
+<symbol id="iconGraphLayoutLR" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="9.5" width="5" height="5" rx="1.2"/>
+    <rect x="10" y="9.5" width="5" height="5" rx="1.2"/>
+    <rect x="17.5" y="9.5" width="5" height="5" rx="1.2"/>
+    <path d="M7.5 12H10"/><path d="M15 12h2.5"/>
+</symbol>
+<symbol id="iconGraphLayoutTB" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="9.5" y="2.5" width="5" height="5" rx="1.2"/>
+    <rect x="9.5" y="10" width="5" height="5" rx="1.2"/>
+    <rect x="9.5" y="17.5" width="5" height="5" rx="1.2"/>
+    <path d="M12 7.5V10"/><path d="M12 15v2.5"/>
+</symbol>
+<symbol id="iconGraphLayoutVLR" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="9" width="4" height="6" rx="1.2"/>
+    <rect x="10" y="9" width="4" height="6" rx="1.2"/>
+    <rect x="17.5" y="9" width="4" height="6" rx="1.2"/>
+    <path d="M6.5 12H10"/><path d="M14 12h3.5"/>
+</symbol>
+<symbol id="iconGraphLayoutVTB" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="8" y="2.25" width="4" height="5" rx="1.2"/>
+    <rect x="8" y="9.75" width="4" height="5" rx="1.2"/>
+    <rect x="8" y="17.25" width="4" height="5" rx="1.2"/>
+    <path d="M10 7.25v2.5"/><path d="M10 14.75v2.5"/>
 </symbol>
 `;

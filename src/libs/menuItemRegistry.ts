@@ -1,39 +1,19 @@
-// 「右键菜单管理」区注册表（□4）：全量列出插件注册的右键菜单项，按功能模块分组。
-// checkbox 语义统一为「勾=显示」：有独立开关 store 的项直接绑 store（与各功能区开关
-// 双向同步，同一数据两个视图）；无开关项读写 hiddenMenuItems 隐藏集（唯一入口）。
+// 「右键菜单管理」区注册表（□4）：列出插件注册的右键菜单项，按功能模块分组。
+// 2026-09-03 瘦身（方案 A 拍板）：有独立开关 store 的项在功能主卡里本就是同一数据双视图，
+// 全数移除——各回各家，本区不再重复（曾覆盖 13 组：思维导线/块关系图/悬浮球/批注/闪卡/
+// 互链与引用/数据库反链/智能问答/图片/阅读点/日记/前缀文档树/块配对浮条/文档整理）。
+// 2026-09-03 归位补刀（用户验货拍板）：白/黑名单两项语义严格属于导出工作空间（运行时注册
+// 受其总开关门控），显隐开关迁至导出卡①段（EXPORT_CARD_MENU_ITEMS），本区不再渲染。
+// 现仅剩 exportFiles 4 项（文档树合并/导出/导入命令，无家可归）：显隐走 hiddenMenuItems
+// 隐藏集，本区是它们唯一入口。「全部显示」按钮仍兜底恢复存量隐藏（含瘦身/归位前被藏的项
+// ——行删除后不再有逐项写入路径，该按钮清空整个隐藏集故照常覆盖迁移项）。
+// 2026-09-04 □2：批注五项照 EXPORT_CARD_MENU_ITEMS 先例补 ANNO_CARD_MENU_ITEMS（UI 在
+// 批注卡 ConfAI 渲染，不进本区避免重复）；三项直发项命令化后 key 统一为命令 langKey
+// （旧 m.annoCollect.* 伪 key 不迁移，08-31 才出生）。checkbox 语义统一为「勾=显示」。
 // key 与 menuManager.addIfVisible 用的 key 严格一致（winHotkey langKey 或 m.<模块>.<语义>）。
-// 新增菜单项时在此补行；分组标题走 tomatoI18n（无则新增 key）。
+// 新增菜单项：有开关的进功能主卡，无开关的在此补行。
+import { commentBoxMenu } from "./stores";
 import { tomatoI18n } from "../tomatoI18n";
-import {
-    blockEditorBox, blockEditorMenu, bk启用禁用文档的底部反链menu, cardBoxSuperCard, cardPriorityBoxCheckbox,
-    cardPriorityBoxPostponeCardMenu, cardPriorityBoxPriorityMenu, cardPriorityBoxSpradDelayMenu, commentBoxMenu,
-    cozeSearchMenuShow, dailyNoteCopyMenu, dailyNoteGoToBottomMenu, dbBkBoxRefreshMenu, deleteBlocksMenu,
-    floatingballDocMenu, floatingballDocTabMenu, floatingballEnable, graphBoxCheckbox, graph打开块关系图Menu,
-    graph定位到图中的节点Menu, imgBoxShowMenu, linkBoxBilinkMenu, mindWireCheckbox, mindWireDocMenu,
-    mindWireGlobalMenu, mixBoxPinyin, pairBarEntryMenu, prefixArticlesMenu, readingAddDeleteMenu,
-    readingAddJumpMenu, readingAddRPmenu, storeCopyStdMD, storeFillMemoMenu, storeInsertXml, storeMergeDoc,
-    storeMoveDocContentHere, storeOpenRefsMenu, storeRefreshStaticBkLnk, superRefBoxGlobalFixMenu,
-    superRefBoxGlobalLnkMenu, tag2RefSearchLnk, tag2RefSearchRef, aiBoxMenuShow,
-} from "./stores";
-import { DailyNoteBox移动内容到dailynote } from "../DailyNoteBox";
-import { CommentBox添加批注 } from "../CommentBox";
-import { CardBox用选中的行创建超级块超级块制卡取消制卡 } from "../CardBox";
-import { CardPriorityBox分散推迟闪卡 } from "../CardPriorityBox";
-import { LinkBoxbilink, LinkBox查看所有同步位置 } from "../LinkBox";
-import { SuperRefBox全局加固引用, SuperRefBox全局修复引用 } from "../SuperRefBox";
-import { Tag2RefBox模糊查找引用Ref, Tag2RefBox模糊查找引用Lnk } from "../Tag2RefBox";
-import { BK启用禁用文档的底部反链 } from "../BackLinkBottomBox";
-import { MixBox复制文档为标准Markdown, MixBox定位所有引用Menu, MixBox锁定内容, MixBox将选择文字与其拼音加入文档的别名 } from "../MixBox";
-import { CpBox批量删除大量连续内容块 } from "../CpBox";
-import { PrefixArticles前缀文档树 } from "../PrefixArticles";
-import { BlockEditor打开编辑器 } from "../BlockEditor";
-import { ReadingPointBox设置阅读点, ReadingPointBox跳到当前文档的阅读点, ReadingPointBox删除当前文档的阅读点 } from "../ReadingPointBox";
-import { AIBoxHotkey } from "../AIBox";
-import { DbBkBox刷新数据库反链 } from "../DbBkBox";
-import { FloatingBall添加文档, FloatingBallTab添加文档 } from "../FloatingBall";
-import { GraphBox定位到图中的节点, GraphBox打开块关系图 } from "../GraphBox";
-import { MindWire启用或禁用思维导线, MindWire启用或禁用文档思维导线 } from "../MindWire";
-import { PairBar触发 } from "../PairBarBox";
 
 export interface ManagedMenuItem {
     key: string;
@@ -41,7 +21,7 @@ export interface ManagedMenuItem {
     /** 有独立开关的项绑它（checkbox 读写 store）；缺省走 hiddenMenuItems 隐藏集 */
     store?: { get(): boolean; set(v: boolean): void };
     /** 功能区总开关层（onload/事件入口整段 return 的那种）：勾选态须合成它，
-     * 勾选时一并打开（否则功能区关着时勾了菜单项也不出现，管理区失去恢复入口） */
+     *  勾选时一并打开（否则功能区关着时勾了菜单项也不出现，管理区失去恢复入口） */
     master?: { get(): boolean; set(v: boolean): void };
 }
 
@@ -50,128 +30,49 @@ export interface MenuManageGroup {
     items: ManagedMenuItem[];
 }
 
+/** 勾选态三层合成纯函数（ConfGeneral 管理卡 / ConfAI 批注卡共用，勿在组件层复制）：
+ *  隐藏集优先（藏了就 false）→ master 总开关 → 独立 store（无 store 默认 true）。
+ *  @param isHidden 隐藏集判定（传 menuKeyHidden，注入避免拉起 store 依赖） */
+export function menuItemSelected(item: ManagedMenuItem, isHidden: (key: string) => boolean): boolean {
+    if (isHidden(item.key)) return false;
+    if (item.master && !item.master.get()) return false;
+    return item.store ? item.store.get() : true;
+}
+
+/** toggle 的隐藏集变更纯函数：勾=移除 key，取消=追加 key（幂等）。返回新数组，不改入参。 */
+export function nextHiddenKeys(keys: string[], key: string, checked: boolean): string[] {
+    if (checked) return keys.filter((k) => k !== key);
+    return keys.includes(key) ? keys : [...keys, key];
+}
+
 export const MENU_MANAGE_GROUPS: MenuManageGroup[] = [
-    {
-        title: () => tomatoI18n.日记,
-        items: [
-            { key: "moveBlock2today", label: () => DailyNoteBox移动内容到dailynote.langText(), store: dailyNoteGoToBottomMenu },
-            { key: "DailyNoteBox复制到dailynote", label: () => tomatoI18n.复制到dailynote, store: dailyNoteCopyMenu },
-            { key: "DailyNoteBox复制到dailynoteNewFile", label: () => tomatoI18n.复制到dailynoteNewFile, store: dailyNoteCopyMenu },
-        ],
-    },
-    {
-        title: () => tomatoI18n.批注,
-        items: [
-            { key: "comment box", label: () => CommentBox添加批注.langText(), store: commentBoxMenu },
-        ],
-    },
-    {
-        title: () => tomatoI18n.闪卡,
-        items: [
-            { key: "addFlashCard", label: () => CardBox用选中的行创建超级块超级块制卡取消制卡.langText(), store: cardBoxSuperCard },
-            { key: "m.cardPriority.setPri", label: () => tomatoI18n.为闪卡设置优先级, master: cardPriorityBoxCheckbox },
-            { key: "m.cardPriority.stop", label: () => tomatoI18n.推迟与取消推迟, master: cardPriorityBoxCheckbox },
-            { key: "cardPrioritySet", label: () => tomatoI18n.修改文档中闪卡优先级, store: cardPriorityBoxPriorityMenu },
-            { key: "delay all cards", label: () => tomatoI18n.推迟闪卡, store: cardPriorityBoxPostponeCardMenu },
-            { key: "delay all cards spread on x days", label: () => CardPriorityBox分散推迟闪卡.langText(), store: cardPriorityBoxSpradDelayMenu },
-        ],
-    },
-    {
-        title: () => tomatoI18n.互链与引用,
-        items: [
-            { key: "bilink", label: () => LinkBoxbilink.langText(), store: linkBoxBilinkMenu },
-            { key: "list refs show all place", label: () => LinkBox查看所有同步位置.langText() },
-            { key: "SuperRefBox全局加固引用", label: () => SuperRefBox全局加固引用.langText(), store: superRefBoxGlobalLnkMenu },
-            { key: "SuperRefBox修复文档引用", label: () => SuperRefBox全局修复引用.langText(), store: superRefBoxGlobalFixMenu },
-            { key: "模糊查找引用Ref", label: () => Tag2RefBox模糊查找引用Ref.langText(), store: tag2RefSearchRef },
-            { key: "模糊查找引用Lnk", label: () => Tag2RefBox模糊查找引用Lnk.langText(), store: tag2RefSearchLnk },
-            { key: "BK启用禁用文档的底部反链", label: () => BK启用禁用文档的底部反链.langText(), store: bk启用禁用文档的底部反链menu },
-        ],
-    },
-    {
-        title: () => tomatoI18n.文档整理,
-        items: [
-            { key: "复制文档为标准Markdown", label: () => MixBox复制文档为标准Markdown.langText(), store: storeCopyStdMD },
-            { key: "定位所有引用Menu", label: () => MixBox定位所有引用Menu.langText(), store: storeOpenRefsMenu },
-            { key: "锁定内容", label: () => MixBox锁定内容.langText(), store: storeFillMemoMenu },
-            { key: "将选择文字与其拼音加入文档的别名", label: () => MixBox将选择文字与其拼音加入文档的别名.langText(), store: mixBoxPinyin },
-            { key: "m.mixBox.moveDocHere", label: () => tomatoI18n.把文档内容移动到这里, store: storeMoveDocContentHere },
-            { key: "m.mixBox.mergeDoc", label: () => tomatoI18n.合并文档到这里, store: storeMergeDoc },
-            { key: "m.mixBox.refreshStaticBk", label: () => tomatoI18n.刷新静态反链, store: storeRefreshStaticBkLnk },
-            { key: "m.mixBox.delStaticBk", label: () => tomatoI18n.删除静态反链, store: storeRefreshStaticBkLnk },
-            { key: "m.mixBox.insertXml", label: () => tomatoI18n.插入空的脑图流程图文件, store: storeInsertXml },
-            { key: "deleteBlocks", label: () => CpBox批量删除大量连续内容块.langText(), store: deleteBlocksMenu },
-            { key: "m.cpBox.clean2SubDoc", label: () => tomatoI18n.清理文档内容到子文档, master: deleteBlocksMenu },
-            { key: "m.cpBox.cleanAll", label: () => tomatoI18n.清理文档内容, master: deleteBlocksMenu },
-            { key: "前缀文档树", label: () => PrefixArticles前缀文档树.langText(), store: prefixArticlesMenu },
-            { key: "BlockEditor打开编辑器", label: () => BlockEditor打开编辑器.langText(), store: blockEditorMenu, master: blockEditorBox },
-        ],
-    },
-    {
-        title: () => tomatoI18n.阅读点.replace(/[:：]$/, ""),
-        items: [
-            { key: "addBookmark", label: () => ReadingPointBox设置阅读点.langText(), store: readingAddRPmenu },
-            { key: "gotoBookmark", label: () => ReadingPointBox跳到当前文档的阅读点.langText(), store: readingAddJumpMenu },
-            { key: "deleteBookmark", label: () => ReadingPointBox删除当前文档的阅读点.langText(), store: readingAddDeleteMenu },
-        ],
-    },
-    {
-        title: () => tomatoI18n.图片,
-        items: [
-            { key: "m.imgBox.copyAsImage", label: () => tomatoI18n.复制为图片, store: imgBoxShowMenu },
-            { key: "m.imgOverlay.add", label: () => tomatoI18n.添加图片遮挡层 },
-        ],
-    },
-    {
-        title: () => tomatoI18n.智能问答,
-        items: [
-            { key: "人工智能", label: () => AIBoxHotkey.langText(), store: aiBoxMenuShow },
-            { key: "coze", label: () => "coze" + tomatoI18n.知识库问答, store: cozeSearchMenuShow },
-        ],
-    },
-    {
-        title: () => tomatoI18n.数据库反链,
-        items: [
-            { key: "dbbkrefresh", label: () => DbBkBox刷新数据库反链.langText(), store: dbBkBoxRefreshMenu },
-            { key: "m.dbBk.moveDown", label: () => tomatoI18n.将选中的内容移到下边 },
-        ],
-    },
     {
         title: () => tomatoI18n.导出,
         items: [
-            { key: "m.export.whiteList", label: () => tomatoI18n.添加到导出工作空间的白名单 },
-            { key: "m.export.blackList", label: () => tomatoI18n.添加到导出工作空间的黑名单 },
             { key: "m.exportFiles.mergeMove", label: () => tomatoI18n.合并为单个文件 + " · " + tomatoI18n.移动 },
             { key: "m.exportFiles.mergeCopy", label: () => tomatoI18n.合并为单个文件 + " · " + tomatoI18n.复制 },
             { key: "m.exportFiles.exportAll", label: () => tomatoI18n.导出所有文档到单个文件 },
             { key: "m.exportFiles.importMD", label: () => tomatoI18n.导入markdownOrText },
         ],
     },
-    {
-        title: () => tomatoI18n.悬浮球,
-        items: [
-            { key: "绑定文档到悬浮按钮", label: () => FloatingBall添加文档.langText(), store: floatingballDocMenu, master: floatingballEnable },
-            { key: "FloatingBallTab添加文档", label: () => FloatingBallTab添加文档.langText(), store: floatingballDocTabMenu, master: floatingballEnable },
-        ],
-    },
-    {
-        title: () => tomatoI18n.思维导线,
-        items: [
-            { key: "MindWire global", label: () => MindWire启用或禁用思维导线.langText(), store: mindWireGlobalMenu, master: mindWireCheckbox },
-            { key: "MindWire doc", label: () => MindWire启用或禁用文档思维导线.langText(), store: mindWireDocMenu, master: mindWireCheckbox },
-        ],
-    },
-    {
-        title: () => tomatoI18n.块关系图,
-        items: [
-            { key: "graphLocateNode", label: () => GraphBox定位到图中的节点.langText(), store: graph定位到图中的节点Menu, master: graphBoxCheckbox },
-            { key: "graphLocateNode open", label: () => GraphBox打开块关系图.langText(), store: graph打开块关系图Menu, master: graphBoxCheckbox },
-        ],
-    },
-    {
-        title: () => PairBar触发.langText(),
-        items: [
-            { key: "pairBarTrigger", label: () => PairBar触发.langText(), store: pairBarEntryMenu },
-        ],
-    },
+];
+
+/** 导出工作空间卡①段消费（2026-09-03 归位）：白/黑名单右键菜单项——语义严格属于导出工作空间，
+ *  运行时注册受导出总开关门控，开关行随卡体 {#if} 隐藏天然一致；无独立 store，显隐走
+ *  hiddenMenuItems 隐藏集（机制同右键菜单管理卡）。不进 MENU_MANAGE_GROUPS，管理卡不重复渲染。 */
+export const EXPORT_CARD_MENU_ITEMS: ManagedMenuItem[] = [
+    { key: "m.export.whiteList", label: () => tomatoI18n.添加到导出工作空间的白名单 },
+    { key: "m.export.blackList", label: () => tomatoI18n.添加到导出工作空间的黑名单 },
+];
+
+/** 批注卡「右键菜单项」段消费（2026-09-04 □2 定稿）：批注域右键菜单五项，UI 在 ConfAI 批注卡
+ *  渲染，机制同上（隐藏集+master，无 store）。key=命令 langKey（"comment box"=CommentBox添加批注
+ *  的 winHotkey 第二参；其余四项 anno collect*）；file 项菜单侧另有「有目标记忆才显示」数据前提
+ *  （annoCollectTargetDoc），开关只管用户意图。master=commentBoxMenu「添加右键菜单」总开关。 */
+export const ANNO_CARD_MENU_ITEMS: ManagedMenuItem[] = [
+    { key: "comment box", label: () => tomatoI18n.添加批注, master: commentBoxMenu },
+    { key: "anno collect", label: () => tomatoI18n.收集批注, master: commentBoxMenu },
+    { key: "anno collect clipboard", label: () => `${tomatoI18n.收集批注} → ${tomatoI18n.剪贴板}`, master: commentBoxMenu },
+    { key: "anno collect daily", label: () => `${tomatoI18n.收集批注} → ${tomatoI18n.当天日记}`, master: commentBoxMenu },
+    { key: "anno collect file", label: () => `${tomatoI18n.收集批注} → ${tomatoI18n.收集到文件}`, master: commentBoxMenu },
 ];

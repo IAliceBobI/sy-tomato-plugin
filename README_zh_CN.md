@@ -59,8 +59,8 @@
 
 ## 文档与社区
 
-- 📖 **[帮助文档](https://awx9773btw.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)**——每个功能都有配图和视频演示，5 分钟看懂全部玩法
-- 🙏 [鸣谢](https://awx9773btw.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
+- 📖 **[帮助文档](https://my.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)**——每个功能都有配图和视频演示，5 分钟看懂全部玩法
+- 🙏 [鸣谢](https://my.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
 - 💬 [QQ 交流群](https://pd.qq.com/s/r3jz0g16)——反馈、催更、蹲新功能
 - 💬 [飞书群](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=f08gff0c-d6b0-4a0d-8323-c8a0553e4fff&qr_code=true)——反馈、催更、蹲新功能
 - 📱 扫码进群：![群二维码（左 QQ 频道，右飞书群）](group-qr.png)
