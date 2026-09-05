@@ -1,4 +1,4 @@
-// 快编辑器节列表组装（期5 方案 A 轻通道，2026-09-05 拍板）：getChildBlocks 平铺行 →
+// 块编辑器节列表组装（期5 方案 A 轻通道，2026-09-05 拍板）：getChildBlocks 平铺行 →
 // 节列表纯函数。独立轻文件零依赖（BlockEditor.ts 是重入口——其 stores→utils→globals
 // 顶层 Lute 链在 vitest 炸，纯函数单测进不来）。锁 tests/unit/blockEditorSecs.test.ts。
 

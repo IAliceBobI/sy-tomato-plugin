@@ -29,7 +29,7 @@
         resizable?: boolean;
         // 无 dm 时也可显示关闭按钮：点击时调用该回调（如隐藏悬浮菜单）
         onClose?: () => void;
-        // 快编辑器二期期1：收起钮（▾，标题栏关闭钮左侧）——只折叠回球，不销毁；不传不渲染
+        // 块编辑器二期期1：收起钮（▾，标题栏关闭钮左侧）——只折叠回球，不销毁；不传不渲染
         onCollapse?: () => void;
         collapseLabel?: string;
         // 初始位置覆盖（球位展开联动）：仅无存档时兜底用之（面板位置独立记忆优先，usertest2 □6），
@@ -441,7 +441,7 @@
                 h = cfg[key("height")] || null;
             }
 
-            // 球位展开联动（快编辑器）：posOverride 只作无存档兜底——面板位置独立记忆
+            // 球位展开联动（块编辑器）：posOverride 只作无存档兜底——面板位置独立记忆
             // （拖后 savePosition 落档，重开/重启回拖后位置=「跟悬浮球一样」，usertest2 □6）；
             // 有存档优先存档，都无居中
             if (posOverride && !x && !y) {
@@ -591,7 +591,7 @@
                     </button>
                 {/if}
                 {#if onClose}
-                    <!-- onClose 优先于 dm：常驻球模型下 × = 宿主自定义收编（快编辑器=收起回球而非
+                    <!-- onClose 优先于 dm：常驻球模型下 × = 宿主自定义收编（块编辑器=收起回球而非
                          存在层销毁，usertest2 □6）；不传 onClose 的消费者保持 dm.destroyBy 原语义 -->
                     <button
                         title={tomatoI18n.退出}

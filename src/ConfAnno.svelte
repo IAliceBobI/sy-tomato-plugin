@@ -1,17 +1,9 @@
 <script lang="ts">
-    // 设置域组件（□2 设置页重划）：AI 与批注——知识库问答（AIBox）/ 豆包知识库（Coze）/ 批注
-    // （自 ConfClock.svelte 批注段整块迁入）。各卡内部一行不动，共享样式见 IndexConf.css。
+    // 设置域组件（二期 14 域 2026-09-05）：批注——批注卡（翻新大功能上浮，自旧「AI 与
+    // 批注」域拆出独立成域）。自 ConfAI.svelte 拆出（整卡迁入内部一行不动），
+    // 共享样式见 IndexConf.css。
     import NotebookSelect from "./NotebookSelect.svelte";
     import {
-        aiBoxCheckbox,
-        aiBoxMenuShow,
-        cozeSearchAppID,
-        cozeSearchBoxCheckbox,
-        cozeSearchDoubaoID,
-        cozeSearchKnowledgeID,
-        cozeSearchMenuShow,
-        cozeSearchOauthTokenID,
-        cozeSearchSpaceID,
         commentBoxAnnoBg,
         commentBoxAnnoDraftNotebook,
         commentBoxAnnoLineType,
@@ -24,8 +16,6 @@
         commentBoxShowID,
         hiddenMenuItems,
     } from "./libs/stores";
-    import { AIBoxHotkey } from "./AIBox";
-    import { CozeSearchBoxHotkey } from "./CozeSearchBox";
     import { CommentBox添加批注 } from "./CommentBox";
     import { tomatoI18n } from "./tomatoI18n";
     import { applyAnnoVisual } from "./Annotations";
@@ -53,57 +43,6 @@
     }
 </script>
 
-    <!-- 人工智能 -->
-    <div class="settingBox">
-        <div class="section-title">
-            <input type="checkbox" class="b3-switch" bind:checked={$aiBoxCheckbox} />
-            {AIBoxHotkey.langText()}<HotkeyCap hk={AIBoxHotkey} pluginName="sy-tomato-plugin"></HotkeyCap>
-            <ConfHelpIcon token="Kbuvd9lbhoDWTCxggz9cxQgJnAH" />
-        </div>
-        {#if $aiBoxCheckbox}
-            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$aiBoxMenuShow} />
-                {tomatoI18n.menu添加右键菜单}
-            </div>
-        {/if}
-    </div>
-    <!-- 豆包知识库 -->
-    <div class="settingBox">
-        <div class="section-title">
-            <input type="checkbox" class="b3-switch" bind:checked={$cozeSearchBoxCheckbox} />
-            coze{tomatoI18n.知识库问答}<HotkeyCap hk={CozeSearchBoxHotkey} pluginName="sy-tomato-plugin"></HotkeyCap>
-            <ConfHelpIcon token="ENZfd6zfKoTZPqxZxf2c4uWVnow" />
-        </div>
-        {#if $cozeSearchBoxCheckbox}
-            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
-
-            <div>
-                <input class="b3-text-field" bind:value={$cozeSearchOauthTokenID} />
-                <a href="https://www.coze.cn/open/oauth/pats">{tomatoI18n.添加令牌}</a>
-            </div>
-            <div>
-                <input class="b3-text-field" bind:value={$cozeSearchSpaceID} />
-                <a href="https://www.coze.cn/space">{tomatoI18n.添加空间ID}</a>
-            </div>
-            <div>
-                <input class="b3-text-field" bind:value={$cozeSearchKnowledgeID} />
-                <a href="https://www.coze.cn/space/{$cozeSearchSpaceID}/library">{tomatoI18n.添加知识库ID}</a>
-            </div>
-            <div>
-                <input class="b3-text-field" bind:value={$cozeSearchAppID} />
-                <a href="https://www.coze.cn/space/{$cozeSearchSpaceID}/develop">{tomatoI18n.添加智能体ID}</a>
-            </div>
-            <div>
-                <input class="b3-text-field" bind:value={$cozeSearchDoubaoID} />
-                {tomatoI18n.豆包智能体ID}
-            </div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$cozeSearchMenuShow} />
-                {tomatoI18n.menu添加右键菜单}
-            </div>
-        {/if}
-    </div>
     <!-- 批注 -->
     <div class="settingBox">
         <div class="section-title">

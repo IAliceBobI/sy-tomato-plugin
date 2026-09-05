@@ -1033,7 +1033,7 @@ html[data-theme-mode="dark"] .protyle-wysiwyg span[data-type="a"][data-href^="#t
 }
 
 // =====================================================================
-// 快编辑器收缩球（二期期1，libs/qeBall.ts 命令式挂 body——scoped 剪不到须全局；
+// 块编辑器收缩球（二期期1，libs/qeBall.ts 命令式挂 body——scoped 剪不到须全局；
 // □5 起常驻球）。36px 圆球 iconEdit，theme 变量明暗自适应（fball 同款底子）；
 // 钉住角标右上角迷你 iconPin；拖拽微放大+阴影加深。
 .qe-ball {

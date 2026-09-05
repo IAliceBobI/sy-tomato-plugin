@@ -1,4 +1,4 @@
-// 快编辑器收缩球（二期期1，模型=docs/checkpoints/2026-09-05-1823-handoff-usertest-fixes.md □5）：
+// 块编辑器收缩球（二期期1，模型=docs/checkpoints/2026-09-05-1823-handoff-usertest-fixes.md □5）：
 // 收缩态 = 36px 悬浮球（iconEdit，与右键菜单项同 icon 视觉同族）。点击=展开、拖拽=移动
 // （位移平方和阈值判定）；钉住态挂 iconPin 迷你角标；hover 气泡 = aria-label + b3-tooltips
 // （钉住态「📌 文档名 › 节标题」与面板面包屑同构，跟随态=当前文档名）；z-index=10 常驻

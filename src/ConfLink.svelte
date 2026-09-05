@@ -1,8 +1,9 @@
 <script lang="ts">
-    // 设置域组件（□2 设置页重划）：反链与引用——底部反链 / 数据库反链 / 引用修复 / 文本转引用
-    // / 引用外观三卡（引用括号·效果·渲染为标签，自 ConfEditor 语义归位）。互链与引用选项折叠区
-    // 系块配对族配置（pairBarEnabled 门控自证），曾按「引用」字面误归本域，2026-09-03 归位
-    // ConfEditBlock 块配对卡。
+    // 设置域组件（□2 设置页重划）：反链与引用——底部反链 / 文本转引用 / 引用外观三卡
+    // （引用括号·效果·渲染为标签，自 ConfEditor 语义归位）+「数据库反链与引用修复」折叠
+    // 垫底区（二期 2026-09-05：疑弃/搁置功能收拢，弃时整区删；默认收起、搜索命中自动展开）。
+    // 互链与引用选项折叠区系块配对族配置（pairBarEnabled 门控自证），曾按「引用」字面误归
+    // 本域，2026-09-03 归位 ConfBlockEdit 块配对卡。
     // 各卡整块迁入（内部一行不动），共享样式见 IndexConf.css。
     import TomatoVIP from "./TomatoVIP.svelte";
     import {
@@ -173,63 +174,6 @@
             </div>
         {/if}
     </div>
-    <!-- 数据库反链 -->
-    <div class="settingBox">
-        <div class="section-title">
-            <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxCheckbox} />
-            {tomatoI18n.数据库充当反链}
-            <ConfHelpIcon token="W4WxdA0Bzo0O7UxwHFFcAHUUnSd" />
-        </div>
-        {#if $dbBkBoxCheckbox}
-            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxRefreshMenu} />
-                {tomatoI18n.menu添加右键菜单}:
-                {DbBkBox刷新数据库反链.langText()}
-                <HotkeyCap hk={DbBkBox刷新数据库反链} pluginName="sy-tomato-plugin"></HotkeyCap>
-            </div>
-            <div>
-                <input type="number" min="1" class="b3-text-field" bind:value={$dbBkBoxMaxBacklinkSize} />
-                {tomatoI18n.maxBkDocs最大展开的反链文件数}
-            </div>
-
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxHideDatetime} />
-                {tomatoI18n.隐藏修改时间和创建时间}
-            </div>
-        {/if}
-        <div>
-            <button class="b3-button b3-button--outline tomato-button" onclick={() => cleanDataview()}
-                >🗑️
-            </button>{tomatoI18n.删除失效的数据库}
-        </div>
-    </div>
-    <!-- 修复引用 -->
-    <div class="settingBox">
-        <div class="section-title">
-            <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxCheckBox} />
-            引用修复工具
-            <ConfHelpIcon token="WTgxdUINHoYXHbxmU87cxs5knfd" />
-        </div>
-        {#if $superRefBoxCheckBox}
-            <div>这是一个实验功能，请提前备份好。</div>
-            <div>打开或关闭文档时，自动对当前文档中的引用进行加固处理</div>
-            <div>经过加固的引用，在原文的ID改变后，可以被修复重新指向新原文。 （原文被删除，但保留拷贝的副本）</div>
-            <div>
-                经过加固的引用，原文被删除后，可以凭借引用属性上的快照'复活'原文。 （快照可能只有部分， 比如原文是列表）
-            </div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxGlobalFixMenu} />
-                {tomatoI18n.menu添加右键菜单 + "：" + SuperRefBox全局修复引用.langText()}
-                <HotkeyCap hk={SuperRefBox全局修复引用} pluginName="sy-tomato-plugin"></HotkeyCap>
-            </div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxGlobalLnkMenu} />
-                {tomatoI18n.menu添加右键菜单 + "：" + SuperRefBox全局加固引用.langText()}
-                <HotkeyCap hk={SuperRefBox全局加固引用} pluginName="sy-tomato-plugin"></HotkeyCap>
-            </div>
-        {/if}
-    </div>
     <!-- 文本转引用 -->
     <div class="settingBox">
         <div class="section-title">
@@ -326,3 +270,67 @@
             ></textarea>
         </div>
     </div>
+    <!-- 折叠垫底区：数据库反链 + 引用修复（二期 2026-09-05 收拢：疑弃/搁置功能垫域底，
+         弃时整区删；两卡整块收进 softBox 内部一行不动，summary 沿卡 ConfHelpIcon 原样） -->
+    <details class="settingBox">
+        <summary class="section-title">{tomatoI18n.数据库反链与引用修复}<span class="setting-count">2</span><!-- 计数与下方卡数同步增删（vision R1 P1-2：与编辑器外观与行为同构） --><ConfHelpIcon token="W4WxdA0Bzo0O7UxwHFFcAHUUnSd" /></summary>
+        <div class="softBox">
+            <!-- 数据库反链 -->
+            <div class="settingBox">
+                <div class="section-title">
+                    <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxCheckbox} />
+                    {tomatoI18n.数据库充当反链}
+                    <ConfHelpIcon token="W4WxdA0Bzo0O7UxwHFFcAHUUnSd" />
+                </div>
+                {#if $dbBkBoxCheckbox}
+                    <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxRefreshMenu} />
+                        {tomatoI18n.menu添加右键菜单}:
+                        {DbBkBox刷新数据库反链.langText()}
+                        <HotkeyCap hk={DbBkBox刷新数据库反链} pluginName="sy-tomato-plugin"></HotkeyCap>
+                    </div>
+                    <div>
+                        <input type="number" min="1" class="b3-text-field" bind:value={$dbBkBoxMaxBacklinkSize} />
+                        {tomatoI18n.maxBkDocs最大展开的反链文件数}
+                    </div>
+
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxHideDatetime} />
+                        {tomatoI18n.隐藏修改时间和创建时间}
+                    </div>
+                {/if}
+                <div>
+                    <button class="b3-button b3-button--outline tomato-button" onclick={() => cleanDataview()}
+                        >🗑️
+                    </button>{tomatoI18n.删除失效的数据库}
+                </div>
+            </div>
+            <!-- 修复引用 -->
+            <div class="settingBox">
+                <div class="section-title">
+                    <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxCheckBox} />
+                    引用修复工具
+                    <ConfHelpIcon token="WTgxdUINHoYXHbxmU87cxs5knfd" />
+                </div>
+                {#if $superRefBoxCheckBox}
+                    <div>这是一个实验功能，请提前备份好。</div>
+                    <div>打开或关闭文档时，自动对当前文档中的引用进行加固处理</div>
+                    <div>经过加固的引用，在原文的ID改变后，可以被修复重新指向新原文。 （原文被删除，但保留拷贝的副本）</div>
+                    <div>
+                        经过加固的引用，原文被删除后，可以凭借引用属性上的快照'复活'原文。 （快照可能只有部分， 比如原文是列表）
+                    </div>
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxGlobalFixMenu} />
+                        {tomatoI18n.menu添加右键菜单 + "：" + SuperRefBox全局修复引用.langText()}
+                        <HotkeyCap hk={SuperRefBox全局修复引用} pluginName="sy-tomato-plugin"></HotkeyCap>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxGlobalLnkMenu} />
+                        {tomatoI18n.menu添加右键菜单 + "：" + SuperRefBox全局加固引用.langText()}
+                        <HotkeyCap hk={SuperRefBox全局加固引用} pluginName="sy-tomato-plugin"></HotkeyCap>
+                    </div>
+                {/if}
+            </div>
+        </div>
+    </details>

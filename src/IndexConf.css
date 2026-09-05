@@ -705,6 +705,14 @@
 .tomato-settings-dialog details.settingBox .softBox > div:not(:last-child) {
     margin-bottom: 12px;
 }
+/* ── 二期 14 域（2026-09-05）：顶级折叠卡──────────────────────────
+ * details 直接作域内分区卡（ConfLink 垫底区/ConfEditorTools「编辑器外观与行为」），
+ * 非卡内折叠区——上方 summary 规则的 5% 缩进系卡内行对齐（块配对先例），顶级卡不吃：
+ * summary 与同级平铺卡标题对齐（升特异性 (0,4,3) 与源顺序解耦，不碰上方旧规则的值） */
+.tomato-settings-dialog section.conf-group > details.settingBox > summary.section-title {
+    margin-left: 0;
+    padding-left: 0;
+}
 /* vision P1-3：置灰行 pointer-events:none 连带废掉 VIP 徽标点击——徽标本职是灰档解锁
  * 入口（TomatoVIP.svelte 注释自证）；恢复可点，视觉仍随行减淡（父行 opacity 合并渲染） */
 .tomato-settings-dialog .codeNotValid .tomato-vip-tag {

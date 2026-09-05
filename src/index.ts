@@ -6,7 +6,8 @@ import { schedule } from "./Schedule";
 import { newID } from "stonev5-utils";
 import { openChangelogDialog } from "./libs/changelogDialog";
 import { reloadSelfPlugin } from "./libs/pluginReload";
-import changelog from "./changelog.json";
+import changelog2025 from "./changelog/2025.json";
+import changelog2026 from "./changelog/2026.json";
 import { openHelpDialog } from "./libs/helpDialog";
 import helpDocs from "./help.json";
 import { openHelpMenu } from "./libs/helpMenu";
@@ -65,6 +66,9 @@ import { initPrefixArticles } from "./PrefixArticles";
 import { mount, unmount } from "svelte";
 import { superRefBox } from "./SuperRefBox";
 import { blockEditor } from "./BlockEditor";
+
+// 更新日志按年拆分存储（src/changelog/<年>.json，当年文件追加、往年冻结），此处组装倒序全集
+const changelog = [...changelog2026, ...changelog2025];
 
 // 开着的设置面板收尾登记：官方 destroyPlugin 清单不含插件 Dialog，重载残留由 onunload
 // 主动摘（□2 e2e settings 场景照出，□3 修复）；关窗即摘登记

@@ -1748,7 +1748,7 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
-    // 快编辑器二期期1（spec §1.1）：面板收起钮 aria-label——只折叠回球，非关闭
+    // 块编辑器二期期1（spec §1.1）：面板收起钮 aria-label——只折叠回球，非关闭
     public get 收起面板() {
         switch (this.lang) {
             case "zh_CN": return "收起面板，折叠为悬浮球";
@@ -7354,6 +7354,8 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     // 设置页重划 □1（2026-09-03）：左侧导航 9 域文案（「番茄钟」「闪卡」复用既有 key——
     // 闪卡在基类 text11.ts 十语种全档）。域=分区名非功能名，六语种全档；英文从短（窄导航列 148px）
+    // 二期 14 域（2026-09-05）：「AI 与批注」「编辑与块」两域拆退役，key 随域退役删；
+    // 新域标签见文件尾「设置页重划二期」段
     public get 反链与引用() {
         switch (this.lang) {
             case "zh_CN": return "反链与引用";
@@ -7363,17 +7365,6 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "バックリンクと参照";
             case "en_US":
             default: return "Backlinks & refs";
-        }
-    }
-    public get AI与批注() {
-        switch (this.lang) {
-            case "zh_CN": return "AI 与批注";
-            case "zh_CHT": return "AI 與批註";
-            case "es_ES": return "IA y anotaciones";
-            case "fr_FR": return "IA et annotations";
-            case "ja_JP": return "AIと注釈";
-            case "en_US":
-            default: return "AI & annotations";
         }
     }
     public get 可视化() {
@@ -8268,6 +8259,79 @@ export class TomatoI18n extends TomatoI18nABC {
             case "hours": return this.X小时前(desc.n);
             case "days": return this.X天前(desc.n);
             default: return desc.date ?? "";
+        }
+    }
+    // 设置页重划二期 □1（2026-09-05）：14 域导航新域标签（六语种；英文/西语从短——窄导航列
+    // 148px，同 □1 九域版纪律）。「批注」「悬浮球」「阅读」复用基类 key（译文已短）；
+    // 「导出工作空间域」与基类卡标题 key（libs/text12.ts）同文不同 key：基类 es/fr/ja 译文长
+    // （"Exportar espacio de trabajo"）导航列必折行，导航版从短，导出卡标题继续用基类 key
+    // （宽卡面无折行问题）。
+    public get 块编辑() {
+        switch (this.lang) {
+            case "zh_CN": return "块编辑";
+            case "zh_CHT": return "塊編輯";
+            case "es_ES": return "Edición bloques";
+            case "fr_FR": return "Édition blocs";
+            case "ja_JP": return "ブロック編集";
+            case "en_US":
+            default: return "Block editing";
+        }
+    }
+    public get 导出工作空间域() {
+        switch (this.lang) {
+            case "zh_CN": return "导出工作空间";
+            case "zh_CHT": return "導出工作空間";
+            case "es_ES": return "Exportar";
+            case "fr_FR": return "Exporter";
+            case "ja_JP": return "エクスポート";
+            case "en_US":
+            default: return "Export";
+        }
+    }
+    public get 编辑器工具() {
+        switch (this.lang) {
+            case "zh_CN": return "编辑器工具";
+            case "zh_CHT": return "編輯器工具";
+            case "es_ES": return "Útiles editor";
+            case "fr_FR": return "Outils éditeur";
+            case "ja_JP": return "エディタツール";
+            case "en_US":
+            default: return "Editor tools";
+        }
+    }
+    public get AI问答() {
+        switch (this.lang) {
+            case "zh_CN": return "AI 问答";
+            case "zh_CHT": return "AI 問答";
+            case "es_ES": return "IA preguntas";
+            case "fr_FR": return "IA questions";
+            case "ja_JP": return "AI質問";
+            case "en_US":
+            default: return "AI Q&A";
+        }
+    }
+    // 编辑器工具域「编辑器外观与行为」折叠卡 summary（非导航，无折行约束）
+    public get 编辑器外观与行为() {
+        switch (this.lang) {
+            case "zh_CN": return "编辑器外观与行为";
+            case "zh_CHT": return "編輯器外觀與行為";
+            case "es_ES": return "Apariencia y comportamiento del editor";
+            case "fr_FR": return "Apparence et comportement de l'éditeur";
+            case "ja_JP": return "エディタの外観と動作";
+            case "en_US":
+            default: return "Editor appearance & behavior";
+        }
+    }
+    // 反链域折叠垫底区 summary（数据库反链+引用修复两卡收拢）
+    public get 数据库反链与引用修复() {
+        switch (this.lang) {
+            case "zh_CN": return "数据库反链与引用修复";
+            case "zh_CHT": return "數據庫反鏈與引用修復";
+            case "es_ES": return "Retroenlaces BD y reparar refs";
+            case "fr_FR": return "Rétroliens BDD et réparation";
+            case "ja_JP": return "DBバックリンクと参照修復";
+            case "en_US":
+            default: return "DB backlinks & ref repair";
         }
     }
 }

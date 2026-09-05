@@ -1,7 +1,7 @@
 <script lang="ts">
-    // 设置域组件（□2 设置页重划）：文档管理——文档树工具 / 前缀文档树（自 ConfEditor.svelte
-    // 迁入）+ DailyNote（原 ConfDailyNote 全部）。各卡整块迁入（内部一行不动），
-    // 共享样式见 IndexConf.css。
+    // 设置域组件（□2 设置页重划；二期 14 域 2026-09-05 重排）：文档管理——DailyNote
+    // （域首卡，受欢迎待翻新）/ 文档树工具 / 前缀文档树（自 ConfEditor.svelte 迁入）。
+    // 各卡整块迁入（内部一行不动），共享样式见 IndexConf.css。
     import TomatoVIP from "./TomatoVIP.svelte";
     import NotebookSelect from "./NotebookSelect.svelte";
     import {
@@ -40,33 +40,6 @@
     let codeNotValid = $derived(!codeValid);
 </script>
 
-    <!-- 文档树工具 -->
-    <div class="settingBox">
-        <div class="section-title">
-            {tomatoI18n.文档树工具}
-            <ConfHelpIcon token="NXSPd81W4oxUJrxW2XsctewUn5g" />
-        </div>
-    </div>
-    <!-- 前缀文档树 -->
-    <div class="settingBox">
-        <div class="section-title">
-            <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesEnable} />
-            {tomatoI18n.前缀文档树}
-            <ConfHelpIcon token="WD3Nd8WCxozzE4xXIJucpFBPn9a" />
-        </div>
-        {#if $prefixArticlesEnable}
-            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesMenu} />
-                {tomatoI18n.menu添加右键菜单}: {PrefixArticles前缀文档树.langText()}
-                <HotkeyCap hk={PrefixArticles前缀文档树} pluginName="sy-tomato-plugin"></HotkeyCap>
-            </div>
-            <div>
-                <input class="b3-text-field" bind:value={$prefixArticlesSoftLimit} />
-                {tomatoI18n.最大列出的文件数量}
-            </div>
-        {/if}
-    </div>
     <!-- DailyNote -->
     <div class="settingBox">
         <div class="section-title">
@@ -166,5 +139,32 @@
                     {tomatoI18n.加入闪卡}
                 </div>
             {/if}
+        {/if}
+    </div>
+    <!-- 文档树工具 -->
+    <div class="settingBox">
+        <div class="section-title">
+            {tomatoI18n.文档树工具}
+            <ConfHelpIcon token="NXSPd81W4oxUJrxW2XsctewUn5g" />
+        </div>
+    </div>
+    <!-- 前缀文档树 -->
+    <div class="settingBox">
+        <div class="section-title">
+            <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesEnable} />
+            {tomatoI18n.前缀文档树}
+            <ConfHelpIcon token="WD3Nd8WCxozzE4xXIJucpFBPn9a" />
+        </div>
+        {#if $prefixArticlesEnable}
+            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesMenu} />
+                {tomatoI18n.menu添加右键菜单}: {PrefixArticles前缀文档树.langText()}
+                <HotkeyCap hk={PrefixArticles前缀文档树} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                <input class="b3-text-field" bind:value={$prefixArticlesSoftLimit} />
+                {tomatoI18n.最大列出的文件数量}
+            </div>
         {/if}
     </div>

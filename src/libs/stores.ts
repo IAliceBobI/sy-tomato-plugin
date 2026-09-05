@@ -450,7 +450,7 @@ export const superRefBoxCheckBox = settingFactory("superRefBoxCheckBox", false, 
 export const superRefBoxGlobalLnkMenu = settingFactory("superRefBoxGlobalLnkMenu", true, STORAGE_SETTINGS, null as TSK);
 export const blockEditorBox = settingFactory("blockEditorBox", false, STORAGE_SETTINGS, null as TSK);
 export const blockEditorMenu = settingFactory("blockEditorMenu", true, STORAGE_SETTINGS, null as TSK);
-// □5 快编辑器常驻悬浮球：开=onload 即挂收缩球（toggle 入口统一为球显隐）；默认开
+// □5 块编辑器常驻悬浮球：开=onload 即挂收缩球（toggle 入口统一为球显隐）；默认开
 // （提需求者本人要球；参照阅读点 readingFloatBar 默认 true）
 export const qeFloatBall = settingFactory("qeFloatBall", true, STORAGE_SETTINGS, null as TSK);
 export const superRefBoxGlobalFixMenu = settingFactory("superRefBoxGlobalFixMenu", true, STORAGE_SETTINGS, null as TSK);
