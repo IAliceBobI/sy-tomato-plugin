@@ -36,7 +36,6 @@
     let docID: string = $state();
     let docName: string = $state();
     let cozeFileRows: Block[] = $state([]);
-    export function destroy() {}
 
     onMount(async () => {
         if (anchorID) {

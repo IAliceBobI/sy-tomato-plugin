@@ -1,7 +1,7 @@
 <script lang="ts">
-    // 设置域组件（□2 设置页重划）：编辑与块——块配对工具（原 ConfBlocks 主体：总开关段+同步块/
-    // 长内容/高级三折叠区，互链与引用折叠区归反链域）+ 编辑器 CSS 小卡族（自 ConfEditor 归位）+
-    // 列表工具 + 复制为图片 + 阅读点 + 块编辑器。各卡整块迁入（内部一行不动），
+    // 设置域组件（□2 设置页重划）：编辑与块——块编辑器（域首卡）+ 块配对工具（原 ConfBlocks 主体：
+    // 总开关段+同步块/长内容/高级三折叠区，互链与引用折叠区归反链域）+ 编辑器 CSS 小卡族（自
+    // ConfEditor 归位）+ 列表工具 + 复制为图片 + 阅读点。各卡整块迁入（内部一行不动），
     // 共享样式见 IndexConf.css。
     import TomatoVIP from "./TomatoVIP.svelte";
     import {
@@ -41,18 +41,16 @@
         listBoxCheckbox,
         imgBoxCheckbox,
         imgBoxShowMenu,
-        readingAdd2Card,
-        readingAdd2DocName,
         readingAddDeleteMenu,
         readingAddJumpMenu,
         readingAddRPmenu,
-        readingDialog,
+        readingFloatBar,
         readingPointBoxCheckbox,
-        readingPointWithEnv,
-        readingSaveFile,
+        readingStatusBar,
         readingTopBar,
         blockEditorBox,
         blockEditorMenu,
+        qeFloatBall,
     } from "./libs/stores";
     import {
         LinkBox互相插入引用于下方创建,
@@ -95,6 +93,26 @@
 
     const pairFuncLabel = (k: string) => (tomatoI18n as any)[k] as string;
 </script>
+
+<!-- 块编辑器（钉住式第二视口翻新后为本域首卡） -->
+<div class="settingBox">
+    <div class="section-title">
+        <input type="checkbox" class="b3-switch" bind:checked={$blockEditorBox} />
+        块编辑器
+        <ConfHelpIcon token="AheDdwG35ol3qWxYPeYc8HennJf" />
+    </div>
+    {#if $blockEditorBox}
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$blockEditorMenu} />
+            {tomatoI18n.menu添加右键菜单 + "：" + BlockEditor打开编辑器.langText()}
+            <HotkeyCap hk={BlockEditor打开编辑器} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$qeFloatBall} />
+            {tomatoI18n.显示块编辑器悬浮球}
+        </div>
+    {/if}
+</div>
 
 <!-- 块配对工具（R5 □1 总开关化）：总开关联动全部命令注册与浮条出场；子选项收进折叠区
      （原生 details，默认收起，搜索命中 searchSettings 自动展开；互链与引用折叠区归反链域） -->
@@ -531,6 +549,10 @@
         <div>
             {ReadingPointBox查看阅读点.langText()}<HotkeyCap hk={ReadingPointBox查看阅读点} pluginName="sy-tomato-plugin"></HotkeyCap>
         </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$readingFloatBar} />
+            {tomatoI18n.显示阅读点悬浮球}
+        </div>
         <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$readingAddRPmenu} />
@@ -545,54 +567,12 @@
             {tomatoI18n.menu添加右键菜单}:{ReadingPointBox删除当前文档的阅读点.langText()}<HotkeyCap hk={ReadingPointBox删除当前文档的阅读点} pluginName="sy-tomato-plugin"></HotkeyCap>
         </div>
         <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$readingDialog} />
-            {tomatoI18n.用对话框的形式打开阅读点}
+            <input type="checkbox" class="b3-switch" bind:checked={$readingStatusBar} />
+            {tomatoI18n.状态栏添加阅读点开关钮}
         </div>
-        <div hidden={$readingDialog}>
-            <input class="b3-text-field" bind:value={$readingSaveFile} placeholder="doc name" />
-            {tomatoI18n.阅读点统一保存}
-        </div>
-
-        <div class:codeNotValid>
-            <input
-                disabled={codeNotValid}
-                class:codeNotValid
-                type="checkbox"
-                class="b3-switch"
-                bind:checked={$readingPointWithEnv}
-            />
-            {tomatoI18n.插入阅读点时记录当前所有打开的页签}
-            <TomatoVIP {codeValid}></TomatoVIP>
-        </div>
-
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$readingTopBar} />
             {tomatoI18n.topbar添加图标}
-        </div>
-
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$readingAdd2Card} />
-            {tomatoI18n.阅读点加入闪卡}
-        </div>
-
-        <div>
-            <input class="b3-text-field" bind:value={$readingAdd2DocName} />
-            {tomatoI18n.阅读点保存到指定文档}
-        </div>
-    {/if}
-</div>
-<!-- 块编辑器 -->
-<div class="settingBox">
-    <div class="section-title">
-        <input type="checkbox" class="b3-switch" bind:checked={$blockEditorBox} />
-        块编辑器
-        <ConfHelpIcon token="AheDdwG35ol3qWxYPeYc8HennJf" />
-    </div>
-    {#if $blockEditorBox}
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$blockEditorMenu} />
-            {tomatoI18n.menu添加右键菜单 + "：" + BlockEditor打开编辑器.langText()}
-            <HotkeyCap hk={BlockEditor打开编辑器} pluginName="sy-tomato-plugin"></HotkeyCap>
         </div>
     {/if}
 </div>

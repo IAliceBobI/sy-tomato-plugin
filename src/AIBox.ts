@@ -9,7 +9,7 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { OpenAIClient } from "./libs/openAI";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
@@ -88,7 +88,7 @@ class AIBox {
                 }
             });
             this.dm.add("1", () => { dialog.destroy() })
-            this.dm.add("2", () => { d.destroy() })
+            this.dm.add("2", () => { unmount(d) })
             this.dm.add("dm", () => { this.dm = null; })
         }
     }

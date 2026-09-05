@@ -39,25 +39,6 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "Disable strong reminders";
         }
     }
-    public get 用对话框的形式打开阅读点() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "用对话框的形式打开阅读点";
-            case "es_ES":
-                return "Abrir punto de lectura en forma de diálogo";
-            case "fr_FR":
-                return "Ouvrir le point de lecture sous forme de dialogue";
-            case "ja_JP":
-                return "ダイアログ形式で読書ポイントを開く";
-            case "zh_CHT":
-                return "用對話框的形式打開閱讀點";
-            case "it_IT":
-                return "Aprire il punto di lettura in forma di dialogo";
-
-            default:
-                return "Open reading point in dialog form";
-        }
-    }
     public get 触发快捷键时弹出对话框() {
         switch (this.lang) {
             case "zh_CN":

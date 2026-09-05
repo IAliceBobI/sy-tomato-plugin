@@ -1,5 +1,5 @@
 import { Dialog } from "siyuan";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { newID } from "stonev5-utils";
 import { DestroyManager } from "./libs/destroyer";
 import { tomatoI18n } from "./tomatoI18n";
@@ -40,6 +40,6 @@ export function openUnlockDialog(opts: UnlockOptions) {
         props: opts,
     });
     dm.add("1", () => dialog.destroy());
-    dm.add("2", () => d.destroy());
+    dm.add("2", () => unmount(d));
     dm.add("3", () => (dialogOpened = false));
 }

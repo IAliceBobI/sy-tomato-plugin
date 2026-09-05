@@ -9,7 +9,7 @@ import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { verifyKeyTomato } from "./libs/user";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { annotations } from "./Annotations";
 import { quickCollect, cachedDocName } from "./libs/annoCollect";
 import { openAnnoCollectDialog } from "./AnnoCollectDialog";
@@ -30,18 +30,8 @@ class CommentBox {
     svelteResize: () => void;
     svelte: CommentBoxSvelte;
 
+    /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役 */
     onload(plugin: BaseTomatoPlugin) {
-        if (plugin.initCfg()) {
-            this._onload(plugin)
-        } else {
-            (async () => {
-                await plugin.taskCfg;
-                this._onload(plugin);
-            })();
-        }
-    }
-
-    _onload(plugin: BaseTomatoPlugin) {
         // 划词工具条批注钮补态监听先于总开关早退挂上（MindWire 同款评审 P1-3）：工具条项
         // 恒附（构造期内核已收项早于设置落库），checkbox 关闭态冷启动若无监听，按钮裸露成
         // 点击无反馈的死按钮；sync gates 含 checkbox，off 态自动隐藏
@@ -278,7 +268,7 @@ class CommentBox {
             update() {
             },
             destroy() {
-                commentBox.svelte.destroy();
+                unmount(commentBox.svelte);
             },
             init: (dock) => {
                 const eleID = newID();

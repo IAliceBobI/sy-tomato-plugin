@@ -18,7 +18,7 @@ import { applyEntryCount, cachedEntryCount } from "./libs/bkRevision";
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 
 // □10 评审 P2① 代际标记：插件 reload 整轮重跑模块顶层（前端 loader window.eval
 // 无模块缓存），计数器挂 globalThis 跨代递增（盐前缀键防跨插件撞名）。旧实例
@@ -112,7 +112,7 @@ export class BKMaker {
                     this.refreshBacklinks();
                 }
             }, Math.max(2, Number(bk_refresh_interval_sec.get()) || 15) * 1000);
-            this.dm.add("maker del sv", () => sv.destroy())
+            this.dm.add("maker del sv", () => unmount(sv))
         })
     }
 

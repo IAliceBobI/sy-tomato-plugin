@@ -3,7 +3,8 @@
     import { DestroyManager } from "./libs/destroyer";
     import DialogSvelte from "./libs/DialogSvelte.svelte";
     import { tomatoI18n } from "./tomatoI18n";
-    import { DocTracer, getDocTracer, OpenSyFile2 } from "./libs/docUtils";
+    import { DocTracer, getDocTracer, OpenSyFile2, resetDocTracer } from "./libs/docUtils";
+    import { reloadSelfPlugin } from "./libs/pluginReload";
     import { getTomatoPluginInstance, siyuan } from "./libs/utils";
     interface PropsType {
         dm?: DestroyManager;
@@ -76,6 +77,12 @@
     async function goto(block: PartDate) {
         await OpenSyFile2(getTomatoPluginInstance(), block.docID);
     }
+
+    // 切换笔记本：重建文档追踪器（闭笔记本后新开的库初始扫描缺文档）+ 插件级重载
+    async function switchNotebook() {
+        resetDocTracer();
+        await reloadSelfPlugin();
+    }
 </script>
 
 {#snippet buttons()}
@@ -83,7 +90,7 @@
         <button
             title={tomatoI18n.切换笔记本}
             class="b3-button b3-button--outline tomato-button"
-            onclick={() => window.location.reload()}
+            onclick={switchNotebook}
         >
             📒
         </button>

@@ -10,7 +10,6 @@
     import { unbindBall } from "./actions/docAction";
     import { tomatoI18n } from "./tomatoI18n";
     import DialogSvelte from "./libs/DialogSvelte.svelte";
-    export function destroy() {}
 
     interface Props {
         dm: DestroyManager;

@@ -31,7 +31,6 @@
             ai();
         }
     };
-    export function destroy() {}
 
     onMount(() => {
         if ($aiBoxPrompts.length === 0) {

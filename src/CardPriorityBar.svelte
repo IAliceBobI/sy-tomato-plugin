@@ -39,7 +39,6 @@
     let priority: number = $state(0);
     let whiteSpace = $state(WEB_SPACE);
     let textContent: string;
-    export function destroy() {}
 
     onMount(async () => {
         {

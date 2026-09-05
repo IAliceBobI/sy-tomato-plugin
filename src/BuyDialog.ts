@@ -1,5 +1,5 @@
 import { Dialog } from "siyuan";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { newID } from "stonev5-utils";
 import { DestroyManager } from "./libs/destroyer";
 import BuyTomato from "./BuyTomato.svelte";
@@ -35,6 +35,6 @@ export function openBuyDialog(product: Product, title: string, activated = false
         }
     });
     dm.add("1", () => dialog.destroy())
-    dm.add("2", () => d.destroy())
+    dm.add("2", () => unmount(d))
     dm.add("3", () => dialogOpened = false)
 }

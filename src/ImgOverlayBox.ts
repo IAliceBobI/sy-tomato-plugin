@@ -8,7 +8,7 @@ import { imgOverlayCheckbox } from "./libs/stores";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { tomatoI18n } from "./tomatoI18n";
 import { newID } from "stonev5-utils";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { DestroyManager } from "./libs/destroyer";
 
 class ImgOverlayBox {
@@ -88,7 +88,9 @@ class ImgOverlayBox {
             }
         });
         dm.add("svelte", () => {
-            svelte.destroy();
+            // unmount 触发组件 onDestroy（canvas 对象存回 nextOverlays + dispose）后再
+            // stringify 存块属性——顺序依赖（原 d.destroy() 空转时存档从未生效，□3 激活）
+            unmount(svelte);
             let value = JSON.stringify(nextOverlays);
             if (value == "{}") value = "";
             const attrs = {};

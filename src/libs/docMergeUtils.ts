@@ -1,6 +1,7 @@
 // 文档合并/移动/元数据搬迁。从原 docUtils.ts 拆出（2026-08 重构），docUtils.ts 现为 re-export 桶。
 import { siyuan } from "./utils";
 import { CUSTOM_RIFF_DECKS } from "./gconst";
+import { reloadSelfPlugin } from "./pluginReload";
 import { tomatoI18n } from "../tomatoI18n";
 
 export function isMultiLineElement(md: string) {
@@ -43,7 +44,8 @@ export async function mergeDocs(doc1: string, hereID: string) {
     await siyuan.removeRiffCards([doc1]);
     await siyuan.pushMsg(tomatoI18n.正在删除老文件);
     await siyuan.removeDocByID(doc1);
-    window.location.reload();
+    // 内容搬运/删旧档全走事务与内核广播（编辑器/页签自动跟随），重载插件即够
+    await reloadSelfPlugin();
 }
 
 async function mergeMetaIntoDoc2(doc1: string, doc2: string) {

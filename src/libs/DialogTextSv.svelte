@@ -34,14 +34,14 @@
         }
     });
 
-    export function destroy() {
+    // 组件自杀通知 + 未确认关窗补发（原 export destroy 死代码，□3 正轨化激活；
+    // 现役调用方 alwaysConfirm 均 false、DialogTextArea 无活跃调用方——激活影响面零）
+    onDestroy(() => {
         dm.destroyBy("svelte");
         if (alwaysConfirm) {
             if (!fired) callback(inputText);
         }
-    }
-
-    onDestroy(destroy);
+    });
 
     async function btnClick() {
         fired = true;

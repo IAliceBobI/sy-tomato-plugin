@@ -9,11 +9,12 @@ import PrefixArticles from "./PrefixArticles.svelte"
 import { newID } from "stonev5-utils";
 import { adaptHotkey, Dialog } from "siyuan";
 import { prefixArticlesEnable, prefixArticlesMenu, prefixArticlesSoftLimit } from "./libs/stores";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 export const PrefixArticles前缀文档树 = winHotkey("shift+alt+g", "前缀文档树", "iconSort", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 export const PrefixArticlesDock = winHotkey("shift+alt+F5", "PrefixArticlesDock", "iconFiles", () => tomatoI18n.前缀文档树, false, prefixArticlesMenu)
 
-function __initPrefixArticles() {
+/** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役 */
+export function initPrefixArticles() {
     const plugin = getTomatoPluginInstance();
     if (prefixArticlesEnable.get()) {
         if (!events.isMobile) {
@@ -50,18 +51,6 @@ function __initPrefixArticles() {
         });
     } else {
         dm?.destroyBy();
-    }
-}
-
-export function initPrefixArticles() {
-    const plugin = getTomatoPluginInstance();
-    if (plugin.initCfg()) {
-        __initPrefixArticles()
-    } else {
-        (async () => {
-            await plugin.taskCfg;
-            __initPrefixArticles()
-        })();
     }
 }
 
@@ -123,7 +112,7 @@ function addDock() {
         },
     } as any); // addDock.init 的 dock 参数同 GraphBox：1.2.5 类型漏了，运行时仍传
     dm.add("dock", () => dock);
-    dm.add("svelte", () => svelte?.destroy())
+    dm.add("svelte", () => { if (svelte) unmount(svelte); })
 }
 
 async function findArticlesByPrefix(name: string, docID: string) {
@@ -151,7 +140,7 @@ async function findArticlesByPrefix(name: string, docID: string) {
         }
     });
     dm.add("1", () => dialog.destroy())
-    dm.add("2", () => d.destroy())
+    dm.add("2", () => unmount(d))
 }
 
 async function tryFixTracerByLike(like: string) {

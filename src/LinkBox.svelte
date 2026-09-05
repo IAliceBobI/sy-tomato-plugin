@@ -27,7 +27,6 @@
         return getAttribute(props.syncDiv, "custom-sync-origin-id");
     }
     let oriVer = $state("");
-    export function destroy() {}
 
     onMount(() => {
         const count = stringToNumber(

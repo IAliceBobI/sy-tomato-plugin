@@ -1,5 +1,5 @@
 import { Dialog } from "siyuan";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import Changelog from "./Changelog.svelte";
 import { events } from "./Events";
 import { DestroyManager } from "./destroyer";
@@ -23,5 +23,5 @@ export function openChangelogDialog(entries: ChangelogEntry[]) {    const dm = n
         props: { entries },
     });
     dm.add("dialog", () => dialog.destroy());
-    dm.add("svelte", () => d.destroy());
+    dm.add("svelte", () => unmount(d));
 }

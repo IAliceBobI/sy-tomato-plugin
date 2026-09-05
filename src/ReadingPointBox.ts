@@ -1,25 +1,25 @@
-import { Siyuan, add_href, cleanText, getBlockDiv, getID, removeSiyuanLnks, siyuan, siyuanCache, sleep, timeUtil, } from "./libs/utils";
 import { newID } from "stonev5-utils";
-import { events } from "./libs/Events";
-import { BlockNodeEnum, DATA_NODE_ID, DATA_SUBTYPE, DATA_TYPE, IN_BOOK_INDEX, MarkKey, PARAGRAPH_INDEX, READINGPOINT, RefIDKey, SiyuanNotebook } from "./libs/gconst";
-import { zipNways } from "./libs/functional";
-import { getBookID } from "./libs/progressive";
-import { gotoBookmark, removeReadingPoint } from "./libs/bookmark";
-import { Md5 } from "ts-md5";
-import { domBlankLine, domHdeading, domLnk, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
-import { OpenSyFile2 } from "./libs/docUtils";
-import { readingAdd2Card, readingAdd2DocName, readingAddDeleteMenu, readingAddJumpMenu, readingAddRPmenu, readingDialog, readingPointBoxCheckbox, readingPointWithEnv, readingSaveFile, readingTopBar, storeNoteBox_selectedNotebook } from "./libs/stores";
+import { events, EventType } from "./libs/Events";
+import { Dialog, Menu } from "siyuan";
+import { mount, unmount } from "svelte";
+import { currentDocReadingPoint, gotoBookmark, removeReadingPoint, setReadingPoint } from "./libs/bookmark";
+import { siyuan } from "./libs/utils";
+import { ClassActive } from "./libs/gconst";
+import { readingAddDeleteMenu, readingAddJumpMenu, readingAddRPmenu, readingFloatBallHidden, readingFloatBar, readingPointBoxCheckbox, readingStatusBar, readingTopBar } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import ReadingPoint from "./ReadingPoint.svelte"
+import ReadingPointBall from "./ReadingPointBall.svelte"
 import { DestroyManager } from "./libs/destroyer";
-import { Dialog } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
-import { mount } from "svelte";
 
-export type RPType = { dom: string, row?: Block, line?: string };
+// 阅读点翻新（readpoint 战役，spec：docs/tomato-reading-point-spec.md）：
+// 新模型=原文块直挂 custom-tomato-readat 属性（每文档一个，任何块类型可设），数据层在 libs/bookmark.ts。
+// rpfloatbar 战役（2026-09-05，spec：docs/tomato-reading-point-floatball-spec.md）：主交互面升级为
+// 悬浮球（球↔条双态，ReadingPointBall.svelte）；顶栏/状态栏钮语义统一=toggle 球显隐（readingFloatBar
+// 关时回退打开面板）；「最近在读」面板保留为完整面板（条上「面板」钮进入）。
+
 export const ReadingPointBox设置阅读点 = winHotkey("F7", "addBookmark", "iconBookmark", () => tomatoI18n.设置阅读点)
 export const ReadingPointBox跳到当前文档的阅读点 = winHotkey("alt+f5", "gotoBookmark", "iconForward", () => tomatoI18n.跳到当前文档的阅读点)
 export const ReadingPointBox删除当前文档的阅读点 = winHotkey("⌘F7", "deleteBookmark", "iconTrashcan", () => tomatoI18n.删除当前文档的阅读点)
@@ -27,20 +27,21 @@ export const ReadingPointBox查看阅读点 = winHotkey("ctrl+shift+enter", "sho
 
 class ReadingPointBox {
     private plugin: BaseTomatoPlugin;
-    private rpDocID = "";
-    private lastDocID: string;
+    private statusEl: HTMLElement | null = null;
+    /** 切文档异步竞态防护：await 归来时序号已变则丢弃（同一钮不显示旧文档状态） */
+    private statusSeq = 0;
+    /** click_editorcontent 时的光标块快照：状态栏/菜单点击会把 DOM 选区偷走（focus 移出编辑器），
+     *  事后读 events.lastBlockID 已空——真实用户点钮设点必中招，故点编辑器时就记住 */
+    private lastEditorBlockID = "";
+    /** 页签条点击捕获监听引用（unload 摘除用） */
+    private tabClickRef: (e: Event) => void = () => { };
+    /** 悬浮球（rpfloatbar 战役）：dm 管监听+卸载，target=body 宿主 div，sv=mount 返回 exports（refreshDocState/collapse） */
+    private ballDm: DestroyManager | null = null;
+    private ballTarget: HTMLElement | null = null;
+    private ballSv: any = null;
 
+    /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役 */
     onload(plugin: BaseTomatoPlugin) {
-        if (plugin.initCfg()) {
-            this._onload(plugin)
-        } else {
-            (async () => {
-                await plugin.taskCfg;
-                this._onload(plugin);
-            })();
-        }
-    }
-    _onload(plugin: BaseTomatoPlugin) {
         if (!readingPointBoxCheckbox.get()) {
             return;
         }
@@ -49,59 +50,60 @@ class ReadingPointBox {
         if (readingTopBar.get()) {
             plugin.addTopBar({
                 icon: "iconBookmark",
-                title: tomatoI18n.打开目录页书签页,
+                title: tomatoI18n.阅读点,
                 position: "left",
-                callback: async () => {
-                    await this.showContentsWithLock();
-                }
+                callback: () => this.onEntryClick(),
             });
         }
-
-        if (readingSaveFile.get() && !readingDialog.get()) { // 统一保存到文件
-            siyuan
-                .sqlOne(`select id from blocks where type='d' and content="${readingSaveFile.get()}" limit 1`)
-                .then(b => {
-                    this.rpDocID = b?.id;
-                })
+        if (readingStatusBar.get()) {
+            this.mountStatusBar();
         }
+        if (readingFloatBar.get()) {
+            this.mountBall();
+        }
+        plugin.eventBus.on("switch-protyle", () => {
+            this.lastEditorBlockID = "";
+            void this.refreshStatus();
+        });
+        // 初始加载补偿：?id= 直开的文档在插件 onload 前就发完了 switch-protyle（错过监听），
+        // 文档加载完成必发 loaded-protyle-static（内核 onGet 无条件发射）——补一次刷新（rpfloatbar e2e 实锤）
+        plugin.eventBus.on("loaded-protyle-static", () => void this.refreshStatus());
+        plugin.eventBus.on(EventType.click_editorcontent, () => {
+            const id = events.lastBlockID;
+            if (id) this.lastEditorBlockID = id;
+            // 编辑器活动≈文档上下文已切换（switch-protyle 只在 openFile 路径发，纯页签切换不发）
+            void this.refreshStatus();
+        });
+        // 页签点击无专门事件（同窗口切换不发 switch-protyle）：捕获 window click，命中页签条即刷钮态
+        this.tabClickRef = (e: Event) => {
+            const t = e.target as HTMLElement;
+            if (t?.closest?.(".layout-tab-bar")) void this.refreshStatus();
+        };
+        window.addEventListener("click", this.tabClickRef, true);
 
-        this.plugin.addCommand({
+        plugin.addCommand({
             langKey: ReadingPointBox设置阅读点.langKey,
             langText: ReadingPointBox设置阅读点.langText(),
             hotkey: ReadingPointBox设置阅读点.m,
-            callback: async () => {
-                const { selected, ids } = await events.selectedDivs();
-                for (const [div, id] of zipNways(selected, ids)) {
-                    this.addReadPointLock(id, div);
-                    break;
-                }
-            },
+            callback: () => void this.addFromSelection(),
         });
-
-        this.plugin.addCommand({
+        plugin.addCommand({
             langKey: ReadingPointBox查看阅读点.langKey,
             langText: ReadingPointBox查看阅读点.langText(),
             hotkey: ReadingPointBox查看阅读点.m,
-            callback: async () => {
-                await this.showContentsWithLock();
-            },
+            callback: () => this.showPanel(),
         });
-        this.plugin.addCommand({
+        plugin.addCommand({
             langKey: ReadingPointBox跳到当前文档的阅读点.langKey,
             langText: ReadingPointBox跳到当前文档的阅读点.langText(),
             hotkey: ReadingPointBox跳到当前文档的阅读点.m,
-            callback: async () => {
-                gotoBookmark(events.docID, this.plugin);
-            },
+            callback: () => void gotoBookmark(this.curDocID(), this.plugin),
         });
-
-        this.plugin.addCommand({
+        plugin.addCommand({
             langKey: ReadingPointBox删除当前文档的阅读点.langKey,
             langText: ReadingPointBox删除当前文档的阅读点.langText(),
             hotkey: ReadingPointBox删除当前文档的阅读点.m,
-            callback: async () => {
-                removeReadingPoint(events.docID);
-            },
+            callback: () => void this.removeCurrent(),
         });
 
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
@@ -112,10 +114,9 @@ class ReadingPointBox {
                     icon: ReadingPointBox设置阅读点.icon,
                     accelerator: ReadingPointBox设置阅读点.m,
                     click: () => {
+                        // 右键的是哪个块就设哪个（detail.element），不走选区解析
                         const blockID = detail?.element?.getAttribute("data-node-id") ?? "";
-                        if (blockID) {
-                            this.addReadPointLock(blockID, detail?.element);
-                        }
+                        this.addReadPointLock(blockID);
                     },
                 });
             }
@@ -125,7 +126,7 @@ class ReadingPointBox {
                     icon: ReadingPointBox跳到当前文档的阅读点.icon,
                     accelerator: ReadingPointBox跳到当前文档的阅读点.m,
                     click: () => {
-                        gotoBookmark(events.docID, this.plugin);
+                        void gotoBookmark(this.curDocID(), this.plugin);
                     },
                 });
             }
@@ -135,7 +136,7 @@ class ReadingPointBox {
                     icon: ReadingPointBox删除当前文档的阅读点.icon,
                     accelerator: ReadingPointBox删除当前文档的阅读点.m,
                     click: () => {
-                        removeReadingPoint(events.docID);
+                        void this.removeCurrent();
                     },
                 });
             }
@@ -151,13 +152,13 @@ class ReadingPointBox {
                 accelerator: ReadingPointBox设置阅读点.m,
                 click: () => {
                     for (const element of detail.blockElements) {
-                        const blockID = getID(element);
+                        const blockID = element.getAttribute("data-node-id");
                         if (blockID) {
-                            this.addReadPointLock(blockID, element);
+                            this.addReadPointLock(blockID);
                             break;
                         }
                     }
-                }
+                },
             });
         }
         if (readingAddJumpMenu.get()) {
@@ -166,313 +167,297 @@ class ReadingPointBox {
                 icon: ReadingPointBox跳到当前文档的阅读点.icon,
                 accelerator: ReadingPointBox跳到当前文档的阅读点.m,
                 click: () => {
-                    gotoBookmark(events.docID, this.plugin);
+                    void gotoBookmark(this.curDocID(), this.plugin);
                 },
             });
         }
     }
 
-    addReadPointLock(blockID: string, div: HTMLElement) {
-        navigator.locks.request("AddReadingPointLock2024-11-25 21:02:37", { ifAvailable: true }, async (lock) => {
-            if (lock) {
-                const run = async () => {
-                    siyuan.pushMsg(tomatoI18n.正在添加阅读点, 2000);
-                    await this.addReadPoint(blockID, div);
-                    await sleep(1000);
-                }
-                if (div.getAttribute(DATA_TYPE) == BlockNodeEnum.NODE_HEADING
-                    || div.getAttribute(DATA_TYPE) == BlockNodeEnum.NODE_PARAGRAPH
-                    || div.getAttribute(DATA_TYPE) == BlockNodeEnum.NODE_CODE_BLOCK
-                    || div.getAttribute(DATA_TYPE) == BlockNodeEnum.NODE_MATH_BLOCK
-                    || div.getAttribute(DATA_TYPE) == BlockNodeEnum.NODE_TABLE
-                ) {
-                    await run();
+    unload() {
+        window.removeEventListener("click", this.tabClickRef, true);
+        this.ballDm?.destroyBy();
+        this.ballDm = null;
+        const el = this.statusEl;
+        if (!el) return;
+        // SiYuan addStatusBar 只 push 不移除，同步摘掉防 detached 节点（带 listener）驻留内存（番茄钟先例）
+        el.remove();
+        const arr = (this.plugin as any)?.statusBarIcons as Element[];
+        const i = arr?.indexOf(el) ?? -1;
+        if (i >= 0) arr.splice(i, 1);
+        this.statusEl = null;
+    }
+
+    /** 外部入口（DailyNote 复制顺手设点/渐进摘抄设点）：签名保持兼容，div 参数已不消费（摘录改从 SQL 取） */
+    addReadPointLock(blockID = "", _div?: HTMLElement) {
+        navigator.locks.request("AddReadingPointLock2026-09-05", { ifAvailable: true }, async (lock) => {
+            try {
+                if (!lock) {
+                    siyuan.pushMsg(tomatoI18n.请等待上个操作完成);
                     return;
                 }
-                div = div.querySelector(`[${DATA_TYPE}="${BlockNodeEnum.NODE_PARAGRAPH}"]`) as HTMLElement;
-                if (div) {
-                    blockID = div.getAttribute(DATA_NODE_ID)
-                    await run();
+                if (!blockID) blockID = await this.resolveTargetBlockID();
+                if (!blockID) {
+                    siyuan.pushMsg(tomatoI18n.请先点击一个内容块);
                     return;
                 }
-            } else {
-                siyuan.pushMsg(tomatoI18n.请等待上个操作完成);
+                const ok = await setReadingPoint(blockID);
+                await siyuan.pushMsg(ok ? tomatoI18n.已设置阅读点 : tomatoI18n.docNotFound, 2000);
+                this.refreshStatusAfterWrite();
+            } catch (e) {
+                // UI 动作永不静默崩：锁回调里的 rejection 无人接，必须自己兜住上 console
+                console.error("[tomato][rp] addReadPointLock:", e);
             }
         });
     }
 
-    private async insertContents(docID: string, noteCfg: SiyuanNotebook) {
-        const taskAttrs = siyuan.getBlockAttrs(docID);
-        const md5 = new Md5();
-        const { doms } = await this.getReadingPointRows(md5, noteCfg);
-        const hash = md5.end().toString();
-        const attrs = await taskAttrs;
-        if (hash !== attrs["custom-tomato-rp-content-hash"]) {
-            const ops = [];
+    /** 当前文档 ID：DOM 直查激活窗口的可见编辑器优先（:not(.fn__none) 滤隐藏页签）——events.docID
+     *  依赖 switch-protyle 的 detail.event 门槛、reload/页签切换后常陈旧（e2e 实锤），只作兜底 */
+    private curDocID(): string {
+        const el = document.querySelector(`.${ClassActive} .protyle:not(.fn__none) .protyle-title[data-node-id]`)
+            ?? document.querySelector(".protyle:not(.fn__none) .protyle-title[data-node-id]");
+        const id = el?.getAttribute("data-node-id");
+        if (id) return id;
+        return events.docID;
+    }
 
-            const newAttr = {} as AttrType;
-            newAttr["custom-tomato-rp-content-hash"] = hash;
-            newAttr["custom-sy-readonly"] = "";
-            newAttr["custom-off-tomatobacklink"] = "1";
-            ops.push(...siyuan.transbatchSetBlockAttrs([{ id: docID, attrs: newAttr }]));
+    /** 设点目标解析：选区第一块 → 编辑器光标块快照（选区被 UI 点击偷走后仍可用）→ 视口首个可见块 */
+    private async resolveTargetBlockID(): Promise<string> {
+        // selectedDivs 在 events.protyle 为空时（插件 reload 后未再切文档）走 {} 早退分支，须防 undefined
+        const { ids } = (await events.selectedDivs()) ?? {};
+        if (ids?.length) return ids[0];
+        if (this.lastEditorBlockID) return this.lastEditorBlockID;
+        return this.firstVisibleBlockID();
+    }
 
-            ops.push(...await siyuan.getChildBlocks(docID)
-                .then(blocks => siyuan.transDeleteBlocks(blocks.map(b => b.id))));
-            ops.push(...siyuan.transInsertBlocksAsChildOf(doms.map(i => i.dom), docID));
-            await siyuan.transactions(ops);
-            await siyuan.pushMsg(tomatoI18n.更新阅读点目录, 2000);
+    /** 兜底：无选区无光标快照时取视口内首个可见内容块（「我正读到这」的滚动位置语义）；
+     *  events.protyle 同样受 reload 空态影响，DOM 直查激活窗口兜底 */
+    private firstVisibleBlockID(): string {
+        const fromState = (events.protyle as any)?.protyle?.wysiwyg?.element as HTMLElement | undefined;
+        const wysiwyg = fromState
+            ?? ([...document.querySelectorAll(".layout__wnd--active .protyle-wysiwyg")] as HTMLElement[])
+                .find(w => w.getBoundingClientRect().height > 0);
+        if (!wysiwyg) return "";
+        const top = wysiwyg.getBoundingClientRect().top;
+        for (const child of wysiwyg.children) {
+            const el = child as HTMLElement;
+            const id = el.getAttribute("data-node-id");
+            if (!id) continue;
+            if (el.getBoundingClientRect().bottom > top + 8) return id;
+        }
+        return "";
+    }
+
+    /** 命令/状态栏菜单入口 */
+    private addFromSelection() {
+        this.addReadPointLock();
+    }
+
+    private async removeCurrent() {
+        try {
+            await removeReadingPoint(this.curDocID());
+            await siyuan.pushMsg(tomatoI18n.已删除阅读点, 2000);
+            this.refreshStatusAfterWrite();
+        } catch (e) {
+            // actions.del 的 void 吞 rejection，UI 动作永不静默崩（addReadPointLock 同款纪律）
+            console.error("[tomato][rp] removeCurrent:", e);
+        }
+    }
+
+    // ---------------- 状态栏指示钮 ----------------
+
+    private mountStatusBar() {
+        const el = document.createElement("div");
+        el.className = "toolbar__item ariaLabel";
+        el.id = "tomato-rp-status";
+        el.innerHTML = `<svg><use xlink:href="#iconBookmark"></use></svg>`;
+        el.addEventListener("click", () => void this.onStatusClick());
+        el.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.openStatusMenu(e);
+        });
+        // 移动端长按开菜单（pointerType=mouse 走 contextmenu 不走此通道，渐进舰队书卡先例）
+        let lpTimer = 0;
+        const lpClear = () => {
+            if (lpTimer) {
+                clearTimeout(lpTimer);
+                lpTimer = 0;
+            }
+        };
+        el.addEventListener("pointerdown", (e) => {
+            if (e.pointerType === "mouse") return;
+            lpTimer = window.setTimeout(() => {
+                lpTimer = 0;
+                this.openStatusMenu(e);
+            }, 500);
+        });
+        ["pointerup", "pointercancel", "pointermove"].forEach(t => el.addEventListener(t, lpClear));
+        this.plugin.addStatusBar({ element: el, position: "left" });
+        this.statusEl = el;
+        void this.refreshStatus();
+    }
+
+    /** 顶栏/状态栏入口统一语义：readingFloatBar 开→toggle 球显隐；关→回退打开面板 */
+    private onEntryClick() {
+        if (readingFloatBar.get() && this.ballSv) {
+            void this.toggleBall();
         } else {
-            await siyuan.pushMsg(tomatoI18n.阅读点目录已是最新, 2000);
+            this.showPanel();
         }
     }
 
-    private async getReadingPointRows(md5: Md5, noteCfg: SiyuanNotebook) {
-        const doms: RPType[] = [];
-        const rows = await siyuan.sql(`select id,hpath,content from blocks where id in 
-            (select block_id from attributes where name="bookmark" and value!="🛑 Suspended Cards")
-        `);
-        if (rows?.length > 0) {
-            let i = 1;
-            for (const row of rows) {
-                const h = `${noteCfg.name}${row.hpath}`
-                md5?.appendStr(h);
-                doms.push({ dom: domHdeading(null, h, "h6") })
-                const l = `【${i++}】` + removeSiyuanLnks(row.content);
-                md5?.appendStr(l);
-                doms.push({ dom: domLnk(null, row.id, l), row, line: domBlankLine(null, l) })
-            }
+    /** 单击状态栏钮=入口统一语义（原双态跳/设已由悬浮球承接） */
+    private async onStatusClick() {
+        this.onEntryClick();
+    }
+
+    /** 设/删点后的多刷：写后立即查可能仍读到旧 attributes（内核 SQL 写读延迟窗口秒级且
+     *  波动，e2e 实锤两个方向：设点后读到空=球半暗假象、删点后读到旧值=球亮着假象）——
+     *  0/1.2s/3s 三段补刷；期间任何事件刷新以 seq 竞态丢弃旧结果，无叠加副作用 */
+    private refreshStatusAfterWrite() {
+        void this.refreshStatus();
+        setTimeout(() => void this.refreshStatus(), 1200);
+        setTimeout(() => void this.refreshStatus(), 3000);
+    }
+
+    private async refreshStatus() {
+        const seq = ++this.statusSeq;
+        const cur = await currentDocReadingPoint(this.curDocID());
+        if (seq !== this.statusSeq) return;
+        // 球：推送当前文档点态（mount 返回 exports，AGENTS 踩坑表语义）
+        this.ballSv?.refreshDocState?.(cur);
+        // 状态栏钮：开关语义反馈——球在场=点亮，球隐藏=半暗（点态指示已由球本体承接）
+        const el = this.statusEl;
+        if (el) {
+            const ballOn = readingFloatBar.get() && !readingFloatBallHidden.get();
+            el.style.opacity = ballOn ? "" : "0.4";
+            el.style.color = ballOn ? "var(--b3-theme-primary)" : "";
+            el.setAttribute("aria-label", ballOn ? tomatoI18n.隐藏悬浮球 : tomatoI18n.显示悬浮球);
         }
-        return { doms }
     }
 
-    private async showContentsWithLock() {
-        navigator.locks.request("CreateDocLock2024-11-25 21:02:52", { ifAvailable: true }, async (lock) => {
-            if (lock) {
-                if (readingDialog.get()) {
-                    const { cfg } = await getContentsDocID(false);
-                    this.showDialog(cfg);
-                } else {
-                    if (this.rpDocID) {
-                        OpenSyFile2(this.plugin, this.rpDocID);
-                    } else {
-                        const { docID, cfg } = await getContentsDocID();
-                        if (docID) {
-                            OpenSyFile2(this.plugin, docID);
-                            await this.insertContents(docID, cfg);
-                        }
-                    }
-                }
-            }
+    /** 状态栏钮右键/长按菜单：independent 第三参防 click 冒泡单例坑（AGENTS 踩坑表，openBookMenu 同款） */
+    private openStatusMenu(ev: { clientX: number, clientY: number }) {
+        const menu = new (Menu as any)("tomatoRpStatusMenu", undefined, true) as Menu;
+        if (readingFloatBar.get() && this.ballSv) {
+            menu.addItem({
+                label: readingFloatBallHidden.get() ? tomatoI18n.显示悬浮球 : tomatoI18n.隐藏悬浮球,
+                icon: "iconEyeoff",
+                click: () => void this.toggleBall(),
+            });
+        }
+        menu.addItem({
+            label: ReadingPointBox查看阅读点.langText(),
+            click: () => this.showPanel(),
         });
+        setTimeout(() => menu.open({
+            x: ev.clientX > 0 ? ev.clientX : innerWidth / 2,
+            y: ev.clientY > 0 ? ev.clientY : innerHeight / 2,
+        }), 0);
     }
 
-    private async showDialog(noteCfg: SiyuanNotebook) {
-        const { doms } = await this.getReadingPointRows(null, noteCfg);
-        const dm = new DestroyManager();
-        const id = newID();
-        const dialog = new Dialog({
-            title: tomatoI18n.阅读点,
-            content: `<div id="${id}"></div>`,
-            width: events.isMobile ? "90vw" : "700px",
-            height: events.isMobile ? "180vw" : "700px",
-            destroyCallback: () => {
-                dm.destroyBy("1")
-            },
-        });
-        const d = mount(ReadingPoint, {
-            target: dialog.element.querySelector("#" + id),
+    // ---------------- 悬浮球（rpfloatbar 战役） ----------------
+
+    private mountBall() {
+        if (this.ballSv) return;
+        this.ballDm = new DestroyManager();
+        this.ballTarget = document.body.appendChild(document.createElement("div"));
+        this.ballTarget.id = "tomato-rp-fball";
+        this.ballSv = mount(ReadingPointBall, {
+            target: this.ballTarget,
             props: {
                 plugin: this.plugin,
-                dialog,
-                dm,
-                doms,
-            }
+                dm: this.ballDm,
+                actions: {
+                    setPoint: () => this.addFromSelection(),
+                    jump: () => void gotoBookmark(this.curDocID(), this.plugin),
+                    del: () => void this.removeCurrent(),
+                    panel: () => this.showPanel(),
+                    hide: () => void this.toggleBall(),
+                    openMenu: (x: number, y: number) => this.openBallMenu(x, y),
+                },
+            },
         });
-        dm.add("1", () => { dialog.destroy() })
-        dm.add("2", () => { d.destroy() })
+        // Svelte 5 mount 返回 exports，卸载一律 unmount 正轨（AGENTS 踩坑表）
+        this.ballDm.add("sv", () => { unmount(this.ballSv); this.ballSv = null; });
+        this.ballDm.add("div", () => { this.ballTarget?.remove(); this.ballTarget = null; });
+        this.applyBallHidden();
+        void this.refreshStatus();
     }
 
-    private async addReadPoint(blockID: string, div: HTMLElement) {
-        if (!blockID) blockID = events.lastBlockID; // getCursorElement
-        if (!blockID) {
-            siyuan.pushMsg(tomatoI18n.请先点击一个内容块);
-            return;
-        }
-        const docInfo = await siyuan.getDocRowByBlockID(blockID)
-        if (!docInfo?.id) {
-            siyuan.pushMsg(tomatoI18n.docNotFound);
-            return;
-        }
-        const docID = docInfo.id;
-        if (!docInfo["hpath"]) return;
-        const path: Array<string> = docInfo["hpath"].split("/");
-        path.pop();
-        let title = path[path.length - 1];
-        if (title === "") {
-            const boxConf = await siyuan.getNotebookConf(docInfo["box"]);
-            title = boxConf["name"];
-        }
-
-        let { bookID } = await getBookID(docID);
-        if (!bookID) bookID = docID;
-        const oldIDs = await findAllReadingPoints(bookID) ?? [];
-        await this.addCardReadingPoint(blockID, div, docInfo, title, bookID, oldIDs);
+    private applyBallHidden() {
+        if (this.ballTarget) this.ballTarget.style.display = readingFloatBallHidden.get() ? "none" : "";
     }
 
-    private async addCardReadingPoint(blockID: string, div: HTMLElement, docInfo: Block, title: string, bookID: string, oldIDs: string[]) {
-        const list = new DomSuperBlockBuilder();
-        {
-            const line = domNewLine(tomatoI18n.阅读点);
-            add_href(line, blockID, docInfo.content);
-            list.append(line)
-        }
-        if (cleanText(div.textContent)) {
-            list.append(domNewLine(`${div.textContent}`))
-        }
+    /** toggle 球显隐（顶栏/状态栏/球菜单三入口同源）；display 切换保留实例，监听不重建 */
+    private async toggleBall() {
+        const next = !readingFloatBallHidden.get();
+        readingFloatBallHidden.set(next);
+        await readingFloatBallHidden.write();
+        this.applyBallHidden();
+        this.ballSv?.collapse?.();
+        void this.refreshStatus();
+        await siyuan.pushMsg(next ? tomatoI18n.已隐藏悬浮球 : tomatoI18n.已显示悬浮球, 1500);
+    }
 
-        let contentsName = readingSaveFile.get();
-        if (!this.rpDocID) {
-            const { rpDocName } = await getContentsDocID(false);
-            contentsName = rpDocName
-        }
-        if (readingPointWithEnv.get() && await verifyKeyTomato()) {
-            await addEnv(docInfo, contentsName, list);
-        }
+    /** 球右键/长按菜单（ReadingBallHelper 经组件 actions 转发；independent 第三参防单例坑） */
+    private openBallMenu(x: number, y: number) {
+        const menu = new (Menu as any)("tomatoRpBallMenu", undefined, true) as Menu;
+        menu.addItem({
+            label: ReadingPointBox设置阅读点.langText(),
+            icon: ReadingPointBox设置阅读点.icon,
+            click: () => void this.addFromSelection(),
+        });
+        menu.addItem({
+            label: ReadingPointBox跳到当前文档的阅读点.langText(),
+            icon: ReadingPointBox跳到当前文档的阅读点.icon,
+            click: () => void gotoBookmark(this.curDocID(), this.plugin),
+        });
+        menu.addItem({
+            label: ReadingPointBox删除当前文档的阅读点.langText(),
+            icon: ReadingPointBox删除当前文档的阅读点.icon,
+            click: () => void this.removeCurrent(),
+        });
+        menu.addItem({
+            label: ReadingPointBox查看阅读点.langText(),
+            click: () => this.showPanel(),
+        });
+        menu.addItem({
+            label: tomatoI18n.隐藏悬浮球,
+            icon: "iconEyeoff",
+            click: () => void this.toggleBall(),
+        });
+        setTimeout(() => menu.open({
+            x: x > 0 ? x : innerWidth / 2,
+            y: y > 0 ? y : innerHeight / 2,
+        }), 0);
+    }
 
-        let destID = ""
-        if (readingAdd2DocName.get()) {
-            destID = await siyuan.getDocRowsByName(readingAdd2DocName.get()).then(rows => rows?.at(0)?.id)
-        }
-        if (oldIDs && oldIDs.length > 0) {
-            const id = oldIDs.pop();
-            const domStr = await getDomStr(id, list);
-            const ops = siyuan.transDeleteBlocks(oldIDs);
+    // ---------------- 「最近在读」面板 ----------------
 
-            if (destID) {
-                //
-            } else {
-                if (this.rpDocID) {
-                    ops.push(...siyuan.transMoveBlocksAsChild([id], this.rpDocID));
-                } else {
-                    ops.push(...siyuan.transMoveBlocksAfter([id], blockID));
-                }
-            }
-
-            ops.push(...siyuan.transUpdateBlocks([{ id, domStr }]));
-            ops.push(...siyuan.transbatchSetBlockAttrs([{ id, attrs: { "bookmark": title, "custom-tomato-readingpoint": bookID } as AttrType }]));
-            ops.push(siyuan.transRemoveRiffCards(oldIDs));
-            if (readingAdd2Card.get()) {
-                ops.push(siyuan.transRemoveRiffCards(oldIDs));
-                ops.push(siyuan.transAddRiffCards([id]));
-                // Rating 描述了闪卡复习的评分。
-                // type Rating int8
-                // const (
-                //     Again Rating = iota + 1 // 完全不会，必须再复习一遍
-                //     Hard                    // 有点难
-                //     Good                    // 一般
-                //     Easy                    // 很容易
-                // )
-                await siyuan.reviewRiffCardByBlockID(id, 2);
-                const due = timeUtil.getYYYYMMDDHHmmss(timeUtil.nowts());
-                await siyuan.batchSetRiffCardsDueTimeByBlockID([{ id, due }]);
-            }
-            ops.push(siyuan.transDoUpdateUpdated(id));
-            await siyuan.transactions(ops).then(() => {
-                if (!this.lastDocID || this.lastDocID != docInfo.id) {
-                    this.lastDocID = docInfo.id;
-                    events.protyleReload()
-                }
-            })
-        } else {
-            const div = list.build()
-            div.setAttribute("bookmark", title)
-            div.setAttribute(READINGPOINT, bookID)
-            if (destID) {
-                await siyuan.insertBlocksAsChildOf([div.outerHTML], destID);
-            } else {
-                if (this.rpDocID) {
-                    await siyuan.insertBlocksAsChildOf([div.outerHTML], this.rpDocID);
-                } else {
-                    await siyuan.insertBlocksAfter([div.outerHTML], blockID);
-                }
-            }
-            if (readingAdd2Card.get()) {
-                setTimeout(() => siyuan.addRiffCards([list.id]), 800);
-            }
-        }
+    private showPanel() {
+        const dm = new DestroyManager();
+        const id = newID();
+        // 高度不传=内容自适应（思源 Dialog auto 撑开），面板内 max-height 兜底长列表
+        const dialog = new Dialog({
+            title: tomatoI18n.最近在读,
+            content: `<div id="${id}"></div>`,
+            width: events.isMobile ? "92vw" : "640px",
+            destroyCallback: () => dm.destroyBy("1"),
+        });
+        const target = dialog.element.querySelector("#" + id) as HTMLElement;
+        const app = mount(ReadingPoint, {
+            target,
+            props: {
+                plugin: this.plugin,
+                dm,
+                hotkey: ReadingPointBox设置阅读点.m || "F7",
+            },
+        });
+        dm.add("1", () => { dialog.destroy() });
+        // Svelte 5 mount 返回 exports，组件级收尾一律 unmount（AGENTS 踩坑表）
+        dm.add("2", () => { unmount(app) });
     }
 }
 
 export const readingPointBox = new ReadingPointBox();
-
-async function findAllReadingPoints(bookID: string) {
-    const rows = await siyuan.sqlAttr(`select block_id from attributes where name="${READINGPOINT}" and value="${bookID}"`);
-    const ids = rows.map(r => r.block_id);
-    return ids;
-}
-
-async function addEnv(docInfo: Block, rpDocName: string, list: DomSuperBlockBuilder) {
-    const docIDs = [...document.body.querySelectorAll("div.protyle-title.protyle-wysiwyg--attr")].map(e => e.getAttribute(DATA_NODE_ID));
-    [...document.body.querySelectorAll("li[data-initdata]")].forEach(e => {
-        const d = e.getAttribute("data-initdata");
-        const title = e.querySelector(".item__text")?.textContent;
-        const j: DocTabInitData = JSON.parse(d);
-        if (d && j) {
-            docIDs.push(j.rootId);
-            events.readingPointMap.set(j.rootId, {
-                docID: j.rootId, blockID: j.blockId, title, time: new Date(),
-            });
-        }
-    });
-    for (const docIDInPage of docIDs) {
-        const doc = events.readingPointMap.get(docIDInPage);
-        if (docInfo.id == docIDInPage) continue;
-        if (!doc) continue;
-        if (doc.title == rpDocName) continue;
-        let bID = doc.blockID;
-        if (bID) {
-            const docIDQuery = await siyuan.getDocIDByBlockID(bID);
-            if (docIDQuery != docIDInPage) bID = "";
-        }
-        if (doc) {
-            const line = domNewLine();
-            add_href(line, doc.docID, doc.title ?? "[[Doc]]");
-            if (bID) {
-                add_href(line, bID, `[[${tomatoI18n.光标}]]`);
-            }
-            list.append(line);
-        }
-    }
-}
-
-async function getDomStr(id: string, list: DomSuperBlockBuilder) {
-    const div = list.build();
-    const { div: oldDiv } = await getBlockDiv(id);
-    if (!oldDiv) return "<div></div>";
-    oldDiv.getAttributeNames().forEach(name => {
-        if (name == MarkKey) return;
-        if (name == RefIDKey) return;
-        if (name == PARAGRAPH_INDEX) return;
-        if (name == IN_BOOK_INDEX) return;
-        if (name == DATA_TYPE) return;
-        if (name == DATA_SUBTYPE) return;
-        if (name == "class") return;
-        div.setAttribute(name, oldDiv.getAttribute(name));
-    });
-    return div.outerHTML;
-}
-
-async function getContentsDocID(create = true) {
-    let boxID = storeNoteBox_selectedNotebook.getOr();
-    const cfg = Siyuan.notebooks.find(v => v.id == boxID);
-    if (!boxID || !cfg || cfg.closed) {
-        await siyuan.pushMsg(tomatoI18n.请先打开笔记本);
-        return {};
-    }
-    const rpDocName = "📚" + cfg.name;
-    let docID = "";
-    if (create) {
-        docID = await siyuanCache.createDocWithMdIfNotExists(5000, boxID, "/" + rpDocName, "", { "custom-off-tomatobacklink": "1" });
-    }
-    return { docID, cfg, rpDocName }
-}

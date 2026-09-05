@@ -241,7 +241,7 @@ class Annotations {
     /** 创建链路（入口语义不变：右键菜单/⌥⇧F）。□2 统一：弹窗=AnnoEdit 完整功能面
      *  （内嵌 Protyle 草稿+问 AI，与编辑同一 Dialog 形态/同一份尺寸记忆）；写链 doSave 不变 */
     async create(protyle: IProtyle) {
-        const t0 = Date.now(); // debugLog 打点锚：量化创建弹窗各段耗时（debugging/plugin-eng.md loki 节）
+        const t0 = Date.now(); // debugLog 打点锚：量化创建弹窗各段耗时（debugging/plugin-eng/infra.md「插件运行时调试日志」节）
         if (this.editOpening || document.querySelector(".b3-dialog--open")) return; // 已有弹窗/取数中不重入
         this.editOpening = true;
         try {
@@ -311,7 +311,7 @@ class Annotations {
                         this.doSave(protyle, text, isSel ? { txt: clipAnnoSelText(rangeText) } : undefined, selRange, selected, annoId)),
                 },
             });
-            dm.add("svelte", () => svelte.destroy());
+            dm.add("svelte", () => unmount(svelte));
             debugLog("anno_create", `phase=dialog_mounted ms=${Date.now() - t0} mode=${commentBoxAnnoEditorMode.get()}`, "anno");
         } finally {
             this.editOpening = false;
@@ -507,7 +507,7 @@ class Annotations {
                     },
                 },
             });
-            dm.add("svelte", () => svelte.destroy());
+            dm.add("svelte", () => unmount(svelte));
         } finally {
             this.editOpening = false;
         }

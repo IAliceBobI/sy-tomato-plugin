@@ -13,8 +13,6 @@
         entries.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE),
     );
 
-    export function destroy() {}
-
     function esc(s: string) {
         return s
             .replaceAll("&", "&amp;")

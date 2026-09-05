@@ -110,9 +110,8 @@
 
     // □3 迁 panelTip：设置弹窗 b3-dialog__body 同为 ov:auto 滚动容器，b3-tooltips__n 纯 CSS
     // 气泡贴顶/贴缘即裁；滚动即弃防线已上提 panelTip 模块级单例（勿在组件层再挂）。
-    // 注意收尾现状：Svelte 5 mount() 返回 exports，d.destroy() 是 IndexConf export 的空函数，
-    // 本组件 onDestroy 实际不触发——tip 摘除由 openSettings 的 dm.add("tip") 兜底；此处
-    // onDestroy 留作 unmount 链修复后的自动生效位（同款死代码先例=CommentBox export destroy）
+    // 收尾：面板卸载走 openSettings dm 链的 unmount（□3 正轨化）——本 onDestroy 与 dm.add("tip")
+    // 兜底双保险（destroyPanelTip 幂等）
     onDestroy(destroyPanelTip);
 </script>
 

@@ -10,7 +10,7 @@ import { tomato_clocks, tomato_clocks_audio, tomato_clocks_break, tomato_clocks_
 import { tomatoI18n } from "./tomatoI18n";
 import { verifyKeyTomato } from "./libs/user";
 import { newID } from "stonev5-utils";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { TomatoTimer, type TomatoPersist, type TomatoPhase, type TomatoRunConfig, type TomatoSnapshot, type TomatoCompleteVia } from "./libs/TomatoTimer";
 import { dayKey, recordPomodoro, statsFor, type TomatoStatsData } from "./libs/TomatoStats";
 import { FOCUS_ATTR, mergeFocusMinutes } from "./libs/TomatoFocus";
@@ -51,18 +51,8 @@ class TomatoClock {
     /** 明暗主题切换监听（□4）：计时中换主题即时换背景图，不再等下一次状态变化 */
     private themeObserver: MutationObserver | null = null;
 
+    /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役 */
     onload(plugin: BaseTomatoPlugin) {
-        if (plugin.initCfg()) {
-            this._onload(plugin)
-        } else {
-            (async () => {
-                await plugin.taskCfg;
-                this._onload(plugin);
-            })();
-        }
-    }
-
-    _onload(plugin: BaseTomatoPlugin) {
         if (!tomatoClockCheckbox.get()) return;
 
         this.customTab;
@@ -127,7 +117,7 @@ class TomatoClock {
                             dm: this.data.dm,
                         }
                     });
-                    this.data.dm.add("svelte", () => { this.data?.sv?.destroy(); });
+                    this.data.dm.add("svelte", () => { if (this.data?.sv) unmount(this.data.sv); });
                     this.data.dm.add("close svg btn", () => document.getElementById("closeWindow").click());
                 }
             },
@@ -314,7 +304,7 @@ class TomatoClock {
     }
 
     /** 即时重挂档位图标（□2：chips 勾选即时生效，不依赖整窗 reload）；
-     * 常驻倒计时项不动；未挂载态（主开关 off 时插件加载，_onload 未跑）跳过 */
+     * 常驻倒计时项不动；未挂载态（主开关 off 时插件加载，onload 未跑）跳过 */
     remountStatusIcons() {
         if (!this.countdownEl) return;
         for (const el of this.clockEls.values()) {
@@ -493,7 +483,7 @@ class TomatoClock {
             props: { vedioID, dm }
         });
         dm.add("1", () => dialog.destroy())
-        dm.add("2", () => d.destroy())
+        dm.add("2", () => unmount(d))
         this.breakDialog = dialog;
         this.breakCountdownEl = dialog.element.querySelector("#" + cdID);
         const snap = this.timer.snapshot();
@@ -558,7 +548,7 @@ class TomatoClock {
                 props: { vedioID, dm }
             });
             dm.add("1", () => { dialog.destroy() })
-            dm.add("2", () => { d.destroy() })
+            dm.add("2", () => { unmount(d) })
         } else {
             const tab = await openTab({ // custom
                 app: this.plugin.app,

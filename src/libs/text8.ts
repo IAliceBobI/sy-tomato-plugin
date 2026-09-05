@@ -298,23 +298,6 @@ export abstract class TomatoI18nABC8 extends TomatoI18nABC9 {
                 return "Move or copy to DailyNote always at the bottom";
         }
     }
-    public get 插入阅读点时记录当前所有打开的页签() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "插入阅读点时，记录当前所有打开的页签";
-            case "es_ES":
-                return "Al insertar un punto de lectura, registrar todas las pestañas abiertas actualmente";
-            case "fr_FR":
-                return "Lors de l'insertion d'un point de lecture, enregistrer toutes les onglets ouverts actuellement";
-            case "ja_JP":
-                return "読書ポイントを挿入するとき、現在開いているすべてのタブを記録する";
-            case "zh_CHT":
-                return "插入閱讀點時，記錄當前所有打開的頁籤";
-
-            default:
-                return "When inserting a reading point, record all currently open tabs";
-        }
-    }
     public get 鼠标悬浮显示闪卡挖空的内容() {
         switch (this.lang) {
             case "zh_CN":

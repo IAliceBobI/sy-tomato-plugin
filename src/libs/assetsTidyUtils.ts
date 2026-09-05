@@ -5,6 +5,7 @@ import { events } from "./Events";
 import { siyuan, chunks, readAllFiles, timeUtil } from "./utils";
 import { SPACE } from "./gconst";
 import { toolbarTidyExt } from "./stores";
+import { reloadSelfPlugin } from "./pluginReload";
 import { tomatoI18n, TomatoI18n } from "../tomatoI18n";
 import { zipNways } from "./functional";
 
@@ -141,7 +142,8 @@ export async function tidyAssets(tomatoI18n: TomatoI18n) {
             await siyuan.pushMsg("load all pics");
             await moveAndReplace(pics);
             siyuan.pushMsg(tomatoI18n.assets整理了x个文件(pics.length));
-            window.location.reload();
+            // 引用块已走 updateBlock 事务（广播刷新编辑器），重载插件即够
+            await reloadSelfPlugin();
         } else {
             siyuan.pushMsg(tomatoI18n.assets整理还在进行中);
         }

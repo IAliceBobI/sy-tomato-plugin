@@ -22,17 +22,8 @@ class ToolbarBox {
     private lastPart: HTMLElement;
     private cardElement: HTMLElement;
 
+    /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役 */
     onload(plugin: BaseTomatoPlugin) {
-        if (plugin.initCfg()) {
-            this._onload(plugin)
-        } else {
-            (async () => {
-                await plugin.taskCfg;
-                this._onload(plugin);
-            })();
-        }
-    }
-    _onload(plugin: BaseTomatoPlugin) {
         if (!toolbarBoxCheckbox.get()) {
             return;
         }
@@ -223,6 +214,8 @@ async function changeLang(lang: string) {
     // TLang 在 siyuan@1.2.x 只剩 BCP 47 码；内核 util.LangToBCP47 仍接受 zh_CN 等历史码，行为不变
     c.conf.appearance.lang = lang as Config.TLang;
     await siyuan.setAppearance(c.conf.appearance);
+    // 换的是内核 appearance.lang（思源本体 UI 语言），插件级 reloadSelfPlugin 刷不动
+    // 思源 chrome——此处保留整页 reload 是全仓唯一豁免（插件重载统一战役 □1 判定）
     window.location.reload();
 }
 

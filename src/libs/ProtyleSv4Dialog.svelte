@@ -13,7 +13,6 @@
 
     let { dm, docName = "", docID = $bindable("") }: Props = $props();
     let protyleTarget: HTMLElement = $state();
-    export function destroy() {}
 
     onDestroy(() => {
         dm.destroyBy();

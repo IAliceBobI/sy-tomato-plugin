@@ -8,6 +8,7 @@ import { resetKey, verifyFnByProduct, verifyLocalCode } from "./user";
 import type { Product } from "./user";
 import { licenseCloudSynced, userID, userToken } from "./stores";
 import { getMd5, siyuan } from "./utils";
+import { PACKAGE_BY_PRODUCT, reloadSelfPlugin } from "./pluginReload";
 
 // 去易混 base32 字符集（无 0/1/I/L/O/U/V），与 tools/license-worker/src/services.ts
 // 的 REDEEM_CODE_RE 同源——两端一致性由 tools/license-worker/test 守护（改这里必须跑那边测试）
@@ -122,12 +123,13 @@ export async function activateFromCloud(
         return;
     }
     await siyuan.pushMsg(tomatoI18n.已完成购买正在激活);
-    userToken.write(r.code);
+    // await 落盘再 reload（write 返回落盘 Promise，抢跑会被重载掐断——stores.ts write 注释同款教训）
+    await userToken.write(r.code);
     // 云端取回的码天然已备份（license/{plugin}/{userID} 即其来源），写指纹挡后续查询
-    licenseCloudSynced.write(fingerprintOf(r.code));
+    await licenseCloudSynced.write(fingerprintOf(r.code));
     resetKey();
     if (await verifyFnByProduct(plugin)()) {
-        window.location.reload();
+        await reloadSelfPlugin(PACKAGE_BY_PRODUCT[plugin]);
     }
 }
 

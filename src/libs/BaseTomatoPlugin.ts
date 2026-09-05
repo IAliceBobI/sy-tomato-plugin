@@ -63,13 +63,4 @@ export class BaseTomatoPlugin extends Plugin {
     taskCfg: Promise<any>;
     settingCfg: TomatoSettings;
     pluginSpec: PluginSpec;
-    initCfg() {
-        const cfg = window.tomato_zZmqus5PtYRi?.pluginConfig;
-        if (cfg != null) {
-            console.debug("load cfg from global: pluginID: " + this.id);
-            this.settingCfg = cfg;
-            if (this.loadStore) this.loadStore(this);
-            return true;
-        }
-    }
 }

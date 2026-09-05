@@ -19,7 +19,7 @@ import {
     FloatingBallDocType_tab,
 } from "../libs/gconst";
 import ProtyleSv4Dialog from "../libs/ProtyleSv4Dialog.svelte";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { DestroyManager } from "../libs/destroyer";
 import type { BallAction } from "./index";
 
@@ -151,6 +151,6 @@ function openByDialog(ball: BallItem, autoclose = false) {
         dialog?.destroy();
     });
     dm.add("svelte", () => {
-        sv.destroy();
+        unmount(sv);
     });
 }

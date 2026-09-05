@@ -15,6 +15,7 @@
     import { productPrices } from "./BuyTomato.svelte";
     import { openBuyDialog } from "./BuyDialog";
     import { progressiveCodeFromApp } from "./libs/neighbor";
+    import { PACKAGE_BY_PRODUCT, reloadSelfPlugin } from "./libs/pluginReload";
 
     interface Props {
         // 插件标识：verify / redeem / 找回 的分流参数（tomato / progressive / recite）
@@ -38,9 +39,6 @@
     let showGeneric = $state(true); // 邻居格在场时默认折叠通用区，点「改用激活码或购买」展开
 
     const hasNeighbor = $derived(!!neighborCode);
-
-    // 供 unlockDialog.ts 的 DestroyManager 挂卸载：弹框关闭时正确清理 Svelte 实例。
-    export function destroy() {}
 
     onMount(() => {
         if (neighbor) {
@@ -69,7 +67,9 @@
             await userToken.write();
             await onActivated?.();
             await backfillCloudOnce(product);
-            window.location.reload();
+            // 按激活的 product 重载对应插件（本组件跨插件打包：recite 面板里激活 recite，
+            // 重载的是 sy-recite-plugin 而非默认 tomato）
+            await reloadSelfPlugin(PACKAGE_BY_PRODUCT[product]);
         } else {
             await siyuan.pushMsg(tomatoI18n.解锁失败);
             verifying = false;
@@ -128,7 +128,8 @@
             // 本地粘贴激活码路径顺手回填一次云端（spec 批次 B2；兑换码路径云端 issue
             // 已落 license 不走）——必须 await 完才 reload，reload 会掐断在途请求
             if (!redeem) await backfillCloudOnce(product);
-            window.location.reload();
+            // 按激活的 product 重载对应插件（本组件跨插件打包，勿默认 tomato）
+            await reloadSelfPlugin(PACKAGE_BY_PRODUCT[product]);
         }
     }
 </script>

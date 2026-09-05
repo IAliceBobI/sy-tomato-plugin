@@ -13,7 +13,7 @@ import { debugLog } from "./logUtils";
 
 // 球右键/长按菜单（期3 交互）：编辑（小 Dialog）/停用/删除。文案期6 已 i18n 收口。修饰键删除暗手势同期退役（docAction），
 // 删除唯一入口收敛到本菜单。Menu 必须 independent 第三参——非 independent 挂全局
-// 单例，click 冒泡到 window 被内核 remove 清空，open 撞空菜单静默不弹（kernel.md 坑）。
+// 单例，click 冒泡到 window 被内核 remove 清空，open 撞空菜单静默不弹（debugging/kernel/ui.md「思源 Menu 单例 vs 插件自建菜单」坑）。
 export function openBallMenu(ball: BallItem, x: number, y: number) {
     const menu = new (Menu as any)("tomato-fball-menu", undefined, true) as Menu;
     menu.addItem({
@@ -170,7 +170,7 @@ function ballOpacityOf(ball: BallItem): number {
     return Math.min(1, Math.max(0.5, ball.opacity ?? 1));
 }
 
-// 用户文本入 HTML（label 走 innerHTML，kernel.md：用户文本须转义 <>&）
+// 用户文本入 HTML（label 走 innerHTML，debugging/kernel/ui.md：用户文本须转义 <>&）
 function esc(s: string): string {
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }

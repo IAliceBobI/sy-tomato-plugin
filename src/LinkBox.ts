@@ -20,7 +20,7 @@ import { anchorEditExemptsVersionGuards, createTrailingDebouncer, decideGroupAct
 import { newID } from "stonev5-utils";
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -688,7 +688,7 @@ export async function showSyncBlocks(protyle: IProtyle, plugin: Plugin, element?
                     }
                 });
                 dm.add("1", () => { dialog.destroy() })
-                dm.add("2", () => { d.destroy() })
+                dm.add("2", () => { unmount(d) })
             }
         }
     }

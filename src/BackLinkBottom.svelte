@@ -3,7 +3,7 @@
     // 机制零改动带：doGetBackLinks 数据流（含 bkState/unchanged 短路）、navigator.locks 锁、
     // idsFilter 置底存储、keepHeight 滚动补偿、MutationObserver、refConceptClick 组合点击、
     // moveProtyle protyle 复用、块属性 key 全集、BKMaker 生命周期。
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
     import {
         NewLute,
         NewNodeID,
@@ -121,8 +121,6 @@
         back_link_follow_width.write(!back_link_follow_width.get());
     }
     const idsFilter = storeAttrManager();
-    onDestroy(() => {});
-    export function destroy() {}
 
     $effect(() => {
         maker.shouldFreeze = !$autoRefreshChecked;
@@ -707,7 +705,7 @@
 
     // ---------------- ⋯ 偏好菜单 / 卡 ⋯ 菜单（spec §3.2/§3.4） ----------------
 
-    /** independent 第三参防单例被同次 click 冒泡清空（debugging.md「思源 Menu 单例」坑） */
+    /** independent 第三参防单例被同次 click 冒泡清空（debugging/kernel/ui.md「思源 Menu 单例」坑） */
     function newIndependentMenu(id: string): Menu {
         return new (Menu as any)(id, undefined, true) as Menu;
     }

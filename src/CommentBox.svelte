@@ -79,7 +79,6 @@
 
     // 面板卸载摘自建 tip 单例（dock/tab 双实例同卸也幂等无害：下次 hover 自动重建）
     onDestroy(destroyPanelTip);
-    export function destroy() {}
 
     interface Props {
         dock: Dock;

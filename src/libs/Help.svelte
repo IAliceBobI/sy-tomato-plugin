@@ -9,8 +9,6 @@
 
     let { doc }: Props = $props();
 
-    export function destroy() {}
-
     function esc(s: string) {
         return s
             .replaceAll("&", "&amp;")

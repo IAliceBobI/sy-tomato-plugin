@@ -2,23 +2,6 @@ import { TomatoI18nABC10 } from "./text10";
 
 export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
 
-    public get 阅读点加入闪卡() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "阅读点加入闪卡";
-            case "es_ES":
-                return "Punto de lectura añadido a la tarjeta flash";
-            case "fr_FR":
-                return "Point de lecture ajouté à la carte mémoire";
-            case "ja_JP":
-                return "読書ポイントをフラッシュカードに追加";
-            case "zh_CHT":
-                return "閱讀點加入閃卡";
-
-            default:
-                return "Reading point added to flashcard";
-        }
-    }
     public get 跳到底部反链() {
         switch (this.lang) {
             case "zh_CN":
@@ -294,23 +277,6 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
 
             default:
                 return "Always keep the already loaded content";
-        }
-    }
-    public get 阅读点统一保存(): string {
-        switch (this.lang) {
-            case "zh_CN":
-                return "阅读点统一保存";
-            case "es_ES":
-                return "Guardar uniformemente los puntos de lectura";
-            case "fr_FR":
-                return "Enregistrer uniformément les points de lecture";
-            case "ja_JP":
-                return "読書ポイントを統一して保存する";
-            case "zh_CHT":
-                return "閱讀點統一保存";
-
-            default:
-                return "Uniformly save reading points";
         }
     }
     public get 数据库充当反链() {
@@ -810,25 +776,6 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
 
             default:
                 return "After creating a document with the selected paragraphs, delete the selected paragraphs";
-        }
-    }
-    public get 正在添加阅读点() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "正在添加阅读点";
-            case "es_ES":
-                return "Añadiendo punto de lectura";
-            case "fr_FR":
-                return "Ajout d'un point de lecture";
-            case "ja_JP":
-                return "読書ポイントを追加中";
-            case "zh_CHT":
-                return "正在添加閱讀點";
-            case "it_IT":
-                return "Aggiunta del punto di lettura";
-
-            default:
-                return "Adding reading point";
         }
     }
     public get 极简无序列表样式() {

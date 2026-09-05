@@ -82,7 +82,6 @@
     let layoutForm: LayoutForm = "lr";
     const edgeTypes = { labeledEdge: EdgeWithLabel };
     const nodeTypes = { tomatoNode: GraphNode, tomatoGroup: GraphGroup };
-    export function destroy() {}
 
     // graphbox 期2 折叠机制：完整树数据只建一次，$nodes/$edges 只装可见子图——
     // 折叠/展开 toggle 重算可见集（computeVisible/filterEdges）+局部重布局，折叠态图永远小、dagre 永远快
@@ -972,7 +971,7 @@
     // —— graphbox 期4 图→块交互 ——
 
     // 当前打开 rootID 文档的编辑器（events.protyle 冷启动 null，getAllEditor 全量兜底；
-    // kernel.md「Menu 单例」节同款配方）
+    // debugging/kernel/ui.md「思源 Menu 单例 vs 插件自建菜单」节同款配方）
     function editorOfRoot(rootID: string) {
         return (getAllEditor() as any[]).find(p => p?.protyle?.block?.rootID === rootID)?.protyle;
     }

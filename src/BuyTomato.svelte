@@ -58,9 +58,6 @@
     const expDisplay = $derived($expStore.replaceAll(" ", "").slice(0, 4) >= "2099"
         ? tomatoI18n.终身
         : $expStore.replaceAll(" ", ""));
-
-    // 供 BuyDialog.ts 的 DestroyManager 挂卸载：弹框关闭时正确清理 Svelte 实例。
-    export function destroy() {}
 </script>
 
 <div>

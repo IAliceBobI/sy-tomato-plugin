@@ -44,6 +44,13 @@ export async function getDocTracer(): Promise<DocTracer> {
     });
 }
 
+// 强制下次 getDocTracer 重建（全库重扫）。「切换笔记本」类入口用：闭笔记本后新开的库
+// 初始扫描缺文档（openNotebook 重建索引不发 create 广播，ws 增量追不上），旧版靠整页
+// location.reload 重建——插件级 reloadSelfPlugin 不杀 window 单例，须先显式清它
+export function resetDocTracer() {
+    window.tomato_zZmqus5PtYRi_doc_tracer = null;
+}
+
 export class DocTracer {
     private inited = false;
     private timestamp = "";

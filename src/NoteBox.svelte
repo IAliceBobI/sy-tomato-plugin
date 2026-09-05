@@ -25,7 +25,6 @@
 
     export let sm: DestroyManager = null;
     export let isDialog = false;
-    export function destroy() {}
 
     let NoteTypes = ["💡"];
     let inputArea: HTMLTextAreaElement;

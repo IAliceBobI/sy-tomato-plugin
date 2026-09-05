@@ -11,7 +11,7 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { createAndOpenFastNote } from "./libs/switchDraft";
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
-import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
+import { lastVerifyResult } from "./libs/user";
 
 export const DailyNoteBox上一个日志 = winHotkey("⌥Q", "previousNote", "iconLeft", () => tomatoI18n.上一个日志,)
 export const DailyNoteBox下一个日志 = winHotkey("⌥W", "nextNote", "iconRight", () => tomatoI18n.下一个日志,)
@@ -55,19 +55,10 @@ class DailyNoteBox {
             });
         }
     }
+    /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役；
+     * 原 else 分支的 await verifyKeyTomato() 系无消费方 warmup（onload 体不读验证态，
+     * 验证由 20 批自带 await 与使用时懒读覆盖），一并退役 */
     onload(plugin: BaseTomatoPlugin) {
-        if (plugin.initCfg()) {
-            this._onload(plugin)
-        } else {
-            (async () => {
-                await plugin.taskCfg;
-                await verifyKeyTomato()
-                this._onload(plugin);
-            })();
-        }
-    }
-
-    _onload(plugin: BaseTomatoPlugin) {
         if (!dailyNoteBoxCheckbox.get()) {
             return;
         }

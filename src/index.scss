@@ -1031,3 +1031,59 @@ html[data-theme-mode="dark"] .protyle-wysiwyg span[data-type="a"][data-href^="#t
     background-color: transparent;
   }
 }
+
+// =====================================================================
+// 快编辑器收缩球（二期期1，libs/qeBall.ts 命令式挂 body——scoped 剪不到须全局；
+// □5 起常驻球）。36px 圆球 iconEdit，theme 变量明暗自适应（fball 同款底子）；
+// 钉住角标右上角迷你 iconPin；拖拽微放大+阴影加深。
+.qe-ball {
+  z-index: 10; // 常驻浮层安全档（恒低于内核弹层最小 z11）
+  position: fixed;
+  touch-action: none; // pointer 拖拽单源（□5）：触摸下不交手势仲裁，拖拽流不被滚动打断
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--b3-theme-surface);
+  color: var(--b3-theme-on-surface);
+  border: 1px solid var(--b3-border-color);
+  /* 期4 P2（vision P2-1）：亮色下 surface 底与白背景只差 1px 描边——阴影加深一档给悬浮物体积感 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    transform: scale(1.08);
+    background: var(--b3-theme-background);
+  }
+}
+
+.qe-ball--dragging {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+}
+
+.qe-ball__pin {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  /* 16px 盒+10px icon（期4 P2，vision P2-3）：9px 细笔画 ×1.25 采样下语义糊成色点，放大一档救图标可读性 */
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: none; // 角标默认隐藏，钉住态由 .qe-ball--pinned 挂显
+  align-items: center;
+  justify-content: center;
+  // 主色填充徽章：与球同底色时 1x 采样下不可辨且咬口像破损（vision P1 实锤），
+  // 换对比色后 1x 立辨、叠边成为有意的徽章语言；图标随 color 反白
+  background: var(--b3-theme-primary);
+  border: 1px solid var(--b3-theme-primary);
+  color: var(--b3-theme-surface);
+}
+
+.qe-ball--pinned .qe-ball__pin {
+  display: flex;
+}

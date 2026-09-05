@@ -10,7 +10,7 @@ import { unfoldBlocks, nearestGraphAncestor } from "./libs/graphUnfold";
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { debugLog } from "./libs/logUtils";
 import { skeletonTreeFromHeadings, type HeadingRow } from "./libs/graphSkeleton";
 
@@ -37,17 +37,8 @@ class GraphBox {
     private lastRefreshedUpdated: string = ""; // 上次刷新时的文档 updated 时间戳
     private debounceTimer: ReturnType<typeof setTimeout> | null = null;
     private pollTimer: ReturnType<typeof setInterval> | null = null; // 3秒轮询定时器
+    /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役 */
     onload(plugin: BaseTomatoPlugin) {
-        if (plugin.initCfg()) {
-            this._onload(plugin)
-        } else {
-            (async () => {
-                await plugin.taskCfg;
-                this._onload(plugin);
-            })();
-        }
-    }
-    _onload(plugin: BaseTomatoPlugin) {
         if (!graphBoxCheckbox.get()) return;
 
         this.plugin = plugin;
@@ -323,7 +314,7 @@ class GraphBox {
                 // graphBox.getData(this).setCanvasSize() 这里会在同步时，更新文档树时，自动弹出dock框。
             },
             destroy(this) {
-                graphBox.getData(this as any).svelte.destroy();
+                unmount(graphBox.getData(this as any).svelte);
             },
             init: (dock) => {
                 const eleID = newID();

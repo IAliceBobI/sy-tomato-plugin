@@ -3,7 +3,7 @@ import { Dialog } from "siyuan";
 import { DestroyManager } from "./destroyer";
 import { events } from "./Events";
 import { newID } from "stonev5-utils";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 
 export class DialogTextArea {
     private title: string;
@@ -40,7 +40,7 @@ export class DialogTextArea {
                 useTextArea: true,
             }
         })
-        dm.add("svelte", () => svelte.destroy());
+        dm.add("svelte", () => unmount(svelte));
     }
 }
 
@@ -83,7 +83,7 @@ export class DialogText {
                 description: this.description,
             }
         });
-        dm.add("svelte", () => svelte.destroy());
+        dm.add("svelte", () => unmount(svelte));
     }
 }
 
@@ -113,7 +113,7 @@ export function showDialog(mount: (target: HTMLElement, dm: DestroyManager) => a
     const dm = new DestroyManager()
     const dialog = new Dialog(opt as any);
     const svelte = mount(dialog.element.querySelector("#" + id), dm);
-    dm.add("svelte", () => svelte.destroy())
+    dm.add("svelte", () => unmount(svelte))
     dm.add("dialog", () => dialog.destroy())
     return dm;
 }

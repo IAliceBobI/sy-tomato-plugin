@@ -1691,6 +1691,83 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 取消钉住() {
+        switch (this.lang) {
+            case "zh_CN": return "取消钉住，恢复跟随当前文档";
+            case "es_ES": return "Quitar fijado, volver a seguir el documento actual";
+            case "fr_FR": return "Détacher et suivre à nouveau le document actuel";
+            case "ja_JP": return "ピン留めを解除して現在の文書に追従";
+            case "zh_CHT": return "取消釘住，恢復跟隨當前文檔";
+            case "it_IT": return "Sblocca e torna a seguire il documento corrente";
+            case "de_DE": return "Anheften aufheben und dem aktuellen Dokument wieder folgen";
+            case "he_IL": return "בטל נעיצה וחזור לעקוב אחר המסמך הנוכחי";
+            case "ru_RU": return "Открепить и снова следовать за текущим документом";
+            case "pl_PL": return "Odepnij i wróć do podążania za bieżącym dokumentem";
+            case "ar_SA": return "إلغاء التثبيت والعودة لمتابعة المستند الحالي";
+            case "pt_BR": return "Desafixar e voltar a seguir o documento atual";
+            case "en_US":
+            default: return "Unpin and follow the current document again";
+        }
+    }
+
+    public get 显示块编辑器悬浮球() {
+        switch (this.lang) {
+            case "zh_CN": return "显示块编辑器悬浮球（常驻收缩球，点击展开编辑器面板）";
+            case "zh_CHT": return "顯示塊編輯器懸浮球（常駐收縮球，點擊展開編輯器面板）";
+            case "ja_JP": return "ブロックエディタのフローティングボールを表示（常駐ボール、クリックでパネル展開）";
+            case "es_ES": return "Mostrar el balón flotante del editor de bloques (balón permanente; clic para desplegar el panel)";
+            case "fr_FR": return "Afficher la balle flottante de l'éditeur de blocs (balle permanente ; clic pour déplier le panneau)";
+            case "it_IT": return "Mostra la palla flottante dell'editor di blocchi (palla persistente; clic per espandere il pannello)";
+            case "de_DE": return "Schwebenden Ball des Block-Editors anzeigen (dauerhafter Ball; Klick klappt das Bedienfeld aus)";
+            case "he_IL": return "הצג כדור צף של עורך הבלוקים (כדור קבוע; לחיצה מרחיבה את הפאנל)";
+            case "ru_RU": return "Показывать плавающий шар блочного редактора (постоянный шар; клик разворачивает панель)";
+            case "pl_PL": return "Pokaż pływającą kulę edytora bloków (stała kula; klik rozwija panel)";
+            case "ar_SA": return "إظهار الكرة العائمة لمحرر الكتل (كرة دائمة؛ النقر يوسّع اللوحة)";
+            case "pt_BR": return "Mostrar a bola flutuante do editor de blocos (bola permanente; clique expande o painel)";
+            case "en_US":
+            default: return "Show block editor floating ball (persistent ball; click to expand the panel)";
+        }
+    }
+
+    public get 钉住当前文档() {
+        switch (this.lang) {
+            case "zh_CN": return "钉住当前文档";
+            case "zh_CHT": return "釘住當前文檔";
+            case "ja_JP": return "現在の文書をピン留め";
+            case "es_ES": return "Fijar el documento actual";
+            case "fr_FR": return "Épingler le document actuel";
+            case "it_IT": return "Fissa il documento corrente";
+            case "de_DE": return "Aktuelles Dokument anheften";
+            case "he_IL": return "נעץ את המסמך הנוכחי";
+            case "ru_RU": return "Закрепить текущий документ";
+            case "pl_PL": return "Przypnij bieżący dokument";
+            case "ar_SA": return "تثبيت المستند الحالي";
+            case "pt_BR": return "Fixar o documento atual";
+            case "en_US":
+            default: return "Pin the current document";
+        }
+    }
+
+    // 快编辑器二期期1（spec §1.1）：面板收起钮 aria-label——只折叠回球，非关闭
+    public get 收起面板() {
+        switch (this.lang) {
+            case "zh_CN": return "收起面板，折叠为悬浮球";
+            case "es_ES": return "Contraer el panel a una bola flotante";
+            case "fr_FR": return "Réduire le panneau en balle flottante";
+            case "ja_JP": return "パネルを折りたたんでフローティングボールにする";
+            case "zh_CHT": return "收起面板，折疊為懸浮球";
+            case "it_IT": return "Comprimi il pannello in una sfera flottante";
+            case "de_DE": return "Panel zu schwebendem Ball einklappen";
+            case "he_IL": return "צמצם את הפאנל לכדור צף";
+            case "ru_RU": return "Свернуть панель в плавающий шар";
+            case "pl_PL": return "Zwiń panel do pływającej kulki";
+            case "ar_SA": return "تصغير اللوحة إلى كرة عائمة";
+            case "pt_BR": return "Recolher o painel em uma bola flutuante";
+            case "en_US":
+            default: return "Collapse panel to floating ball";
+        }
+    }
+
     public get 白名单为空请先在文档树中右键添加文档() {
         switch (this.lang) {
             case "zh_CN": return "白名单为空，请在文档树中右键添加文件夹或文档";
@@ -2256,17 +2333,6 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "画像オーバーレイを追加";
             case "en_US":
             default: return "Add picture overlay";
-        }
-    }
-    public get 打开目录页书签页() {
-        switch (this.lang) {
-            case "zh_CN": return "打开目录页/书签页";
-            case "zh_CHT": return "打開目錄頁/書籤頁";
-            case "es_ES": return "abrir página de índice/marcadores";
-            case "fr_FR": return "Ouvrir la page de contenu/page de signets";
-            case "ja_JP": return "コンテンツページ/ブックマークページを開く";
-            case "en_US":
-            default: return "Open contents/bookmark page";
         }
     }
     public get 休息一会儿吧() {
@@ -3450,6 +3516,44 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    /** □2 摘抄文档标题胶囊类型字标（片摘/书摘/札记三态，digestTagKind 判定） */
+    public get 片摘() {
+        switch (this.lang) {
+            case "zh_CN": return "片摘";
+            case "zh_CHT": return "片摘";
+            case "en_US":
+            default: return "Piece";
+        }
+    }
+
+    public get 书摘() {
+        switch (this.lang) {
+            case "zh_CN": return "书摘";
+            case "zh_CHT": return "書摘";
+            case "en_US":
+            default: return "Book";
+        }
+    }
+
+    public get 札记徽章() {
+        switch (this.lang) {
+            case "zh_CN": return "札记";
+            case "zh_CHT": return "札記";
+            case "en_US":
+            default: return "Note";
+        }
+    }
+
+    /** 胶囊 hover 来源提示第二行（第一行=类型字标；name=来源文档名） */
+    public 摘抄来源提示(name: string) {
+        switch (this.lang) {
+            case "zh_CN": return `来源：${name}`;
+            case "zh_CHT": return `來源：${name}`;
+            case "en_US":
+            default: return `From: ${name}`;
+        }
+    }
+
     /** 多摘列表头部计数（可见性期1 □1 B）：N=去重后的摘抄文档数 */
     public 摘抄列表共(n: number) {
         switch (this.lang) {
@@ -3931,6 +4035,15 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return `今日已讀 ${read}/${quota} · 欠債 ${debt}${due}\n點擊直達下一片`;
             case "en_US":
             default: return `Today ${read}/${quota} · debt ${debt}${due}\nClick for next piece`;
+        }
+    }
+
+    public get 火苗欠债标签() {
+        switch (this.lang) {
+            case "zh_CN": return "欠";
+            case "zh_CHT": return "欠";
+            case "en_US":
+            default: return "debt";
         }
     }
 
@@ -7496,10 +7609,10 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get tip摘抄落点() {
         switch (this.lang) {
-            case "zh_CN": return "摘抄文档的保存位置：\n集中归档=书摘抄进 prog-data/摘抄/digest-书名，非书文本进札记匣\n源文档下方=挂在来源书/文档之下（老版行为）\n日记卡片=并入当天日记文档";
-            case "zh_CHT": return "摘抄文檔的保存位置：\n集中歸檔=書摘抄進 prog-data/摘抄/digest-書名，非書文本進札記匣\n源文檔下方=掛在來源書/文檔之下（老版行為）\n日記卡片=併入當天日記文檔";
+            case "zh_CN": return "摘抄文档的保存位置：\n集中归档=书摘抄进 prog-data/摘抄/digest-书名，非书文本进札记匣（匣内按源文档 digest-源文档名 分夹归集）\n源文档下方=挂在来源书/文档之下（老版行为）\n日记卡片=并入当天日记文档";
+            case "zh_CHT": return "摘抄文檔的保存位置：\n集中歸檔=書摘抄進 prog-data/摘抄/digest-書名，非書文本進札記匣（匣內按源文檔 digest-源文檔名 分夾歸集）\n源文檔下方=掛在來源書/文檔之下（老版行為）\n日記卡片=併入當天日記文檔";
             case "en_US":
-            default: return "Where digest docs are stored:\nCentralized = book digests into prog-data/摘抄/digest-<book>, free text into the note box\nUnder source doc = under the source book/doc (legacy behavior)\nDaily card = into today's daily note";
+            default: return "Where digest docs are stored:\nCentralized = book digests into prog-data/摘抄/digest-<book>, free text into the note box (grouped per source doc as digest-<source>)\nUnder source doc = under the source book/doc (legacy behavior)\nDaily card = into today's daily note";
         }
     }
     // graphbox 期1 大文档三档（2026-09-03）：骨架提示/完整加载确认/轮询降级/加载态
@@ -7887,6 +8000,274 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "手動分片書無分片設置；要改回自動分片請點「重新分片」";
             case "en_US":
             default: return "Manual-split books have no piece settings; use \"Re-split\" to switch back to auto";
+        }
+    }
+
+    // ---------- 阅读点翻新（readpoint 战役，2026-09-05）：状态栏钮/面板/相对时间 ----------
+    public get 最近在读() {
+        switch (this.lang) {
+            case "zh_CN": return "最近在读";
+            case "zh_CHT": return "最近在讀";
+            case "ja_JP": return "最近の読書";
+            case "es_ES": return "Lecturas recientes";
+            case "fr_FR": return "Lectures récentes";
+            case "it_IT": return "Letture recenti";
+            case "en_US":
+            default: return "Recently reading";
+        }
+    }
+
+    public get 无匹配结果() {
+        switch (this.lang) {
+            case "zh_CN": return "没有匹配的阅读点";
+            case "zh_CHT": return "沒有匹配的閱讀點";
+            case "ja_JP": return "一致する読書ポイントがありません";
+            case "es_ES": return "Ningún punto de lectura coincide";
+            case "fr_FR": return "Aucun point de lecture correspondant";
+            case "it_IT": return "Nessun punto di lettura corrispondente";
+            case "en_US":
+            default: return "No matching reading points";
+        }
+    }
+    public get 当前文档无阅读点() {
+        switch (this.lang) {
+            case "zh_CN": return "当前文档还没有阅读点";
+            case "zh_CHT": return "目前文檔還沒有閱讀點";
+            case "ja_JP": return "このドキュメントには読書ポイントがありません";
+            case "es_ES": return "Este documento aún no tiene punto de lectura";
+            case "fr_FR": return "Ce document n'a pas encore de point de lecture";
+            case "it_IT": return "Questo documento non ha ancora un punto di lettura";
+            case "en_US":
+            default: return "No reading point in this document yet";
+        }
+    }
+    public get 已设置阅读点() {
+        switch (this.lang) {
+            case "zh_CN": return "已设置阅读点";
+            case "zh_CHT": return "已設置閱讀點";
+            case "ja_JP": return "読書ポイントを設定しました";
+            case "es_ES": return "Punto de lectura establecido";
+            case "fr_FR": return "Point de lecture défini";
+            case "it_IT": return "Punto di lettura impostato";
+            case "en_US":
+            default: return "Reading point set";
+        }
+    }
+    public get 已删除阅读点() {
+        switch (this.lang) {
+            case "zh_CN": return "已删除阅读点";
+            case "zh_CHT": return "已刪除閱讀點";
+            case "ja_JP": return "読書ポイントを削除しました";
+            case "es_ES": return "Punto de lectura eliminado";
+            case "fr_FR": return "Point de lecture supprimé";
+            case "it_IT": return "Punto di lettura eliminato";
+            case "en_US":
+            default: return "Reading point removed";
+        }
+    }
+    public get 搜索文档或摘录() {
+        switch (this.lang) {
+            case "zh_CN": return "搜索文档或摘录…";
+            case "zh_CHT": return "搜尋文檔或摘錄…";
+            case "ja_JP": return "ドキュメントや抜粋を検索…";
+            case "es_ES": return "Buscar documento o extracto…";
+            case "fr_FR": return "Rechercher document ou extrait…";
+            case "it_IT": return "Cerca documento o estratto…";
+            case "en_US":
+            default: return "Search docs or excerpts…";
+        }
+    }
+    public get 暂无阅读点() {
+        switch (this.lang) {
+            case "zh_CN": return "还没有阅读点——阅读时点击状态栏指示钮或按 {hotkey} 记录当前位置";
+            case "zh_CHT": return "還沒有閱讀點——閱讀時點擊狀態欄指示鈕或按 {hotkey} 記錄當前位置";
+            case "ja_JP": return "読書ポイントがありません——読書中にステータスバーのボタンまたは {hotkey} で現在地を記録";
+            case "es_ES": return "Aún no hay puntos de lectura: durante la lectura, pulsa el botón de la barra o {hotkey}";
+            case "fr_FR": return "Pas encore de point de lecture : pendant la lecture, cliquez sur le bouton de la barre ou {hotkey}";
+            case "it_IT": return "Nessun punto di lettura: durante la lettura, premi il pulsante della barra o {hotkey}";
+            case "en_US":
+            default: return "No reading points yet — click the status bar button or press {hotkey} while reading";
+        }
+    }
+    public get 旧版() {
+        switch (this.lang) {
+            case "zh_CN": return "旧版";
+            case "zh_CHT": return "舊版";
+            case "ja_JP": return "旧版";
+            case "es_ES": return "antiguo";
+            case "fr_FR": return "ancien";
+            case "it_IT": return "vecchio";
+            case "en_US":
+            default: return "legacy";
+        }
+    }
+    public get 空内容() {
+        switch (this.lang) {
+            case "zh_CN": return "（空）";
+            case "zh_CHT": return "（空）";
+            case "ja_JP": return "（空）";
+            case "es_ES": return "(vacío)";
+            case "fr_FR": return "(vide)";
+            case "it_IT": return "(vuoto)";
+            case "en_US":
+            default: return "(empty)";
+        }
+    }
+    public get 状态栏添加阅读点开关钮() {
+        switch (this.lang) {
+            case "zh_CN": return "状态栏添加阅读点开关钮（显示/隐藏悬浮球）";
+            case "zh_CHT": return "狀態欄添加閱讀點開關鈕（顯示/隱藏懸浮球）";
+            case "ja_JP": return "ステータスバーに読書ポイントスイッチを追加（フローティングボールの表示/非表示）";
+            case "es_ES": return "Botón de punto de lectura en la barra de estado (mostrar/ocultar el balón flotante)";
+            case "fr_FR": return "Bouton point de lecture dans la barre d'état (afficher/masquer la balle flottante)";
+            case "it_IT": return "Pulsante punto di lettura nella barra di stato (mostra/nascondi la palla flottante)";
+            case "en_US":
+            default: return "Add reading point switch to status bar (show/hide the floating ball)";
+        }
+    }
+
+    // ---------- 悬浮球（rpfloatbar 战役，2026-09-05）：球↔条双态主交互面 ----------
+    public get 阅读点悬浮球() {
+        switch (this.lang) {
+            case "zh_CN": return "阅读点悬浮球";
+            case "zh_CHT": return "閱讀點懸浮球";
+            case "ja_JP": return "読書ポイントフローティングボール";
+            case "es_ES": return "Balón de punto de lectura";
+            case "fr_FR": return "Balle de point de lecture";
+            case "it_IT": return "Palla punto di lettura";
+            case "en_US":
+            default: return "Reading point ball";
+        }
+    }
+    public get 显示阅读点悬浮球() {
+        switch (this.lang) {
+            case "zh_CN": return "显示阅读点悬浮球（收缩成球，点击展开成条维护阅读点）";
+            case "zh_CHT": return "顯示閱讀點懸浮球（收縮成球，點擊展開成條維護閱讀點）";
+            case "ja_JP": return "読書ポイントフローティングボールを表示（球に収納、クリックでバーを展開）";
+            case "es_ES": return "Mostrar el balón de punto de lectura (contraído como balón; clic para expandir la barra)";
+            case "fr_FR": return "Afficher la balle de point de lecture (repliée en balle ; cliquez pour déplier la barre)";
+            case "it_IT": return "Mostra la palla punto di lettura (richiusa come palla; clic per espandere la barra)";
+            case "en_US":
+            default: return "Show reading point floating ball (collapsed as a ball; click to expand the bar)";
+        }
+    }
+    public get 隐藏悬浮球() {
+        switch (this.lang) {
+            case "zh_CN": return "隐藏悬浮球";
+            case "zh_CHT": return "隱藏懸浮球";
+            case "ja_JP": return "フローティングボールを隠す";
+            case "es_ES": return "Ocultar el balón flotante";
+            case "fr_FR": return "Masquer la balle flottante";
+            case "it_IT": return "Nascondi la palla flottante";
+            case "en_US":
+            default: return "Hide floating ball";
+        }
+    }
+    public get 显示悬浮球() {
+        switch (this.lang) {
+            case "zh_CN": return "显示悬浮球";
+            case "zh_CHT": return "顯示懸浮球";
+            case "ja_JP": return "フローティングボールを表示";
+            case "es_ES": return "Mostrar el balón flotante";
+            case "fr_FR": return "Afficher la balle flottante";
+            case "it_IT": return "Mostra la palla flottante";
+            case "en_US":
+            default: return "Show floating ball";
+        }
+    }
+    public get 已隐藏悬浮球() {
+        switch (this.lang) {
+            case "zh_CN": return "已隐藏悬浮球（顶栏/状态栏图标可找回）";
+            case "zh_CHT": return "已隱藏懸浮球（頂欄/狀態欄圖標可找回）";
+            case "ja_JP": return "フローティングボールを非表示にしました（トップバー/ステータスバーのアイコンで復元）";
+            case "es_ES": return "Balón oculto (recupéralo con el icono de la barra superior o de estado)";
+            case "fr_FR": return "Balle masquée (retrouvez-la via l'icône de la barre supérieure ou d'état)";
+            case "it_IT": return "Palla nascosta (recuperala con l'icona della barra superiore o di stato)";
+            case "en_US":
+            default: return "Floating ball hidden (recover via the top bar / status bar icon)";
+        }
+    }
+    public get 已显示悬浮球() {
+        switch (this.lang) {
+            case "zh_CN": return "已显示悬浮球";
+            case "zh_CHT": return "已顯示懸浮球";
+            case "ja_JP": return "フローティングボールを表示しました";
+            case "es_ES": return "Balón mostrado";
+            case "fr_FR": return "Balle affichée";
+            case "it_IT": return "Palla mostrata";
+            case "en_US":
+            default: return "Floating ball shown";
+        }
+    }
+    public get 还没有阅读点() {
+        switch (this.lang) {
+            case "zh_CN": return "还没有阅读点";
+            case "zh_CHT": return "還沒有閱讀點";
+            case "ja_JP": return "読書ポイントがありません";
+            case "es_ES": return "Aún no hay puntos de lectura";
+            case "fr_FR": return "Pas encore de point de lecture";
+            case "it_IT": return "Nessun punto di lettura";
+            case "en_US":
+            default: return "No reading points yet";
+        }
+    }
+    public get 刚刚() {
+        switch (this.lang) {
+            case "zh_CN": return "刚刚";
+            case "zh_CHT": return "剛剛";
+            case "ja_JP": return "たった今";
+            case "es_ES": return "ahora mismo";
+            case "fr_FR": return "à l'instant";
+            case "it_IT": return "proprio ora";
+            case "en_US":
+            default: return "just now";
+        }
+    }
+    public X分钟前(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `${n} 分钟前`;
+            case "zh_CHT": return `${n} 分鐘前`;
+            case "ja_JP": return `${n} 分前`;
+            case "es_ES": return `hace ${n} min`;
+            case "fr_FR": return `il y a ${n} min`;
+            case "it_IT": return `${n} min fa`;
+            case "en_US":
+            default: return `${n} min ago`;
+        }
+    }
+    public X小时前(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `${n} 小时前`;
+            case "zh_CHT": return `${n} 小時前`;
+            case "ja_JP": return `${n} 時間前`;
+            case "es_ES": return `hace ${n} h`;
+            case "fr_FR": return `il y a ${n} h`;
+            case "it_IT": return `${n} h fa`;
+            case "en_US":
+            default: return `${n}h ago`;
+        }
+    }
+    public X天前(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `${n} 天前`;
+            case "zh_CHT": return `${n} 天前`;
+            case "ja_JP": return `${n} 日前`;
+            case "es_ES": return `hace ${n} d`;
+            case "fr_FR": return `il y a ${n} j`;
+            case "it_IT": return `${n} g fa`;
+            case "en_US":
+            default: return `${n}d ago`;
+        }
+    }
+    /** 阅读点相对时间：readingPointCore.relativeTime 的分档描述子 → 本地化文案（老点无时间戳返回空串） */
+    public 阅读点时间(desc: { kind: string, n?: number, date?: string } | null): string {
+        if (!desc) return "";
+        switch (desc.kind) {
+            case "justNow": return this.刚刚;
+            case "minutes": return this.X分钟前(desc.n);
+            case "hours": return this.X小时前(desc.n);
+            case "days": return this.X天前(desc.n);
+            default: return desc.date ?? "";
         }
     }
 }

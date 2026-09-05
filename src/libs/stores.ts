@@ -407,16 +407,27 @@ export const toolbarspacerepeat = settingFactory("toolbarspacerepeat", true, STO
 export const toolbarrefreshVr = settingFactory("toolbarrefreshVr", true, STORAGE_SETTINGS, null as TSK);
 export const toolbarlocatedoc = settingFactory("toolbarlocatedoc", true, STORAGE_SETTINGS, null as TSK);
 export const readingPointBoxCheckbox = settingFactory("readingPointBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
-export const readingPointWithEnv = settingFactory("readingPointWithEnv", false, STORAGE_SETTINGS, null as TSK);
 export const readingTopBar = settingFactory("readingTopBar", true, STORAGE_SETTINGS, null as TSK);
+// 阅读点翻新（2026-09）：状态栏指示钮（有点点亮点击跳回/无点半暗点击设点）；以下五项随老模型退役
+// （readingDialog/readingSaveFile/readingAdd2Card/readingAdd2DocName/readingPointWithEnv，存量 petal 值残留无害）
+export const readingStatusBar = settingFactory("readingStatusBar", false, STORAGE_SETTINGS, null as TSK);
 export const readingShowAllFolders = settingFactory("readingShowAllFolders", false, STORAGE_SETTINGS, null as TSK);
-export const readingAdd2Card = settingFactory("readingAdd2Card", true, STORAGE_SETTINGS, null as TSK);
-export const readingAdd2DocName = settingFactory("readingAdd2DocName", "", STORAGE_SETTINGS, null as TSK);
-export const readingSaveFile = settingFactory("readingSaveFile", "", STORAGE_SETTINGS, null as TSK);
-export const readingDialog = settingFactory("readingDialog", true, STORAGE_SETTINGS, null as TSK);
-export const readingAddRPmenu = settingFactory("readingAddRPmenu", true, STORAGE_SETTINGS, null as TSK);
-export const readingAddJumpMenu = settingFactory("readingAddJumpMenu", true, STORAGE_SETTINGS, null as TSK);
-export const readingAddDeleteMenu = settingFactory("readingAddDeleteMenu", true, STORAGE_SETTINGS, null as TSK);
+// rpfloatbar 战役（2026-09-05）入口收敛：悬浮球成主交互面（球↔条双态），状态栏/顶栏钮语义
+// 统一为 toggle 球显隐（readingFloatBar 关时回退打开面板）→ readingStatusBar 默认 true→false、
+// 三右键菜单开关默认 true→false（存量用户已存的 petal 值不受影响，settingFactory.load 存储值优先）
+export const readingAddRPmenu = settingFactory("readingAddRPmenu", false, STORAGE_SETTINGS, null as TSK);
+export const readingAddJumpMenu = settingFactory("readingAddJumpMenu", false, STORAGE_SETTINGS, null as TSK);
+export const readingAddDeleteMenu = settingFactory("readingAddDeleteMenu", false, STORAGE_SETTINGS, null as TSK);
+// 悬浮球主控（关=球整体不出场，顶栏/状态栏点击回退打开面板）；hidden=用户隐藏标记（球菜单/入口 toggle）
+export const readingFloatBar = settingFactory("readingFloatBar", true, STORAGE_SETTINGS, null as TSK);
+export const readingFloatBallHidden = settingFactory("readingFloatBallHidden", false, STORAGE_SETTINGS, null as TSK);
+/** 球位置持久化：九宫格锚点(0-8)+像素偏移（ballGeometry 同款语义；anchor=5 中右默认，避让 recite 右下/渐进左下） */
+export interface RPBallPos {
+    anchor: number; offsetX: number; offsetY: number;
+    /** 自由位像素（□4 自由拖动）：存在即优先于锚点模型渲染；拖拽松手写入，旧锚点存量不迁移 */
+    x?: number; y?: number;
+}
+export const readingFloatBallPos = settingFactory("readingFloatBallPos", { anchor: 5, offsetX: 0, offsetY: 0 } as RPBallPos, STORAGE_SETTINGS, null as TSK);
 export const cardBoxCheckbox = settingFactory("cardBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const cardBoxCardtab = settingFactory("cardBoxCardtab", false, STORAGE_SETTINGS, null as TSK);
 export const card_refresh_visible_only = settingFactory("card_refresh_visible_only", true, STORAGE_SETTINGS, null as TSK);
@@ -439,6 +450,9 @@ export const superRefBoxCheckBox = settingFactory("superRefBoxCheckBox", false, 
 export const superRefBoxGlobalLnkMenu = settingFactory("superRefBoxGlobalLnkMenu", true, STORAGE_SETTINGS, null as TSK);
 export const blockEditorBox = settingFactory("blockEditorBox", false, STORAGE_SETTINGS, null as TSK);
 export const blockEditorMenu = settingFactory("blockEditorMenu", true, STORAGE_SETTINGS, null as TSK);
+// □5 快编辑器常驻悬浮球：开=onload 即挂收缩球（toggle 入口统一为球显隐）；默认开
+// （提需求者本人要球；参照阅读点 readingFloatBar 默认 true）
+export const qeFloatBall = settingFactory("qeFloatBall", true, STORAGE_SETTINGS, null as TSK);
 export const superRefBoxGlobalFixMenu = settingFactory("superRefBoxGlobalFixMenu", true, STORAGE_SETTINGS, null as TSK);
 // R5 □1 总开关化退役：cpBoxCheckbox/linkBoxCheckbox/linkBoxSyncBlock 三功能开关并入
 // pairBarEnabled（老 petal 存量值读不到即忽略，零迁移）

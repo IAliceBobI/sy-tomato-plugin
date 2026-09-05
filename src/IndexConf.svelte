@@ -15,6 +15,7 @@
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
     import { saveRestorePagePosition } from "./libs/utils";
+    import { reloadSelfPlugin } from "./libs/pluginReload";
     import UpgradeBar from "./UpgradeBar.svelte";
     import { lastVerifyResult } from "./libs/user";
     import { searchSettings } from "./libs/ui";
@@ -71,7 +72,6 @@
         localStorage.setItem(SearchKeyItemKey, searchKey);
         localStorage.setItem(NavKeyItemKey, navActive);
     });
-    export function destroy() {}
 
     function navGo(id: string) {
         // 搜索态点导航=退出聚合视图清搜索跳该域（「搜索全库找、浏览按域翻」的跳转出口）
@@ -138,7 +138,7 @@
     async function save() {
         dm.destroyBy();
         await plugin.saveData(STORAGE_SETTINGS, plugin.settingCfg);
-        window.location.reload();
+        await reloadSelfPlugin();
     }
 </script>
 

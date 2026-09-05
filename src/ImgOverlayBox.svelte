@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import { fabric } from "fabric";
     import { getID } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
@@ -116,7 +116,10 @@
         }
     });
 
-    export function destroy() {
+    // fabric 收尾（原 export destroy 纯死代码——无调用方无 onDestroy 挂载，□3 正轨化激活）：
+    // canvas 对象位置存回 nextOverlays（.ts 侧 dm 链 unmount 后 stringify 存块属性，顺序依赖
+    // 本回调先跑）+ dispose 释放 canvas
+    onDestroy(() => {
         canvas?.getObjects().forEach((obj) => {
             nextOverlays.overlays.push({
                 left: obj.left,
@@ -128,7 +131,7 @@
             });
         });
         canvas?.dispose();
-    }
+    });
 
     function id2txt(id: number) {
         let txt = "#";

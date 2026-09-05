@@ -9,11 +9,10 @@ import { isPinned, removeStatusBar } from "./libs/ui";
 import { createRefDoc, OpenSyFile2 } from "./libs/docUtils";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { verifyKeyTomato } from "./libs/user";
 import { DomSuperBlockBuilder, domNewLine } from "./libs/sydom";
 import { winHotkey } from "./libs/winHotkey";
 import { newID } from "stonev5-utils";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 
 const DOCK_TYPE = "dock_NoteBox";
 const TAB_TYPE = "custom_tab_NoteBox";
@@ -49,20 +48,11 @@ class NoteBox {
     // private notebookID: string;
     mobilePinnedDailynoteID: string;
 
+    /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役。
+     * 注册体保持同步——verify 失败强关云同步冲突规避（Pro 门控）挪 index.onLayoutReady
+     * auth 簇：onload 注册链不再被网络往返阻塞（Box 链上后方的 readingPoint/graphBox/
+     * commentBox 注册时机回归独立，comment-dock e2e 实锤竞态 2026-09-05） */
     onload(plugin: BaseTomatoPlugin) {
-        if (plugin.initCfg()) {
-            this._onload(plugin)
-        } else {
-            (async () => {
-                await plugin.taskCfg;
-                if (!(await verifyKeyTomato())) {
-                    avoiding_cloud_synchronization_conflicts.set(false);
-                }
-                this._onload(plugin);
-            })();
-        }
-    }
-    _onload(plugin: BaseTomatoPlugin) {
         if (!noteBoxCheckbox.get()) return;
 
         this.plugin = plugin;
@@ -296,7 +286,7 @@ class NoteBox {
                         target: this.element.querySelector("#" + id),
                         props: { sm: this.data.sm }
                     });
-                    this.data.sm.add("svelte", () => { this.data.sv.destroy(); });
+                    this.data.sm.add("svelte", () => { unmount(this.data.sv); });
                 }
             },
             beforeDestroy() { },
@@ -327,7 +317,7 @@ class NoteBox {
             }
         });
         dm.add("1", () => { dialog.destroy() })
-        dm.add("2", () => { d.destroy() })
+        dm.add("2", () => { unmount(d) })
     }
 
     private async showInput() {

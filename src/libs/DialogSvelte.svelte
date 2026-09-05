@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount, tick } from "svelte";
+    import { onMount, tick, untrack } from "svelte";
     import type { Snippet } from "svelte";
     import { getProgressivePluginConfig, getTomatoPluginConfig, icon } from "./utils";
     import { events } from "./Events";
@@ -29,6 +29,12 @@
         resizable?: boolean;
         // 无 dm 时也可显示关闭按钮：点击时调用该回调（如隐藏悬浮菜单）
         onClose?: () => void;
+        // 快编辑器二期期1：收起钮（▾，标题栏关闭钮左侧）——只折叠回球，不销毁；不传不渲染
+        onCollapse?: () => void;
+        collapseLabel?: string;
+        // 初始位置覆盖（球位展开联动）：仅无存档时兜底用之（面板位置独立记忆优先，usertest2 □6），
+        // 尺寸照常从存档恢复
+        posOverride?: { x: number; y: number };
     }
 
     let {
@@ -52,6 +58,9 @@
         draggable = true,
         resizable = true,
         onClose = undefined,
+        onCollapse = undefined,
+        collapseLabel = undefined,
+        posOverride = undefined,
     }: PropsType = $props();
 
     let dialogElement: HTMLElement | null = $state(null);
@@ -121,8 +130,10 @@
                 dialogElement.style.minHeight = `${minHeight}px`;
             }
 
-            // 设置z-index
-            dialogElement.style.zIndex = zIndexPlus ? "999" : currentZIndex.toString();
+            // 设置z-index（currentZIndex 须 untrack 读：bringToFront（拖动/缩放启动必调）写它是
+            // $state 写——不 untrack 则本 effect 因它重跑，tick().then(loadPosition) 把面板拉回
+            // 存档位/球位=「一拖就跳回」根因，usertest2 □6；bringToFront 已直写 style.zIndex 即时生效）
+            dialogElement.style.zIndex = zIndexPlus ? "999" : String(untrack(() => currentZIndex));
 
             // 延迟加载位置，确保元素已渲染
             tick().then(() => {
@@ -430,6 +441,13 @@
                 h = cfg[key("height")] || null;
             }
 
+            // 球位展开联动（快编辑器）：posOverride 只作无存档兜底——面板位置独立记忆
+            // （拖后 savePosition 落档，重开/重启回拖后位置=「跟悬浮球一样」，usertest2 □6）；
+            // 有存档优先存档，都无居中
+            if (posOverride && !x && !y) {
+                setPosition(`${posOverride.x}px`, `${posOverride.y}px`, w, h);
+                return;
+            }
             setPosition(x, y, w, h);
         } catch (error) {
             console.error("Failed to load dialog position:", error);
@@ -560,24 +578,38 @@
             >
                 <div class="grabber-icon">≡</div>
                 <div class="grabber-title">{showTitle}</div>
-                {#if dm}
+                {#if onCollapse}
                     <button
-                        title={tomatoI18n.退出}
+                        title={collapseLabel}
                         class="close-button"
                         onclick={(e) => {
                             e.stopPropagation();
-                            dm.destroyBy();
+                            onCollapse();
                         }}
                     >
-                        {@html icon("iconClose", 15)}
+                        {@html icon("iconDown", 15)}
                     </button>
-                {:else if onClose}
+                {/if}
+                {#if onClose}
+                    <!-- onClose 优先于 dm：常驻球模型下 × = 宿主自定义收编（快编辑器=收起回球而非
+                         存在层销毁，usertest2 □6）；不传 onClose 的消费者保持 dm.destroyBy 原语义 -->
                     <button
                         title={tomatoI18n.退出}
                         class="close-button"
                         onclick={(e) => {
                             e.stopPropagation();
                             onClose();
+                        }}
+                    >
+                        {@html icon("iconClose", 15)}
+                    </button>
+                {:else if dm}
+                    <button
+                        title={tomatoI18n.退出}
+                        class="close-button"
+                        onclick={(e) => {
+                            e.stopPropagation();
+                            dm.destroyBy();
                         }}
                     >
                         {@html icon("iconClose", 15)}
@@ -673,7 +705,9 @@
     .prefix-dialog {
         background: var(--b3-theme-background);
         border-radius: 8px;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
+        /* Top4（期3）：暗色浮层边界——补边框+阴影调深一档（原 0 2px 16px .15 在暗底上无感） */
+        border: 1px solid var(--b3-border-color);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
         min-width: 50px;
         max-width: 90vw;
         pointer-events: all;
@@ -687,13 +721,16 @@
     }
 
     .prefix-dialog-grabber {
-        padding: 10px 15px;
+        /* 右 8px 与 dialog-content 左右 8px 同源：标题栏收起/关闭钮与内容区工具行右缘共线
+           （期2 vision P1-1，10px 台阶根因=容器右 padding 差）；左 15px 保留标题起排空间 */
+        padding: 10px 8px 10px 15px;
         cursor: move;
         display: flex;
         align-items: center;
         border-bottom: 1px solid var(--b3-border-color);
         border-radius: 8px 8px 0 0;
-        background: var(--b3-toolbar-background);
+        /* Top3（期3）：表面色统一——grabber 与面板同为 background 底，层级靠上方 border-bottom 分隔线 */
+        background: var(--b3-theme-background);
         user-select: none; /* 防止拖动时文本被选中 */
         touch-action: none; /* 防止触控滚动/缩放干扰拖动 */
     }
@@ -711,7 +748,8 @@
 
     .grabber-title {
         flex: 1;
-        font-size: xx-small;
+        /* Top3（期3）：xx-small→13px/500（正文级可读，500 已有） */
+        font-size: 13px;
         user-select: none;
         color: var(--b3-theme-on-background);
         font-weight: 500;
@@ -723,27 +761,33 @@
         cursor: pointer;
         color: var(--b3-theme-on-background);
         font-size: 16px;
-        padding: 3px 8px;
+        /* 28px 方形热区：与块编辑器工具行控件盒同构，右缘共线（期2 vision P1-1） */
+        width: 28px;
+        height: 28px;
+        padding: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 4px;
+        border-radius: 6px;
         transition: background-color 0.2s;
     }
 
     .close-button:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        /* 亮色下叠 10% 白=无反馈（vision 期1 评审）；主题 hover 变量明暗自适应 */
+        background-color: var(--b3-list-hover, rgba(0, 0, 0, 0.075));
     }
 
     .dialog-content {
-        padding: 5px;
+        /* 左右 8px 与 grabber 右 padding 同源（期2 右缘共线）；上下 8px=期3 Top3 放宽
+           （原 5px）——块编辑器 sticky-header 的 top 负值 hack 与 padding-top 联动（那里同步 -8px） */
+        padding: 8px;
         flex: 1;
         min-height: 100px;
         overflow: auto;
     }
 
     .dialog-content-hide-scrollbar {
-        padding: 5px;
+        padding: 8px;
         flex: 1;
         min-height: 100px;
         overflow: auto;
@@ -800,9 +844,8 @@
         width: 16px;
         height: 16px;
         cursor: nwse-resize;
-        /* 东南方向手柄是最常用的，增加视觉提示 */
-        background-color: rgba(0, 0, 0, 0.1);
-        border-radius: 0 0 8px 0;
+        /* Top4（期3）：清 rgba(0,0,0,0.1) 灰渍（暗色不可见/亮色污渍，vision 定档）；
+           手柄定位靠 cursor + 浮层边框即可辨识 */
     }
 
     .resizer.s {

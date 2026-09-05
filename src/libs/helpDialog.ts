@@ -1,5 +1,5 @@
 import { Dialog } from "siyuan";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import Help from "./Help.svelte";
 import { events } from "./Events";
 import { DestroyManager } from "./destroyer";
@@ -35,5 +35,5 @@ export function openHelpDialog(url: string, data: Record<string, HelpDoc>) {
         props: { doc: { ...doc, url } },
     });
     dm.add("dialog", () => dialog.destroy());
-    dm.add("svelte", () => d.destroy());
+    dm.add("svelte", () => unmount(d));
 }

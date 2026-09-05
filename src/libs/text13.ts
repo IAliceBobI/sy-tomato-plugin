@@ -305,22 +305,6 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
             default: return "Prefix document tree";
         }
     }
-    public get 阅读点保存到指定文档() {
-        switch (this.lang) {
-            case "zh_CN": return "阅读点保存到指定文档";
-            case "es_ES": return "Guardar punto de lectura en el documento especificado";
-            case "fr_FR": return "Enregistrer le point de lecture dans le document spécifié";
-            case "ja_JP": return "読書ポイントを指定したドキュメントに保存";
-            case "zh_CHT": return "閱讀點保存到指定文件";
-            case "it_IT": return "Salva il punto di lettura nel documento specificato";
-            case "de_DE": return "Lesepunkt im angegebenen Dokument speichern";
-            case "he_IL": return "שמור נקודת קריאה במסמך שצוין";
-            case "ru_RU": return "Сохранить точку чтения в указанном документе";
-            case "pl_PL": return "Zapisz punkt czytania w wybranym dokumencie";
-            case "en_US":
-            default: return "Save reading point to specified document";
-        }
-    }
     public get 最大列出的文件数量() {
         switch (this.lang) {
             case "zh_CN": return "最大列出的文件数量";

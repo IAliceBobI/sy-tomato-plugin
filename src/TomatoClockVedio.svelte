@@ -43,10 +43,8 @@
             dm.add("protyle", () => protyle.destroy());
         }
     });
-    export function destroy() {
-        dm.destroyBy("svelte");
-    }
-    onDestroy(destroy);
+    // 组件自杀通知（原 export destroy 死代码转发，□3 正轨化内联）
+    onDestroy(() => dm.destroyBy("svelte"));
 </script>
 
 <!-- https://learn.svelte.dev/tutorial/if-blocks -->

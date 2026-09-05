@@ -2,7 +2,8 @@
     import DialogSvelte from "./libs/DialogSvelte.svelte";
     import { onMount } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
-    import { getDocTracer, OpenSyFile2 } from "./libs/docUtils";
+    import { getDocTracer, OpenSyFile2, resetDocTracer } from "./libs/docUtils";
+    import { reloadSelfPlugin } from "./libs/pluginReload";
     import { getTomatoPluginInstance, Siyuan, siyuan } from "./libs/utils";
     import { events, EventType } from "./libs/Events";
     import { getPrefixDocs } from "./PrefixArticles";
@@ -28,7 +29,6 @@
         currentDocName = "",
         prefixDocs = [],
     }: Props = $props();
-    export function destroy() {}
     let showPrefixDialog = $state(false);
     let newPrefix = $state("");
     let oldPrefix = $state("");
@@ -141,6 +141,12 @@
         dm.getFn("refresh2")();
         await siyuan.pushMsg(tomatoI18n.刷新, 1000);
     }
+
+    // 切换笔记本：重建文档追踪器（闭笔记本后新开的库初始扫描缺文档）+ 插件级重载
+    async function switchNotebook() {
+        resetDocTracer();
+        await reloadSelfPlugin();
+    }
 </script>
 
 {#snippet count_and_btn()}
@@ -149,7 +155,7 @@
         <button
             title={tomatoI18n.切换笔记本}
             class="b3-button b3-button--text tomato-button"
-            onclick={() => window.location.reload()}
+            onclick={switchNotebook}
         >
             📒
         </button>

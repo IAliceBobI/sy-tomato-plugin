@@ -235,24 +235,6 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
         }
     }
 
-    public get 当前文档无书签() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "当前文档无书签";
-            case "es_ES":
-                return "El documento actual no tiene marcadores";
-            case "fr_FR":
-                return "Le document actuel n'a pas de signets";
-            case "ja_JP":
-                return "現在のドキュメントにはブックマークがありません";
-            case "zh_CHT":
-                return "當前文檔無書籤";
-
-            default:
-                return "Current document has no bookmarks";
-        }
-    }
-
     public 复习时间复习次数(time: string, reps: number) {
         switch (this.lang) {
             case "zh_CN":
@@ -343,57 +325,21 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
         }
     }
 
-    public get 更新阅读点目录() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "更新：阅读点目录";
-            case "es_ES":
-                return "Actualizar: Catálogo de puntos de lectura";
-            case "fr_FR":
-                return "Mise à jour : Catalogue des points de lecture";
-            case "ja_JP":
-                return "更新：読書ポイントカタログ";
-            case "zh_CHT":
-                return "更新：閱讀點目錄";
-
-            default:
-                return "Update: Reading Points Catalog";
-        }
-    }
-
-    public get 阅读点目录已是最新() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "阅读点目录已是最新";
-            case "es_ES":
-                return "El catálogo de puntos de lectura está actualizado";
-            case "fr_FR":
-                return "Le catalogue des points de lecture est à jour";
-            case "ja_JP":
-                return "読書ポイントカタログは最新です";
-            case "zh_CHT":
-                return "閱讀點目錄已是最新";
-
-            default:
-                return "Reading Points Catalog is up to date";
-        }
-    }
-
     public get 阅读点() {
         switch (this.lang) {
             case "zh_CN":
-                return "阅读点：";
+                return "阅读点";
             case "es_ES":
-                return "Punto de lectura:";
+                return "Punto de lectura";
             case "fr_FR":
-                return "Point de lecture :";
+                return "Point de lecture";
             case "ja_JP":
-                return "読書ポイント：";
+                return "読書ポイント";
             case "zh_CHT":
-                return "閱讀點：";
+                return "閱讀點";
 
             default:
-                return "Reading Point:";
+                return "Reading Point";
         }
     }
 
