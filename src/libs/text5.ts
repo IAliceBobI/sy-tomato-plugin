@@ -230,6 +230,102 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "Auto hide";
         }
     }
+    // 1548 □1 按钮条位置四档下拉
+    public get 优先级按钮条位置() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "优先级按钮条位置";
+            case "es_ES":
+                return "Posición de la barra de prioridad";
+            case "fr_FR":
+                return "Position de la barre de priorité";
+            case "ja_JP":
+                return "優先度ボタンバーの位置";
+            case "zh_CHT":
+                return "優先級按鈕條位置";
+            case "it_IT":
+                return "Posizione della barra priorità";
+
+            default:
+                return "Priority bar position";
+        }
+    }
+    public get 条位置块右上角() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "块右上角（默认）";
+            case "es_ES":
+                return "Superior derecha del bloque";
+            case "fr_FR":
+                return "Haut droit du bloc";
+            case "ja_JP":
+                return "ブロック右上";
+            case "zh_CHT":
+                return "塊右上角（預設）";
+            case "it_IT":
+                return "In alto a destra del blocco";
+
+            default:
+                return "Top-right of block";
+        }
+    }
+    public get 条位置块左上角() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "块左上角";
+            case "es_ES":
+                return "Superior izquierda del bloque";
+            case "fr_FR":
+                return "Haut gauche du bloc";
+            case "ja_JP":
+                return "ブロック左上";
+            case "zh_CHT":
+                return "塊左上角";
+            case "it_IT":
+                return "In alto a sinistra del blocco";
+
+            default:
+                return "Top-left of block";
+        }
+    }
+    public get 条位置内容下方贴左() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "内容下方贴左";
+            case "es_ES":
+                return "Debajo del contenido, a la izquierda";
+            case "fr_FR":
+                return "Sous le contenu, à gauche";
+            case "ja_JP":
+                return "本文の下・左寄せ";
+            case "zh_CHT":
+                return "內容下方靠左";
+            case "it_IT":
+                return "Sotto il contenuto, a sinistra";
+
+            default:
+                return "Below content, left";
+        }
+    }
+    public get 条位置内容上方贴左() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "内容上方贴左";
+            case "es_ES":
+                return "Sobre el contenido, a la izquierda";
+            case "fr_FR":
+                return "Au-dessus du contenu, à gauche";
+            case "ja_JP":
+                return "本文の上・左寄せ";
+            case "zh_CHT":
+                return "內容上方靠左";
+            case "it_IT":
+                return "Sopra il contenuto, a sinistra";
+
+            default:
+                return "Above content, left";
+        }
+    }
     public get 添加到原始块的链接() {
         switch (this.lang) {
             case "zh_CN":

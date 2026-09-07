@@ -963,14 +963,14 @@ export const siyuan = {
         // "due": "20240224214412"
         return siyuan.call("/api/riff/batchSetRiffCardsDueTime", { cardDues });
     },
-    async getRiffCardsAllFlat(pageSize = 1000) {
-        return [...(await siyuan.getRiffCardsAll(pageSize)).values()].flat()
+    async getRiffCardsAllFlat(pageSize = 1000, deckID = "") {
+        return [...(await siyuan.getRiffCardsAll(pageSize, deckID)).values()].flat()
     },
-    async getRiffCardsAll(pageSize = 1000) {
+    async getRiffCardsAll(pageSize = 1000, deckID = "") {
         const total: Map<string, GetCardRetBlock[]> = new Map();
         // let j = 0;
         for (let i = 1; ; i++) {
-            const ret = await siyuan.getRiffCards(i, pageSize);
+            const ret = await siyuan.getRiffCards(i, pageSize, deckID);
             if (!ret?.blocks) break;
             ret.blocks.forEach(i => { // 存在一个块多卡。
                 const a = total.get(i.id) ?? [];
@@ -1197,9 +1197,12 @@ export const siyuan = {
             siyuan.pushMsg(tomatoI18n.正在确认无效闪卡请耐心等待, 1800);
             const bigText = await getAllFilesAsBigText()
             const allIDs = extractIDs(bigText);
-            const invalidCardIDs = [];
+            const invalidCardIDs: string[] = [];
+            const invalidSeen = new Set<string>();
             for (const card of [...(await siyuan.getRiffCardsAll()).values()].flat()) {
-                if (!allIDs.has(card.id)) {
+                // 同块多卡 flat 后同 id 出现多次，去重防止报数虚高
+                if (!allIDs.has(card.id) && !invalidSeen.has(card.id)) {
+                    invalidSeen.add(card.id);
                     invalidCardIDs.push(card.id);
                 }
             }
@@ -1211,7 +1214,25 @@ export const siyuan = {
                 confirm("⚠️" + tomatoI18n.准备删除失效闪卡(invalidCardIDs.length), tomatoI18n.即将创建快照 + "<br>" + lnks + suffix, async () => {
                     await siyuan.createSnapshot(tomatoI18n.清理所有失效的闪卡);
                     await siyuan.removeRiffCards(invalidCardIDs);
-                    await siyuan.pushMsg(tomatoI18n.清理所有失效的闪卡 + " : " + invalidCardIDs.length)
+                    // 内核 f2800e2da(2026-08) 起校验块树，块已不存在的卡 removeRiffCards 返回
+                    // code -1 且 siyuan.call 静默吞错，凭返回值判不了成败——重拉全量卡复验残余，
+                    // 删掉的报数、残留的降级提示（等待官方修复，见 cardUtils 同背景注释）
+                    const restIDs: string[] = [];
+                    for (const card of [...(await siyuan.getRiffCardsAll()).values()].flat()) {
+                        if (invalidSeen.has(card.id) && !restIDs.includes(card.id)) {
+                            restIDs.push(card.id);
+                        }
+                    }
+                    const removed = invalidCardIDs.length - restIDs.length;
+                    if (removed > 0) {
+                        await siyuan.pushMsg(tomatoI18n.清理所有失效的闪卡 + " : " + removed)
+                    }
+                    if (restIDs.length > 0) {
+                        const restLnks = restIDs.slice(0, MAX).map(id => `<a href="siyuan://blocks/${id}">${id}</a>`).join("<br>")
+                        let restSuffix = ""
+                        if (restIDs.length > MAX) restSuffix = "<br>……"
+                        confirm("⚠️" + tomatoI18n.仍有x张失效闪卡无法删除(restIDs.length), tomatoI18n.失效闪卡受内核校验限制无法删除 + "<br><br>" + restLnks + restSuffix)
+                    }
                 })
             } else {
                 confirm("😄", tomatoI18n.没有失效闪卡)

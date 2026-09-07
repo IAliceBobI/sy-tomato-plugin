@@ -3400,20 +3400,12 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Card here";
         }
     }
-    public get 制日卡() {
+    public get 制卡无引用() {
         switch (this.lang) {
-            case "zh_CN": return "制日卡";
-            case "zh_CHT": return "製日卡";
+            case "zh_CN": return "制卡无引用";
+            case "zh_CHT": return "製卡無引用";
             case "en_US":
-            default: return "Daily card";
-        }
-    }
-    public get 制日卡无引() {
-        switch (this.lang) {
-            case "zh_CN": return "制日卡无引";
-            case "zh_CHT": return "製日卡無引";
-            case "en_US":
-            default: return "Daily no-ref";
+            default: return "Card, no backtrace";
         }
     }
     public get 多行() {
@@ -5327,21 +5319,13 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
-    public get tip制日卡() {
-        switch (this.lang) {
-            case "zh_CN": return "选中/光标块制卡，并入当天 dailycard 文档";
-            case "zh_CHT": return "選中/游標塊製卡，併入當天 dailycard 文檔";
-            case "en_US":
-            default: return "Card selected/cursor blocks and merge them into today's dailycard document";
-        }
-    }
 
-    public get tip制日卡无引() {
+    public get tip制卡无引用() {
         switch (this.lang) {
-            case "zh_CN": return "同制日卡，但卡面不带原文引用";
-            case "zh_CHT": return "同製日卡，但卡面不帶原文引用";
+            case "zh_CN": return "落点跟随制卡设置，但卡面不带回溯锚点";
+            case "zh_CHT": return "落點跟隨製卡設定，但卡面不帶回溯錨點";
             case "en_US":
-            default: return "Like 制日卡 (daily card), but the card omits the source reference";
+            default: return "Same landing doc as Make Card, but the card omits the backtrace anchor";
         }
     }
 
@@ -6655,14 +6639,6 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "製卡時在卡片開頭附一行「相關概念」塊引用，複習時可跳回原文看上下文";
             case "en_US":
             default: return "When making a card, prepend a \"related concepts\" block-ref line so you can jump back to the context while reviewing";
-        }
-    }
-    public get tip设置回溯链接() {
-        switch (this.lang) {
-            case "zh_CN": return "制卡时卡片里的回溯锚点用超链接形态；关闭则用块引用形态";
-            case "zh_CHT": return "製卡時卡片裡的回溯錨點用超連結形態；關閉則用塊引用形態";
-            case "en_US":
-            default: return "Backtrace anchors inside cards use hyperlinks; turn off to use block refs instead";
         }
     }
     public get tip设置分片回溯() {
@@ -8332,6 +8308,275 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "DBバックリンクと参照修復";
             case "en_US":
             default: return "DB backlinks & ref repair";
+        }
+    }
+    // □2 官方闪念速记吸收（dailynote-pipeline 2026-09-06）：设置开关行+两条 pushMsg
+    public get 官方速记搬运() {
+        switch (this.lang) {
+            case "zh_CN": return "同步后自动搬运官方速记到日记";
+            case "zh_CHT": return "同步後自動搬運官方速記到日記";
+            case "es_ES": return "Mover notas rápidas oficiales al diario tras sincronizar";
+            case "fr_FR": return "Déplacer les notes rapides officielles vers le journal après synchro";
+            case "ja_JP": return "同期後に公式速記を日記へ自動移動";
+            case "en_US":
+            default: return "Auto-move official quick notes to diary after sync";
+        }
+    }
+    // □3 片段级复制（dailynote-pipeline 2026-09-06）：工具条钮 tip+完成 pushMsg+设置行
+    public get 复制选中片段到日记() {
+        switch (this.lang) {
+            case "zh_CN": return "复制选中片段到日记";
+            case "zh_CHT": return "複製選中片段到日記";
+            case "es_ES": return "Copiar el fragmento seleccionado al diario";
+            case "fr_FR": return "Copier le fragmente sélectionné vers le journal";
+            case "ja_JP": return "選択範囲を日記へコピー";
+            case "en_US":
+            default: return "Copy selection to diary";
+        }
+    }
+    public get 已复制选中片段() {
+        switch (this.lang) {
+            case "zh_CN": return "已复制选中片段（{n} 字，含源锚）到日记";
+            case "zh_CHT": return "已複製選中片段（{n} 字，含源錨）到日記";
+            case "es_ES": return "Fragmente copiado ({n} caracteres) al diario";
+            case "fr_FR": return "Fragmente copié ({n} caractères) vers le journal";
+            case "ja_JP": return "選択範囲（{n}文字）を日記へコピーしました";
+            case "en_US":
+            default: return "Copied selection ({n} chars) to diary";
+        }
+    }
+    public get 划词复制选中片段() {
+        switch (this.lang) {
+            case "zh_CN": return "划词时复制选中片段（而非整块）";
+            case "zh_CHT": return "劃詞時複製選中片段（而非整塊）";
+            case "es_ES": return "Copiar el fragmente seleccionado al seleccionar texto (no el bloque completo)";
+            case "fr_FR": return "Copier le fragmente sélectionné lors de la sélection (pas le bloc entier)";
+            case "ja_JP": return "テキスト選択時は選択範囲をコピー（ブロック全体ではなく）";
+            case "en_US":
+            default: return "Copy selected fragment instead of whole block";
+        }
+    }
+    public get 搬运官方速记到日记() {
+        switch (this.lang) {
+            case "zh_CN": return "搬运官方速记到日记";
+            case "zh_CHT": return "搬運官方速記到日記";
+            case "es_ES": return "Mover notas rápidas oficiales al diario";
+            case "fr_FR": return "Déplacer les notes rapides officielles vers le journal";
+            case "ja_JP": return "公式速記を日記へ移動";
+            case "en_US":
+            default: return "Move official quick notes to diary";
+        }
+    }
+    public get 官方速记未配置合并路径() {
+        switch (this.lang) {
+            case "zh_CN": return "官方速记未配置合并保存路径（设置-闪念速记-保存位置），配置日期模板后可自动搬运";
+            case "zh_CHT": return "官方速記未配置合併保存路徑（設定-速記-保存位置），配置日期模板後可自動搬運";
+            case "es_ES": return "Las notas rápidas oficiales no tienen ruta de guardado combinada (Ajustes-Notas rápidas), configúrela con plantilla de fecha";
+            case "fr_FR": return "Les notes rapides officielles n'ont pas de chemin d'enregistrement combiné (Paramètres-Notes rapides), configurez un modèle de date";
+            case "ja_JP": return "公式速記に統合保存パスが未設定です（設定-速記-保存場所）、日付テンプレートを設定すると自動移動できます";
+            case "en_US":
+            default: return "Official quick notes have no merged save path (Settings-Quick notes); set a date template to enable auto-move";
+        }
+    }
+    public get 已搬运速记到日记() {
+        switch (this.lang) {
+            case "zh_CN": return "已搬运 {n} 条速记到日记";
+            case "zh_CHT": return "已搬運 {n} 條速記到日記";
+            case "es_ES": return "Se movieron {n} notas rápidas al diario";
+            case "fr_FR": return "{n} notes rapides déplacées vers le journal";
+            case "ja_JP": return "速記{n}件を日記へ移動しました";
+            case "en_US":
+            default: return "Moved {n} quick notes to diary";
+        }
+    }
+    // □4 拍照闪念输入体验翻新（dailynote-pipeline 2026-09-06）：设置行+小窗 placeholder+上传提示
+    public get 失焦时自动关闭小窗() {
+        switch (this.lang) {
+            case "zh_CN": return "小窗失焦时自动关闭（草稿保留；钉住不关）";
+            case "zh_CHT": return "小窗失焦時自動關閉（草稿保留；釘住不關）";
+            case "es_ES": return "Cerrar la mini ventana al perder el foco (el borrador se conserva; fijada no se cierra)";
+            case "fr_FR": return "Fermer la mini-fenêtre à la perte de focus (brouillon conservé ; épinglée reste ouverte)";
+            case "ja_JP": return "フォーカスを失ったら小ウィンドウを閉じる（下書き保持・ピン留めなら閉じない）";
+            case "en_US":
+            default: return "Close mini window on focus loss (draft kept; pinned stays)";
+        }
+    }
+    public get 日记落点笔记本() {
+        switch (this.lang) {
+            case "zh_CN": return "日记落点笔记本（拍照闪念/复制到日记/速记搬运共用）";
+            case "zh_CHT": return "日記落點筆記本（拍照閃念/複製到日記/速記搬運共用）";
+            case "es_ES": return "Cuaderno de destino del diario (compartido por captura/copia/traslado)";
+            case "fr_FR": return "Carnet de destination du journal (partagé capture/copie/transfert)";
+            case "ja_JP": return "日記の宛先ノートブック（スナップ思考/日記コピー/速記移動で共用）";
+            case "en_US":
+            default: return "Diary destination notebook (shared by capture/copy/relay)";
+        }
+    }
+    public get 小窗可粘贴拖入图片() {
+        switch (this.lang) {
+            case "zh_CN": return "，可粘贴/拖入/拍照插入图片";
+            case "zh_CHT": return "，可貼上/拖入/拍照插入圖片";
+            case "es_ES": return " · pegar/soltar/fotografiar imágenes";
+            case "fr_FR": return " · coller/glisser/photographier des images";
+            case "ja_JP": return "・画像は貼り付け/ドロップ/カメラで挿入可";
+            case "en_US":
+            default: return " · paste/drop/snap images supported";
+        }
+    }
+    public get 图片上传失败() {
+        switch (this.lang) {
+            case "zh_CN": return "部分图片上传失败，请重试或检查网络";
+            case "zh_CHT": return "部分圖片上傳失敗，請重試或檢查網絡";
+            case "es_ES": return "Error al subir algunas imágenes, reintente o revise la red";
+            case "fr_FR": return "Échec de l'envoi de certaines images, réessayez ou vérifiez le réseau";
+            case "ja_JP": return "一部の画像アップロードに失敗しました。再試行するかネットワークを確認してください";
+            case "en_US":
+            default: return "Some images failed to upload; retry or check network";
+        }
+    }
+    public get 图片上传中请稍候() {
+        switch (this.lang) {
+            case "zh_CN": return "图片上传中，请稍候再保存";
+            case "zh_CHT": return "圖片上傳中，請稍候再保存";
+            case "es_ES": return "Subiendo imágenes, espere antes de guardar";
+            case "fr_FR": return "Envoi des images en cours, patientez avant d'enregistrer";
+            case "ja_JP": return "画像をアップロード中です。保存はしばらくお待ちください";
+            case "en_US":
+            default: return "Images uploading, please wait before saving";
+        }
+    }
+    // □5 日记回顾面板（dailynote-pipeline 2026-09-06；notebox 战役翻新=日记导航器，转正退役）
+    public get 回顾日记() {
+        switch (this.lang) {
+            case "zh_CN": return "回顾日记";
+            case "zh_CHT": return "回顧日記";
+            case "es_ES": return "Revisar el diario";
+            case "fr_FR": return "Réviser le journal";
+            case "ja_JP": return "日記を振り返る";
+            case "en_US":
+            default: return "Review daily notes";
+        }
+    }
+    public get 还没有收集的内容() {
+        switch (this.lang) {
+            case "zh_CN": return "还没有收集的内容";
+            case "zh_CHT": return "還沒有收集的內容";
+            case "es_ES": return "Nada recopilado todavía";
+            case "fr_FR": return "Rien de collecté pour le moment";
+            case "ja_JP": return "収集した内容はまだありません";
+            case "en_US":
+            default: return "Nothing collected yet";
+        }
+    }
+    public get 当天n条() {
+        switch (this.lang) {
+            case "zh_CN": return "当天 {n} 条";
+            case "zh_CHT": return "當天 {n} 條";
+            case "es_ES": return "{n} ese día";
+            case "fr_FR": return "{n} ce jour-là";
+            case "ja_JP": return "この日 {n} 件";
+            case "en_US":
+            default: return "{n} that day";
+        }
+    }
+    // □2 主面板 icon 化（2026-09-06 notebox）：连续输入开关 tooltip 与近期列表跳转提示
+    public get 连续输入说明() {
+        switch (this.lang) {
+            case "zh_CN": return "连续输入（保存后不关窗）";
+            case "zh_CHT": return "連續輸入（儲存後不關窗）";
+            case "es_ES": return "Entrada continua (no cerrar tras guardar)";
+            case "fr_FR": return "Saisie continue (rester ouvert après enregistrement)";
+            case "ja_JP": return "連続入力（保存後も閉じない）";
+            case "en_US":
+            default: return "Continuous input (keep open after save)";
+        }
+    }
+    public get 打开这条在日记中的位置() {
+        switch (this.lang) {
+            case "zh_CN": return "打开这条在日记中的位置";
+            case "zh_CHT": return "打開這條在日記中的位置";
+            case "es_ES": return "Abrir esta entrada en el diario";
+            case "fr_FR": return "Ouvrir cette entrée dans le journal";
+            case "ja_JP": return "日記内のこの位置を開く";
+            case "en_US":
+            default: return "Open this entry in the daily note";
+        }
+    }
+    public get 打开日记() {
+        switch (this.lang) {
+            case "zh_CN": return "打开日记";
+            case "zh_CHT": return "打開日記";
+            case "es_ES": return "Abrir el diario";
+            case "fr_FR": return "Ouvrir le journal";
+            case "ja_JP": return "日記を開く";
+            case "en_US":
+            default: return "Open daily note";
+        }
+    }
+    public get 打开这天日记() {
+        switch (this.lang) {
+            case "zh_CN": return "打开这天日记";
+            case "zh_CHT": return "打開這天日記";
+            case "es_ES": return "Abrir el diario de ese día";
+            case "fr_FR": return "Ouvrir le journal de ce jour";
+            case "ja_JP": return "この日の日記を開く";
+            case "en_US":
+            default: return "Open that day's journal";
+        }
+    }
+    public get 今天() {
+        switch (this.lang) {
+            case "zh_CN": return "今天";
+            case "zh_CHT": return "今天";
+            case "es_ES": return "Hoy";
+            case "fr_FR": return "Aujourd'hui";
+            case "ja_JP": return "今日";
+            case "en_US":
+            default: return "Today";
+        }
+    }
+    public get 全部() {
+        switch (this.lang) {
+            case "zh_CN": return "全部";
+            case "zh_CHT": return "全部";
+            case "es_ES": return "Todo";
+            case "fr_FR": return "Tout";
+            case "ja_JP": return "すべて";
+            case "en_US":
+            default: return "All";
+        }
+    }
+    public get 有日记() {
+        switch (this.lang) {
+            case "zh_CN": return "有日记";
+            case "zh_CHT": return "有日記";
+            case "es_ES": return "Con diario";
+            case "fr_FR": return "Avec journal";
+            case "ja_JP": return "日記あり";
+            case "en_US":
+            default: return "Has journal";
+        }
+    }
+    public get n条() {
+        switch (this.lang) {
+            case "zh_CN": return "{n} 条";
+            case "zh_CHT": return "{n} 條";
+            case "es_ES": return "{n}";
+            case "fr_FR": return "{n}";
+            case "ja_JP": return "{n} 件";
+            case "en_US":
+            default: return "{n}";
+        }
+    }
+    public get 加载失败请重试() {
+        switch (this.lang) {
+            case "zh_CN": return "加载失败";
+            case "zh_CHT": return "加載失敗";
+            case "es_ES": return "Error al cargar";
+            case "fr_FR": return "Échec du chargement";
+            case "ja_JP": return "読み込みに失敗しました";
+            case "en_US":
+            default: return "Failed to load";
         }
     }
 }

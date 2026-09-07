@@ -7,7 +7,7 @@ import { BlockNodeEnum, TOMATO_ATTR_BAR } from "./libs/gconst";
 import { findElement } from "./libs/listUtils";
 import { winHotkey } from "./libs/winHotkey";
 import AttrBar from "./AttrBar.svelte";
-import { commentBoxCheckbox, foldTypes } from "./libs/stores";
+import { commentBoxCheckbox, foldCmdCheckbox, foldTypes } from "./libs/stores";
 import { setGlobal } from "stonev5-utils";
 import { mount } from "svelte";
 
@@ -15,6 +15,8 @@ export const addFoldCmd折叠 = winHotkey("alt+↑", "折叠", "", () => tomatoI
 export const addFoldCmd展开 = winHotkey("alt+↓", "展开", "", () => tomatoI18n.展开)
 
 export function addFoldCmd(plugin: Plugin) {
+    // 纯命令族开关（快捷键卡行开关，一对折叠/展开共用一个开关）
+    if (!foldCmdCheckbox.get()) return;
     plugin.addCommand({
         langKey: addFoldCmd折叠.langKey,
         langText: addFoldCmd折叠.langText(),

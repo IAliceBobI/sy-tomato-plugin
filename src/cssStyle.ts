@@ -1,5 +1,5 @@
 import { DATA_NODE_ID, DocAttrShowKey, SPACE } from "./libs/gconst";
-import { cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefEffect, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, showDocAttrs } from "./libs/stores";
+import { cardPriBarPos, cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefEffect, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, showDocAttrs } from "./libs/stores";
 import { verifyKeyTomato } from "./libs/user";
 import { getAttribute, Siyuan } from "./libs/utils";
 
@@ -81,19 +81,51 @@ async function load_nattyList() {
 
 async function load_cardPriorityBoxCheckbox() {
     if (!cardPriorityBoxCheckbox.get()) return;
+    load_cardPriBarPos();
     if (!cardPriorityBoxAutoHide.get()) return;
     if (!await verifyKeyTomato()) return;
     let style = document.createElement('style');
+    // !important 必带：按钮条组件 scoped 样式 .container>div{display:inline-flex}（cardrenew
+    // □3 引入，约 0,2,2）压过这里的 display:none（0,1,1）——曾致 autoHide 静默失效（1548 □2
+    // 实测：鼠标移出块条不隐藏）。两条同 important 时 hover 规则特异性更高，悬停显示仍赢
     style.innerText = `
         div[custom-riff-decks]:hover {
             div[cardPriBar] {
-                display: inherit;
+                display: inherit !important;
             }
         }
         div[cardPriBar] {
-            display: none;
+            display: none !important;
         }
     `;
+    document.head.appendChild(style);
+}
+
+// 按钮条位置档位（1548 □1 四形态下拉）：内核 _attr.scss 把 protyle-attr 钉死块右上
+// （absolute right:0 top:-12px），宽视口下条离内容越远。非 right 档覆盖对齐；DOM 不动
+// （protyle-attr=内核序列化安全区）。选择器限定含 cardPriBar 的卡块属性行，勿裸
+// .protyle-attr（官方 id/memo/refcount 元素共用此类，用户开「显示块属性」时跟条同
+// 属性行一起挪位，语义一致可接受）。opacity:1 因内核属性行默认 opacity:0，重定位后
+// 不再依赖 --attr 内核修饰类恒常显；hover 显隐由 autoHide 的 display 规则正交控制
+function load_cardPriBarPos() {
+    const pos = cardPriBarPos.get();
+    // 白名单外（默认 right 与手改 json 的野值）=内核原生块右上，零注入
+    if (pos !== "left-top" && pos !== "block-tail" && pos !== "block-head") return;
+    const attr = `div[custom-riff-decks] > .protyle-attr:has(div[cardPriBar])`;
+    let css = "";
+    if (pos === "left-top") {
+        css = `${attr} { left: 0 !important; right: auto !important; }`;
+    } else if (pos === "block-tail") {
+        // 随内容流贴左：static 化脱钩内核 absolute（零遮挡零压字，每卡 +24px 高）
+        css = `${attr} { left: 0 !important; right: auto !important; top: auto !important; position: static !important; opacity: 1 !important; }`;
+    } else {
+        // block-head：条仍 absolute 贴块容器 padding box 左上（top:0），块容器 padding-top
+        // 腾出 24px 条高专属空间=左上的零遮挡版（悬空压字风险版见 left-top）
+        css = `${attr} { left: 0 !important; right: auto !important; top: 0 !important; opacity: 1 !important; }`
+            + `div[custom-riff-decks]:has(> .protyle-attr div[cardPriBar]) { padding-top: 24px; }`;
+    }
+    const style = document.createElement('style');
+    style.innerText = css;
     document.head.appendChild(style);
 }
 
@@ -280,19 +312,32 @@ function load_cssFlashThoughts() {
     if (!cssFlashThoughts.get()) return;
     let style = document.createElement('style');
     style.innerText = `
+        /* □3 时间戳胶囊化：11px 等宽+1px 边框圆角胶囊（极淡主色底，与主面板 chips 同语言）、去浮雕阴影 */
         .protyle-wysiwyg div[custom-tomato-idea-time]::before {
             content: attr(custom-tomato-idea-time);
-            font-size: small;
-            background-color: var(--b3-font-background3);
+            font-size: 11px;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+            border: 1px solid var(--b3-border-color);
+            border-radius: 8px;
+            background-color: var(--b3-theme-primary-lightest);
+            padding: 1px 6px;
+            margin-right: 6px;
+            margin-top: 2px;
+            align-self: flex-start;
         }
+        /* 间隔值：行尾 12px 淡灰字常显（无色块；09-07 用户反馈 10px 看不清调大，opacity 同步提一档）；
+           垂直居中防悬空（vision P1）、左距 8px 防贴正文——flex row 下 ::after 为 flex 项不会被顶换行，最坏挤压内容盒 */
         .protyle-wysiwyg div[custom-tomato-idea-interval]::after {
             content: attr(custom-tomato-idea-interval);
-            font-size: small;
-            background-color: var(--b3-font-background1);
+            font-size: 12px;
+            color: var(--b3-theme-on-surface);
+            opacity: 0.65;
+            margin-left: 8px;
+            align-self: center;
         }
+        /* 容器恢复默认字色，flex row 保留（图片 compose 多行块横排） */
         .protyle-wysiwyg div[custom-tomato-idea-time] {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            color: var(--b3-font-color3);
             display: flex !important;
             flex-direction: row !important;
         }

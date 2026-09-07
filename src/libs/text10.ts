@@ -53,6 +53,40 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
         }
     }
 
+    public get 快捷键与开关() {
+        switch (this.lang) {
+            case "zh_CN": return "快捷键与开关";
+            case "es_ES": return "Atajos e interruptores";
+            case "fr_FR": return "Raccourcis et interrupteurs";
+            case "ja_JP": return "ショートカットとスイッチ";
+            case "zh_CHT": return "快捷鍵與開關";
+            case "it_IT": return "Scorciatoie e interruttori";
+            case "de_DE": return "Tastenkombinationen und Schalter";
+            case "he_IL": return "קיצורי דרך ומתגים";
+            case "ru_RU": return "Горячие клавиши и переключатели";
+            case "pl_PL": return "Skróty i przełączniki";
+            case "en_US":
+            default: return "Shortcuts & Switches";
+        }
+    }
+
+    public get 语言切换顶栏钮() {
+        switch (this.lang) {
+            case "zh_CN": return "语言切换顶栏钮";
+            case "es_ES": return "Botones de cambio de idioma en la barra superior";
+            case "fr_FR": return "Boutons de changement de langue dans la barre supérieure";
+            case "ja_JP": return "言語切替トップバーボタン";
+            case "zh_CHT": return "語言切換頂欄鈕";
+            case "it_IT": return "Pulsanti di cambio lingua nella barra superiore";
+            case "de_DE": return "Sprachumschaltungs-Buttons in der oberen Leiste";
+            case "he_IL": return "כפתורי החלפת שפה בסרגל העליון";
+            case "ru_RU": return "Кнопки переключения языка на верхней панели";
+            case "pl_PL": return "Przyciski zmiany języka na górnym pasku";
+            case "en_US":
+            default: return "Language switch toolbar buttons";
+        }
+    }
+
     public get 快捷键如有冲突请调整() {
         switch (this.lang) {
             case "zh_CN": return "快捷键如有冲突或者不灵，请重新指定快捷键";
@@ -87,20 +121,90 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
         }
     }
 
+    // □7 阶梯时长单位词（ladderDuration 升档显示用）。面板输入标签曾借用（cardui □3
+    // 小时制），cardrenew □1 改回天粒度后退役该用途，现仅服务 durationText
+    public get 小时() {
+        switch (this.lang) {
+            case "zh_CN": return "小时";
+            case "es_ES": return "horas";
+            case "fr_FR": return "heures";
+            case "ja_JP": return "時間";
+            case "zh_CHT": return "小時";
+            case "it_IT": return "ore";
+            case "de_DE": return "Stunden";
+            case "he_IL": return "שעות";
+            case "ru_RU": return "часов";
+            case "pl_PL": return "godzin";
+            case "en_US":
+            default: return "hours";
+        }
+    }
+
+    // □7 阶梯时长单位词（spreaddelay，2026-09-07）：ladderDuration 贪心升档显示用，
+    // 与「小时」键同族同语种集；复数形态（西文 1 单数瑕疵沿现状，中文环境无感）
+    public get 分钟() {
+        switch (this.lang) {
+            case "zh_CN": return "分钟";
+            case "es_ES": return "minutos";
+            case "fr_FR": return "minutes";
+            case "ja_JP": return "分";
+            case "zh_CHT": return "分鐘";
+            case "it_IT": return "minuti";
+            case "de_DE": return "Minuten";
+            case "he_IL": return "דקות";
+            case "ru_RU": return "минут";
+            case "pl_PL": return "minut";
+            case "en_US":
+            default: return "minutes";
+        }
+    }
     public get 天() {
         switch (this.lang) {
             case "zh_CN": return "天";
-            case "es_ES": return "Días";
-            case "fr_FR": return "Jours";
+            case "es_ES": return "días";
+            case "fr_FR": return "jours";
             case "ja_JP": return "日";
             case "zh_CHT": return "天";
-            case "it_IT": return "Giorni";
+            case "it_IT": return "giorni";
             case "de_DE": return "Tage";
             case "he_IL": return "ימים";
             case "ru_RU": return "дней";
             case "pl_PL": return "dni";
             case "en_US":
-            default: return "Days";
+            default: return "days";
+        }
+    }
+    public get 月() {
+        switch (this.lang) {
+            // 「4个月」而非「4月」——后者与月份（April）撞名，「未来4月内」会被读成未来的四月
+            case "zh_CN": return "个月";
+            case "es_ES": return "meses";
+            case "fr_FR": return "mois";
+            case "ja_JP": return "ヶ月";
+            case "zh_CHT": return "個月";
+            case "it_IT": return "mesi";
+            case "de_DE": return "Monate";
+            case "he_IL": return "חודשים";
+            case "ru_RU": return "месяцев";
+            case "pl_PL": return "miesięcy";
+            case "en_US":
+            default: return "months";
+        }
+    }
+    public get 年() {
+        switch (this.lang) {
+            case "zh_CN": return "年";
+            case "es_ES": return "años";
+            case "fr_FR": return "ans";
+            case "ja_JP": return "年";
+            case "zh_CHT": return "年";
+            case "it_IT": return "anni";
+            case "de_DE": return "Jahre";
+            case "he_IL": return "שנים";
+            case "ru_RU": return "лет";
+            case "pl_PL": return "lat";
+            case "en_US":
+            default: return "years";
         }
     }
 
@@ -155,20 +259,21 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
         }
     }
 
-    public 把剩余闪卡分散推迟在未来x小时内(x: string) {
+    // □7 阶梯时长（spreaddelay）：x=durationText(hours) 组合串
+    public 把剩余闪卡分散推迟在未来x时长内(x: string) {
         switch (this.lang) {
-            case "zh_CN": return `把剩余闪卡分散推迟在未来${x}小时内`;
-            case "es_ES": return `Distribuir y posponer las tarjetas restantes en las próximas ${x} horas`;
-            case "fr_FR": return `Reporter équitablement les cartes mémoire restantes dans les ${x} prochaines heures`;
-            case "ja_JP": return `残りのフラッシュカードを今後${x}時間以内に分散して延期する`;
-            case "zh_CHT": return `將剩餘閃卡分散延後在未來${x}小時內`;
-            case "it_IT": return `Distribuire e posticipare le flashcard rimanenti nelle prossime ${x} ore`;
-            case "de_DE": return `Verbleibende Lernkarten innerhalb der nächsten ${x} Stunden gleichmäßig verschieben`;
-            case "he_IL": return `להפיץ ולדחות את הפלשקרטיסים הנותרים למשך ${x} השעות הבאות`;
-            case "ru_RU": return `Равномерно перенести оставшиеся флеш-карты на следующие ${x} часов`;
-            case "pl_PL": return `Rozłóż i odłóż pozostałe fiszki na następne ${x} godzin`;
+            case "zh_CN": return `把剩余闪卡分散推迟在未来${x}内`;
+            case "es_ES": return `Distribuir y posponer las tarjetas restantes en las próximas ${x}`;
+            case "fr_FR": return `Reporter équitablement les cartes mémoire restantes dans les ${x} prochaines`;
+            case "ja_JP": return `残りのフラッシュカードを今後${x}以内に分散して延期する`;
+            case "zh_CHT": return `將剩餘閃卡分散延後在未來${x}內`;
+            case "it_IT": return `Distribuire e posticipare le flashcard rimanenti nelle prossime ${x}`;
+            case "de_DE": return `Verbleibende Lernkarten innerhalb der nächsten ${x} gleichmäßig verschieben`;
+            case "he_IL": return `להפיץ ולדחות את הפלשקרטיסים הנותרים למשך ${x} הבאות`;
+            case "ru_RU": return `Равномерно перенести оставшиеся флеш-карты на следующие ${x}`;
+            case "pl_PL": return `Rozłóż i odłóż pozostałe fiszki na następne ${x}`;
             case "en_US":
-            default: return `Spread and postpone remaining flashcards within the next ${x} hours`;
+            default: return `Spread and postpone remaining flashcards within the next ${x}`;
         }
     }
 
@@ -223,31 +328,51 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
         }
     }
 
-    public 复习时的快捷键(删块: string, 删卡: string, 跳过: string, 优先级: string, 定位: string, 分散推迟: string) {
+    // cardui 后续（2026-09-07 分散推迟健壮性修复）：大批量推迟中途失败的用户提示
+    public get 推迟闪卡失败请重试() {
+        switch (this.lang) {
+            case "zh_CN": return "推迟闪卡失败，请重试";
+            case "es_ES": return "Error al diferir flashcards, reintenta";
+            case "fr_FR": return "Échec du report des flashcards, réessayez";
+            case "ja_JP": return "フラッシュカードの延期に失敗しました。再試行してください";
+            case "zh_CHT": return "推遲閃卡失敗，請重試";
+            case "it_IT": return "Differimento flashcard fallito, riprova";
+            case "de_DE": return "Verschieben von Flashcards fehlgeschlagen, bitte erneut versuchen";
+            case "he_IL": return "דחיית הפקדים נכשלה, נסה שוב";
+            case "ru_RU": return "Не удалось отложить карточки, повторите попытку";
+            case "pl_PL": return "Odłożenie fiszek nie powiodło się, spróbuj ponownie";
+            case "en_US":
+            default: return "Failed to defer flashcards, please retry";
+        }
+    }
+
+    // cardui □3：键帽小组的短动作名（原 5 行快捷键文本表的 label 提出为数组，供面板
+    // 「动作+键帽」成对渲染；顺序=删块/删卡/跳过/优先级/定位/分散推迟，与调用方 zip）
+    public 复习快捷键动作名(): string[] {
         switch (this.lang) {
             case "zh_CN":
-                return `删块${删块}\n删卡${删卡}\n跳过${跳过}\n优先级${优先级}\n定位${定位}\n分散推迟${分散推迟}`;
+                return ["删块", "删卡", "跳过", "优先级", "定位", "分散推迟"];
             case "es_ES":
-                return `Eliminar bloque${删块}\nEliminar flashcard${删卡}\nSaltar${跳过}\nPrioridad${优先级}\nLocalizar${定位}\nDiferir disperso${分散推迟}`;
+                return ["Eliminar bloque", "Eliminar flashcard", "Saltar", "Prioridad", "Localizar", "Diferir disperso"];
             case "fr_FR":
-                return `Supprimer bloc${删块}\nSupprimer flashcard${删卡}\nPasser${跳过}\nPriorité${优先级}\nLocaliser${定位}\nReport différé${分散推迟}`;
+                return ["Supprimer bloc", "Supprimer flashcard", "Passer", "Priorité", "Localiser", "Report différé"];
             case "ja_JP":
-                return `ブロック削除${删块}\nカード削除${删卡}\nスキップ${跳过}\n優先度${优先级}\n位置指定${定位}\n分散延期${分散推迟}`;
+                return ["ブロック削除", "カード削除", "スキップ", "優先度", "位置指定", "分散延期"];
             case "zh_CHT":
-                return `刪塊${删块}\n刪卡${删卡}\n跳過${跳过}\n優先級${优先级}\n定位${定位}\n分散推遲${分散推迟}`;
+                return ["刪塊", "刪卡", "跳過", "優先級", "定位", "分散推遲"];
             case "it_IT":
-                return `Elimina blocco${删块}\nElimina flashcard${删卡}\nSalta${跳过}\nPriorità${优先级}\nPosiziona${定位}\nDifferisci distribuito${分散推迟}`;
+                return ["Elimina blocco", "Elimina flashcard", "Salta", "Priorità", "Posiziona", "Differisci distribuito"];
             case "de_DE":
-                return `Block löschen${删块}\nKarte löschen${删卡}\nÜberspringen${跳过}\nPriorität${优先级}\nPositionieren${定位}\nVerteilt verschieben${分散推迟}`;
+                return ["Block löschen", "Karte löschen", "Überspringen", "Priorität", "Positionieren", "Verteilt verschieben"];
             case "he_IL":
-                return `מחק בלוק${删块}\nמחק פקד${删卡}\nדלג${跳过}\nעדכון עדיפות${优先级}\nמיקוד${定位}\nהחרגה מפיזור${分散推迟}`;
+                return ["מחק בלוק", "מחק פקד", "דלג", "עדיפות", "מיקוד", "החרגה מפיזור"];
             case "ru_RU":
-                return `Удалить блок${删块}\nУдалить карточку${删卡}\nПропустить${跳过}\nПриоритет${优先级}\nОпределить позицию${定位}\nРассредоточенное отложение${分散推迟}`;
+                return ["Удалить блок", "Удалить карточку", "Пропустить", "Приоритет", "Определить позицию", "Рассредоточенное отложение"];
             case "pl_PL":
-                return `Usuń blok${删块}\nUsuń fiszkę${删卡}\nPomiń${跳过}\nPriorytet${优先级}\nLokalizacja${定位}\nRozproszone odkładanie${分散推迟}`;
+                return ["Usuń blok", "Usuń fiszkę", "Pomiń", "Priorytet", "Lokalizacja", "Rozproszone odkładanie"];
             case "en_US":
             default:
-                return `Delete block${删块}\nDelete card${删卡}\nSkip${跳过}\nPriority${优先级}\nLocate${定位}\nSpread defer${分散推迟}`;
+                return ["Delete block", "Delete card", "Skip", "Priority", "Locate", "Spread defer"];
         }
     }
 

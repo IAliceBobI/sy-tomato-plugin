@@ -8,10 +8,12 @@
         cardBoxAddConcepts,
         cardBoxCardtab,
         cardBoxCheckbox,
+        cardBoxDeleteNoConfirm,
         cardBoxSpradEvenlyPostpone,
         cardBoxSuperCard,
         cardPriorityBoxAutoHide,
         cardPriorityBoxCheckbox,
+        cardPriBarPos,
         cardPriorityBoxPostponeCardMenu,
         cardPriorityBoxPriorityMenu,
         cardPriorityBoxSpradDelayMenu,
@@ -60,6 +62,15 @@
             <div>
                 {tomatoI18n.清理所有失效的闪卡}
                 <HotkeyCap hk={CardBox清理所有失效的闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$cardBoxDeleteNoConfirm}
+                    onchange={() => cardBoxDeleteNoConfirm.write($cardBoxDeleteNoConfirm)}
+                />
+                {tomatoI18n.删除内容块时无需确认直接删除}
             </div>
 
             <div>
@@ -152,6 +163,16 @@
                     bind:checked={$cardPriorityBoxAutoHide}
                 />
                 {tomatoI18n.自动隐藏}<TomatoVIP {codeValid}></TomatoVIP>
+            </div>
+
+            <div>
+                {tomatoI18n.优先级按钮条位置}
+                <select class="b3-select" bind:value={$cardPriBarPos}>
+                    <option value="right">{tomatoI18n.条位置块右上角}</option>
+                    <option value="left-top">{tomatoI18n.条位置块左上角}</option>
+                    <option value="block-tail">{tomatoI18n.条位置内容下方贴左}</option>
+                    <option value="block-head">{tomatoI18n.条位置内容上方贴左}</option>
+                </select>
             </div>
 
             <div>

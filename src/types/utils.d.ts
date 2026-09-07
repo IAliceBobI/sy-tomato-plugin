@@ -34,6 +34,7 @@ type TomatoSettings = {
     cardBoxCardtab: boolean,
     card_refresh_visible_only: boolean,
     cardBoxSettingsShow: boolean,
+    cardBoxDeleteNoConfirm: boolean,
     prefixArticlesTagsShow: boolean,
     fastNoteBoxDocPrefix: boolean,
     foldTypesNODE_listITEM: boolean,
@@ -89,11 +90,13 @@ type TomatoSettings = {
     ProgressiveStart2learn: boolean,
     digestmenu: boolean,
     wholeDigestMenu: boolean,
+    cardContextMenu: boolean,
     reviewSchedMenu: boolean,
     revisitRhythmMenu: boolean,
     toolbarlocatedoc: boolean,
     toolbarrefreshVr: boolean,
     toolbarspacerepeat: boolean,
+    bigReloadTopbar: boolean,
     tag2RefSearchLnk: boolean,
     tag2RefSearchRef: boolean,
     readingAddJumpMenu: boolean,
@@ -135,7 +138,6 @@ type TomatoSettings = {
     markOriginTextBG: boolean,
     pieceNoBacktraceLink: boolean,
     digestNoBacktraceLink: boolean,
-    flashcardUseLink: boolean,
     flashcardNotebook: string,
     windowOpenStyle: string,
     flashcardMultipleLnks: boolean,
@@ -181,6 +183,7 @@ type TomatoSettings = {
     cardAddListBoxCheckbox: boolean,
     cardPriorityBoxCheckbox: boolean,
     cardPriorityBoxAutoHide: boolean,
+    cardPriBarPos: string,
     card_priority_slider_hide: boolean,
     card_priority_stopBtn_hide: boolean,
     linkBoxLnkTitle: boolean,
@@ -229,8 +232,9 @@ type TomatoSettings = {
     tag2RefBoxCheckbox: boolean,
     spaceRefEnabled: boolean,
     spaceRefLinkType: "ref" | "lnk",
-    toolbarBoxCheckbox: boolean,
     toolbarEN2CHBtn: boolean,
+    copyIdCheckbox: boolean,
+    foldCmdCheckbox: boolean,
     toolbarTidy: boolean,
     cmdBlockBoxCheckbox: boolean,
     listBoxCheckbox: boolean,
@@ -288,10 +292,17 @@ type TomatoSettings = {
     "avoiding-cloud-synchronization-conflicts": boolean,
     "flash-thoughts-2-top": boolean,
     "flash-thoughts-target-file": string,
+    "shorthandRelayEnabled": boolean,
+    "flashThoughtsBlurClose": boolean,
+    "quickNoteCheckbox": boolean,
+    "quickNoteOpenMode": "external" | "focus",
+    "quickNoteRect": { x: number; y: number; width: number; height: number; opacity?: number } | null,
+    "dailyNoteReviewTopbar": boolean,
+    "dailyNoteCopyFragment": boolean,
     storeNoteBox_selectedNoteType: string,
     storeNoteBox_keep: boolean,
     storeNoteBox_pin: boolean,
-    storeNoteBox_recentText: string[],
+    storeNoteBox_recentText: (string | import("../libs/stores").RecentItem)[],
     storeNoteBox_noteAreaText: string,
     storeNoteBox_selectedNotebook: string,
     fastNoteBoxCheckbox: boolean,
@@ -503,6 +514,8 @@ interface ID_Time {
     id: string;
     time: string;
     interval: string;
+    /** 块 created（YYYYMMDDHHmmss），间隔计算优先用它（跨天正确） */
+    created?: string;
 }
 
 type WindowOpenStyle = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "nop" | "front" | "back" | "right" | "bottom" | "move" | "peek"

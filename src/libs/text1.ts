@@ -741,6 +741,104 @@ export abstract class TomatoI18nABC extends TomatoI18nABC2 {
         }
     }
 
+    // 速记器（quicknote □1 2026-09-07）：命令名+窗口创建失败提示+保存校验失败（□2 补全语种）
+    public get 速记器() {
+        switch (this.lang) {
+            case "zh_CN": return "速记器";
+            case "zh_CHT": return "速記器";
+            case "ja_JP": return "クイックメモ";
+            case "es_ES": return "Nota rápida";
+            case "fr_FR": return "Note rapide";
+            case "it_IT": return "Nota rapida";
+            case "de_DE": return "Schnellnotiz";
+            case "he_IL": return "פתק מהיר";
+            case "ru_RU": return "Быстрая заметка";
+            case "pl_PL": return "Szybka notatka";
+            case "en_US":
+            default: return "Quick Note";
+        }
+    }
+    public get 速记器打开失败() {
+        switch (this.lang) {
+            case "zh_CN": return "速记器打开失败（仅桌面端可用）";
+            case "zh_CHT": return "速記器開啟失敗（僅桌面端可用）";
+            case "ja_JP": return "クイックメモを開けません（デスクトップ版のみ）";
+            case "es_ES": return "No se pudo abrir la nota rápida (solo escritorio)";
+            case "fr_FR": return "Échec d'ouverture de la note rapide (desktop uniquement)";
+            case "it_IT": return "Apertura nota rapida fallita (solo desktop)";
+            case "de_DE": return "Schnellnotiz konnte nicht geöffnet werden (nur Desktop)";
+            case "he_IL": return "פתיחת הפתק המהיר נכשלה (שולחן עבודה בלבד)";
+            case "ru_RU": return "Не удалось открыть быструю заметку (только desktop)";
+            case "pl_PL": return "Nie udało się otworzyć szybkiej notatki (tylko desktop)";
+            case "en_US":
+            default: return "Quick Note failed to open (desktop only)";
+        }
+    }
+    public get 速记器触发形态() {
+        switch (this.lang) {
+            case "zh_CN": return "速记器触发形态";
+            case "zh_CHT": return "速記器觸發形態";
+            case "ja_JP": return "クイックメモの起動形式";
+            case "es_ES": return "Modo de apertura de la nota rápida";
+            case "fr_FR": return "Mode d'ouverture de la note rapide";
+            case "it_IT": return "Modalità di apertura nota rapida";
+            case "de_DE": return "Auslösemodus der Schnellnotiz";
+            case "he_IL": return "מצב הפעלת הפתק המהיר";
+            case "ru_RU": return "Режим вызова быстрой заметки";
+            case "pl_PL": return "Tryb wywołania szybkiej notatki";
+            case "en_US":
+            default: return "Trigger mode";
+        }
+    }
+    public get 外部轻窗() {
+        switch (this.lang) {
+            case "zh_CN": return "外部轻窗";
+            case "zh_CHT": return "外部輕窗";
+            case "ja_JP": return "軽量ウィンドウ";
+            case "es_ES": return "Ventana ligera externa";
+            case "fr_FR": return "Fenêtre légère externe";
+            case "it_IT": return "Finestra leggera esterna";
+            case "de_DE": return "Externes Leichtfenster";
+            case "he_IL": return "חלון קליל חיצוני";
+            case "ru_RU": return "Внешнее лёгкое окно";
+            case "pl_PL": return "Zewnętrzne lekkie okno";
+            case "en_US":
+            default: return "External mini window";
+        }
+    }
+    public get 带出思源() {
+        switch (this.lang) {
+            case "zh_CN": return "带出思源";
+            case "zh_CHT": return "帶出思源";
+            case "ja_JP": return "SiYuan を前面に";
+            case "es_ES": return "Traer SiYuan al frente";
+            case "fr_FR": return "Amener SiYuan au premier plan";
+            case "it_IT": return "Porta SiYuan in primo piano";
+            case "de_DE": return "SiYuan nach vorne bringen";
+            case "he_IL": return "הבא את SiYuan לחזית";
+            case "ru_RU": return "Вывести SiYuan на передний план";
+            case "pl_PL": return "Przesuń SiYuan na wierzch";
+            case "en_US":
+            default: return "Bring SiYuan to front";
+        }
+    }
+    public get 速记器保存校验失败() {
+        switch (this.lang) {
+            case "zh_CN": return "保存校验失败：块未落位（可重试，勿重复提交同一内容前先检查日记）";
+            case "zh_CHT": return "儲存校驗失敗：塊未落位（可重試，勿重複提交同一內容前先檢查日記）";
+            case "ja_JP": return "保存検証失敗：ブロック未配置（再試行可、同一内容の再送前に日記を確認）";
+            case "es_ES": return "Verificación de guardado fallida: bloque ausente (reintentar; revisa el diario antes de reenviar)";
+            case "fr_FR": return "Échec de vérification : bloc absent (réessayable ; vérifiez le journal avant de renvoyer)";
+            case "it_IT": return "Verifica salvataggio fallita: blocco assente (riprovabile; controlla il diario prima di reinviare)";
+            case "de_DE": return "Speicherprüfung fehlgeschlagen: Block fehlt (wiederholbar; Tagebuch vor erneuter Übertragung prüfen)";
+            case "he_IL": return "אימות השמירה נכשל: הבלוק חסר (ניתן לנסות שוב; בדוק את היומן לפני שליחה חוזרת)";
+            case "ru_RU": return "Проверка сохранения не пройдена: блок отсутствует (можно повторить; проверьте дневник перед повторной отправкой)";
+            case "pl_PL": return "Weryfikacja zapisu nieudana: brak bloku (można powtórzyć; sprawdź dziennik przed ponowną wysyłką)";
+            case "en_US":
+            default: return "Save verify failed: block missing (retry safe; check diary first)";
+        }
+    }
+
     public get 拍照闪念收集图片闪念到() {
         switch (this.lang) {
             case "zh_CN": return "拍照闪念：收集图片闪念到 dailynote";

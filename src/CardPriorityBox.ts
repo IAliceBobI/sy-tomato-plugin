@@ -4,7 +4,7 @@ import { CARD_PRIORITY_STOP, CUSTOM_RIFF_DECKS, TOMATO_CONTROL_ELEMENT } from ".
 import { DialogText } from "./libs/DialogText";
 import { EventType, events } from "./libs/Events";
 import CardPriorityBar from "./CardPriorityBar.svelte";
-import { doStopCards, getIDFromCard } from "./libs/cardUtils";
+import { doStopCards, getIDFromCard, getRestCards } from "./libs/cardUtils";
 import { auto_card_priority, cardPriorityBoxCheckbox, cardPriorityBoxPostponeCardMenu, cardPriorityBoxPriorityMenu, cardPriorityBoxSpradDelayMenu, cardPrioritySetPriInterval } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
@@ -15,17 +15,44 @@ export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9", "delay all cards")
 export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y", "resume all cards")
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
-import { setGlobal, shuffleArray } from "stonev5-utils";
-import { mount } from "svelte";
+import { getGlobal, setGlobal, shuffleArray } from "stonev5-utils";
+import { mount, unmount } from "svelte";
+import { debugLog } from "./libs/logUtils";
+
+// 按钮条组件 exports 登记（cardrenew □2）：Svelte 5 mount() 返回 exports，销毁必须
+// unmount(x)——此前返回值直接丢弃，重挂只 removeChild 摘 DOM，旧组件实例的闭包/$effect
+// 全部滞留（每次块重渲染泄一个）。key=按钮条容器 div 自身，WeakMap 随 DOM 回收
+const barExports = new WeakMap<HTMLElement, Record<string, any>>();
+
+// 组件+DOM 双清（幂等）：unload 重挂链、observer 摘除链、onunload 全量清理共用
+function removeBar(bar: HTMLElement) {
+    const ex = barExports.get(bar);
+    if (ex) {
+        unmount(ex);
+        barExports.delete(bar);
+        debugLog("CardPriority", `removeBar: unmount 旧组件（残留泄漏根修）`, "cardpri");
+    }
+    bar.parentElement?.removeChild(bar);
+}
 
 class CardPriorityBox {
     plugin: BaseTomatoPlugin;
-    beforeReview: Map<string, DueCard>;
     private observer: MutationObserver;
+
+    // setGlobal 定时器键（跨代清理模式：onload 清上一代残留，onunload 对称兜底）
+    private static readonly scanTimerKey = "scanCard2addPriority 2025-6-7 00:03:48";
 
     onunload() {
         this.observer?.disconnect();
         this.observer = null;
+        // 对称清定时器：onload 的跨代清理只在「开关开+interval>0」路径执行——开关关掉或
+        // interval 改 0 后重载，旧 timer 无人清=后台永跑（navigator.locks 只防并发不防僵尸）
+        clearInterval(getGlobal(CardPriorityBox.scanTimerKey));
+        // 全量摘现存按钮条：插件重载（配置热生效 A 层）后旧条 DOM 滞留页面，点击走已死
+        // 旧闭包；摘净后 onload 重扫由新实例接管
+        const bars = document.querySelectorAll(`div[${TOMATO_CONTROL_ELEMENT}]`);
+        bars.forEach(e => removeBar(e as HTMLElement));
+        debugLog("CardPriority", `onunload: observer 断开+定时器清理+摘按钮条 ${bars.length} 条`, "cardpri");
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
@@ -66,11 +93,10 @@ class CardPriorityBox {
     async onload(plugin: BaseTomatoPlugin) {
         if (!cardPriorityBoxCheckbox.get()) return;
         this.plugin = plugin;
-        this.beforeReview = new Map();
 
         const interval = parseFloat(cardPrioritySetPriInterval.get())
         if (interval > 0) {
-            clearInterval(setGlobal("scanCard2addPriority 2025-6-7 00:03:48", setInterval(() => {
+            clearInterval(setGlobal(CardPriorityBox.scanTimerKey, setInterval(() => {
                 this.scanCard2addPriority();
             }, interval * 60 * 1000)));
         }
@@ -105,7 +131,10 @@ class CardPriorityBox {
         const delay = async (spread = false) => {
             let blocks: GetCardRetBlock[];
             if (await getIDFromCard()) {
-                blocks = await this.getRestCards()
+                // 全量取卡统一走 cardUtils.getRestCards（分页全量+due 过滤，不受每日限额
+                // 截断——2026-09-07 修复；原类方法版依赖 beforeReview 快照比 state，快照源
+                // 受官方队列（限额内）二次截断，且 due<=now 已天然排除已评分卡）
+                blocks = await getRestCards()
             } else {
                 blocks = await siyuan.getTreeRiffCardsAll(events.docID);
             }
@@ -182,6 +211,10 @@ class CardPriorityBox {
                 mutation.removedNodes.forEach((n) => {
                     const e = n as HTMLElement;
                     if (e.getAttribute) {
+                        // 官方重建 protyle-attr 摘掉旧按钮条：组件 exports 随之 unmount
+                        // （自身即按钮条或内嵌按钮条都收）
+                        if (e.hasAttribute(TOMATO_CONTROL_ELEMENT)) removeBar(e);
+                        e.querySelectorAll?.(`div[${TOMATO_CONTROL_ELEMENT}]`)?.forEach(b => removeBar(b as HTMLElement));
                         const c = getAttribute(e, "custom-card-priority-doc-id")
                         this.addBtns(document.getElementById(c), true);
                     }
@@ -192,7 +225,15 @@ class CardPriorityBox {
                 })
             }
         });
-        this.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+        // attributeFilter：attributes 通道只放行制卡属性——打字等一切块属性变化（updated
+        // 等）原先进回调空跑，是全 body 深观察的最大噪音源
+        this.observer.observe(document.body, {
+            attributes: true, attributeFilter: [CUSTOM_RIFF_DECKS], childList: true, subtree: true
+        });
+
+        // 重载接管：onunload 已把旧代按钮条全量摘净，重扫现存卡块挂新条（新实例闭包）。
+        // 开销=一次选择器扫全 DOM + 现存卡块数（通常个位数~几十）
+        document.querySelectorAll(`[custom-riff-decks]`).forEach(e => this.addBtns(e as HTMLElement));
 
         if (auto_card_priority.get()) {
             this.plugin.eventBus.on(EventType.click_flashcard_action as any, async ({ detail }: { detail: { type: string, card: DueCard } }) => {
@@ -237,37 +278,26 @@ class CardPriorityBox {
         if (!getAttribute(element, "custom-riff-decks")) return;
         if (!getAttribute(element, "data-node-id")) return;
         if (element.lastElementChild.classList.contains("protyle-attr")) {
+            const oldCtrls = element.lastElementChild.querySelectorAll(`div[${TOMATO_CONTROL_ELEMENT}]`);
             if (isDoc) {
-                const oldCtrls = element.lastElementChild.querySelector(`div[${TOMATO_CONTROL_ELEMENT}]`);
-                if (oldCtrls) return;
+                if (oldCtrls.length > 0) return;
             } else {
-                element.lastElementChild.querySelectorAll(`div[${TOMATO_CONTROL_ELEMENT}]`)
-                    .forEach(e => e.parentElement.removeChild(e));
+                // 摘旧=组件 unmount+DOM 移除双清（原先只 removeChild，组件实例泄漏）
+                oldCtrls.forEach(e => removeBar(e as HTMLElement));
             }
-            mount(CardPriorityBar, {
-                target: element.lastElementChild,
-                props: {
-                    cardElement: element,
-                    plugin: this.plugin,
-                }
-            });
+            const target = element.lastElementChild;
+            const ex = mount(CardPriorityBar, { target, props: {
+                cardElement: element,
+                plugin: this.plugin,
+            }});
+            // mount 同步渲染，target.lastElementChild 即按钮条容器 div（其 TOMATO_CONTROL_
+            // ELEMENT 标记属性由 onMount 异步打上，WeakMap key 只认 DOM 引用不依赖属性）
+            barExports.set(target.lastElementChild as HTMLElement, ex);
         }
     }
 
-    async getRestCards() {
-        const blocks = (await siyuan.getRiffDueCards()).cards.filter(due => {
-            const oldDue = this.beforeReview.get(due.blockID);
-            if (oldDue) {
-                if (oldDue.state === due.state) {
-                    return true;
-                }
-            }
-            return false;
-        }).map(due => {
-            return { ial: { id: due.blockID } } as unknown as GetCardRetBlock;
-        });
-        return blocks;
-    }
+    // getRestCards 类方法已退役（2026-09-07）：与 cardUtils.getRestCards 合一（全量取卡
+    // 通道）；beforeReview 快照比 state 的过滤随全量通道天然满足（已评分卡 due 必在未来）
 
 
     async stopCard(event: MouseEvent, cardElement: HTMLElement) {
@@ -389,6 +419,9 @@ class CardPriorityBox {
         }).filter(i => !!i);
         await siyuan.batchSetBlockAttrs(params);
         if (cb) {
+            // ⚠️ 契约：cb 收到的是「目标值」仅在 !isDelta 成立——isDelta=true 时 newPriority
+            // 是增量（±N），回调拿 delta 会算错。现行调用方（CardPriorityBar ±1 按钮）恒走
+            // 绝对值路径不触发；将来若有 isDelta+cb 组合，此处须改传 ensure 后的绝对值
             cb(newPriority);
         } else {
             setTimeout(() => {
@@ -419,20 +452,20 @@ class CardPriorityBox {
             return m;
         }, new Map<string, CARD>());
 
-        const { review, stop } = attrList.reduce(({ hasPiece, review, stop }, attr) => {
-            if (attr?.id) {
-                const card = cardsMap.get(attr.id).card;
-                const p = readPriority(attr);
-                review.set(attr.id, { card, p });
-            }
-            return { hasPiece, review, stop };
-        }, { hasPiece: false, review: new Map<string, CARD>(), stop: new Map<string, CARD>() });
-
-        await Promise.all([...stop.values()].map(c => siyuan.skipReviewRiffCard(c.card.cardID)));
+        // （cardrenew □2 体检）原 reduce 的 stop Map 从未被写入、下游 skipReviewRiffCard
+        // 恒空调用，属死代码已清——未到期 stop 的卡 due 被推到未来，官方队列天然不派发，
+        // 无需 skip 清队；hasPiece 同为未用残留一并移除。另补 cardsMap 命中守卫（attrs
+        // 返回与 cards 不一致时原代码 cardsMap.get(...).card 直接 TypeError）
+        const review = new Map<string, CARD>();
+        for (const attr of attrList) {
+            const hit = attr?.id ? cardsMap.get(attr.id) : undefined;
+            if (hit) review.set(attr.id, { card: hit.card, p: readPriority(attr) });
+        }
 
         options.cards = [...review.values()].map((c) => c.card);
         options.cards = shuffleArray(options.cards)
         options.cards.sort((a, b) => review.get(b.blockID).p - review.get(a.blockID).p);
+        debugLog("CardPriority", `updateCards: ${options.cards.length} 卡按优先级降序重排（首=${review.get(options.cards[0].blockID)?.p} 尾=${review.get(options.cards.at(-1)!.blockID)?.p}）`, "cardpri");
         // const len = options.cards.length;
         // const n = Math.floor(len * 5 / 100);
         // if (n > 0 && len > n) {
@@ -443,12 +476,9 @@ class CardPriorityBox {
         //         options.cards.splice(randPosition, 0, e);
         //     }
         // }
-        this.beforeReview = (await siyuan.getRiffDueCards()).cards
-            .filter(c => options.cards.findIndex((v) => v.blockID === c.blockID) >= 0)
-            .reduce((m, c) => {
-                m.set(c.blockID, c);
-                return m;
-            }, new Map());
+        // beforeReview 快照已随 getRestCards 类方法退役（2026-09-07 全量取卡修复）：
+        // 快照源 getRiffDueCards 受限额截断、又被官方队列（限额内）二次过滤，取卡端换成
+        // 分页全量后该快照反而是漏卡源头
         return options;
     }
 

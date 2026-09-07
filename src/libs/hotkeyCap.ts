@@ -142,6 +142,22 @@ export function suggestCombo(combo: string, selfPlugin: string, selfLangKey: str
 }
 
 /**
+ * 换默认键的存量迁移（批量串行）：仅当 custom 仍是旧默认（用户从未改过键）才写新默认；
+ * 改过/删过的键不动（幂等——迁移后再跑 custom 已是新键自然跳过）。须在命令注册后调用
+ * （keymap 条目由注册注入，无条目时 setPluginHotkey 落空返回 false）。逐条 await 串行是
+ * 硬要求：setPluginHotkey 是「深拷贝 keymap→整体 POST→整体替换内存」，并发多调时后完成
+ * 者用旧快照覆盖先完成者的写入（2026-09-06 dev 实锤：三条并发只活最后一条）。v5 □7
+ * 合并分片挪键未迁移导致存量 custom 残留继续双绑，是本函数的立据案例。
+ */
+export async function migrateLegacyHotkeys(pluginName: string, plan: Array<[langKey: string, from: string, to: string]>) {
+    for (const [langKey, from, to] of plan) {
+        if (currentCustom(pluginName, langKey) === from) {
+            await setPluginHotkey(pluginName, langKey, to);
+        }
+    }
+}
+
+/**
  * 写回内核 keymap：custom 传 null 即恢复默认（写 entry.default，官方 reset 语义——
  * 内核里 custom:"" 是「禁用」而非回落默认，直接写空串会造成显示与实际键位不符）。
  * custom 传 "" 即删除快捷键（命令不再响应任何键盘组合，customHotkey 为空）。

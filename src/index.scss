@@ -1,5 +1,7 @@
+// 字色与 b3-button--outline 描边统一主题蓝（cardrenew □4 P2：原 b3-font-color3 浅蓝
+// 与描边 primary 两套蓝并存）；改全局类已核全仓无 p/s/r 抄送副本
 .tomato-button {
-  color: var(--b3-font-color3) !important;
+  color: var(--b3-theme-primary) !important;
 }
 
 .protyle-wysiwyg div[custom-staticlink],
@@ -19,6 +21,13 @@
 .protyle-wysiwyg div[custom-card-priority-stop]::after {
   content: attr(custom-card-priority-stop);
   color: var(--b3-font-color5);
+  // 防内核 --hl/--select 高亮层互踩（cardhover 根因）：鼠标移到属性行（书签/属性/按钮
+  // 条）上时内核给块挂 protyle-wysiwyg--hl（initUI mouseover），块选中时挂 --select，
+  // 其 ::after 规则带 position:absolute+width/height:100%（本意=空文本高亮覆盖层）会把
+  // 本伪元素（恢复时间文本）absolute 化=块缩起 39px+文本悬浮压原文；显式 static 以更高
+  // 特异性 (0,2,2) 稳赢内核 (0,1,1)。代价=该块上内核整块高亮覆盖层结构性消失（退化为
+  // 文本底色碎片），暂停卡本体 opacity .3 观感无损
+  position: static;
 }
 
 // ai response
@@ -90,6 +99,8 @@
   div[custom-tomato-reflink]::after {
     content: attr(custom-tomato-reflink);
     font-size: small;
+    // 同 cardhover 根因（--hl/--select 高亮层互踩）预防：见上方 card-priority-stop 处注释
+    position: static;
   }
 
   div[custom-tomato-reflink] {
@@ -1086,4 +1097,31 @@ html[data-theme-mode="dark"] .protyle-wysiwyg span[data-type="a"][data-href^="#t
 
 .qe-ball--pinned .qe-ball__pin {
   display: flex;
+}
+
+/* 图片遮挡层（imgoverlay □4/□7）：JS 只写几何（%相对 img 盒），视觉全在此；
+   遮挡块无任何边框（□7 用户拍板：揭开态彻底消失无框无痕），纯色块即可辨；
+   hover/钉住揭开=底色+角标透明；钉住类由 JS click 联动挂 */
+.iov-ovl {
+    position: absolute;
+    background: var(--b3-font-background8);
+    cursor: pointer;
+}
+.iov-ovl--e { border-radius: 50%; }
+.iov-ovl--static { cursor: default; } /* 复习容器内禁钉住 */
+.iov-ovl:hover,
+.iov-ovl--pinned {
+    background: transparent;
+}
+.iov-ovl:hover .iov-badge,
+.iov-ovl--pinned .iov-badge { opacity: 0; }
+.iov-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--b3-font-color5);
+    font-size: 11px;
+    line-height: 1.2;
+    pointer-events: none;
 }

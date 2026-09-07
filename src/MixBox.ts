@@ -29,7 +29,7 @@ export const MixBox列出当前文档与子文档中没被引用的文档 = winH
 export const MixBox将选择文字与其拼音加入文档的别名 = winHotkey("⌘⇧Y", "将选择文字与其拼音加入文档的别名", "iconAttr", () => tomatoI18n.将选择文字与其拼音加入文档的别名 + "(pinyin)")
 export const MixBox将选择文字加入文档的别名 = winHotkey("⌘⇧U", "MixBox将选择文字加入文档的别名", "", () => tomatoI18n.将选择文字加入文档的别名)
 export const MixBox定位所有引用Menu = winHotkey("⌥⇧A", "定位所有引用Menu", "iconFocus", () => tomatoI18n.定位所有引用Menu)
-export const MixBox复制文档为标准Markdown = winHotkey("⌥⇧B", "复制文档为标准Markdown", "iconMarkdown", () => tomatoI18n.复制文档为标准Markdown)
+export const MixBox复制文档为标准Markdown = winHotkey("⌥⌘V", "复制文档为标准Markdown", "iconMarkdown", () => tomatoI18n.复制文档为标准Markdown) // 2026-09-06 撞键清理：原 ⌥⇧B 撞官方 focusBreadcrumb
 export const MixBox锁定内容 = winHotkey("⌥⇧L", "锁定内容", "iconLock", () => tomatoI18n.锁定内容)
 export const MixBox复制文档为纯文本 = winHotkey("alt+ctrl+shift+B", "复制文档为纯文本", "", () => tomatoI18n.复制文档为纯文本)
 

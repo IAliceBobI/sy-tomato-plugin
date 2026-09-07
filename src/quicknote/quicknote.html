@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<!-- 速记器小窗静态页（quicknote □1 2026-09-07；□4 窗口统一化升级）：零思源前端、
+     零插件加载、无框架。经内核静态服务加载（…/plugins/sy-tomato-plugin/quicknote/quicknote.html）。
+     回传通道=BroadcastChannel "quicknote"（与思源主窗同 origin，渲染进程间直通）：
+     页面→插件 {type:'hello'|'submit'|'close'|'icon'|'keep'|'openDaily'|'sync'}
+       （submit 带 icon=chips 现值 / keep=连续输入现值；hello=就绪请求初始态）
+     插件→页面 {type:'state'|'done'|'failed'}（state=类型集/当前类型/连续输入）。
+     深浅色跟随系统 prefers-color-scheme（不经思源前端，b3 变量不可用）。 -->
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+    <title>速记器</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #333333;
+            --muted: #6f6f6f;
+            --err: #d23f31;
+            --accent: #3575f0;
+            --accent-bg: rgba(53, 117, 240, 0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #1e1e1e;
+                --fg: #d5d5d5;
+                --muted: #9a9a9a;
+                --err: #e0705f;
+                --accent: #6d9ef7;
+                --accent-bg: rgba(109, 158, 247, 0.16);
+                --edge: rgba(255, 255, 255, 0.14);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* 深色桌面下浮层边界感（vision P2-2）：整圈 1px 描边，浅色用中性黑 */
+        html {
+            border: 1px solid var(--edge, rgba(0, 0, 0, 0.1));
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            padding: 10px 16px 10px;
+        }
+
+        /* □4 类型 chips 行：横向滚动防挤爆，chip=紧凑胶囊 */
+        #chips {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            flex-shrink: 0;
+            margin-bottom: 8px;
+            /* □2 拖动条：整行 drag（frameless 标准方案）——手起窗走；胶囊显式 no-drag 保点击 */
+            -webkit-app-region: drag;
+        }
+
+        #chips::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chip {
+            flex-shrink: 0;
+            font-size: 12px;
+            line-height: 1;
+            padding: 5px 9px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            color: var(--muted);
+            cursor: default;
+            -webkit-app-region: no-drag;
+        }
+
+        .chip.on {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: var(--accent-bg);
+        }
+
+        #input {
+            flex: 1;
+            width: 100%;
+            resize: none;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--fg);
+            font-size: 15px;
+            line-height: 1.5;
+            user-select: text;
+        }
+
+        #input::placeholder {
+            color: var(--muted);
+        }
+
+        .bar {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .bar .hint {
+            flex-shrink: 0;
+        }
+
+        .bar .hint kbd {
+            font-family: inherit;
+            color: var(--fg);
+            opacity: .75;
+        }
+
+        #err {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--err);
+            visibility: hidden;
+        }
+
+        /* □4 动作区：打开日记/同步/连续输入（与 NoteBox 面板同款能力收编进小窗） */
+        .acts {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .acts button {
+            position: relative;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1;
+            padding: 3px 5px;
+            border-radius: 6px;
+            cursor: default;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .acts button svg {
+            display: block;
+        }
+
+        .acts button:hover {
+            color: var(--fg);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .acts button:hover {
+                background: rgba(255, 255, 255, 0.08);
+            }
+        }
+
+        /* □1 即时 Tip：原生 title 延迟 1~2s+frameless 无点击反馈，用户感知不到——
+           data-tip 自绘气泡 hover 即显（零延迟）；fg/bg 反色气泡自动跟随深浅色。
+           连续按钮有文字标签自说明，不带 data-tip（属性选择器限定，无空气泡） */
+        .acts button[data-tip]::after {
+            content: attr(data-tip);
+            position: absolute;
+            right: 0;
+            bottom: calc(100% + 7px);
+            padding: 3px 8px;
+            border-radius: 5px;
+            background: var(--fg);
+            color: var(--bg);
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .acts button[data-tip]:hover::after {
+            opacity: 1;
+        }
+
+        /* □1 同步触发反馈：performSync 无回执，图标 accent 闪 0.8s 示意已触发 */
+        @keyframes qn-pulse {
+            from { color: var(--accent); }
+            to { color: var(--muted); }
+        }
+
+        #btnSync.busy {
+            animation: qn-pulse .8s ease-out;
+        }
+
+        /* 连续输入=开关胶囊（与 chips 同构：关=极淡底灰字，开=主色底主色字——vision P2 控件感） */
+        #btnKeep {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            #btnKeep {
+                background: rgba(255, 255, 255, 0.07);
+            }
+        }
+
+        #btnKeep.on {
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            background: var(--accent-bg);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chips"></div>
+    <textarea id="input" placeholder="" spellcheck="false" autofocus></textarea>
+    <div class="bar">
+        <span class="hint" id="hint"><kbd>Enter</kbd> 提交 · <kbd>⇧Enter</kbd> 换行 · <kbd>Esc</kbd> 收起</span>
+        <span id="err"></span>
+        <span class="acts">
+            <button id="btnDaily" data-tip="打开今天的日记（切到思源）"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg></button>
+            <button id="btnSync" data-tip="立即同步"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6.5 19a4.5 4.5 0 1 1 .36-8.99A6 6 0 0 1 18.3 11.2 3.9 3.9 0 0 1 17.5 19h-11z"/></svg></button>
+            <button id="btnOpacity" data-tip="透明度：100%"><svg viewBox="0 0 24 24" width="13" height="13"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
+            <button id="btnKeep" title="连续输入：提交后不收起">连续</button>
+        </span>
+    </div>
+
+    <script>
+        "use strict";
+        const input = document.getElementById("input");
+        const err = document.getElementById("err");
+        const chips = document.getElementById("chips");
+        const btnDaily = document.getElementById("btnDaily");
+        const btnSync = document.getElementById("btnSync");
+        const btnOpacity = document.getElementById("btnOpacity");
+        const btnKeep = document.getElementById("btnKeep");
+        // 中英提示二分（页面不经思源 i18n；更细语种按需在此扩展）
+        const zh = navigator.language.toLowerCase().startsWith("zh");
+        input.placeholder = zh ? "想了点什么，写下来…" : "What's on your mind?";
+        if (!zh) {
+            document.getElementById("hint").innerHTML =
+                "<kbd>Enter</kbd> save · <kbd>⇧Enter</kbd> newline · <kbd>Esc</kbd> hide";
+            btnDaily.dataset.tip = "Open today's note (switch to SiYuan)";
+            btnSync.dataset.tip = "Sync now";
+            btnKeep.title = "Keep open after saving";
+            btnKeep.textContent = "keep";
+        }
+
+        // 回传通道：与主窗插件侧同名 BroadcastChannel（同 origin 直通）
+        const ch = new BroadcastChannel("quicknote");
+
+        // □4 状态：类型集/当前类型/连续输入（插件 state 消息下发，与 NoteBox 面板共享同一组存储）
+        let icons = ["💡"];
+        let icon = "💡";
+        let keep = false;
+
+        function renderChips() {
+            chips.innerHTML = "";
+            for (const t of icons) {
+                const s = document.createElement("span");
+                s.className = "chip" + (t === icon ? " on" : "");
+                s.textContent = t;
+                s.addEventListener("click", () => setIcon(t));
+                chips.appendChild(s);
+            }
+        }
+
+        function setIcon(t) {
+            if (t === icon) return;
+            icon = t;
+            renderChips();
+            ch.postMessage({ type: "icon", icon: t });
+        }
+
+        function setKeep(v) {
+            keep = v;
+            btnKeep.classList.toggle("on", keep);
+            ch.postMessage({ type: "keep", keep: v });
+        }
+
+        renderChips();
+        btnKeep.addEventListener("click", () => setKeep(!keep));
+        btnDaily.addEventListener("click", () => ch.postMessage({ type: "openDaily" }));
+
+        // □2 透明度档位循环：100%→90%→80%→70%→回环（所见即所得，插件侧落盘记忆）。
+        // 下限 70%=再低文字难读；当前档实时写进 tip
+        const OPACITY_STEPS = [1, 0.9, 0.8, 0.7];
+        let opacity = 1;
+        function setOpacityUI(v) {
+            opacity = v;
+            btnOpacity.dataset.tip = (zh ? "透明度：" : "Opacity: ") + Math.round(v * 100) + "%";
+        }
+        setOpacityUI(1);
+        btnOpacity.addEventListener("click", () => {
+            setOpacityUI(OPACITY_STEPS[(OPACITY_STEPS.indexOf(opacity) + 1) % OPACITY_STEPS.length]);
+            ch.postMessage({ type: "opacity", v: opacity });
+        });
+
+        btnSync.addEventListener("click", () => {
+            ch.postMessage({ type: "sync" });
+            // performSync 无回执：accent 闪动示意已触发（内核同步结果另有反馈）；
+            // 强制 reflow 重启动画=连点重闪
+            btnSync.classList.remove("busy");
+            void btnSync.offsetWidth;
+            btnSync.classList.add("busy");
+        });
+
+        // 就绪即请求初始态（插件侧唤起 show 时也会推，覆盖面板侧的改动）
+        ch.postMessage({ type: "hello" });
+
+        // 提交锁：等插件回执（done/failed）期间防重复提交；窗口未销毁，Esc/失焦收起草稿保留。
+        // 10s 回执超时解锁（review P1）：插件 reload 关掉旧 channel 时回执静默丢失（closed
+        // 对象 postMessage 无声 no-op），不解锁=池化页面 Enter 永久失效变砖
+        let sending = false;
+        let ackTimer = 0;
+
+        function submit() {
+            if (sending) return;
+            const text = input.value;
+            if (!text.trim()) { hide(); return; }
+            sending = true;
+            err.style.visibility = "hidden";
+            ch.postMessage({ type: "submit", text, icon, keep });
+            clearTimeout(ackTimer);
+            ackTimer = setTimeout(() => {
+                if (!sending) return;
+                sending = false;
+                err.textContent = zh ? "未收到保存回执（插件可能已重载），可重试" : "No ack (plugin may have reloaded); retry";
+                err.style.visibility = "visible";
+                input.focus();
+            }, 10000);
+        }
+
+        function hide(at) {
+            // at=blur 因果时刻（非发出时刻）：hidden 页面 timer 被 Chromium 节流，close 可能
+            // 在下一次热键 show 后才到达，插件按 at 与最近 show 时刻比对丢弃迟到者（防闪现）
+            ch.postMessage(at ? { type: "close", at } : { type: "close" });
+        }
+
+        // 插件消息：state=初始态；成功=清空收起草稿（连续输入开着时窗不收）；失败=红字重试
+        ch.onmessage = (e) => {
+            const m = e.data;
+            if (!m || typeof m !== "object") return;
+            if (m.type === "state") {
+                if (Array.isArray(m.icons) && m.icons.length > 0) icons = m.icons;
+                if (typeof m.icon === "string" && m.icon) icon = m.icon;
+                if (typeof m.keep === "boolean") keep = m.keep;
+                if (typeof m.opacity === "number" && m.opacity > 0 && m.opacity <= 1) setOpacityUI(m.opacity);
+                renderChips();
+                btnKeep.classList.toggle("on", keep);
+                return;
+            }
+            if (m.type === "done") {
+                clearTimeout(ackTimer);
+                input.value = "";
+                input.focus();
+                sending = false;
+            } else if (m.type === "failed") {
+                clearTimeout(ackTimer);
+                err.textContent = String(m.msg);
+                err.style.visibility = "visible";
+                sending = false;
+                input.focus();
+            }
+        };
+
+        input.addEventListener("keydown", (e) => {
+            // IME 组词回车不提交（isComposing/keyCode 229 双保险）
+            if (e.key === "Enter" && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
+                e.preventDefault();
+                submit();
+            } else if (e.key === "Escape") {
+                e.preventDefault();
+                hide();
+            }
+        });
+        // 点击提示行/按钮等非输入区不夺焦（review P2：丢了 textarea 焦点=输入死且无自愈；
+        // mousedown preventDefault 不拦 click，按钮照常触发且焦点留在输入框）。
+        // □2 放行 chips 行（drag 区）：preventDefault 会拦 -webkit-app-region 系统拖拽；
+        // chip 是 span 不可聚焦，不 preventDefault 也不会夺走 textarea 焦点
+        document.body.addEventListener("mousedown", (e) => {
+            if (e.target !== input && !e.target.closest?.("#chips")) e.preventDefault();
+        });
+        // 失焦=收起（hide 语义，草稿保留）。200ms 防抖：截图/切窗等瞬间失焦立即回焦
+        // 时不误收（vision 轮 5/6 截图缺窗根因）；hide 触发的 blur 再回调 close 幂等——
+        // 但 close 在 hidden 页面被节流可能迟到，须带 blurAt 供插件守卫（见 hide()）
+        let blurTimer = 0;
+        let blurAt = 0;
+        window.addEventListener("blur", () => {
+            clearTimeout(blurTimer);
+            blurAt = Date.now();
+            blurTimer = setTimeout(() => hide(blurAt), 200);
+        });
+        window.addEventListener("focus", () => clearTimeout(blurTimer));
+        // 窗口重新可见（池化 show）时聚焦输入框；pending 中的 blur close 一并作废
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+                clearTimeout(blurTimer);
+                input.focus();
+            }
+        });
+        input.focus();
+    </script>
+</body>
+
+</html>

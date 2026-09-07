@@ -1,21 +1,22 @@
-import { adaptHotkey, Custom, Dialog, IProtyle, openTab, openWindow } from "siyuan";
+import { adaptHotkey, Custom, Dialog, IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { add_ref, convertMinutesToTimeFormat, doubleSupRows, isMainWin, NewNodeID, setTimeouts, siyuan, sleep, timeUtil, } from "./libs/utils";
+import { add_ref, convertMinutesToTimeFormat, doubleSupRows, getContenteditableElement, intervalMinutesBetween, isMainWin, NewNodeID, parseIDTimestamp, setTimeouts, siyuan, sleep, timeUtil, } from "./libs/utils";
 import NoteBoxSvelte from "./NoteBox.svelte";
 import { TOMATO_IDEA_QUEUE } from "./libs/gconst";
 import { DestroyManager } from "./libs/destroyer";
-import { avoiding_cloud_synchronization_conflicts, flash_thoughts_2_top, flash_thoughts_target_file, flashThoughtUseDialog, noteBoxCheckbox, storeNoteBox_fastnote, storeNoteBox_pin, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType } from "./libs/stores";
+import { avoiding_cloud_synchronization_conflicts, flash_thoughts_2_top, flash_thoughts_target_file, noteBoxCheckbox, storeNoteBox_fastnote, storeNoteBox_pin, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType } from "./libs/stores";
+import { shouldRepinDailyNote } from "./libs/dailyCollect";
+import { isDailyNoteIal } from "./libs/dailyReview";
 import { isPinned, removeStatusBar } from "./libs/ui";
 import { createRefDoc, OpenSyFile2 } from "./libs/docUtils";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { DomSuperBlockBuilder, domNewLine } from "./libs/sydom";
-import { winHotkey } from "./libs/winHotkey";
+import { DomSuperBlockBuilder, domNewLine, md2Divs } from "./libs/sydom";
 import { newID } from "stonev5-utils";
 import { mount, unmount } from "svelte";
 
 const DOCK_TYPE = "dock_NoteBox";
-const TAB_TYPE = "custom_tab_NoteBox";
+export const TAB_TYPE = "custom_tab_NoteBox";
 export const NoteBoxID = "jadfddMPTrpeULuAwloOMWAJEgwyMpBOTxUaDSTHyShpHlJHKu";
 
 function pinWindowEventHandler(_event: PointerEvent) {
@@ -38,7 +39,6 @@ function isNoteBox() {
     return document.getElementById(NoteBoxID) != null;
 }
 
-export const NoteBox拍照闪念全局 = winHotkey("ctrl+q", "拍照闪念全局", "", () => tomatoI18n.拍照闪念全局)
 
 class NoteBox {
     plugin: BaseTomatoPlugin;
@@ -47,6 +47,10 @@ class NoteBox {
     // private ticker: any;
     // private notebookID: string;
     mobilePinnedDailynoteID: string;
+    /** mobilePinnedDailynoteID 的 pin 日（YYYYMMDD）：跨天后 getTargetID 重取当日日记（□1 修「跨天仍落昨日」存量 bug） */
+    mobilePinnedYMD: string;
+    /** □4 已判非日记的文档负缓存（ial 判定防同文档重复；reload 后失效风险低=间隔不更新可接受） */
+    nonDailyNoteIDs = new Set<string>();
 
     /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役。
      * 注册体保持同步——verify 失败强关云同步冲突规避（Pro 门控）挪 index.onLayoutReady
@@ -109,6 +113,14 @@ class NoteBox {
                         try {
                             const protyle: IProtyle = detail?.protyle;
                             const docID = protyle?.block?.rootID;
+                            if (!docID) return;
+                            // □4 省 SQL：ial 内存判定非日记直接跳（负缓存防同文档重复判定；
+                            // reload 后缓存失效风险低——误跳过最坏效果=间隔不更新，可接受）
+                            if (!isDailyNoteIal(protyle?.background?.ial as any)) {
+                                this.nonDailyNoteIDs.add(docID);
+                                return;
+                            }
+                            this.nonDailyNoteIDs.delete(docID);
                             if (!avoiding_cloud_synchronization_conflicts.get()) {
                                 await this.calcTimeInterval(docID)
                             } else {
@@ -124,23 +136,35 @@ class NoteBox {
             }
         });
 
-        if (avoiding_cloud_synchronization_conflicts.get() && !events.isMobile) {
-            events.addListener("tomato-note-box-file-queue", (eventType, _detail) => {
-                if (eventType == EventType.loaded_protyle_static
-                    || eventType == EventType.loaded_protyle_dynamic
-                    || eventType == EventType.click_editorcontent
-                    || eventType == EventType.switch_protyle
-                ) {
-                    navigator.locks.request("tomato-note-box-file-queue-lock", { ifAvailable: true }, async (lock) => {
-                        if (lock) {
-                            const boxID = storeNoteBox_fastnote.getOr();
-                            this.moveFromQueue(boxID);
-                            await sleep(5000)
-                        }
-                    });
+        // □4 队列监听注册恒执行、体内运行时判开关（热生效：改设置不再需要重载插件）+
+        // 桌面端 sync-end 触发搬运（监听体内同判；事件名同源 shorthandRelay bindShorthandRelay）
+        events.addListener("tomato-note-box-file-queue", (eventType, _detail) => {
+            if (!avoiding_cloud_synchronization_conflicts.get() || events.isMobile) return;
+            if (eventType == EventType.loaded_protyle_static
+                || eventType == EventType.loaded_protyle_dynamic
+                || eventType == EventType.click_editorcontent
+                || EventType.switch_protyle
+            ) {
+                navigator.locks.request("tomato-note-box-file-queue-lock", { ifAvailable: true }, async (lock) => {
+                    if (lock) {
+                        const boxID = storeNoteBox_fastnote.getOr();
+                        this.moveFromQueue(boxID);
+                        await sleep(5000)
+                    }
+                });
+            }
+        });
+
+        this.plugin.eventBus.on("sync-end", () => {
+            if (!avoiding_cloud_synchronization_conflicts.get() || events.isMobile) return;
+            navigator.locks.request("tomato-note-box-file-queue-lock", { ifAvailable: true }, async (lock) => {
+                if (lock) {
+                    const boxID = storeNoteBox_fastnote.getOr();
+                    this.moveFromQueue(boxID);
+                    await sleep(5000)
                 }
             });
-        }
+        });
 
         if (!events.isMobile) {
             setTimeouts(() => {
@@ -167,27 +191,31 @@ class NoteBox {
         if (timeMap.size == 0) return
         const ids = await siyuan.getBlocksIndexes([...timeMap.keys()])
             .then(obj => Object.entries(obj).sort((a, b) => a[1] - b[1]).map(entr => entr[0]))
-            .then(ids => ids
-                .map(id => {
-                    const time = (timeMap.get(id) ?? "").split("⌛")[0]; // for old
-                    if (!time) return null
-                    const interval = intervalMap.get(id) ?? "";
-                    return { id, time, interval } as ID_Time
-                })
-                .filter(i => !!i)
-            )
-        for (let i = 1; i < ids.length; i++) {
-            await this.updateTimeInterval(ids[i - 1], ids[i])
+        const createdMap = new Map((await siyuan.getRows(ids, "created")).map(r => [r.id, r.created]))
+        const times = ids
+            .map(id => {
+                const time = (timeMap.get(id) ?? "").split("⌛")[0]; // for old
+                if (!time) return null
+                const interval = intervalMap.get(id) ?? "";
+                return { id, time, interval, created: createdMap.get(id) } as ID_Time
+            })
+            .filter(i => !!i)
+        for (let i = 1; i < times.length; i++) {
+            await this.updateTimeInterval(times[i - 1], times[i])
         }
     }
 
     private async updateTimeInterval(a: ID_Time, b: ID_Time) {
-        if (a.time == b.time) return
-        const P = "2020-01-01 "
-        const atime = (new Date(P + a.time)).getTime()
-        const btime = (new Date(P + b.time)).getTime()
-        const interval = convertMinutesToTimeFormat(Math.ceil(Math.abs(atime - btime) / (1000 * 60)))
-        if (Math.min(atime, btime) == atime) {
+        // created 全时间戳优先（跨天块如队列搬运块与平面 HH:MM 会错出 20h 级差值）
+        const minutes = intervalMinutesBetween(a, b)
+        if (minutes == null) return
+        const interval = convertMinutesToTimeFormat(minutes)
+        const at = parseIDTimestamp(a.created ?? "");
+        const bt = parseIDTimestamp(b.created ?? "");
+        const aEarlier = (!isNaN(at) && !isNaN(bt))
+            ? at < bt
+            : (new Date("2020-01-01 " + a.time)).getTime() < (new Date("2020-01-01 " + b.time)).getTime();
+        if (aEarlier) {
             if (interval != a.interval) {
                 await siyuan.setBlockAttrs(a.id, { "custom-tomato-idea-interval": interval })
             }
@@ -261,19 +289,9 @@ class NoteBox {
     }
 
     private addTab() {
-        this.custom;
-        this.plugin.addCommand({
-            langKey: NoteBox拍照闪念全局.langKey,
-            langText: NoteBox拍照闪念全局.langText(),
-            hotkey: NoteBox拍照闪念全局.m,
-            globalCallback: async () => {
-                if (flashThoughtUseDialog.get()) {
-                    await this.showInDialog();
-                } else {
-                    await this.showInput();
-                }
-            },
-        });
+        this.custom; // 压 TS6133：custom 只在 onload 前的类型期被赋值读用
+        // □4 窗口统一化（2026-09-07）：「拍照闪念（全局）」命令退役——全局入口收拢到速记器 ⌥J
+        // （外部轻窗默认/带出思源面板可配），图片闪念走 Dock 图标/速记器 focus 形态进面板
         this.custom = this.plugin.addTab({
             type: TAB_TYPE,
             init() {
@@ -320,51 +338,6 @@ class NoteBox {
         dm.add("2", () => { unmount(d) })
     }
 
-    private async showInput() {
-        // if (isMainWin) {
-        //     const { BrowserWindow } = require('@electron/remote')
-        //     if (BrowserWindow) {
-        //         const windowOptions = {
-        //             width: 800,
-        //             height: 600,
-        //             show: false,
-        //         };
-        //         const mainWindow = new BrowserWindow(windowOptions);
-        //         mainWindow.loadURL("data:text/html;charset=utf-8,");
-        //         mainWindow.webContents.executeJavaScript(`document.write("Hello, World!");`);
-        //         mainWindow.show();
-        //     }
-        // }
-        // return;
-
-        // TODO: save to file, update timestamp in the file every five secs.
-        // if timestamp too old, delete the file and open new tab
-        if (isNoteBox()) {
-            this.getCloseSvg()?.click();
-        }
-        if (isMainWin()) {
-            let suffix = "";
-            if (avoiding_cloud_synchronization_conflicts.get()) {
-                suffix = `(${tomatoI18n.移动端规避云端同步冲突})`;
-            }
-            const noteBoxTab = await openTab({ // custom
-                app: this.plugin.app,
-                custom: {
-                    icon: "iconCamera",
-                    title: tomatoI18n.拍照闪念 + suffix,
-                    data: {},
-                    id: this.plugin.name + TAB_TYPE
-                },
-            });
-            openWindow({
-                width: 480,
-                height: 240,
-                tab: noteBoxTab,
-            });
-        }
-    }
-
-
     private async moveFromQueue(box: string) {
         if (!box) return;
         const rows = await siyuan.sqlAttr(`select * from attributes where name="${TOMATO_IDEA_QUEUE}"`);
@@ -374,7 +347,7 @@ class NoteBox {
         const ideaIDs = (await Promise.all(rows.map(row => siyuan.getChildBlocks(row.root_id)))).flat().map(c => c.id);
         const ideas = await siyuan.getRows(ideaIDs, "created", false, [/*`box="${box}"`,*/ "markdown is not null", "LENGTH(markdown) > 0"]);
         if (ideas.length == 0) {
-            await Promise.all(rows.map(row => siyuan.removeDoc(box, row.path)));
+            await this.removeQueueDocs(box, rows);
             return;
         }
         ideas.sort((a, b) => {
@@ -385,6 +358,10 @@ class NoteBox {
 
         let ops = [];
         if (flash_thoughts_2_top.get()) {
+            // 头插分支反向传参=刻意：净契约「传什么序落什么序」（6808 实证 □7），ideas 已按
+            // created 升序，reverse 后落序=新→旧，配合前插语义成 feed（最新闪念恒在日记最顶，
+            // 批内批间皆全序倒排）；尾插分支则传正序落旧→新时间线——勿删此 reverse（双重反转
+            // 家族审计时差点误判，见 docs/checkpoints dailynote □7）
             ops = siyuan.transMoveBlocksAsChild(ideas.map(i => i.id).reverse(), dayID);
         } else {
             const tails = await siyuan.getTailChildBlocks(dayID, 1);
@@ -397,12 +374,31 @@ class NoteBox {
         }
         if (ops.length > 0) {
             await siyuan.transactions(ops);
+            // □4 即搬即清：事务 HTTP 恒 code 0（op 级失败只走 ws 回声）——删队列文档前
+            // fresh 重扫 getChildBlocks 确认真的搬空，防事务竞态删到未搬空的
+            await this.removeQueueDocs(box, rows);
             setTimeout(() => {
                 for (const { id } of ideas.slice().reverse()) {
                     OpenSyFile2(this.plugin, id);
                     break;
                 }
             }, 1000);
+        }
+    }
+
+    /** 删空的队列文档：逐文档 fresh 重扫子块，仅删确认搬空的（attributes 行无 path 列，
+     * removeDoc 走 getRowByID 拿真 path——旧代码 row.path 恒 undefined 属存量坏参顺手修）。
+     * 「搬空」判定=非空子块数 0：内核 move 事务搬空文档时会自动补一个空段落
+     * （6808 实测 x08pbjs 形态），kids.length==0 永不成立 */
+    private async removeQueueDocs(box: string, rows: { root_id: string }[]) {
+        for (const row of rows) {
+            try {
+                const kids = await siyuan.getChildBlocks(row.root_id);
+                const nonEmpty = kids.filter(k => ((k as any).content ?? "").trim() !== "");
+                if (nonEmpty.length > 0) continue;
+                const docRow = await siyuan.getRowByID(row.root_id);
+                if (docRow?.path) await siyuan.removeDoc(box, docRow.path);
+            } catch { /* 删失败留待下次搬运重试 */ }
         }
     }
 }
@@ -419,7 +415,11 @@ export async function getTargetID(box: string) {
     }
     const note = await siyuan.createDailyNote(box);
     if (events.isMobile) {
-        if (!noteBox.mobilePinnedDailynoteID) noteBox.mobilePinnedDailynoteID = note.id;
+        const { y, M, d } = timeUtil.nowYMDStrPad();
+        if (shouldRepinDailyNote(noteBox.mobilePinnedYMD, y + M + d)) {
+            noteBox.mobilePinnedDailynoteID = note.id;
+            noteBox.mobilePinnedYMD = y + M + d;
+        }
         return noteBox.mobilePinnedDailynoteID;
     }
     return note.id;
@@ -433,31 +433,50 @@ export function getTime() {
     return time.split(":").slice(0, 2).join(":");
 }
 
-export function getAttr(t?: string) {
+export function getAttr(t?: string): { ial: string; id: string } {
+    const id = NewNodeID();
     if (t) {
-        return `{: id="${NewNodeID()}" custom-tomato-idea-time="${getTime()}" alias="${t}"}`;
+        return { ial: `{: id="${id}" custom-tomato-idea-time="${getTime()}" alias="${t}"}`, id };
     } else {
-        return `{: id="${NewNodeID()}" custom-tomato-idea-time="${getTime()}"}`;
+        return { ial: `{: id="${id}" custom-tomato-idea-time="${getTime()}"}`, id };
     }
 }
 
-async function getContent2insert(text: string, isPic: boolean) {
+/** 产出待插 markdown 与容器块 id（id 供近期列表点击跳日记定位；Dom 通道自插无 md）。
+ *  iconOverride：外部通道（速记器）固定类型落块用，不传=面板当前选择 */
+async function getContent2insert(text: string, isPic: boolean, iconOverride?: string): Promise<{ md?: string; id?: string }> {
     const boxID = storeNoteBox_selectedNotebook.getOr();
     text = text.trim();
-    const icon = storeNoteBox_selectedNoteType.get().trim();
+    const icon = (iconOverride ?? storeNoteBox_selectedNoteType.get()).trim();
     if (isPic) {
-        return text;
+        return { md: text };
     } else if (["💡", "🏞️", "💪", "💬", "🍴", "📚", "💼"].includes(icon)) {
-        return doubleSupRows(text, getAttr(icon));
+        const attr = getAttr(icon);
+        return { md: doubleSupRows(text, attr.ial), id: attr.id };
     } else if (icon === "📌") {
         text = "* [ ] " + text.replaceAll(/\n+/g, "; ");
-        return doubleSupRows(text, getAttr(icon));
+        const attr = getAttr(icon);
+        return { md: doubleSupRows(text, attr.ial), id: attr.id };
     } else {
         const id = await createRefDoc(boxID, icon);
         const L1 = new DomSuperBlockBuilder();
         const L2 = new DomSuperBlockBuilder();
-        const textDiv = domNewLine(text);
-        L2.append(textDiv);
+        // □4 图片 compose：混合内容（含 ![](…)）走 md2Divs（Lute Md2BlockDOM，行内旗标
+        // 已配）真渲染图片块——domNewLine 的文本节点通道会把图片语法落成字面文本；
+        // 纯文本维持 domNewLine 原样（原文以字面文本入库，不走 markdown 解析）
+        const blocks = (() => {
+            if (!/!\[[^\]]*\]\([^)]+\)/.test(text)) return [domNewLine(text)];
+            const parsed = md2Divs(text);
+            return parsed.length > 0 ? parsed : [domNewLine(text)];
+        })();
+        // add_ref 挂点取首个带 contenteditable 的块（首块可能是图片/hr/代码块，
+        // add_ref 对无 contenteditable 元素静默 no-op 会丢分类锚——review P2）；全无则补空段
+        let textDiv = blocks.find((b) => getContenteditableElement(b) != null);
+        if (!textDiv) {
+            textDiv = domNewLine();
+            blocks.unshift(textDiv);
+        }
+        for (const b of blocks) L2.append(b);
         L1.append(L2.build());
         add_ref(textDiv, id, icon, false, false);
         L1.setAttr("custom-tomato-idea-time", getTime());
@@ -472,19 +491,22 @@ async function getContent2insert(text: string, isPic: boolean) {
             const lastID = await siyuan.getDocLastID(dayID);
             await siyuan.insertBlocksAfter([html], lastID);
         }
+        return { id: L1.id };
     }
 }
 
-// save to dailynote
-export async function insertIntoDailynote(text: string, isPic = false) {
+// save to dailynote（返回值=收集容器块 id，近期列表点击跳转用；图片兜底通道无容器）。
+// iconOverride：速记器等外部通道固定类型（不走面板当前选择），落块与其完全同构
+export async function insertIntoDailynote(text: string, isPic = false, iconOverride?: string): Promise<string | undefined> {
     const dayID = await getTargetDoc();
-    text = await getContent2insert(text, isPic);
-    if (!text) return;
+    const r = await getContent2insert(text, isPic, iconOverride);
+    if (!r.md) return r.id;
     if (flash_thoughts_2_top.get()) {
-        await siyuan.insertBlockAsChildOf(text, dayID);
+        await siyuan.insertBlockAsChildOf(r.md, dayID);
     } else {
-        await siyuan.appendBlock(text, dayID);
+        await siyuan.appendBlock(r.md, dayID);
     }
+    return r.id;
 }
 
 async function getTargetDoc() {

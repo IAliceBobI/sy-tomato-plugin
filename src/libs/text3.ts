@@ -987,23 +987,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "When making cards inside a piece, the card also carries a link to that piece";
         }
     }
-    public get 闪卡的回溯使用链接() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "闪卡回溯用链接而非块引用";
-            case "es_ES":
-                return "El retroceso de la tarjeta flash usa enlace en vez de referencia de bloque";
-            case "fr_FR":
-                return "Le retour de la carte flash utilise un lien plutôt qu'une réf. de bloc";
-            case "ja_JP":
-                return "フラッシュカードの遡及はブロック参照ではなくリンクを使用";
-            case "zh_CHT":
-                return "閃卡回溯用連結而非塊引用";
-
-            default:
-                return "Flashcard backtrace uses a hyperlink instead of a block ref";
-        }
-    }
     public get 制卡时在末尾添加空行() {
         switch (this.lang) {
             case "zh_CN":

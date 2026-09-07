@@ -7,6 +7,11 @@ export const SPACE = "　";
 export const WEB_SPACE = "&nbsp;";
 export const WEB_ZERO_SPACE = "\u200B";
 export const CUSTOM_RIFF_DECKS = "custom-riff-decks";
+// 官方复习入口（⌃0）只收 builtin deck（内核 getAllDueFlashcards 遍历跳过非 builtin，
+// issue #10635）——「官方复习队列」语义的卡全在此 deck。getRiffDueCards 的 cards 受每日
+// 新卡/复习上限过滤（内核 getDeckDueCards），积压>限额只拿子集；全量取卡须走
+// getRiffCards 按此 deck 分页拉取再按 due<=now 过滤（空串 deckID=全部卡包含自建卡包，范围过大）
+export const BUILTIN_DECK_ID = "20230218211946-2kw8jgx";
 export const DATA_NODE_ID = "data-node-id";
 export const UPDATED = "updated";
 export const DATA_NODE_INDEX = "data-node-index";

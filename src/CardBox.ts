@@ -1,21 +1,21 @@
 import { IEventBusMap, IProtyle, openTab, } from "siyuan";
-import { deleteBlock, isVisible, siyuan, sleep, } from "./libs/utils";
+import { isVisible, siyuan, } from "./libs/utils";
 import "./index.scss";
 import { EventType, events } from "./libs/Events";
-import { getIDFromCard, pressSkip, showCardAnswer, removeDocCards } from "./libs/cardUtils";
-import { CardSettingsID, WEB_SPACE } from "./libs/gconst";
+import { getIDFromCard, pressSkip, removeDocCards, skipThenRemoveCards } from "./libs/cardUtils";
+import { CardSettingsID } from "./libs/gconst";
 import { addFlashCard } from "./libs/listUtils";
-import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxSettingsShow, cardBoxSuperCard, cardBoxCardtab, card_refresh_visible_only, writableWithGet, cardPriorityBoxCheckbox } from "./libs/stores";
+import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxSettingsShow, cardBoxSuperCard, cardBoxCardtab, card_refresh_visible_only, writableWithGet } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { getDocTracer, locTree, OpenSyFile2 } from "./libs/docUtils";
 import { closeAllDialog } from "./libs/keyboard";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { CardPriorityBox修改文档中闪卡优先级, CardPriorityBox分散推迟闪卡 } from "./CardPriorityBox";
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
 import { verifyKeyTomato } from "./libs/user";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import CardBoxFloatSvelte from "./CardBoxFloat.svelte";
+import { debugLog } from "./libs/logUtils";
 import { setGlobal } from "stonev5-utils";
 
 export const CardBox用选中的行创建超级块超级块制卡取消制卡 = winHotkey("shift+ctrl+1", "addFlashCard", "iconRiffCard", () => tomatoI18n.用选中的行创建超级块超级块制卡取消制卡, false, cardBoxSuperCard)
@@ -190,10 +190,18 @@ class CardBox {
 
     private cardID = writableWithGet("")
     private cardPath = writableWithGet("")
+    private lastCardID = ""
+    private floatComp: ReturnType<typeof mount> | null = null
+    private floatObserver: MutationObserver | null = null
+
     private addBtns(protyle: IProtyle) {
         const id = protyle.block.id;
         if (!id) return;
-        this.initSkipBtn();
+        // 同卡且面板标记 div 仍在文档=一切就位：短路高频重入（click_editorcontent 每点一下
+        // 都触发），省掉按钮全量重建与 getBlockBreadcrumb 网络往返。翻页换卡 id 会变；面板
+        // DOM 被官方翻页重写（genCardCount 重写 count innerHTML）时标记 div 消失，均不短路
+        if (id === this.lastCardID && document.getElementById(CardSettingsID)) return;
+        this.lastCardID = id;
         this.initSettingsBtn();
         this.cardID.set(id)
         siyuan.getBlockBreadcrumb(id).then((p) => {
@@ -207,102 +215,96 @@ class CardBox {
         if (!cardSvID) {
             const target = document.querySelector(`[data-type="count"]`);
             if (target) {
-                mount(CardBoxFloatSvelte, {
-                    target,
-                    props: {
-                        id: this.cardID,
-                        cardPath: this.cardPath,
-                    }
-                });
+                this.mountFloat(target);
             }
         }
+    }
+
+    private mountFloat(target: Element) {
+        // 复用场景（重开复习页签等）先清旧实例再挂新，防止孤儿累积
+        this.unmountFloat();
+        this.floatComp = mount(CardBoxFloatSvelte, {
+            target,
+            props: {
+                id: this.cardID,
+                cardPath: this.cardPath,
+            }
+        });
+        // 官方翻页重写 count 容器 innerHTML、关页签摘整棵 DOM，组件自身无从感知——标记 div
+        // （组件渲染产物 CardSettingsID）离开文档即 unmount，防孤儿组件滞留（store 订阅与
+        // window resize 监听泄漏）；unmount 后下次 addBtns 事件重挂新实例
+        this.floatObserver = new MutationObserver(() => {
+            if (this.floatComp && !document.getElementById(CardSettingsID)) {
+                this.unmountFloat();
+            }
+        });
+        this.floatObserver.observe(document.body, { childList: true, subtree: true });
+    }
+
+    private unmountFloat() {
+        if (this.floatComp) {
+            try {
+                unmount(this.floatComp);
+            } catch { /* DOM 已被官方先行摘除的跨代残留，销毁失败无妨（PairBarBox 先例） */ }
+            this.floatComp = null;
+        }
+        this.floatObserver?.disconnect();
+        this.floatObserver = null;
+    }
+
+    unload() {
+        this.unmountFloat();
+        this.lastCardID = "";
     }
 
     private async delCard(delBlock: boolean) {
         const cardID = await getIDFromCard();
         if (cardID) {
-            await siyuan.removeRiffCards([cardID]);
-            if (delBlock) {
-                await deleteBlock(cardID);
-            }
-            if (showCardAnswer()) await sleep(300);
-            await pressSkip();
+            await skipThenRemoveCards(cardID, delBlock);
             await siyuan.pushMsg(tomatoI18n.取消制卡);
         }
     }
 
-    private getHK() {
-        if (cardPriorityBoxCheckbox.get()) {
-            return tomatoI18n.复习时的快捷键(
-                CardBox删除内容块.w(),
-                CardBox复习时删除当前闪卡.w(),
-                CardBox复习时跳过当前闪卡.w(),
-                CardPriorityBox修改文档中闪卡优先级.w(),
-                CardBox定位闪卡.w(),
-                CardPriorityBox分散推迟闪卡.w()
-            );
-        } else {
-            return tomatoI18n.复习时的快捷键(
-                CardBox删除内容块.w(),
-                CardBox复习时删除当前闪卡.w(),
-                CardBox复习时跳过当前闪卡.w(),
-                "",
-                CardBox定位闪卡.w(),
-                ""
-            );
-        }
-    }
-
-    private initSkipBtn() {
-        const btnPrevious = document.body.querySelector(
-            'button[data-type="-2"]'
-        ) as HTMLButtonElement;
-        if (btnPrevious) {
-            btnPrevious.parentElement.querySelectorAll("[TomatoCardSkipBtn]").forEach(e => e?.parentElement?.removeChild(e));
-            const nextBtn = btnPrevious.insertAdjacentElement("afterend", document.createElement("button")) as HTMLButtonElement;
-
-            const span = btnPrevious.insertAdjacentElement("afterend", document.createElement("span"));
-            span.classList.add("fn__space");
-            span.setAttribute("TomatoCardSkipBtn", "1");
-
-            nextBtn.title = this.getHK();
-            nextBtn.setAttribute("TomatoCardSkipBtn", "1");
-            nextBtn.classList.add(...btnPrevious.classList);
-            nextBtn.style.width = btnPrevious.style.width;
-            nextBtn.style.minWidth = btnPrevious.style.minWidth;
-            nextBtn.style.display = btnPrevious.style.display;
-            nextBtn.innerHTML = `Skip${WEB_SPACE}<svg><use xlink:href="#iconRight"></use></svg>`;
-            nextBtn.addEventListener("click", pressSkip);
-        }
-    }
+    // Skip 注入钮已撤（2026-09-07 用户反馈）：官方评分行自带「跳过 (0)」评分钮（openCard
+    // 模板 data-type="-3"），插件再注一个「跳过›」=同屏两个跳过+左列多占一行，破坏官方
+    // 布局对称；跳过功能保留在命令/快捷键 ⌥⇧8（面板键帽小组可查）
 
     private openSettings() {
         cardBoxSettingsShow.write(!cardBoxSettingsShow.get())
     }
 
     private initSettingsBtn() {
-        const btnPrevious = document.body.querySelector(
-            'button[data-type="4"]'
-        ) as HTMLButtonElement;
-        const container = btnPrevious?.parentElement?.parentElement;
+        // data-type 值是官方实现细节、改版易变；「简单」评分钮的特征类 b3-button--success 兜底。
+        // 两路都落空=官方复习界面结构已变：console.warn 留用户报障线索 + debugLog 打点，不再静默丢齿轮
+        const btnPrevious = (document.body.querySelector('button[data-type="4"]')
+            ?? document.body.querySelector('.card__action button.b3-button--success')) as HTMLButtonElement | null;
+        if (!btnPrevious) {
+            console.warn("[tomato] 闪卡齿轮未注入：未找到官方评分按钮（data-type=4 与 b3-button--success 均无），官方复习界面结构可能已改版");
+            debugLog("CardBox", "initSettingsBtn: 评分按钮选择器双双落空，齿轮未注入", "cardbox");
+            return;
+        }
+        const container = btnPrevious.parentElement?.parentElement;
         if (container) {
             container.querySelectorAll("[TomatoCardDelBtn]").forEach(e => e?.parentElement?.removeChild(e));
 
             // 创建一个新的 wrapper div，模仿其他评分按钮的结构
             const wrapper = document.createElement("div");
             wrapper.setAttribute("TomatoCardDelBtn", "1");
-            wrapper.style.marginRight = "8px";
 
-            // 创建 span 占位（模仿其他按钮的结构）
+            // 官方评分钮 wrapper 的首槽=次复习间隔 label（翻页 JS 填），齿轮无间隔概念留空——
+            // 「设置」文字进按钮内（emoji+文字与官方评分钮同构，2026-09-07 用户反馈回退：
+            // icon-only 白钮与旁边评分卡形态割裂「跟旁边的按钮不一样」）
             const span = document.createElement("span");
             span.textContent = "";
             wrapper.appendChild(span);
 
-            // 创建按钮
+            // 创建按钮：⚙️ emoji+「设置」文字+全抄「简单」钮类（success 绿）——与官方评分钮
+            // 完全同构（用户反馈「老样子跟官方融合的挺好」）；tooltip/aria 保留修正版
+            // （功能名+动态键位，原 getHK 5 行快捷键表系误挂）
             const btn = document.createElement("button");
-            btn.setAttribute("aria-label", CardBox闪卡复习时打开闪卡设置.w());
+            btn.title = `${tomatoI18n.闪卡复习时打开闪卡设置} ${CardBox闪卡复习时打开闪卡设置.w()}`;
+            btn.setAttribute("aria-label", btn.title);
             btn.innerHTML = "<div class=\"card__icon\">⚙️</div> " + tomatoI18n.设置;
-            btn.title = this.getHK();
             btn.setAttribute("data-type", "-100");
             btn.classList.add(...btnPrevious.classList);
             btn.addEventListener("click", () => this.openSettings());
@@ -310,9 +312,14 @@ class CardBox {
             // 把按钮放进 wrapper
             wrapper.appendChild(btn);
 
-            // 在"简单(4)"按钮容器后面插入
+            // 在"简单(4)"按钮容器后面插入；间距走官方 fn__space span（与官方按钮间结构一致），
+            // 不再硬编码 marginRight=8px
             const simpleContainer = btnPrevious.parentElement;
             simpleContainer.after(wrapper);
+            const space = document.createElement("span");
+            space.className = "fn__space";
+            space.setAttribute("TomatoCardDelBtn", "1");
+            wrapper.after(space);
         }
     }
 }

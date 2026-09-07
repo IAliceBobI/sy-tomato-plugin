@@ -345,6 +345,9 @@
         overflow: hidden;
         text-overflow: ellipsis;
         height: 28px;
+        /* secList 是 max-height 钳制的 column flex，默认 shrink=1 会把多行按钮整体纵向
+           压扁成密排墨块（heading 多时 28px→个位数px，2026-09-07 群反馈实锤） */
+        flex-shrink: 0;
         padding: 0 8px;
         border: none;
         border-radius: 6px;

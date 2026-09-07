@@ -100,8 +100,14 @@ export const storeNoteBox_noteCount = (() => {
     };
 })();
 
+/** 近期条目：新结构带收集容器块 id（点击跳日记定位）+类型角标；老数据=纯文本 string 防御读 */
+export interface RecentItem {
+    id?: string;   // 收集容器 superblock 块 id（无 id=老数据/图片兜底，点击不跳）
+    type: string;  // 收集时的分类（角标显示）
+    text: string;  // 正文
+}
 export const storeNoteBox_recentText = (() => {
-    const store = writable([] as string[]);
+    const store = writable([] as (string | RecentItem)[]);
     let settingCfg: TomatoSettings;
     let plugin: Plugin;
     const write = () => {
@@ -118,7 +124,7 @@ export const storeNoteBox_recentText = (() => {
             store.set(s["storeNoteBox_recentText"] ?? []);
             storeNoteBox_noteCount.set(get(store).length);
         },
-        save: (e: string, max = 20) => {
+        save: (e: RecentItem, max = 20) => {
             store.update(list => {
                 while (list.length >= max) list.pop();
                 list.splice(0, 0, e);
@@ -147,7 +153,7 @@ export const storeNoteBox_noteAreaText = (() => {
         save: () => {
             if (plugin && settingCfg && get(store) != settingCfg["storeNoteBox_noteAreaText"]) {
                 settingCfg["storeNoteBox_noteAreaText"] = get(store);
-                plugin.saveData(STORAGE_SETTINGS, settingCfg);
+                return plugin.saveData(STORAGE_SETTINGS, settingCfg);
             }
         },
     };
@@ -179,6 +185,10 @@ function notebookStoreFactory(k = "storeNoteBox_selectedNotebook") {
     };
 }
 
+/** 全局「日记落点笔记本」（dailynote-pipeline □1 坐实语义）：所有落当天日记的生产者共用
+ *  ——DailyNoteBox（导航/复制/移动）、NoteBox 闪念落账、BackLinkBottom、navUtils、docAction；
+ *  getOr() 空时兜底当前笔记本。快速笔记 storeNoteBox_fastnote=独立草稿本语义（非日记管线），
+ *  闪念指定文件 flash_thoughts_target_file=落点的文件级覆盖（空=按日新日记/非空=固定文件）。 */
 export const storeNoteBox_selectedNotebook = notebookStoreFactory();
 export const storeNoteBox_fastnote = notebookStoreFactory("storeNoteBox_fastnote");
 /** 批注草稿文档存放笔记本（2026-09-02）：未配置默认跟随系统日记本（annoDraft.initAnnoDraftNotebookDefault 注入） */
@@ -399,13 +409,19 @@ export const tomato_clocks_position_right = settingFactory("tomato_clocks_positi
 export const tomato_clocks_opacity = settingFactory("tomato_clocks_opacity", "0.16", STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_loop = settingFactory("tomato_clocks_loop", false, STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_break = settingFactory("tomato_clocks_break", "5", STORAGE_SETTINGS, null as TSK);
-export const toolbarBoxCheckbox = settingFactory("toolbarBoxCheckbox", true, STORAGE_SETTINGS, null as TSK);
 export const toolbarEN2CHBtn = settingFactory("toolbarEN2CHBtn", false, STORAGE_SETTINGS, null as TSK);
 export const toolbarTidy = settingFactory("toolbarTidy", false, STORAGE_SETTINGS, null as TSK);
+// 快捷键卡「快捷键与开关」纯命令族开关（2026-09-06 开关归拢）：关=命令面板项+快捷键齐消失（注册门控）
+export const copyIdCheckbox = settingFactory("copyIdCheckbox", true, STORAGE_SETTINGS, null as TSK);
+export const foldCmdCheckbox = settingFactory("foldCmdCheckbox", true, STORAGE_SETTINGS, null as TSK);
 export const toolbarTidyExt = settingFactory("toolbarTidyExt", "doc docx xls xlsx emmx sql", STORAGE_SETTINGS, null as TSK);
 export const toolbarspacerepeat = settingFactory("toolbarspacerepeat", true, STORAGE_SETTINGS, null as TSK);
 export const toolbarrefreshVr = settingFactory("toolbarrefreshVr", true, STORAGE_SETTINGS, null as TSK);
 export const toolbarlocatedoc = settingFactory("toolbarlocatedoc", true, STORAGE_SETTINGS, null as TSK);
+// 大刷新（2026-09-06 seller 迁入）：顶栏大刷新钮（整页硬刷新）总开关，默认关——顶栏共享
+// 空间零打扰，power-user 自开；独立于 ToolbarBox/MixBox 家族（无 master 门控，维护型工具
+// 与内容类小功能不同类）。开关改后保存→插件级重载生效（顶栏注册在 onload）
+export const bigReloadTopbar = settingFactory("bigReloadTopbar", false, STORAGE_SETTINGS, null as TSK);
 export const readingPointBoxCheckbox = settingFactory("readingPointBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const readingTopBar = settingFactory("readingTopBar", true, STORAGE_SETTINGS, null as TSK);
 // 阅读点翻新（2026-09）：状态栏指示钮（有点点亮点击跳回/无点半暗点击设点）；以下五项随老模型退役
@@ -436,6 +452,7 @@ export const cardBoxAddConcepts = settingFactory("cardBoxAddConcepts", false, ST
 export const cardBoxSpradEvenlyPostpone = settingFactory("cardBoxSpradEvenlyPostpone", true, STORAGE_SETTINGS, null as TSK);
 export const cardBoxDelayDays = settingFactory("cardBoxDelayDays", 0.1, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSettingsShow = settingFactory("cardBoxSettingsShow", false, STORAGE_SETTINGS, null as TSK);
+export const cardBoxDeleteNoConfirm = settingFactory("cardBoxDeleteNoConfirm", false, STORAGE_SETTINGS, null as TSK);
 export const cardPriorityBoxCheckbox = settingFactory("cardPriorityBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const cardPrioritySetPriInterval = settingFactory("cardPrioritySetPriInterval", "0", STORAGE_SETTINGS, null as TSK);
 export const cardPriorityBoxPostponeCardMenu = settingFactory("cardPriorityBoxPostponeCardMenu", true, STORAGE_SETTINGS, null as TSK);
@@ -443,6 +460,10 @@ export const deleteBlocksMenu = settingFactory("deleteBlocksMenu", true, STORAGE
 export const cardPriorityBoxSpradDelayMenu = settingFactory("cardPriorityBoxSpradDelayMenu", true, STORAGE_SETTINGS, null as TSK);
 export const cardPriorityBoxPriorityMenu = settingFactory("cardPriorityBoxPriorityMenu", true, STORAGE_SETTINGS, null as TSK);
 export const cardPriorityBoxAutoHide = settingFactory("cardPriorityBoxAutoHide", false, STORAGE_SETTINGS, null as TSK);
+// 按钮条位置四档（1548 □1 用户拍板四形态做成下拉）：right=内核原生块右上悬空（默认，
+// 存量用户零变化）/ left-top=块左上悬空 / block-tail=内容下方贴左（随流占位）/
+// block-head=内容上方贴左（块首腾位）。hover 显隐由 cardPriorityBoxAutoHide 正交控制
+export const cardPriBarPos = settingFactory("cardPriBarPos", "right", STORAGE_SETTINGS, null as TSK);
 export const auto_card_priority = settingFactory("auto-card-priority", false, STORAGE_SETTINGS, null as TSK);
 export const card_priority_slider_hide = settingFactory("card_priority_slider_hide", false, STORAGE_SETTINGS, null as TSK);
 export const card_priority_stopBtn_hide = settingFactory("card_priority_stopBtn_hide", false, STORAGE_SETTINGS, null as TSK);
@@ -485,6 +506,9 @@ export const dailyNotetopbarright = settingFactory("dailyNotetopbarright", true,
 export const dailyNoteMoveToBottom = settingFactory("dailyNoteMoveToBottom", false, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteMoveLeaveLnk = settingFactory("dailyNoteMoveLeaveLnk", false, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopySimple = settingFactory("dailyNoteCopySimple", false, STORAGE_SETTINGS, null as TSK);
+// □3 片段级复制（2026-09-06）：开=块内划词时「复制到 dailynote」智能片段级（只复制选中
+// 文本+源锚，套收集块协议 v1）；关=维持整块。划词工具条钮门控=本键&&dailyNoteCopyMenu
+export const dailyNoteCopyFragment = settingFactory("dailyNoteCopyFragment", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyMenu = settingFactory("dailyNoteCopyMenu", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyAnchorText = settingFactory("dailyNoteCopyAnchorText", "  *  ", STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyUseRef = settingFactory("dailyNoteCopyUseRef", true, STORAGE_SETTINGS, null as TSK);
@@ -548,7 +572,29 @@ export const flash_thoughts_2_top = settingFactory("flash-thoughts-2-top", false
 export const cssFlashThoughts = settingFactory("cssFlashThoughts", false, STORAGE_SETTINGS, null as TSK);
 export const cssSuperBlockBorder = settingFactory("cssSuperBlockBorder", false, STORAGE_SETTINGS, null as TSK);
 export const flashThoughtUseDialog = settingFactory("flashThoughtUseDialog", false, STORAGE_SETTINGS, null as TSK);
+// 日记落点的文件级覆盖（□1 语义坐实）：空=每天按内核路径模板创建新日记（内核 v3.4.2+ 自动写
+// custom-dailynote-YYYYMMDD 协议属性）；非空=固定文件按文档名直查（不走 createDailyNote，故不带
+// 协议属性——固定文件承载多天内容，写属性会污染「一文档一天」的导航/日历语义）
 export const flash_thoughts_target_file = settingFactory("flash-thoughts-target-file", "", STORAGE_SETTINGS, null as TSK);
+// □2 官方闪念速记吸收（2026-09-06）：sync_end 自动把官方速记中转文档新块搬进日记管线
+// （libs/shorthandRelay.ts；仅支持官方 ShorthandSavePath 日期模板模式）；默认关=新功能不惊喜
+export const shorthandRelayEnabled = settingFactory("shorthandRelayEnabled", false, STORAGE_SETTINGS, null as TSK);
+// □4 全局小窗失焦自动关（2026-09-06，小记 quick-notes 可移植增强）：子窗失焦即落盘草稿并关窗；
+// pin 住 / 选图对话框在途 / 上传在途时不关。默认开=对标杆品速记手感（草稿持久化不丢内容）
+export const flashThoughtsBlurClose = settingFactory("flashThoughtsBlurClose", true, STORAGE_SETTINGS, null as TSK);
+// 速记器总开关（quicknote □2 2026-09-07）：关闭=命令不注册/热键不响应（onload 门控，与拍照闪念
+// 同款冷生效——改开关需重载插件）；默认开=战役主功能，用户装完即可用 ⌥J 唤起
+export const quickNoteCheckbox = settingFactory("quickNoteCheckbox", true, STORAGE_SETTINGS, null as TSK);
+// □4 窗口统一化（2026-09-07）：⌥J 触发形态——external=自建外部轻窗（默认，不抢屏秒开）；
+// focus=带出思源主窗前台+打开拍照闪念面板（图片粘贴等全能力，适合本来就要回思源的场景）
+export const quickNoteOpenMode = settingFactory("quickNoteOpenMode", "external", STORAGE_SETTINGS, null as TSK);
+// qn-actions □2 小窗三可调记忆（2026-09-07）：位置/尺寸/透明度——moved/resized debounce 落盘、
+// opacity 即时落盘；下次唤起原地原样弹出，出屏（拔显示器）qnFitRect 回落默认定位且不清记忆
+export const quickNoteRect = settingFactory<{ x: number; y: number; width: number; height: number; opacity?: number } | null>(
+    "quickNoteRect", null, STORAGE_SETTINGS, null as TSK);
+// □5 日记回顾面板（2026-09-06；notebox 战役翻新=日记导航器，转正目标粘滞随转正退役）
+// ：顶栏钮开关（默认开）
+export const dailyNoteReviewTopbar = settingFactory("dailyNoteReviewTopbar", true, STORAGE_SETTINGS, null as TSK);
 export const listBoxCheckbox = settingFactory("listBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const dont_break_list = settingFactory("dont-break-list", false, STORAGE_SETTINGS, null as TSK);
 export const aiBoxCheckbox = settingFactory("aiBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
@@ -657,6 +703,9 @@ export const blockIconMenu = settingFactory("blockIconMenu", true, STORAGE_Prog_
 // 存量键默认 false 不动（旧语义兼容）；替代通道——整篇摘抄=快捷键+命令面板，
 // 重访调度/复访节奏=浮条 ✧ + 期3 复习计划面板。
 export const wholeDigestMenu = settingFactory("wholeDigestMenu", true, STORAGE_Prog_SETTINGS, null as TSK);
+// □3 右键制卡开关（2026-09-07 bear 拍板）：默认关——右键菜单加「制卡」项（任意文档可用；
+// 快捷键/命令面板本就全局，此开关只管右键入口）
+export const cardContextMenu = settingFactory("cardContextMenu", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const reviewSchedMenu = settingFactory("reviewSchedMenu", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const revisitRhythmMenu = settingFactory("revisitRhythmMenu", true, STORAGE_Prog_SETTINGS, null as TSK);
 // v5 □7 设置砍半：words2dailycard/finishPieceCreateAt/PieceSummaryBoxmenu/merg2newBookEnable/
@@ -667,7 +716,6 @@ export const windowOpenStyle = settingFactory("windowOpenStyle", "1", STORAGE_Pr
 export const flashcardNotebook = settingFactory("flashcardNotebook", "", STORAGE_Prog_SETTINGS, null as TSK);
 export const flashcardAddRefs = settingFactory("flashcardAddRefs", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const flashcardMultipleLnks = settingFactory("flashcardMultipleLnks", true, STORAGE_Prog_SETTINGS, null as TSK);
-export const flashcardUseLink = settingFactory("flashcardUseLink", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const digestNoBacktraceLink = settingFactory("digestNoBacktraceLink", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const pieceNoBacktraceLink = settingFactory("pieceNoBacktraceLink", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveStart2learn = settingFactory("ProgressiveStart2learn", true, STORAGE_Prog_SETTINGS, null as TSK);

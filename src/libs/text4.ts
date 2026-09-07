@@ -799,6 +799,40 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return `Preparing to delete ${x} invalid flashcards`;
         }
     }
+    public 仍有x张失效闪卡无法删除(x: number) {
+        switch (this.lang) {
+            case "zh_CN":
+                return `仍有${x}张失效闪卡无法删除`;
+            case "es_ES":
+                return `No se pudieron eliminar ${x} tarjetas flash no válidas`;
+            case "fr_FR":
+                return `${x} cartes flash non valides n'ont pas pu être supprimées`;
+            case "ja_JP":
+                return `${x}枚の無効なフラッシュカードを削除できませんでした`;
+            case "zh_CHT":
+                return `仍有${x}張失效閃卡無法刪除`;
+
+            default:
+                return `${x} invalid flashcards could not be removed`;
+        }
+    }
+    public get 失效闪卡受内核校验限制无法删除() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "以下失效闪卡的内容块已不存在，受官方内核 2026-08 新校验限制暂无法删除，等待官方修复（issue 已提）。";
+            case "es_ES":
+                return "Los bloques de las siguientes tarjetas ya no existen; una validación del kernel de 2026-08 impide eliminarlas por ahora. A la espera de una corrección oficial (issue reportado).";
+            case "fr_FR":
+                return "Les blocs des cartes suivantes n'existent plus ; une validation du noyau de 2026-08 empêche leur suppression pour le moment. En attente d'un correctif officiel (issue signalé).";
+            case "ja_JP":
+                return "以下のカードのブロックは既に存在せず、2026-08 のカーネル検証により現時点では削除できません。公式の修正を待っています（issue 報告済み）。";
+            case "zh_CHT":
+                return "以下失效閃卡的內容塊已不存在，受官方內核 2026-08 新校驗限制暫無法刪除，等待官方修復（issue 已提）。";
+
+            default:
+                return "The blocks of the following cards no longer exist; a kernel validation from 2026-08 prevents removing them for now. Waiting for an official fix (issue reported).";
+        }
+    }
     public get 默认关闭自动刷新() {
         switch (this.lang) {
             case "zh_CN":

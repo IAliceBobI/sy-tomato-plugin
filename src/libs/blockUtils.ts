@@ -308,6 +308,11 @@ export function prepareSyncClone(superDiv: HTMLElement, targetID: string, target
 
 export function cleanDivOnly(div: HTMLElement, useIDMap = false) {
     if (!div) return {};
+    // 渐进摘抄痕迹 span（digestMarker 渲染态注入，块首、contenteditable=false、零落盘）
+    // 绝不能进克隆产物：下方会把 contenteditable=false 统一改 true，cleanDiv_AddSpan 的
+    // querySelector('[contenteditable="true"]') 便会误选它当 @ 锚容器 → 回溯 @ 位移到段首，
+    // 且内核入库剥离无语义外层 span 时链接属性一并降级成纯文本（2026-09-07 制卡回溯回归根因）
+    div.querySelectorAll(".prog-digest-mark").forEach(e => e.remove());
     div.classList.remove("protyle-wysiwyg--select")
     div.querySelectorAll(`[${gconst.CONTENT_EDITABLE}="false"]`).forEach(e => e.setAttribute(gconst.CONTENT_EDITABLE, "true"));
 
@@ -337,7 +342,7 @@ export function cleanDivOnly(div: HTMLElement, useIDMap = false) {
     return { id, div, newID, new2old };
 }
 
-function cleanDiv_AddSpan(div: HTMLElement, isLnk: boolean, id: string, anchor: string) {
+function cleanDiv_AddSpan(div: HTMLElement, id: string, anchor: string) {
     const isTab = div.getAttribute(gconst.DATA_TYPE) === gconst.BlockNodeEnum.NODE_TABLE;
     let target: HTMLElement;
     if (isTab) {
@@ -348,8 +353,7 @@ function cleanDiv_AddSpan(div: HTMLElement, isLnk: boolean, id: string, anchor: 
     }
     const span = target?.appendChild(document.createElement("span"));
     if (span) {
-        if (isLnk) set_href(span, id, anchor);
-        else set_ref(span, id, anchor);
+        set_ref(span, id, anchor);
         return true;
     }
 }
@@ -406,7 +410,9 @@ export async function getContextPath(id: string) {
     return { parts, getPathStr, getPathMd }
 };
 
-export async function cleanDiv(div: HTMLElement, setRef: boolean, setOrigin: boolean, moreLnks: boolean, context: boolean, isLnk: boolean) {
+/** 克隆净化：回溯 @/* 一律块引用（set_ref 静态锚，2026-09-07 制卡清理拍板形态统一，
+ * flashcardUseLink 超链接形态退役） */
+export async function cleanDiv(div: HTMLElement, setRef: boolean, setOrigin: boolean, moreLnks: boolean, context: boolean) {
     let onlyOne = !moreLnks;
     const ret = cleanDivOnly(div);
     div = ret.div;
@@ -421,17 +427,18 @@ export async function cleanDiv(div: HTMLElement, setRef: boolean, setOrigin: boo
             if (setOrigin && div.getAttribute(gconst.DATA_TYPE) != gconst.BlockNodeEnum.NODE_CODE_BLOCK) {
                 const all = cleanDiv_GetAll(div, originID);
                 if (all.length == 0) {
-                    if (cleanDiv_AddSpan(div, isLnk, originID, "  @  ")) {
+                    if (cleanDiv_AddSpan(div, originID, "  @  ")) {
                         setTheRef = true;
                         originExsists = true;
                     }
                 } else {
                     all.forEach((e: HTMLElement) => {
                         if (e.innerText.trim() == "*") {
-                            const id = e.getAttribute(gconst.DATA_ID);
+                            // 旧数据 * 可能是超链接形态（data-href 无 data-id）——从 href 提取 id 统一升级块引用
+                            const id = e.getAttribute(gconst.DATA_ID)
+                                ?? e.getAttribute(gconst.BlockNodeEnum.DATA_HREF)?.match(/blocks\/([\d-]+).*$/)?.[1];
                             if (id) {
-                                if (isLnk) set_href(e, id, "  @  ");
-                                else set_ref(e, id, "  @  ");
+                                set_ref(e, id, "  @  ");
                             } else {
                                 e.textContent = "  @  ";
                             }
@@ -454,7 +461,7 @@ export async function cleanDiv(div: HTMLElement, setRef: boolean, setOrigin: boo
         if (originExsists && onlyOne) setRef = false;
         if (setRef && div.getAttribute(gconst.DATA_TYPE) != gconst.BlockNodeEnum.NODE_CODE_BLOCK) {
             if (cleanDiv_GetAll(div, id).length == 0) {
-                if (cleanDiv_AddSpan(div, isLnk, id, "  *  ")) {
+                if (cleanDiv_AddSpan(div, id, "  *  ")) {
                     setTheRef = true;
                 }
             } else {

@@ -52,6 +52,11 @@ export default defineConfig({
           src: "./audio/*.mp3",
           dest: "./audio/",
         },
+        {
+          // 速记器小窗静态页（quicknote □1）：内核静态服务直出，回传走同 origin BroadcastChannel
+          src: "./src/quicknote/quicknote.html",
+          dest: "./quicknote/",
+        },
       ],
     }),
   ],
@@ -113,6 +118,13 @@ export default defineConfig({
             // }),
           ]),
       ],
+
+      // CJS 单产物无分包：动态导入一律内联（惰性求值语义保留），该告警恒为噪音
+      // （annoCollect 对 unlockDialog 动态导入=纯函数层与 svelte 组件链解耦，属刻意模式）
+      onwarn(warning, warn) {
+        if (warning.code === "INEFFECTIVE_DYNAMIC_IMPORT") return;
+        warn(warning);
+      },
 
       // make sure to externalize deps that shouldn't be bundled
       // into your library

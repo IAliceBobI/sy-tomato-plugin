@@ -11,6 +11,7 @@
         dailyNoteBoxCheckbox,
         dailyNoteCopyAnchorText,
         dailyNoteCopyFlashCard,
+        dailyNoteCopyFragment,
         dailyNoteCopyInsertPR,
         dailyNoteCopyMenu,
         dailyNoteCopyShowPath,
@@ -21,6 +22,7 @@
         dailyNoteGoToBottomMenu,
         dailyNoteMoveLeaveLnk,
         dailyNoteMoveToBottom,
+        dailyNoteReviewTopbar,
         dailyNotetopbarleft,
         dailyNotetopbarright,
     } from "./libs/stores";
@@ -60,6 +62,10 @@
                 <HotkeyCap hk={DailyNoteBox下一个日志} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteReviewTopbar} />
+                {tomatoI18n.topbar添加图标}: {tomatoI18n.回顾日记}
+            </div>
+            <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteGoToBottomMenu} />
                 {tomatoI18n.menu添加右键菜单}: {DailyNoteBox移动内容到dailynote.langText()}
                 <HotkeyCap hk={DailyNoteBox移动内容到dailynote} pluginName="sy-tomato-plugin"></HotkeyCap>
@@ -85,7 +91,8 @@
             </div>
 
             <div>
-                <NotebookSelect></NotebookSelect>
+                {tomatoI18n.日记落点笔记本}
+                <NotebookSelect bare></NotebookSelect>
             </div>
 
             <div>
@@ -106,6 +113,11 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteCopySimple} />
                 {tomatoI18n.简单复制到dailynote}
+            </div>
+
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteCopyFragment} />
+                {tomatoI18n.划词复制选中片段}
             </div>
 
             {#if !$dailyNoteCopySimple}

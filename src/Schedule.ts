@@ -4,6 +4,7 @@ import { DATA_NODE_ID } from "./libs/gconst";
 import { findListTypeByElement } from "./libs/listUtils";
 import { tomatoI18n } from "./tomatoI18n";
 import { winHotkey } from "./libs/winHotkey";
+import { copyIdCheckbox } from "./libs/stores";
 
 export const ScheduleCopyID = winHotkey("shift+alt+3", "copy id", "", () => tomatoI18n.复制ID)
 
@@ -20,6 +21,8 @@ export const ScheduleCopyID = winHotkey("shift+alt+3", "copy id", "", () => toma
 */
 class Schedule {
     async onload() {
+        // 纯命令族开关（快捷键卡行开关，关=命令面板项+快捷键齐消失）
+        if (!copyIdCheckbox.get()) return;
         getTomatoPluginInstance().addCommand({
             langKey: ScheduleCopyID.langKey,
             langText: ScheduleCopyID.langText(),

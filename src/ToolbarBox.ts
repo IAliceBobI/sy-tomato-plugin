@@ -4,7 +4,7 @@ import { siyuan, } from "./libs/utils";
 import { ClassActive, SPACE } from "./libs/gconst";
 import { addIcon, createNumIcon } from "./libs/ui";
 import { locateDoc, tidyAssets } from "./libs/docUtils";
-import { toolbarBoxCheckbox, toolbarEN2CHBtn, toolbarlocatedoc, toolbarrefreshVr, toolbarspacerepeat, toolbarTidy } from "./libs/stores";
+import { toolbarEN2CHBtn, toolbarlocatedoc, toolbarrefreshVr, toolbarspacerepeat, toolbarTidy } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
@@ -24,9 +24,8 @@ class ToolbarBox {
 
     /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役 */
     onload(plugin: BaseTomatoPlugin) {
-        if (!toolbarBoxCheckbox.get()) {
-            return;
-        }
+        // master toolbarBoxCheckbox 已退役（2026-09-06 开关归拢）：钮开关在通用域
+        // 「快捷键与开关」卡各自成行，命令恒注册（钮显隐族语义，照大刷新先例）
         this.plugin = plugin;
 
 
@@ -215,7 +214,8 @@ async function changeLang(lang: string) {
     c.conf.appearance.lang = lang as Config.TLang;
     await siyuan.setAppearance(c.conf.appearance);
     // 换的是内核 appearance.lang（思源本体 UI 语言），插件级 reloadSelfPlugin 刷不动
-    // 思源 chrome——此处保留整页 reload 是全仓唯一豁免（插件重载统一战役 □1 判定）
+    // 思源 chrome。整页 reload 白名单两处（插件重载统一战役 □1 判定 + 2026-09-06 大刷新
+    // 迁入）：此处（换语言必须刷 chrome）与 index.ts 大刷新钮（用户点名的绝对刷新语义）
     window.location.reload();
 }
 

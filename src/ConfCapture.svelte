@@ -8,9 +8,9 @@
     import {
         avoiding_cloud_synchronization_conflicts,
         cssFlashThoughts,
-        flashThoughtUseDialog,
         flash_thoughts_2_top,
         flash_thoughts_target_file,
+        shorthandRelayEnabled,
         noteBoxAllKinds,
         noteBoxCheckbox,
         fastNoteBoxAdd2Flashcard,
@@ -19,8 +19,10 @@
         fastNoteBoxDisableBK,
         fastNoteBoxDocPrefix,
         storeNoteBox_fastnote,
+        quickNoteCheckbox,
+        quickNoteOpenMode,
     } from "./libs/stores";
-    import { NoteBox拍照闪念全局 } from "./NoteBox";
+    import { QuickNote速记器全局 } from "./QuickNote";
     import { FastNoteBox创建快速笔记, FastNoteBox打开最后一个笔记, FastNoteBox草稿切换 } from "./FastNoteBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
@@ -30,25 +32,53 @@
     let codeNotValid = $derived(!codeValid);
 </script>
 
-    <!-- 拍照闪念 -->
+    <!-- 拍照闪念（□4 设置域归并 2026-09-06：入口→落点→行为三区；落点区与 ConfDocs
+         dailynote 卡同一 NotebookSelect/同一 store，呈现统一） -->
     <div class="settingBox">
         <div class="section-title">
             <input type="checkbox" class="b3-switch" bind:checked={$noteBoxCheckbox} />
             {tomatoI18n.拍照闪念收集图片闪念到}
             <ConfHelpIcon token="N3LkdvKGhowkTUx1r6OcxCjInec" />
         </div>
-        {#if $noteBoxCheckbox}
+        <!-- 速记器（quicknote □2；□4 窗口统一化=全局唯一入口）：开关+名称+键帽合一行；
+             触发形态一行（外部轻窗默认/带出思源）。放总开关 if 外=速记器独立于拍照闪念开关
+             （保存链落点共享但入口独立） -->
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$quickNoteCheckbox} />
+            {QuickNote速记器全局.langText()}
+            <HotkeyCap hk={QuickNote速记器全局} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        {#if $quickNoteCheckbox}
             <div>
-                {NoteBox拍照闪念全局.langText()}<HotkeyCap hk={NoteBox拍照闪念全局} pluginName="sy-tomato-plugin"></HotkeyCap>
+                {tomatoI18n.速记器触发形态}
+                <select class="b3-select" bind:value={$quickNoteOpenMode}>
+                    <option value="external">{tomatoI18n.外部轻窗}</option>
+                    <option value="focus">{tomatoI18n.带出思源}</option>
+                </select>
             </div>
+        {/if}
+        {#if $noteBoxCheckbox}
+            <!-- □4：「拍照闪念（全局）⌥7」「触发快捷键时弹出对话框」「失焦时自动关闭小窗」
+                 三行退役——全局入口统一到速记器 ⌥J（形态可配），图片闪念走 Dock 图标/速记器
+                 focus 形态进面板；设置可见性与功能可用性一致 -->
             <div>
                 <textarea spellcheck="false" class="b3-text-field" bind:value={$noteBoxAllKinds}></textarea>
                 {tomatoI18n.自定义图标}
             </div>
 
             <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$flashThoughtUseDialog} />
-                {tomatoI18n.触发快捷键时弹出对话框}
+                {tomatoI18n.日记落点笔记本}
+                <NotebookSelect bare></NotebookSelect>
+            </div>
+
+            <div>
+                <input class="b3-text-field" bind:value={$flash_thoughts_target_file} />
+                {tomatoI18n.闪念插入到文件}
+            </div>
+
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$shorthandRelayEnabled} />
+                {tomatoI18n.官方速记搬运}
             </div>
 
             <div class:codeNotValid>
@@ -70,11 +100,6 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cssFlashThoughts} />
                 {tomatoI18n.显示闪念的时间与类型}
-            </div>
-
-            <div>
-                <input class="b3-text-field" bind:value={$flash_thoughts_target_file} />
-                {tomatoI18n.闪念插入到文件}
             </div>
         {/if}
     </div>

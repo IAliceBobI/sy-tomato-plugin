@@ -1,17 +1,22 @@
-import { IProtyle } from "siyuan";
+import { getAllEditor, IProtyle } from "siyuan";
 import { events } from "./libs/Events";
 import { add_href, add_ref, cloneCleanDiv, closeTabByTitle, getAllText, getContextPath, getNotebookFirstOne, getOpenedEditors, getProtyleByDocID, Siyuan, siyuan, timeUtil, } from "./libs/utils";
 import { DATA_NODE_ID } from "./libs/gconst";
-import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyFlashCard, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveLeaveLnk, dailyNoteMoveToBottom, dailyNotetopbarleft, dailyNotetopbarright, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
+import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyFlashCard, dailyNoteCopyFragment, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveLeaveLnk, dailyNoteMoveToBottom, dailyNoteReviewTopbar, dailyNotetopbarleft, dailyNotetopbarright, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
+import { openReviewDialog } from "./ReviewDialog";
 import { tomatoI18n } from "./tomatoI18n";
 import { readingPointBox } from "./ReadingPointBox";
 import { domLnk, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
 import { isReadonly, OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { createAndOpenFastNote } from "./libs/switchDraft";
+import { collectBlockAttrs } from "./libs/dailyCollect";
+import { buildFragmentContainer, fragmentFromRange } from "./libs/dailyFragment";
+import { getTime } from "./NoteBox";
 import { winHotkey } from "./libs/winHotkey";
 import { addIfVisible } from "./libs/menuManager";
 import { lastVerifyResult } from "./libs/user";
+import { debugLog } from "./libs/logUtils";
 
 export const DailyNoteBox上一个日志 = winHotkey("⌥Q", "previousNote", "iconLeft", () => tomatoI18n.上一个日志,)
 export const DailyNoteBox下一个日志 = winHotkey("⌥W", "nextNote", "iconRight", () => tomatoI18n.下一个日志,)
@@ -22,6 +27,24 @@ export const DailyNoteBox复制到dailynoteNewFile = winHotkey("⌥⇧C", "Daily
 
 class DailyNoteBox {
     private plugin: BaseTomatoPlugin;
+
+    /** □3 划词工具条钮（官方 updateProtyleToolbar，mindWire 同款模式）：恒附项+selectionchange
+     *  同步显隐（构造期收项早于设置落库，gates 交给监听体运行时判）；click 实参=Protyle 包装类须取 .protyle */
+    updateProtyleToolbar(toolbar: Array<string | any>): Array<string | any> {
+        toolbar.push({
+            name: "dailyNoteCopyFragment",
+            icon: "iconCopy",
+            tip: tomatoI18n.复制选中片段到日记,
+            click: (protyle: any) => {
+                if (!dailyNoteCopyMenu.get() || !dailyNoteCopyFragment.get()) return;
+                const inner = protyle?.protyle ?? protyle;
+                const range = inner?.toolbar?.range ?? document.getSelection()?.getRangeAt(0);
+                const frag = fragmentFromRange(range, inner?.wysiwyg?.element);
+                if (frag) void this.insertFragment(inner, frag);
+            },
+        });
+        return toolbar;
+    }
 
     blockIconEvent(detail: any) {
         if (!dailyNoteBoxCheckbox.get()) return;
@@ -63,6 +86,7 @@ class DailyNoteBox {
             return;
         }
         this.plugin = plugin;
+        bindFragmentToolbarSync();
         if (dailyNotetopbarleft.get()) {
             plugin.addTopBar({
                 icon: DailyNoteBox上一个日志.icon,
@@ -84,6 +108,26 @@ class DailyNoteBox {
                 }
             });
         }
+
+        // □5 回顾面板入口（默认开可关）：顶栏钮与 ⌥Q/⌥W 同排（消费端家族聚簇）+
+        // 命令（无默认键，可挂悬浮球 plugincmd 球）；壳=ReviewDialog.ts 防重入薄壳
+        if (dailyNoteReviewTopbar.get()) {
+            plugin.addTopBar({
+                icon: "iconCalendar",
+                title: tomatoI18n.回顾日记,
+                position: "left",
+                callback: () => {
+                    openReviewDialog();
+                }
+            });
+        }
+        this.plugin.addCommand({
+            langKey: "dailyNoteReview",
+            langText: tomatoI18n.回顾日记,
+            callback: () => {
+                openReviewDialog();
+            },
+        });
 
         this.plugin.addCommand({
             langText: DailyNoteBox上一个日志.langText(),
@@ -279,9 +323,45 @@ class DailyNoteBox {
     }
 
     private async findDivs(protyle: IProtyle, copy: boolean, newFile: boolean) {
+        // □3 片段级前置：块内有效划词且非 newFile → 只复制选中片段（选区优先于块级链；
+        // 工具条/菜单点击顶掉选区时回退 protyle.toolbar.range，mindWire 同款）
+        if (copy && !newFile && dailyNoteCopyFragment.get()) {
+            const range = (protyle as any).toolbar?.range ?? document.getSelection()?.getRangeAt(0);
+            const frag = fragmentFromRange(range, protyle?.wysiwyg?.element);
+            if (frag) {
+                await this.insertFragment(protyle, frag);
+                return;
+            }
+        }
         const { ids, selected } = await events.selectedDivs(protyle);
         const ro = await isReadonly(protyle)
         this.doFindDivs(protyle, ids, selected, ro, copy, newFile);
+    }
+
+    /** □3 片段落账：协议 v1 容器（片段文本+源锚 ref）进当日日记，落位两分支照抄块级链 */
+    private async insertFragment(_protyle: IProtyle, frag: { text: string; sourceID: string }) {
+        let boxID = storeNoteBox_selectedNotebook.getOr();
+        if (!boxID) boxID = events.boxID;
+        try {
+            const { id: docID } = await siyuan.createDailyNote(boxID);
+            const rpath = (await getContextPath(frag.sourceID)).getPathStr();
+            let anchorText = dailyNoteCopyAnchorText.get()?.trim();
+            if (!anchorText) anchorText = "  *  ";
+            const builder = buildFragmentContainer(frag.text, frag.sourceID, anchorText, getTime(), rpath);
+            const html = builder.html();
+            let ops;
+            if (dailyNoteMoveToBottom.get()) {
+                const tail = await siyuan.getTailChildBlocks(docID, 1);
+                ops = siyuan.transInsertBlocksAfter([html], tail[0].id);
+            } else {
+                ops = siyuan.transInsertBlocksAsChildOf([html], docID);
+            }
+            await siyuan.transactions(ops);
+            siyuan.pushMsg(tomatoI18n.已复制选中片段.replace("{n}", String(frag.text.length)));
+            debugLog("daily_fragment", `copied src=${frag.sourceID} len=${frag.text.length}`, "dailynote");
+        } catch (_e) {
+            await siyuan.pushMsg(tomatoI18n.您配置的笔记本x是否已经打开了(boxID));
+        }
     }
 
     private async doFindDivs(protyle: IProtyle, ids: string[], selected: HTMLElement[], ro: string, copy = false, newFile: boolean) {
@@ -350,10 +430,11 @@ class DailyNoteBox {
                         return b
                     }, new DomSuperBlockBuilder());
                     builder.setAttr("custom-super-list", "1");
+                    // 收集块协议 v1（□1）：idea-time 必带（间隔计算/时间戳显示），ref-hpath=源路径
+                    builder.setAttrs(collectBlockAttrs(getTime(), rpath));
                     const container = builder.build();
                     cardID = builder.id;
 
-                    container.setAttribute("custom-tomato-ref-hpath", rpath);
                     const htmlStr = container.outerHTML;
 
                     if (dailyNoteMoveToBottom.get()) {
@@ -386,6 +467,27 @@ class DailyNoteBox {
             await siyuan.pushMsg(tomatoI18n.您配置的笔记本x是否已经打开了(boxID));
         }
     }
+}
+
+/** □3 工具条钮显隐同步：selectionchange 到来=划词发生，按 gates+选区在本编辑器内显隐钮
+ *  （style.display 独立通道勿用 fn__none——内核条目可见性同用它会互写打架，mindWire P1-4）；
+ *  globalThis 防重挂（reload 重跑模块顶层，先摘旧监听再挂新） */
+function bindFragmentToolbarSync() {
+    const KEY = "tomato_daily_fragment_btn_sync";
+    const prev = (globalThis as any)[KEY];
+    if (prev) document.removeEventListener("selectionchange", prev);
+    const fn = () => {
+        const selRange = document.getSelection()?.getRangeAt(0);
+        getAllEditor().forEach(({ protyle }) => {
+            const btn = (protyle as any)?.toolbar?.element?.querySelector('button[data-type="dailyNoteCopyFragment"]') as HTMLElement | null;
+            if (!btn) return;
+            const gates = dailyNoteBoxCheckbox.get() && dailyNoteCopyMenu.get() && dailyNoteCopyFragment.get();
+            const inEditor = !!selRange && !!protyle.wysiwyg?.element?.contains(selRange.startContainer);
+            btn.style.display = gates && inEditor ? "" : "none";
+        });
+    };
+    (globalThis as any)[KEY] = fn;
+    document.addEventListener("selectionchange", fn);
 }
 
 export const dailyNoteBox = new DailyNoteBox();

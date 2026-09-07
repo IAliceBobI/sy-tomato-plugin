@@ -1,6 +1,24 @@
 import { TomatoI18nABC3 } from "./text3";
 
 export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
+    // 大刷新（2026-09-06 seller 迁入）：命令/顶栏钮名自文档化（括注整页重载语义）
+    public get 大刷新() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "大刷新（整页重载）";
+            case "es_ES":
+                return "Recarga completa (página entera)";
+            case "fr_FR":
+                return "Rechargement complet (page entière)";
+            case "ja_JP":
+                return "完全リロード（ページ全体）";
+            case "zh_CHT":
+                return "大刷新（整頁重載）";
+
+            default:
+                return "Big reload (whole page)";
+        }
+    }
     public get maxBkDocs最大展开的反链文件数() {
         switch (this.lang) {
             case "zh_CN":
@@ -539,6 +557,24 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
         }
     }
 
+    public get 删除内容块时无需确认直接删除() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "删除内容块时无需确认，直接删除";
+            case "es_ES":
+                return "Eliminar bloques sin pedir confirmación";
+            case "fr_FR":
+                return "Supprimer les blocs sans confirmation";
+            case "ja_JP":
+                return "コンテンツブロックを確認なしで削除";
+            case "zh_CHT":
+                return "刪除內容塊時無需確認，直接刪除";
+
+            default:
+                return "Delete content blocks without confirmation";
+        }
+    }
+
     public get 定位闪卡() {
         switch (this.lang) {
             case "zh_CN":
@@ -592,39 +628,61 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
         }
     }
 
-    public 推迟x小时(hours: number) {
+    // □7 阶梯时长（spreaddelay）：text=durationText(hours) 组合串（「4 月」/"4 months"），
+    // 单位换算在 cardUtils ladderDuration，i18n 层只嵌串
+    public 推迟x时长(text: string) {
         switch (this.lang) {
             case "zh_CN":
-                return `推迟${hours.toFixed(1)}小时`;
+                return `推迟${text}`;
             case "es_ES":
-                return `Retrasar ${hours.toFixed(1)} horas`;
+                return `Retrasar ${text}`;
             case "fr_FR":
-                return `Retarder ${hours.toFixed(1)} heures`;
+                return `Retarder de ${text}`;
             case "ja_JP":
-                return `${hours.toFixed(1)}時間遅れる`;
+                return `${text}遅れる`;
             case "zh_CHT":
-                return `推遲${hours.toFixed(1)}小時`;
+                return `推遲${text}`;
 
             default:
-                return `Delay by ${hours.toFixed(1)} hours`;
+                return `Delay by ${text}`;
         }
     }
 
-    public 推迟余下闪卡x小时(hours: number) {
+    public 推迟余下闪卡x时长(text: string) {
         switch (this.lang) {
             case "zh_CN":
-                return `推迟余下闪卡${hours.toFixed(1)}小时`;
+                return `余下推迟${text}`;
             case "es_ES":
-                return `Retrasar el resto de tarjetas flash por ${hours.toFixed(1)} horas`;
+                return `Resto ${text}`;
             case "fr_FR":
-                return `Retarder le reste des cartes flash de ${hours.toFixed(1)} heures`;
+                return `Reste ${text}`;
             case "ja_JP":
-                return `残りのフラッシュカードを${hours.toFixed(1)}時間遅らせる`;
+                return `残り${text}`;
             case "zh_CHT":
-                return `推遲剩餘閃卡${hours.toFixed(1)}小時`;
+                return `剩餘推遲${text}`;
 
             default:
-                return `Postpone the rest of the flashcards for ${hours.toFixed(1)} hours`;
+                return `Rest ${text}`;
+        }
+    }
+
+    // 推迟三入口归组（cardui 反馈轮 □3）：第三钮短文案，与「余下推迟X」成对；
+    // title 用 把剩余闪卡分散推迟在未来x时长内 全语义
+    public 余下分散到x内(text: string) {
+        switch (this.lang) {
+            case "zh_CN":
+                return `余下分散到${text}内`;
+            case "es_ES":
+                return `Dispersar resto en ${text}`;
+            case "fr_FR":
+                return `Disperser le reste sur ${text}`;
+            case "ja_JP":
+                return `残りを${text}に分散`;
+            case "zh_CHT":
+                return `剩餘分散到${text}內`;
+
+            default:
+                return `Spread rest over ${text}`;
         }
     }
 

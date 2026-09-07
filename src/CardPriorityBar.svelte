@@ -4,9 +4,9 @@
     import { cardPriorityBox } from "./CardPriorityBox";
     import {
         CARD_PRIORITY,
+        CARD_PRIORITY_STOP,
         DATA_NODE_ID,
         TOMATO_CONTROL_ELEMENT,
-        WEB_SPACE,
     } from "./libs/gconst";
     import { newID } from "stonev5-utils";
     import {
@@ -37,7 +37,9 @@
     let controlAttr: AttrType = $state();
     let cardID: string = $state();
     let priority: number = $state(0);
-    let whiteSpace = $state(WEB_SPACE);
+    // 推迟态感知（cardrenew □3）：推迟中的卡显示恢复图标（iconPlay），否则显示推迟
+    // 图标（iconPause）；属性写入后块 DOM 更新触发重挂，随挂载重读——图标恒跟真实态
+    let stopActive = $state(false);
     let textContent: string;
 
     onMount(async () => {
@@ -48,6 +50,7 @@
                 cardElement.textContent?.slice(0, 50);
         }
         cardID = cardElement.getAttribute(DATA_NODE_ID);
+        stopActive = !!cardElement.getAttribute(CARD_PRIORITY_STOP);
         if (cardElement.classList.contains("protyle-title")) {
             const attrs = await siyuan.getBlockAttrs(cardID);
             priority = Number(attrs["custom-card-priority"] ?? "50");
@@ -86,8 +89,6 @@
                 }
             }
         }
-
-        if (events.isMobile) whiteSpace = "";
     });
 
     async function subOne(event: MouseEvent) {
@@ -115,7 +116,9 @@
         );
     }
     async function stopCard(event: MouseEvent) {
-        cardPriorityBox.stopCard(event, cardElement);
+        // 图标翻转不在本地做：stopCard 走 DialogText 异步输入天数，点击瞬间属性未定；
+        // 推迟/恢复写属性后内核更新块 DOM→observer 重挂本条→stopActive 随挂载重读真实态
+        await cardPriorityBox.stopCard(event, cardElement);
     }
     async function locate(event: MouseEvent) {
         event.stopPropagation();
@@ -160,25 +163,28 @@
     }
 </script>
 
-<!-- https://learn.svelte.dev/tutorial/if-blocks -->
+<!-- cardrenew □3 同构翻新：emoji 全换思源 iconFont 线稿（官方注入物同构立场），flex gap
+     替代 {@html whiteSpace} 间距 hack；衬底容器=官方工具条形态（surface 底+border+圆角）
+     根治裸排骑块描边线；点击区 20px。cardPriBar 属性=自动隐藏功能（cssStyle.ts）依赖勿删 -->
 <div {...controlAttr} class="container">
     <div {...{ cardPriBar: "1" }}>
-        <button title={tomatoI18n.定位闪卡} onclick={locate}>🔍</button>
-        {@html whiteSpace}
+        <button title={tomatoI18n.定位闪卡} onclick={locate}
+            ><svg><use xlink:href="#iconSearch"></use></svg></button
+        >
         {#if !isInSettings}
-            <button title={tomatoI18n.取消制卡} onclick={removeCard}>🚫</button
+            <button title={tomatoI18n.取消制卡} onclick={removeCard}
+                ><svg><use xlink:href="#iconClose"></use></svg></button
             >
-            {@html whiteSpace}
         {/if}
         {#if !events.isMobile}
             <button
                 class="fontColor"
                 title={tomatoI18n.闪卡优先级 + "-1"}
-                onclick={subOne}>－</button
+                onclick={subOne}><svg><use xlink:href="#iconLine"></use></svg></button
             >
         {/if}
         <button
-            class="fontColor"
+            class="fontColor pri-num"
             title={tomatoI18n.点击修改优先级}
             bind:this={priText}
             onclick={updateCardByInput}>{priority}</button
@@ -187,15 +193,13 @@
             <button
                 class="fontColor"
                 title={tomatoI18n.闪卡优先级 + "+1"}
-                onclick={addOne}>＋</button
+                onclick={addOne}><svg><use xlink:href="#iconAdd"></use></svg></button
             >
         {/if}
-        {@html whiteSpace}
         {#if !isInSettings && !$card_priority_stopBtn_hide}
             <button title={tomatoI18n.推迟与取消推迟} onclick={stopCard}
-                >🛑</button
+                ><svg><use xlink:href={stopActive ? "#iconPlay" : "#iconPause"}></use></svg></button
             >
-            {@html whiteSpace}
         {/if}
         {#if isInSettings || !$card_priority_slider_hide}
             {#if !events.isMobile}
@@ -224,17 +228,55 @@
 </div>
 
 <style>
+    /* 官方工具条同构：surface 底+1px border+圆角，浮于块描边线上不再裸排；
+       全取 --b3-* 变量暗色主题免费跟随 */
+    .container {
+        border: 1px solid var(--b3-border-color);
+        border-radius: 4px;
+        background-color: var(--b3-theme-surface);
+        padding: 1px;
+    }
+    .container > div {
+        display: inline-flex;
+        align-items: center;
+        gap: 1px;
+    }
+    button {
+        /* 20px 点击区（原裸排 10~14px）+ 居中图标，hover 官方列表态 */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        margin: 0;
+        border: none;
+        border-radius: 3px;
+        background-color: transparent;
+        color: var(--b3-theme-on-surface);
+        font-size: 12px;
+        line-height: 1;
+    }
+    button:hover {
+        background-color: var(--b3-list-hover);
+        color: var(--b3-theme-primary);
+    }
+    button svg {
+        width: 14px;
+        height: 14px;
+    }
+    /* 优先级数值徽标：等宽数字居中（0~100 一到三位），font-color1 保留强调 */
+    .pri-num {
+        min-width: 20px;
+        font-variant-numeric: tabular-nums;
+    }
     input {
         height: 1px;
     }
-    .container {
-        border: none;
-    }
-    button {
-        background-color: transparent;
-        border: none;
-    }
     .fontColor {
         color: var(--b3-font-color1);
+    }
+    .fontColor:hover {
+        color: var(--b3-theme-primary);
     }
 </style>

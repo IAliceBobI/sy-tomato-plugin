@@ -235,6 +235,98 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
         }
     }
 
+    // ── 图片遮挡编辑器（□3 重做，2026-09-07）──
+    public get 图片遮挡编辑器() {
+        switch (this.lang) {
+            case "zh_CN": return "图片遮挡编辑器";
+            case "zh_CHT": return "圖片遮擋編輯器";
+            case "es_ES": return "Editor de capa de imagen";
+            case "fr_FR": return "Éditeur de masquage d'image";
+            case "ja_JP": return "画像オーバーレイエディタ";
+            default: return "Image overlay editor";
+        }
+    }
+    public get 矩形() {
+        switch (this.lang) {
+            case "zh_CN": return "矩形";
+            case "zh_CHT": return "矩形";
+            case "es_ES": return "Rectángulo";
+            case "fr_FR": return "Rectangle";
+            case "ja_JP": return "長方形";
+            default: return "Rectangle";
+        }
+    }
+    public get 椭圆() {
+        switch (this.lang) {
+            case "zh_CN": return "椭圆";
+            case "zh_CHT": return "橢圓";
+            case "es_ES": return "Elipse";
+            case "fr_FR": return "Ellipse";
+            case "ja_JP": return "楕円";
+            default: return "Ellipse";
+        }
+    }
+    public get 组号() {
+        switch (this.lang) {
+            case "zh_CN": return "组号";
+            case "zh_CHT": return "組號";
+            case "es_ES": return "Grupo";
+            case "fr_FR": return "Groupe";
+            case "ja_JP": return "グループ";
+            default: return "Group";
+        }
+    }
+    public get 无组() {
+        switch (this.lang) {
+            case "zh_CN": return "无组";
+            case "zh_CHT": return "無組";
+            case "es_ES": return "Sin grupo";
+            case "fr_FR": return "Sans groupe";
+            case "ja_JP": return "グループなし";
+            default: return "No group";
+        }
+    }
+    public get 撤销() {
+        switch (this.lang) {
+            case "zh_CN": return "撤销";
+            case "zh_CHT": return "撤銷";
+            case "es_ES": return "Deshacer";
+            case "fr_FR": return "Annuler";
+            case "ja_JP": return "元に戻す";
+            default: return "Undo";
+        }
+    }
+    public get 重做() {
+        switch (this.lang) {
+            case "zh_CN": return "重做";
+            case "zh_CHT": return "重做";
+            case "es_ES": return "Rehacer";
+            case "fr_FR": return "Rétablir";
+            case "ja_JP": return "やり直す";
+            default: return "Redo";
+        }
+    }
+    public get 删除选中() {
+        switch (this.lang) {
+            case "zh_CN": return "删除选中";
+            case "zh_CHT": return "刪除選中";
+            case "es_ES": return "Eliminar selección";
+            case "fr_FR": return "Supprimer la sélection";
+            case "ja_JP": return "選択を削除";
+            default: return "Delete selected";
+        }
+    }
+    public get 适应视图() {
+        switch (this.lang) {
+            case "zh_CN": return "适应视图";
+            case "zh_CHT": return "適應視圖";
+            case "es_ES": return "Ajustar vista";
+            case "fr_FR": return "Ajuster la vue";
+            case "ja_JP": return "ビューに合わせる";
+            default: return "Fit view";
+        }
+    }
+
     public 复习时间复习次数(time: string, reps: number) {
         switch (this.lang) {
             case "zh_CN":
@@ -307,21 +399,22 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
         }
     }
 
-    public 推迟x个闪卡y天(length: number, days: string) {
+    // □7 阶梯时长（spreaddelay）：text=durationText(hours) 组合串，toast 与按钮同读感
+    public 推迟x个闪卡y时长(length: number, text: string) {
         switch (this.lang) {
             case "zh_CN":
-                return `推迟${length}个闪卡${days}天`;
+                return `推迟${length}个闪卡${text}`;
             case "es_ES":
-                return `posponer ${length} tarjetas de memoria por ${days} días`;
+                return `posponer ${length} tarjetas de memoria por ${text}`;
             case "fr_FR":
-                return `reporter ${length} cartes flash pour ${days} jours`;
+                return `reporter ${length} cartes flash pour ${text}`;
             case "ja_JP":
-                return `${length}枚のスマートカードを${days}日延期`;
+                return `${length}枚のスマートカードを${text}延期`;
             case "zh_CHT":
-                return `延後${length}個閃卡${days}天`;
+                return `延後${length}個閃卡${text}`;
 
             default:
-                return `postpone ${length} flashcards for ${days} days`;
+                return `postpone ${length} flashcards for ${text}`;
         }
     }
 
@@ -821,6 +914,58 @@ export abstract class TomatoI18nABC6 extends TomatoI18nABC7 {
 
             default:
                 return "Automatically create a card when adding a quote";
+        }
+    }
+
+    public get 移出闪卡() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "移出闪卡";
+            case "es_ES":
+                return "Quitar de las flashcards";
+            case "fr_FR":
+                return "Retirer des flashcards";
+            case "ja_JP":
+                return "フラッシュカードから外す";
+            case "zh_CHT":
+                return "移出閃卡";
+
+            default:
+                return "Remove from flashcards";
+        }
+    }
+    public get 已加入闪卡() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "已加入闪卡";
+            case "es_ES":
+                return "Añadido a las flashcards";
+            case "fr_FR":
+                return "Ajouté aux flashcards";
+            case "ja_JP":
+                return "フラッシュカードに追加しました";
+            case "zh_CHT":
+                return "已加入閃卡";
+
+            default:
+                return "Added to flashcards";
+        }
+    }
+    public get 已移出闪卡() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "已移出闪卡";
+            case "es_ES":
+                return "Quitado de las flashcards";
+            case "fr_FR":
+                return "Retiré des flashcards";
+            case "ja_JP":
+                return "フラッシュカードから外しました";
+            case "zh_CHT":
+                return "已移出閃卡";
+
+            default:
+                return "Removed from flashcards";
         }
     }
 
