@@ -521,19 +521,21 @@ export abstract class TomatoI18nABC extends TomatoI18nABC2 {
     }
 
     public get 突出定位文档() {
+        // 2026-09-08 改名（链滴反馈）：显示文案层换「聚焦文档树」；langKey 仍是「突出定位文档」
+        // 不动——keymap.custom 按插件名+langKey 存储，动它=用户自定义键位孤儿化
         switch (this.lang) {
-            case "zh_CN": return "突出定位文档";
-            case "es_ES": return "Resaltar y localizar documento";
-            case "fr_FR": return "Mettre en évidence et localiser le document";
-            case "ja_JP": return "強調して文書を特定";
-            case "zh_CHT": return "突出定位文檔";
-            case "it_IT": return "Evidenzia e localizza documento";
-            case "de_DE": return "Dokument hervorheben und lokalisieren";
-            case "he_IL": return "הדגש ומצא את המסמך";
-            case "ru_RU": return "Выделить и найти документ";
-            case "pl_PL": return "Wyróżnij i zlokalizuj dokument";
+            case "zh_CN": return "聚焦文档树";
+            case "es_ES": return "Enfocar el árbol de documentos";
+            case "fr_FR": return "Focaliser l'arborescence des documents";
+            case "ja_JP": return "文書ツリーにフォーカス";
+            case "zh_CHT": return "聚焦文檔樹";
+            case "it_IT": return "Metti a fuoco l'albero dei documenti";
+            case "de_DE": return "Dokumentbaum fokussieren";
+            case "he_IL": return "מקד את עץ המסמכים";
+            case "ru_RU": return "Фокус на дереве документов";
+            case "pl_PL": return "Skup się na drzewie dokumentów";
             case "en_US":
-            default: return "Highlight and locate document";
+            default: return "Focus document tree";
         }
     }
 
