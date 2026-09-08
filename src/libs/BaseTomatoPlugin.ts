@@ -59,6 +59,9 @@ export class BaseTomatoPlugin extends Plugin {
     }
     loadProgStore: (p: BaseTomatoPlugin) => void;
     loadStore: (p: BaseTomatoPlugin) => void;
+    /** siyuan383 □3 子类覆写点：设置热更（渐进实现——含全局配置/皮肤/数据文件刷新）；
+     *  保存方链路与 onDataChanged 钩子共用。默认空实现（tomato/仿写各自钩子内联，不走此口） */
+    async onStorageHotReload(_beforeCfg?: unknown): Promise<void> { /* 子类覆写 */ }
     id = newID();
     taskCfg: Promise<any>;
     settingCfg: TomatoSettings;

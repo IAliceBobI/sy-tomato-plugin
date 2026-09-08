@@ -1136,3 +1136,265 @@ html[data-theme-mode="dark"] .protyle-wysiwyg span[data-type="a"][data-href^="#t
     line-height: 1.2;
     pointer-events: none;
 }
+
+/* □1（3.8.3 升级战役）批注讨论沉淀自定义块（anno-chat render 卡）。
+   宿主=.custom-block__content（内核已隔离编辑器事件）；颜色全走 b3 变量、
+   color-mix 仅作变量透明度派生；视觉语言对齐 AnnoChat 讨论区（docs/tomato-annochat-visual-spec.md） */
+/* hidden 兜底：__msgs/__mk 的作者 display 恒胜 UA [hidden]（vision P0）——特异性 (0,2,0) 压制 (0,1,0) */
+.tomato-annochat-card [hidden] { display: none; }
+.tomato-annochat-card {
+    margin: 2px 0;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    border: 1px solid var(--b3-border-color);
+    border-radius: var(--b3-border-radius);
+    background: var(--b3-theme-surface);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.tomato-annochat-card__broken {
+    padding: 6px 8px;
+    font-size: 12px;
+    color: var(--b3-theme-on-surface-light, #999);
+}
+.tomato-annochat-card__head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 24px;
+}
+.tomato-annochat-card__head > svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--b3-theme-secondary);
+}
+.tomato-annochat-card__title {
+    font-weight: 500;
+    white-space: nowrap;
+}
+.tomato-annochat-card__meta {
+    font-size: 11px;
+    color: var(--b3-theme-on-surface-light, #999);
+    white-space: nowrap;
+}
+.tomato-annochat-card__mk {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 22px;
+    padding: 0 8px;
+    flex-shrink: 0;
+    border: 1px solid var(--b3-border-color);
+    border-radius: var(--b3-border-radius);
+    background: transparent;
+    color: var(--b3-theme-on-surface);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s;
+}
+.tomato-annochat-card__mk > svg { width: 12px; height: 12px; }
+.tomato-annochat-card__mk:hover:not(:disabled) { background: var(--b3-theme-surface-lighter); }
+.tomato-annochat-card__mk:disabled { opacity: .38; cursor: default; }
+/* 笔记层（记录员 ≤5 条列表）：surface 提一档底与讨论区气泡同族 */
+.tomato-annochat-card__note {
+    margin-top: 6px;
+    padding: 6px 10px;
+    border-radius: var(--b3-border-radius-b);
+    background: var(--b3-theme-surface-lighter);
+}
+.tomato-annochat-card__n-li {
+    display: flex;
+    gap: 6px;
+}
+.tomato-annochat-card__n-li::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    margin-top: 8px;
+    border-radius: 2px;
+    background: var(--b3-theme-secondary);
+    flex-shrink: 0;
+}
+.tomato-annochat-card__n-p { padding-left: 11px; } /* 与 li（5px 点+6px gap）左缘对齐 */
+.tomato-annochat-card__n-gap { display: block; height: 6px; }
+/* 讨论层折叠开关：轻文字按钮（无框），chevron 随开合换向 */
+.tomato-annochat-card__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    margin-left: -6px;
+    padding: 2px 6px;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--b3-theme-on-surface-light, #999);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+}
+.tomato-annochat-card__toggle > svg { width: 12px; height: 12px; }
+.tomato-annochat-card__toggle:hover {
+    color: var(--b3-theme-on-surface);
+    background: var(--b3-theme-surface-lighter); /* vision P1-3：与 meta 同灰同调读作静态文字，补 hover 可供性 */
+}
+/* 完整讨论流：静态版讨论区（user 右浅主色 / assistant 左 surface；限高内滚防撑爆文档流） */
+.tomato-annochat-card__msgs {
+    margin-top: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.tomato-annochat-card__msgs::-webkit-scrollbar { width: 6px; }
+.tomato-annochat-card__msgs::-webkit-scrollbar-thumb { background: var(--b3-scroll-color); border-radius: 3px; }
+.tomato-annochat-card__msgs::-webkit-scrollbar-track { background: transparent; }
+.tomato-annochat-card__m {
+    max-width: 86%;
+    padding: 6px 9px;
+    border-radius: var(--b3-border-radius-b);
+    font-size: 12.5px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.tomato-annochat-card__m--user {
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+    background: color-mix(in srgb, var(--b3-theme-primary) 10%, transparent);
+}
+html[data-theme-mode="dark"] .tomato-annochat-card__m--user {
+    background: color-mix(in srgb, var(--b3-theme-primary) 14%, transparent);
+}
+.tomato-annochat-card__m--ai {
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    background: var(--b3-theme-surface-lighter);
+}
+.tomato-annochat-card__mrole {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 2px;
+    font-size: 11px;
+    color: var(--b3-theme-on-surface-light, #999);
+}
+.tomato-annochat-card__mrole::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--b3-theme-secondary);
+    flex-shrink: 0;
+}
+
+/* rpcard 战役（2026-09-08）阅读点 custom 卡（reading-point render）。
+   宿主=.custom-block__content（内核已隔离编辑器事件）；颜色全走 b3 变量，
+   color-mix 仅作变量透明度派生；视觉语言对齐 anno-chat 卡与阅读点家族身份行 */
+/* hidden 兜底：__more 的作者 display 恒胜 UA [hidden]（anno-chat 同坑） */
+.tomato-rp-card [hidden] { display: none; }
+.tomato-rp-card {
+    margin: 2px 0;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    border: 1px solid var(--b3-border-color);
+    border-radius: var(--b3-border-radius);
+    background: var(--b3-theme-surface);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.tomato-rp-card__broken {
+    padding: 6px 8px;
+    font-size: 12px;
+    color: var(--b3-theme-on-surface-light, #999);
+}
+.tomato-rp-card__head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 24px;
+}
+.tomato-rp-card__head > svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--b3-theme-secondary);
+}
+.tomato-rp-card__title {
+    font-weight: 500;
+    white-space: nowrap;
+}
+.tomato-rp-card__meta {
+    font-size: 11px;
+    color: var(--b3-theme-on-surface-light, #999);
+    white-space: nowrap;
+}
+/* excerpt 快照：surface 提一档底；折叠档 ≈6 行，展开=摘 max-height */
+.tomato-rp-card__excerpt {
+    margin-top: 6px;
+    padding: 6px 10px;
+    border-radius: var(--b3-border-radius-b);
+    background: var(--b3-theme-surface-lighter);
+    max-height: 132px;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 12.5px;
+    position: relative;
+}
+.tomato-rp-card__excerpt.is-open { max-height: none; overflow: visible; }
+.tomato-rp-card__excerpt.is-open::after { content: none; }
+/* 折叠态底部渐隐提示还有下文 */
+.tomato-rp-card__excerpt:not(.is-open)::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 28px;
+    background: linear-gradient(transparent, var(--b3-theme-surface-lighter));
+    pointer-events: none;
+}
+/* 快照展开开关：轻文字按钮（anno-chat toggle 同款） */
+.tomato-rp-card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    margin-left: -6px;
+    padding: 2px 6px;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--b3-theme-on-surface-light, #999);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+}
+.tomato-rp-card__more:hover {
+    color: var(--b3-theme-on-surface);
+    background: var(--b3-theme-surface-lighter);
+}
+/* 回原文继续读：主行动钮（anno-chat 制卡钮同款轻框形态，家族 iconForward） */
+.tomato-rp-card__go {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 10px;
+    flex-shrink: 0;
+    border: 1px solid var(--b3-border-color);
+    border-radius: var(--b3-border-radius);
+    background: transparent;
+    color: var(--b3-theme-on-surface);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s;
+}
+.tomato-rp-card__go > svg { width: 12px; height: 12px; }
+.tomato-rp-card__go:hover { background: var(--b3-theme-surface-lighter); }

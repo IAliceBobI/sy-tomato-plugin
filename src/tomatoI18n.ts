@@ -7163,6 +7163,114 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Recorder";
         }
     }
+    public get 沉淀为块() {
+        switch (this.lang) {
+            case "zh_CN": return "沉淀为块";
+            case "zh_CHT": return "沉澱為塊";
+            case "ja_JP": return "ブロックに保存";
+            case "en_US":
+            default: return "Save as block";
+        }
+    }
+    public get 沉淀为块说明() {
+        switch (this.lang) {
+            case "zh_CN": return "沉淀为卡片块，插入原文下方";
+            case "zh_CHT": return "沉澱為卡片塊，插入原文下方";
+            case "ja_JP": return "カードブロックとして原文の下に保存";
+            case "en_US":
+            default: return "Save as card block below the source";
+        }
+    }
+    public get 讨论沉淀() {
+        switch (this.lang) {
+            case "zh_CN": return "讨论沉淀";
+            case "zh_CHT": return "討論沉澱";
+            case "ja_JP": return "議論の記録";
+            case "en_US":
+            default: return "Discussion digest";
+        }
+    }
+    public get 条消息() {
+        switch (this.lang) {
+            case "zh_CN": return "{n} 条消息";
+            case "zh_CHT": return "{n} 則訊息";
+            case "ja_JP": return "メッセージ {n} 件";
+            case "en_US":
+            default: return "{n} messages";
+        }
+    }
+    public get 展开讨论() {
+        switch (this.lang) {
+            case "zh_CN": return "展开讨论";
+            case "zh_CHT": return "展開討論";
+            case "ja_JP": return "議論を展開";
+            case "en_US":
+            default: return "Show discussion";
+        }
+    }
+    public get 收起讨论() {
+        switch (this.lang) {
+            case "zh_CN": return "收起讨论";
+            case "zh_CHT": return "收起討論";
+            case "ja_JP": return "議論を折りたたむ";
+            case "en_US":
+            default: return "Hide discussion";
+        }
+    }
+    public get 制成闪卡() {
+        switch (this.lang) {
+            case "zh_CN": return "制成闪卡";
+            case "zh_CHT": return "製成閃卡";
+            case "ja_JP": return "フラッシュカードにする";
+            case "en_US":
+            default: return "Make flashcard";
+        }
+    }
+    public get 已加入闪卡复习() {
+        switch (this.lang) {
+            case "zh_CN": return "已加入闪卡复习";
+            case "zh_CHT": return "已加入閃卡複習";
+            case "ja_JP": return "フラッシュカードに追加しました";
+            case "en_US":
+            default: return "Added to flashcard review";
+        }
+    }
+    public get 闪卡创建失败() {
+        switch (this.lang) {
+            case "zh_CN": return "闪卡创建失败";
+            case "zh_CHT": return "閃卡建立失敗";
+            case "ja_JP": return "フラッシュカード作成に失敗";
+            case "en_US":
+            default: return "Failed to create flashcard";
+        }
+    }
+    public get 沉淀成功() {
+        switch (this.lang) {
+            case "zh_CN": return "讨论已沉淀到原文下方";
+            case "zh_CHT": return "討論已沉澱到原文下方";
+            case "ja_JP": return "議論を原文の下に保存しました";
+            case "en_US":
+            default: return "Discussion saved below the source";
+        }
+    }
+    public get 沉淀失败() {
+        switch (this.lang) {
+            case "zh_CN": return "沉淀失败";
+            case "zh_CHT": return "沉澱失敗";
+            case "ja_JP": return "保存に失敗しました";
+            case "en_US":
+            default: return "Failed to save";
+        }
+    }
+    public get 讨论内容无法解析() {
+        switch (this.lang) {
+            case "zh_CN": return "讨论内容无法解析（可能来自更新版本的插件）";
+            case "zh_CHT": return "討論內容無法解析（可能來自更新版本的外掛）";
+            case "ja_JP": return "議論の内容を解析できません（より新しいバージョンのプラグイン由来）";
+            case "en_US":
+            default: return "Discussion content unreadable (from a newer plugin version)";
+        }
+    }
     public get 返回编辑器() {
         switch (this.lang) {
             case "zh_CN": return "返回";
@@ -7666,12 +7774,12 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Under source doc";
         }
     }
-    public get 落点日记卡片() {
+    public get 落点卡目录() {
         switch (this.lang) {
-            case "zh_CN": return "日记卡片";
-            case "zh_CHT": return "日記卡片";
+            case "zh_CN": return "Daily card 目录";
+            case "zh_CHT": return "Daily card 目錄";
             case "en_US":
-            default: return "Daily card";
+            default: return "Daily card folder";
         }
     }
     // 制卡落点三档（2026-09-07，与摘抄落点族对称）
@@ -7709,10 +7817,10 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get tip摘抄落点() {
         switch (this.lang) {
-            case "zh_CN": return "摘抄文档的保存位置：\n集中归档=书摘抄进 prog-data/摘抄/digest-书名，非书文本进札记匣（匣内按源文档 digest-源文档名 分夹归集）\n源文档下方=挂在来源书/文档之下（老版行为）\n日记卡片=并入当天日记文档";
-            case "zh_CHT": return "摘抄文檔的保存位置：\n集中歸檔=書摘抄進 prog-data/摘抄/digest-書名，非書文本進札記匣（匣內按源文檔 digest-源文檔名 分夾歸集）\n源文檔下方=掛在來源書/文檔之下（老版行為）\n日記卡片=併入當天日記文檔";
+            case "zh_CN": return "摘抄文档的保存位置：\n集中归档=书摘抄进 prog-data/摘抄/digest-书名，非书文本进札记匣（匣内按源文档 digest-源文档名 分夹归集）\n源文档下方=挂在来源书/文档之下（老版行为）\nDaily card 目录=落进发起文档所在笔记本的 daily card/年/月 目录（按月归档，不看制卡侧的闪卡笔记本设置）";
+            case "zh_CHT": return "摘抄文檔的保存位置：\n集中歸檔=書摘抄進 prog-data/摘抄/digest-書名，非書文本進札記匣（匣內按源文檔 digest-源文檔名 分夾歸集）\n源文檔下方=掛在來源書/文檔之下（老版行為）\nDaily card 目錄=落進發起文檔所在筆記本的 daily card/年/月 目錄（按月歸檔，不看製卡側的閃卡筆記本設置）";
             case "en_US":
-            default: return "Where digest docs are stored:\nCentralized = book digests into prog-data/摘抄/digest-<book>, free text into the note box (grouped per source doc as digest-<source>)\nUnder source doc = under the source book/doc (legacy behavior)\nDaily card = into today's daily note";
+            default: return "Where digest docs are stored:\nCentralized = book digests into prog-data/摘抄/digest-<book>, free text into the note box (grouped per source doc as digest-<source>)\nUnder source doc = under the source book/doc (legacy behavior)\nDaily card folder = into daily card/<year>/<month> under the source doc's notebook (ignores the card side's flashcard notebook setting)";
         }
     }
     // graphbox 期1 大文档三档（2026-09-03）：骨架提示/完整加载确认/轮询降级/加载态
@@ -9295,14 +9403,14 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get 阅读点加入闪卡() {
         switch (this.lang) {
-            case "zh_CN": return "设点时加入闪卡（复习即回原文锚）";
-            case "zh_CHT": return "設點時加入閃卡（複習即回原文錨）";
-            case "ja_JP": return "設定時にフラッシュカードへ追加（復習=原文に戻る錨）";
-            case "es_ES": return "Añadir a tarjetas al marcar (repasar = volver al ancla del original)";
-            case "fr_FR": return "Ajouter aux cartes flash au marquage (réviser = revenir à l'ancre d'origine)";
-            case "it_IT": return "Aggiungi alle flashcard al marcatore (ripassare = tornare all'ancora originale)";
+            case "zh_CN": return "设点时加入闪卡（复习即回原文锚；完整卡面需内核 3.8.3+，旧内核退回原文块入卡）";
+            case "zh_CHT": return "設點時加入閃卡（複習即回原文錨；完整卡面需內核 3.8.3+，舊內核退回原文塊入卡）";
+            case "ja_JP": return "設定時にフラッシュカードへ追加（復習=原文に戻る錨。完全なカード表示はカーネル 3.8.3+ 必須、旧カーネルは原文ブロックを直接カード化）";
+            case "es_ES": return "Añadir a tarjetas al marcar (repasar = volver al ancla; cara completa requiere kernel 3.8.3+, kernels antiguos añaden el bloque original)";
+            case "fr_FR": return "Ajouter aux cartes flash au marquage (réviser = revenir à l'ancre ; face complète nécessite le noyau 3.8.3+, les anciens ajoutent le bloc d'origine)";
+            case "it_IT": return "Aggiungi alle flashcard al marcatore (ripassare = tornare all'ancora; faccia completa richiede kernel 3.8.3+, i vecchi aggiungono il blocco originale)";
             case "en_US":
-            default: return "Add to flashcards on marking (review = anchor back to original)";
+            default: return "Add to flashcards on marking (review = anchor back to original; full card face needs kernel 3.8.3+, older kernels add the source block itself)";
         }
     }
     public get 已隐藏悬浮球() {
@@ -9803,6 +9911,30 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "読み込みに失敗しました";
             case "en_US":
             default: return "Failed to load";
+        }
+    }
+    // rpcard 战役（2026-09-08）：阅读点 custom 卡渲染器——跳转钮/坏内容占位；
+    // 身份行标题「阅读点」/快照折叠「展开全文/收起」复用基类链既有键（text6/text9）
+    public get 回原文继续读() {
+        switch (this.lang) {
+            case "zh_CN": return "回原文继续读";
+            case "zh_CHT": return "回原文繼續讀";
+            case "es_ES": return "Volver al texto original";
+            case "fr_FR": return "Revenir au texte original";
+            case "ja_JP": return "原文に戻って読む";
+            case "en_US":
+            default: return "Back to source text";
+        }
+    }
+    public get 卡面内容无法解析() {
+        switch (this.lang) {
+            case "zh_CN": return "阅读点卡内容无法解析";
+            case "zh_CHT": return "閱讀點卡內容無法解析";
+            case "es_ES": return "No se pudo leer el contenido de la tarjeta";
+            case "fr_FR": return "Contenu de carte illisible";
+            case "ja_JP": return "カードの内容を読み取れません";
+            case "en_US":
+            default: return "Card content is unreadable";
         }
     }
 }

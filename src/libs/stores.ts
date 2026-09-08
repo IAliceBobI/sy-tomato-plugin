@@ -6,6 +6,27 @@ import { zipNways } from "./functional";
 import { events } from "./Events";
 import { BaseTomatoPlugin } from "./BaseTomatoPlugin";
 import { getGlobal, setGlobal } from "stonev5-utils";
+import { TomatoPluginConfig } from "./gconst";
+
+/** 设置 store 热更注册表（siyuan383 □3）：各工厂 load() 时自动登记「从新 cfg 重放
+ *  读值语义」的回调（重绑捕获引用 + store.set 新值）；storageHotReload 的
+ *  syncSettingsFromDisk 替换 plugin.settingCfg 后遍历刷值——响应式 UI 无闪断热更。 */
+const settingStoreRegistry = new Map<string, (cfg: TomatoSettings) => void>();
+/** keys 省略=全量刷；传入=只刷指定键（热更走 diff 键集，免未变值的多余通知/写盘） */
+export function reloadSettingStores(cfg: TomatoSettings, keys?: string[]) {
+    if (!cfg) return;
+    const entries = keys ? keys.map(k => [k, settingStoreRegistry.get(k)] as const) : settingStoreRegistry;
+    for (const [, reloadFrom] of entries) reloadFrom?.(cfg);
+}
+
+/** 热更替换 settingCfg 后重绑两处全局引用（review P1-1）：onload 期只在启动赋值一次，
+ *  不重绑=PairBarBox 位置记忆/MarkdownExport 增量水位线等 getTomatoPluginConfig()
+ *  消费者写孤儿旧对象，随后 write() 落盘新对象=静默丢写。钩子与保存链共用。 */
+export function rebindTomatoConfigRefs(plugin: BaseTomatoPlugin) {
+    setGlobal(TomatoPluginConfig, plugin.settingCfg);
+    const w = window.tomato_zZmqus5PtYRi;
+    if (w) w.pluginConfig = plugin.settingCfg;
+}
 
 export function writableWithGet<T>(t: T) {
     const store = writable(t);
@@ -33,6 +54,10 @@ export const storeNoteBox_selectedNoteType = (() => {
         load: (p: Plugin, s: TomatoSettings) => {
             plugin = p;
             settingCfg = s;
+            settingStoreRegistry.set("storeNoteBox_selectedNoteType", (cfg) => {
+                settingCfg = cfg;
+                store.set(cfg["storeNoteBox_selectedNoteType"]);
+            });
             store.set(s["storeNoteBox_selectedNoteType"]);
         },
         save: (v?: string) => {
@@ -64,6 +89,10 @@ export const storeNoteBox_keep = (() => {
         load: (p: Plugin, s: TomatoSettings) => {
             plugin = p;
             settingCfg = s;
+            settingStoreRegistry.set("storeNoteBox_keep", (cfg) => {
+                settingCfg = cfg; // subscribe 即时写盘走此引用，须先重绑再重放
+                store.set(cfg["storeNoteBox_keep"] ?? false);
+            });
             store.set(s["storeNoteBox_keep"] ?? false);
         },
     };
@@ -78,6 +107,10 @@ export const storeNoteBox_pin = (() => {
         load: (p: Plugin, s: TomatoSettings) => {
             plugin = p;
             settingCfg = s;
+            settingStoreRegistry.set("storeNoteBox_pin", (cfg) => {
+                settingCfg = cfg;
+                store.set(cfg["storeNoteBox_pin"] ?? false);
+            });
             store.set(s["storeNoteBox_pin"] ?? false);
         },
         save: (v: boolean) => {
@@ -121,6 +154,11 @@ export const storeNoteBox_recentText = (() => {
         load: (p: Plugin, s: TomatoSettings) => {
             plugin = p;
             settingCfg = s;
+            settingStoreRegistry.set("storeNoteBox_recentText", (cfg) => {
+                settingCfg = cfg;
+                store.set(cfg["storeNoteBox_recentText"] ?? []);
+                storeNoteBox_noteCount.set(get(store).length);
+            });
             store.set(s["storeNoteBox_recentText"] ?? []);
             storeNoteBox_noteCount.set(get(store).length);
         },
@@ -148,6 +186,10 @@ export const storeNoteBox_noteAreaText = (() => {
         load: (p: Plugin, s: TomatoSettings) => {
             plugin = p;
             settingCfg = s;
+            settingStoreRegistry.set("storeNoteBox_noteAreaText", (cfg) => {
+                settingCfg = cfg;
+                store.set(cfg["storeNoteBox_noteAreaText"] ?? "");
+            });
             store.set(s["storeNoteBox_noteAreaText"] ?? "");
         },
         save: () => {
@@ -168,6 +210,10 @@ function notebookStoreFactory(k = "storeNoteBox_selectedNotebook") {
         load: (p: Plugin, s: TomatoSettings) => {
             plugin = p;
             settingCfg = s;
+            settingStoreRegistry.set(k, (cfg) => {
+                settingCfg = cfg; // 重绑捕获引用（save 写它），再重放读值
+                store.set(cfg[k] ?? "");
+            });
             store.set(s[k] ?? "");
         },
         getOr: () => {
@@ -302,6 +348,12 @@ const settingFactory = <T>(key: TSK, defaultValue: T, file: string, _void: TSK) 
         },
         load(p: BaseTomatoPlugin) {
             plugin = p;
+            settingStoreRegistry.set(key as string, (cfg) => {
+                // 读值语义重放（与下方同款）：null 补默认写回 cfg，防后续搭车写回落旧值
+                const v = cfg[key] != null ? cfg[key] : defaultValue;
+                store.set(v as T);
+                cfg[key] = v as never;
+            });
             if (plugin.settingCfg[key] != null) {
                 store.set(plugin.settingCfg[key] as T);
             } else {

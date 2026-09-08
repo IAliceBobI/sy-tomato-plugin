@@ -260,8 +260,8 @@ class Annotations {
             // AI 上下文取数（□2 统一后创建也有问 AI）：宿主块原文+文档标题+前后邻居，openEdit 同款
             // 并行链（跨块只取首块，完整选区由 sel.txt 在 AnnoChat ctx 兜底）；失败/为空不阻塞创建
             const host = selected[0];
+            const hostID = getAttribute(host, "data-node-id") ?? "";
             const fetchSource = async (): Promise<string> => {
-                const hostID = getAttribute(host, "data-node-id") ?? "";
                 if (!hostID) return "";
                 try {
                     const kd = (await siyuan.getBlockKramdown(hostID))?.kramdown ?? "";
@@ -300,6 +300,7 @@ class Annotations {
                 props: {
                     dm,
                     annoId,
+                    hostID,
                     source,
                     selText: isSel ? rangeText : "",
                     initialText: "",
@@ -452,9 +453,9 @@ class Annotations {
             // 原文与上下文补强并行取数（reasoning P2-1：串行会让「问 AI」到弹窗出现的延迟翻倍）。
             // 原文=宿主块 kramdown 剥 IAL 尾行+全部批注锚点链接（块内标记是 UI 非内容，复评 P2；
             // 失败/为空不阻塞编辑，AI 上下文缺原文时按批注正文讨论）。跨块批注 anchor 只取一-block，
-            // 完整选区由 sel.txt 在 AnnoChat ctx 兜底
+            // 完整选区由 sel.txt 在 AnnoChat ctx 兜底。hostID=沉淀为块插块锚点（□1，同宿主块）
+            const hostID = anchor.closest("[data-node-id]")?.getAttribute("data-node-id") ?? "";
             const fetchSource = async (): Promise<string> => {
-                const hostID = anchor.closest("[data-node-id]")?.getAttribute("data-node-id") ?? "";
                 if (!hostID) return "";
                 try {
                     const kd = (await siyuan.getBlockKramdown(hostID))?.kramdown ?? "";
@@ -489,6 +490,7 @@ class Annotations {
                 props: {
                     dm,
                     annoId: entry.id,
+                    hostID,
                     source,
                     selText: entry.sel?.txt ?? "",
                     initialText: entry.text,

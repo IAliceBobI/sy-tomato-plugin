@@ -24,6 +24,8 @@
     import { STORAGE_SETTINGS } from "./constants";
     import { tomatoI18n } from "./tomatoI18n";
     import { saveRestorePagePosition } from "./libs/utils";
+    import { syncSettingsFromDisk } from "./libs/storageHotReload";
+    import { rebindTomatoConfigRefs } from "./libs/stores";
     import { reloadSelfPlugin } from "./libs/pluginReload";
     import UpgradeBar from "./UpgradeBar.svelte";
     import { lastVerifyResult } from "./libs/user";
@@ -195,8 +197,15 @@
 
     async function save() {
         dm.destroyBy();
+        // □3 保存链与 onDataChanged 钩子共用热更通道（落盘对账+diff 刷 store）：
+        // 常规键不再整重载（保存后本端也不闪），结构性键命中才 reloadSelfPlugin。
+        // oldCfg 用「saveData 前的落盘值」——面板 bind 编辑在保存前已进内存 cfg，
+        // 快照内存=diff 恒空结构性漏判（review P0-1）；盘上才是编辑前值
+        const diskBefore = await plugin.loadData(STORAGE_SETTINGS);
         await plugin.saveData(STORAGE_SETTINGS, plugin.settingCfg);
-        await reloadSelfPlugin();
+        const r = await syncSettingsFromDisk(plugin, undefined, diskBefore);
+        if (r.changed.length) rebindTomatoConfigRefs(plugin);
+        if (r.structural.length) await reloadSelfPlugin();
     }
 </script>
 

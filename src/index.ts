@@ -6,6 +6,9 @@ import { schedule } from "./Schedule";
 import { newID } from "stonev5-utils";
 import { openChangelogDialog } from "./libs/changelogDialog";
 import { reloadSelfPlugin } from "./libs/pluginReload";
+import { syncSettingsFromDisk } from "./libs/storageHotReload";
+import { rebindTomatoConfigRefs } from "./libs/stores";
+import { debugLog } from "./libs/logUtils";
 import { migrateLegacyHotkeys } from "./libs/hotkeyCap";
 import changelog2025 from "./changelog/2025.json";
 import changelog2026 from "./changelog/2026.json";
@@ -55,6 +58,8 @@ import { resetKey, verifyKeyTomato, lastVerifyResult } from "./libs/user";
 import { commentBox } from "./CommentBox";
 import { annotations, applyAnnoVisual } from "./Annotations";
 import { initAnnoDraftNotebookDefault } from "./libs/annoDraft";
+import { registerAnnoChatRender } from "./annoChatRender";
+import { registerReadingPointCardRender } from "./readingPointCardRender";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { cozeSearchBox } from "./CozeSearchBox";
 import { addSelectionButton, exportAsOneFile, importMD, initDocNavigator, mergeDocMenuListener } from "./exportFiles";
@@ -543,16 +548,41 @@ export default class ThePlugin extends BaseTomatoPlugin {
 
     private uninitNav: Func;
 
+    /** siyuan383 □3 多端热更：覆盖即自管（未覆盖=内核对他端每条 petal 写入自动整重载，
+     *  多前端互相打断的根源）。他端 saveData 写设置 → 本端重读+diff+注册表刷 store
+     *  （响应式 UI 无闪断热更）+重绑全局配置引用；结构性键命中才整重载兜底。 */
+    async onDataChanged(reason?: string) {
+        debugLog("onDataChanged", `${this.name} reason=${reason ?? "?"}`);
+        try {
+            const r = await syncSettingsFromDisk(this);
+            if (r.changed.length) rebindTomatoConfigRefs(this);
+            if (r.structural.length) await reloadSelfPlugin(this.name);
+        } catch (e) {
+            debugLog("onDataChanged", `${this.name} 热更失败回退整重载：${e}`);
+            await reloadSelfPlugin(this.name);
+        }
+    }
+
     async onload() {
         this.addIcons(ICONS);
         events.onload(this);
         tomatoI18n.init();
+        // □1（3.8.3）批注讨论沉淀自定义块渲染器：<3.8.3 无 customBlockRenders 注册面，
+        // 内部直接跳过（官方 fallback <pre> 显围栏原文兜底；沉淀按钮显隐=supportsAnnoChatBlock）
+        registerAnnoChatRender(this);
+        // □1（rpcard 战役 2026-09-08）阅读点 custom 卡渲染器：同上特性检测回落
+        // （<3.8.3 设点链走原文块直入卡现状，不产 custom 块）
+        registerReadingPointCardRender(this);
 
         this.setting = new Setting({
             confirmCallback: async () => {
-                // await 落盘再触发重载：saveData 异步写被抢跑会掐断，文件保持旧值
+                // await 落盘再热更：saveData 异步写被抢跑会掐断，文件保持旧值；
+                // □3 与钩子/自绘面板保存链同款（diskBefore 通道+结构性键判定，见 IndexConf save）
+                const diskBefore = await this.loadData(STORAGE_SETTINGS);
                 await this.saveData(STORAGE_SETTINGS, this.settingCfg);
-                await reloadSelfPlugin();
+                const r = await syncSettingsFromDisk(this, STORAGE_SETTINGS, diskBefore);
+                if (r.changed.length) rebindTomatoConfigRefs(this);
+                if (r.structural.length) await reloadSelfPlugin();
             }
         });
 

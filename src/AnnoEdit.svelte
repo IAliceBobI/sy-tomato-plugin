@@ -29,6 +29,8 @@
         dm: DestroyManager;
         /** 批注条目 id（AI 对话缓存 key；Annotations.openEdit 传入） */
         annoId: string;
+        /** 被批注源块 id（□1 沉淀为块插块锚点；空=旧文档重建等场景，沉淀入口隐藏） */
+        hostID?: string;
         /** 被批注块原文（AI 讨论上下文；剥 IAL 尾行+本条标记链接后的 kramdown） */
         source: string;
         /** 选区级批注的原文快照（上下文展示，不参与保存） */
@@ -49,7 +51,7 @@
         draftReady?: Promise<string> | null;
         onSave: (text: string) => Promise<boolean>;
     }
-    let { dm, annoId, source, selText, initialText, autoChat = false, docTitle = "", prev = "", next = "", create = false, blockCount = 0, draftReady = null, onSave }: Props = $props();
+    let { dm, annoId, hostID = "", source, selText, initialText, autoChat = false, docTitle = "", prev = "", next = "", create = false, blockCount = 0, draftReady = null, onSave }: Props = $props();
 
     type EditorMode = "rich" | "plain";
     let mode = $state<EditorMode>(commentBoxAnnoEditorMode.get() === "plain" ? "plain" : "rich");
@@ -355,6 +357,7 @@
         mobile={events.isMobile}
         open={chatOpen}
         {annoId}
+        {hostID}
         {source}
         {selText}
         {docTitle}

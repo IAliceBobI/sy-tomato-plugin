@@ -22,9 +22,12 @@
     import { OpenAIClient, appendChunk, getAIConfig, stripThinkTag } from "./libs/openAI";
     import type { StreamState } from "./libs/openAI";
     import { siyuan } from "./libs/utils";
+    import { debugLog } from "./libs/logUtils";
     import { vipVerified } from "./libs/user";
     import { openUnlockDialog } from "./unlockDialog";
     import { tomatoI18n } from "./tomatoI18n";
+    import { supportsAnnoChatBlock } from "./annoChatRender";
+    import { buildAnnoChatBlockMD, buildAnnoChatContent, latestRecorderNote, toBlockMsgs } from "./libs/annoChatBlock";
 
     interface Props {
         dm: DestroyManager;
@@ -32,6 +35,8 @@
         /** 与 AnnoEdit.chatOpen 同源（仅控制 .is-closed） */
         open: boolean;
         annoId: string;
+        /** 被批注源块 id（□1 沉淀为块插块锚点=源块正下方；空=旧文档重建等场景，沉淀入口隐藏） */
+        hostID?: string;
         /** 被批注块原文（Annotations.openEdit 剥 IAL/标记后的 kramdown） */
         source: string;
         selText: string;
@@ -49,7 +54,7 @@
         busy?: boolean;
     }
     let {
-        dm, mobile, open, annoId, source, selText, docTitle = "", prev = "", next = "",
+        dm, mobile, open, annoId, hostID = "", source, selText, docTitle = "", prev = "", next = "",
         getAnnoText, onCompressed,
         canCompress = $bindable(false), busy = $bindable(false),
     }: Props = $props();
@@ -109,11 +114,15 @@
         return cfg;
     }
 
-    /** 统一发言链：普通问答（role=null）/角色邀请/记录员压缩（recorder） */
-    async function ask(inputText: string, role: AnnoRole | null, recorder = false) {
+    /** 统一发言链：普通问答（role=null）/角色邀请/记录员压缩（recorder）。
+     *  sink=recorder 完成后的去向："draft"=onCompressed 并入批注草稿（压缩按钮原通道）；
+     *  "none"=只进历史（□1 沉淀动线自动压缩复用，笔记不并草稿、由沉淀读历史取用） */
+    async function ask(inputText: string, role: AnnoRole | null, recorder = false, sink: "draft" | "none" = "draft") {
         busy = true;
         aborted = false;
-        const retry = () => void ask(inputText, role, recorder);
+        // retry 须携带 sink（评审 P1-2）：沉淀自动压缩失败后的重试若落回默认 "draft"，
+        // 笔记会串进「并入批注」旧通道（草稿被改写+讨论区收起），语义漂移
+        const retry = () => void ask(inputText, role, recorder, sink);
         active = { label: recorder ? tomatoI18n.记录员 : role ? roleName(role) : "AI", text: "", status: "thinking" };
         try {
             const note = await getAnnoText().catch(() => "");
@@ -153,7 +162,7 @@
             });
             refresh();
             active = null;
-            if (recorder) await onCompressed(finalText);
+            if (recorder && sink === "draft") await onCompressed(finalText);
         } catch (e) {
             // 主动 abort 不算失败（abort() 已 toast）；其余=失败态可重试
             if (!aborted) {
@@ -168,7 +177,7 @@
 
     async function send() {
         const t = input.trim();
-        if (!t || busy) return;
+        if (!t || busy || precipitating) return;
         pushChat(annoId, { role: "user", content: t, time: Date.now() });
         input = "";
         refresh();
@@ -193,11 +202,42 @@
         await ask(m.content, r);
     }
 
-    /** 压缩成笔记（AnnoEdit 工具行按钮经 bind:this 调入） */
+    /** 压缩成笔记（AnnoEdit 工具行按钮经 bind:this 调入）；precipitating 窗口同禁（评审 P2-2：
+     *  插块在途时压缩会产出「块里少了刚压的这条」的偶发观感） */
     export async function compress() {
-        if (busy || !canCompress) return;
+        if (busy || precipitating || !canCompress) return;
         if (!(await gatePro(tomatoI18n.压缩成笔记))) return;
         await ask("", null, true);
+    }
+
+    /** □1 沉淀为块：讨论+记录员笔记快照 → anno-chat custom 块插到源块正下方。
+     *  门禁 A'（拍板）：沉淀免费；压缩层跟 Pro——无 Pro=纯讨论档案卡（无笔记层）；
+     *  有 Pro 无已有笔记先自动压缩（recorder 流就地显示，失败中止沉淀不落半截） */
+    let precipitating = $state(false);
+    async function precipitate() {
+        if (busy || precipitating || msgs.length === 0 || !hostID) return;
+        precipitating = true;
+        try {
+            let note = latestRecorderNote(chatHistoryOf(annoId));
+            if (!note && $vipVerified === true && canCompress) {
+                await ask("", null, true, "none"); // 不并草稿；完成进历史
+                note = latestRecorderNote(chatHistoryOf(annoId));
+                if (!note) return; // 压缩失败（error 气泡停留待重试），中止沉淀
+            }
+            const content = buildAnnoChatContent({
+                v: 1, note, msgs: toBlockMsgs(chatHistoryOf(annoId)), hostID, ts: Date.now(),
+            });
+            // siyuan.call 内核拒绝（code!=0/网络失败）只 warn 不 throw（评审 P1-1）——判空防假成功
+            const r = await siyuan.insertBlockAfter(buildAnnoChatBlockMD(content), hostID);
+            if (!r) throw new Error("precipitate: insert rejected");
+            void siyuan.pushMsg(tomatoI18n.沉淀成功).catch?.(() => {});
+            debugLog("anno_chat_block", `precipitate host=${hostID} msgs=${msgs.length} note=${!!note}`, "anno");
+        } catch (e) {
+            console.warn("[tomato anno] precipitate failed:", e);
+            void siyuan.pushMsg(tomatoI18n.沉淀失败).catch?.(() => {});
+        } finally {
+            precipitating = false;
+        }
     }
 
     /** ＋自定义：DialogText 单字段输入提示词 → 写 aiBoxPrompts（持久，chip 即刻出现） */
@@ -233,6 +273,11 @@
         controller = null;
         siyuan.pushMsg(tomatoI18n.已中断, 1500);
     }
+
+    /** 沉淀入口显隐（□1）：3.8.3+ 渲染器已注册 且 源块锚点在（旧内核隐藏防「沉淀黑洞」）。
+     *  hostID 弹窗生命周期不变，故意捕获初值（msgs 同款） */
+    // svelte-ignore state_referenced_locally
+    const canPrecipitate = supportsAnnoChatBlock() && !!hostID;
 
     function onTaKeydown(ev: KeyboardEvent) {
         // 流式中 Esc=中断（焦点在输入框时优先于 Dialog 默认 Esc 关闭）
@@ -313,6 +358,14 @@
             class="anno-chat__chip anno-chat__chip--add b3-tooltips b3-tooltips__n"
             aria-label={tomatoI18n.新建角色}
             onclick={newCustom}>{tomatoI18n.新建角色}</button>
+        {#if canPrecipitate}
+            <button
+                class="anno-chat__chip anno-chat__chip--save b3-tooltips b3-tooltips__n"
+                aria-label={tomatoI18n.沉淀为块说明}
+                disabled={busy || precipitating || msgs.length === 0}
+                onclick={() => void precipitate()}
+            >{tomatoI18n.沉淀为块}</button>
+        {/if}
     </div>
 
     <div class="anno-chat__input">
@@ -510,6 +563,15 @@
     .anno-chat__chip:hover { background: var(--b3-theme-surface-lighter); }
     .anno-chat__chip:active { background: var(--b3-list-hover); }
     .anno-chat__chip--add { border-style: dashed; }
+    .anno-chat__chip:disabled { opacity: .38; cursor: default; }
+    /* 沉淀为块（□1）：主动作 chip，浅主色实底与角色/新建（灰调）区分 */
+    .anno-chat__chip--save {
+        background: var(--b3-theme-primary-lightest);
+        border-color: var(--b3-theme-primary-lighter);
+        color: var(--b3-theme-primary);
+    }
+    .anno-chat__chip--save:hover:not(:disabled) { background: var(--b3-theme-primary-lighter); }
+    .anno-chat__chip--save:disabled { background: var(--b3-theme-primary-lightest); }
 
     /* 自定义 chip=名+删除钮组合（两枚可点元素不能嵌 button，chip 主体用 span 承载） */
     span.anno-chat__chip { padding: 0 4px 0 10px; gap: 2px; }

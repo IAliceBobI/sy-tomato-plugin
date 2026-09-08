@@ -1,7 +1,8 @@
 // 阅读点翻新（readpoint 战役）纯函数层：新模型=原文块直挂 custom-tomato-readat 属性
 // （值=YYYYMMDDHHmmss），老模型=超级块挂 custom-tomato-readingpoint（值=bookID）惰性兼容
 // （spec：docs/tomato-reading-point-spec.md）。面板列表组装/搜索过滤/相对时间分档在此锁行为，
-// SQL 侧只负责取数；不 import siyuan/utils 保证可单测。
+// SQL 侧只负责取数；不 import siyuan/utils 保证可单测（gconst 纯常量除外）。
+import { RPCARD_FENCE } from "./gconst";
 
 /** attributes join blocks 的 SQL 行（新/老共用形状；老行另有 updated） */
 export interface RPSQLRow {
@@ -136,4 +137,43 @@ export function relativeTime(ts: string, now: Date): RPTimeDesc | null {
     if (day < 7) return { kind: "days", n: day };
     const p = (n: number) => String(n).padStart(2, "0");
     return { kind: "date", date: `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}` };
+}
+
+// ---- rpcard 战役（2026-09-08）：阅读点 custom 卡 content 模型（纯函数层）----
+// 卡块=custom 块 ;;;sy-tomato-plugin/reading-point（RPCARD_FENCE），content=单行 JSON。
+// 内核契约：content 禁含纯 ;;; 行（isCustomBlockContentValid）——JSON.stringify 把换行转义成
+// 字面 \n，单行天然满足，无需额外清洗。excerpt=设点时原文快照不实时追（设计拍板）。
+export interface RPCardData {
+    v: 1;
+    /** 原文块 id（跳转锚 + 删点清理链的挂链对象） */
+    origin: string;
+    /** 设点时刻 YYYYMMDDHHmmss（与 readat 同格式，relativeTime 直接可用） */
+    ts: string;
+    /** 设点时原文快照 */
+    excerpt: string;
+}
+
+export function buildRPCardContent(d: RPCardData): string {
+    return JSON.stringify({ v: 1, origin: d.origin, ts: d.ts, excerpt: d.excerpt });
+}
+
+/** 容错解析：坏 JSON/版本不符/字段缺失 → null（渲染层显灰字占位） */
+export function parseRPCardContent(content: string): RPCardData | null {
+    let raw: unknown;
+    try {
+        raw = JSON.parse(content);
+    } catch {
+        return null;
+    }
+    if (typeof raw !== "object" || raw === null) return null;
+    const o = raw as Record<string, unknown>;
+    if (o.v !== 1) return null;
+    if (typeof o.origin !== "string" || typeof o.ts !== "string" || typeof o.excerpt !== "string") return null;
+    return { v: 1, origin: o.origin, ts: o.ts, excerpt: o.excerpt };
+}
+
+/** 插块用围栏 markdown：围栏头+单行 content，无闭合 ;;;（anno-chat 同款——md 通道不解析
+ *  IAL 也不补闭合，内核落盘时自动补；真实块 ID 只能从 insert 响应 doOperations[0].id 取） */
+export function buildRPCardBlockMD(content: string): string {
+    return `${RPCARD_FENCE}\n${content}`;
 }

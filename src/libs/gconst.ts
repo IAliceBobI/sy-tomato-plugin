@@ -35,6 +35,11 @@ export const STATICLINK = "custom-staticlink";
 export const READINGPOINT = "custom-tomato-readingpoint";
 /** 阅读点翻新（2026-09）：新模型直挂原文块，值=设置时刻 YYYYMMDDHHmmss；老 READINGPOINT 只读兼容 */
 export const READAT = "custom-tomato-readat";
+/** rpcard 战役（2026-09-08）：阅读点制卡载体升级 custom 块——原文块侧挂链属性（值=卡块 ID） */
+export const RPCARD = "custom-tomato-rpcard";
+/** 卡块围栏类型（customBlockRenders 注册键取斜杠后段，同 anno-chat 惯例） */
+export const RPCARD_BLOCK_TYPE = "reading-point";
+export const RPCARD_FENCE = ";;;sy-tomato-plugin/reading-point";
 export const ClassActive = 'layout__wnd--active';
 export const DocAttrShowKey = "tomato-virtual-doc-attr"
 export const DATA_AV_ID = "data-av-id"

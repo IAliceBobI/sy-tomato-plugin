@@ -30,12 +30,40 @@ class CommentBox {
     svelteResize: () => void;
     svelte: CommentBoxSvelte;
 
+    /** □7 划词通道迁移（3.8.3）：注册式项的卸载句柄——闭包捕获 registrar，不依赖
+     *  this.plugin（checkbox off 早退路径不设该字段）；内核卸载链会 clearPluginToolbarItems，
+     *  这里显式 remove 是双保险（remove 不清 keymap 节=孤儿无害） */
+    private annoToolbarRemove: (() => void) | null = null;
+
     /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役 */
     onload(plugin: BaseTomatoPlugin) {
         // 划词工具条批注钮补态监听先于总开关早退挂上（MindWire 同款评审 P1-3）：工具条项
         // 恒附（构造期内核已收项早于设置落库），checkbox 关闭态冷启动若无监听，按钮裸露成
         // 点击无反馈的死按钮；sync gates 含 checkbox，off 态自动隐藏
         document.addEventListener("selectionchange", this.onSelectionChange);
+        // □7 注册式通道（3.8.3+）：addToolbarItem 注册项由内核代管 keymap 节点，设置-快捷键
+        // 改键一处生效两通道（划词条 tip 与命令面板共享 name=langKey 节点）；旧内核无此 API
+        // 走声明式 fallback（updateProtyleToolbar）。恒附语义与声明式对齐：注册不受 checkbox
+        // 门禁，显隐仍由 syncAnnoToolbar 管（新通道无动态显隐 API）。3.8.3 resolvePluginToolbar
+        // 同名去重（注册式优先）→ 双通道并存恒单钮，声明式留作注册失败兜底
+        const toolbarRegistrar = plugin as unknown as {
+            addToolbarItem?: (item: IMenuItem) => void;
+            removeToolbarItem?: (name: string) => void;
+        };
+        if (typeof toolbarRegistrar.addToolbarItem === "function") {
+            toolbarRegistrar.addToolbarItem({
+                name: CommentBox添加批注.langKey,
+                icon: CommentBox添加批注.icon,
+                tip: CommentBox添加批注.langText(),
+                hotkey: CommentBox添加批注.m,
+                click: this.annoToolbarClick,
+            });
+            this.annoToolbarRemove = () =>
+                toolbarRegistrar.removeToolbarItem?.(CommentBox添加批注.langKey);
+            // 注册尾迹 refreshPluginToolbars 重建出的按钮无 inline style——开关 off 态若无
+            // 后续 selectionchange 会裸露成死钮（review P2-1），注册后立即 sync 一次关死窗口
+            this.syncAnnoToolbar();
+        }
         if (!commentBoxCheckbox.get()) return;
         this.plugin = plugin;
         this.settingCfg = plugin.settingCfg;
@@ -189,24 +217,28 @@ class CommentBox {
         await annotations.create(protyle);
     }
 
-    // ---------- 划词工具条入口（□4 2026-09-03，MindWire 后本仓第二用） ----------
+    // ---------- 划词工具条入口（□4 2026-09-03，MindWire 后本仓第二用；□7 双通道） ----------
 
-    /** 官方划词工具条扩展（Plugin.updateProtyleToolbar 委托自 index.ts）：恒附项——
-     *  插件构造期收项早于设置落库，门禁交给 selectionchange 同步（syncAnnoToolbar）；
-     *  name=命令 langKey 共享 keymap 节点，⌥⇧F 改键两通道生效 */
+    /** 划词条点击（两通道共用）：官方 click 实参=Protyle 包装类（ToolbarItem 调
+     *  getInstance()=>this），selectedDivs/create 在内层 .protyle（IProtyle）——
+     *  MindWire e2e 实锤缺这层解包 */
+    private annoToolbarClick = (protyleWrap: Protyle) => {
+        const protyle = protyleWrap.protyle;
+        this.ensureAnnoSelection(protyle);
+        void annotations.create(protyle);
+    };
+
+    /** 声明式通道（旧内核 fallback，Plugin.updateProtyleToolbar 委托自 index.ts）：
+     *  恒附项——插件构造期收项早于设置落库，门禁交给 selectionchange 同步（syncAnnoToolbar）。
+     *  3.8.3+ onload 已走注册式（见 onload □7 块），内核同名去重会过滤本声明——保留作
+     *  注册失败/旧内核兜底，两通道 DOM 同构（data-type=name）sync 选择器通用 */
     updateProtyleToolbar(toolbar: Array<string | IMenuItem>): Array<string | IMenuItem> {
         toolbar.push({
             name: CommentBox添加批注.langKey,
             icon: CommentBox添加批注.icon,
             tip: CommentBox添加批注.langText(),
             hotkey: CommentBox添加批注.m,
-            // 官方 click 实参=Protyle 包装类（ToolbarItem 调 getInstance()=>this），
-            // selectedDivs/create 在内层 .protyle（IProtyle）——MindWire e2e 实锤缺这层解包
-            click: (protyleWrap: Protyle) => {
-                const protyle = protyleWrap.protyle;
-                this.ensureAnnoSelection(protyle);
-                void annotations.create(protyle);
-            },
+            click: this.annoToolbarClick,
         });
         return toolbar;
     }
@@ -247,6 +279,8 @@ class CommentBox {
 
     onunload() {
         document.removeEventListener("selectionchange", this.onSelectionChange);
+        this.annoToolbarRemove?.();
+        this.annoToolbarRemove = null;
     }
 
     private addDock() {
