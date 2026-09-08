@@ -58,6 +58,8 @@ class QuickNote {
     private curOpacity = 1;
     /** □2 moved/resized 记忆写盘的 debounce 句柄 */
     private rectTimer: ReturnType<typeof setTimeout> | null = null;
+    /** 首建 loadURL 进行中：占池先于加载完成，期间二次热键须让路（show 未加载页=白窗一闪） */
+    private winLoading = false;
 
     /** 窗口池（globalThis 容忍 window.eval 重跑顶层；isDestroyed 后视为无池重建）。
      *  池键带协议版本（□4 起页面有 chips/keep 协议；close 迟到守卫升 v3；□2 三可调
@@ -68,8 +70,12 @@ class QuickNote {
 
     onload(plugin: BaseTomatoPlugin) {
         this.plugin = plugin;
-        // 总开关（默认开；关闭=命令不注册/热键不响应，与拍照闪念同款冷生效）
-        if (!quickNoteCheckbox.get()) return;
+        // 总开关（默认开；关闭=命令不注册/热键不响应，与拍照闪念同款冷生效）。
+        // 关闭时顺手销毁现役池窗：通道/热键全注销后隐藏窗只会孤儿般占内存（qn-robust）
+        if (!quickNoteCheckbox.get()) {
+            this.destroyPooledWins();
+            return;
+        }
         // 桌面端专用：移动端/浏览器端（window.require 不存在）不注册命令不监听
         if (events.isMobile || typeof window.require !== "function") return;
         // □2 池窗跨 reload 存活，透明度是窗属性跟着窗走；实例字段跨 reload 重置须重读记忆
@@ -78,13 +84,7 @@ class QuickNote {
         // 旧版池窗清理（□1~□3 无 chips/keep 协议、v2 无 close 迟到守卫、v3 无三可调）：
         // deploy 升级 reload 后残留会 show 出旧 UI/旧行为——直接销毁（仅插件 reload 升级
         // 场景出现一次，正常使用零触发）
-        for (const k of ["__tomatoQuickNoteWin", "__tomatoQuickNoteWin_v2", "__tomatoQuickNoteWin_v3"]) {
-            const w = G[k];
-            if (w) {
-                try { if (!w.isDestroyed?.()) w.destroy?.(); } catch { /* 已亡 */ }
-                G[k] = null;
-            }
-        }
+        this.destroyPooledWins(["__tomatoQuickNoteWin", "__tomatoQuickNoteWin_v2", "__tomatoQuickNoteWin_v3"]);
 
         // 主窗收文：BroadcastChannel。插件经 window.eval 重载后旧实例的 channel 仍在监听
         // （同窗双 client=消息双投，e2e 实锤）——挂 globalThis 先 close 旧再建新
@@ -127,6 +127,8 @@ class QuickNote {
             this.hide();
             return;
         }
+        // 首建加载在途：第一次热键的 show 已在链上，此处抢 show=白窗一闪，静默让路
+        if (this.winLoading) return;
         if (!win) {
             pooled = 0;
             win = await this.createWindow();
@@ -178,6 +180,7 @@ class QuickNote {
 
     /** 首建窗口：按鼠标屏定位 → loadURL（端口随实例变，从插件运行环境推导勿写死） */
     private async createWindow(): Promise<any | null> {
+        this.winLoading = true;
         try {
             const { BrowserWindow, screen } = window.require("@electron/remote");
             const rect = qnWindowRect(
@@ -211,6 +214,8 @@ class QuickNote {
         } catch (e) {
             debugLog("quicknote", `create fail ${e}`, "quicknote");
             return null;
+        } finally {
+            this.winLoading = false;
         }
     }
 
@@ -302,6 +307,40 @@ class QuickNote {
         try {
             if (this.win && !this.win.isDestroyed()) this.win.hide();
         } catch { /* 窗已亡则无事可做 */ }
+    }
+
+    /** 销毁给定键族的池窗（globalThis 置空）：开关关闭=全量（含现役 v4）防孤儿窗占内存；
+     *  正常 onload 只清历史版本键（reload 升级后旧协议窗残留会 show 出旧 UI）。
+     *  兜底（qn-robust）：整页 reload 时 globalThis 池随旧渲染上下文蒸发，真
+     *  BrowserWindow 由主进程持有→孤儿隐藏到思源退出——枚举主进程真窗补刀（URL 限定
+     *  quicknote.html 防误杀；现役 v4 池窗按 id 豁免=插件 reload 存活语义不破） */
+    private destroyPooledWins(keys = ["__tomatoQuickNoteWin", "__tomatoQuickNoteWin_v2",
+        "__tomatoQuickNoteWin_v3", "__tomatoQuickNoteWin_v4"]) {
+        for (const k of keys) {
+            const w = G[k];
+            if (w) {
+                try { if (!w.isDestroyed?.()) w.destroy?.(); } catch { /* 已亡 */ }
+                G[k] = null;
+            }
+        }
+        try {
+            if (typeof window.require !== "function") return; // 移动端/浏览器端无自建窗
+            // 枚举是进程级、豁免只认本窗 globalThis——分离窗/块窗的插件实例 this.win 恒 null（零豁免）
+            // 会把主窗现役池窗连同未提交草稿误杀（review P0-1），只许主窗清。判据用 pathname（核心
+            // openNewWindow 给分离窗固定加载 window.html，URL 在文档期即定）；isMainWin 的 focus span
+            // 在 onload 时布局未渲染恒 false 会连主窗一起拒（qn-robust e2e 实锤，勿换回）
+            if (location.pathname.includes("/window.html")) return;
+            const live = G.__tomatoQuickNoteWin_v4;
+            const liveID = live && !live.isDestroyed?.() ? live.id : null;
+            const { BrowserWindow } = window.require("@electron/remote");
+            for (const w of BrowserWindow.getAllWindows()) {
+                if (w.id === liveID) continue;
+                let url = "";
+                try { url = w.webContents?.getURL?.() ?? ""; } catch { /* 加载中/已亡 */ }
+                if (!url.includes("/plugins/sy-tomato-plugin/quicknote/quicknote.html")) continue;
+                try { w.destroy?.(); } catch { /* 已亡 */ }
+            }
+        } catch { /* remote 不可用/枚举中途窗亡——本轮放弃，下次 onload 再清 */ }
     }
 
     /** 保存编排：同构收集块落当天日记（类型=小窗 chips 现值）→ recentText → 回执小窗。

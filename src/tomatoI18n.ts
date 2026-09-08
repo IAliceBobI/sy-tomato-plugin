@@ -1137,23 +1137,6 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
-    public get 摘抄与制卡() {
-        switch (this.lang) {
-            case "zh_CN": return "摘抄与制卡";
-            case "es_ES": return "Copiado y tarjetas";
-            case "fr_FR": return "Copie et cartes";
-            case "ja_JP": return "要約とカード作成";
-            case "zh_CHT": return "摘抄與制卡";
-            case "it_IT": return "Copia e schede";
-            case "de_DE": return "Exzerpieren & Karten";
-            case "he_IL": return "מיצוי וכרטיסים";
-            case "ru_RU": return "Выписки и карточки";
-            case "pl_PL": return "Notatki i fiszki";
-            case "en_US": return "Digest & cards";
-            default: return "Digest & cards";
-        }
-    }
-
     public get 移动端浮条固定顶部() {
         switch (this.lang) {
             case "zh_CN": return "移动端浮条固定顶部";
@@ -5428,6 +5411,109 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    // ===== writebook-next □4 落点变体（子排 tobook/tohub，去向级覆盖不落盘）=====
+
+    public get 摘抄挂书侧() {
+        switch (this.lang) {
+            case "zh_CN": return "挂书侧";
+            case "zh_CHT": return "掛書側";
+            case "en_US":
+            default: return "To book";
+        }
+    }
+
+    public get tip摘抄挂书侧() {
+        switch (this.lang) {
+            case "zh_CN": return "本次落点挂所属书（普通文档挂源文档）digest- 夹，不改全局档";
+            case "zh_CHT": return "本次落點掛所屬書（普通文檔掛源文檔）digest- 夾，不改全局檔";
+            case "en_US":
+            default: return "This one lands in the book's (or source doc's) digest folder; global setting untouched";
+        }
+    }
+
+    public get 摘抄归总夹() {
+        switch (this.lang) {
+            case "zh_CN": return "归总夹";
+            case "zh_CHT": return "歸總夾";
+            case "en_US":
+            default: return "To hub";
+        }
+    }
+
+    public get tip摘抄归总夹() {
+        switch (this.lang) {
+            case "zh_CN": return "本次落点归摘抄总夹（非书文本归札记匣），不改全局档";
+            case "zh_CHT": return "本次落點歸摘抄總夾（非書文本歸札記匣），不改全局檔";
+            case "en_US":
+            default: return "This one lands in the digest hub (notes box for non-book); global setting untouched";
+        }
+    }
+
+    // ===== writebook-next □6 摘抄顺序遍历（digest 态 prev/next 双钮，纯浏览不删）=====
+
+    public get 上一条摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "上一条摘抄";
+            case "zh_CHT": return "上一條摘抄";
+            case "en_US":
+            default: return "Prev digest";
+        }
+    }
+
+    public get tip上一条摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "按摘抄先后走到更早的一条（不删）";
+            case "zh_CHT": return "按摘抄先後走到更早的一條（不刪）";
+            case "en_US":
+            default: return "Walk to the earlier digest by ctime (no delete)";
+        }
+    }
+
+    public get 下一条摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "下一条摘抄";
+            case "zh_CHT": return "下一條摘抄";
+            case "en_US":
+            default: return "Next digest";
+        }
+    }
+
+    public get tip下一条摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "按摘抄先后走到更新的一条（不删）";
+            case "zh_CHT": return "按摘抄先後走到更新的一條（不刪）";
+            case "en_US":
+            default: return "Walk to the newer digest by ctime (no delete)";
+        }
+    }
+
+    public get 已是最早一条摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "已是最早一条摘抄";
+            case "zh_CHT": return "已是最早一條摘抄";
+            case "en_US":
+            default: return "Already the earliest digest";
+        }
+    }
+
+    public get 已是最新一条摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "已是最新一条摘抄";
+            case "zh_CHT": return "已是最新一條摘抄";
+            case "en_US":
+            default: return "Already the newest digest";
+        }
+    }
+
+    public get 未找到本条摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "未找到本条摘抄";
+            case "zh_CHT": return "未找到本條摘抄";
+            case "en_US":
+            default: return "This digest not found";
+        }
+    }
+
     public get tip思考() {
         switch (this.lang) {
             case "zh_CN": return "摘下选中/光标块标为问题：3 天后重访，解决转心得";
@@ -5972,6 +6058,20 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "⚠ 本文檔是某本書的分片：加書後將作為獨立書籍註冊，脫離原書的分片序列";
             case "en_US":
             default: return "⚠ This doc is a piece of another book: adding it registers it as an independent book, detached from the original book's piece sequence";
+        }
+    }
+    /** slotmerge □1：写作书加阅读硬拦（互斥警示；与上面 ⚠ 知情警告不同属禁止，
+        表单照常显示但提交钮禁用，error 红条区分） */
+    public get 加书硬拦写作书() {
+        switch (this.lang) {
+            case "zh_CN": return "⛔ 该书已是写作书：不能加入渐进阅读，按阅读语义重新分片会摧毁槽位结构（素材与定稿进度）";
+            case "zh_CHT": return "⛔ 該書已是寫作書：不能加入漸進閱讀，按閱讀語義重新分片會摧毀槽位結構（素材與定稿進度）";
+            case "ja_JP": return "⛔ この本は執筆ブックです：漸進読書には追加できません。読書用の再分割でスロット構造（素材・確定進捗）が破壊されます";
+            case "es_ES": return "⛔ Este libro ya es un libro de escritura: no puede agregarse al aprendizaje progresivo; redividirlo con criterio de lectura destruiría su estructura de espacios (material y progreso)";
+            case "fr_FR": return "⛔ Ce livre est déjà un livre d'écriture : il ne peut être ajouté à la lecture progressive ; le redécoupage en mode lecture détruirait sa structure d'emplacements (matériel et progression)";
+            case "it_IT": return "⛔ Questo libro è già un libro di scrittura: non può essere aggiunto alla lettura progressiva; la risuddivisione in modalità lettura distruggerebbe la struttura degli slot (materiale e avanzamento)";
+            case "en_US":
+            default: return "⛔ This book is already a writing book: it cannot be added to progressive reading; re-splitting in reading mode would destroy its slot structure (material and finalization progress)";
         }
     }
     public get 路线书加书() {
@@ -6665,12 +6765,12 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Digest docs go into today's dailycard folder under the daily note; by default they go to the book's digest folder in prog-data";
         }
     }
-    public get tip设置制卡daily() {
+    public get tip制卡落点() {
         switch (this.lang) {
-            case "zh_CN": return "默认制卡（⌥E/浮条制卡钮）并入当天 dailycard 文档集中放；关闭后回落 cards 夹（此时「分片内制卡」开关决定书下还是片下）";
-            case "zh_CHT": return "默認製卡（⌥E/浮條製卡鈕）併入當天 dailycard 文檔集中放；關閉後回落 cards 夾（此時「分片內製卡」開關決定書下還是片下）";
+            case "zh_CN": return "制卡（⌥E/浮条制卡钮）的卡片保存位置：\n当日卡文档=并入当天 dailycard 文档集中放（原「制卡并入 dailycard」行为，默认）\n当天日记=卡片直接追加进当天日记文档\n卡片夹=书下/源下 cards 夹（此时「分片内制卡」开关决定书下还是片下）";
+            case "zh_CHT": return "製卡（⌥E/浮條製卡鈕）的卡片保存位置：\n當日卡文檔=併入當天 dailycard 文檔集中放（原「製卡併入 dailycard」行為，默認）\n當天日記=卡片直接追加進當天日記文檔\n卡片夾=書下/源下 cards 夾（此時「分片內製卡」開關決定書下還是片下）";
             case "en_US":
-            default: return "Cards made by the default Make-Card entry (⌥E / floatbar button) go into today's dailycard document; turn off to fall back to the cards folder (where the under-piece switch then decides book vs piece)";
+            default: return "Where cards made by Make-Card (⌥E / floatbar button) are stored:\nToday's card doc = into today's dailycard document (the legacy behavior, default)\nToday's daily note = appended right into today's daily note\nCards folder = book/source cards folder (where the under-piece switch then decides book vs piece)";
         }
     }
     public get tip设置摘抄背景() {
@@ -7574,6 +7674,39 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Daily card";
         }
     }
+    // 制卡落点三档（2026-09-07，与摘抄落点族对称）
+    public get 制卡落点() {
+        switch (this.lang) {
+            case "zh_CN": return "制卡落点";
+            case "zh_CHT": return "製卡落點";
+            case "en_US":
+            default: return "Card landing";
+        }
+    }
+    public get 落点当日卡文档() {
+        switch (this.lang) {
+            case "zh_CN": return "当日卡文档";
+            case "zh_CHT": return "當日卡文檔";
+            case "en_US":
+            default: return "Today's card doc";
+        }
+    }
+    public get 落点当天日记() {
+        switch (this.lang) {
+            case "zh_CN": return "当天日记";
+            case "zh_CHT": return "當天日記";
+            case "en_US":
+            default: return "Today's daily note";
+        }
+    }
+    public get 落点卡片夹() {
+        switch (this.lang) {
+            case "zh_CN": return "卡片夹";
+            case "zh_CHT": return "卡片夾";
+            case "en_US":
+            default: return "Cards folder";
+        }
+    }
     public get tip摘抄落点() {
         switch (this.lang) {
             case "zh_CN": return "摘抄文档的保存位置：\n集中归档=书摘抄进 prog-data/摘抄/digest-书名，非书文本进札记匣（匣内按源文档 digest-源文档名 分夹归集）\n源文档下方=挂在来源书/文档之下（老版行为）\n日记卡片=并入当天日记文档";
@@ -7954,10 +8087,10 @@ export class TomatoI18n extends TomatoI18nABC {
 
     public get 手动书说明() {
         switch (this.lang) {
-            case "zh_CN": return "手动分片书：片由摘抄产生，点击阅读打开原书";
-            case "zh_CHT": return "手動分片書：片由摘抄產生，點擊閱讀打開原書";
+            case "zh_CN": return "手动分片书：片由摘抄产生，点击直达最近摘抄";
+            case "zh_CHT": return "手動分片書：片由摘抄產生，點擊直達最近摘抄";
             case "en_US":
-            default: return "Manual-split book: pieces are your excerpts; \"Read\" opens the original doc";
+            default: return "Manual-split book: pieces are your excerpts; clicking opens the latest one";
         }
     }
 
@@ -7967,6 +8100,1012 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "手動分片書無分片設置；要改回自動分片請點「重新分片」";
             case "en_US":
             default: return "Manual-split books have no piece settings; use \"Re-split\" to switch back to auto";
+        }
+    }
+
+    // ===== 期1 写作书（incwrite 战役，2026-09-07）：新建弹窗/徽标/防线提示 =====
+
+    public get 新建写作书() {
+        switch (this.lang) {
+            case "zh_CN": return "新建写作书";
+            case "zh_CHT": return "新建寫作書";
+            case "ja_JP": return "執筆ブックを新規作成";
+            case "es_ES": return "Nuevo libro de escritura";
+            case "fr_FR": return "Nouveau livre d'écriture";
+            case "it_IT": return "Nuovo libro di scrittura";
+            case "en_US":
+            default: return "New writing book";
+        }
+    }
+
+    public get 写作书基本信息() {
+        switch (this.lang) {
+            case "zh_CN": return "基本信息";
+            case "zh_CHT": return "基本資訊";
+            case "ja_JP": return "基本情報";
+            case "es_ES": return "Información básica";
+            case "fr_FR": return "Informations de base";
+            case "it_IT": return "Informazioni di base";
+            case "en_US":
+            default: return "Basics";
+        }
+    }
+
+    public get 写作书名占位() {
+        switch (this.lang) {
+            case "zh_CN": return "例如：我的第一部小说";
+            case "zh_CHT": return "例如：我的第一部小說";
+            case "ja_JP": return "例：初めての小説";
+            case "es_ES": return "p. ej., Mi primera novela";
+            case "fr_FR": return "ex. Mon premier roman";
+            case "it_IT": return "es. Il mio primo romanzo";
+            case "en_US":
+            default: return "e.g. My First Novel";
+        }
+    }
+
+    public get 存放笔记本() {
+        switch (this.lang) {
+            case "zh_CN": return "存放笔记本";
+            case "zh_CHT": return "存放筆記本";
+            case "ja_JP": return "保存ノートブック";
+            case "es_ES": return "Cuaderno de destino";
+            case "fr_FR": return "Carnet de destination";
+            case "it_IT": return "Taccuino di destinazione";
+            case "en_US":
+            default: return "Notebook";
+        }
+    }
+
+    public get 请选择笔记本() {
+        switch (this.lang) {
+            case "zh_CN": return "请选择笔记本…";
+            case "zh_CHT": return "請選擇筆記本…";
+            case "ja_JP": return "ノートブックを選択…";
+            case "es_ES": return "Selecciona un cuaderno…";
+            case "fr_FR": return "Sélectionnez un carnet…";
+            case "it_IT": return "Seleziona un taccuino…";
+            case "en_US":
+            default: return "Select a notebook…";
+        }
+    }
+
+    public get 写作书落点说明() {
+        switch (this.lang) {
+            case "zh_CN": return "书将建在所选笔记本的根目录，建好后可拖到任何位置";
+            case "zh_CHT": return "書將建在所選筆記本的根目錄，建好後可拖到任何位置";
+            case "ja_JP": return "選択したノートブックのルートに作成されます。後からどこへでも移動できます";
+            case "es_ES": return "El libro se crea en la raíz del cuaderno; podrás moverlo después";
+            case "fr_FR": return "Le livre est créé à la racine du carnet ; vous pourrez le déplacer ensuite";
+            case "it_IT": return "Il libro viene creato nella radice del taccuino; potrai spostarlo dopo";
+            case "en_US":
+            default: return "The book is created at the notebook root; drag it anywhere afterwards";
+        }
+    }
+
+    public get 大纲槽位可选() {
+        switch (this.lang) {
+            case "zh_CN": return "大纲（槽位，可选）";
+            case "zh_CHT": return "大綱（槽位，可選）";
+            case "ja_JP": return "アウトライン（スロット、任意）";
+            case "es_ES": return "Esquema (ranuras, opcional)";
+            case "fr_FR": return "Plan (emplacements, facultatif)";
+            case "it_IT": return "Struttura (slot, facoltativa)";
+            case "en_US":
+            default: return "Outline (slots, optional)";
+        }
+    }
+
+    public get 大纲占位() {
+        switch (this.lang) {
+            case "zh_CN": return "一行一个槽位，可直接粘贴大纲；序号（1. / 一、）会自动剥掉";
+            case "zh_CHT": return "一行一個槽位，可直接貼上大綱；序號（1. / 一、）會自動剝掉";
+            case "ja_JP": return "1行に1スロット。アウトラインをそのまま貼り付けOK（番号 1. / 一、 は自動で除去）";
+            case "es_ES": return "Un ranura por línea; puedes pegar tu esquema (la numeración 1. / I. se quita sola)";
+            case "fr_FR": return "Un emplacement par ligne ; collez votre plan tel quel (la numérotation 1. / I. est retirée)";
+            case "it_IT": return "Uno slot per riga; incolla la tua struttura (la numerazione 1. / I. viene rimossa)";
+            case "en_US":
+            default: return "One slot per line; paste your outline as-is (numbering like 1. / I. is stripped)";
+        }
+    }
+
+    public get 槽位() {
+        switch (this.lang) {
+            case "zh_CN": return "槽位";
+            case "zh_CHT": return "槽位";
+            case "ja_JP": return "スロット";
+            case "es_ES": return "ranuras";
+            case "fr_FR": return "emplacements";
+            case "it_IT": return "slot";
+            case "en_US":
+            default: return "slots";
+        }
+    }
+
+    public get 首槽() {
+        switch (this.lang) {
+            case "zh_CN": return "首槽";
+            case "zh_CHT": return "首槽";
+            case "ja_JP": return "先頭";
+            case "es_ES": return "Primero";
+            case "fr_FR": return "Premier";
+            case "it_IT": return "Primo";
+            case "en_US":
+            default: return "First";
+        }
+    }
+
+    public get 末槽() {
+        switch (this.lang) {
+            case "zh_CN": return "末槽";
+            case "zh_CHT": return "末槽";
+            case "ja_JP": return "末尾";
+            case "es_ES": return "Último";
+            case "fr_FR": return "Dernier";
+            case "it_IT": return "Ultimo";
+            case "en_US":
+            default: return "Last";
+        }
+    }
+
+    public get 大纲说明() {
+        switch (this.lang) {
+            case "zh_CN": return "留空则创建一个默认槽位；之后可随时拆分、增删槽位";
+            case "zh_CHT": return "留空則建立一個預設槽位；之後可隨時拆分、增刪槽位";
+            case "ja_JP": return "空欄ならデフォルトのスロットを1つ作成。後から分割・追加・削除は自由です";
+            case "es_ES": return "Si lo dejas vacío se crea un ranura por defecto; después puedes dividir, añadir o quitar ranuras";
+            case "fr_FR": return "Si vide, un emplacement par défaut est créé ; vous pourrez ensuite scinder, ajouter ou supprimer";
+            case "it_IT": return "Se vuoto viene creato uno slot predefinito; potrai poi suddividere, aggiungere o rimuovere slot";
+            case "en_US":
+            default: return "Leave empty for one default slot; split, add or remove slots anytime later";
+        }
+    }
+
+    public get 大纲已识别说明() {
+        switch (this.lang) {
+            case "zh_CN": return "将按以上大纲建槽；建好后可随时拆分、增删槽位";
+            case "zh_CHT": return "將以上大綱建槽；建好後可隨時拆分、增刪槽位";
+            case "ja_JP": return "このアウトライン通りにスロットを作成します。後から分割・追加・削除は自由です";
+            case "es_ES": return "Se crearán las ranuras según este esquema; después puedes dividir, añadir o quitar";
+            case "fr_FR": return "Les emplacements seront créés selon ce plan ; vous pourrez ensuite scinder, ajouter ou supprimer";
+            case "it_IT": return "Gli slot verranno creati secondo questa struttura; potrai poi suddividere, aggiungere o rimuovere";
+            case "en_US":
+            default: return "Slots will follow the outline above; split, add or remove them anytime later";
+        }
+    }
+
+    // ===== 建书弹窗「工作流程」卡（五步向导，术语与浮条按钮键对齐） =====
+
+    public get 写作流程标题() {
+        switch (this.lang) {
+            case "zh_CN": return "工作流程";
+            case "zh_CHT": return "工作流程";
+            case "ja_JP": return "進め方";
+            case "es_ES": return "Cómo funciona";
+            case "fr_FR": return "Comment ça marche";
+            case "it_IT": return "Come funziona";
+            case "en_US":
+            default: return "How it works";
+        }
+    }
+
+    public get 写作流程1名() {
+        switch (this.lang) {
+            case "zh_CN": return "大纲建槽";
+            case "zh_CHT": return "大綱建槽";
+            case "ja_JP": return "アウトラインで組み立て";
+            case "es_ES": return "Esquema a ranuras";
+            case "fr_FR": return "Du plan aux emplacements";
+            case "it_IT": return "Dallo schema agli slot";
+            case "en_US":
+            default: return "Outline to slots";
+        }
+    }
+
+    public get 写作流程1说明() {
+        switch (this.lang) {
+            case "zh_CN": return "粘贴大纲，一行一槽；留空先建一个默认槽，边写边拆";
+            case "zh_CHT": return "貼上大綱，一行一槽；留空先建一個預設槽，邊寫邊拆";
+            case "ja_JP": return "アウトラインを貼ると 1 行 1 スロット。空欄なら既定のスロットを 1 つ作り、書きながら分割できます";
+            case "es_ES": return "Pega el esquema, una línea por ranura; vacío se crea una ranura por defecto para dividir luego";
+            case "fr_FR": return "Collez le plan, une ligne par emplacement ; vide, un emplacement par défaut sera créé, à scinder ensuite";
+            case "it_IT": return "Incolla lo schema, una riga per slot; se vuoto si crea uno slot predefinito da suddividere dopo";
+            case "en_US":
+            default: return "Paste an outline, one slot per line; empty starts with one default slot to split later";
+        }
+    }
+
+    public get 写作流程2名() {
+        switch (this.lang) {
+            case "zh_CN": return "素材进槽";
+            case "zh_CHT": return "素材進槽";
+            case "ja_JP": return "素材をスロットへ";
+            case "es_ES": return "Material a las ranuras";
+            case "fr_FR": return "Matériel dans les emplacements";
+            case "it_IT": return "Materiale negli slot";
+            case "en_US":
+            default: return "Material into slots";
+        }
+    }
+
+    public get 写作流程2说明() {
+        switch (this.lang) {
+            case "zh_CN": return "摘抄时「入槽」推送，或在槽内「插入素材」拉取";
+            case "zh_CHT": return "摘抄時「入槽」推送，或在槽內「插入素材」拉取";
+            case "ja_JP": return "摘抄時に「スロットへ」で送り込み、スロット内の「素材を挿入」で引き込めます";
+            case "es_ES": return "Envía con «Al ranura» al extraer, o toma con «Insertar material» dentro del slot";
+            case "fr_FR": return "Poussez avec « Vers l'emplacement » en extrayant, ou tirez avec « Insérer un matériau » dans le slot";
+            case "it_IT": return "Invia con «Nello slot» durante l'estrazione, oppure prendi con «Inserisci materiale» nello slot";
+            case "en_US":
+            default: return "Push with \"To slot\" while excerpting, or pull with \"Insert material\" inside a slot";
+        }
+    }
+
+    public get 写作流程3名() {
+        switch (this.lang) {
+            case "zh_CN": return "在槽里写作";
+            case "zh_CHT": return "在槽裡寫作";
+            case "ja_JP": return "スロットで執筆";
+            case "es_ES": return "Escribir en la ranura";
+            case "fr_FR": return "Écrire dans l'emplacement";
+            case "it_IT": return "Scrivere nello slot";
+            case "en_US":
+            default: return "Write in the slot";
+        }
+    }
+
+    public get 写作流程3说明() {
+        switch (this.lang) {
+            case "zh_CN": return "滚筒轮到写作书时，自动打开上次写到的槽；素材是普通块，随意改写重排";
+            case "zh_CHT": return "滾筒輪到寫作書時，自動打開上次寫到的槽；素材是普通塊，隨意改寫重排";
+            case "ja_JP": return "ローテーションの番が来ると前回のスロットを自動で開きます。素材は通常ブロックなので自由に書き直せます";
+            case "es_ES": return "Cuando llegue el turno se abre la ranura donde te quedaste; el material son bloques normales, reescríbelos a gusto";
+            case "fr_FR": return "Quand son tour arrive, l'emplacement repris s'ouvre automatiquement ; le matériel est fait de blocs normaux, retravaillez-le librement";
+            case "it_IT": return "Quando arriva il turno si riapre lo slot dove eri rimasto; il materiale è fatto di blocchi normali, riscrivilo liberamente";
+            case "en_US":
+            default: return "When its turn comes, the slot you left off reopens; material is plain blocks — rewrite freely";
+        }
+    }
+
+    public get 写作流程4名() {
+        switch (this.lang) {
+            case "zh_CN": return "写完定稿";
+            case "zh_CHT": return "寫完定稿";
+            case "ja_JP": return "書き終えたら脱稿";
+            case "es_ES": return "Finalizar al acabar";
+            case "fr_FR": return "Finaliser quand c'est prêt";
+            case "it_IT": return "Finalizza quando pronto";
+            case "en_US":
+            default: return "Finalize when done";
+        }
+    }
+
+    public get 写作流程4说明() {
+        switch (this.lang) {
+            case "zh_CN": return "定稿的槽不再轮到，随时可解除；全部定稿即完稿";
+            case "zh_CHT": return "定稿的槽不再輪到，隨時可解除；全部定稿即完稿";
+            case "ja_JP": return "脱稿したスロットはローテーションから外れ、いつでも解除できます。全スロット脱稿で完成";
+            case "es_ES": return "Las ranuras finalizadas salen de la rotación y se reabren a voluntad; todas finalizadas = libro terminado";
+            case "fr_FR": return "Les emplacements finalisés sortent de la rotation et se rouvrent à volonté ; tous finalisés = livre achevé";
+            case "it_IT": return "Gli slot finalizzati escono dalla rotazione e si riaprono a piacere; tutti finalizzati = libro completato";
+            case "en_US":
+            default: return "Finalized slots leave the rotation and reopen anytime; all finalized = book done";
+        }
+    }
+
+    public get 写作流程5说明() {
+        switch (this.lang) {
+            case "zh_CN": return "全部槽按顺序合并成一篇独立文档（Pro 功能）；重复汇编以最后一次为准";
+            case "zh_CHT": return "全部槽按順序合併成一篇獨立文檔（Pro 功能）；重複彙編以最後一次為準";
+            case "ja_JP": return "すべてのスロットを順に 1 本の独立文書へ統合（Pro 機能）。再編纂は常に上書きです";
+            case "es_ES": return "Une todas las ranuras, en orden, en un documento independiente (función Pro); recompilar sobrescribe";
+            case "fr_FR": return "Fusionne tous les emplacements, dans l'ordre, en un document indépendant (fonction Pro) ; recompiler écrase";
+            case "it_IT": return "Unisce tutti gli slot, in ordine, in un documento indipendente (funzione Pro); ricompilare sovrascrive";
+            case "en_US":
+            default: return "Merges all slots, in order, into one standalone document (Pro feature); recompiling overwrites";
+        }
+    }
+
+    public get 创建中() {
+        switch (this.lang) {
+            case "zh_CN": return "创建中…";
+            case "zh_CHT": return "建立中…";
+            case "ja_JP": return "作成中…";
+            case "es_ES": return "Creando…";
+            case "fr_FR": return "Création…";
+            case "it_IT": return "Creazione…";
+            case "en_US":
+            default: return "Creating…";
+        }
+    }
+
+    public get 写作书创建成功() {
+        switch (this.lang) {
+            case "zh_CN": return "写作书创建成功";
+            case "zh_CHT": return "寫作書建立成功";
+            case "ja_JP": return "執筆ブックを作成しました";
+            case "es_ES": return "Libro de escritura creado";
+            case "fr_FR": return "Livre d'écriture créé";
+            case "it_IT": return "Libro di scrittura creato";
+            case "en_US":
+            default: return "Writing book created";
+        }
+    }
+
+    public get 写作书创建失败请重试() {
+        switch (this.lang) {
+            case "zh_CN": return "写作书创建失败，请重试";
+            case "zh_CHT": return "寫作書建立失敗，請重試";
+            case "ja_JP": return "執筆ブックの作成に失敗しました。再試行してください";
+            case "es_ES": return "Error al crear el libro de escritura, reintenta";
+            case "fr_FR": return "Échec de création du livre d'écriture, réessayez";
+            case "it_IT": return "Creazione del libro di scrittura non riuscita, riprova";
+            case "en_US":
+            default: return "Failed to create the writing book, please retry";
+        }
+    }
+
+    public get 写作书名已存在() {
+        switch (this.lang) {
+            case "zh_CN": return "该笔记本下已有同名文档，请换个书名";
+            case "zh_CHT": return "該筆記本下已有同名文檔，請換個書名";
+            case "ja_JP": return "このノートブックに同名のドキュメントがあります。別の書名にしてください";
+            case "es_ES": return "Ya existe un documento con ese nombre en el cuaderno, elige otro";
+            case "fr_FR": return "Un document du même nom existe déjà dans ce carnet, choisissez-en un autre";
+            case "it_IT": return "Esiste già un documento con lo stesso nome in questo taccuino, scegline un altro";
+            case "en_US":
+            default: return "A document with this name already exists in the notebook, pick another";
+        }
+    }
+
+    public get 写作中() {
+        switch (this.lang) {
+            case "zh_CN": return "写作中";
+            case "zh_CHT": return "寫作中";
+            case "ja_JP": return "執筆中";
+            case "es_ES": return "Escribiendo";
+            case "fr_FR": return "En écriture";
+            case "it_IT": return "In scrittura";
+            case "en_US":
+            default: return "Writing";
+        }
+    }
+
+    public get 写作书说明() {
+        switch (this.lang) {
+            case "zh_CN": return "写作书：片=槽位，素材在槽位中积累，全部定稿即完稿";
+            case "zh_CHT": return "寫作書：片=槽位，素材在槽位中積累，全部定稿即完稿";
+            case "ja_JP": return "執筆ブック：片=スロット。スロットごとに素材を貯め、全部定稿で完成";
+            case "es_ES": return "Libro de escritura: pieza = ranura; acumula materiales por ranura, finalízalas todas y listo";
+            case "fr_FR": return "Livre d'écriture : pièce = emplacement ; accumulez les matériaux par emplacement, finalisez-les tous";
+            case "it_IT": return "Libro di scrittura: pezzo = slot; accumula materiali per slot, finalizzali tutti";
+            case "en_US":
+            default: return "Writing book: piece = slot; materials accumulate per slot, finalize them all to finish";
+        }
+    }
+
+    public get 写作书设置说明() {
+        switch (this.lang) {
+            case "zh_CN": return "写作书无切分设置；片=槽位，由你规划";
+            case "zh_CHT": return "寫作書無切分設置；片=槽位，由你規劃";
+            case "ja_JP": return "執筆ブックに分割設定はありません。片=スロットはあなたが設計します";
+            case "es_ES": return "Los libros de escritura no tienen ajustes de división; la pieza = ranura la planeas tú";
+            case "fr_FR": return "Les livres d'écriture n'ont pas de réglages de découpage ; pièce = emplacement, à toi de planifier";
+            case "it_IT": return "I libri di scrittura non hanno impostazioni di suddivisione; pezzo = slot, lo pianifichi tu";
+            case "en_US":
+            default: return "Writing books have no split settings; piece = slot, planned by you";
+        }
+    }
+
+    public get 写作书请从槽位开始() {
+        switch (this.lang) {
+            case "zh_CN": return "写作书：进入槽位文档开始写作";
+            case "zh_CHT": return "寫作書：進入槽位文檔開始寫作";
+            case "ja_JP": return "執筆ブック：スロット文書に入って執筆を始めてください";
+            case "es_ES": return "Libro de escritura: entra en un ranura para empezar a escribir";
+            case "fr_FR": return "Livre d'écriture : entrez dans un emplacement pour commencer à écrire";
+            case "it_IT": return "Libro di scrittura: entra in uno slot per iniziare a scrivere";
+            case "en_US":
+            default: return "Writing book: open a slot document to start writing";
+        }
+    }
+
+    // ===== 期3 素材入槽（拉式选择器/推式入槽菜单） =====
+
+    public get 插入素材() {
+        switch (this.lang) {
+            case "zh_CN": return "插入素材";
+            case "zh_CHT": return "插入素材";
+            case "ja_JP": return "素材を挿入";
+            case "es_ES": return "Insertar material";
+            case "fr_FR": return "Insérer un matériau";
+            case "it_IT": return "Inserisci materiale";
+            case "en_US":
+            default: return "Insert material";
+        }
+    }
+
+    public get tip插入素材() {
+        switch (this.lang) {
+            case "zh_CN": return "从摘抄池挑一条摘抄，整条转实插入本槽尾部";
+            case "zh_CHT": return "從摘抄池挑一條摘抄，整條轉實插入本槽尾部";
+            case "ja_JP": return "摘抄プールから1件選び、スロット末尾に静的コピーで挿入";
+            case "es_ES": return "Elige una nota del grupo de extractos e insértala al final del ranura";
+            case "fr_FR": return "Choisissez un extrait et insérez-le en fin d'emplacement";
+            case "it_IT": return "Scegli un appunto dagli estratti e inseriscilo in coda allo slot";
+            case "en_US":
+            default: return "Pick an excerpt from the pool and append it to this slot";
+        }
+    }
+
+    public get 入槽() {
+        switch (this.lang) {
+            case "zh_CN": return "入槽";
+            case "zh_CHT": return "入槽";
+            case "ja_JP": return "スロットへ";
+            case "es_ES": return "Al ranura";
+            case "fr_FR": return "Vers l'emplacement";
+            case "it_IT": return "Nello slot";
+            case "en_US":
+            default: return "To slot";
+        }
+    }
+
+    public get tip入槽() {
+        switch (this.lang) {
+            case "zh_CN": return "把这条摘抄送进写作书的槽位（摘抄本体保留）";
+            case "zh_CHT": return "把這條摘抄送進寫作書的槽位（摘抄本體保留）";
+            case "ja_JP": return "この摘抄を執筆ブックのスロットへ送る（摘抄本体は残る）";
+            case "es_ES": return "Envía este extracto a un ranura del libro de escritura (el original se conserva)";
+            case "fr_FR": return "Envoie cet extrait vers un emplacement du livre d'écriture (l'original est conservé)";
+            case "it_IT": return "Invia questo estratto in uno slot del libro di scrittura (l'originale resta)";
+            case "en_US":
+            default: return "Send this excerpt into a writing-book slot (original kept)";
+        }
+    }
+
+    public get 搜索摘抄或书名() {
+        switch (this.lang) {
+            case "zh_CN": return "搜索摘抄或书名…";
+            case "zh_CHT": return "搜索摘抄或書名…";
+            case "ja_JP": return "摘抄または書名を検索…";
+            case "es_ES": return "Buscar extracto o libro…";
+            case "fr_FR": return "Rechercher extrait ou livre…";
+            case "it_IT": return "Cerca estratto o libro…";
+            case "en_US":
+            default: return "Search excerpts or books…";
+        }
+    }
+
+    public get 还没有任何摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "还没有任何摘抄（先在阅读中摘抄积累素材）";
+            case "zh_CHT": return "還沒有任何摘抄（先在閱讀中摘抄積累素材）";
+            case "ja_JP": return "摘抄がまだありません（読書中に摘抄して素材を貯めましょう）";
+            case "es_ES": return "Aún no hay extractos (acumula material extrayendo al leer)";
+            case "fr_FR": return "Aucun extrait pour l'instant (accumulez en extrayant pendant la lecture)";
+            case "it_IT": return "Ancora nessun estratto (accumula materiale estratto leggendo)";
+            case "en_US":
+            default: return "No excerpts yet (collect materials by excerpting while reading)";
+        }
+    }
+
+    public get 该摘抄无内容块() {
+        switch (this.lang) {
+            case "zh_CN": return "这条摘抄没有内容块，未插入";
+            case "zh_CHT": return "這條摘抄沒有內容塊，未插入";
+            case "ja_JP": return "この摘抄には内容ブロックがなく、挿入しませんでした";
+            case "es_ES": return "Este extracto no tiene bloques de contenido, no se insertó";
+            case "fr_FR": return "Cet extrait n'a pas de blocs de contenu, rien n'a été inséré";
+            case "it_IT": return "Questo estratto non ha blocchi di contenuto, nessuna inserzione";
+            case "en_US":
+            default: return "This excerpt has no content blocks; nothing inserted";
+        }
+    }
+
+    public get 插入素材失败请重试() {
+        switch (this.lang) {
+            case "zh_CN": return "插入素材失败，请重试";
+            case "zh_CHT": return "插入素材失敗，請重試";
+            case "ja_JP": return "素材の挿入に失敗しました。再試行してください";
+            case "es_ES": return "Error al insertar el material, reintenta";
+            case "fr_FR": return "Échec de l'insertion du matériau, réessayez";
+            case "it_IT": return "Inserimento del materiale non riuscito, riprova";
+            case "en_US":
+            default: return "Failed to insert material, please retry";
+        }
+    }
+
+    public 已插入N块素材(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `已插入 ${n} 块素材`;
+            case "zh_CHT": return `已插入 ${n} 塊素材`;
+            case "ja_JP": return `${n} ブロックの素材を挿入しました`;
+            case "es_ES": return `Se insertaron ${n} bloques de material`;
+            case "fr_FR": return `${n} blocs de matériau insérés`;
+            case "it_IT": return `Inseriti ${n} blocchi di materiale`;
+            case "en_US":
+            default: return `Inserted ${n} material block${n === 1 ? "" : "s"}`;
+        }
+    }
+
+    public get 还没有可入槽的写作书() {
+        switch (this.lang) {
+            case "zh_CN": return "还没有可入槽的写作书（先新建一本，或现有书已全部完稿）";
+            case "zh_CHT": return "還沒有可入槽的寫作書（先新建一本，或現有書已全部完稿）";
+            case "ja_JP": return "入れられる執筆ブックがありません（新規作成するか、既存書が完稿済みです）";
+            case "es_ES": return "No hay libro de escritura disponible (crea uno, o los existentes ya están terminados)";
+            case "fr_FR": return "Aucun livre d'écriture disponible (créez-en un, ou ceux existants sont finis)";
+            case "it_IT": return "Nessun libro di scrittura disponibile (creane uno, o quelli esistenti sono finiti)";
+            case "en_US":
+            default: return "No writing book to receive this (create one, or existing ones are all finished)";
+        }
+    }
+
+    public 已入槽本书该槽(n: number, book: string) {
+        switch (this.lang) {
+            case "zh_CN": return `已入《${book}》：${n} 块素材进槽`;
+            case "zh_CHT": return `已入《${book}》：${n} 塊素材進槽`;
+            case "ja_JP": return `『${book}』へ挿入：${n} ブロック`;
+            case "es_ES": return `Insertado en «${book}»: ${n} bloques`;
+            case "fr_FR": return `Inséré dans « ${book} » : ${n} blocs`;
+            case "it_IT": return `Inserito in «${book}»: ${n} blocchi`;
+            case "en_US":
+            default: return `Inserted into "${book}": ${n} blocks`;
+        }
+    }
+
+    // ===== 期4 片管理（拆为新片/定稿/移片拒绝） =====
+
+    public get 拆为新片() {
+        switch (this.lang) {
+            case "zh_CN": return "拆为新片";
+            case "zh_CHT": return "拆為新片";
+            case "ja_JP": return "新しいスロットに分割";
+            case "es_ES": return "Dividir en nuevo espacio";
+            case "fr_FR": return "Diviser vers un nouvel emplacement";
+            case "it_IT": return "Dividi in un nuovo slot";
+            case "en_US":
+            default: return "Split to new slot";
+        }
+    }
+
+    public get tip拆为新片() {
+        switch (this.lang) {
+            case "zh_CN": return "把选中块拆成新槽，插在当前槽之后（后续槽顺延）";
+            case "zh_CHT": return "把選中塊拆成新槽，插在當前槽之後（後續槽順延）";
+            case "ja_JP": return "選択ブロックを新しいスロットに移動し、現在のスロットの後に挿入";
+            case "es_ES": return "Mueve los bloques seleccionados a un nuevo espacio insertado tras el actual";
+            case "fr_FR": return "Déplace les blocs sélectionnés vers un nouvel emplacement inséré après l'actuel";
+            case "it_IT": return "Sposta i blocchi selezionati in un nuovo slot inserito dopo l'attuale";
+            case "en_US":
+            default: return "Move selected blocks into a new slot inserted after the current one";
+        }
+    }
+
+    public get 定稿() {
+        switch (this.lang) {
+            case "zh_CN": return "定稿";
+            case "zh_CHT": return "定稿";
+            case "ja_JP": return "脱稿";
+            case "es_ES": return "Finalizar";
+            case "fr_FR": return "Finaliser";
+            case "it_IT": return "Finalizza";
+            case "en_US":
+            default: return "Finalize";
+        }
+    }
+
+    public get tip定稿() {
+        switch (this.lang) {
+            case "zh_CN": return "标记本槽内容已定，调度不再轮到（可再解除）";
+            case "zh_CHT": return "標記本槽內容已定，調度不再輪到（可再解除）";
+            case "ja_JP": return "このスロットを確定済みにし、スケジュール対象から外す（解除可能）";
+            case "es_ES": return "Marca este espacio como terminado; el planificador lo omite (reversible)";
+            case "fr_FR": return "Marque cet emplacement comme terminé ; le planificateur l'ignore (réversible)";
+            case "it_IT": return "Segna questo slot come completato; lo scheduler lo salta (reversibile)";
+            case "en_US":
+            default: return "Mark this slot as finished; the scheduler skips it (reversible)";
+        }
+    }
+
+    public get 解除定稿() {
+        switch (this.lang) {
+            case "zh_CN": return "解除定稿";
+            case "zh_CHT": return "解除定稿";
+            case "ja_JP": return "脱稿を解除";
+            case "es_ES": return "Deshacer finalización";
+            case "fr_FR": return "Annuler la finalisation";
+            case "it_IT": return "Annulla finalizzazione";
+            case "en_US":
+            default: return "Unfinalize";
+        }
+    }
+
+    public get tip解除定稿() {
+        switch (this.lang) {
+            case "zh_CN": return "本槽已定稿被调度跳过，点击回到轮转";
+            case "zh_CHT": return "本槽已定稿被調度跳過，點擊回到輪轉";
+            case "ja_JP": return "このスロットは確定済みでスキップ中。クリックで輪転に戻す";
+            case "es_ES": return "Este espacio terminado se omite; clic para restaurarlo";
+            case "fr_FR": return "Cet emplacement terminé est ignoré ; cliquer pour le restaurer";
+            case "it_IT": return "Questo slot completato viene saltato; clicca per ripristinarlo";
+            case "en_US":
+            default: return "This finished slot is skipped by the scheduler; click to restore it";
+        }
+    }
+
+    public get 新槽名() {
+        switch (this.lang) {
+            case "zh_CN": return "新槽名";
+            case "zh_CHT": return "新槽名";
+            case "ja_JP": return "新しいスロット名";
+            case "es_ES": return "Nombre del nuevo espacio";
+            case "fr_FR": return "Nom du nouvel emplacement";
+            case "it_IT": return "Nome del nuovo slot";
+            case "en_US":
+            default: return "New slot name";
+        }
+    }
+
+    public get 新槽名占位() {
+        switch (this.lang) {
+            case "zh_CN": return "如：高潮";
+            case "zh_CHT": return "如：高潮";
+            case "ja_JP": return "例：クライマックス";
+            case "es_ES": return "p. ej.: Clímax";
+            case "fr_FR": return "ex. : Climax";
+            case "it_IT": return "es. Climax";
+            case "en_US":
+            default: return "e.g. Climax";
+        }
+    }
+
+    public get 拆分说明() {
+        switch (this.lang) {
+            case "zh_CN": return "选中的块将移入新槽，新槽插在当前槽之后，后续槽自动顺延";
+            case "zh_CHT": return "選中的塊將移入新槽，新槽插在當前槽之後，後續槽自動順延";
+            case "ja_JP": return "選択ブロックは新しいスロットへ移動し、現在のスロットの後に挿入。以降のスロットは自動で繰り下がります";
+            case "es_ES": return "Los bloques seleccionados se mueven al nuevo espacio, insertado tras el actual; los siguientes se desplazan";
+            case "fr_FR": return "Les blocs sélectionnés passent dans le nouvel emplacement, inséré après l'actuel ; les suivants se décalent";
+            case "it_IT": return "I blocchi selezionati passano nel nuovo slot, inserito dopo l'attuale; i successivi si spostano";
+            case "en_US":
+            default: return "Selected blocks move into the new slot, inserted after the current one; later slots shift automatically";
+        }
+    }
+
+    public get 拆分() {
+        switch (this.lang) {
+            case "zh_CN": return "拆分";
+            case "zh_CHT": return "拆分";
+            case "ja_JP": return "分割";
+            case "es_ES": return "Dividir";
+            case "fr_FR": return "Diviser";
+            case "it_IT": return "Dividi";
+            case "en_US":
+            default: return "Split";
+        }
+    }
+
+    public get 拆分中() {
+        switch (this.lang) {
+            case "zh_CN": return "拆分中";
+            case "zh_CHT": return "拆分中";
+            case "ja_JP": return "分割中";
+            case "es_ES": return "Dividiendo…";
+            case "fr_FR": return "Division…";
+            case "it_IT": return "Divisione…";
+            case "en_US":
+            default: return "Splitting…";
+        }
+    }
+
+    public get 请先选中要拆分的块() {
+        switch (this.lang) {
+            case "zh_CN": return "请先选中要拆分的块";
+            case "zh_CHT": return "請先選中要拆分的塊";
+            case "ja_JP": return "分割するブロックを先に選択してください";
+            case "es_ES": return "Selecciona primero los bloques a dividir";
+            case "fr_FR": return "Sélectionnez d'abord les blocs à diviser";
+            case "it_IT": return "Seleziona prima i blocchi da dividere";
+            case "en_US":
+            default: return "Select the blocks to split first";
+        }
+    }
+
+    public get 已定稿该片() {
+        switch (this.lang) {
+            case "zh_CN": return "已定稿：调度将跳过该片";
+            case "zh_CHT": return "已定稿：調度將跳過該片";
+            case "ja_JP": return "確定済み：このスロットはスキップされます";
+            case "es_ES": return "Finalizado: el planificador omitirá este espacio";
+            case "fr_FR": return "Finalisé : le planificateur ignorera cet emplacement";
+            case "it_IT": return "Finalizzato: lo scheduler salterà questo slot";
+            case "en_US":
+            default: return "Finalized: the scheduler will skip this slot";
+        }
+    }
+
+    public get 已解除定稿() {
+        switch (this.lang) {
+            case "zh_CN": return "已解除定稿，该片回到轮转";
+            case "zh_CHT": return "已解除定稿，該片回到輪轉";
+            case "ja_JP": return "脱稿を解除しました。スロットは輪転に戻ります";
+            case "es_ES": return "Finalización deshecha: el espacio vuelve a la rotación";
+            case "fr_FR": return "Finalisation annulée : l'emplacement reprend la rotation";
+            case "it_IT": return "Finalizzazione annullata: lo slot torna in rotazione";
+            case "en_US":
+            default: return "Unfinalized: the slot is back in rotation";
+        }
+    }
+
+    public get 该片已定稿不可移入() {
+        switch (this.lang) {
+            case "zh_CN": return "目标片已定稿，不能移入块";
+            case "zh_CHT": return "目標片已定稿，不能移入塊";
+            case "ja_JP": return "移動先スロットは確定済みのため、ブロックを移動できません";
+            case "es_ES": return "El espacio de destino está finalizado; no se pueden mover bloques";
+            case "fr_FR": return "L'emplacement cible est finalisé ; impossible d'y déplacer des blocs";
+            case "it_IT": return "Lo slot di destinazione è finalizzato; impossibile spostarvi blocchi";
+            case "en_US":
+            default: return "Target slot is finalized; blocks cannot be moved in";
+        }
+    }
+
+    public get 该片已定稿不可移出() {
+        switch (this.lang) {
+            case "zh_CN": return "该片已定稿，不能移出块（先解除定稿）";
+            case "zh_CHT": return "該片已定稿，不能移出塊（先解除定稿）";
+            case "ja_JP": return "このスロットは確定済みのため、ブロックを移出できません（先に脱稿解除を）";
+            case "es_ES": return "Este espacio está finalizado; no se pueden sacar bloques (deshaz la finalización primero)";
+            case "fr_FR": return "Cet emplacement est finalisé ; impossible d'en extraire des blocs (annulez d'abord la finalisation)";
+            case "it_IT": return "Questo slot è finalizzato; impossibile estrarne blocchi (annulla prima la finalizzazione)";
+            case "en_US":
+            default: return "This slot is finalized; blocks cannot be moved out (unfinalize first)";
+        }
+    }
+
+    // ===== slotmerge 合槽（与上一槽/下一槽合并，浮条片态两钮） =====
+    public get 与上一槽合并() {
+        switch (this.lang) {
+            case "zh_CN": return "与上一槽合并";
+            case "zh_CHT": return "與上一槽合併";
+            case "ja_JP": return "上のスロットに統合";
+            case "es_ES": return "Fusionar con el espacio anterior";
+            case "fr_FR": return "Fusionner avec l'emplacement précédent";
+            case "it_IT": return "Unisci allo slot precedente";
+            case "en_US":
+            default: return "Merge into previous slot";
+        }
+    }
+    public get tip与上一槽合并() {
+        switch (this.lang) {
+            case "zh_CN": return "把当前槽内容并入上一槽，当前槽删除（后续槽序号前移）";
+            case "zh_CHT": return "把當前槽內容併入上一槽，當前槽刪除（後續槽序號前移）";
+            case "ja_JP": return "現在のスロットの内容を上のスロットに統合し、現在のスロットを削除（以降の番号は前詰め）";
+            case "es_ES": return "Fusiona el contenido de este espacio en el anterior y elimina el actual (los siguientes avanzan un número)";
+            case "fr_FR": return "Fusionne le contenu de cet emplacement dans le précédent et supprime l'actuel (les suivants sont renumérotés)";
+            case "it_IT": return "Unisce il contenuto di questo slot nel precedente ed elimina l'attuale (i successivi vengono rinumerati)";
+            case "en_US":
+            default: return "Merge this slot's content into the previous one and delete it (later slots shift down)";
+        }
+    }
+    public get 与下一槽合并() {
+        switch (this.lang) {
+            case "zh_CN": return "与下一槽合并";
+            case "zh_CHT": return "與下一槽合併";
+            case "ja_JP": return "下のスロットに統合";
+            case "es_ES": return "Fusionar con el espacio siguiente";
+            case "fr_FR": return "Fusionner avec l'emplacement suivant";
+            case "it_IT": return "Unisci allo slot successivo";
+            case "en_US":
+            default: return "Merge into next slot";
+        }
+    }
+    public get tip与下一槽合并() {
+        switch (this.lang) {
+            case "zh_CN": return "把下一槽内容并入当前槽，下一槽删除（后续槽序号前移）";
+            case "zh_CHT": return "把下一槽內容併入當前槽，下一槽刪除（後續槽序號前移）";
+            case "ja_JP": return "下のスロットの内容を現在のスロットに統合し、下のスロットを削除（以降の番号は前詰め）";
+            case "es_ES": return "Fusiona el contenido del espacio siguiente en el actual y elimina aquel (los posteriores avanzan un número)";
+            case "fr_FR": return "Fusionne le contenu de l'emplacement suivant dans l'actuel et supprime celui-là (les suivants sont renumérotés)";
+            case "it_IT": return "Unisce il contenuto dello slot successivo in quello attuale ed elimina quest'ultimo (i successivi vengono rinumerati)";
+            case "en_US":
+            default: return "Merge the next slot's content into this one and delete it (later slots shift down)";
+        }
+    }
+    public get 已合并到上一槽() {
+        switch (this.lang) {
+            case "zh_CN": return "已合并到上一槽";
+            case "zh_CHT": return "已合併到上一槽";
+            case "ja_JP": return "上のスロットに統合しました";
+            case "es_ES": return "Fusionado con el espacio anterior";
+            case "fr_FR": return "Fusionné avec l'emplacement précédent";
+            case "it_IT": return "Unito allo slot precedente";
+            case "en_US":
+            default: return "Merged into previous slot";
+        }
+    }
+    public get 已合并到下一槽() {
+        switch (this.lang) {
+            case "zh_CN": return "已合并到下一槽";
+            case "zh_CHT": return "已合併到下一槽";
+            case "ja_JP": return "下のスロットに統合しました";
+            case "es_ES": return "Fusionado con el espacio siguiente";
+            case "fr_FR": return "Fusionné avec l'emplacement suivant";
+            case "it_IT": return "Unito allo slot successivo";
+            case "en_US":
+            default: return "Merged into next slot";
+        }
+    }
+    public get 没有上一槽() {
+        switch (this.lang) {
+            case "zh_CN": return "没有上一槽";
+            case "zh_CHT": return "沒有上一槽";
+            case "ja_JP": return "上のスロットはありません";
+            case "es_ES": return "No hay espacio anterior";
+            case "fr_FR": return "Pas d'emplacement précédent";
+            case "it_IT": return "Nessuno slot precedente";
+            case "en_US":
+            default: return "No previous slot";
+        }
+    }
+    public get 没有下一槽() {
+        switch (this.lang) {
+            case "zh_CN": return "没有下一槽";
+            case "zh_CHT": return "沒有下一槽";
+            case "ja_JP": return "下のスロットはありません";
+            case "es_ES": return "No hay espacio siguiente";
+            case "fr_FR": return "Pas d'emplacement suivant";
+            case "it_IT": return "Nessuno slot successivo";
+            case "en_US":
+            default: return "No next slot";
+        }
+    }
+    public get 合并失败请重试() {
+        switch (this.lang) {
+            case "zh_CN": return "合并失败，请重试";
+            case "zh_CHT": return "合併失敗，請重試";
+            case "ja_JP": return "統合に失敗しました。再試行してください";
+            case "es_ES": return "Fusión fallida, reintenta";
+            case "fr_FR": return "Échec de la fusion, réessayez";
+            case "it_IT": return "Unione non riuscita, riprova";
+            case "en_US":
+            default: return "Merge failed, please retry";
+        }
+    }
+
+    public get 拆分失败请重试() {
+        switch (this.lang) {
+            case "zh_CN": return "拆分失败，请重试";
+            case "zh_CHT": return "拆分失敗，請重試";
+            case "ja_JP": return "分割に失敗しました。再試行してください";
+            case "es_ES": return "Error al dividir, reintenta";
+            case "fr_FR": return "Échec de la division, réessayez";
+            case "it_IT": return "Divisione non riuscita, riprova";
+            case "en_US":
+            default: return "Split failed, please retry";
+        }
+    }
+
+    public get 槽名已被使用() {
+        switch (this.lang) {
+            case "zh_CN": return "该槽名已被使用";
+            case "zh_CHT": return "該槽名已被使用";
+            case "ja_JP": return "このスロット名は既に使用されています";
+            case "es_ES": return "Este nombre de espacio ya está en uso";
+            case "fr_FR": return "Ce nom d'emplacement est déjà utilisé";
+            case "it_IT": return "Nome slot già in uso";
+            case "en_US":
+            default: return "This slot name is already in use";
+        }
+    }
+
+    public get 定稿失败请重试() {
+        switch (this.lang) {
+            case "zh_CN": return "定稿失败，请重试";
+            case "zh_CHT": return "定稿失敗，請重試";
+            case "ja_JP": return "確定に失敗しました。再試行してください";
+            case "es_ES": return "Error al finalizar, reintenta";
+            case "fr_FR": return "Échec de la finalisation, réessayez";
+            case "it_IT": return "Finalizzazione non riuscita, riprova";
+            case "en_US":
+            default: return "Finalize failed, please retry";
+        }
+    }
+
+    // ===== 期5 汇编成稿（Pro） =====
+
+    public get 汇编成稿() {
+        switch (this.lang) {
+            case "zh_CN": return "汇编成稿";
+            case "zh_CHT": return "彙編成稿";
+            case "ja_JP": return "草稿を編纂する";
+            case "es_ES": return "Compilar borrador";
+            case "fr_FR": return "Compiler le manuscrit";
+            case "it_IT": return "Compila la bozza";
+            case "en_US":
+            default: return "Compile draft";
+        }
+    }
+
+    public get tip汇编成稿() {
+        switch (this.lang) {
+            case "zh_CN": return "按槽位顺序把全部分片合并成一篇成稿（Pro 功能）";
+            case "zh_CHT": return "按槽位順序把全部分片合併成一篇成稿（Pro 功能）";
+            case "ja_JP": return "スロット順に全スライスを1つの草稿へ統合（Pro 機能）";
+            case "es_ES": return "Une todos los espacios en un borrador, en orden (función Pro)";
+            case "fr_FR": return "Fusionne tous les emplacements en un manuscrit, dans l'ordre (fonction Pro)";
+            case "it_IT": return "Unisce tutti gli slot in una bozza, in ordine (funzione Pro)";
+            case "en_US":
+            default: return "Merge all slots into one draft, in order (Pro feature)";
+        }
+    }
+
+    public get 该书还没有分片() {
+        switch (this.lang) {
+            case "zh_CN": return "这本书还没有分片";
+            case "zh_CHT": return "這本書還沒有分片";
+            case "ja_JP": return "この本にはまだスライスがありません";
+            case "es_ES": return "Este libro aún no tiene espacios";
+            case "fr_FR": return "Ce livre n'a pas encore d'emplacements";
+            case "it_IT": return "Questo libro non ha ancora slot";
+            case "en_US":
+            default: return "This book has no slots yet";
+        }
+    }
+
+    public get 跳回出处() {
+        switch (this.lang) {
+            case "zh_CN": return "跳回出处";
+            case "zh_CHT": return "跳回出處";
+            case "ja_JP": return "出典へ戻る";
+            case "es_ES": return "Volver al origen";
+            case "fr_FR": return "Revenir à la source";
+            case "it_IT": return "Torna all'origine";
+            case "en_US":
+            default: return "Jump to source";
+        }
+    }
+
+    // ===== 直接入槽（阅读态选中块不经摘抄池直送槽；素材无卡、血缘锚原文） =====
+
+    public get 直接入槽() {
+        switch (this.lang) {
+            case "zh_CN": return "直接入槽";
+            case "zh_CHT": return "直接入槽";
+            case "ja_JP": return "スロットへ直送";
+            case "es_ES": return "Directo a la ranura";
+            case "fr_FR": return "Direct dans l'emplacement";
+            case "it_IT": return "Diretto nello slot";
+            case "en_US":
+            default: return "Straight to slot";
+        }
+    }
+
+    public get tip直接入槽() {
+        switch (this.lang) {
+            case "zh_CN": return "选中内容直接送进写作书槽位——不进摘抄池、不生成复习卡；素材为普通文本，点击徽标跳回原文出处";
+            case "zh_CHT": return "選中內容直接送進寫作書槽位——不進摘抄池、不生成複習卡；素材為普通文本，點擊徽標跳回原文出處";
+            case "ja_JP": return "選択内容を執筆ブックのスロットへ直接送ります。摘抄プールに入らず復習カードも生成しません。素材は通常テキストで、バッジをクリックすると出典へ戻れます";
+            case "es_ES": return "Envía la selección directamente a una ranura del libro de escritura — sin entrar al grupo de extractos ni generar tarjetas; el material es texto normal y el distintivo vuelve al origen";
+            case "fr_FR": return "Envoie la sélection directement dans un emplacement du livre d'écriture — sans passer par les extraits ni créer de cartes ; le matériau est du texte simple et le badge revient à la source";
+            case "it_IT": return "Invia la selezione direttamente in uno slot del libro di scrittura — senza passare dagli estratti né creare schede; il materiale è testo semplice e il badge torna all'origine";
+            case "en_US":
+            default: return "Send the selection straight into a writing-book slot — no excerpt pool, no review cards; material is plain text and the badge jumps back to the source";
+        }
+    }
+
+    public get 请先选中要入槽的内容() {
+        switch (this.lang) {
+            case "zh_CN": return "请先选中要入槽的内容";
+            case "zh_CHT": return "請先選中要入槽的內容";
+            case "ja_JP": return "先にスロットへ入れる内容を選択してください";
+            case "es_ES": return "Selecciona primero el contenido a enviar a la ranura";
+            case "fr_FR": return "Sélectionnez d'abord le contenu à envoyer dans l'emplacement";
+            case "it_IT": return "Seleziona prima il contenuto da inviare nello slot";
+            case "en_US":
+            default: return "Select the content to send to the slot first";
         }
     }
 
@@ -8142,6 +9281,30 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Show floating ball";
         }
     }
+    public get 显示或隐藏悬浮球() {
+        switch (this.lang) {
+            case "zh_CN": return "显示/隐藏悬浮球";
+            case "zh_CHT": return "顯示/隱藏懸浮球";
+            case "ja_JP": return "フローティングボールの表示/非表示";
+            case "es_ES": return "Mostrar/ocultar el balón flotante";
+            case "fr_FR": return "Afficher/masquer la balle flottante";
+            case "it_IT": return "Mostra/nascondi la palla flottante";
+            case "en_US":
+            default: return "Show/hide floating ball";
+        }
+    }
+    public get 阅读点加入闪卡() {
+        switch (this.lang) {
+            case "zh_CN": return "设点时加入闪卡（复习即回原文锚）";
+            case "zh_CHT": return "設點時加入閃卡（複習即回原文錨）";
+            case "ja_JP": return "設定時にフラッシュカードへ追加（復習=原文に戻る錨）";
+            case "es_ES": return "Añadir a tarjetas al marcar (repasar = volver al ancla del original)";
+            case "fr_FR": return "Ajouter aux cartes flash au marquage (réviser = revenir à l'ancre d'origine)";
+            case "it_IT": return "Aggiungi alle flashcard al marcatore (ripassare = tornare all'ancora originale)";
+            case "en_US":
+            default: return "Add to flashcards on marking (review = anchor back to original)";
+        }
+    }
     public get 已隐藏悬浮球() {
         switch (this.lang) {
             case "zh_CN": return "已隐藏悬浮球（顶栏/状态栏图标可找回）";
@@ -8275,17 +9438,80 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Editor tools";
         }
     }
-    public get AI问答() {
+    // 三期功能仓库导航域名（收纳低优先级功能设置入口，功能照常活）——替代退役的 AI 问答域
+    public get 功能仓库() {
         switch (this.lang) {
-            case "zh_CN": return "AI 问答";
-            case "zh_CHT": return "AI 問答";
-            case "es_ES": return "IA preguntas";
-            case "fr_FR": return "IA questions";
-            case "ja_JP": return "AI質問";
+            case "zh_CN": return "功能仓库";
+            case "zh_CHT": return "功能倉庫";
+            case "es_ES": return "Funciones archivadas";
+            case "fr_FR": return "Fonctions archivées";
+            case "ja_JP": return "機能倉庫";
             case "en_US":
-            default: return "AI Q&A";
+            default: return "Feature vault";
         }
     }
+    // 三期杂项独立域导航域名（杂项 21 项分家后 11 项留驻）
+    public get 杂项() {
+        switch (this.lang) {
+            case "zh_CN": return "杂项";
+            case "zh_CHT": return "雜項";
+            case "es_ES": return "Varios";
+            case "fr_FR": return "Divers";
+            case "ja_JP": return "その他";
+            case "en_US":
+            default: return "Misc";
+        }
+    }
+    // 三期功能仓库「已收纳命令」卡：被官方/自家新版替代的命令键帽行（命令照常活）
+    public get 已收纳命令() {
+        switch (this.lang) {
+            case "zh_CN": return "已收纳命令";
+            case "zh_CHT": return "已收納命令";
+            case "es_ES": return "Comandos archivados";
+            case "fr_FR": return "Commandes archivées";
+            case "ja_JP": return "収納コマンド";
+            case "en_US":
+            default: return "Archived commands";
+        }
+    }
+    public get 已收纳命令说明() {
+        switch (this.lang) {
+            case "zh_CN": return "已收纳功能的命令与快捷键照常可用";
+            case "zh_CHT": return "已收納功能的命令與快捷鍵照常可用";
+            case "es_ES": return "Los comandos y atajos de las funciones archivadas siguen funcionando";
+            case "fr_FR": return "Les commandes et raccourcis des fonctions archivées restent actifs";
+            case "ja_JP": return "収納済み機能のコマンドとショートカットは引き続き利用できます";
+            case "en_US":
+            default: return "Commands and hotkeys of archived features keep working";
+        }
+    }
+    // 三期文档管理域「文档整理」卡与反链域「静态反链」卡标题：键在基类已有（text13 文档整理/
+    // text4 静态反链=静态反链文档标题同键），直接复用勿重复定义
+    // 三期编辑器工具域「文档别名」卡（选字加入别名/拼音别名自通用域杂项卡归位）
+    public get 文档别名() {
+        switch (this.lang) {
+            case "zh_CN": return "文档别名";
+            case "zh_CHT": return "文檔別名";
+            case "es_ES": return "Alias de docs.";
+            case "fr_FR": return "Alias de docs.";
+            case "ja_JP": return "文書の別名";
+            case "en_US":
+            default: return "Doc aliases";
+        }
+    }
+    // 三期 □4 多行选择卡标题（总开关行，桌面/移动两开关一键）
+    public get 多行选择() {
+        switch (this.lang) {
+            case "zh_CN": return "多行选择";
+            case "zh_CHT": return "多行選擇";
+            case "es_ES": return "Selección multilínea";
+            case "fr_FR": return "Sélection multiligne";
+            case "ja_JP": return "複数行選択";
+            case "en_US":
+            default: return "Multi-line selection";
+        }
+    }
+    // 三期反链与引用域「静态反链」卡标题：复用基类 text4 同名键（译文对齐刷新/删除静态反链族）
     // 编辑器工具域「编辑器外观与行为」折叠卡 summary（非导航，无折行约束）
     public get 编辑器外观与行为() {
         switch (this.lang) {

@@ -6,7 +6,6 @@ import { OpenSyFile2 } from "./libs/docUtils";
 import { events } from "./libs/Events";
 import { createNote, switchDraft } from "./libs/switchDraft";
 import { winHotkey } from "./libs/winHotkey";
-import { verifyKeyTomato } from "./libs/user";
 
 export const FastNoteBox创建快速笔记 = winHotkey("shift+alt+n", "创建快速笔记")
 export const FastNoteBox打开最后一个笔记 = winHotkey("⌘⌥N", "打开最后一个笔记")
@@ -17,7 +16,8 @@ class FastNoteBox {
 
     async onload(plugin: BaseTomatoPlugin) {
         if (!fastNoteBoxCheckbox.get()) return;
-        await verifyKeyTomato()
+        // Pro 门禁在 createNote 内部（删原文前）逐次验证；onload 不做网络往返——
+        // 挡在 addCommand 前会拖慢命令注册（插件重载战役 onload 纪律，qn-robust）
         this.plugin = plugin;
         this.plugin.addCommand({
             langKey: FastNoteBox创建快速笔记.langKey,
@@ -53,7 +53,7 @@ class FastNoteBox {
         const kName: keyof (AttrType) = "custom-fastnote";
         const rows = await siyuan.sqlAttr(`select root_id from attributes where name="${kName}" order by value desc limit 1`)
         if (!rows || rows.length == 0) {
-            siyuan.pushMsg("cannot find a fastnote")
+            siyuan.pushMsg(tomatoI18n.找不到快速笔记)
             return
         }
         OpenSyFile2(this.plugin, rows[0].root_id)

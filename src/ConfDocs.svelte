@@ -1,13 +1,11 @@
 <script lang="ts">
-    // 设置域组件（□2 设置页重划；二期 14 域 2026-09-05 重排）：文档管理——DailyNote
-    // （域首卡，受欢迎待翻新）/ 文档树工具 / 前缀文档树（自 ConfEditor.svelte 迁入）。
-    // 各卡整块迁入（内部一行不动），共享样式见 IndexConf.css。
+    // 设置域组件（□2 设置页重划；二期 14 域 2026-09-05 重排；三期 2026-09-08 归位收官）：
+    // 文档管理——DailyNote（域首卡，受欢迎待翻新）/ 文档树工具（三期收 exportFiles 4 菜单
+    // 开关=开关跟功能走，自通用域右键菜单管理卡归位；前缀文档树卡同期迁功能仓库域）/
+    // 文档整理（三期自通用域杂项卡归位）。各卡整块迁入（内部一行不动），共享样式见 IndexConf.css。
     import TomatoVIP from "./TomatoVIP.svelte";
     import NotebookSelect from "./NotebookSelect.svelte";
     import {
-        prefixArticlesEnable,
-        prefixArticlesMenu,
-        prefixArticlesSoftLimit,
         dailyNoteBoxCheckbox,
         dailyNoteCopyAnchorText,
         dailyNoteCopyFlashCard,
@@ -25,8 +23,10 @@
         dailyNoteReviewTopbar,
         dailyNotetopbarleft,
         dailyNotetopbarright,
+        storeMergeDoc,
+        storeMoveDocContentHere,
+        hiddenMenuItems,
     } from "./libs/stores";
-    import { PrefixArticles前缀文档树 } from "./PrefixArticles";
     import {
         DailyNoteBox上一个日志,
         DailyNoteBox下一个日志,
@@ -34,12 +34,34 @@
         DailyNoteBox复制到dailynoteNewFile,
         DailyNoteBox移动内容到dailynote,
     } from "./DailyNoteBox";
+    import {
+        MixBox列出当前文档与子文档中没被引用的文档,
+    } from "./MixBox";
+    import {
+        DOCTREE_CARD_MENU_ITEMS,
+        menuItemSelected,
+        nextHiddenKeys,
+        type ManagedMenuItem,
+    } from "./libs/menuItemRegistry";
+    import { menuKeyHidden, menuHiddenKeys } from "./libs/menuManager";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
 
     let { codeValid }: { codeValid: boolean } = $props();
     let codeNotValid = $derived(!codeValid);
+
+    // 文档树工具卡菜单开关（三期归位）：checkbox 勾=显示；三层合成判定与隐藏集变更走
+    // menuItemRegistry 共享纯函数（ConfExport 导出卡/ConfAnno 批注卡同款，勿在组件层复制）。
+    // toggle 只改内存，面板关闭由 IndexConf 统一落盘。{#key} tick 防 toggle 后 checkbox 不刷新
+    let doctreeMenuTick = $state(0);
+    const doctreeItemShown = (item: ManagedMenuItem) => menuItemSelected(item, menuKeyHidden);
+    function toggleDoctreeMenuItem(item: ManagedMenuItem, ev: Event) {
+        const target = ev.currentTarget as HTMLInputElement;
+        const checked = target?.checked ?? !doctreeItemShown(item);
+        hiddenMenuItems.set(nextHiddenKeys(menuHiddenKeys(), item.key, checked));
+        doctreeMenuTick++;
+    }
 </script>
 
     <!-- DailyNote -->
@@ -153,30 +175,44 @@
             {/if}
         {/if}
     </div>
-    <!-- 文档树工具 -->
+    <!-- 文档树工具（三期归位：exportFiles 4 菜单开关自通用域右键菜单管理卡迁入——开关跟
+         功能走，治理本战役起点诉求；无独立 store 走 hiddenMenuItems 隐藏集，{#key} 同导出卡防
+         toggle 后 checkbox 不刷新） -->
     <div class="settingBox">
         <div class="section-title">
             {tomatoI18n.文档树工具}
             <ConfHelpIcon token="NXSPd81W4oxUJrxW2XsctewUn5g" />
         </div>
+        {#key doctreeMenuTick}
+            {#each DOCTREE_CARD_MENU_ITEMS as item (item.key)}
+                <label class="fn__flex fn__flex-center tomato-menu-manage-item">
+                    <input
+                        type="checkbox"
+                        class="b3-switch"
+                        checked={doctreeItemShown(item)}
+                        onchange={(ev) => toggleDoctreeMenuItem(item, ev)}
+                    />
+                    <span class="fn__space"></span>
+                    <span class="tomato-menu-manage-label">{item.label()}</span>
+                </label>
+            {/each}
+        {/key}
     </div>
-    <!-- 前缀文档树 -->
+    <!-- 文档整理（三期自通用域杂项卡归位：合并/移动两菜单开关+未引用文档列举键帽） -->
     <div class="settingBox">
-        <div class="section-title">
-            <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesEnable} />
-            {tomatoI18n.前缀文档树}
-            <ConfHelpIcon token="WD3Nd8WCxozzE4xXIJucpFBPn9a" />
+        <div class="section-title">{tomatoI18n.文档整理}</div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$storeMergeDoc} />
+            {tomatoI18n.menu添加右键菜单}: {tomatoI18n.合并文档到这里}
         </div>
-        {#if $prefixArticlesEnable}
-            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesMenu} />
-                {tomatoI18n.menu添加右键菜单}: {PrefixArticles前缀文档树.langText()}
-                <HotkeyCap hk={PrefixArticles前缀文档树} pluginName="sy-tomato-plugin"></HotkeyCap>
-            </div>
-            <div>
-                <input class="b3-text-field" bind:value={$prefixArticlesSoftLimit} />
-                {tomatoI18n.最大列出的文件数量}
-            </div>
-        {/if}
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$storeMoveDocContentHere} />
+            {tomatoI18n.menu添加右键菜单}: {tomatoI18n.把文档内容移动到这里}
+        </div>
+        <div>
+            {MixBox列出当前文档与子文档中没被引用的文档.langText()}
+            <HotkeyCap hk={MixBox列出当前文档与子文档中没被引用的文档} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
     </div>
+    <!-- 前缀文档树卡已迁功能仓库域（ConfVault），本域不再渲染 -->
+

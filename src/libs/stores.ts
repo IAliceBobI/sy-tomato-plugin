@@ -437,6 +437,9 @@ export const readingAddDeleteMenu = settingFactory("readingAddDeleteMenu", false
 // 悬浮球主控（关=球整体不出场，顶栏/状态栏点击回退打开面板）；hidden=用户隐藏标记（球菜单/入口 toggle）
 export const readingFloatBar = settingFactory("readingFloatBar", true, STORAGE_SETTINGS, null as TSK);
 export const readingFloatBallHidden = settingFactory("readingFloatBallHidden", false, STORAGE_SETTINGS, null as TSK);
+// 设点入闪卡（readpoint □2-B 复活 2026-09-08）：设点=原文块进闪卡+立即到期（复习卡=「回原文
+// 继续读」锚，与渐进复习流联动）；老版同开关名复活，翻新期存量 petal 值残留=正好无缝接回默认偏好
+export const readingAdd2Card = settingFactory("readingAdd2Card", true, STORAGE_SETTINGS, null as TSK);
 /** 球位置持久化：九宫格锚点(0-8)+像素偏移（ballGeometry 同款语义；anchor=5 中右默认，避让 recite 右下/渐进左下） */
 export interface RPBallPos {
     anchor: number; offsetX: number; offsetY: number;
@@ -686,8 +689,12 @@ export const digest2dailycard = settingFactory("digest2dailycard", false, STORAG
 export const digestLanding = settingFactory("digestLanding", "central", STORAGE_Prog_SETTINGS, null as TSK);
 // □3 制卡统一归置（2026-09-01 拍板方案 A）：默认制卡（⌥E/浮条制卡钮）并入当日 daily card
 // 文档；存量用户无此 key 读默认 true 即集中（发版 notes 说明），关掉回落 cards 夹旧路线
-// （cardUnderPiece 分叉保持原语义）
+// （cardUnderPiece 分叉保持原语义）。三档化（2026-09-07）后退役为迁移源（同 digest2dailycard）
 export const card2dailycard = settingFactory("card2dailycard", true, STORAGE_Prog_SETTINGS, null as TSK);
+// 制卡落点三档（2026-09-07 bear 拍板，与「摘抄落点」对称）：dailycard=当日 daily card 文档
+// （原 card2dailycard=true 语义，默认）/ dailynote=当天日记文档尾插 / cards=原 false 回落
+// （书下 cards 或源下 cards，cardUnderPiece 分叉保持原语义）；迁移见渐进 index.ts loadStore
+export const cardLanding = settingFactory("cardLanding", "dailycard", STORAGE_Prog_SETTINGS, null as TSK);
 // v5 火苗档位：每日目标片数（"1"/"3"/"5"，默认 3）——滚筒欠债=Σ max(0, 当日q−当日已读)
 export const dailyQuota = settingFactory("dailyQuota", "3", STORAGE_Prog_SETTINGS, null as TSK);
 // □3 右键退役默认关（2026-09-01 用户拍板：浮条已覆盖同款能力，右键默认清爽；设置项

@@ -765,6 +765,25 @@ it means that as long as one of these keywords appears, it will match.</strong><
         }
     }
 
+    /** 失败=原件保留原位未删（验证后删防线），重跑即重试 */
+    public assets整理x成功y失败(okCount: number, failCount: number) {
+        switch (this.lang) {
+            case "zh_CN":
+                return `assets: 整理成功[${okCount}]个，失败[${failCount}]个（原件保留原位，可重跑重试）`;
+            case "es_ES":
+                return `assets: [${okCount}] organizados, [${failCount}] fallidos (los originales permanecen en su lugar, reintente)`;
+            case "fr_FR":
+                return `assets: [${okCount}] organisés, [${failCount}] échoués (les originaux restent en place, réessayez)`;
+            case "ja_JP":
+                return `assets: [${okCount}]個整理、[${failCount}]個失敗（元ファイルは元の場所に残ります、再実行で再試行）`;
+            case "zh_CHT":
+                return `assets: 整理成功[${okCount}]個，失敗[${failCount}]個（原件保留原位，可重跑重試）`;
+
+            default:
+                return `assets: [${okCount}] organized, [${failCount}] failed (originals kept in place, rerun to retry)`;
+        }
+    }
+
     public 已经处理了x个块(count: number, filesCount: number, blockCount: number) {
         switch (this.lang) {
             case "zh_CN":

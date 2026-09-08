@@ -171,11 +171,40 @@ class CardPriorityBox {
             })
         }
 
+        // □1b 恢复粒度（resume-granularity，2026-09-07 拍板）：按文档树恢复——内核
+        // getTreeRiffCards 树语义自带「含子文档」递归与子块卡命中（卡块 root_id 即所在
+        // 子文档，无需上爬），ial 携带全部自定义属性可直接按 stop 过滤；多选文档合并
+        // 一次 confirm（各自取树后汇总张数）
+        const resumeDocStops = async (docIDs: string[]) => {
+            const stopped: GetCardRetBlock[] = [];
+            for (const id of docIDs) {
+                const cards = await siyuan.getTreeRiffCardsAll(id);
+                stopped.push(...cards.filter(c => c.ial?.[CARD_PRIORITY_STOP]));
+            }
+            if (!stopped.length) {
+                await siyuan.pushMsg(tomatoI18n.此文档及子文档内没有暂停的闪卡);
+                return;
+            }
+            confirm(tomatoI18n.恢复文档暂停闪卡, tomatoI18n.将恢复n张暂停闪卡含子文档(stopped.length), () => {
+                doStopCards("0", stopped);
+            })
+        }
+
         this.plugin.addCommand({
             langKey: CardPriority恢复所有暂停的闪卡.langKey,
             langText: tomatoI18n.恢复所有暂停的闪卡,
             hotkey: CardPriority恢复所有暂停的闪卡.m,
             callback: () => resumeAll(events.protyle),
+        });
+
+        // 文档级恢复命令（无默认键，留用户键位设置自绑——winHotkey 工厂 m 空即 throw
+        // 故直传 langKey，CommentBox 命令化同款）；当前文档含子文档
+        this.plugin.addCommand({
+            langKey: "resume doc cards",
+            langText: tomatoI18n.恢复文档暂停闪卡,
+            editorCallback: (protyle) => {
+                void resumeDocStops([protyle.block.rootID]);
+            },
         });
 
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
@@ -199,6 +228,29 @@ class CardPriorityBox {
                 accelerator: CardPriorityBox推迟闪卡.m,
                 icon: "iconClock",
                 click: () => delay(),
+            }, cardPriorityBoxPostponeCardMenu.get());
+
+            // □1b：编辑器右键=当前文档（含子文档）；菜单 key 与文档树入口同一串
+            // （menuManager 一处藏两处消）
+            addIfVisible(menu, "m.cardPriority.resumeDoc", {
+                label: tomatoI18n.恢复文档暂停闪卡,
+                icon: "iconPlay",
+                click: () => {
+                    const docID = events.protyle?.protyle?.block?.rootID;
+                    if (docID) void resumeDocStops([docID]);
+                },
+            }, cardPriorityBoxPostponeCardMenu.get());
+        });
+
+        // □1b：文档树右键=对着书/章节点恢复（用户主场景）；笔记本级节点无 data-node-id
+        // 自然跳过，多选文档合并处理
+        this.plugin.eventBus.on("open-menu-doctree", ({ detail }) => {
+            const docIDs = [...detail.elements].map(e => (e as HTMLElement).getAttribute("data-node-id")).filter(Boolean) as string[];
+            if (!docIDs.length) return;
+            addIfVisible(detail.menu, "m.cardPriority.resumeDoc", {
+                label: tomatoI18n.恢复文档暂停闪卡,
+                icon: "iconPlay",
+                click: () => void resumeDocStops(docIDs),
             }, cardPriorityBoxPostponeCardMenu.get());
         });
 

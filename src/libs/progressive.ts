@@ -6,22 +6,32 @@ export async function getBookIDByBlock(blockID: string) {
     return getBookID(docRow?.id);
 }
 
+/** 从分片标记属性值解析书 ID（progmark/book-writing 双形态，无标记返回空串）。
+ *  与 getBookID 同一解析逻辑抽出（readpoint □2-B 书级清点 join 复用），改解析须两处同源 */
+export function parseBookID(mark: string | undefined, writing: string | undefined): string {
+    if (mark) {
+        const last = mark.split(TEMP_CONTENT).pop().split("#").pop();
+        return last.split(",")[0];
+    }
+    if (writing) {
+        return writing.split("#")[0];
+    }
+    return "";
+}
+
 export async function getBookID(docID: string): Promise<{ bookID: string, pieceNum: number }> {
     const ret = { bookID: "", pieceNum: NaN } as Awaited<ReturnType<typeof getBookID>>;
     if (docID) {
         const attrs = await siyuan.getBlockAttrs(docID);
-        let mark = attrs["custom-progmark"];
-        const writing = attrs["custom-book-writing"]
-        if (mark) {
-            mark = mark.split(TEMP_CONTENT).pop();
-            const last = mark.split("#").pop();
-            const parts = last.split(",");
-            ret.bookID = parts[0];
-            ret.pieceNum = Number(parts[1]);
-        } else if (writing) {
-            const parts = writing.split("#");
-            ret.bookID = parts[0]
-            ret.pieceNum = parseInt(parts.pop(), 10);
+        ret.bookID = parseBookID(attrs["custom-progmark"], attrs["custom-book-writing"]);
+        if (ret.bookID) {
+            const mark = attrs["custom-progmark"];
+            if (mark) {
+                const last = mark.split(TEMP_CONTENT).pop().split("#").pop();
+                ret.pieceNum = Number(last.split(",")[1]);
+            } else {
+                ret.pieceNum = parseInt(attrs["custom-book-writing"].split("#").pop(), 10);
+            }
         }
     }
     return ret;

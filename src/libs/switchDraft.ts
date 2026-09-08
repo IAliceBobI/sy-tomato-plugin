@@ -4,6 +4,8 @@ import { events } from "./Events";
 import { storeNoteBox_fastnote, fastNoteBoxDelAfterCreating, fastNoteBoxAdd2Flashcard, fastNoteBoxDocPrefix } from "./stores";
 import { verifyKeyTomato } from "./user";
 import { siyuan, getContextPath, cloneCleanDiv, NewLute, NewNodeID, timeUtil } from "./utils";
+import { getNotebookByID } from "./notebookUtils";
+import { tomatoI18n } from "../tomatoI18n";
 
 export async function switchDraft(plugin: Plugin, protyle: IProtyle) {
     const docID = protyle?.block?.rootID;
@@ -31,16 +33,37 @@ export async function switchDraft(plugin: Plugin, protyle: IProtyle) {
             "custom-fastdraft": docID,
             "custom-off-tomatobacklink": "1",
         }, bt)
+        if (!newID) return; // 创建失败已 toast——空 id 落属性会把既有 fastdraft 链抹掉
         await siyuan.setBlockAttrs(docID, { "custom-fastdraft": newID });
     }
 }
 
 
 export async function createNote(plugin: Plugin, protyle: IProtyle, allowFlashcard = true, attrs: AttrType = {}, title = "") {
-    let boxID = storeNoteBox_fastnote.getOr();
-    if (!boxID || !protyle) return;
+    // 失败静默是原实现最大可用性问题（qn-robust）：按键无反应无从排查——补 toast 反馈。
+    // 顺序：先 protyle（无文档=最常见可自救态）；boxID 空需 store 未配+getOr 兜底
+    // events.boxID 也无笔记本上下文，纯防御位（getOr 兜底当前笔记本，有文档在开即非空）
+    if (!protyle) {
+        siyuan.pushMsg(tomatoI18n.请先打开一个文档);
+        return;
+    }
+    const boxID = storeNoteBox_fastnote.getOr();
+    if (!boxID) {
+        siyuan.pushMsg(tomatoI18n.请先配置快速笔记的落点笔记本);
+        return;
+    }
+    // 陈旧配置防御（qn-robust e2e 实锤）：配置的笔记本已被删/关时内核报「查询笔记本失败」
+    // 且 createDocWithMd 链路无任何用户可见反馈——建前先验笔记本在列且未关
+    const nb = getNotebookByID(boxID);
+    if (!nb || nb.closed) {
+        siyuan.pushMsg(tomatoI18n.快速笔记落点笔记本不可用);
+        return;
+    }
     const { selected, ids, cursorOnly } = await events.selectedDivs(protyle);
-    if (ids.length <= 0) return;
+    if (!ids || ids.length <= 0) {
+        siyuan.pushMsg(tomatoI18n.请先选中内容或放置光标);
+        return;
+    }
 
     const { getPathMd } = await getContextPath(ids[0]);
     const path = `${getPathMd()}\n{: id="${NewNodeID()}"}\n`
@@ -51,6 +74,7 @@ export async function createNote(plugin: Plugin, protyle: IProtyle, allowFlashca
     });
     const taskRo = isReadonly(protyle)
     const id = await createAndOpenFastNote(protyle, boxID, plugin, attrs, title, path + content.join("\n"));
+    if (!id) return null; // 创建失败已 toast——原文不删（防内容双向落空）、卡不加（review P1-1）
     if (await verifyKeyTomato() && fastNoteBoxDelAfterCreating.get() && await taskRo === "false" && !cursorOnly) await siyuan.transactions(siyuan.transDeleteBlocks(ids));
     if (fastNoteBoxAdd2Flashcard.get() && allowFlashcard) {
         setTimeout(() => {
@@ -69,6 +93,11 @@ export async function createAndOpenFastNote(protyle: IProtyle, boxID: string, pl
     }
     const hpath = `/fast note/f${y}/f${y}-${M}/${title}`;
     const id = await siyuan.createDocWithMdIfNotExists(boxID, hpath, md, { ...attrs, "custom-fastnote": y + M + d + h + m + s });
+    if (!id) {
+        // 创建失败（内核异常/路径被拒等）原样静默——收敛点统一兜底（qn-robust）
+        siyuan.pushMsg(tomatoI18n.快速笔记创建失败);
+        return null;
+    }
     await OpenSyFile2(plugin, id);
     return id;
 }

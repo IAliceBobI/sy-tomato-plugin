@@ -46,6 +46,9 @@ export const siyuan = {
     async copyFile(src: string, dest: string) {
         return siyuan.call("/api/file/copyFile", { src, dest });
     },
+    async statAsset(path: string) {
+        return siyuan.call("/api/asset/statAsset", { path });
+    },
     async readDir(path: string): Promise<{ isDir: boolean, isSymlink: boolean, name: string, updated: string }[]> {
         // await utils_zZmqus5PtYRi.siyuan.readDir("/data/plugins/sy-tomato-plugin/i18n")
         return siyuan.call("/api/file/readDir", { path });
@@ -647,6 +650,10 @@ export const siyuan = {
     async moveBlockAsChild(id: string, parentID: string) {
         return siyuan.call("/api/block/moveBlock", { id, parentID });
     },
+    /** ⚠ move op 实为头插语义（挂到 parentID=插到首位，reverse 配套保序）；空片头尾
+     *  等价掩盖了这一点——搬进非空文档须用 moveBlocksAfter(尾块锚) 尾插（slotmerge
+     *  6810 实锤：非空槽挂子=新块顶到原内容之前）。另：内核空文档恒补空 p 块，
+     *  「搬空后 getChildBlocks 严格空判」恒 false，空校验须过滤空段落 */
     transMoveBlocksAsChild(ids: string[], parentID: string) {
         return ids.slice().reverse().map(id => {
             const op = {} as IOperation;

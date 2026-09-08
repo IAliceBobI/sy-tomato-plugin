@@ -63,6 +63,7 @@
         role="button"
         tabindex="0"
         aria-label={tomatoI18n.免费版解锁全部功能}
+        data-search
         onclick={open}
         onkeydown={onKeydown}
     >

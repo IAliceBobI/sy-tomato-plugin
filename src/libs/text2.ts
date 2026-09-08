@@ -814,6 +814,61 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
         }
     }
 
+    // □1b 恢复粒度（resume-granularity，2026-09-07 拍板 A 双入口）：按文档树（含子文档）恢复
+    public get 恢复文档暂停闪卡() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "恢复此文档及子文档的暂停闪卡";
+            case "es_ES":
+                return "Reanudar tarjetas suspendidas de este documento y subdocumentos";
+            case "fr_FR":
+                return "Reprendre les fiches suspendues de ce document et ses sous-documents";
+            case "ja_JP":
+                return "このドキュメントとサブドキュメントの中断カードを再開";
+            case "zh_CHT":
+                return "恢復此文檔及子文檔的暫停閃卡";
+
+            default:
+                return "Resume suspended cards in this doc and subdocs";
+        }
+    }
+
+    public 将恢复n张暂停闪卡含子文档(length: number) {
+        switch (this.lang) {
+            case "zh_CN":
+                return `将恢复 ${length} 张暂停闪卡（含子文档）`;
+            case "es_ES":
+                return `Se reanudarán ${length} tarjetas suspendidas (incl. subdocumentos)`;
+            case "fr_FR":
+                return `${length} fiches suspendues seront reprises (sous-documents inclus)`;
+            case "ja_JP":
+                return `${length}枚の中断カードを再開します（サブドキュメント含む）`;
+            case "zh_CHT":
+                return `將恢復 ${length} 張暫停閃卡（含子文檔）`;
+
+            default:
+                return `Will resume ${length} suspended cards (subdocs included)`;
+        }
+    }
+
+    public get 此文档及子文档内没有暂停的闪卡() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "此文档及子文档内没有暂停的闪卡";
+            case "es_ES":
+                return "No hay tarjetas suspendidas en este documento ni subdocumentos";
+            case "fr_FR":
+                return "Aucune fiche suspendue dans ce document ni ses sous-documents";
+            case "ja_JP":
+                return "このドキュメントとサブドキュメントに中断カードはありません";
+            case "zh_CHT":
+                return "此文檔及子文檔內沒有暫停的閃卡";
+
+            default:
+                return "No suspended cards in this doc or subdocs";
+        }
+    }
+
     public get 推迟当前所有未复习完成的闪卡() {
         switch (this.lang) {
             case "zh_CN":

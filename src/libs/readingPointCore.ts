@@ -61,6 +61,37 @@ export function filterReadingPoints(entries: RPEntry[], kw: string): RPEntry[] {
     return entries.filter(e => e.hpath.toLowerCase().includes(k) || e.excerpt.toLowerCase().includes(k));
 }
 
+/** 属性行（root_id=所在文档视角）——书级清点 join 的输入形状（readpoint □2-B 恢复一书一点）。
+ *  readat 行的 block_id=点块、root_id=点所在文档；标记行 root_id=分片文档自身 */
+export interface RPRootAttrRow {
+    block_id?: string;
+    root_id: string;
+    value: string;
+}
+
+/** 同书其他文档的新格式阅读点块：readat 全量 × 分片标记（progmark/book-writing 双形态）
+ *  按 root_id join 出「与 docID 同书」的点块，剔除当前文档自身的点（本文档唯一性另有通道）。
+ *  bookID 空（非书内文档）=无兄弟点。纯函数锁 join 行为（SQL 只取数） */
+export function siblingReadatBlocks(
+    readatRows: RPRootAttrRow[],
+    markRows: RPRootAttrRow[],
+    writingRows: RPRootAttrRow[],
+    docID: string,
+    parseBook: (mark: string | undefined, writing: string | undefined) => string,
+): string[] {
+    const bookID = parseBook(
+        markRows.find(r => r.root_id === docID)?.value,
+        writingRows.find(r => r.root_id === docID)?.value,
+    );
+    if (!bookID) return [];
+    const docBook = new Map<string, string>();
+    for (const r of markRows) docBook.set(r.root_id, parseBook(r.value, undefined));
+    for (const r of writingRows) if (!docBook.has(r.root_id)) docBook.set(r.root_id, parseBook(undefined, r.value));
+    return readatRows
+        .filter(r => r.root_id !== docID && r.block_id && docBook.get(r.root_id) === bookID)
+        .map(r => r.block_id as string);
+}
+
 /** 悬浮球展开条「最近在读」条目（rpfloatbar 战役）：hpath 末段=文档名（空/根路径→空串，
  *  视图兜底「（空）」）+ limit 裁剪（输入已按时间降序，截前 N 条） */
 export interface RPBarItem {

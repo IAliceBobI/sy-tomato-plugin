@@ -95,11 +95,11 @@
 
 <div bind:this={wrapEl} class="rpfball-wrap" style="--rp-bs: {BALL_SIZE}px">
     {#if expanded}
-        <!-- onmousedown 阻断冒泡：条=面板区，不参与球的拖拽武装（ReadingBallHelper 挂
-             wrapper 级 mousedown，条内 down 冒泡会武装 dragArmed——动作钮点击期间任何
-             document mousemove>4px 即判拖拽收条；切断之） -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div class="rpfbar" class:rpfbar--left={alignLeft} class:rpfbar--down={flipDown} onmousedown={(e) => e.stopPropagation()}>
+        <!-- 条=面板区不参与球交互（拖拽武装/tap 判定），守卫在 ReadingBallHelper.pointerdown
+             原生层 early return（.rpfbar closest）。模板层 stopPropagation 防不住：Svelte 事件
+             委托挂 document 晚于 helper 的 wrapper 原生监听（时序实验实锤），旧 onmousedown
+             防御为死代码已删 -->
+        <div class="rpfbar" class:rpfbar--left={alignLeft} class:rpfbar--down={flipDown}>
             <div class="rpfbar__actions">
                 <button
                     class="b3-button rpfbar__btn" aria-label={tomatoI18n.设置阅读点}
@@ -154,8 +154,9 @@
         z-index: 10;
         position: fixed;
         cursor: pointer;
-        /* 移动端防滚动劫持：wrapper+button 两层声明（FloatingBall 先例） */
-        touch-action: none;
+        /* 移动端防滚动劫持只在球 button 层声明 touch-action:none——wrapper 层挂 none 会
+           沿祖先链交集掐死条内触摸平移（.rpfbar__recent 横滚在触屏滚不动）；球本体触摸
+           起点 target 必为 button/svg，链上经过 button 层 none 已足够 */
     }
     .rpfball {
         touch-action: none;

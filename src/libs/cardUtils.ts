@@ -66,6 +66,8 @@ export async function doStopCards(days: string, blocks: GetCardRetBlock[], sprea
                 const newAttrs = {} as AttrType;
                 if (numDays <= 0) {
                     newAttrs["custom-card-priority-stop"] = "";
+                    // 书签已退役（2026-09-07 拍板）不再写入，恢复仍清 bookmark 兜底：
+                    // 多端同步下旧版插件推迟的卡会把书签同步回来，恢复时顺手自愈
                     newAttrs.bookmark = "";
                 } else {
                     let datetimeStr: string;
@@ -75,7 +77,6 @@ export async function doStopCards(days: string, blocks: GetCardRetBlock[], sprea
                         datetimeStr = timeUtil.dateFormat(timeUtil.now(numDays * 24 * 60 * 60));
                     }
                     newAttrs["custom-card-priority-stop"] = datetimeStr;
-                    newAttrs.bookmark = "🛑 Suspended Cards";
                 }
                 newAttrs["custom-card-priority-id"] = b.ial.id;
                 return { id: b.ial.id, attrs: newAttrs };

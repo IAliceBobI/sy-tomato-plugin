@@ -1,7 +1,7 @@
 // 引用文档创建（item2ref/createRefDoc）与拼音标注。从原 docUtils.ts 拆出（2026-08 重构），
 // docUtils.ts 现为 re-export 桶。
 import { IProtyle } from "siyuan";
-import { siyuan, siyuanCache, cleanText, getContenteditableElement } from "./utils";
+import { siyuan, siyuanCache, cleanText, getContenteditableElement, sqlQuoteStr } from "./utils";
 import { BLOCK_REF, DATA_ID, DATA_NODE_ID, DATA_SUBTYPE, DATA_TYPE } from "./gconst";
 import { pinyin } from "pinyin-pro";
 import { storeAttrManager, tag_to_ref_add_card, tag_to_ref_add_pinyin } from "./stores";
@@ -18,7 +18,8 @@ export async function createRefDoc(notebookId: string, name: string, category?: 
         }
     };
 
-    const row = await siyuan.sqlOne(`select id from blocks where type='d' and content='${name}' limit 1`);
+    // name=用户配置的类型名，含单引号会炸 SQL（内核静默 null）——字面量转义
+    const row = await siyuan.sqlOne(`select id from blocks where type='d' and content=${sqlQuoteStr(name)} limit 1`);
     if (row?.id) {
         await updateAttr(row.id);
         return row.id;

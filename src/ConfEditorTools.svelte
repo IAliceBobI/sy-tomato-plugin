@@ -1,7 +1,8 @@
 <script lang="ts">
-    // 设置域组件（二期 14 域 2026-09-05）：编辑器工具（待翻新小功能下沉域）——平铺 4 卡 =
-    // 块折叠助手（6 开关原样）/ 多行选择（移动端+桌面端两卡合一、两行开关，store 与文案
-    // 原样）/ 列表工具 / 复制为图片；收拢 1 卡 = 「编辑器外观与行为」折叠卡收 8 个单开关
+    // 设置域组件（二期 14 域 2026-09-05；三期 2026-09-08 增文档别名卡）：编辑器工具
+    // （待翻新小功能下沉域）——平铺 5 卡 = 块折叠助手（6 开关原样）/ 多行选择（移动端+
+    // 桌面端两卡合一、两行开关，store 与文案原样）/ 列表工具 / 复制为图片 / 文档别名
+    // （三期自通用域杂项卡归位）；收拢 1 卡 = 「编辑器外观与行为」折叠卡收 8 个单开关
     // （默认收起、summary 带计数，搜索命中自动展开）。自 ConfEditBlock.svelte 拆出
     // （各卡整块迁入内部一行不动），共享样式见 IndexConf.css。
     import {
@@ -26,20 +27,56 @@
         listBoxCheckbox,
         imgBoxCheckbox,
         imgBoxShowMenu,
+        mixBoxPinyin,
     } from "./libs/stores";
     import { ListBox取消勾选当前文档所有已完成的todo任务, ListBox删除当前文档所有已完成的todo任务 } from "./ListBox";
     import { ImgBoxHotKey } from "./ImgBox";
+    import {
+        MixBox将选择文字加入文档的别名,
+        MixBox将选择文字与其拼音加入文档的别名,
+    } from "./MixBox";
     import { BlockNodeEnum } from "./libs/gconst";
     import { pushUniq } from "stonev5-utils";
     import { removeFromArr } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
+
+    // □4 总开关（三期强化，colocated-compact 偏好=开关+名称合一行）：折叠助手=6 块类型
+    // 一键全开/全关（全开=六 store true+foldTypes 填满；全关=六 false+数组清空，与逐项
+    // 开关的 pushUniq/removeFromArr 数据一致）；多行选择=桌面/移动两 store 同步置位。
+    // 勾选态 $derived 跟随子开关（手动逐项全开时总开关自动点亮）
+    const FOLD_TYPES_ALL: Array<[any, string]> = [
+        [foldTypesSuperBlock, BlockNodeEnum.NODE_SUPER_BLOCK],
+        [foldTypesBLOCKQUOTE, BlockNodeEnum.NODE_BLOCKQUOTE],
+        [foldTypesNODE_LIST, BlockNodeEnum.NODE_LIST],
+        [foldTypesNODE_listITEM, BlockNodeEnum.NODE_LIST_ITEM],
+        [foldTypesNODE_TABLE, BlockNodeEnum.NODE_TABLE],
+        [foldTypesNODE_HEADING, BlockNodeEnum.NODE_HEADING],
+    ];
+    let foldMasterOn = $derived(
+        $foldTypesSuperBlock && $foldTypesBLOCKQUOTE && $foldTypesNODE_LIST &&
+        $foldTypesNODE_listITEM && $foldTypesNODE_TABLE && $foldTypesNODE_HEADING,
+    );
+    function toggleFoldMaster(ev: Event) {
+        const target = ev.currentTarget as HTMLInputElement;
+        const on = target?.checked ?? !foldMasterOn;
+        for (const [store] of FOLD_TYPES_ALL) store.set(on);
+        foldTypes.set(on ? FOLD_TYPES_ALL.map(([, node]) => node) : []);
+    }
+    let selectionMasterOn = $derived($addSelectionBtnsMobile && $addSelectionBtnsDesktop);
+    function toggleSelectionMaster(ev: Event) {
+        const target = ev.currentTarget as HTMLInputElement;
+        const on = target?.checked ?? !selectionMasterOn;
+        addSelectionBtnsMobile.set(on);
+        addSelectionBtnsDesktop.set(on);
+    }
 </script>
 
-<!-- 块折叠助手（折叠图标段，自 ConfEditor.svelte 迁入） -->
+<!-- 块折叠助手（折叠图标段，自 ConfEditor.svelte 迁入；□4 补总开关=6 块类型一键） -->
 <div class="settingBox">
     <div class="section-title">
+        <input type="checkbox" class="b3-switch" checked={foldMasterOn} onchange={toggleFoldMaster} />
         {tomatoI18n.块折叠助手}: {tomatoI18n.在块的右上角显示折叠图标}
         <ConfHelpIcon token="RqDsdlLkwolnUgxyEmVcDuv8nwd" />
     </div>
@@ -142,12 +179,16 @@
         </label>
     </div>
 </div>
-<!-- 多行选择（自 ConfEditor.svelte 迁入；二期两卡合一、两行开关） -->
+<!-- 多行选择（自 ConfEditor.svelte 迁入；二期两卡合一、两行开关；□4 补总开关=桌面/移动一键） -->
 <div class="settingBox">
+    <div class="section-title">
+        <input type="checkbox" class="b3-switch" checked={selectionMasterOn} onchange={toggleSelectionMaster} />
+        {tomatoI18n.多行选择}
+        <ConfHelpIcon token="Gh0udnFdGoiu8txrgE2c3SQenxf" />
+    </div>
     <div>
         <input type="checkbox" class="b3-switch" bind:checked={$addSelectionBtnsMobile} />
         {tomatoI18n.移动端编辑器右上角添加多行选择按钮}
-        <ConfHelpIcon token="Gh0udnFdGoiu8txrgE2c3SQenxf" />
     </div>
     <div>
         <input type="checkbox" class="b3-switch" bind:checked={$addSelectionBtnsDesktop} />
@@ -190,6 +231,17 @@
             {tomatoI18n.menu添加右键菜单}
         </div>
     {/if}
+</div>
+<!-- 文档别名（三期自通用域杂项卡归位：选字加入别名键帽+拼音开关） -->
+<div class="settingBox">
+    <div class="section-title">{tomatoI18n.文档别名}</div>
+    <div>
+        {MixBox将选择文字加入文档的别名.langText()}<HotkeyCap hk={MixBox将选择文字加入文档的别名} pluginName="sy-tomato-plugin"></HotkeyCap>
+    </div>
+    <div>
+        <input type="checkbox" class="b3-switch" bind:checked={$mixBoxPinyin} />
+        {tomatoI18n.menu添加右键菜单}: {MixBox将选择文字与其拼音加入文档的别名.langText()}<HotkeyCap hk={MixBox将选择文字与其拼音加入文档的别名} pluginName="sy-tomato-plugin"></HotkeyCap>
+    </div>
 </div>
 <!-- 编辑器外观与行为（二期收拢：8 个单开关小卡合一张折叠卡垫域底，默认收起；
      搜索命中 searchSettings 自动展开，块配对折叠区同款） -->

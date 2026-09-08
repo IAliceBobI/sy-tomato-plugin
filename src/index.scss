@@ -454,6 +454,17 @@
     opacity: 0.55;
 }
 
+// 顶栏设置齿轮家族红（topbar-gear 战役 2026-09-08）：官方 iconSettings 形态不动，仅挂
+// .tomato-topbar-gear 着色（机制同 recite .recite-topbar-gear——线稿 stroke:currentColor，改
+// color 即改图标色），与渐进火苗琥珀/仿写双页青绿构成三插件家族色。单处消费不设
+// token 直写两档；暗档提亮对齐 recite/prog 顶栏色明暗配比（亮 4.27:1 / 暗 6.38:1 实测达标）
+.toolbar__item.tomato-topbar-gear {
+    color: #cf4335;
+}
+html[data-theme-mode="dark"] .toolbar__item.tomato-topbar-gear {
+    color: #e5837a;
+}
+
 /* =====================================================================
    番茄批注 · 视觉层（视觉稿 v1 · 2026-08-31，唯一事实源 docs/tomato-anno-visual-spec.md）
    颜色一律走官方 b3 变量（自定义主题沿用变量名即自动适配，用户铁律）；

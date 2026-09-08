@@ -676,6 +676,88 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
                 return "Draft Switch";
         }
     }
+    // 快速笔记失败反馈（qn-robust 2026-09-08）：原静默 return/英文硬编码，补用户可感知提示
+    public get 请先配置快速笔记的落点笔记本() {
+        switch (this.lang) {
+            case "zh_CN": return "请先配置快速笔记的落点笔记本";
+            case "zh_CHT": return "請先設定快速筆記的落點筆記本";
+            case "ja_JP": return "クイックノートの保存先ノートブックを先に設定してください";
+            case "es_ES": return "Configure primero el cuaderno de destino de la nota rápida";
+            case "fr_FR": return "Configurez d'abord le carnet de destination de la note rapide";
+            case "it_IT": return "Configura prima il blocco appunti di destinazione della nota rapida";
+            case "de_DE": return "Bitte zuerst das Ziel-Notizbuch für die Schnellnotiz konfigurieren";
+            case "he_IL": return "הגדר קודם את מחברת היעד לפתק מהיר";
+            case "ru_RU": return "Сначала настройте целевой блокнот для быстрой заметки";
+            case "pl_PL": return "Najpierw skonfiguruj notes docelowy szybkiej notatki";
+            case "en_US":
+            default: return "Please set the target notebook for Quick Note first";
+        }
+    }
+    // （「请先打开一个文档」复用 tomatoI18n.ts 既有键，勿在此重复定义）
+    public get 请先选中内容或放置光标() {
+        switch (this.lang) {
+            case "zh_CN": return "请先选中内容或放置光标";
+            case "zh_CHT": return "請先選取內容或放置游標";
+            case "ja_JP": return "先に内容を選択するかカーソルを置いてください";
+            case "es_ES": return "Seleccione primero contenido o coloque el cursor";
+            case "fr_FR": return "Sélectionnez d'abord du contenu ou placez le curseur";
+            case "it_IT": return "Seleziona prima il contenuto o posiziona il cursore";
+            case "de_DE": return "Bitte zuerst Inhalt auswählen oder Cursor platzieren";
+            case "he_IL": return "בחר קודם תוכן או הצב את הסמן";
+            case "ru_RU": return "Сначала выделите содержимое или установите курсор";
+            case "pl_PL": return "Najpierw zaznacz treść lub umieść kursor";
+            case "en_US":
+            default: return "Please select content or place the cursor first";
+        }
+    }
+    public get 找不到快速笔记() {
+        switch (this.lang) {
+            case "zh_CN": return "找不到快速笔记";
+            case "zh_CHT": return "找不到快速筆記";
+            case "ja_JP": return "クイックノートが見つかりません";
+            case "es_ES": return "No se encontró ninguna nota rápida";
+            case "fr_FR": return "Aucune note rapide trouvée";
+            case "it_IT": return "Nessuna nota rapida trovata";
+            case "de_DE": return "Keine Schnellnotiz gefunden";
+            case "he_IL": return "לא נמצא פתק מהיר";
+            case "ru_RU": return "Быстрая заметка не найдена";
+            case "pl_PL": return "Nie znaleziono szybkiej notatki";
+            case "en_US":
+            default: return "No quick note found";
+        }
+    }
+    public get 快速笔记落点笔记本不可用() {
+        switch (this.lang) {
+            case "zh_CN": return "快速笔记的落点笔记本不可用（可能已删除或关闭），请在设置中重新选择";
+            case "zh_CHT": return "快速筆記的落點筆記本不可用（可能已刪除或關閉），請在設定中重新選擇";
+            case "ja_JP": return "クイックノートの保存先ノートブックが利用できません（削除または閉じられた可能性）—設定で再選択してください";
+            case "es_ES": return "El cuaderno de destino de la nota rápida no está disponible (puede haber sido eliminado o cerrado); selecciónelo de nuevo en ajustes";
+            case "fr_FR": return "Le carnet de destination de la note rapide est indisponible (supprimé ou fermé ?) ; re-sélectionnez-le dans les réglages";
+            case "it_IT": return "Il blocco appunti di destinazione della nota rapida non è disponibile (forse eliminato o chiuso); riselezionalo nelle impostazioni";
+            case "de_DE": return "Das Ziel-Notizbuch der Schnellnotiz ist nicht verfügbar (evtl. gelöscht oder geschlossen) — bitte in den Einstellungen neu wählen";
+            case "he_IL": return "מחברת היעד לפתק מהיר אינה זמינה (ייתכן שנמחקה או נסגרה) — בחר אותה מחדש בהגדרות";
+            case "ru_RU": return "Целевой блокнот быстрой заметки недоступен (возможно, удалён или закрыт) — выберите его заново в настройках";
+            case "pl_PL": return "Notes docelowy szybkiej notatki jest niedostępny (może usunięty lub zamknięty) — wybierz go ponownie w ustawieniach";
+            case "en_US":
+            default: return "The target notebook for Quick Note is unavailable (deleted or closed?). Please reselect it in settings";
+        }
+    }
+    public get 快速笔记创建失败() {
+        switch (this.lang) {
+            case "zh_CN": return "快速笔记创建失败，请重试";
+            case "zh_CHT": return "快速筆記建立失敗，請重試";
+            case "ja_JP": return "クイックノートの作成に失敗しました。再試行してください";
+            case "es_ES": return "Error al crear la nota rápida, inténtelo de nuevo";
+            case "fr_FR": return "Échec de création de la note rapide, veuillez réessayer";
+            case "it_IT": return "Creazione della nota rapida non riuscita, riprova";
+            case "de_DE": return "Schnellnotiz konnte nicht erstellt werden, bitte erneut versuchen";
+            case "he_IL": return "יצירת הפתק המהיר נכשלה, נסה שוב";
+            case "ru_RU": return "Не удалось создать быструю заметку, повторите попытку";
+            case "pl_PL": return "Nie udało się utworzyć szybkiej notatki, spróbuj ponownie";
+            case "en_US":
+            default: return "Failed to create the quick note, please retry";
+        }
+    }
     public get 请选择词语() {
         switch (this.lang) {
             case "zh_CN": return "请选择词语";

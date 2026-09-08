@@ -278,6 +278,12 @@ export function doubleSupRows(text: string, attrStr = "") {
     return `{{{row\n{{{row\n${text}\n}}}\n}}}${attrStr}`;
 }
 
+/** SQLite 字符串字面量包裹：单引号双写转义（SQL 标准）。用户配置串（落点文件名/
+ *  自定义类型名）拼 SQL 必经此——裸拼含引号会炸语句，内核静默返 null 无从排查 */
+export function sqlQuoteStr(s: string): string {
+    return `'${s.replaceAll("'", "''")}'`;
+}
+
 export function getLastNumberFromString(str: string): number | null {
     // 匹配字符串末尾的一个或多个数字
     const match = str.match(/\d+$/);

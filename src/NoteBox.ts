@@ -1,6 +1,6 @@
 import { adaptHotkey, Custom, Dialog, IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { add_ref, convertMinutesToTimeFormat, doubleSupRows, getContenteditableElement, intervalMinutesBetween, isMainWin, NewNodeID, parseIDTimestamp, setTimeouts, siyuan, sleep, timeUtil, } from "./libs/utils";
+import { add_ref, convertMinutesToTimeFormat, doubleSupRows, getContenteditableElement, intervalMinutesBetween, isMainWin, NewNodeID, parseIDTimestamp, setTimeouts, siyuan, sleep, sqlQuoteStr, timeUtil, } from "./libs/utils";
 import NoteBoxSvelte from "./NoteBox.svelte";
 import { TOMATO_IDEA_QUEUE } from "./libs/gconst";
 import { DestroyManager } from "./libs/destroyer";
@@ -408,7 +408,8 @@ export async function getTargetID(box: string) {
     if (!box) return;
     const targetFile = flash_thoughts_target_file.get()?.trim();
     if (targetFile) {
-        const row = await siyuan.sqlOne(`select id from blocks where type='d' and content="${targetFile}" limit 1`)
+        // 用户配置串含引号会炸 SQL（内核静默 null 落不到提示）——单引号字面量+转义
+        const row = await siyuan.sqlOne(`select id from blocks where type='d' and content=${sqlQuoteStr(targetFile)} limit 1`)
         if (row?.id)
             return row.id;
         siyuan.pushMsg(`${tomatoI18n.拍照闪念}：${tomatoI18n.找不到您配置的文件}："${targetFile}"`)
@@ -443,8 +444,9 @@ export function getAttr(t?: string): { ial: string; id: string } {
 }
 
 /** 产出待插 markdown 与容器块 id（id 供近期列表点击跳日记定位；Dom 通道自插无 md）。
- *  iconOverride：外部通道（速记器）固定类型落块用，不传=面板当前选择 */
-async function getContent2insert(text: string, isPic: boolean, iconOverride?: string): Promise<{ md?: string; id?: string }> {
+ *  iconOverride：外部通道（速记器）固定类型落块用，不传=面板当前选择；
+ *  dayID：调用方已解析的落点文档（insertIntoDailynote 必传，省一次 getTargetDoc 往返） */
+async function getContent2insert(text: string, isPic: boolean, iconOverride?: string, dayID?: string): Promise<{ md?: string; id?: string }> {
     const boxID = storeNoteBox_selectedNotebook.getOr();
     text = text.trim();
     const icon = (iconOverride ?? storeNoteBox_selectedNoteType.get()).trim();
@@ -480,15 +482,15 @@ async function getContent2insert(text: string, isPic: boolean, iconOverride?: st
         L1.append(L2.build());
         add_ref(textDiv, id, icon, false, false);
         L1.setAttr("custom-tomato-idea-time", getTime());
-        const dayID = await getTargetDoc();
+        const targetDoc = dayID ?? await getTargetDoc();
         const html = L1.build().outerHTML;
         if (flash_thoughts_2_top.get()) {
             // 只能放到这里，不能放到insertIntoDailynote，只能插入到编辑器，刷新消失。
             //
             // 未解之谜！！！
-            await siyuan.insertBlocksAsChildOf([html], dayID);
+            await siyuan.insertBlocksAsChildOf([html], targetDoc);
         } else {
-            const lastID = await siyuan.getDocLastID(dayID);
+            const lastID = await siyuan.getDocLastID(targetDoc);
             await siyuan.insertBlocksAfter([html], lastID);
         }
         return { id: L1.id };
@@ -499,7 +501,7 @@ async function getContent2insert(text: string, isPic: boolean, iconOverride?: st
 // iconOverride：速记器等外部通道固定类型（不走面板当前选择），落块与其完全同构
 export async function insertIntoDailynote(text: string, isPic = false, iconOverride?: string): Promise<string | undefined> {
     const dayID = await getTargetDoc();
-    const r = await getContent2insert(text, isPic, iconOverride);
+    const r = await getContent2insert(text, isPic, iconOverride, dayID);
     if (!r.md) return r.id;
     if (flash_thoughts_2_top.get()) {
         await siyuan.insertBlockAsChildOf(r.md, dayID);

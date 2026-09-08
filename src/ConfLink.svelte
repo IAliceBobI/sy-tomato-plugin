@@ -41,12 +41,16 @@
         tag_to_ref_add_pinyin,
         cssRefEffect,
         cssRefAsTags,
+        storeRefreshStaticBkLnk,
+        storeOpenRefsMenu,
+        storeOpenRefsClick,
     } from "./libs/stores";
     import { cleanDataview, icon } from "./libs/utils";
     import { BK启用禁用文档的底部反链 } from "./BackLinkBottomBox";
     import { DbBkBox刷新数据库反链 } from "./DbBkBox";
     import { SuperRefBox全局修复引用, SuperRefBox全局加固引用 } from "./SuperRefBox";
     import { Tag2RefBox模糊查找引用Lnk, Tag2RefBox模糊查找引用Ref } from "./Tag2RefBox";
+    import { MixBox定位所有引用Menu } from "./MixBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
@@ -268,6 +272,29 @@
                 placeholder="@,tag,label"
                 spellcheck="false"
             ></textarea>
+        </div>
+    </div>
+    <!-- 静态反链（三期自通用域杂项卡归位：刷新/删除两菜单项同 storeRefreshStaticBkLnk 门控，
+         默认关=不大受欢迎先收着；定位所有引用/点击引用数两行同批归位本域） -->
+    <div class="settingBox">
+        <div class="section-title">{tomatoI18n.静态反链}</div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$storeRefreshStaticBkLnk} />
+            {tomatoI18n.menu添加右键菜单}: {tomatoI18n.刷新静态反链} / {tomatoI18n.删除静态反链}
+        </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$storeOpenRefsMenu} />
+            {tomatoI18n.menu添加右键菜单}: {MixBox定位所有引用Menu.langText()}<HotkeyCap hk={MixBox定位所有引用Menu} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <div class:codeNotValid>
+            <input
+                type="checkbox"
+                class="b3-switch"
+                bind:checked={$storeOpenRefsClick}
+                disabled={codeNotValid}
+                class:codeNotValid
+            />
+            {tomatoI18n.点击引用数打开所有引用}<TomatoVIP {codeValid}></TomatoVIP>
         </div>
     </div>
     <!-- 折叠垫底区：数据库反链 + 引用修复（二期 2026-09-05 收拢：疑弃/搁置功能垫域底，

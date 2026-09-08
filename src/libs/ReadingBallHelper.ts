@@ -13,8 +13,10 @@ import { ballPositionOf, clampBallPos } from "./ballGeometry";
 // 拖拽即位置=指针-抓取偏移，实时 clamp 视口内（自由拖动任意位置，九宫格吸附已退役——
 // 用户拍板「跟其他悬浮球一样随意拖」）。长按菜单仅 pointerType=touch（桌面按住不弹，
 // 与旧 mouse 通道行为等价）；桌面右键=contextmenu 照旧。
-// 点击判定不在本层：球 button 的 mouse 链走 ClickHelper（位移阈值 4px 同源互斥）；
-// 拖拽/长按松手由本层捕获期 click 吞一次防误触。
+// 点击判定=pointerup 轻点直调 onTap 单源（球 button 的 ClickHelper mouse 接线已随
+// □4 退役——pointer 捕获把 mouse 兼容 click 重定向到 wrapper，button 的 mouse 链收不到）；
+// 捕获吞掉的这个合成 click 由 clickGuard 兜住防双触发，键盘 Enter/Space 激活球 button
+// 的 click 同被吞（焦点可达激活无效）=□4 已知代价，留观。
 const DRAG_THRESHOLD = 4;
 const LONG_PRESS_MS = 500;
 
@@ -104,6 +106,9 @@ export class ReadingBallHelper {
 
     // 桌面右键=球菜单；移动端长按会跟发系统 contextmenu，已由长按计时弹过则跳过防双弹
     private contextmenu(e: MouseEvent) {
+        // 条=面板区：右键放行原生菜单（文档名可复制/长按可选择），不弹球菜单
+        // （菜单是球/当前文档操作，手势对象是条内另一文档，语义错位）
+        if ((e.target as Element | null)?.closest(".rpfbar")) return;
         e.preventDefault();
         e.stopPropagation();
         if (this.longPressFired) return;
@@ -130,7 +135,7 @@ export class ReadingBallHelper {
      *  不吞会双触发 toggle（tap 的 pointerup 展开+合成 click 再收起，移动端实测）；
      *  条面板区（.rpfbar 内的按钮）click 放行不受影响 */
     private clickGuard(e: MouseEvent) {
-        const t = e.target as HTMLElement | null;
+        const t = e.target as Element | null;
         if (!t) return;
         if (t.closest(".rpfball") || t === this.div) {
             e.preventDefault();
@@ -140,6 +145,13 @@ export class ReadingBallHelper {
 
     private pointerdown(e: PointerEvent) {
         if (!e.isPrimary) return; // 多指只认主指针
+        // 条=面板区不参与球交互：在此 early return=不武装不捕获，条内按钮的 click 链
+        // 完好。若放行，setPointerCapture 会把 pointerup/click 重定向到 wrapper（tap
+        // 误判收条+clickGuard 吞 click）=「条上点击无效」根因（2026-09-08 实机复现）。
+        // 守卫必须在 helper 原生监听层做——Svelte 模板层 stopPropagation 走 document
+        // 事件委托，晚于本监听执行，防不住（时序实验实锤）。
+        const t = e.target as Element | null;
+        if (t?.closest(".rpfbar")) return;
         this.longPressFired = false;
         this.dragArmed = true;
         this.isDragging = false;
@@ -181,14 +193,12 @@ export class ReadingBallHelper {
 
     private pointerup(e: PointerEvent) {
         this.clearLongPress();
+        // 无条件清长按标记：触摸长按球弹菜单后（dragArmed 已被计时器 cancelDrag 清掉，
+        // 本方法下方早退），标记须在此复位——否则残留 true 会吞掉后续条上的 contextmenu
+        this.longPressFired = false;
         try { this.div.releasePointerCapture(e.pointerId); } catch { }
         if (!this.dragArmed) return;
         this.dragArmed = false;
-        if (this.longPressFired) {
-            this.longPressFired = false;
-            this.cancelDrag();
-            return;
-        }
         if (!this.isDragging) {
             this.cb.onTap(); // 轻点（位移 < 阈值全程）
             return;

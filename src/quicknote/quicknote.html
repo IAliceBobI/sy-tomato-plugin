@@ -333,6 +333,22 @@
         // 就绪即请求初始态（插件侧唤起 show 时也会推，覆盖面板侧的改动）
         ch.postMessage({ type: "hello" });
 
+        // 草稿持久化（qn-robust）：池化窗收起不丢草稿，但思源重启窗即销毁——localStorage
+        // 兜底（同 origin 持久、各实例端口自然隔离）：加载恢复、输入防抖落盘、保存成功
+        // 清除；Esc/失焦收起不清（草稿保留语义不变）。隐私模式等存取失败=退化为纯内存草稿
+        const DRAFT_KEY = "quicknote-draft";
+        let draftTimer = 0;
+        try {
+            const savedDraft = localStorage.getItem(DRAFT_KEY);
+            if (savedDraft) input.value = savedDraft;
+        } catch { /* localStorage 不可用 */ }
+        input.addEventListener("input", () => {
+            clearTimeout(draftTimer);
+            draftTimer = setTimeout(() => {
+                try { localStorage.setItem(DRAFT_KEY, input.value); } catch { /* 同上 */ }
+            }, 300);
+        });
+
         // 提交锁：等插件回执（done/failed）期间防重复提交；窗口未销毁，Esc/失焦收起草稿保留。
         // 10s 回执超时解锁（review P1）：插件 reload 关掉旧 channel 时回执静默丢失（closed
         // 对象 postMessage 无声 no-op），不解锁=池化页面 Enter 永久失效变砖
@@ -378,6 +394,7 @@
             if (m.type === "done") {
                 clearTimeout(ackTimer);
                 input.value = "";
+                try { localStorage.removeItem(DRAFT_KEY); } catch { /* 同上 */ }
                 input.focus();
                 sending = false;
             } else if (m.type === "failed") {

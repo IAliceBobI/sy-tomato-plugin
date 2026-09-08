@@ -24,6 +24,10 @@ export const ReadingPointBox设置阅读点 = winHotkey("F7", "addBookmark", "ic
 export const ReadingPointBox跳到当前文档的阅读点 = winHotkey("alt+f5", "gotoBookmark", "iconForward", () => tomatoI18n.跳到当前文档的阅读点)
 export const ReadingPointBox删除当前文档的阅读点 = winHotkey("⌘F7", "deleteBookmark", "iconTrashcan", () => tomatoI18n.删除当前文档的阅读点)
 export const ReadingPointBox查看阅读点 = winHotkey("ctrl+shift+enter", "showBookmarks", "", () => tomatoI18n.查看阅读点)
+// 球显隐 toggle（readpoint □2-A）：与顶栏/状态栏入口同语义（readingFloatBar 开→toggle 球、
+// 关→回退打开面板）。⌘⇧F7=官方 keymap+全仓声明双查重空闲，F7 家族一致（F7 设点/⌘F7 删点）；
+// 首选 ⌥⌘O 实锤撞 MindWire ctrl+alt+o——winHotkey 规范化形态 ctrl+alt+o=⌥⌘O，字面 grep 看不见
+export const ReadingPointBox显示或隐藏悬浮球 = winHotkey("⌘⇧F7", "toggleReadingBall", "iconEyeoff", () => tomatoI18n.显示或隐藏悬浮球)
 
 class ReadingPointBox {
     private plugin: BaseTomatoPlugin;
@@ -92,6 +96,12 @@ class ReadingPointBox {
             langText: ReadingPointBox查看阅读点.langText(),
             hotkey: ReadingPointBox查看阅读点.m,
             callback: () => this.showPanel(),
+        });
+        plugin.addCommand({
+            langKey: ReadingPointBox显示或隐藏悬浮球.langKey,
+            langText: ReadingPointBox显示或隐藏悬浮球.langText(),
+            hotkey: ReadingPointBox显示或隐藏悬浮球.m,
+            callback: () => this.onEntryClick(),
         });
         plugin.addCommand({
             langKey: ReadingPointBox跳到当前文档的阅读点.langKey,

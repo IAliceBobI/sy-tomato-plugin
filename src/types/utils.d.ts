@@ -103,9 +103,11 @@ type TomatoSettings = {
     readingAddDeleteMenu: boolean,
     dbBkBoxRefreshMenu: boolean,
     readingAddRPmenu: boolean,
-    /** rpfloatbar 战役（2026-09-05）：悬浮球主控/显隐标记/位置（九宫格锚点+偏移） */
+    /** rpfloatbar 战役（2026-09-05）：悬浮球主控/显隐标记/位置（九宫格锚点+偏移）；
+     *  readingAdd2Card=设点入闪卡（readpoint □2-B 复活，老版同名） */
     readingFloatBar: boolean,
     readingFloatBallHidden: boolean,
+    readingAdd2Card: boolean,
     readingFloatBallPos: { anchor: number, offsetX: number, offsetY: number },
     bkenableAndDisablemenu: boolean,
     linkBoxBilinkMenu: boolean,
@@ -125,6 +127,7 @@ type TomatoSettings = {
     digest2dailycard: boolean,
     digestLanding: string,
     card2dailycard: boolean,
+    cardLanding: string,
     mobileTopBar: boolean,
     cardAppendTime: boolean,
     cardUnderPiece: boolean,

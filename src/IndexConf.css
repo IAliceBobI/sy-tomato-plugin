@@ -613,6 +613,24 @@
     height: 14px;
     fill: currentColor;
 }
+/* ── P1-2 footer 贴壳底（2026-09-08 设置拆域收尾）─────────────────────
+ * Dialog 高度链三段断在中间：.b3-dialog__body（flex column 定高）→ 挂载 div
+ * （Dialog content 模板的裸 div，block 不拉伸）→ 壳根。单域短卡不超高 → 无滚动，
+ * sticky 不贴底、footer 悬空下方死区（渐进拆域后 8 域全中，番茄同壳同病）。修法=
+ * 接通拉伸链：:has 只命中内含设置面板的挂载 div 令其撑满 body；壳根 flex:auto 填
+ * 满挂载 div（渐进 scoped 的 flex:auto 自此才真生效，此前被上级 block 挡死空转）；
+ * 富余空间由 .tomato-settings-nav 的 grow 接住把 footer 压到壳底——比 footer 换
+ * margin-top:auto 优：不吞其 16px 上呼吸（贴底态由 nav 长高留白、恰满态 16px 照旧）。
+ * 超高滚动态负富余不分发 grow、sticky 照旧=行为不变；仿写页签态无 .b3-dialog__body
+ * 祖先，:has 不命中、壳根 flex 空转，两规则皆无害 */
+.b3-dialog__body > div:has(> .tomato-settings-dialog) {
+    display: flex;
+    flex-direction: column;
+    flex: auto;
+}
+.tomato-settings-dialog {
+    flex: auto;
+}
 /* sticky footer（番茄/渐进）：52px 保存条贴 Dialog 可视底边。插件 Dialog 的内容挂
  * .b3-dialog__body（padding 0，dev 3.8.2 实测层级），无需负 margin 拉伸——footer
  * 天然全宽贴边；横向 padding 12px 与分区卡同节奏（vision P0+P2-3）；背景与容器
@@ -820,8 +838,13 @@
  * 挂双栏容器上（新作用域类内子树继承可达，公共类零触碰） */
 .tomato-settings-dialog .tomato-settings-nav {
     --tomato-sticky-top: 52px;
+    /* 导航列自滚上限的弹窗高基准：与 index.ts openSettings Dialog height 桌面值同步 */
+    --tomato-dlg-h: min(700px, 92vh);
     display: flex;
     align-items: flex-start;
+    /* P1-2：接住壳根（已拉伸至 Dialog 全高）的富余空间把 footer 压到壳底（见
+       footer 区 P1-2 块）；滚动态负富余不分发 grow，行为不变 */
+    flex: auto;
 }
 .tomato-settings-dialog .tomato-nav-list {
     position: sticky;
@@ -833,6 +856,14 @@
     flex: 0 0 auto;
     width: 148px;
     box-sizing: border-box;
+    /* 三期 15 域 P0（vision 实锤）：导航自然高 509px 超矮弹窗可视区，尾三项被不透明
+       footer 盖死进不去——导航列自滚封顶。上限=弹窗高-180px（6813 实测顶栈 128：内核
+       header 58+搜索栏 46+margin 24，+footer 52；滚动 sticky 态余 ~24px 富余无害）；
+       --tomato-dlg-h 与 index.ts openSettings 的 Dialog height 桌面值同步维护。
+       宽屏高弹窗不触发（无滚动条零回归），激活项由 keepActiveTabVisible 纵向滚入视野 */
+    max-height: calc(var(--tomato-dlg-h) - 180px);
+    overflow-y: auto;
+    scrollbar-width: thin;
     /* 顶距对齐右列首卡 margin-top 24px（section.conf-group □5 卡间距节奏，vision P2-5） */
     margin: 24px 0 12px 12px;
     padding: 6px;
@@ -906,6 +937,8 @@
         top: var(--tomato-sticky-top);
         flex-direction: row;
         width: auto;
+        /* 横滚 tab 条无纵向封顶（三期 15 域自滚上限仅限宽屏纵向列） */
+        max-height: none;
         margin: 10px 12px;
         padding: 4px;
         overflow-x: auto;

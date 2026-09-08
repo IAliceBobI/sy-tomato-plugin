@@ -3,6 +3,7 @@
     // 番茄钟同款单卡域先例）。自 ConfEditBlock.svelte 拆出（整卡迁入内部一行不动），
     // 共享样式见 IndexConf.css。
     import {
+        readingAdd2Card,
         readingAddDeleteMenu,
         readingAddJumpMenu,
         readingAddRPmenu,
@@ -36,6 +37,10 @@
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$readingFloatBar} />
             {tomatoI18n.显示阅读点悬浮球}
+        </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$readingAdd2Card} />
+            {tomatoI18n.阅读点加入闪卡}
         </div>
         <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
         <div>
