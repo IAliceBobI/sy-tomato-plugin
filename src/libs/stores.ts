@@ -795,7 +795,18 @@ export const markOriginTextBG = settingFactory("markOriginTextBG", false, STORAG
 // 色层=f(块 updated 距今天数)+enrollment 基线，关掉即无痕）；默认关（□6 呈 bear 拍板，荐默认关），
 // 命令 toggle 与设置面板同此状态（浮条系统开关 toggleFloatBarSystem 同款 .set() 不落盘，
 // 面板 confirm 才写盘；实时清/挂=index.ts 订阅同 markOriginTextBG 挂 body 类同位）
+// 范围三档化（revtrace-scope，2026-09-09 拍板）后退役为迁移读源（同 digest2dailycard）：
+// store 留盘不动勿新增使用，旧持久化值留着无害
 export const revTraceEnabled = settingFactory("revTraceEnabled", false, STORAGE_Prog_SETTINGS, null as TSK);
+// 修订痕迹生效范围三档：off=关（清场）/ prog=仅渐进文档（isProgDoc 判定：注册书+渐进锚 IAL，
+// 非渐进文档出场零 SQL 零 DOM）/ all=全部文档（旧开关开着的原行为）；默认 off；迁移见渐进
+// index.ts loadStore（revTraceScope 无存量 && revTraceEnabled=true → "all"）+ revTraceScopeFromLegacy
+export const revTraceScope = settingFactory("revTraceScope", "off", STORAGE_Prog_SETTINGS, null as TSK);
+/** 旧布尔开关 → revTraceScope 三档迁移映射（refEffectFromLegacy 同款纯函数挂单测）：
+ *  返回 null=不迁移（有存量/老开关本就关），progressive index.ts loadStore 消费 */
+export function revTraceScopeFromLegacy(hasScope: boolean, enabled: boolean): "all" | null {
+    return !hasScope && enabled ? "all" : null;
+}
 export const hideBtnsInFlashCard = settingFactory("hideBtnsInFlashCard", true, STORAGE_Prog_SETTINGS, null as TSK);
 // □2 片尾收束卡总开关（默认开）：关=不再新建（fullfilContent/newDigestDoc 尾插跳过）+
 // 不再补插存量（retrofit 跳过）+ 已建卡渲染为一行细静条（可整块手删，不自动清理）
@@ -810,6 +821,11 @@ export const initProgFloatBtnsDisable = settingFactory("initProgFloatBtnsDisable
 // 由 PIECE_MAIN_POOL 平铺区兜底可见，拖上首行即入清单）
 export const floatbarMainBtns = settingFactory(
     "floatbarMainBtns", ["digest", "cards", "swap", "next", "prev", "origin", "addBook"], STORAGE_Prog_SETTINGS, null as TSK);
+// 自由态浮条首行清单（群反馈 650189「自由态无法拖动排序」）：与片态各自独立 store——
+// 两态可入首行的动作池不同，共用清单会互相投影污染顺序。默认 = free 固有编排两键
+// （✂ 摘抄子排 + 📥 加书），低频四项（目录/关联摘抄/路线指引/不再推送）拖上首行即入清单
+export const floatbarFreeMainBtns = settingFactory(
+    "floatbarFreeMainBtns", ["digest", "addBook"], STORAGE_Prog_SETTINGS, null as TSK);
 // □14b 平铺区折叠偏好：持久化（布局偏好非临时状态，重启不再收一次）；默认展开与
 // □10 已发布行为兼容
 export const floatbarFlatCollapsed = settingFactory(

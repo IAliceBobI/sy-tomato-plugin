@@ -2546,13 +2546,49 @@ export class TomatoI18n extends TomatoI18nABC {
     // 渐进学习文案从 progressive JSON 轨迁入（2026-08-25 i18n 归一为 TS 轨）
     public get 请等待索引建立() {
         switch (this.lang) {
-            case "zh_CN": return "⏳请等待索引的建立……然后再继续操作……";
-            case "zh_CHT": return "⏳請等待索引的建立……然後再繼續操作……";
-            case "es_ES": return "⏳ espere a que se establezca el índice... luego continúe con la operación...";
-            case "fr_FR": return "⏳Veuillez attendre la création de l'index... puis continuez à opérer...";
-            case "ja_JP": return "⏳インデックスの構築を待ってから操作を続けてください……";
+            case "zh_CN": return "内容索引还在建立，稍等几秒再试";
+            case "zh_CHT": return "內容索引還在建立，稍等幾秒再試";
+            case "ja_JP": return "コンテンツのインデックス構築中です。数秒後に再試行してください";
             case "en_US":
-            default: return "⏳ Please Wait for Indexing to Be Established... Then Continue Operating...";
+            default: return "The content index is still building. Please try again in a few seconds";
+        }
+    }
+    // □1 锁治理三键（2026-09-09 渐进跳片事故）：读片链持锁提示对齐真实语义——
+    // 锁被占≠建索引；重试循环补中间反馈；租约到期放锁提示可重试
+    public get 上一操作仍在进行中() {
+        switch (this.lang) {
+            case "zh_CN": return "上一个操作还在进行中，请稍候再试";
+            case "zh_CHT": return "上一個操作還在進行中，請稍後再試";
+            case "ja_JP": return "前の操作がまだ進行中です。しばらくしてから再試行してください";
+            case "en_US":
+            default: return "A previous operation is still in progress. Please try again shortly";
+        }
+    }
+    public get 分片索引建立中() {
+        switch (this.lang) {
+            case "zh_CN": return "分片索引建立中，请稍候…";
+            case "zh_CHT": return "分片索引建立中，請稍候…";
+            case "ja_JP": return "分片インデックスを作成中です。少々お待ちください…";
+            case "en_US":
+            default: return "Building the piece index, please wait…";
+        }
+    }
+    public get 操作超时未完成() {
+        switch (this.lang) {
+            case "zh_CN": return "操作超时未完成，请重试";
+            case "zh_CHT": return "操作逾時未完成，請重試";
+            case "ja_JP": return "操作がタイムアウトしました。再試行してください";
+            case "en_US":
+            default: return "The operation timed out. Please retry";
+        }
+    }
+    public get 内容还在索引请稍后再分片() {
+        switch (this.lang) {
+            case "zh_CN": return "内容还在索引中，稍后再试分片";
+            case "zh_CHT": return "內容還在索引中，稍後再試分片";
+            case "ja_JP": return "コンテンツのインデックス構築中です。しばらくしてから分片を再試行してください";
+            case "en_US":
+            default: return "Content is still being indexed. Please try splitting again later";
         }
     }
     public get 重新推送本书() {
@@ -2643,6 +2679,43 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "This Piece Is Unavailable (Source Blocks Deleted), Skipped";
         }
     }
+    /** □7 空段落片自愈：永久空片跳点前进的用户告知（label=片名序号 [0000N]，与
+     *  片文档名同数字，消除 1 起序数与 0 起片名的错位歧义 review P2-2） */
+    public 分片无内容已跳过(label: string) {
+        switch (this.lang) {
+            case "zh_CN": return `片 ${label} 无内容，已跳过`;
+            case "zh_CHT": return `片 ${label} 無內容，已跳過`;
+            case "es_ES": return `La pieza ${label} está vacía, omitida`;
+            case "fr_FR": return `La pièce ${label} est vide, ignorée`;
+            case "ja_JP": return `シャープ ${label} に内容がなく、スキップしました`;
+            case "en_US":
+            default: return `Piece ${label} is empty, skipped`;
+        }
+    }
+    /** □7 refillPiece 空片拦截：块活着只是无内容/混悬空，与「源块已被删除」区分（review P2-4） */
+    public get 该分片没有可重插的内容() {
+        switch (this.lang) {
+            case "zh_CN": return "该分片没有可重插的内容";
+            case "zh_CHT": return "該分片沒有可重插的內容";
+            case "es_ES": return "Esta pieza no tiene contenido para reinsertar";
+            case "fr_FR": return "Cette pièce n'a aucun contenu à réinsérer";
+            case "ja_JP": return "このシャープに再挿入する内容がありません";
+            case "en_US":
+            default: return "This piece has no content to re-insert";
+        }
+    }
+    /** □7 滤空块后全空段落文档的对症提示（review P2-5，重试不可能成功） */
+    public get 该文档没有可分片的内容() {
+        switch (this.lang) {
+            case "zh_CN": return "该文档没有可分片的内容";
+            case "zh_CHT": return "該文檔沒有可分片的內容";
+            case "es_ES": return "Este documento no tiene contenido para fragmentar";
+            case "fr_FR": return "Ce document n'a aucun contenu à fragmenter";
+            case "ja_JP": return "このドキュメントに分割できる内容がありません";
+            case "en_US":
+            default: return "This document has no content to split into pieces";
+        }
+    }
     public get 正在为您打开文档片段() {
         switch (this.lang) {
             case "zh_CN": return "正在为您打开文档片段，请耐心等待……";
@@ -2722,13 +2795,11 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get 未找到文档请等待索引() {
         switch (this.lang) {
-            case "zh_CN": return "未找到文档，请重新建立索引或者等待索引建立完成";
-            case "zh_CHT": return "未找到文檔，請重新建立索引或者等待索引建立完成";
-            case "es_ES": return "no se encontró el documento, por favor vuelva a crear el índice o espere a que se complete el índice";
-            case "fr_FR": return "Document non trouvé, veuillez recréer l'index ou attendre la fin de la création de l'index";
-            case "ja_JP": return "ドキュメントが見つかりませんでした、インデックスを再構築するか、インデックス構築が完了するのを待ってください";
+            case "zh_CN": return "文档索引还在建立，稍后再试";
+            case "zh_CHT": return "文檔索引還在建立，稍後再試";
+            case "ja_JP": return "ドキュメントのインデックス構築中です。しばらくしてから再試行してください";
             case "en_US":
-            default: return "Document Not Found, Please Rebuild Index or Wait for Indexing to Complete";
+            default: return "The document index is still building. Please try again shortly";
         }
     }
     public get 请先将此文档加入渐进学习列表() {
@@ -6959,10 +7030,35 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get tip设置修订痕迹() {
         switch (this.lang) {
-            case "zh_CN": return "块左缘按最后编辑时间显示 5 档紫色条：今天最浓、4 天内逐日变淡，更早与纳入追踪前的原文无色。只改显示不写正文，关掉即无痕";
-            case "zh_CHT": return "塊左緣按最後編輯時間顯示 5 檔紫色條：今天最濃、4 天內逐日變淡，更早與納入追蹤前的原文無色。只改顯示不寫正文，關掉即無痕";
+            case "zh_CN": return "块左缘按最后编辑时间显示 5 档紫色条：今天最浓、4 天内逐日变淡，更早与纳入追踪前的原文无色。只改显示不写正文，关掉即无痕。范围三档：仅渐进文档=书/片/摘抄等渐进锚文档才染，全部文档=开着的原行为";
+            case "zh_CHT": return "塊左緣按最後編輯時間顯示 5 檔紫色條：今天最濃、4 天內逐日變淡，更早與納入追蹤前的原文無色。只改顯示不寫正文，關掉即無痕。範圍三檔：僅漸進文檔=書/片/摘抄等漸進錨文檔才染，全部文檔=開著的原行為";
             case "en_US":
-            default: return "Show a 5-step violet bar on each block's left edge by its last-edited time: deepest for today, fading over 4 days; older and pre-enrollment text stays uncolored. Display only, nothing written";
+            default: return "Show a 5-step violet bar on each block's left edge by its last-edited time: deepest for today, fading over 4 days; older and pre-enrollment text stays uncolored. Display only, nothing written. Scope: progressive docs only covers books/pieces/digests; all docs is the legacy behavior";
+        }
+    }
+    // 范围三档 option（revtrace-scope：off/prog/all，与摘抄落点三档族对称）
+    public get 修订范围关() {
+        switch (this.lang) {
+            case "zh_CN": return "关";
+            case "zh_CHT": return "關";
+            case "en_US":
+            default: return "Off";
+        }
+    }
+    public get 修订范围仅渐进() {
+        switch (this.lang) {
+            case "zh_CN": return "仅渐进文档";
+            case "zh_CHT": return "僅漸進文檔";
+            case "en_US":
+            default: return "Progressive docs only";
+        }
+    }
+    public get 修订范围全部() {
+        switch (this.lang) {
+            case "zh_CN": return "全部文档";
+            case "zh_CHT": return "全部文檔";
+            case "en_US":
+            default: return "All docs";
         }
     }
     /** 命令面板名（revtrace □4 toggle，与设置项同一状态） */
