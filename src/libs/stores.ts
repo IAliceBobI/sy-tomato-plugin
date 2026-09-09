@@ -391,6 +391,9 @@ export const licenseCloudSynced = settingFactory("licenseCloudSynced", "", STORA
 /** 批注收集使用记忆（2026-09-02，不出设置面板行——是记忆不是偏好）：范围/去向/指定文件目标 */
 export const annoCollectScope = settingFactory("annoCollectScope", "doc", STORAGE_SETTINGS, null as TSK);
 export const annoCollectDest = settingFactory("annoCollectDest", "daily", STORAGE_SETTINGS, null as TSK);
+/** 批注自动归档（annoarch □4）：开=批注保存（创建/编辑）后 fire-and-forget 全量重算
+ *  归位到各自日记；默认关（收集仍是显式动作） */
+export const annoAutoArchive = settingFactory("annoAutoArchive", false, STORAGE_SETTINGS, null as TSK);
 export const annoCollectTargetDoc = settingFactory("annoCollectTargetDoc", "", STORAGE_SETTINGS, null as TSK);
 export const exportIntervalSec = settingFactory("exportIntervalSec", "5", STORAGE_SETTINGS, null as TSK);
 export const exportIntervalSecOn = settingFactory("exportIntervalSecOn", true, STORAGE_SETTINGS, null as TSK);
@@ -779,12 +782,24 @@ export const digestNoBacktraceLink = settingFactory("digestNoBacktraceLink", tru
 export const pieceNoBacktraceLink = settingFactory("pieceNoBacktraceLink", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveStart2learn = settingFactory("ProgressiveStart2learn", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveJumpMenu = settingFactory("ProgressiveJumpMenu", false, STORAGE_Prog_SETTINGS, null as TSK);
+// □8期4 移动端选块三钮开关（2026-09-09 发版前 P1 拍板补）：默认开；关=Progressive.ts
+// 事件回调不再挂（已挂钮随切文档/reload 退场，与 tomato「多行选择」同口径——勿 subscribe
+// 主动摘钮：data-type 三插件共享，会误摘同装 tomato 挂的钮）
+export const mobileSelectBtns = settingFactory("mobileSelectBtns", true, STORAGE_Prog_SETTINGS, null as TSK);
 // □12 退役（2026-08-30，旧持久化值留着无害）：markOriginText（制卡/摘抄在原文写 + 链接、
 // & 链接与 style 背景落盘）——摘抄标记零触碰统一，原文痕迹唯一机制=digestMarker span 渲染态。
 // v5 □12 语义更新：markOriginTextBG 从「写 style 到 .sy」改为「CSS div:has(> .prog-digest-mark)
 // 渲染态背景」的总开关（index.ts 订阅挂 body 类 prog-digest-bg-on，span 在则背景在）
 export const markOriginTextBG = settingFactory("markOriginTextBG", false, STORAGE_Prog_SETTINGS, null as TSK);
+// 修订痕迹（revtrace □4）：块级「按编辑时间着色」回看视图总开关——纯视图零档案（revTrace.ts：
+// 色层=f(块 updated 距今天数)+enrollment 基线，关掉即无痕）；默认关（□6 呈 bear 拍板，荐默认关），
+// 命令 toggle 与设置面板同此状态（浮条系统开关 toggleFloatBarSystem 同款 .set() 不落盘，
+// 面板 confirm 才写盘；实时清/挂=index.ts 订阅同 markOriginTextBG 挂 body 类同位）
+export const revTraceEnabled = settingFactory("revTraceEnabled", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const hideBtnsInFlashCard = settingFactory("hideBtnsInFlashCard", true, STORAGE_Prog_SETTINGS, null as TSK);
+// □2 片尾收束卡总开关（默认开）：关=不再新建（fullfilContent/newDigestDoc 尾插跳过）+
+// 不再补插存量（retrofit 跳过）+ 已建卡渲染为一行细静条（可整块手删，不自动清理）
+export const pieceTailCard = settingFactory("pieceTailCard", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const openCardsOnOpenPiece = settingFactory("openCardsOnOpenPiece", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const cardUnderPiece = settingFactory("cardUnderPiece", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const cardAppendTime = settingFactory("cardAppendTime", false, STORAGE_Prog_SETTINGS, null as TSK);

@@ -477,7 +477,10 @@ function bindFragmentToolbarSync() {
     const prev = (globalThis as any)[KEY];
     if (prev) document.removeEventListener("selectionchange", prev);
     const fn = () => {
-        const selRange = document.getSelection()?.getRangeAt(0);
+        // 移动端加载期 selectionchange 在空选区（rangeCount=0）也会触发——无守卫
+        // getRangeAt(0) 抛未捕获 IndexSizeError（6811 移动端 pageerror 实锤）
+        const sel = document.getSelection();
+        const selRange = sel && sel.rangeCount > 0 ? sel.getRangeAt(0) : null;
         getAllEditor().forEach(({ protyle }) => {
             const btn = (protyle as any)?.toolbar?.element?.querySelector('button[data-type="dailyNoteCopyFragment"]') as HTMLElement | null;
             if (!btn) return;

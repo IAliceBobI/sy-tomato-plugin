@@ -2,7 +2,7 @@
   "name": "sy-tomato-plugin",
   "author": "IAliceBobI",
   "url": "https://github.com/IAliceBobI/sy-tomato-plugin",
-  "version": "5.7.5",
+  "version": "5.7.6",
   "minAppVersion": "3.0.3",
   "disabledInPublish": false,
   "backends": [
@@ -16,8 +16,8 @@
     "zh_CN": "番茄工具箱"
   },
   "description": {
-    "default": "🔓 Open source · An all-in-one productivity toolbox for SiYuan: status-bar Pomodoro, AI knowledge-base Q&A, flashcards, sync blocks, block graphs and 19 more — covering time, editing, review and AI.",
-    "zh_CN": "🔓 已开源 · 为思源笔记打造的效率工具箱：状态栏番茄钟、AI 知识库问答、闪卡复习、同步块、块关系图等 24 项功能——时间管理、编辑增强、复习记忆、AI 问答一个插件全覆盖"
+    "default": "🔓 Open source · The all-in-one productivity toolbox for SiYuan: status-bar Pomodoro, AI Q&A, flashcards, reading points & annotations, float-ball quick capture, sync blocks & mind guides — 15 domains, 40+ features covering time, reading, review and AI.",
+    "zh_CN": "🔓 已开源 · 思源笔记的全能效率工具箱：状态栏番茄钟、AI 知识库问答、闪卡复习、阅读点与批注、悬浮球速记、同步块与思维导线——15 个分区 40+ 项功能，时间、阅读、复习、AI 一个插件全覆盖"
   },
   "readme": {
     "default": "README.md",
@@ -39,6 +39,10 @@
     "Mindmap",
     "AI",
     "问答",
-    "文档合并"
+    "文档合并",
+    "悬浮球",
+    "速记",
+    "闪念",
+    "阅读点"
   ]
 }

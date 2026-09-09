@@ -244,15 +244,18 @@ export async function gotoBookmark(docID: string, plugin: Plugin) {
     await siyuan.pushMsg(tomatoI18n.当前文档无阅读点, 2000);
 }
 
-/** 删除当前文档的阅读点：新格式摘属性（+清卡+清 rpcard 卡块三件套），老格式删块+删卡 */
-export async function removeReadingPoint(docID: string) {
+/** 删除当前文档的阅读点：新格式摘属性（+清卡+清 rpcard 卡块三件套），老格式删块+删卡。
+ *  返回删除的点数——0=该文档本来无点（调用方据此如实反馈，勿报假成功）。 */
+export async function removeReadingPoint(docID: string): Promise<number> {
     const rows = await newPointsOfDoc(docID);
     if (rows.length > 0) {
         await siyuan.batchSetBlockAttrs(rows.map(r => ({ id: r.blockID, attrs: { [READAT]: "" } as AttrType })));
         await removePointCards(rows.map(r => r.blockID));
         await removeRPCardChain(rows.map(r => r.blockID));
     }
-    await cleanLegacyPoints(await legacyPointIDsOfDoc(docID));
+    const legacyIDs = await legacyPointIDsOfDoc(docID);
+    await cleanLegacyPoints(legacyIDs);
+    return rows.length + legacyIDs.length;
 }
 
 /** 面板列表：新老两查合并（排序/去重在 readingPointCore 纯函数层）。

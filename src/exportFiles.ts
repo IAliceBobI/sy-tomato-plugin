@@ -8,7 +8,8 @@ import { OpenSyFile2 } from "./libs/docUtils";
 import { DomSuperBlockBuilder } from "./libs/sydom";
 import { isMe, verifyKeyTomato } from "./libs/user";
 import { addSelectionBtnsDesktop, addSelectionBtnsMobile, noteBoxCheckbox } from "./libs/stores";
-import { SelectionML } from "./libs/SelectionML";
+import { addCustomButton, addSelectionMLButtons, disposeSelectionML, getSelectionML } from "./libs/selectionML";
+import { debugLog } from "./libs/logUtils";
 import { noteBox } from "./NoteBox";
 import { mount, unmount } from "svelte";
 import NavigatorBoxSvelte from "./NavigatorBox.svelte";
@@ -169,20 +170,34 @@ export function addSelectionButton() {
         }
     }
 }
-type Params = { s: SelectionML };
 function _addSelectionButton() {
-    const params = {} as Params;
     events.addListener("selection btns 2025-5-19 21:37:49", (eventType, detail: Protyle) => {
+        const protyle: IProtyle = detail?.protyle;
+        if (!protyle) return;
+        if (eventType == EventType.destroy_protyle) {
+            // □9 修①：destroy 出册清实例+残留选中类
+            const wysiwyg = protyle.wysiwyg?.element;
+            if (wysiwyg) disposeSelectionML(wysiwyg);
+            return;
+        }
         if (eventType == EventType.loaded_protyle_static || eventType == EventType.loaded_protyle_dynamic || eventType == EventType.click_editorcontent || eventType == EventType.switch_protyle) {
             navigator.locks.request("lock 2025-5-19 21:38:34", { mode: "exclusive" }, async (lock) => {
                 if (lock) {
-                    const protyle: IProtyle = detail.protyle;
-                    if (!protyle) return;
                     if (isEditor(protyle)) {
-                        params.s = new SelectionML(events.selectedDivsSync(protyle));
-                        addSelectPrevButton(protyle, params)
-                        addSelectNextButton(protyle, params)
-                        addCancelButton(protyle, params)
+                        // review P2-3：destroy 已出册后 300ms debounce 尾巴可能在
+                        // detached protyle 上复活实例+挂按钮，connected 才继续
+                        if (!protyle.element?.isConnected) return;
+                        // □9 修①：reuse-or-create——同 wysiwyg 跨事件不重建（trace 跨页签
+                        // 往返续命），命中时仅 reanchor 刷新锚点
+                        const wysiwyg = protyle.wysiwyg?.element as HTMLElement;
+                        if (!wysiwyg) return;
+                        const s = getSelectionML(wysiwyg, () => events.selectedDivsSync(protyle).selected);
+                        debugLog("selectionml", `evt=${eventType} root=${protyle.block?.rootID ?? ""} trace=${s.state.trace.length}`, "selectionml");
+                        addSelectionMLButtons(protyle, wysiwyg, {
+                            prev: tomatoI18n.向上选择,
+                            next: tomatoI18n.向下选择,
+                            cancel: tomatoI18n.取消最后一次选择的内容,
+                        });
                         if (noteBoxCheckbox.get() && events.isMobile) {
                             noteBoxShow(protyle)
                         }
@@ -197,38 +212,6 @@ function noteBoxShow(protyle: IProtyle) {
     addCustomButton(protyle, 'tomato-note-box', tomatoI18n.拍照闪念, "Camera", () => {
         noteBox.showInDialog()
     });
-}
-
-function addSelectPrevButton(protyle: IProtyle, s: Params) {
-    addCustomButton(protyle, 'tomato-prev', tomatoI18n.向上选择, "Up", () => {
-        s.s?.selectUp()
-    });
-}
-
-function addSelectNextButton(protyle: IProtyle, s: Params) {
-    addCustomButton(protyle, 'tomato-next', tomatoI18n.向下选择, "Down", () => {
-        s.s?.selectDown()
-    });
-}
-
-function addCancelButton(protyle: IProtyle, s: Params) {
-    addCustomButton(protyle, 'tomato-cancel', tomatoI18n.取消最后一次选择的内容, "Redo", () => {
-        s.s?.cancelLast();
-    });
-}
-
-export function addCustomButton(protyle: IProtyle, dataType: string, ariaLabel: string, icon: string, clickHandler: () => void) {
-    const lockBtn = protyle.element.querySelector(`button[data-type="readonly"]`) as HTMLButtonElement;
-    if (!lockBtn) return;
-    const btn = protyle.element.querySelector(`button[data-type="${dataType}"]`);
-    if (btn) return;
-    const customBtn = document.createElement('button');
-    customBtn.setAttribute('data-type', dataType);
-    customBtn.setAttribute('aria-label', ariaLabel);
-    customBtn.classList.add('block__icon', 'fn__flex-center', 'ariaLabel');
-    customBtn.innerHTML = `<svg><use xlink:href="#icon${icon}"></use></svg>`;
-    customBtn.addEventListener('click', clickHandler);
-    lockBtn.parentNode?.insertBefore(customBtn, lockBtn);
 }
 
 export function initDocNavigator() {

@@ -39,9 +39,10 @@ declare global {
             ai?: {
                 runAI: (text: string, anchorID: string) => Promise<any>;
                 buildMessages: (text: string) => any[];
-                createStream: (model: string, messages: any[]) => Promise<any>;
+                createStream: (model: string, messages: any[]) => Promise<any> | null;
                 appendChunk: (state: any, chunk: any) => any;
                 stripThinkTag: (html: string) => string;
+                diagnose?: () => Promise<{ ok: boolean; reason?: string; apiKey?: string; baseURL?: string; model?: string }>;
             };
         };
     }

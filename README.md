@@ -1,60 +1,72 @@
 # Tomato Toolbox
 
-A 24-in-1 productivity toolbox for SiYuan: time management, document editing, flashcard review and AI Q&A — all in one open-source plugin.
+The all-in-one productivity toolbox for SiYuan — one plugin slot for a whole note-taking workflow, fully open source.
 
 ## Highlights
 
-- 🧰 **24 tools in 1** — from Pomodoro to AI, save a whole row of plugin slots
-- 🤖 **AI knowledge-base Q&A** — grounded in your own notes, streaming answers with sources
-- 🎴 **Flashcard power-ups** — priority, image cloze, delete-while-reviewing, one-click cleanup of broken cards
-- 🔗 **Block reference toolkit** — sync blocks, bidirectional links, text-to-reference, block graphs
-- 🍅 **Status-bar Pomodoro** — one click to start, focus/break cycles rotate automatically, minimal distraction
+- 🧰 **All-in-one toolbox** — 15 domains, 40+ features: focus, reading, review, capture, references, visualization, AI. One install replaces a row of plugins
+- 🍅 **Status-bar Pomodoro** — one click to start; focus/break cycles rotate automatically, with configurable backgrounds and sounds
+- 🤖 **AI power** — knowledge-base Q&A grounded in your own notes, streaming answers with sources; annotation discussions can be saved as content blocks
+- 📖 **Reading input loop** — reading points remember where you stopped, annotations mark as you read, and what you read turns into review cards in one click
+- 🃏 **Flashcard power-ups** — priority ordering, image cloze, delete-while-reviewing, one-click cleanup of broken cards
 
 ## Features
 
-### 🍅 Pomodoro & Reminders
+### 🍅 Focus & Time
 
-- **Status-bar Pomodoro** — click to start; focus and break rotate automatically
+- **Status-bar Pomodoro** — click to start; focus and break rotate automatically. Custom durations, background images and sounds (bells, wooden fish, your own uploads)
 - **Recurring reminders** — periodic tasks that ping you on time
 
-### 📝 Documents & Editing
+### 📖 Reading & Annotations
 
-- **Auto export to Markdown** — export notes as md files on schedule
-- **Prefix document tree** — organize the doc tree by title prefixes
-- **Mobile multi-select** — batch-select blocks on mobile
-- **Enhanced folding** — more powerful folding
-- **Annotations** — highlight blocks with annotations
-- **Document merging** — merge multiple documents in one click
-- **Move to today's notes** — move any block into today's daily note
+- **Reading points** — mark where you stopped, resume right there; jump back via float ball, or turn what you read into review cards
+- **Annotations** — underline / highlighter / lace-border mark styles with four panel skins; AI discussions under an annotation can be saved as content blocks
 
-### 🔗 Blocks & References
+### 🃏 Flashcards & Review
+
+- **Flashcard priority** — important cards come first; streaks adjust priority automatically
+- **Image cloze** — blank out parts of an image
+- **Delete cards during review** — drop junk cards right in the review UI
+- **Clean up broken cards** — remove invalid flashcards in one click
+
+### ⚡ Capture & Quick Notes
+
+- **Photo flash notes** — snap a photo, capture the thought instantly
+- **Quick notes** — jot in a mini window outside the app, drafts saved automatically
+- **Move to today's notes** — move any block into today's daily note; copy fragments straight from a text selection
+
+### 🔗 References & Sync
 
 - **Sync blocks** — edit once, sync everywhere
 - **Bidirectional links** — two blocks referencing each other, jump both ways
 - **Text to citation** — turn selected text into a reference block in place
 - **Bottom backlinks** — a persistent backlink panel at the bottom of the editor
-- **Block graphs** — visualize reference relations between blocks
-- **Mind guides** — turn an outline into a mind guide in one click
 - **Database backlinks** — backlinks inside database views
 
-### 🎴 Flashcards & Review
+### 🧭 Visualization
 
-- **Flashcard priority** — important cards get reviewed first
-- **Flashcard image blanking** — cloze on parts of an image
-- **Delete cards during review** — drop junk cards right in the review UI
-- **Clean up invalid flashcards** — remove broken cards in one click
-- **Photo flash notes** — snap a photo, capture the thought instantly
-- **Reading points** — mark where you stopped, resume right there
+- **Mind guides** — turn an outline into a mind guide in one click, with selection-based linking
+- **Block graphs** — visualize reference relations between blocks
+- **Block editor** — open any block in its own focused editor
+
+### 🗂 Doc Organization & Export
+
+- **Workspace export** — export your workspace as Markdown, with allow/deny lists and automatic incremental runs
+- **Document merging** — merge multiple documents in one click
+- **Prefix document tree** — organize the doc tree by title prefixes
+- **DailyNote tools** — navigate between journals, review past days, move content in bulk
 
 ### 🤖 AI
 
-- **AI knowledge-base Q&A** — ask questions over your own notes, answers with sources
-- **Streaming AI** — read while it generates
+- **AI knowledge-base Q&A** — ask questions over your own notes, streaming answers with sources
+- **coze Q&A** — connect Doubao / coze agents
+
+> Plus a row of editor mini-tools: enhanced folding, multi-select, list tools, copy-as-image, document aliases… right in the context menu, no extra plugin slot needed.
 
 ## Getting Started
 
 1. After installing, look at the SiYuan status bar — click the tomato icon to start your first Pomodoro
-2. Open plugin settings (SiYuan Settings → Plugins → Tomato Toolbox) to tune durations, reminders and AI
+2. Open plugin settings (SiYuan Settings → Plugins → Tomato Toolbox) and tune any of the 15 domains to your liking
 3. No need to memorize the rest: search "Tomato" in the command palette, or browse the docs by use case
 
 ## Docs & Community

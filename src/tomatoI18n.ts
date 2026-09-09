@@ -749,11 +749,35 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get 当天日记() {
         switch (this.lang) {
-            case "zh_CN": return "当天日记";
-            case "zh_CHT": return "當天日記";
-            case "ja_JP": return "今日の日記";
+            case "zh_CN": return "日记";
+            case "zh_CHT": return "日記";
+            case "ja_JP": return "日記";
             case "en_US":
-            default: return "Today's diary";
+            default: return "Daily note";
+        }
+    }
+    public get 天日记() {
+        switch (this.lang) {
+            case "zh_CN": return "天日记";
+            case "zh_CHT": return "天日記";
+            case "ja_JP": return "日分の日記";
+            case "es_ES": return "diarios";
+            case "fr_FR": return "journaux";
+            case "it_IT": return "diari";
+            case "en_US":
+            default: return "daily notes";
+        }
+    }
+    public get 自动归档到日记() {
+        switch (this.lang) {
+            case "zh_CN": return "自动归档到日记";
+            case "zh_CHT": return "自動歸檔到日記";
+            case "ja_JP": return "日記に自動整理";
+            case "es_ES": return "Archivar automáticamente en el diario";
+            case "fr_FR": return "Archiver automatiquement dans le journal";
+            case "it_IT": return "Archivia automaticamente nel diario";
+            case "en_US":
+            default: return "Auto-archive to daily notes";
         }
     }
     public get 指定文件() {
@@ -839,11 +863,11 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get 收集到当天日记说明() {
         switch (this.lang) {
-            case "zh_CN": return "一键收集：按上次记忆的范围，直接归档到当天日记（落「批注草稿存放笔记本」所选本，未选时跟随系统日记本）";
-            case "zh_CHT": return "一鍵收集：按上次記憶的範圍，直接歸檔到當天日記（落「批註草稿存放筆記本」所選本，未選時跟隨系統日記本）";
-            case "ja_JP": return "ワンクリック収集：前回の範囲設定のまま、今日の日記に直接保存（「注釈下書きノートブック」選択ノートブック、未選択時はシステムの日記ノートブック）";
+            case "zh_CN": return "一键收集：按批注最后修改日期归档到各自的日记（某天没有日记会自动补建；落「批注草稿存放笔记本」所选本，未选时跟随系统日记本）";
+            case "zh_CHT": return "一鍵收集：按批註最後修改日期歸檔到各自的日記（某天沒有日記會自動補建；落「批註草稿存放筆記本」所選本，未選時跟隨系統日記本）";
+            case "ja_JP": return "ワンクリック収集：注釈の最終更新日ごとに各日の日記へ整理（日記がなければ自動作成。「注釈下書きノートブック」選択ノートブック、未選択時はシステムの日記ノートブック）";
             case "en_US":
-            default: return "Quick collect: last-used scope, straight into today's daily note (the annotation-draft notebook, or the system daily notebook when unset)";
+            default: return "Quick collect: archive annotations into each day's daily note by last-modified date (missing daily notes are created automatically; the annotation-draft notebook, or the system daily notebook when unset)";
         }
     }
     public get 收集到剪贴板说明() {
@@ -2729,6 +2753,17 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Add/Re-add Document to Progressive Reading";
         }
     }
+    public get 加入渐进阅读() {
+        switch (this.lang) {
+            case "zh_CN": return "加入渐进阅读";
+            case "zh_CHT": return "加入漸進閱讀";
+            case "es_ES": return "agregar a la lectura progresiva";
+            case "fr_FR": return "Ajouter à la lecture progressive";
+            case "ja_JP": return "漸進読書に追加";
+            case "en_US":
+            default: return "Add to Progressive Reading";
+        }
+    }
     public get 删除并下一个() {
         switch (this.lang) {
             case "zh_CN": return "🗑 ➡";
@@ -3321,10 +3356,12 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get 下片删() {
         switch (this.lang) {
-            case "zh_CN": return "下片删";
-            case "zh_CHT": return "下片刪";
+            // □2 文案拍板（2026-09-09 bear）：「下片删」动宾倒装读似「删掉下一片」，实义=
+            // 读完当前片→删它→进下一片——值改键名不动（消费面零改动，孤儿化教训）
+            case "zh_CN": return "读完删片";
+            case "zh_CHT": return "讀完刪片";
             case "en_US":
-            default: return "Next (del)";
+            default: return "Read & delete";
         }
     }
     public get 回看() {
@@ -3337,10 +3374,12 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get 上片删() {
         switch (this.lang) {
-            case "zh_CN": return "上片删";
-            case "zh_CHT": return "上片刪";
+            // □2 同病顺手同改（bear 拍板）：实义=删本片→回上一片（带确认框），原「上片删」
+            // 读似「删上一片」
+            case "zh_CN": return "删片回上";
+            case "zh_CHT": return "刪片回上";
             case "en_US":
-            default: return "Prev (del)";
+            default: return "Delete & back";
         }
     }
     public get 重插() {
@@ -4492,6 +4531,91 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "単語の AI 翻訳・例文は Pro 機能です。単語の収録は無料";
             case "en_US":
             default: return "Word AI translation/examples is a Pro feature; collecting words is free";
+        }
+    }
+
+    // ===== 就地断句（2026-09-09 立项）：任意文档选中段落块原位拆句（Pro），浮条子排钮 =====
+    public get 就地断句() {
+        switch (this.lang) {
+            case "zh_CN": return "就地断句";
+            case "zh_CHT": return "就地斷句";
+            case "es_ES": return "Dividir en frases";
+            case "fr_FR": return "Scinder en phrases";
+            case "ja_JP": return "その場で文分割";
+            case "en_US":
+            default: return "Split in place";
+        }
+    }
+
+    public get tip就地断句() {
+        switch (this.lang) {
+            case "zh_CN": return "把选中（或光标）的段落块按句原地拆开，直接修改当前文档";
+            case "zh_CHT": return "把選中（或游標）的段落塊按句原地拆開，直接修改當前文檔";
+            case "es_ES": return "Divide el párrafo seleccionado (o con cursor) en frases en el sitio, editando el documento actual";
+            case "fr_FR": return "Scinde le paragraphe sélectionné (ou sous curseur) en phrases sur place, en modifiant le document actuel";
+            case "ja_JP": return "選択（またはカーソル位置）の段落ブロックをその場で文に分割し、現在のドキュメントを直接編集します";
+            case "en_US":
+            default: return "Split the selected (or cursor) paragraph block into sentences in place, editing the current document";
+        }
+    }
+
+    public get 请先选择要断句的块() {
+        switch (this.lang) {
+            case "zh_CN": return "请先选择要断句的块";
+            case "zh_CHT": return "請先選擇要斷句的塊";
+            case "es_ES": return "Selecciona primero el bloque a dividir";
+            case "fr_FR": return "Sélectionnez d'abord le bloc à scinder";
+            case "ja_JP": return "まず分割するブロックを選択してください";
+            case "en_US":
+            default: return "Select a block to split first";
+        }
+    }
+
+    public get 没有可断句的内容() {
+        switch (this.lang) {
+            case "zh_CN": return "没有可断句的内容（只拆段落块，且需多于一句）";
+            case "zh_CHT": return "沒有可斷句的內容（只拆段落塊，且需多於一句）";
+            case "es_ES": return "Nada que dividir (solo bloques de párrafo con más de una frase)";
+            case "fr_FR": return "Rien à scinder (seulement les blocs de paragraphe de plus d'une phrase)";
+            case "ja_JP": return "分割できる内容がありません（段落ブロックのみ、複数文必要）";
+            case "en_US":
+            default: return "Nothing to split (paragraph blocks with more than one sentence only)";
+        }
+    }
+
+    public 断句完成N块M句(n: number, m: number) {
+        switch (this.lang) {
+            case "zh_CN": return `已断句：${n} 块拆成 ${m} 句`;
+            case "zh_CHT": return `已斷句：${n} 塊拆成 ${m} 句`;
+            case "es_ES": return `Dividido: ${n} bloques en ${m} frases`;
+            case "fr_FR": return `Scindé : ${n} blocs en ${m} phrases`;
+            case "ja_JP": return `分割済み：${n} ブロックを ${m} 文に`;
+            case "en_US":
+            default: return `Split: ${n} block(s) into ${m} sentence(s)`;
+        }
+    }
+
+    public get 断句样式警告标题() {
+        switch (this.lang) {
+            case "zh_CN": return "断句后将转为纯文本";
+            case "zh_CHT": return "斷句後將轉為純文字";
+            case "es_ES": return "La división convertirá a texto sin formato";
+            case "fr_FR": return "La scission convertira en texte brut";
+            case "ja_JP": return "分割後はプレーンテキストになります";
+            case "en_US":
+            default: return "Splitting will convert to plain text";
+        }
+    }
+
+    public get 断句样式警告内容() {
+        switch (this.lang) {
+            case "zh_CN": return "选中块含行内样式（加粗/高亮/链接等），拆开后的句子将以纯文本保留，样式不保留。继续？";
+            case "zh_CHT": return "選中塊內行內樣式（粗體/高亮/連結等），拆開後的句子將以純文字保留，樣式不保留。繼續？";
+            case "es_ES": return "Los bloques seleccionados contienen estilos en línea (negrita/resaltado/enlaces); las frases resultantes conservarán el texto sin formato, no los estilos. ¿Continuar?";
+            case "fr_FR": return "Les blocs sélectionnés contiennent des styles en ligne (gras/surlignage/liens) ; les phrases résultantes garderont le texte brut, pas les styles. Continuer ?";
+            case "ja_JP": return "選択ブロックにインライン装飾（太字/ハイライト/リンク等）があります。分割後の文はプレーンテキストになり、装飾は失われます。続けますか？";
+            case "en_US":
+            default: return "Selected blocks contain inline styles (bold/highlight/links); resulting sentences keep plain text, not the styles. Continue?";
         }
     }
 
@@ -5764,6 +5888,14 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Mobile menu shows";
         }
     }
+    public get 移动端选块按钮() {
+        switch (this.lang) {
+            case "zh_CN": return "移动端选块按钮";
+            case "zh_CHT": return "行動端選塊按鈕";
+            case "en_US":
+            default: return "Mobile block-selection buttons";
+        }
+    }
     public get 该块不在分片索引中() {
         switch (this.lang) {
             case "zh_CN": return "该块不在分片索引中（可能是新加入的内容）";
@@ -6007,6 +6139,41 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "再摘抄：摘抄上再摘，落札記匣";
             case "en_US":
             default: return "Re-digest: digest a digest, lands in the note box";
+        }
+    }
+    // □2 片尾收束卡（digest 尾卡「再摘抄」钮短标签，长说明走上面路线键）
+    public get 再摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "再摘抄";
+            case "zh_CHT": return "再摘抄";
+            case "en_US":
+            default: return "Re-digest";
+        }
+    }
+    // □2 片尾收束卡今日配额胶囊（片态头行；readToday/quotaToday 来自滚筒日账）
+    public 今日已读N片(read: number, quota: number) {
+        switch (this.lang) {
+            case "zh_CN": return `今日 ${read}/${quota}`;
+            case "zh_CHT": return `今日 ${read}/${quota}`;
+            case "en_US":
+            default: return `Today ${read}/${quota}`;
+        }
+    }
+    // □2 片尾收束卡总开关（基础设置域）
+    public get 片尾收束卡() {
+        switch (this.lang) {
+            case "zh_CN": return "片尾收束卡";
+            case "zh_CHT": return "片尾收束卡";
+            case "en_US":
+            default: return "Piece tail action card";
+        }
+    }
+    public get tip设置片尾收束卡() {
+        switch (this.lang) {
+            case "zh_CN": return "分片与摘抄文档末尾的动作收束卡（需思源 3.8.3+）。关闭后不再新建、不再补插，已有的卡降为一行细静条（可整块删除）；开关切换后已打开的文档下次事务/切换时生效";
+            case "zh_CHT": return "分片與摘抄文檔末尾的動作收束卡（需思源 3.8.3+）。關閉後不再新建、不再補插，已有的卡降為一行細靜條（可整塊刪除）；開關切換後已打開的文檔下次事務/切換時生效";
+            case "en_US":
+            default: return "Action wrap-up card at the end of piece/digest docs (requires SiYuan 3.8.3+). Off: stop creating & retrofitting; existing cards become a thin static bar (deletable); already-open docs update on next transaction/switch";
         }
     }
     public get 路线指引自由() {
@@ -6781,6 +6948,44 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Already-digested blocks in the book get a background tint as a trace — display only, nothing is written into the doc";
         }
     }
+    /** 修订痕迹设置行 label（revtrace □4：块左缘按编辑时间着色的回看视图开关） */
+    public get 修订痕迹色条() {
+        switch (this.lang) {
+            case "zh_CN": return "修订痕迹色条";
+            case "zh_CHT": return "修訂痕跡色條";
+            case "en_US":
+            default: return "Revision trace bars";
+        }
+    }
+    public get tip设置修订痕迹() {
+        switch (this.lang) {
+            case "zh_CN": return "块左缘按最后编辑时间显示 5 档紫色条：今天最浓、4 天内逐日变淡，更早与纳入追踪前的原文无色。只改显示不写正文，关掉即无痕";
+            case "zh_CHT": return "塊左緣按最後編輯時間顯示 5 檔紫色條：今天最濃、4 天內逐日變淡，更早與納入追蹤前的原文無色。只改顯示不寫正文，關掉即無痕";
+            case "en_US":
+            default: return "Show a 5-step violet bar on each block's left edge by its last-edited time: deepest for today, fading over 4 days; older and pre-enrollment text stays uncolored. Display only, nothing written";
+        }
+    }
+    /** 命令面板名（revtrace □4 toggle，与设置项同一状态） */
+    public get 修订痕迹开关() {
+        switch (this.lang) {
+            case "zh_CN": return "修订痕迹开关";
+            case "zh_CHT": return "修訂痕跡開關";
+            case "en_US":
+            default: return "Toggle revision trace";
+        }
+    }
+    /** 色条 hover 提示（#prog-float-tip 单例）：days=距今天数（0=今天），mo/d=编辑日月分量 */
+    public 修订痕迹提示(days: number, mo: number, d: number) {
+        const MMM = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][mo - 1] ?? mo;
+        switch (this.lang) {
+            case "zh_CN":
+            case "zh_CHT":
+                return days === 0 ? `今天 · ${mo}月${d}日` : `${days} 天前 · ${mo}月${d}日`;
+            case "en_US":
+            default:
+                return days === 0 ? `Today · ${MMM} ${d}` : `${days}d ago · ${MMM} ${d}`;
+        }
+    }
     public get tip设置阅读点() {
         switch (this.lang) {
             case "zh_CN": return "摘抄后给原文锚点块记一个阅读点，下次续读从这里开始";
@@ -7296,6 +7501,64 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "AI が未設定です。「設定 - AI」で先に設定してください";
             case "en_US":
             default: return "AI is not configured yet. Set it up in Settings - AI first";
+        }
+    }
+    /** 问 AI 分态引导（木卫三 09-09 报障：弹窗须指明缺什么，勿笼统「去设置配置」）。
+     *  reason 取 libs/openAI diagnoseAI 的 AIDiagReason 字符串（此处不 import 该模块避免拉 SDK 链）。 */
+    public annoAIGuideFor(reason: string): string {
+        switch (reason) {
+            case "noModel": return this.AI配置无启用模型;
+            case "providerDisabled": return this.AI配置未启用;
+            case "providerIncomplete": return this.AI配置信息不全;
+            default: return this.AI配置无提供商;
+        }
+    }
+    public get AI配置无提供商() {
+        switch (this.lang) {
+            case "zh_CN": return "还没有配置 AI 提供商。请到「设置 - AI」添加提供商并填入 API 地址与密钥";
+            case "zh_CHT": return "還沒有配置 AI 提供商。請到「設定 - AI」新增提供商並填入 API 位址與密鑰";
+            case "ja_JP": return "AI プロバイダーが未設定です。「設定 - AI」でプロバイダーを追加し、API アドレスとキーを入力してください";
+            case "es_ES": return "Todavía no hay un proveedor de IA configurado. Añada uno en «Ajustes - IA» con su dirección y clave API";
+            case "fr_FR": return "Aucun fournisseur d'IA n'est encore configuré. Ajoutez-en un dans « Paramètres - IA » avec l'adresse et la clé API";
+            case "it_IT": return "Nessun provider IA ancora configurato. Aggiungine uno in «Impostazioni - IA» con indirizzo e chiave API";
+            case "en_US":
+            default: return "No AI provider configured yet. Add one in Settings - AI with its API address and key";
+        }
+    }
+    public get AI配置未启用() {
+        switch (this.lang) {
+            case "zh_CN": return "检测到 AI 提供商，但开关未打开。请到「设置 - AI」打开提供商开关";
+            case "zh_CHT": return "偵測到 AI 提供商，但開關未開啟。請到「設定 - AI」開啟提供商開關";
+            case "ja_JP": return "AI プロバイダーが見つかりましたが、スイッチがオフです。「設定 - AI」でオンにしてください";
+            case "es_ES": return "Se detectó un proveedor de IA, pero su interruptor está apagado. Actívelo en «Ajustes - IA»";
+            case "fr_FR": return "Un fournisseur d'IA a été détecté, mais son interrupteur est désactivé. Activez-le dans « Paramètres - IA »";
+            case "it_IT": return "Rilevato un provider IA, ma l'interruttore è spento. Attivalo in «Impostazioni - IA»";
+            case "en_US":
+            default: return "An AI provider was found, but its toggle is off. Turn it on in Settings - AI";
+        }
+    }
+    public get AI配置信息不全() {
+        switch (this.lang) {
+            case "zh_CN": return "AI 提供商缺少 API 地址或密钥。请到「设置 - AI」补全后重试";
+            case "zh_CHT": return "AI 提供商缺少 API 位址或密鑰。請到「設定 - AI」補齊後重試";
+            case "ja_JP": return "AI プロバイダーの API アドレスまたはキーが不足しています。「設定 - AI」で補完してください";
+            case "es_ES": return "Al proveedor de IA le falta la dirección o la clave API. Complételos en «Ajustes - IA»";
+            case "fr_FR": return "Il manque l'adresse ou la clé API au fournisseur d'IA. Complétez-les dans « Paramètres - IA »";
+            case "it_IT": return "Al provider IA manca l'indirizzo o la chiave API. Completali in «Impostazioni - IA»";
+            case "en_US":
+            default: return "The AI provider is missing its API address or key. Complete it in Settings - AI";
+        }
+    }
+    public get AI配置无启用模型() {
+        switch (this.lang) {
+            case "zh_CN": return "检测到 AI 提供商，但还没有启用任何模型。请到「设置 - AI」在模型列表添加模型并打开开关";
+            case "zh_CHT": return "偵測到 AI 提供商，但還沒有啟用任何模型。請到「設定 - AI」在模型列表新增模型並開啟開關";
+            case "ja_JP": return "AI プロバイダーはありますが、有効なモデルがありません。「設定 - AI」でモデルを追加してオンにしてください";
+            case "es_ES": return "Hay un proveedor de IA, pero ningún modelo está habilitado. Añada uno y actívelo en «Ajustes - IA»";
+            case "fr_FR": return "Un fournisseur d'IA est présent, mais aucun modèle n'est activé. Ajoutez-en un et activez-le dans « Paramètres - IA »";
+            case "it_IT": return "C'è un provider IA, ma nessun modello è attivo. Aggiungine uno e attivalo in «Impostazioni - IA»";
+            case "en_US":
+            default: return "An AI provider is present, but no model is enabled. Add one and turn it on in Settings - AI";
         }
     }
     public get 邀请角色发言() {
@@ -9277,6 +9540,18 @@ export class TomatoI18n extends TomatoI18nABC {
             case "it_IT": return "Punto di lettura eliminato";
             case "en_US":
             default: return "Reading point removed";
+        }
+    }
+    public get 阅读点删除失败() {
+        switch (this.lang) {
+            case "zh_CN": return "阅读点删除失败，请重试";
+            case "zh_CHT": return "閱讀點刪除失敗，請重試";
+            case "ja_JP": return "読書ポイントの削除に失敗しました。もう一度お試しください";
+            case "es_ES": return "Error al eliminar el punto de lectura, inténtelo de nuevo";
+            case "fr_FR": return "Échec de la suppression du point de lecture, veuillez réessayer";
+            case "it_IT": return "Eliminazione del punto di lettura non riuscita, riprovare";
+            case "en_US":
+            default: return "Failed to remove reading point, please retry";
         }
     }
     public get 搜索文档或摘录() {

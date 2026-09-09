@@ -4,6 +4,7 @@
     // 共享样式见 IndexConf.css。
     import NotebookSelect from "./NotebookSelect.svelte";
     import {
+        annoAutoArchive,
         commentBoxAnnoBg,
         commentBoxAnnoDraftNotebook,
         commentBoxAnnoLineType,
@@ -91,6 +92,10 @@
                 ></NotebookSelect>
             </div>
             <div>{tomatoI18n.草稿笔记本自动说明}</div>
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$annoAutoArchive} />
+                {tomatoI18n.自动归档到日记}
+            </div>
             <div>
                 {tomatoI18n.批注标记形态}
                 <select

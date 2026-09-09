@@ -42,8 +42,15 @@
     }
 
     async function del(e: RPEntry) {
-        await deleteReadingPointEntry(e);
-        await siyuan.pushMsg(tomatoI18n.已删除阅读点, 2000);
+        try {
+            await deleteReadingPointEntry(e);
+            await siyuan.pushMsg(tomatoI18n.已删除阅读点, 2000);
+        } catch (err) {
+            // 模板 onclick 的 void 吞 rejection：失败必须落到 toast，否则点删没反应无从排查
+            console.error("[tomato][rp] panel del:", err);
+            await siyuan.pushMsg(tomatoI18n.阅读点删除失败, 2000);
+            return;
+        }
         await refresh();
     }
 </script>

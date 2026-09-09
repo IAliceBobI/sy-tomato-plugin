@@ -17,7 +17,8 @@ export interface TomatoAnnotation {
     id: string;
     /** 批注正文（kramdown，草稿块剥壳产物） */
     text: string;
-    /** 创建时间（ms）；update 不隐式刷新，要刷显式传 patch.time */
+    /** 最后修改时间（ms）：创建时=创建时刻，编辑保存链显式传新值刷新；
+     *  update 不隐式刷新，要刷显式传 patch.time */
     time: number;
     /** 选区批注才有：被标记的原文快照，仅面板预览辅助 */
     sel?: { txt: string };

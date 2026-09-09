@@ -19,7 +19,7 @@
         pushChat,
     } from "./libs/annoChat";
     import type { AnnoChatMsg, AnnoRole } from "./libs/annoChat";
-    import { OpenAIClient, appendChunk, getAIConfig, stripThinkTag } from "./libs/openAI";
+    import { OpenAIClient, appendChunk, diagnoseAIAsync, stripThinkTag } from "./libs/openAI";
     import type { StreamState } from "./libs/openAI";
     import { siyuan } from "./libs/utils";
     import { debugLog } from "./libs/logUtils";
@@ -109,9 +109,9 @@
         msgs = [...chatHistoryOf(annoId)];
     }
     async function ensureCfg() {
-        const cfg = await getAIConfig();
-        if (!cfg) confirm(tomatoI18n.未配置AI, tomatoI18n.尚未配置AI引导, () => { /* 引导即止 */ });
-        return cfg;
+        const d = await diagnoseAIAsync();
+        if ("reason" in d) confirm(tomatoI18n.未配置AI, tomatoI18n.annoAIGuideFor(d.reason), () => { /* 引导即止 */ });
+        return "reason" in d ? undefined : { apiKey: d.apiKey, baseURL: d.baseURL, model: d.model };
     }
 
     /** 统一发言链：普通问答（role=null）/角色邀请/记录员压缩（recorder）。

@@ -1,6 +1,7 @@
 import { Plugin, getFrontend, Protyle, IProtyle, IEventBusMap, getBackend } from "siyuan";
-import { blocksUnderRange, getCursorElement, getID, getNotebookFirstOne, siyuan } from "./utils";
-import { DATA_NODE_ID, PROTYLE_WYSIWYG_SELECT } from "./gconst";
+import { getCursorElement, getID, getNotebookFirstOne, siyuan } from "./utils";
+import { collectSelectedBlocks } from "./selection";
+import { DATA_NODE_ID } from "./gconst";
 import { writableWithGet } from "./stores";
 
 export enum EventType {
@@ -295,7 +296,9 @@ class Events {
             let { selected, ids, rangeText, range, cursorOnly } = this.collectInfo(element);
             return { selected, ids, docID, element, rangeText, range, docName, boxID: protyle.notebookId, cursorOnly };
         } else {
-            return {}
+            // 早退补默认字段（review P2-4）：解构 {...selected} 的调用方（seller hotMenuTools 五处）
+            // 对裸 {} 的 undefined spread 前存即崩，cursorOnly 缺省语义=非块选/拖蓝
+            return { selected: [], ids: [], docID: "", element: undefined, rangeText: "", range: undefined, docName, boxID: protyle?.notebookId, cursorOnly: true };
         }
     }
 
@@ -308,31 +311,30 @@ class Events {
             let { selected, ids, rangeText, range, cursorOnly } = this.collectInfo(element);
             return { selected, ids, docID, element, rangeText, range, docName, boxID: protyle.notebookId, cursorOnly };
         } else {
-            return {}
+            return { selected: [], ids: [], docID: "", element: undefined, rangeText: "", range: undefined, docName, boxID: protyle?.notebookId, cursorOnly: true };
         }
     }
 
     private collectInfo(element: HTMLDivElement) {
-        const selected: HTMLElement[] = [...element.querySelectorAll(`.${PROTYLE_WYSIWYG_SELECT}`)] as any;
-        let range: Range, rangeText: string;
-        try {
-            range = document.getSelection()?.getRangeAt(0);
-            rangeText = range?.cloneContents()?.textContent ?? "";
-        } catch { }
-        let cursorOnly = false;
-        if (selected.length == 0) {
-            // 思源 3.8（issue 8554）起内容区拖蓝跨块保留原生文本选区、不再自动转块选，
-            // 此时按 range 枚举覆盖的顶层块（与 Esc 转块选同语义），否则退化仅光标焦点块
-            selected.push(...blocksUnderRange(element, range));
-        }
-        if (selected.length == 0) {
-            cursorOnly = true;
-            const e = getCursorElement();
-            // 光标走全局 selection 祖先链，焦点可能在别的页签/面板——不在本 protyle 内维持空（blocksUnderRange 同款守卫）
-            if (e && element.contains(e)) selected.push(e);
-        }
+        // □8 期3：三级链委托跨插件共享函数（libs/selection.ts 唯一事实源），此处只剩
+        // tomato 侧语义保真映射——共享函数光标级上爬顶层容器是 recite/progressive 顶层流
+        // 语义，tomato 消费方（fold 折叠列表项/快速笔记摘块/Tag2Ref 取块文本/PairBar 预填
+        // 摘要）契约=最近内层块，cursor 级换回原始 getCursorElement；cursorOnly=光标级+
+        // 全空两态（消费方判据「非块选/拖蓝」）；rangeText 走共享函数硬契约（仅拖蓝态，
+        // 块选/跨面板的陈旧划词残留不再误当文本——Annotations isSel/划词摘抄消费方更稳）。
+        // range 只认活 selection（不引入 toolbar.range 回退链，保持 tomato 现行为）。
+        const cursorEl = getCursorElement();
+        const sel = document.getSelection();
+        const live = sel?.rangeCount ? sel.getRangeAt(0) : undefined;
+        const { blocks, level, rangeText, range } = collectSelectedBlocks(element, { range: live, cursorEl });
+        const selected = level === "cursor" && cursorEl && element.contains(cursorEl)
+            ? [cursorEl as HTMLElement] : blocks;
         const ids = selected.map(i => i.getAttribute(DATA_NODE_ID));
-        return { selected, ids, rangeText, range, cursorOnly };
+        // range 仅拖蓝级透传（review P2-1 收紧）：共享函数对所有 level 透传活 range，分屏下
+        // A 文档块选/光标态 + B 文档活拖蓝时会漏出他面板 range——Annotations isSel 双门
+        // 现状无实伤，但非 range 级给 undefined 封死误消费面（recite 侧 toolbar.range
+        // 透传语义另有消费方，共享函数本体不动）
+        return { selected, ids, rangeText, range: level === "range" ? range : undefined, cursorOnly: level === "cursor" || level === "none" };
     }
 }
 

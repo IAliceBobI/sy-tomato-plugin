@@ -7,6 +7,7 @@
 //   miscUtils.ts  —— 数组/对象/流程控制等泛型小工具
 //   syncHash.ts   —— 同步块内容哈希（cyrb53/normalizeForHash）
 //   domUtils.ts   —— 纯 DOM/protyle/编辑器工具
+//   selection.ts  —— 统一选中解析三级链（块选/拖蓝/光标，跨插件「作用于选中块」入口共用）
 //   blockUtils.ts —— 块 DOM 操作（引用/链接/cleanDiv 家族）
 //   siyuanApi.ts  —— 思源内核 HTTP API 封装（siyuan 大对象 + siyuanCache）
 //   fileScanUtils.ts —— 文件全量扫描/无效数据库清理/插件配置健康（tryFixCfg）
@@ -17,6 +18,7 @@ export * from "./strUtils";
 export * from "./miscUtils";
 export * from "./syncHash";
 export * from "./domUtils";
+export * from "./selection";
 export * from "./blockUtils";
 export * from "./siyuanApi";
 export * from "./fileScanUtils";

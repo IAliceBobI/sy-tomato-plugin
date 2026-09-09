@@ -264,12 +264,18 @@ class ReadingPointBox {
 
     private async removeCurrent() {
         try {
-            await removeReadingPoint(this.curDocID());
+            const removed = await removeReadingPoint(this.curDocID());
+            // 无点也报「已删除」是假成功——用户按了删点却见点还在，无从分辨键没触发/目标错位/真删过
+            if (removed === 0) {
+                await siyuan.pushMsg(tomatoI18n.当前文档无阅读点, 2000);
+                return;
+            }
             await siyuan.pushMsg(tomatoI18n.已删除阅读点, 2000);
             this.refreshStatusAfterWrite();
         } catch (e) {
             // actions.del 的 void 吞 rejection，UI 动作永不静默崩（addReadPointLock 同款纪律）
             console.error("[tomato][rp] removeCurrent:", e);
+            await siyuan.pushMsg(tomatoI18n.阅读点删除失败, 2000);
         }
     }
 

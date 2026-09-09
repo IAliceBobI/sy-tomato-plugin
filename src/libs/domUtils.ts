@@ -142,9 +142,11 @@ export function getCursorElement() {
 /** 原生 range 覆盖的顶层块（文档序）。
     思源 3.8（issue 8554）起内容区拖蓝跨块保留文本选区、不再自动转块选，
     用它与 Esc 转块选后的 querySelectorAll 语义对齐：只认 wysiwyg 直接子级的
-    data-node-id 块（嵌套块归容器整块），range 不在 container 内返回空。 */
+    data-node-id 块（嵌套块归容器整块），range 不在 container 内返回空。
+    守卫须两端都在场：只认 startContainer 时跨面板拖蓝（起点在内终点在外）
+    intersectsNode 对本编辑器全块恒真，会整锅端（□8 期3）。 */
 export function blocksUnderRange(container: HTMLElement, range: Range): HTMLElement[] {
-    if (!range || range.collapsed || !container.contains(range.startContainer)) return [];
+    if (!range || range.collapsed || !container.contains(range.startContainer) || !container.contains(range.endContainer)) return [];
     return [...container.children].filter(
         b => b.hasAttribute(gconst.DATA_NODE_ID) && range.intersectsNode(b)
     ) as HTMLElement[];
@@ -179,7 +181,9 @@ export function annoRangeUsable(range: Range | null | undefined, protyle?: IProt
     // 旧引用，normalizeWordRange P1-2 同款），写回全局 selection 会造出幽灵选区
     if (!range.startContainer?.isConnected) return false;
     const el = protyle?.wysiwyg?.element;
-    if (el && !el.contains(range.startContainer)) return false;
+    // 两端都在场（blocksUnderRange □8 期3 同族）：只认 startContainer 时跨面板拖蓝（起点
+    // 在内终点在外）会放行，工具条钮误显+ensureAnnoSelection 不走 toolbar.range 恢复
+    if (el && (!el.contains(range.startContainer) || !el.contains(range.endContainer))) return false;
     return true;
 }
 

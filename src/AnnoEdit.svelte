@@ -15,7 +15,7 @@
     import { createProtyle } from "./libs/bkUtils";
     import { DestroyManager } from "./libs/destroyer";
     import { deleteDraftBlock, newDraftBlock, readDraftText } from "./libs/annoDraft";
-    import { getAIConfig } from "./libs/openAI";
+    import { diagnoseAIAsync } from "./libs/openAI";
     import { events } from "./libs/Events";
     import { commentBoxAddFlashCard, commentBoxAnnoEditorFontSize, commentBoxAnnoEditorMode } from "./libs/stores";
     import { getTomatoPluginInstance, siyuan } from "./libs/utils";
@@ -233,10 +233,10 @@
      *  不再弹孤儿 confirm（reasoning P2-2） */
     async function toggleChat() {
         if (!chatOpen) {
-            const cfg = await getAIConfig();
+            const d = await diagnoseAIAsync();
             if (dm.destroyed) return;
-            if (!cfg) {
-                confirm(tomatoI18n.未配置AI, tomatoI18n.尚未配置AI引导, () => { /* 引导即止 */ });
+            if ("reason" in d) {
+                confirm(tomatoI18n.未配置AI, tomatoI18n.annoAIGuideFor(d.reason), () => { /* 引导即止 */ });
                 return;
             }
             chatOpen = true;

@@ -61,14 +61,44 @@ interface SiyuanAIProvider {
     baseURL?: string;
     models?: { enabled?: boolean; name?: string }[];
 }
-export function getOfficialConfig(): { apiKey: string; baseURL: string; model: string } | undefined {
-    const providers = (Siyuan.config?.ai as any)?.providers as SiyuanAIProvider[] | undefined;
-    if (!Array.isArray(providers)) return;
-    for (const p of providers) {
-        if (!p?.enabled || !p.apiKey || !p.baseURL) continue;
-        const m = (p.models || []).find((mm) => mm?.enabled && mm.name);
-        if (m) return { apiKey: p.apiKey, baseURL: p.baseURL, model: m.name };
+/** 老结构（思源 <3.7.0）：单 provider 三件套。内核 3.7.0 起启动自动迁移，但老版本前端
+ *  getConf 返回的就是它——不读则老用户 AI 四功能全废（木卫三 09-09 报障根因）。 */
+interface SiyuanAILegacy {
+    apiBaseURL?: string;
+    apiModel?: string;
+    apiKey?: string;
+}
+export type AIDiagReason = "noProvider" | "providerDisabled" | "providerIncomplete" | "noModel";
+export type AIDiagnosis =
+    | { ok: true; apiKey: string; baseURL: string; model: string }
+    | { ok: false; reason: AIDiagReason };
+
+/** AI 配置判定：providers 优先、老结构兜底；拿不到时按「离可用最近的一步」归因
+ *  （分态提示用——弹窗须指明缺什么，勿再笼统「去设置配置」）。 */
+export function diagnoseAI(providers: SiyuanAIProvider[] | undefined, legacy?: SiyuanAILegacy): AIDiagnosis {
+    if (Array.isArray(providers)) {
+        for (const p of providers) {
+            if (!p?.enabled || !p.apiKey || !p.baseURL) continue;
+            const m = (p.models || []).find((mm) => mm?.enabled && mm.name);
+            if (m) return { ok: true, apiKey: p.apiKey, baseURL: p.baseURL, model: m.name };
+        }
     }
+    if (legacy?.apiKey && legacy.apiBaseURL && legacy.apiModel)
+        return { ok: true, apiKey: legacy.apiKey, baseURL: legacy.apiBaseURL, model: legacy.apiModel };
+    const list = Array.isArray(providers) ? providers.filter(Boolean) : [];
+    if (list.some((p) => p.enabled && p.apiKey && p.baseURL)) return { ok: false, reason: "noModel" };
+    if (list.some((p) => p.apiKey && p.baseURL)) return { ok: false, reason: "providerDisabled" };
+    if (list.length) return { ok: false, reason: "providerIncomplete" };
+    return { ok: false, reason: "noProvider" };
+}
+
+function diagToCfg(d: AIDiagnosis): { apiKey: string; baseURL: string; model: string } | undefined {
+    return d.ok ? { apiKey: d.apiKey, baseURL: d.baseURL, model: d.model } : undefined;
+}
+
+export function getOfficialConfig(): { apiKey: string; baseURL: string; model: string } | undefined {
+    const ai = (Siyuan.config?.ai as any);
+    return diagToCfg(diagnoseAI(ai?.providers as SiyuanAIProvider[] | undefined, ai?.openAI as SiyuanAILegacy | undefined));
 }
 
 /** 两级兜底取思源 AI 配置（□8 批注 AI 讨论区；recite aiGrade.getAIConfig 同款语义回迁共享库）：
@@ -79,18 +109,26 @@ export async function getAIConfig(): Promise<{ apiKey: string; baseURL: string; 
     if (snap) return snap;
     try {
         const ret = await siyuan.getConf();
-        const providers = (ret?.conf?.ai as any)?.providers as SiyuanAIProvider[] | undefined;
-        if (Array.isArray(providers)) {
-            for (const p of providers) {
-                if (!p?.enabled || !p.apiKey || !p.baseURL) continue;
-                const m = (p.models || []).find((mm) => mm?.enabled && mm.name);
-                if (m) return { apiKey: p.apiKey, baseURL: p.baseURL, model: m.name };
-            }
-        }
+        const ai = (ret?.conf?.ai as any);
+        return diagToCfg(diagnoseAI(ai?.providers as SiyuanAIProvider[] | undefined, ai?.openAI as SiyuanAILegacy | undefined));
     } catch (e) {
         console.warn("[tomato] getConf fallback failed:", e);
     }
     return undefined;
+}
+
+/** 判定失败也要知道缺什么（分态提示通道）：快照→getConf 两级收集后诊断，getConf 失败退快照结论。 */
+export async function diagnoseAIAsync(): Promise<AIDiagnosis> {
+    const aiSnap = (Siyuan.config?.ai as any);
+    const dSnap = diagnoseAI(aiSnap?.providers as SiyuanAIProvider[] | undefined, aiSnap?.openAI as SiyuanAILegacy | undefined);
+    if (dSnap.ok) return dSnap;
+    try {
+        const ret = await siyuan.getConf();
+        const ai = (ret?.conf?.ai as any);
+        return diagnoseAI(ai?.providers as SiyuanAIProvider[] | undefined, ai?.openAI as SiyuanAILegacy | undefined);
+    } catch {
+        return dSnap;
+    }
 }
 
 export class OpenAIClient {

@@ -48,6 +48,11 @@ export const timeUtil = {
     nowts(secs = 0) {
         return timeUtil.now(secs).getTime() / 1000;
     },
+    /** 内核 IAL updated 同构 14 位 yyyyMMddHHmmss 本地时间（典序=时间序；revtrace enrollment 基线用） */
+    kernelTimeNow(d = new Date()) {
+        const p = (n: number) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+    },
     now(secs = 0) {
         const ts = new Date().getTime() + secs * 1000;
         return new Date(ts);
