@@ -177,3 +177,35 @@ export function parseRPCardContent(content: string): RPCardData | null {
 export function buildRPCardBlockMD(content: string): string {
     return `${RPCARD_FENCE}\n${content}`;
 }
+
+// ---- rpcard 来源行（2026-09-09 群反馈：复习界面看不出卡属于哪篇文章）----
+// 拍板=现查方案：渲染时拿 origin 反查文档标题/最近标题块/父路径——不改卡 content，
+// v5.7.5 存量卡零迁移即生效，文档改名跟最新走。SQL/父链爬取在渲染层，此处锁纯函数。
+export interface RPCardSource {
+    docTitle: string;   // 所在文档标题（hpath 尾段）
+    parentPath: string; // 父路径（顶层文档="/"，组装时跳过）
+    section: string;    // 设点块上方最近标题块文本（无标题结构=空串）
+}
+
+/** hpath 切分：尾段=文档标题、其余=父路径；空/不以 / 开头=双空（防御 SQL 行缺失） */
+export function splitHPath(hpath: string): { docTitle: string; parentPath: string } {
+    if (!hpath.startsWith("/")) return { docTitle: "", parentPath: "" };
+    const idx = hpath.lastIndexOf("/");
+    return { docTitle: hpath.slice(idx + 1), parentPath: idx === 0 ? "/" : hpath.slice(0, idx) };
+}
+
+/** blocks 列 HTML 转义还原（recipe-rpcard 实锤 content 列 &quot;）；&amp; 须最后解（防双重） */
+export function unescapeBlockText(s: string): string {
+    return s.replaceAll("&lt;", "<").replaceAll("&gt;", ">")
+        .replaceAll("&quot;", '"').replaceAll("&#39;", "'")
+        .replaceAll("&amp;", "&");
+}
+
+/** 来源行文本：《标题》 · 小节 · /路径；空段跳过、全空=空串（渲染层不显示） */
+export function buildSourceText(s: RPCardSource): string {
+    const parts: string[] = [];
+    if (s.docTitle) parts.push(`《${s.docTitle}》`);
+    if (s.section) parts.push(s.section);
+    if (s.parentPath && s.parentPath !== "/") parts.push(s.parentPath);
+    return parts.join(" · ");
+}

@@ -1332,6 +1332,16 @@ html[data-theme-mode="dark"] .tomato-annochat-card__m--user {
     color: var(--b3-theme-on-surface-light, #999);
     white-space: nowrap;
 }
+/* 来源行（仅复习界面宿主渲染）：《文档》· 小节 · /路径 全显示，超长截断（title 兜底完整 hpath） */
+.tomato-rp-card__source {
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--b3-theme-on-surface-light, #999);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 /* excerpt 快照：surface 提一档底；折叠档 ≈6 行，展开=摘 max-height */
 .tomato-rp-card__excerpt {
     margin-top: 6px;
