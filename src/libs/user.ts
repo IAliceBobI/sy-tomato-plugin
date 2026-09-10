@@ -1,10 +1,6 @@
-import { ec as EC } from 'elliptic';
-import { getMd5, siyuan, Siyuan, timeUtil } from './utils';
+import { siyuan, Siyuan, timeUtil } from './utils';
 import { userID, userToken, writableWithGet } from './stores';
-
-const MY_PUBKEY = "044ad3bfb46f3b89979dd551a5dada23f8502f8a0c54d247e1f8d31e5d7705a978df1ef30ba5a4b5206f0b0f573c8f76feada715f949430187f62f5640ca144aa7";
-const ec = new EC('secp256k1');
-const keyPair = ec.keyFromPublic(MY_PUBKEY, 'hex')
+import { verifyUserSignPure } from './userVerify';
 // □3 V2（2026-08-31）：验证结果 store 化——PairBar 等响应式组件读 $vipVerified 即时
 // 跟随（原模块变量读取在验证后灰态滞后到重挂）；lastVerifyResult() 签名不变返回
 // .get()，既有命令式调用点零改动。null=未验证。
@@ -101,72 +97,11 @@ async function verifyKey(included: string) {
 }
 
 async function verifyUserSign(tokenSign: string, included: string) {
-    let signValid = false;
-    let userPart = "";
-    let userPartShort = "";
-    let exp = "";
-    let ldID = "";
-    let name = "";
-    {
-        // 1656951563417_22240101_ldID_siyuanTomatoCode_30qqqqqqqqqqqqqq..
-        const parts = tokenSign?.split(included);
-        if (parts?.length === 2) {
-            userPartShort = parts[0];
-            userPart = userPartShort + included;
-            const sign = parts[1];
-            try {
-                const msgHash = getMd5(userPart)
-                signValid = keyPair.verify(msgHash, sign);
-            } catch {
-                signValid = false;
-            }
-        }
-    }
-    {
-        // freecbly0fNG4_20241206_name
-        // 1656951563417_22240101_ldID
-        const ps = userPartShort.split("_")
-        if (ps.length === 3) {
-            exp = ps[1];
-            if (ps[2] === "ldID") {
-                ldID = ps[0];
-            } else if (ps[2] === "name") {
-                name = ps[0];
-            }
-        }
-    }
-    if (signValid) {
-        signValid = await checkUserID(ldID, name, exp);
-    }
-
-    // if ([
-    //     "",
-    // ].includes(getMd5(userPartShort))) signValid = false;
-    if ([
-        "e1255da1e2caf502a408c34c8d336ae7",
-    ].includes(getMd5(userPartShort + "_siyuanTomatoCode"))) signValid = false;
-    if ([
-        "e0cb783f11f5c6d8e3891124c8f06fb6",
-    ].includes(getMd5(userPartShort + "_siyuanProgressiveCode"))) signValid = false;
-    if ([
-        "9fac2fca1710a5a38eac53df8cddb9bd",
-    ].includes(getMd5(userPartShort.split("_").at(0)))) signValid = false;
-
-    if (included && !tokenSign.includes(included)) signValid = false;
-    return { exp, valid: signValid, ldID, name };
-}
-
-async function checkUserID(ldID: string, name: string, exp: string) {
+    // 验签纯逻辑在 userVerify.ts（与 recite kernel.js 共用一份，防双端漂移）；
+    // 此处只注入内核时间与当前登录身份，行为与 2026-09-09 前内联版逐句等价
     const ms = await siyuan.currentTimeMs();
     const { y, M, d } = timeUtil.nowYMDStrPad(new Date(ms));
-    const nowStr = y + M + d;
-    expStore.set(getUserCodeExp(exp));
-    if (nowStr <= exp) {
-        if (ldID) {
-            return ldID === userID.get();
-        } else if (name) {
-            return true;
-        }
-    }
-    return false;
+    const r = verifyUserSignPure(tokenSign, included, y + M + d, userID.get());
+    if (r.signOk) expStore.set(getUserCodeExp(r.exp));
+    return { exp: r.exp, valid: r.valid, ldID: r.ldID, name: r.name };
 }

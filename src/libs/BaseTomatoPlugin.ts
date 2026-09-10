@@ -1,11 +1,14 @@
 import { Plugin } from "siyuan";
 import { newID } from "stonev5-utils";
+import type { ToolCaller } from "./agentTools";
 
 declare global {
     interface Window {
         tomato_zZmqus5PtYRi_doc_tracer: any;
         tomato_zZmqus5PtYRi: {
             pluginInstance: any;
+            /** A 层工具前端门脸（ai-agent □1）：与 kernel MCP 同源工具的直调面 */
+            agentTools?: ToolCaller;
             pluginID: string;
             pluginConfig: TomatoSettings;
             plugin: any;

@@ -59,6 +59,7 @@ import {
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { lastVerifyResult } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
+import { cmdOn, gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { openHelpDialog } from "./libs/helpDialog";
 import helpDocs from "./help.json";
@@ -152,9 +153,10 @@ class PairBarBox {
     async onload(plugin: BaseTomatoPlugin) {
         this.plugin = plugin;
 
-        // 入口 1：快捷键（命令恒注册保键位表可改；入口开关只拦行为）
-        this.plugin.addCommand({
-            langKey: PairBar触发.langKey,
+        // 入口 1：快捷键（featgate □5：注册级 commandToggles 门控，关=命令与键位表条目
+        // 齐消；回调内 pairBarEntryHotkey 行为门保留=双 gate 并存——注册级管命令面板
+        // 可见性、行为级管键位按下是否触发）
+        gatedAddCommand(this.plugin, PairBar触发.langKey, {
             langText: PairBar触发.langText(),
             hotkey: PairBar触发.m,
             callback: () => {
@@ -496,7 +498,10 @@ class PairBarBox {
      *  键位 .w() 现读 keymap（每次点 ⋯ 现构造菜单=永远新鲜，沿状态栏 tooltip 先例）；
      *  点击查 langKey→callback 注册表直调（登记点=LinkBox/CpBox addCommand，总开关关
      *  =表空=落空，正确语义）；VIP 门禁（嵌入互链）在命令 callback 内部自验不变。
-     *  组名用 disabled 菜单项（灰显不可点=纯标题语义）。 */
+     *  组名用 disabled 菜单项（灰显不可点=纯标题语义）。
+     *  featgate □5（review P1）：条目过 cmdOn 过滤（commandToggles 关=命令与速查项齐
+     *  消失，组空连组名一并跳过——否则死条目+幽灵键帽）；触发项同门控（速查入口不再
+     *  绕过命令开关）。菜单每次点开现构造=过滤天然活态（开关改动经结构性重载后即新）。 */
     private quickRefItem(): any {
         type Hk = { langKey: string; langText(): string; w(): string };
         const groups: Array<[string, Hk[]]> = [
@@ -513,16 +518,21 @@ class PairBarBox {
                 CpBox批量删除大量连续内容块, CpBox批量移动大量连续内容块, CpBox批量复制大量连续内容块,
             ]],
         ];
-        const submenu: any[] = [{
-            label: PairBar触发.langText(),
-            icon: PairBar触发.icon,
-            accelerator: PairBar触发.w(),
-            // 浮条已开着：点击=同一触发器推进一步（funcs 收面板/slots 填下一空框），与快捷键/状态栏同款
-            click: () => void this.trigger(),
-        }];
+        const submenu: any[] = [];
+        if (cmdOn(PairBar触发.langKey)) {
+            submenu.push({
+                label: PairBar触发.langText(),
+                icon: PairBar触发.icon,
+                accelerator: PairBar触发.w(),
+                // 浮条已开着：点击=同一触发器推进一步（funcs 收面板/slots 填下一空框），与快捷键/状态栏同款
+                click: () => void this.trigger(),
+            });
+        }
         for (const [group, cmds] of groups) {
+            const live = cmds.filter(c => cmdOn(c.langKey));
+            if (!live.length) continue;
             submenu.push({ type: "separator" }, { label: group, disabled: true });
-            for (const c of cmds) {
+            for (const c of live) {
                 submenu.push({
                     label: c.langText(),
                     accelerator: c.w(),

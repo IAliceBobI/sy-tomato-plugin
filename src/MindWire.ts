@@ -6,6 +6,7 @@ import { events, EventType } from "./libs/Events";
 import { getAttribute, getID, isEditor, normalizeWordRange, siyuan } from "./libs/utils";
 import { murmurHash3 } from "./libs/hash";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { tomatoI18n } from "./tomatoI18n";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
@@ -1250,15 +1251,13 @@ class MindWire {
             }
         });
 
-        this.plugin.addCommand({
-            langKey: MindWire启用或禁用思维导线.langKey,
+        gatedAddCommand(this.plugin, MindWire启用或禁用思维导线.langKey, {
             langText: MindWire启用或禁用思维导线.langText(),
             hotkey: MindWire启用或禁用思维导线.m,
             callback: () => this.globalEnable(),
         });
 
-        this.plugin.addCommand({
-            langKey: MindWire启用或禁用文档思维导线.langKey,
+        gatedAddCommand(this.plugin, MindWire启用或禁用文档思维导线.langKey, {
             langText: MindWire启用或禁用文档思维导线.langText(),
             hotkey: MindWire启用或禁用文档思维导线.m,
             editorCallback: (protyle: IProtyle) => toggleDocMindWire(protyle),
@@ -1266,8 +1265,7 @@ class MindWire {
 
         // 二期 □1 入口三通道之一：命令快捷键一键两态（editorCallback 不弹菜单，
         // 选区不被顶掉，比右键菜单更稳；与工具条项共享 keymap 节点 WORD_TOOLBAR_NAME）
-        this.plugin.addCommand({
-            langKey: MindWire划词连线.langKey,
+        gatedAddCommand(this.plugin, MindWire划词连线.langKey, {
             langText: MindWire划词连线.langText(),
             hotkey: MindWire划词连线.m,
             editorCallback: (protyle: IProtyle) => this.wordWireAction(protyle),

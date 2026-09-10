@@ -8,12 +8,18 @@ export function buildMessages(text: string): ChatCompletionMessageParam[] {
     return [{ role: "user", content: text }];
 }
 
-// 2. 发起流式请求 —— 这步炸 = 配置/网络/模型问题；signal 可选（□8 批注 AI 讨论区 Esc 中断用）
+// 2. 发起流式请求 —— 这步炸 = 配置/网络/模型问题；signal 可选（□8 批注 AI 讨论区 Esc 中断用）；
+// tools 可选（ai-agent □5 面板工具循环：不传=普通问答，传=AI 可发 tool_calls）
 export async function createStream(
-    openai: OpenAI, model: string, messages: ChatCompletionMessageParam[], signal?: AbortSignal
+    openai: OpenAI, model: string, messages: ChatCompletionMessageParam[], signal?: AbortSignal,
+    tools?: { type: "function"; function: any }[],
 ): Promise<Stream<ChatCompletionChunk> | undefined> {
     try {
-        return await openai.chat.completions.create({ model, messages, stream: true }, signal ? { signal } : undefined);
+        const body = {
+            model, messages, stream: true as const,
+            ...(tools?.length ? { tools } : {}),
+        };
+        return await openai.chat.completions.create(body, signal ? { signal } : undefined);
     } catch (e) {
         console.error(e, messages);
         return undefined;
@@ -141,8 +147,8 @@ export class OpenAIClient {
         });
     }
 
-    async createStreamPublic(model: string, messages: ChatCompletionMessageParam[], signal?: AbortSignal) {
-        return createStream(this.openai, model, messages, signal);
+    async createStreamPublic(model: string, messages: ChatCompletionMessageParam[], signal?: AbortSignal, tools?: { type: "function"; function: any }[]) {
+        return createStream(this.openai, model, messages, signal, tools);
     }
 
     // 非流式一次拿全（recite AI 拆分用：整篇送 AI 回 JSON 定位，无逐块写回不必流式）。

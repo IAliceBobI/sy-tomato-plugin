@@ -308,6 +308,11 @@
     pointer-events: none;
     opacity: 50%; /* 未激活置灰档：与 .tomato-chip--disabled 同档（30% 暗色主题下标签难辨认） */
 }
+/* puncttidy □4：速记折叠子开关行随总开关禁用——原生 input disabled 只暗旋钮不暗文本，
+   整行挂同款 50% 置灰档（vision P1），扫视一眼可知不可点 */
+.tomato-settings-dialog .settingBox .punct-row-disabled {
+    opacity: 50%;
+}
 .tomato-settings-dialog .contentCenter {
     display: flex;
     justify-content: center;
@@ -924,6 +929,16 @@
  * 搜索栏整个吃掉（vision □1 P0-2：点导航后首卡无头截断） */
 .tomato-settings-dialog [data-nav-anchor] {
     scroll-margin-top: calc(var(--tomato-sticky-top) + 8px);
+}
+/* 滚动容器级 scroll-padding（featgate □3 vision 复核）：sticky 搜索栏/保存 footer
+ * 对一切编程式滚动（scrollIntoView/键盘焦点让位）吞卡顶与卡底——上面 scroll-margin
+ * 只罩导航锚点卡，域内其余卡（命令开关各族卡等）裸奔（焦点落到 sticky 层底下不可见
+ * ，上下两向同病：底部曾实测 footer 52px 浮盖吞整行）；scroll-padding 挂滚动容器对
+ * 所有落点一次性生效（60 = sticky 层 52 + 8 呼吸，两向同规）。:has 限定只匹配挂本
+ * 面板的 Dialog——公共类 .b3-dialog__body 零触碰，渐进/recite 同挂
+ * .tomato-settings-dialog 同受益（同款 sticky 上下条同病） */
+.b3-dialog__body:has(.tomato-settings-dialog) {
+    scroll-padding: 60px 0;
 }
 /* 窄屏（沿 settings-panel-unify 480 断点）：双栏收单栏，导航变横滚 tab 条。
  * tab 条须 sticky 贴搜索栏之下——static 时一点 tab 触发锚点滚动、tab 条即滚出视口

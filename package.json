@@ -1,12 +1,14 @@
 {
   "name": "sy-tomato-plugin",
-  "version": "5.7.8",
+  "version": "5.8.0",
   "description": "思源笔记工具箱插件：状态栏番茄钟、AI 问答、块关系图、数据库反链等",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build",
+    "dev:kernel": "vite build --watch --config vite.kernel.config.ts",
+    "build:kernel": "vite build --config vite.kernel.config.ts",
+    "build": "npm run build:kernel && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:unit": "vitest run --project unit"

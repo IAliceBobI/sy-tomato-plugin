@@ -7,6 +7,7 @@ import html2canvas from 'html2canvas';
 import { getAllText, siyuan, } from "./libs/utils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
@@ -18,8 +19,7 @@ class ImgBox {
     async onload(plugin: BaseTomatoPlugin) {
         if (!imgBoxCheckbox.get()) return;
         this.plugin = plugin;
-        this.plugin.addCommand({
-            langKey: ImgBoxHotKey.langKey,
+        gatedAddCommand(this.plugin, ImgBoxHotKey.langKey, {
             langText: tomatoI18n.复制为图片,
             hotkey: ImgBoxHotKey.m,
             callback: async () => {

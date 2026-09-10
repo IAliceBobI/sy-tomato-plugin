@@ -81,7 +81,7 @@ export async function getHpath(id: string) {
     return id;
 }
 
-export async function getMarkdownsByTrees(ids: string[], boxID = "") {
+export async function getMarkdownsByTrees(ids: string[], boxID = "", silent = false) {
     const allDocRows: Block[] = await getTreeDocIDs(ids, boxID);
 
     const mds: Block[] = [];
@@ -91,7 +91,7 @@ export async function getMarkdownsByTrees(ids: string[], boxID = "") {
             row.markdown = md;
             return row;
         })))
-        siyuan.pushMsg(`copied: ${mds.length}/${allDocRows.length}`)
+        if (!silent) siyuan.pushMsg(`copied: ${mds.length}/${allDocRows.length}`)
     }
     return mds;
 }

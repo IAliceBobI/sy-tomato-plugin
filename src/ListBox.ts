@@ -7,6 +7,7 @@ import { dont_break_list, listBoxCheckbox } from "./libs/stores";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { tomatoI18n } from "./tomatoI18n";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 
 export const ListBox取消勾选当前文档所有已完成的todo任务 = winHotkey("alt+shift+ctrl+G", "uncheckall", "", () => tomatoI18n.取消勾选当前文档所有已完成的todo任务)
 export const ListBox删除当前文档所有已完成的todo任务 = winHotkey("alt+shift+ctrl+H", "delAllchecked", "", () => tomatoI18n.删除当前文档所有已完成的todo任务)
@@ -21,8 +22,7 @@ class ListBox {
 
         this.plugin = plugin;
 
-        this.plugin.addCommand({
-            langKey: ListBox取消勾选当前文档所有已完成的todo任务.langKey,
+        gatedAddCommand(this.plugin, ListBox取消勾选当前文档所有已完成的todo任务.langKey, {
             langText: ListBox取消勾选当前文档所有已完成的todo任务.langText(),
             hotkey: ListBox取消勾选当前文档所有已完成的todo任务.m,
             callback: async () => {
@@ -30,8 +30,7 @@ class ListBox {
             },
         });
 
-        this.plugin.addCommand({
-            langKey: ListBox删除当前文档所有已完成的todo任务.langKey,
+        gatedAddCommand(this.plugin, ListBox删除当前文档所有已完成的todo任务.langKey, {
             langText: ListBox删除当前文档所有已完成的todo任务.langText(),
             hotkey: ListBox删除当前文档所有已完成的todo任务.m,
             callback: async () => {

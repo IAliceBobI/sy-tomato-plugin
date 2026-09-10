@@ -17,6 +17,7 @@ import {
 import { lastVerifyResult } from "./libs/user";
 import { getTomatoPluginConfig, getTomatoPluginInstance } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { tomatoI18n } from "./tomatoI18n";
 import { actionRegistry } from "./actions";
@@ -169,8 +170,7 @@ export function loadFloatingBall() {
     }
     if (floatingballEnable.get()) {
         {
-            getTomatoPluginInstance().addCommand({
-                langKey: FloatingBallTab添加文档.langKey,
+            gatedAddCommand(getTomatoPluginInstance(), FloatingBallTab添加文档.langKey, {
                 langText: FloatingBallTab添加文档.langText(),
                 hotkey: FloatingBallTab添加文档.m,
                 editorCallback: (protyle) => {
@@ -178,8 +178,7 @@ export function loadFloatingBall() {
                     linkDoc2floatBall(name, "", FloatingBallDocType_tab.id, docID);
                 },
             });
-            getTomatoPluginInstance().addCommand({
-                langKey: FloatingBall添加文档.langKey,
+            gatedAddCommand(getTomatoPluginInstance(), FloatingBall添加文档.langKey, {
                 langText: FloatingBall添加文档.langText(),
                 hotkey: FloatingBall添加文档.m,
                 editorCallback: (protyle) => {

@@ -19,6 +19,7 @@ import { debugLog } from "./libs/logUtils";
 import { anchorEditExemptsVersionGuards, createTrailingDebouncer, decideGroupAction, deepScanVerdict, editingInsideGroup, monotonicHeal, pendingIsDeletionShaped, pivotSyncPeers, scanRecheckPlan, verMapGate, LivePeer, SyncPeerState, VerMapCache } from "./libs/syncDecision";
 import { newID } from "stonev5-utils";
 import { winHotkey } from "./libs/winHotkey";
+import { cmdOn, recordCmdKey } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { mount, unmount } from "svelte";
 
@@ -79,7 +80,10 @@ class LinkBox {
 
     /** addCommand+速查登记二合一（R5 □3）：⋯ 菜单速查子菜单点击查表直调
      *  （regBilinkCmds/regSyncBlockCmds 共用；类箭头方法保 this） */
+    // featgate □5：二合一随 commandToggles 逐条门控（关=命令+速查项齐不出现）
     private addPairCmd = (cmd: any) => {
+        recordCmdKey(cmd.langKey);
+        if (!cmdOn(cmd.langKey)) return;
         this.plugin.addCommand(cmd);
         regPairCmd(cmd.langKey, cmd.editorCallback ?? cmd.callback);
     };

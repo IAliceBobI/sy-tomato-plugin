@@ -8,6 +8,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { domLnk, domRef } from "./libs/sydom";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 
 export const Tag2RefBox模糊查找引用Ref = winHotkey("shift+alt+4", "模糊查找引用Ref", "iconSearch", () => tomatoI18n.模糊查找引用 + "(ref)")
@@ -23,16 +24,14 @@ class Tag2RefBox {
 
         this.plugin = plugin;
 
-        this.plugin.addCommand({
-            langKey: Tag2RefBox模糊查找引用Ref.langKey,
+        gatedAddCommand(this.plugin, Tag2RefBox模糊查找引用Ref.langKey, {
             langText: Tag2RefBox模糊查找引用Ref.langText(),
             hotkey: Tag2RefBox模糊查找引用Ref.m,
             editorCallback: (protyle: IProtyle) => {
                 this.fuzzySearch(protyle, "ref");
             },
         });
-        this.plugin.addCommand({
-            langKey: Tag2RefBox模糊查找引用Lnk.langKey,
+        gatedAddCommand(this.plugin, Tag2RefBox模糊查找引用Lnk.langKey, {
             langText: Tag2RefBox模糊查找引用Lnk.langText(),
             hotkey: Tag2RefBox模糊查找引用Lnk.m,
             editorCallback: (protyle: IProtyle) => {

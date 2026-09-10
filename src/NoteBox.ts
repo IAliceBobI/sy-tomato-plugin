@@ -4,7 +4,7 @@ import { add_ref, convertMinutesToTimeFormat, doubleSupRows, getContenteditableE
 import NoteBoxSvelte from "./NoteBox.svelte";
 import { TOMATO_IDEA_QUEUE } from "./libs/gconst";
 import { DestroyManager } from "./libs/destroyer";
-import { avoiding_cloud_synchronization_conflicts, flash_thoughts_2_top, flash_thoughts_target_file, noteBoxCheckbox, storeNoteBox_fastnote, storeNoteBox_pin, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType } from "./libs/stores";
+import { avoiding_cloud_synchronization_conflicts, flash_thoughts_2_top, flash_thoughts_target_file, noteBoxCheckbox, noteBoxMobileSync, storeNoteBox_fastnote, storeNoteBox_pin, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType } from "./libs/stores";
 import { shouldRepinDailyNote } from "./libs/dailyCollect";
 import { isDailyNoteIal } from "./libs/dailyReview";
 import { isPinned, removeStatusBar } from "./libs/ui";
@@ -76,30 +76,35 @@ class NoteBox {
                     this.showInDialog();
                 },
             });
-            const syncIcon = this.plugin.addTopBar({
-                icon: "iconCloudSucc",
-                title: tomatoI18n.同步数据,
-                position: "left",
-                callback: () => {
-                    siyuan.performSync(true);
-                },
-            });
-            events.addListener("note-box ws 2024-12-15 09:11:501", (eventType, detail) => {
-                if (eventType === EventType.sync_fail) {
-                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudError")
-                    // 线性图标三态仅 3~4px 形态差，补状态色保辨识（vision P1：失败态须醒目）
-                    syncIcon.style.color = "var(--b3-theme-error)"
-                    siyuan.pushMsg(detail.msg, 3000);
-                }
-                if (eventType === EventType.sync_start) {
-                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloud")
-                    syncIcon.style.color = ""
-                }
-                if (eventType === EventType.sync_end) {
-                    syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudSucc")
-                    syncIcon.style.color = "var(--b3-theme-primary)"
-                }
-            });
+            // featgate □2 死角补口：移动端「同步数据」顶栏钮独立开关（默认开=现状零迁移）；
+            // 钮+状态监听一体门控（监听改 syncIcon 图标，钮不在场监听无意义）。onload 注册
+            // 读死——改须插件重载（STRUCTURAL_KEYS 已登记）
+            if (noteBoxMobileSync.get()) {
+                const syncIcon = this.plugin.addTopBar({
+                    icon: "iconCloudSucc",
+                    title: tomatoI18n.同步数据,
+                    position: "left",
+                    callback: () => {
+                        siyuan.performSync(true);
+                    },
+                });
+                events.addListener("note-box ws 2024-12-15 09:11:501", (eventType, detail) => {
+                    if (eventType === EventType.sync_fail) {
+                        syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudError")
+                        // 线性图标三态仅 3~4px 形态差，补状态色保辨识（vision P1：失败态须醒目）
+                        syncIcon.style.color = "var(--b3-theme-error)"
+                        siyuan.pushMsg(detail.msg, 3000);
+                    }
+                    if (eventType === EventType.sync_start) {
+                        syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloud")
+                        syncIcon.style.color = ""
+                    }
+                    if (eventType === EventType.sync_end) {
+                        syncIcon.firstElementChild?.firstElementChild?.setAttribute("xlink:href", "#iconCloudSucc")
+                        syncIcon.style.color = "var(--b3-theme-primary)"
+                    }
+                });
+            }
         }
 
         events.addListener("tomato-note-box-2024-11-29 10:40:12", (eventType, detail) => {

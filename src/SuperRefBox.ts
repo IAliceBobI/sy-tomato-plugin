@@ -2,6 +2,7 @@ import { dom2div, into } from "stonev5-utils";
 import { superRefBoxCheckBox, superRefBoxGlobalFixMenu, superRefBoxGlobalLnkMenu } from "./libs/stores";
 import { getBlockDiv, getTomatoPluginInstance, NewConfiguredLute, setAttribute, siyuan, } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
@@ -12,8 +13,7 @@ export const SuperRefBox全局修复引用 = winHotkey("alt+shift+ctrl+2", "Supe
 class SuperRefBox {
     async onload() {
         if (!superRefBoxCheckBox.get()) return;
-        getTomatoPluginInstance().addCommand({
-            langKey: SuperRefBox全局加固引用.langKey,
+        gatedAddCommand(getTomatoPluginInstance(), SuperRefBox全局加固引用.langKey, {
             langText: SuperRefBox全局加固引用.langText(),
             hotkey: SuperRefBox全局加固引用.m,
             callback: async () => {
@@ -32,8 +32,7 @@ class SuperRefBox {
             }, SuperRefBox全局加固引用.menu());
         });
 
-        getTomatoPluginInstance().addCommand({
-            langKey: SuperRefBox全局修复引用.langKey,
+        gatedAddCommand(getTomatoPluginInstance(), SuperRefBox全局修复引用.langKey, {
             langText: SuperRefBox全局修复引用.langText(),
             hotkey: SuperRefBox全局修复引用.m,
             editorCallback: async (protyle) => {

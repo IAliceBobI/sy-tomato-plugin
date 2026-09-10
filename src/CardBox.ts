@@ -11,6 +11,7 @@ import { getDocTracer, locTree, OpenSyFile2 } from "./libs/docUtils";
 import { closeAllDialog } from "./libs/keyboard";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { verifyKeyTomato } from "./libs/user";
 import { mount, unmount } from "svelte";
@@ -46,40 +47,35 @@ class CardBox {
         if (!cardBoxCheckbox.get()) return;
         await verifyKeyTomato();
         this.plugin = plugin;
-        this.plugin.addCommand({
-            langKey: CardBox用选中的行创建超级块超级块制卡取消制卡.langKey,
+        gatedAddCommand(this.plugin, CardBox用选中的行创建超级块超级块制卡取消制卡.langKey, {
             langText: CardBox用选中的行创建超级块超级块制卡取消制卡.langText(),
             hotkey: CardBox用选中的行创建超级块超级块制卡取消制卡.m,
             editorCallback: async (protyle: IProtyle) => {
                 addFlashCard(protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get());
             },
         });
-        this.plugin.addCommand({
-            langKey: CardBox取消当前文档内所有闪卡.langKey,
+        gatedAddCommand(this.plugin, CardBox取消当前文档内所有闪卡.langKey, {
             langText: CardBox取消当前文档内所有闪卡.langText(),
             hotkey: CardBox取消当前文档内所有闪卡.m,
             callback: () => {
                 removeDocCards(events.docID);
             },
         });
-        this.plugin.addCommand({
-            langKey: CardBox复习时删除当前闪卡.langKey,
+        gatedAddCommand(this.plugin, CardBox复习时删除当前闪卡.langKey, {
             langText: CardBox复习时删除当前闪卡.langText(),
             hotkey: CardBox复习时删除当前闪卡.m,
             callback: () => {
                 this.delCard(false);
             },
         });
-        this.plugin.addCommand({
-            langKey: CardBox删除内容块.langKey,
+        gatedAddCommand(this.plugin, CardBox删除内容块.langKey, {
             langText: CardBox删除内容块.langText(),
             hotkey: CardBox删除内容块.m,
             callback: () => {
                 this.delCard(true);
             },
         });
-        this.plugin.addCommand({
-            langKey: CardBox闪卡复习时打开闪卡设置.langKey,
+        gatedAddCommand(this.plugin, CardBox闪卡复习时打开闪卡设置.langKey, {
             langText: CardBox闪卡复习时打开闪卡设置.langText(),
             hotkey: CardBox闪卡复习时打开闪卡设置.m,
             callback: async () => {
@@ -89,22 +85,19 @@ class CardBox {
                 }
             },
         });
-        this.plugin.addCommand({
-            langKey: CardBox复习时跳过当前闪卡.langKey,
+        gatedAddCommand(this.plugin, CardBox复习时跳过当前闪卡.langKey, {
             langText: CardBox复习时跳过当前闪卡.langText(),
             hotkey: CardBox复习时跳过当前闪卡.m,
             callback: pressSkip,
         });
-        this.plugin.addCommand({
-            langKey: CardBox清理所有失效的闪卡.langKey,
+        gatedAddCommand(this.plugin, CardBox清理所有失效的闪卡.langKey, {
             langText: CardBox清理所有失效的闪卡.langText(),
             hotkey: CardBox清理所有失效的闪卡.m,
             callback: () => {
                 siyuan.removeBrokenCards(tomatoI18n)
             },
         });
-        this.plugin.addCommand({
-            langKey: CardBox定位闪卡.langKey,
+        gatedAddCommand(this.plugin, CardBox定位闪卡.langKey, {
             langText: CardBox定位闪卡.langText(),
             hotkey: CardBox定位闪卡.m,
             callback: () => {

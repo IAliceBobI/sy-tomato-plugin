@@ -7,11 +7,9 @@
     import {
         aiBoxCheckbox,
         aiBoxMenuShow,
+        aiPanelCheckbox,
         cozeSearchAppID,
-        cozeSearchBoxCheckbox,
-        cozeSearchDoubaoID,
         cozeSearchKnowledgeID,
-        cozeSearchMenuShow,
         cozeSearchOauthTokenID,
         cozeSearchSpaceID,
         prefixArticlesEnable,
@@ -20,7 +18,6 @@
         hiddenMenuItems,
     } from "./libs/stores";
     import { AIBoxHotkey } from "./AIBox";
-    import { CozeSearchBoxHotkey } from "./CozeSearchBox";
     import { PrefixArticles前缀文档树 } from "./PrefixArticles";
     import {
         MixBox复制文档为纯文本,
@@ -75,41 +72,40 @@
             </div>
         {/if}
     </div>
-    <!-- 豆包知识库 -->
+    <!-- AI 助手面板（ai-agent □5）：右侧 dock 问答面板，总开关；快捷键= dock 键位（⌥⌘H，可改） -->
     <div class="settingBox">
         <div class="section-title">
-            <input type="checkbox" class="b3-switch" bind:checked={$cozeSearchBoxCheckbox} />
-            coze{tomatoI18n.知识库问答}<HotkeyCap hk={CozeSearchBoxHotkey} pluginName="sy-tomato-plugin"></HotkeyCap>
+            <input type="checkbox" class="b3-switch" bind:checked={$aiPanelCheckbox} />
+            {tomatoI18n.AI助手}
+        </div>
+        {#if $aiPanelCheckbox}
+            <div>{tomatoI18n.AI面板说明}</div>
+            <div>{tomatoI18n.评分引导}</div>
+        {/if}
+    </div>
+    <!-- 豆包知识库（AI 工具层 coze 工具配置区：旧 CozeSearchBox 弹窗 UI 已退役，能力沉工具） -->
+    <div class="settingBox">
+        <div class="section-title">
+            coze{tomatoI18n.知识库问答}（AI 工具）
             <ConfHelpIcon token="ENZfd6zfKoTZPqxZxf2c4uWVnow" />
         </div>
-        {#if $cozeSearchBoxCheckbox}
-            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
-
-            <div>
-                <input class="b3-text-field" bind:value={$cozeSearchOauthTokenID} />
-                <a href="https://www.coze.cn/open/oauth/pats">{tomatoI18n.添加令牌}</a>
-            </div>
-            <div>
-                <input class="b3-text-field" bind:value={$cozeSearchSpaceID} />
-                <a href="https://www.coze.cn/space">{tomatoI18n.添加空间ID}</a>
-            </div>
-            <div>
-                <input class="b3-text-field" bind:value={$cozeSearchKnowledgeID} />
-                <a href="https://www.coze.cn/space/{$cozeSearchSpaceID}/library">{tomatoI18n.添加知识库ID}</a>
-            </div>
-            <div>
-                <input class="b3-text-field" bind:value={$cozeSearchAppID} />
-                <a href="https://www.coze.cn/space/{$cozeSearchSpaceID}/develop">{tomatoI18n.添加智能体ID}</a>
-            </div>
-            <div>
-                <input class="b3-text-field" bind:value={$cozeSearchDoubaoID} />
-                {tomatoI18n.豆包智能体ID}
-            </div>
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$cozeSearchMenuShow} />
-                {tomatoI18n.menu添加右键菜单}
-            </div>
-        {/if}
+        <div>{tomatoI18n.供AI工具层的coze工具使用}</div>
+        <div>
+            <input class="b3-text-field" placeholder={tomatoI18n.添加令牌} bind:value={$cozeSearchOauthTokenID} />
+            <a href="https://www.coze.cn/open/oauth/pats">{tomatoI18n.添加令牌}</a>
+        </div>
+        <div>
+            <input class="b3-text-field" placeholder={tomatoI18n.添加空间ID} bind:value={$cozeSearchSpaceID} />
+            <a href="https://www.coze.cn/space">{tomatoI18n.添加空间ID}</a>
+        </div>
+        <div>
+            <input class="b3-text-field" placeholder={tomatoI18n.添加知识库ID} bind:value={$cozeSearchKnowledgeID} />
+            <a href="https://www.coze.cn/space/{$cozeSearchSpaceID}/library">{tomatoI18n.添加知识库ID}</a>
+        </div>
+        <div>
+            <input class="b3-text-field" placeholder={tomatoI18n.添加智能体ID} bind:value={$cozeSearchAppID} />
+            <a href="https://www.coze.cn/space/{$cozeSearchSpaceID}/develop">{tomatoI18n.添加智能体ID}</a>
+        </div>
     </div>
     <!-- 已收纳命令（三期杂项分家桶1：被官方/自家新版替代收纳待翻新，命令与键帽功能照常） -->
     <div class="settingBox">

@@ -7,7 +7,7 @@
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
     import { tomatoI18n } from "./tomatoI18n";
-    import { tomatoSettingsOpenHK, tomatoBigReloadHK } from ".";
+    import { tomatoSettingsOpenHK, tomatoBigReloadHK } from "./libs/entryHotkeys";
     import { ScheduleCopyID } from "./Schedule";
     import { addFoldCmd折叠, addFoldCmd展开 } from "./fold";
     import { SPACE } from "./libs/gconst";
@@ -15,6 +15,8 @@
         bigReloadTopbar,
         copyIdCheckbox,
         foldCmdCheckbox,
+        punctTidyEnable,
+        punctTidyExtRules,
         toolbarspacerepeat,
         toolbarrefreshVr,
         toolbarlocatedoc,
@@ -72,6 +74,16 @@
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$toolbarTidy} />
             {ToolBarBox整理assets下的图片视频音频.langText()}<HotkeyCap hk={ToolBarBox整理assets下的图片视频音频} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <!-- 打字标点自动整理（2026-09-10 puncttidy seller 迁入，免费）：总开关=onload 挂
+             observer（保存→插件级重载生效）；子开关=速记折叠扩展规则（保存即时生效） -->
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$punctTidyEnable} />
+            {tomatoI18n.打字标点自动整理}
+        </div>
+        <div class:punct-row-disabled={!$punctTidyEnable}>
+            <input type="checkbox" class="b3-switch" bind:checked={$punctTidyExtRules} disabled={!$punctTidyEnable} />
+            {tomatoI18n.速记折叠标点规则}
         </div>
         <!-- 语言切换六钮（中/英/臺/日/西/法）显隐：无命令热键，纯开关行 -->
         <div>

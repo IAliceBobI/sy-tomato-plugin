@@ -8,6 +8,7 @@ import { events } from "./libs/Events";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { getDocBlocks } from "./libs/docUtils";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { walkAndClean, cleanWalkPolicy, shouldAbortClean, WalkPolicy, NamingCtx, getNamingCtx } from "./libs/exportNaming";
 import { pushUniq, setGlobal } from "stonev5-utils";
 
@@ -24,8 +25,7 @@ class MarkdownExportBox {
         if (!events.isDesktop) return;
         await verifyKeyTomato();
 
-        getTomatoPluginInstance().addCommand({
-            langKey: MarkdownExport全量导出.langKey,
+        gatedAddCommand(getTomatoPluginInstance(), MarkdownExport全量导出.langKey, {
             langText: MarkdownExport全量导出.langText(),
             hotkey: MarkdownExport全量导出.m,
             callback: () => {
@@ -33,8 +33,7 @@ class MarkdownExportBox {
             },
         });
 
-        getTomatoPluginInstance().addCommand({
-            langKey: MarkdownExport增量导出.langKey,
+        gatedAddCommand(getTomatoPluginInstance(), MarkdownExport增量导出.langKey, {
             langText: MarkdownExport增量导出.langText(),
             hotkey: MarkdownExport增量导出.m,
             callback: () => {
@@ -42,8 +41,7 @@ class MarkdownExportBox {
             },
         });
 
-        getTomatoPluginInstance().addCommand({
-            langKey: MarkdownExport确保导出符合配置.langKey,
+        gatedAddCommand(getTomatoPluginInstance(), MarkdownExport确保导出符合配置.langKey, {
             langText: MarkdownExport确保导出符合配置.langText(),
             hotkey: MarkdownExport确保导出符合配置.m,
             callback: () => {

@@ -9,6 +9,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { setGlobal } from "stonev5-utils";
 
 export const ToolBarBox间隔重复 = winHotkey("alt+backspace", "间隔重复", "iconRiffCard", () => tomatoI18n.复习闪卡)
@@ -125,26 +126,24 @@ class ToolbarBox {
             }
         });
 
-        plugin.addCommand({
-            langKey: ToolBarBox整理assets下的图片视频音频.langKey,
+        // featgate □1 试点：四命令迁 gatedAddCommand（commandToggles 逐条关=命令面板项+
+        // 快捷键齐不注册；族总开关仍管顶栏钮注册，两层开关语义独立）
+        gatedAddCommand(plugin, ToolBarBox整理assets下的图片视频音频.langKey, {
             langText: ToolBarBox整理assets下的图片视频音频.langText(),
             hotkey: ToolBarBox整理assets下的图片视频音频.m,
             callback: tidy,
         });
-        plugin.addCommand({
-            langKey: ToolBarBox间隔重复.langKey,
+        gatedAddCommand(plugin, ToolBarBox间隔重复.langKey, {
             langText: ToolBarBox间隔重复.langText(),
             hotkey: ToolBarBox间隔重复.m,
             callback: () => openTab({ app: plugin.app, card: { type: "all" } })
         });
-        plugin.addCommand({
-            langKey: ToolBarBox刷新虚拟引用.langKey,
+        gatedAddCommand(plugin, ToolBarBox刷新虚拟引用.langKey, {
             langText: ToolBarBox刷新虚拟引用.langText(),
             hotkey: ToolBarBox刷新虚拟引用.m,
             callback: refreshVirRef,
         });
-        plugin.addCommand({
-            langKey: ToolBarBox突出定位文档.langKey,
+        gatedAddCommand(plugin, ToolBarBox突出定位文档.langKey, {
             langText: ToolBarBox突出定位文档.langText(),
             hotkey: ToolBarBox突出定位文档.m,
             callback: () => locateDoc(this.lastPart),

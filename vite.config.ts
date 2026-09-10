@@ -57,6 +57,12 @@ export default defineConfig({
           src: "./src/quicknote/quicknote.html",
           dest: "./quicknote/",
         },
+        {
+          // AI 工具使用文档（ai-agent □4）：skills 工具 ?raw 内联是主通道，此拷贝给
+          // 静态可见性（用户/浏览器可直接读 /plugins/sy-tomato-plugin/skills/SKILL.md）
+          src: "./src/agentSkills/*.md",
+          dest: "./skills/",
+        },
       ],
     }),
   ],

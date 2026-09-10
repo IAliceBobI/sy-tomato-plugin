@@ -16,6 +16,7 @@ import { verifyKeyTomato } from "./libs/user";
 import { debugLog } from "./libs/logUtils";
 import { applyEntryCount, cachedEntryCount } from "./libs/bkRevision";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { mount, unmount } from "svelte";
@@ -192,8 +193,7 @@ class BackLinkBottomBox {
                 }
             }
         };
-        this.plugin.addCommand({
-            langKey: BK启用禁用文档的底部反链.langKey,
+        gatedAddCommand(this.plugin, BK启用禁用文档的底部反链.langKey, {
             langText: BK启用禁用文档的底部反链.langText(),
             hotkey: BK启用禁用文档的底部反链.m,
             editorCallback,

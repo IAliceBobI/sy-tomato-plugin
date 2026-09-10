@@ -1,6 +1,7 @@
 import { blockEditorBox, blockEditorMenu, qeFloatBall } from "./libs/stores";
 import { getAttribute, getTomatoPluginInstance, siyuan } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { tomatoI18n } from "./tomatoI18n";
 import BlockEditorSvelte from "./BlockEditor.svelte";
@@ -52,8 +53,7 @@ class BlockEditor {
 
     async onload() {
         if (!blockEditorBox.get()) return;
-        getTomatoPluginInstance().addCommand({
-            langKey: BlockEditor打开编辑器.langKey,
+        gatedAddCommand(getTomatoPluginInstance(), BlockEditor打开编辑器.langKey, {
             langText: BlockEditor打开编辑器.langText(),
             hotkey: BlockEditor打开编辑器.m,
             callback: () => this.toggleExistence(),

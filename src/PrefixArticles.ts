@@ -3,6 +3,7 @@ import { getDocTracer } from "./libs/docUtils";
 import { events } from "./libs/Events";
 import { getTomatoPluginInstance, siyuan } from "./libs/utils";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { tomatoI18n } from "./tomatoI18n";
 import PrefixArticles from "./PrefixArticles.svelte"
@@ -28,8 +29,7 @@ export function initPrefixArticles() {
         //         openParts();
         //     },
         // });
-        plugin.addCommand({
-            langKey: PrefixArticles前缀文档树.langKey,
+        gatedAddCommand(plugin, PrefixArticles前缀文档树.langKey, {
             langText: PrefixArticles前缀文档树.langText(),
             hotkey: PrefixArticles前缀文档树.m,
             editorCallback: (protyle) => {

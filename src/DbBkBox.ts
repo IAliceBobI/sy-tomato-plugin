@@ -1,6 +1,6 @@
 import { IEventBusMap, IProtyle, subMenu } from "siyuan";
 import { DATA_AV_ID, DATA_ID, DATA_NODE_ID, DATABASE_BACKLINK, DATABASE_BACKLINK_AVID, DATABASE_BACKLINK_ContentID, DATABASE_BACKLINK_createdID, DATABASE_BACKLINK_mSelectID, DATABASE_BACKLINK_PKID, DATABASE_BACKLINK_updatedID, DATABASE_BACKLINK_viewID } from "./libs/gconst";
-import { dbBkBoxCheckbox, dbBkBoxHideDatetime, dbBkBoxMaxBacklinkSize, dbBkBoxRefreshMenu } from "./libs/stores";
+import { dbBkBoxCheckbox, dbBkBoxHideDatetime, dbBkBoxMaxBacklinkSize, dbBkBoxMenuTools, dbBkBoxRefreshMenu } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { AvBuilder, domNewLine } from "./libs/sydom";
 import { getBlockDiv, NewNodeID, siyuan, timeUtil, } from "./libs/utils";
@@ -8,6 +8,7 @@ import { doGetBackLinks } from "./libs/bkUtils";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
@@ -21,8 +22,7 @@ class DbBkBox {
         if (!dbBkBoxCheckbox.get()) return;
         this.plugin = plugin;
 
-        this.plugin.addCommand({
-            langKey: DbBkBox刷新数据库反链.langKey,
+        gatedAddCommand(this.plugin, DbBkBox刷新数据库反链.langKey, {
             langText: DbBkBox刷新数据库反链.langText(),
             hotkey: DbBkBox刷新数据库反链.m,
             editorCallback: async (protyle: IProtyle) => {
@@ -264,6 +264,8 @@ class DbBkBox {
                 this.refreshDBBK(protyle);
             },
         }, dbBkBoxRefreshMenu.get());
+        // featgate □2 死角补口：moveDown 补 gate（dbBkBoxMenuTools 数据库工具组开关，
+        // 菜单构建时动态读右键即生效）+key 进隐藏集通道
         addIfVisible(menu, "m.dbBk.moveDown", {
             label: tomatoI18n.将选中的内容移到下边,
             icon: "iconDown",
@@ -283,7 +285,7 @@ class DbBkBox {
                 siyuan.transactions(ops)
                     .then(() => OpenSyFile2(this.plugin, ids[ids.length - 1]))
             },
-        });
+        }, dbBkBoxMenuTools.get());
         let cleanMenu = false;
         let colID = "";
         let blockID = "";
@@ -294,7 +296,10 @@ class DbBkBox {
                 colID = cell.getAttribute("data-col-id");
                 if (!cleanMenu) {
                     cleanMenu = true;
-                    menu.addItem({
+                    // featgate □2：4 处直写 addItem 迁 addIfVisible（gate=dbBkBoxMenuTools
+                    // 工具组开关+key 进隐藏集通道；filterTag/excludeTag 在 span 循环内
+                    // 多次添加同 key=同组语义，隐藏集按 key 全收）
+                    addIfVisible(menu, "m.dbBk.clearFilter", {
                         label: tomatoI18n.清空筛选,
                         icon: "iconClear",
                         accelerator: "",
@@ -306,10 +311,10 @@ class DbBkBox {
                             }]);
                             siyuan.transactions([op]);
                         },
-                    });
+                    }, dbBkBoxMenuTools.get());
                 }
                 for (const span of cell.querySelectorAll(`span`)) {
-                    menu.addItem({
+                    addIfVisible(menu, "m.dbBk.filterTag", {
                         label: span.textContent,
                         icon: "iconFilter",
                         accelerator: "",
@@ -327,8 +332,8 @@ class DbBkBox {
                             }]);
                             siyuan.transactions([op]);
                         },
-                    });
-                    menu.addItem({
+                    }, dbBkBoxMenuTools.get());
+                    addIfVisible(menu, "m.dbBk.excludeTag", {
                         label: span.textContent,
                         icon: "iconClose",
                         accelerator: "",
@@ -343,12 +348,13 @@ class DbBkBox {
                                 siyuan.transactions([op1], [op2]);
                             })
                         },
-                    });
+                    }, dbBkBoxMenuTools.get());
                     refTexts.push(span.textContent)
                 }
             }
         }
-        menu.addItem({
+        // featgate □6（review P2-3 存量顺手修）：refTexts 空=无聚合内容，不注册「...」垃圾项
+        if (refTexts.length) addIfVisible(menu, "m.dbBk.checkAll", {
             label: refTexts.join(",").slice(0, 20) + "...",
             icon: "iconCheck",
             accelerator: "",
@@ -368,7 +374,7 @@ class DbBkBox {
                 }]);
                 siyuan.transactions([op]);
             },
-        });
+        }, dbBkBoxMenuTools.get());
     }
 }
 

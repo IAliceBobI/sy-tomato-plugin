@@ -905,4 +905,21 @@ export abstract class TomatoI18nABC8 extends TomatoI18nABC9 {
         }
     }
 
+
+    public get 供AI工具层的coze工具使用() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "供 AI 工具层的 coze 工具使用，旧弹窗与快捷键已移除";
+            case "es_ES":
+                return "Para la herramienta coze de la capa de herramientas de IA; el popup y el atallo antiguos se han eliminado";
+            case "fr_FR":
+                return "Pour l'outil coze de la couche d'outils IA ; l'ancienne fenêtre et le raccourci ont été supprimés";
+            case "ja_JP":
+                return "AIツール層のcozeツール用。旧ポップアップとショートカットは削除済み";
+            case "zh_CHT":
+                return "供 AI 工具層的 coze 工具使用，舊彈窗與快捷鍵已移除";
+            default:
+                return "For the coze tool of the AI tool layer; the old popup and hotkey have been removed";
+        }
+    }
 }

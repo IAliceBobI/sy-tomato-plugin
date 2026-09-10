@@ -2,9 +2,18 @@
   "name": "sy-tomato-plugin",
   "author": "IAliceBobI",
   "url": "https://github.com/IAliceBobI/sy-tomato-plugin",
-  "version": "5.7.8",
+  "version": "5.8.0",
   "minAppVersion": "3.0.3",
   "disabledInPublish": false,
+  "kernels": [
+    "windows",
+    "linux",
+    "darwin",
+    "docker",
+    "ios",
+    "android",
+    "harmony"
+  ],
   "backends": [
     "all"
   ],

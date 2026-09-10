@@ -1,5 +1,5 @@
 <script lang="ts">
-    // 设置对话框主壳：付费状态条、搜索栏、左侧 15 域导航、sticky footer 保存条 + 15 个域组件
+    // 设置对话框主壳：付费状态条、搜索栏、左侧 16 域导航、sticky footer 保存条 + 16 个域组件
     // （Conf*.svelte，右侧单域渲染）。共享样式在 ./IndexConf.css（.tomato-settings-dialog 作用域）。
     // 2026-08 重构：原 2628 行大文件按功能域拆出 8 个分区子组件；2026-09-03 设置页重划：
     // □1 双栏壳（左导航+右长滚动）→ □2 域组件拆并——旧 10 个 Conf 退役，域组件
@@ -45,6 +45,7 @@
     import ConfGeneral from "./ConfGeneral.svelte";
     import ConfMiscDomain from "./ConfMiscDomain.svelte";
     import ConfVault from "./ConfVault.svelte";
+    import ConfCommands from "./ConfCommands.svelte";
     interface Props {
         dm: DestroyManager;
         plugin: BaseTomatoPlugin;
@@ -85,6 +86,9 @@
         { id: "general", label: () => tomatoI18n.通用 },
         { id: "misc", label: () => tomatoI18n.杂项 },
         { id: "vault", label: () => tomatoI18n.功能仓库 },
+        // featgate □1（2026-09-10）：第 16 域「命令开关」——commandToggles 逐命令开关
+        // 集中管理（数据驱动自 commandGroups.ts），垫底与功能仓库作伴（管理域非功能域）
+        { id: "commands", label: () => tomatoI18n.命令开关 },
     ];
     let navActive = $state("pomodoro");
     const NavKeyItemKey = "tomato_settings_NavKeyItemKey_LE2WBlXRG9LGVH2AA3VwzehW1";
@@ -97,7 +101,7 @@
         ai: "anno",
         aibox: "vault",
     };
-    // □3 聚合视图：searchKey 非空=全 14 域聚合渲染，navActive 冻结待清空回位；
+    // □3 聚合视图：searchKey 非空=全 16 域聚合渲染，navActive 冻结待清空回位；
     // navHits=各域是否有命中卡（searchSettings 过滤后从 DOM 回读），驱动导航项高亮
     let navHits: Record<string, boolean> = $state({});
     // 输入沿聚合视图进出跳变跟踪（非响应式：只用于进/出沿触发滚顶，逐键过滤不触发）
@@ -294,6 +298,8 @@
                     <ConfMiscDomain></ConfMiscDomain>
                 {:else if id === "vault"}
                     <ConfVault></ConfVault>
+                {:else if id === "commands"}
+                    <ConfCommands></ConfCommands>
                 {:else}
                     <ConfGeneral></ConfGeneral>
                 {/if}

@@ -6,6 +6,7 @@ import { OpenSyFile2 } from "./libs/docUtils";
 import { events } from "./libs/Events";
 import { createNote, switchDraft } from "./libs/switchDraft";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 
 export const FastNoteBox创建快速笔记 = winHotkey("shift+alt+n", "创建快速笔记")
 export const FastNoteBox打开最后一个笔记 = winHotkey("⌘⌥N", "打开最后一个笔记")
@@ -19,8 +20,7 @@ class FastNoteBox {
         // Pro 门禁在 createNote 内部（删原文前）逐次验证；onload 不做网络往返——
         // 挡在 addCommand 前会拖慢命令注册（插件重载战役 onload 纪律，qn-robust）
         this.plugin = plugin;
-        this.plugin.addCommand({
-            langKey: FastNoteBox创建快速笔记.langKey,
+        gatedAddCommand(this.plugin, FastNoteBox创建快速笔记.langKey, {
             langText: tomatoI18n.创建快速笔记,
             hotkey: FastNoteBox创建快速笔记.m,
             callback: () => {
@@ -29,16 +29,14 @@ class FastNoteBox {
                 })
             },
         });
-        this.plugin.addCommand({
-            langKey: FastNoteBox打开最后一个笔记.langKey,
+        gatedAddCommand(this.plugin, FastNoteBox打开最后一个笔记.langKey, {
             langText: tomatoI18n.打开最后一个笔记,
             hotkey: FastNoteBox打开最后一个笔记.m,
             callback: () => {
                 this.openNote()
             },
         });
-        this.plugin.addCommand({
-            langKey: FastNoteBox草稿切换.langKey,
+        gatedAddCommand(this.plugin, FastNoteBox草稿切换.langKey, {
             langText: FastNoteBox草稿切换.langText(),
             hotkey: FastNoteBox草稿切换.m,
             callback: () => {

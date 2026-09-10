@@ -12,6 +12,7 @@ import { text2tab } from "./libs/listUtils";
 import { zipNways } from "./libs/functional";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 
@@ -41,8 +42,7 @@ class MixBox {
         await verifyKeyTomato();
 
         this.plugin = plugin;
-        this.plugin.addCommand({
-            langKey: MixBox删除块以及闪卡.langKey,
+        gatedAddCommand(this.plugin, MixBox删除块以及闪卡.langKey, {
             langText: MixBox删除块以及闪卡.langText(),
             hotkey: MixBox删除块以及闪卡.m,
             editorCallback: (protyle: IProtyle) => {
@@ -66,8 +66,7 @@ class MixBox {
                 })
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox内容制表.langKey,
+        gatedAddCommand(this.plugin, MixBox内容制表.langKey, {
             langText: MixBox内容制表.langText(),
             hotkey: MixBox内容制表.m,
             editorCallback: async (protyle: IProtyle) => {
@@ -79,8 +78,7 @@ class MixBox {
                 }
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox使内容模糊.langKey,
+        gatedAddCommand(this.plugin, MixBox使内容模糊.langKey, {
             langText: MixBox使内容模糊.langText(),
             hotkey: MixBox使内容模糊.m,
             editorCallback: async (protyle: IProtyle) => {
@@ -88,8 +86,7 @@ class MixBox {
                 await addLineThrough(protyle, "custom-tomato-line-blur", selected);
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox跳转到剪贴板中ID的块.langKey,
+        gatedAddCommand(this.plugin, MixBox跳转到剪贴板中ID的块.langKey, {
             langText: MixBox跳转到剪贴板中ID的块.langText(),
             hotkey: MixBox跳转到剪贴板中ID的块.m,
             callback: async () => {
@@ -98,8 +95,7 @@ class MixBox {
                 await OpenSyFile2(plugin, text.trim());
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox添加一个flag书签.langKey,
+        gatedAddCommand(this.plugin, MixBox添加一个flag书签.langKey, {
             langText: MixBox添加一个flag书签.langText(),
             hotkey: MixBox添加一个flag书签.m,
             editorCallback: async (protyle: IProtyle) => {
@@ -107,8 +103,7 @@ class MixBox {
                 await addTodoBookmark(ids);
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox删除所有flag书签.langKey,
+        gatedAddCommand(this.plugin, MixBox删除所有flag书签.langKey, {
             langText: MixBox删除所有flag书签.langText(),
             hotkey: MixBox删除所有flag书签.m,
             editorCallback: async (protyle: IProtyle) => {
@@ -116,8 +111,7 @@ class MixBox {
                 await rmTodoBookmark(docID);
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox空格隔开的所有内容都转为引用.langKey,
+        gatedAddCommand(this.plugin, MixBox空格隔开的所有内容都转为引用.langKey, {
             langText: MixBox空格隔开的所有内容都转为引用.langText(),
             hotkey: MixBox空格隔开的所有内容都转为引用.m,
             editorCallback: async (protyle: IProtyle) => {
@@ -126,8 +120,7 @@ class MixBox {
                 await item2ref(protyle, boxID, selected, rangeText);
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox锁定内容.langKey,
+        gatedAddCommand(this.plugin, MixBox锁定内容.langKey, {
             langText: MixBox锁定内容.langText(),
             hotkey: MixBox锁定内容.m,
             callback: async () => {
@@ -135,56 +128,49 @@ class MixBox {
                 await this.fillMemo(selected);
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox收集当前文档与子文档所有的未完成任务.langKey,
+        gatedAddCommand(this.plugin, MixBox收集当前文档与子文档所有的未完成任务.langKey, {
             langText: MixBox收集当前文档与子文档所有的未完成任务.langText(),
             hotkey: MixBox收集当前文档与子文档所有的未完成任务.m,
             callback: async () => {
                 await addTaskPage(this.plugin, events.protyle.protyle)
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox列出当前文档与子文档中没被引用的文档.langKey,
+        gatedAddCommand(this.plugin, MixBox列出当前文档与子文档中没被引用的文档.langKey, {
             langText: MixBox列出当前文档与子文档中没被引用的文档.langText(),
             hotkey: MixBox列出当前文档与子文档中没被引用的文档.m,
             callback: async () => {
                 await addNoRefPage(this.plugin, events.protyle.protyle)
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox将选择文字与其拼音加入文档的别名.langKey,
+        gatedAddCommand(this.plugin, MixBox将选择文字与其拼音加入文档的别名.langKey, {
             langText: MixBox将选择文字与其拼音加入文档的别名.langText(),
             hotkey: MixBox将选择文字与其拼音加入文档的别名.m,
             editorCallback: (protyle: IProtyle) => {
                 addPinyin2DocAlias(protyle);
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox将选择文字加入文档的别名.langKey,
+        gatedAddCommand(this.plugin, MixBox将选择文字加入文档的别名.langKey, {
             langText: MixBox将选择文字加入文档的别名.langText(),
             hotkey: MixBox将选择文字加入文档的别名.m,
             editorCallback: (protyle: IProtyle) => {
                 add2DocAlias(protyle);
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox定位所有引用Menu.langKey,
+        gatedAddCommand(this.plugin, MixBox定位所有引用Menu.langKey, {
             langText: MixBox定位所有引用Menu.langText(),
             hotkey: MixBox定位所有引用Menu.m,
             editorCallback: (protyle: IProtyle) => {
                 openRefs(this.plugin, protyle);
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox复制文档为标准Markdown.langKey,
+        gatedAddCommand(this.plugin, MixBox复制文档为标准Markdown.langKey, {
             langText: MixBox复制文档为标准Markdown.langText(),
             hotkey: MixBox复制文档为标准Markdown.m,
             editorCallback: (protyle: IProtyle) => {
                 copyStdMD(protyle);
             },
         });
-        this.plugin.addCommand({
-            langKey: MixBox复制文档为纯文本.langKey,
+        gatedAddCommand(this.plugin, MixBox复制文档为纯文本.langKey, {
             langText: MixBox复制文档为纯文本.langText(),
             hotkey: MixBox复制文档为纯文本.m,
             editorCallback: (protyle: IProtyle) => {

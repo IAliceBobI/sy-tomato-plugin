@@ -29,6 +29,7 @@
         dbBkBoxHideDatetime,
         dbBkBoxMaxBacklinkSize,
         dbBkBoxRefreshMenu,
+        dbBkBoxMenuTools,
         superRefBoxCheckBox,
         superRefBoxGlobalFixMenu,
         superRefBoxGlobalLnkMenu,
@@ -316,6 +317,13 @@
                         {tomatoI18n.menu添加右键菜单}:
                         {DbBkBox刷新数据库反链.langText()}
                         <HotkeyCap hk={DbBkBox刷新数据库反链} pluginName="sy-tomato-plugin"></HotkeyCap>
+                    </div>
+                    <!-- featgate □2 死角补口：数据库工具组 1 键管 5 项配套操作（移到下边/
+                         清空筛选/按标签过滤/排除标签/聚合勾选）；菜单构建时动态读右键即生效 -->
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxMenuTools} />
+                        {tomatoI18n.menu添加右键菜单}:
+                        {tomatoI18n.数据库工具组}
                     </div>
                     <div>
                         <input type="number" min="1" class="b3-text-field" bind:value={$dbBkBoxMaxBacklinkSize} />

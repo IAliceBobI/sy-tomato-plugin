@@ -5,6 +5,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { getDocBlocks, OpenSyFile2 } from "./libs/docUtils";
 import { events } from "./libs/Events";
 import { winHotkey } from "./libs/winHotkey";
+import { cmdOn, recordCmdKey } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { regPairCmd } from "./libs/pairCmdRegistry";
 import { IProtyle } from "siyuan";
@@ -27,7 +28,11 @@ class CpBox {
         this.plugin = plugin;
 
         // addCommand+速查登记二合一（R5 □3）：⋯ 菜单速查子菜单点击查表直调
+        // featgate □5：addCommand+速查登记二合一随 commandToggles 逐条门控（关=命令
+        // 与速查项齐不出现；commandToggles 是结构键，改后重载本包装整体重跑）
         const addPairCmd = (cmd: any) => {
+            recordCmdKey(cmd.langKey);
+            if (!cmdOn(cmd.langKey)) return;
             this.plugin.addCommand(cmd);
             regPairCmd(cmd.langKey, cmd.editorCallback ?? cmd.callback);
         };

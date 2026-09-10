@@ -14,6 +14,7 @@ export const CardPriorityBox分散推迟闪卡 = winHotkey("⌘⇧8", "delay all
 export const CardPriorityBox推迟闪卡 = winHotkey("⌘F9", "delay all cards")
 export const CardPriority恢复所有暂停的闪卡 = winHotkey("⇧⌥Y", "resume all cards")
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { getGlobal, setGlobal, shuffleArray } from "stonev5-utils";
 import { mount, unmount } from "svelte";
@@ -59,13 +60,15 @@ class CardPriorityBox {
         if (!cardPriorityBoxCheckbox.get()) return;
         const cards = detail?.blockElements?.filter(e => getAttribute(e, "custom-riff-decks"))
         if (cards?.length > 0) {
+            // featgate □2 死角补口：块图标菜单两项补 gate——复用复习卡片菜单既有开关
+            // （同一功能两入口一开关，ConfFlashcard 行已有，设置面板零新增行）
             addIfVisible(detail.menu, "m.cardPriority.setPri", {
                 icon: "iconStar",
                 label: tomatoI18n.为闪卡设置优先级,
                 click: () => {
                     this.updatePrioritySelected(detail.blockElements);
                 }
-            });
+            }, cardPriorityBoxPriorityMenu.get());
             addIfVisible(detail.menu, "m.cardPriority.stop", {
                 icon: "iconPause",
                 label: tomatoI18n.推迟与取消推迟,
@@ -74,7 +77,7 @@ class CardPriorityBox {
                         this.stopCard(event, e);
                     }
                 }
-            });
+            }, cardPriorityBoxPostponeCardMenu.get());
         }
     }
 
@@ -121,8 +124,7 @@ class CardPriorityBox {
             }
         }
 
-        this.plugin.addCommand({
-            langKey: CardPriorityBox修改文档中闪卡优先级.langKey,
+        gatedAddCommand(this.plugin, CardPriorityBox修改文档中闪卡优先级.langKey, {
             langText: tomatoI18n.修改文档中闪卡优先级,
             hotkey: CardPriorityBox修改文档中闪卡优先级.m,
             callback: cardPrioritySet,
@@ -141,8 +143,7 @@ class CardPriorityBox {
             this.stopCards(blocks, spread)
         }
 
-        this.plugin.addCommand({
-            langKey: CardPriorityBox分散推迟闪卡.langKey,
+        gatedAddCommand(this.plugin, CardPriorityBox分散推迟闪卡.langKey, {
             langText: CardPriorityBox分散推迟闪卡.langText(),
             hotkey: CardPriorityBox分散推迟闪卡.m,
             callback: () => {
@@ -152,8 +153,7 @@ class CardPriorityBox {
             }
         });
 
-        this.plugin.addCommand({
-            langKey: CardPriorityBox推迟闪卡.langKey,
+        gatedAddCommand(this.plugin, CardPriorityBox推迟闪卡.langKey, {
             langText: tomatoI18n.推迟闪卡,
             hotkey: CardPriorityBox推迟闪卡.m,
             callback: () => delay(),
@@ -190,8 +190,7 @@ class CardPriorityBox {
             })
         }
 
-        this.plugin.addCommand({
-            langKey: CardPriority恢复所有暂停的闪卡.langKey,
+        gatedAddCommand(this.plugin, CardPriority恢复所有暂停的闪卡.langKey, {
             langText: tomatoI18n.恢复所有暂停的闪卡,
             hotkey: CardPriority恢复所有暂停的闪卡.m,
             callback: () => resumeAll(events.protyle),
@@ -199,8 +198,7 @@ class CardPriorityBox {
 
         // 文档级恢复命令（无默认键，留用户键位设置自绑——winHotkey 工厂 m 空即 throw
         // 故直传 langKey，CommentBox 命令化同款）；当前文档含子文档
-        this.plugin.addCommand({
-            langKey: "resume doc cards",
+        gatedAddCommand(this.plugin, "resume doc cards", {
             langText: tomatoI18n.恢复文档暂停闪卡,
             editorCallback: (protyle) => {
                 void resumeDocStops([protyle.block.rootID]);

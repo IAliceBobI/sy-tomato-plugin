@@ -13,6 +13,7 @@
         shorthandRelayEnabled,
         noteBoxAllKinds,
         noteBoxCheckbox,
+        noteBoxMobileSync,
         fastNoteBoxAdd2Flashcard,
         fastNoteBoxCheckbox,
         fastNoteBoxDelAfterCreating,
@@ -61,6 +62,12 @@
             <!-- □4：「拍照闪念（全局）⌥7」「触发快捷键时弹出对话框」「失焦时自动关闭小窗」
                  三行退役——全局入口统一到速记器 ⌥J（形态可配），图片闪念走 Dock 图标/速记器
                  focus 形态进面板；设置可见性与功能可用性一致 -->
+            <!-- featgate □2 死角补口：移动端顶栏「同步数据」钮独立开关（注册在 NoteBox
+                 onload，改后保存→插件级重载生效）；桌面端无此钮行仍在（跨端设置同构） -->
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$noteBoxMobileSync} />
+                {tomatoI18n.移动端同步钮}
+            </div>
             <div>
                 <textarea spellcheck="false" class="b3-text-field" bind:value={$noteBoxAllKinds}></textarea>
                 {tomatoI18n.自定义图标}

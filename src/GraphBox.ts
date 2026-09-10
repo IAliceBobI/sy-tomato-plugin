@@ -8,6 +8,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { getDocBlocks } from "./libs/docUtils";
 import { unfoldBlocks, nearestGraphAncestor } from "./libs/graphUnfold";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { mount, unmount } from "svelte";
@@ -46,15 +47,13 @@ class GraphBox {
             this.addDock(); // 添加后有 bug，手机端在文档数更新后，无法显示 topbar icons.
         }
 
-        this.plugin.addCommand({
+        gatedAddCommand(this.plugin, GraphBox定位到图中的节点.langKey, {
             langText: GraphBox定位到图中的节点.langText(),
-            langKey: GraphBox定位到图中的节点.langKey,
             hotkey: GraphBox定位到图中的节点.m,
             callback: this.locateNode.bind(this),
         });
-        this.plugin.addCommand({
+        gatedAddCommand(this.plugin, GraphBox打开块关系图.langKey, {
             langText: GraphBox打开块关系图.langText(),
-            langKey: GraphBox打开块关系图.langKey,
             hotkey: GraphBox打开块关系图.m,
             callback: () => this.openGraphDock(),
         });

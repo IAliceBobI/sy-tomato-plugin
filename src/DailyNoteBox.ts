@@ -14,6 +14,7 @@ import { collectBlockAttrs } from "./libs/dailyCollect";
 import { buildFragmentContainer, fragmentFromRange } from "./libs/dailyFragment";
 import { getTime } from "./NoteBox";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { lastVerifyResult } from "./libs/user";
 import { debugLog } from "./libs/logUtils";
@@ -121,25 +122,22 @@ class DailyNoteBox {
                 }
             });
         }
-        this.plugin.addCommand({
-            langKey: "dailyNoteReview",
+        gatedAddCommand(this.plugin, "dailyNoteReview", {
             langText: tomatoI18n.回顾日记,
             callback: () => {
                 openReviewDialog();
             },
         });
 
-        this.plugin.addCommand({
+        gatedAddCommand(this.plugin, DailyNoteBox上一个日志.langKey, {
             langText: DailyNoteBox上一个日志.langText(),
-            langKey: DailyNoteBox上一个日志.langKey,
             hotkey: DailyNoteBox上一个日志.m,
             callback: () => {
                 this.openDailyNote(-1000 * 60 * 60 * 24);
             },
         });
-        this.plugin.addCommand({
+        gatedAddCommand(this.plugin, DailyNoteBox下一个日志.langKey, {
             langText: DailyNoteBox下一个日志.langText(),
-            langKey: DailyNoteBox下一个日志.langKey,
             hotkey: DailyNoteBox下一个日志.m,
             callback: () => {
                 this.openDailyNote(1000 * 60 * 60 * 24);
@@ -147,9 +145,8 @@ class DailyNoteBox {
         });
 
 
-        this.plugin.addCommand({
+        gatedAddCommand(this.plugin, DailyNoteBox移动内容到dailynote.langKey, {
             langText: DailyNoteBox移动内容到dailynote.langText(),
-            langKey: DailyNoteBox移动内容到dailynote.langKey,
             hotkey: DailyNoteBox移动内容到dailynote.m,
             editorCallback: (protyle) => {
                 this.findDivs(protyle, false, false);
@@ -157,8 +154,7 @@ class DailyNoteBox {
         });
 
 
-        this.plugin.addCommand({
-            langKey: DailyNoteBox复制到dailynote.langKey,
+        gatedAddCommand(this.plugin, DailyNoteBox复制到dailynote.langKey, {
             langText: tomatoI18n.复制到dailynote,
             hotkey: DailyNoteBox复制到dailynote.m,
             callback: () => {
@@ -167,8 +163,7 @@ class DailyNoteBox {
         });
 
         if (!dailyNoteCopySimple.get()) {
-            this.plugin.addCommand({
-                langKey: DailyNoteBox复制到dailynoteNewFile.langKey,
+            gatedAddCommand(this.plugin, DailyNoteBox复制到dailynoteNewFile.langKey, {
                 langText: tomatoI18n.复制到dailynoteNewFile,
                 hotkey: DailyNoteBox复制到dailynoteNewFile.m,
                 callback: () => {

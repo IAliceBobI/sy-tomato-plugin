@@ -6,6 +6,7 @@ import { annoRangeUsable } from "./libs/domUtils";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { verifyKeyTomato } from "./libs/user";
@@ -70,8 +71,7 @@ class CommentBox {
         verifyKeyTomato();
         annotations.onload(plugin);
 
-        this.plugin.addCommand({
-            langKey: CommentBox添加批注.langKey,
+        gatedAddCommand(this.plugin, CommentBox添加批注.langKey, {
             langText: CommentBox添加批注.langText(),
             hotkey: CommentBox添加批注.m,
             callback: () => {
@@ -79,8 +79,7 @@ class CommentBox {
             },
         });
 
-        this.plugin.addCommand({
-            langKey: CommentBox刷新文档正引.langKey,
+        gatedAddCommand(this.plugin, CommentBox刷新文档正引.langKey, {
             langText: CommentBox刷新文档正引.langText(),
             hotkey: CommentBox刷新文档正引.m,
             callback: () => {
@@ -93,8 +92,7 @@ class CommentBox {
         // 批注收集（2026-09-02）：无默认快捷键（新键须过 winHotkey 规范化+官方 keymap
         // 全仓比对流程，留给用户键位设置自绑），故不走 winHotkey 工厂（m 空会 throw）。
         // 按上次记忆的 dest 直接执行 + pushMsg 回执
-        this.plugin.addCommand({
-            langKey: "anno collect",
+        gatedAddCommand(this.plugin, "anno collect", {
             langText: tomatoI18n.收集批注,
             editorCallback: (protyle: IProtyle) => {
                 const dest = annoCollectDest.get();
@@ -105,22 +103,19 @@ class CommentBox {
         // 三直发项命令化（2026-09-04 □2 拍板）：同上无默认键留用户键位设置自绑；langKey 与
         // 右键菜单项同一 key（菜单/命令面板显隐走 hiddenMenuItems 一处藏两处消失）；file 项
         // 无「菜单有目标记忆才显示」前提——命令无记忆时 fallback 开收集小窗，不闷声没反应
-        this.plugin.addCommand({
-            langKey: "anno collect clipboard",
+        gatedAddCommand(this.plugin, "anno collect clipboard", {
             langText: `${tomatoI18n.收集批注} → ${tomatoI18n.剪贴板}`,
             editorCallback: (protyle: IProtyle) => {
                 void quickCollect(protyle.block.rootID, "clipboard");
             },
         });
-        this.plugin.addCommand({
-            langKey: "anno collect daily",
+        gatedAddCommand(this.plugin, "anno collect daily", {
             langText: `${tomatoI18n.收集批注} → ${tomatoI18n.当天日记}`,
             editorCallback: (protyle: IProtyle) => {
                 void quickCollect(protyle.block.rootID, "daily");
             },
         });
-        this.plugin.addCommand({
-            langKey: "anno collect file",
+        gatedAddCommand(this.plugin, "anno collect file", {
             langText: `${tomatoI18n.收集批注} → ${tomatoI18n.收集到文件}`,
             editorCallback: (protyle: IProtyle) => {
                 const rootID = protyle.block.rootID;

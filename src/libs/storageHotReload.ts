@@ -27,15 +27,21 @@ const STRUCTURAL_KEYS = new Set([
     "dailyNotetopbarleft", "dailyNotetopbarright", "dailyNoteReviewTopbar",
     "graphAddTopbarIcon", "readingTopBar", "readingStatusBar",
     "bigReloadTopbar", // 大刷新顶栏钮（注册在 onload）
+    "commandToggles", // 命令开关 map（featgate：gatedAddCommand 注册门控在 onload 读死）
+    // 速记搬运双消费时效统一（featgate □1 review P1）：sync_end 动态读即改即生效，
+    // 手动搬运命令 onload 门控读死——不登记则开关改后命令面板项静默滞后（点了照搬）
+    "shorthandRelayEnabled",
     "prefixArticlesEnable", // PrefixArticles dock
     // 注册门控族（review P1-2 补齐：一次性挂载/监听，中途改需 reload 才生效）
     "pairBarEnabled", // 接力浮条总开关（CpBox/LinkBox 注册门）
+    "punctTidyEnable", // 打字标点自动整理 observer 注册门（PunctTidyBox onload；子开关 punctTidyExtRules 回调实时读非结构性）
     "blockEditorBox", "qeFloatBall", // 块编辑器总门+球（BlockEditor onload）
     "spaceRefEnabled", // 空格转引用 document 三监听（SpaceRefBox onload）
     "floatingballEnable", // 悬浮球命令注册族（FloatingBall onload）
     "addSelectionBtnsMobile", "addSelectionBtnsDesktop", // 划词工具条 onLayoutReady 一次性注册
     "initProgFloatBtnsDisable", // 渐进浮条系统总开关（禁用态组件从未挂载，渐进键共用此表）
     "mobileTopBar", // 渐进移动端顶栏（组件 init 一次性读，仅移动端受害）
+    "noteBoxMobileSync", // 番茄移动端顶栏同步钮（featgate □2：NoteBox onload 注册读死）
     // cssStyle.ts load_* 一次性注入族（无 subscribe，热更不重应用）
     "cardPriBarPos", "cardPriorityBoxAutoHide",
     "cssRefEffect", "cssSuperBlockBorder", "cssFlashThoughts", "cssShowMemo",

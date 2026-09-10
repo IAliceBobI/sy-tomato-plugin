@@ -12,6 +12,7 @@ import ReadingPointBall from "./ReadingPointBall.svelte"
 import { DestroyManager } from "./libs/destroyer";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 
 // 阅读点翻新（readpoint 战役，spec：docs/tomato-reading-point-spec.md）：
@@ -85,32 +86,27 @@ class ReadingPointBox {
         };
         window.addEventListener("click", this.tabClickRef, true);
 
-        plugin.addCommand({
-            langKey: ReadingPointBox设置阅读点.langKey,
+        gatedAddCommand(plugin, ReadingPointBox设置阅读点.langKey, {
             langText: ReadingPointBox设置阅读点.langText(),
             hotkey: ReadingPointBox设置阅读点.m,
             callback: () => void this.addFromSelection(),
         });
-        plugin.addCommand({
-            langKey: ReadingPointBox查看阅读点.langKey,
+        gatedAddCommand(plugin, ReadingPointBox查看阅读点.langKey, {
             langText: ReadingPointBox查看阅读点.langText(),
             hotkey: ReadingPointBox查看阅读点.m,
             callback: () => this.showPanel(),
         });
-        plugin.addCommand({
-            langKey: ReadingPointBox显示或隐藏悬浮球.langKey,
+        gatedAddCommand(plugin, ReadingPointBox显示或隐藏悬浮球.langKey, {
             langText: ReadingPointBox显示或隐藏悬浮球.langText(),
             hotkey: ReadingPointBox显示或隐藏悬浮球.m,
             callback: () => this.onEntryClick(),
         });
-        plugin.addCommand({
-            langKey: ReadingPointBox跳到当前文档的阅读点.langKey,
+        gatedAddCommand(plugin, ReadingPointBox跳到当前文档的阅读点.langKey, {
             langText: ReadingPointBox跳到当前文档的阅读点.langText(),
             hotkey: ReadingPointBox跳到当前文档的阅读点.m,
             callback: () => void gotoBookmark(this.curDocID(), this.plugin),
         });
-        plugin.addCommand({
-            langKey: ReadingPointBox删除当前文档的阅读点.langKey,
+        gatedAddCommand(plugin, ReadingPointBox删除当前文档的阅读点.langKey, {
             langText: ReadingPointBox删除当前文档的阅读点.langText(),
             hotkey: ReadingPointBox删除当前文档的阅读点.m,
             callback: () => void this.removeCurrent(),
