@@ -13,17 +13,20 @@
  * (0,2,0) 同级打架，打包顺序变化会让 margin 被后者 2px 4px 覆盖（vision P2 实锤） */
 .tomato-settings-dialog .settingBox.search-bar {
     position: sticky;
-    top: 0;
+    /* top=margin-top（2026-09-10 用户反馈「滚动时搜索框晃动、上下间距变窄」）：初始位
+     * 即钉住位，滚动从一开始就零位移——旧 top:0 时头部 10px 随流上移、上边距 10→0。
+     * 上方 margin 滚掉后露出的 10px 缝由 box-shadow 向上补条盖住（同向下补条手法） */
+    top: 10px;
     background-color: var(--b3-theme-surface);
     z-index: 10;
     margin: 10px 12px 0;
     padding: 8px 10px;
     border: 1px solid var(--b3-theme-surface-lighter);
     border-radius: var(--b3-border-radius);
-    /* 终审 P2-f：sticky 实高 ~46px 与 --tomato-sticky-top 52px 间 6px 缝露出滚动内容
-     * （桌面=域标题/内容从缝里划过，窄屏=tab 条上方同源）；不透明同色补条向下盖 6px，
-     * 一行同时封桌面与窄屏两处缝（vision 终审配方，替代 agg-title::before 只盖桌面侧） */
-    box-shadow: 0 6px 0 var(--b3-theme-surface);
+    /* 终审 P2-f：向下 6px 补条盖 sticky 实高与导航列钉住位间缝（桌面=域标题/内容从缝里
+     * 划过，窄屏=tab 条上方同源）；向上 10px 补条盖 margin-top 滚掉后的缝（上方晃动修复
+     * 配套）。实高 46±1px 的误差都被两向补条兜住（vision 终审配方） */
+    box-shadow: 0 -10px 0 var(--b3-theme-surface), 0 6px 0 var(--b3-theme-surface);
 }
 /* 搜索框拉满面板宽度自适应（2026-08-24 用户反馈：配置页宽而搜索栏太窄） */
 .tomato-settings-dialog .search-bar input.b3-text-field {
@@ -312,6 +315,48 @@
    整行挂同款 50% 置灰档（vision P1），扫视一眼可知不可点 */
 .tomato-settings-dialog .settingBox .punct-row-disabled {
     opacity: 50%;
+}
+/* punctcfg（2026-09-10）：自定义映射结构化规则行——源框窄（单字符居中）+箭头+目标框+删除钮 */
+.tomato-settings-dialog .settingBox .punct-rule-row {
+    display: flex;
+    align-items: center;
+    column-gap: 6px;
+}
+.tomato-settings-dialog .settingBox .punct-rule-row > input.punct-rule-src {
+    flex: 0 0 56px;
+    text-align: center;
+}
+.tomato-settings-dialog .settingBox .punct-rule-row > input.punct-rule-dst {
+    flex: 1 1 120px;
+    min-width: 0;
+}
+.tomato-settings-dialog .settingBox .punct-rule-row > .punct-rule-arrow {
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+}
+/* 按钮形态对齐面板先例（vision P1）：行内删除=text 轻钮 hover 变 error（tomato-item-del 先例）、
+   添加=outline（tomato-chip-add 先例）——实心主色只留给底部保存 CTA */
+.tomato-settings-dialog .settingBox .punct-rule-del {
+    padding: 2px 4px;
+    line-height: 1;
+    font-size: 12px;
+    color: var(--b3-theme-on-surface-light, var(--b3-theme-on-surface));
+}
+.tomato-settings-dialog .settingBox .punct-rule-del:hover:not(:disabled) {
+    color: var(--b3-theme-error);
+}
+.tomato-settings-dialog .settingBox .punct-rule-add {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+.tomato-settings-dialog .settingBox .punct-rule-add:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ✕ 不并入上条：规则行整体已挂 .punct-row-disabled（opacity 0.5），按钮级再乘一档=0.25
+   比同行输入框更淡（vision 复评 P2）——行级已完整覆盖，此处只留指针语义 */
+.tomato-settings-dialog .settingBox .punct-rule-del:disabled {
+    cursor: not-allowed;
 }
 .tomato-settings-dialog .contentCenter {
     display: flex;
@@ -838,11 +883,12 @@
  * 双栏样式全部限定在 .tomato-settings-nav 子树，公共类零改动，两家面板不受卷入。
  * 布局：保持 .b3-dialog__body 为真滚动容器（不换内层滚动，saveRestorePagePosition/
  * searchSettings 的容器假设不破坏），导航列 sticky 贴可视顶、长内容从其右滚过。
- * --tomato-sticky-top：sticky 搜索栏实高（padding 8×2 + input 28 + border 2 + 缝），
- * 导航列 sticky 偏移与锚点 scroll-margin 共用一处调（vision □1 P0-2 抽变量建议）；
+ * --tomato-sticky-top：sticky 搜索栏钉住层底（margin-top 10 + 实高 46，2026-09-10 晃动
+ * 修复后=搜索框 border-box 底）；导航列 sticky 偏移与锚点 scroll-margin 共用一处调
+ * （vision □1 P0-2 抽变量建议）；
  * 挂双栏容器上（新作用域类内子树继承可达，公共类零触碰） */
 .tomato-settings-dialog .tomato-settings-nav {
-    --tomato-sticky-top: 52px;
+    --tomato-sticky-top: 56px;
     /* 导航列自滚上限的弹窗高基准：与 index.ts openSettings Dialog height 桌面值同步 */
     --tomato-dlg-h: min(700px, 92vh);
     display: flex;
@@ -865,12 +911,20 @@
        footer 盖死进不去——导航列自滚封顶。上限=弹窗高-180px（6813 实测顶栈 128：内核
        header 58+搜索栏 46+margin 24，+footer 52；滚动 sticky 态余 ~24px 富余无害）；
        --tomato-dlg-h 与 index.ts openSettings 的 Dialog height 桌面值同步维护。
-       宽屏高弹窗不触发（无滚动条零回归），激活项由 keepActiveTabVisible 纵向滚入视野 */
+       激活项由 keepActiveTabVisible 纵向滚入视野 */
     max-height: calc(var(--tomato-dlg-h) - 180px);
     overflow-y: auto;
-    scrollbar-width: thin;
-    /* 顶距对齐右列首卡 margin-top 24px（section.conf-group □5 卡间距节奏，vision P2-5） */
-    margin: 24px 0 12px 12px;
+    /* 滚动条隐藏（2026-09-10 用户反馈「双滚动条不方便」）：16 域行高压缩后默认高全量
+     * 可见不再溢出；矮弹窗兜底仍可滚轮滚+激活项滚入，只是不显滚动条——面板内双滚动
+     * 条（导航列 + .b3-dialog__body 主滚动）并排的视觉噪音就此消灭。窄屏横滚 tab 条
+     * 在下方媒体查询里重声明 thin，不受此影响 */
+    scrollbar-width: none;
+    /* 顶距 margin-top 24 退役（2026-09-10 晃动修复）：旧 margin-top 24 时导航列初始位
+     * 80px、钉住位 52px，滚动头 28px 随流上移（用户感知「到处都在动」的主力）——现
+     * margin-top 0 使初始顶=56px=钉住位（--tomato-sticky-top），滚动零位移、紧贴搜索框
+     * 底无缝。旧「顶距对齐右列首卡 24px」（vision P2-5）让位稳定性：右列首卡仍留 24px
+     * 呼吸，两列顶不再对齐 */
+    margin: 0 0 12px 12px;
     padding: 6px;
     background-color: var(--b3-theme-surface);
     /* 暗色可见性：surface-lighter 在 midnight 下近隐身（□5 分区卡同判定先例，vision P2-4） */
@@ -902,7 +956,10 @@
     background-color: color-mix(in srgb, var(--b3-theme-primary) 5%, var(--b3-theme-surface));
 }
 .tomato-settings-dialog .tomato-nav-item {
-    padding: 6px 10px;
+    /* 纵向 4px（2026-09-10 双滚动条反馈配套）：行高压到 29px，16 域全量 478px < 封顶
+     * 520px（--tomato-dlg-h 700px - 180px）——默认弹窗高下导航列零滚动；旧 6px 时
+     * 542px 必溢出 ~22px，滚动条常驻（本文件 .tomato-nav-list 处的隐藏规则只是兜底） */
+    padding: 4px 10px;
     border: none;
     background: transparent;
     border-radius: var(--b3-border-radius);
@@ -934,11 +991,11 @@
  * 对一切编程式滚动（scrollIntoView/键盘焦点让位）吞卡顶与卡底——上面 scroll-margin
  * 只罩导航锚点卡，域内其余卡（命令开关各族卡等）裸奔（焦点落到 sticky 层底下不可见
  * ，上下两向同病：底部曾实测 footer 52px 浮盖吞整行）；scroll-padding 挂滚动容器对
- * 所有落点一次性生效（60 = sticky 层 52 + 8 呼吸，两向同规）。:has 限定只匹配挂本
+ * 所有落点一次性生效（64 = sticky 层底 56 + 8 呼吸，两向同规）。:has 限定只匹配挂本
  * 面板的 Dialog——公共类 .b3-dialog__body 零触碰，渐进/recite 同挂
  * .tomato-settings-dialog 同受益（同款 sticky 上下条同病） */
 .b3-dialog__body:has(.tomato-settings-dialog) {
-    scroll-padding: 60px 0;
+    scroll-padding: 64px 0;
 }
 /* 窄屏（沿 settings-panel-unify 480 断点）：双栏收单栏，导航变横滚 tab 条。
  * tab 条须 sticky 贴搜索栏之下——static 时一点 tab 触发锚点滚动、tab 条即滚出视口
@@ -954,7 +1011,8 @@
         width: auto;
         /* 横滚 tab 条无纵向封顶（三期 15 域自滚上限仅限宽屏纵向列） */
         max-height: none;
-        margin: 10px 12px;
+        /* margin-top 10 退役（2026-09-10 晃动修复同宽屏）：初始顶=56=钉住位，零位移 */
+        margin: 0 12px 10px;
         padding: 4px;
         overflow-x: auto;
         /* 分层线：内容从 tab 条下滚过（底色已不透明） */
@@ -966,13 +1024,15 @@
         flex: 0 0 auto;
         white-space: nowrap;
     }
-    /* 窄屏锚点落点让位双层 sticky（搜索栏 + tab 条，vision □1 P0-1 配套） */
+    /* 窄屏锚点落点让位双层 sticky（搜索栏 + tab 条，vision □1 P0-1 配套）。
+     * 95 = 搜索层底 56 + tab 实高 39（padding 4×2 + item 29 + border 2；2026-09-10
+     * 晃动修复重算：旧 104=52+margin 10+42，margin 退役+item 行高压缩后双降） */
     .tomato-settings-dialog [data-nav-anchor] {
-        scroll-margin-top: 104px;
+        scroll-margin-top: 95px;
     }
     /* 窄屏聚合域标题同样让位双层 sticky（tab 条 z4 盖住 z3 的标题须下移到其下） */
     .tomato-settings-dialog .tomato-settings-nav .tomato-agg-title {
-        top: 104px;
+        top: 95px;
     }
 }
 

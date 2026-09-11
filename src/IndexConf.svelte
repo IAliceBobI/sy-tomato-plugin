@@ -1,5 +1,5 @@
 <script lang="ts">
-    // 设置对话框主壳：付费状态条、搜索栏、左侧 16 域导航、sticky footer 保存条 + 16 个域组件
+    // 设置对话框主壳：付费状态条、搜索栏、左侧 17 域导航、sticky footer 保存条 + 17 个域组件
     // （Conf*.svelte，右侧单域渲染）。共享样式在 ./IndexConf.css（.tomato-settings-dialog 作用域）。
     // 2026-08 重构：原 2628 行大文件按功能域拆出 8 个分区子组件；2026-09-03 设置页重划：
     // □1 双栏壳（左导航+右长滚动）→ □2 域组件拆并——旧 10 个 Conf 退役，域组件
@@ -41,10 +41,12 @@
     import ConfFlashcard from "./ConfFlashcard.svelte";
     import ConfDocs from "./ConfDocs.svelte";
     import ConfEditorTools from "./ConfEditorTools.svelte";
+    import ConfPunct from "./ConfPunct.svelte";
     import ConfCapture from "./ConfCapture.svelte";
     import ConfGeneral from "./ConfGeneral.svelte";
     import ConfMiscDomain from "./ConfMiscDomain.svelte";
     import ConfVault from "./ConfVault.svelte";
+    import ConfAgent from "./ConfAgent.svelte";
     import ConfCommands from "./ConfCommands.svelte";
     interface Props {
         dm: DestroyManager;
@@ -65,8 +67,9 @@
     });
     let searchKey = $state("");
     const SearchKeyItemKey = "tomato_settings_SearchKeyItemKey_RfrUm9VLS4GehTzg5ygRrNT";
-    // 导航 15 域（二期 2026-09-05，三期 2026-09-08 收纳改组）：上半 8=已翻新大牌（番茄钟/
-    // 批注/反链与引用/可视化/阅读/块编辑/悬浮球/导出工作空间），下半 7=待翻新按受欢迎排
+    // 导航 17 域（二期 2026-09-05 起；featgate □1 +16 命令开关、punctcfg +打字标点域、
+    // agentrev 2026-09-10 +AI 助手域）：上半 9=已翻新大牌（番茄钟/
+    // 批注/反链与引用/可视化/阅读/块编辑/悬浮球/导出工作空间/AI 助手），下半 8=待翻新按受欢迎排
     // （闪卡/文档管理/编辑器工具/速记/通用/杂项）+ 功能仓库垫底（三期：AI 问答域退役两卡
     // 迁仓库、杂项 21 项分家 11 项独立成域；仓库只收设置入口，功能照常活，翻新一个拎回主域）；
     // label 为惰性取值（tomatoI18n 依 window 语言动态切，模板每次渲染现取，勿在模块顶层快照）
@@ -79,9 +82,15 @@
         { id: "blockedit", label: () => tomatoI18n.块编辑 },
         { id: "floatball", label: () => tomatoI18n.悬浮球 },
         { id: "export", label: () => tomatoI18n.导出工作空间域 },
+        // agentrev □2（2026-09-10）：AI 助手独立成域（bear ① 自功能仓库迁出三卡+轮数/人审
+        // 配置落位）；紧跟已翻新大牌组尾
+        { id: "agent", label: () => tomatoI18n.AI助手 },
         { id: "flashcard", label: () => tomatoI18n.闪卡 },
         { id: "docs", label: () => tomatoI18n.文档管理 },
         { id: "editortools", label: () => tomatoI18n.编辑器工具 },
+        // punctcfg（2026-09-10）：第 17 域「打字标点」——标点整理全家（总开关/速记折叠/
+        // 结构化映射规则编辑器）自通用域「快捷键与开关」独立成域（bear 提议）
+        { id: "punct", label: () => tomatoI18n.打字标点 },
         { id: "capture", label: () => tomatoI18n.速记 },
         { id: "general", label: () => tomatoI18n.通用 },
         { id: "misc", label: () => tomatoI18n.杂项 },
@@ -101,7 +110,7 @@
         ai: "anno",
         aibox: "vault",
     };
-    // □3 聚合视图：searchKey 非空=全 16 域聚合渲染，navActive 冻结待清空回位；
+    // □3 聚合视图：searchKey 非空=全 17 域聚合渲染，navActive 冻结待清空回位；
     // navHits=各域是否有命中卡（searchSettings 过滤后从 DOM 回读），驱动导航项高亮
     let navHits: Record<string, boolean> = $state({});
     // 输入沿聚合视图进出跳变跟踪（非响应式：只用于进/出沿触发滚顶，逐键过滤不触发）
@@ -266,8 +275,8 @@
             {/each}
         </nav>
         <div class="tomato-nav-content">
-            <!-- 15 域组件渲染抽出 snippet 供两个分支复用（ConfAnno/ConfReader/ConfEditorTools/
-                 ConfFloatBall/ConfMiscDomain/ConfVault/ConfGeneral 无 VIP 门控行不收 codeValid，
+            <!-- 17 域组件渲染抽出 snippet 供两个分支复用（ConfAnno/ConfReader/ConfEditorTools/
+                 ConfFloatBall/ConfMiscDomain/ConfVault/ConfAgent/ConfGeneral 无 VIP 门控行不收 codeValid，
                  其余域原样；ConfGeneral 杂项分家后无 VIP 行三期起加入此列） -->
             {#snippet domainCards(id: string)}
                 {#if id === "pomodoro"}
@@ -286,12 +295,16 @@
                     <ConfFloatBall></ConfFloatBall>
                 {:else if id === "export"}
                     <ConfExport {codeValid}></ConfExport>
+                {:else if id === "agent"}
+                    <ConfAgent></ConfAgent>
                 {:else if id === "flashcard"}
                     <ConfFlashcard {codeValid}></ConfFlashcard>
                 {:else if id === "docs"}
                     <ConfDocs {codeValid}></ConfDocs>
                 {:else if id === "editortools"}
                     <ConfEditorTools></ConfEditorTools>
+                {:else if id === "punct"}
+                    <ConfPunct></ConfPunct>
                 {:else if id === "capture"}
                     <ConfCapture {codeValid}></ConfCapture>
                 {:else if id === "misc"}
@@ -305,7 +318,7 @@
                 {/if}
             {/snippet}
             {#if searchKey}
-                <!-- 聚合视图（□3）：全 14 域同屏+域标题行做域界标，data-domain 供 updateNavHits
+                <!-- 聚合视图（□3）：全 17 域同屏+域标题行做域界标，data-domain 供 updateNavHits
                      回读命中态；searchSettings 深收按域过滤、空域整节隐藏 -->
                 {#each NAV_DOMAINS as d (d.id)}
                     <section class="conf-group" data-domain={d.id}>

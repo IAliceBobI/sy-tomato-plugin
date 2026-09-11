@@ -83,7 +83,7 @@ export interface AgentLoopOptions {
     /** 初始消息（含 system+历史+本次提问） */
     messages: ChatCompletionMessageParam[];
     signal?: AbortSignal;
-    /** 工具轮上限（默认 4）：AI 连续只调工具不收尾时熔断 */
+    /** 工具轮上限（默认 20，agentqa □1 随 stores 默认同抬）：AI 连续只调工具不收尾时熔断 */
     maxTurns?: number;
     onEvent: (e: AgentEvent) => void;
 }
@@ -122,12 +122,17 @@ function stripThink(text: string): string {
 }
 
 export async function runAgentLoop(opts: AgentLoopOptions): Promise<AgentLoopResult> {
-    const maxTurns = opts.maxTurns ?? 4;
+    const maxTurns = opts.maxTurns ?? 20;
     const messages = [...opts.messages];
-    const tools = toOpenAITools(opts.tools);
-    for (let turn = 1; turn <= maxTurns; turn++) {
+    // agentrev □6 重试癖治理：qwen-flash 对失败/被拒的工具调用会原样重试（人审弹窗连环弹、
+    // 轮数烧穿 max_turns——ai-agent 战役遗留备案）。按 name+args 记失败次数：第 2 次原样
+    // 调用拦截不执行（人审不再被打扰），第 3 次收走工具强制文字终答轮（额外轮额度≤2 防烧穿）
+    const failedCalls = new Map<string, number>();
+    let textOnly = false;
+    let appealUsed = 0;
+    for (let turn = 1; turn <= maxTurns + appealUsed; turn++) {
         if (opts.signal?.aborted) return { ok: false, error: "aborted", messages };
-        const stream = await opts.createStream(messages, tools, opts.signal);
+        const stream = await opts.createStream(messages, textOnly ? [] : toOpenAITools(opts.tools), opts.signal);
         if (!stream) return { ok: false, error: "stream_failed", messages };
 
         let consumed: Awaited<ReturnType<typeof consumeStream>>;
@@ -140,6 +145,10 @@ export async function runAgentLoop(opts: AgentLoopOptions): Promise<AgentLoopRes
 
         const toolCalls = consumed.toolCalls?.filter(c => c.id || c.name) ?? null;
         if (toolCalls?.length) {
+            if (textOnly) {
+                // 工具已收走仍幻觉 tool_calls（无 tools 参数下罕见）：熔断止损
+                return { ok: false, error: "repeat_loop", messages };
+            }
             // 工具轮：assistant(tool_calls) → 逐个直调 → tool 结果回灌 → 下一轮
             messages.push({
                 role: "assistant",
@@ -154,6 +163,28 @@ export async function runAgentLoop(opts: AgentLoopOptions): Promise<AgentLoopRes
                 const t0 = Date.now();
                 let result: ToolResponse;
                 let input: Record<string, any>;
+                const key = `${call.name}|${call.args}`;
+                const fails = failedCalls.get(key) ?? 0;
+                if (fails >= 1) {
+                    // 原样重试：拦截不执行（人审弹窗也不再打扰），硬话回灌逼其换路
+                    if (fails === 1) {
+                        result = { success: false, error: "该调用与上次完全相同且未成功，已被拦截不再执行。请修改参数，或停止调用工具直接用文字回答。" };
+                        failedCalls.set(key, 2);
+                        appealUsed = Math.min(2, appealUsed + 1);
+                    } else {
+                        // 仍不死心第三次：收走工具，下一轮起不提供任何工具
+                        textOnly = true;
+                        result = { success: false, error: "同一调用已重复失败，工具已被收走。请基于已有信息直接用文字回答。" };
+                        appealUsed = Math.min(2, appealUsed + 1);
+                    }
+                    opts.onEvent({ type: "tool_call", call, result, ms: Date.now() - t0 });
+                    messages.push({
+                        role: "tool",
+                        tool_call_id: call.id,
+                        content: JSON.stringify(result),
+                    });
+                    continue;
+                }
                 try {
                     input = JSON.parse(call.args || "{}");
                     result = await opts.caller.call(call.name, input);
@@ -161,6 +192,9 @@ export async function runAgentLoop(opts: AgentLoopOptions): Promise<AgentLoopRes
                     // 参数坏 JSON 或 caller 抛异常：包成失败结果让 AI 自纠（勿炸循环）
                     result = { success: false, error: e instanceof Error ? e.message : String(e) };
                 }
+                // 失败计数只增不减：同参调用失败过就再无执行机会（原样重试恒被拦），
+                // 想重试必须换参数——正合「拦截原样重试」的设计语义
+                if (!result.success) failedCalls.set(key, (failedCalls.get(key) ?? 0) + 1);
                 opts.onEvent({ type: "tool_call", call, result, ms: Date.now() - t0 });
                 messages.push({
                     role: "tool",

@@ -2,6 +2,7 @@ import { writable, get } from "svelte/store";
 import { Plugin } from "siyuan";
 import { STORAGE_Prog_SETTINGS, STORAGE_SETTINGS } from "../constants";
 import { siyuan } from "./utils";
+import { HISTORY_MSGS_DEFAULT, DOC_SNAPSHOT_DEFAULT } from "./agentContext";
 import { zipNways } from "./functional";
 import { events } from "./Events";
 import { BaseTomatoPlugin } from "./BaseTomatoPlugin";
@@ -488,6 +489,9 @@ export const punctTidyEnable = settingFactory("punctTidyEnable", false, STORAGE_
 // 速记折叠扩展规则（puncttidy）：折叠族（··/成对单引号→『、》》/《《→箭头）+『』【】配对+
 // 扩展方向修正，默认关；observer 回调实时读→改完保存即时生效（非结构性）
 export const punctTidyExtRules = settingFactory("punctTidyExtRules", false, STORAGE_SETTINGS, null as TSK);
+// 自定义标点映射（puncttidy □7）：一行一条「源→目标」（源=单字符，如 '→‘ / .→。），默认空=
+// 零打扰；observer 回调实时读→保存即时生效（非结构性）。解析/守卫语义=libs/punctTidy.ts
+export const punctTidyCustomMap = settingFactory("punctTidyCustomMap", "", STORAGE_SETTINGS, null as TSK);
 export const readingPointBoxCheckbox = settingFactory("readingPointBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const readingTopBar = settingFactory("readingTopBar", true, STORAGE_SETTINGS, null as TSK);
 // 阅读点翻新（2026-09）：状态栏指示钮（有点点亮点击跳回/无点半暗点击设点）；以下五项随老模型退役
@@ -677,6 +681,19 @@ export const dont_break_list = settingFactory("dont-break-list", false, STORAGE_
 export const aiBoxCheckbox = settingFactory("aiBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 // ai-agent □5 AI 助手面板（右侧 dock）：默认关对齐 Box 族惯例；桌面 only（移动端不注册）
 export const aiPanelCheckbox = settingFactory("aiPanelCheckbox", false, STORAGE_SETTINGS, null as TSK);
+// agentrev □2 可配置三件（bear ②）：轮数上限（消费端钳 1~30）+人审两开关（默认全开，关=该类动作免确认直接执行）
+// agentqa □1：默认 4→20（bear 撞熔断「没执行完」）；settingFactory 语义=用户显式设置过的值不覆盖
+export const agentMaxTurns = settingFactory("agentMaxTurns", 20, STORAGE_SETTINGS, null as TSK);
+export const agentReviewEdit = settingFactory("agentReviewEdit", true, STORAGE_SETTINGS, null as TSK);
+export const agentReviewRunJs = settingFactory("agentReviewRunJs", true, STORAGE_SETTINGS, null as TSK);
+// agentrev □4 三件套前两样（bear ③④，□1 拍板：领域知识=直接披露全文常驻/Skill=渐进披露只注简介）：
+// 存思源文档 id 数组；标题运行时反查（改名不断链），消费端=AgentPanel system 注入+skills 工具
+export const agentKnowledgeDocs = settingFactory("agentKnowledgeDocs", [] as string[], STORAGE_SETTINGS, null as TSK);
+export const agentSkillDocs = settingFactory("agentSkillDocs", [] as string[], STORAGE_SETTINGS, null as TSK);
+// agentqa □4（bear 拍板 B 可配）：上下文治理两参数——历史滑窗（含当问总条数，消费端钳 2~40）
+// +文档快照长度（字符，消费端钳 2000~50000）；默认值=旧代码常量，老用户零感知
+export const agentHistoryMsgs = settingFactory("agentHistoryMsgs", HISTORY_MSGS_DEFAULT, STORAGE_SETTINGS, null as TSK);
+export const agentDocSnapshotLimit = settingFactory("agentDocSnapshotLimit", DOC_SNAPSHOT_DEFAULT, STORAGE_SETTINGS, null as TSK);
 export const prefixArticlesEnable = settingFactory("prefixArticlesEnable", false, STORAGE_SETTINGS, null as TSK);
 export const prefixArticlesSoftLimit = settingFactory("prefixArticlesSoftLimit", "50", STORAGE_SETTINGS, null as TSK);
 export const prefixArticlesMenu = settingFactory("prefixArticlesMenu", true, STORAGE_SETTINGS, null as TSK);
@@ -843,6 +860,26 @@ export const openCardsOnOpenPiece = settingFactory("openCardsOnOpenPiece", false
 export const readCurveTakeover = settingFactory("readCurveTakeover", false, STORAGE_Prog_SETTINGS, null as TSK);
 // 巡查频率档（分钟）：0=关/30/60/360；事件触发（推片/翻卡/设置变更）不受此档影响
 export const readCurveSweepMins = settingFactory("readCurveSweepMins", 30, STORAGE_Prog_SETTINGS, null as TSK);
+// 阅读点接管类开关（1141 期3，默认开）：关=新阅读点卡块不再挂键接管（存量已接管走完曲线）
+export const readCurveReadingPoint = settingFactory("readCurveReadingPoint", true, STORAGE_Prog_SETTINGS, null as TSK);
+// 「我的文档卡」总开关（1141 期3，默认关）：开=自动收编全库无键有卡文档块（分摊 DIGEST_BUILD_CAP/轮）；
+// 关闸不清卡（已收编走完曲线自然毕业）；单卡入口=右键「加入阅读卡」与此开关无关
+export const readCurvePlainDocs = settingFactory("readCurvePlainDocs", false, STORAGE_Prog_SETTINGS, null as TSK);
+// 分片类开关（1141 期5，默认开）：关=不再建新分片卡（存量分片卡走完每日重现自然毕业）
+export const readCurvePiece = settingFactory("readCurvePiece", true, STORAGE_Prog_SETTINGS, null as TSK);
+// 素材类开关（1141 期5，默认开）：关=素材不再首推建卡（存量曲线卡走完自然毕业）
+export const readCurveMaterial = settingFactory("readCurveMaterial", true, STORAGE_Prog_SETTINGS, null as TSK);
+// 摘抄类开关（1141 期5，默认开）：关=不再为无键摘抄建卡（存量走完自然毕业）
+export const readCurveDigest = settingFactory("readCurveDigest", true, STORAGE_Prog_SETTINGS, null as TSK);
+// 重现族节奏档位（1141 期5）：0=默认 ×2 递增曲线；N∈{1,3,7,14,30}=每 N 天永不毕业
+// （只管建卡初始键与首排 due，存量卡不动）
+export const readCurveCadMaterial = settingFactory("readCurveCadMaterial", 0, STORAGE_Prog_SETTINGS, null as TSK);
+export const readCurveCadDigest = settingFactory("readCurveCadDigest", 0, STORAGE_Prog_SETTINGS, null as TSK);
+export const readCurveCadReadingPoint = settingFactory("readCurveCadReadingPoint", 0, STORAGE_Prog_SETTINGS, null as TSK);
+export const readCurveCadPlain = settingFactory("readCurveCadPlain", 0, STORAGE_Prog_SETTINGS, null as TSK);
+// 写作每日目标档（□9：鸟咨询+bear 拍板方案 A）：1/2/3 片默认 1；达标才变绿督促动笔，
+// 不封顶、无惩罚性欠债累加（与阅读侧 dailyQuota 的明确差异——写作无 warn/over 态）
+export const writingQuota = settingFactory("writingQuota", 1, STORAGE_Prog_SETTINGS, null as TSK);
 export const cardUnderPiece = settingFactory("cardUnderPiece", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const cardAppendTime = settingFactory("cardAppendTime", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const mobileTopBar = settingFactory("mobileTopBar", true, STORAGE_Prog_SETTINGS, null as TSK);

@@ -1,4 +1,4 @@
-import { Dialog, IEventBusMap } from "siyuan";
+import { confirm, Dialog, IEventBusMap } from "siyuan";
 import { getAllText, siyuan } from "./libs/utils";
 import { events } from "./libs/Events";
 import { aiBoxCheckbox, aiBoxMenuShow, } from "./libs/stores";
@@ -7,13 +7,14 @@ import { DestroyManager } from "./libs/destroyer";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
+import { agentIconSymbolID } from "./agentIcon";
 import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { mount, unmount } from "svelte";
-import { OpenAIClient } from "./libs/openAI";
+import { OpenAIClient, diagnoseAIAsync } from "./libs/openAI";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
-export const AIBoxHotkey = winHotkey("⌥⇧S", "人工智能", "iconSparkles", () => tomatoI18n.人工智能)
+export const AIBoxHotkey = winHotkey("⌥⇧S", "人工智能", agentIconSymbolID(), () => tomatoI18n.人工智能)
 class AIBox {
     private plugin: BaseTomatoPlugin;
     private dm: DestroyManager;
@@ -93,10 +94,19 @@ class AIBox {
         }
     }
 
+    /** agentrev □3 健壮化：快照→getConf 两级诊断（启动后才配的 AI 也拿得到），未配置分态弹窗
+     *  （annoAIGuideFor 指明缺什么）；请求失败/空响应由 do_completions 返回 undefined → toast 报错。 */
     public async runAI(text: string, anchorID: string) {
-        await siyuan.pushMsg(text.slice(0, 100), 2000);
-        const client = OpenAIClient.getOfficalModel(true);
-        return client(text, anchorID);
+        const d = await diagnoseAIAsync();
+        if ("reason" in d) {
+            confirm(tomatoI18n.未配置AI, tomatoI18n.annoAIGuideFor(d.reason), () => { /* 引导即止 */ });
+            return;
+        }
+        await siyuan.pushMsg(tomatoI18n.AI请求已发送, 2500);
+        const client = new OpenAIClient(d.apiKey, d.baseURL);
+        const ret = await client.do_completions(d.model, text, anchorID, true);
+        if (!ret) await siyuan.pushMsg(tomatoI18n.AI请求失败, 3000);
+        return ret;
     }
 }
 

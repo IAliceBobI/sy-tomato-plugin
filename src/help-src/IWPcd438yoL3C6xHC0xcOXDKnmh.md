@@ -63,6 +63,7 @@
 - [列表工具](https://my.feishu.cn/docx/GbeDdl1Bro3laRxlfqrcl10OnTc)
 - [复制多个块为图片](https://my.feishu.cn/docx/QGx5d437SoArUyxZ6c3cqhmfnnb)
 - [顶部工具条](https://my.feishu.cn/docx/NDgJd64mmo7c0Wxj42RcNv2Tnaf)
+- [打字标点自动整理](https://my.feishu.cn/docx/AFKRdsQjCo933yxu95tcnXuYnUf)
 
 **🍅 速记**
 

@@ -22,6 +22,7 @@
     import { debugLog } from "./libs/logUtils";
     import { vipVerified } from "./libs/user";
     import { hidePanelTip, showPanelTip } from "./libs/panelTip";
+    import { agentIconSymbolID } from "./agentIcon";
     import { tomatoI18n } from "./tomatoI18n";
     import AnnoChat from "./AnnoChat.svelte";
 
@@ -330,7 +331,7 @@
             }
         }}
     >
-        <svg><use xlink:href={chatOpen && events.isMobile ? "#iconBack" : "#iconSparkles"}></use></svg>
+        <svg><use xlink:href={chatOpen && events.isMobile ? "#iconBack" : `#${agentIconSymbolID()}`}></use></svg>
         <span class="anno-ai-bar__label">{chatOpen ? tomatoI18n.AI讨论区 : tomatoI18n.问AI}</span>
         <span class="anno-ai-bar__tail">
             {#if chatOpen}

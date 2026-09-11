@@ -31,6 +31,58 @@ export function buildAgentScriptContent(data: AgentScriptData): string {
     return `${AGENT_SCRIPT_FENCE}\n${JSON.stringify(clean)}\n;;;`;
 }
 
+// ---- agentrev □5 提示词固化块：同机制第二物种（脚本=AI 写的 JS；提示词=用户存的指令文本）。
+// 命令零常驻（bear ⑤「提示词其实就是 command，它不进入上下文」）：块只作存储，命令回调
+// 触发时现读注入面板会话，不占 system。
+export const AGENT_PROMPT_BLOCK_TYPE = "agent-prompt";
+export const AGENT_PROMPT_FENCE = ";;;sy-tomato-plugin/agent-prompt";
+/** 提示词仓库文档标题（设置卡首用自动创建于默认笔记本根，与脚本仓库分档） */
+export const AGENT_PROMPT_DOC_TITLE = "AI 助手提示词仓库";
+
+export interface AgentPromptData {
+    v: 1;
+    /** 命令面板显示名（用户可改块内 JSON） */
+    name: string;
+    /** 提示词正文（触发时作为用户消息注入面板会话） */
+    prompt: string;
+    ts: number;
+}
+
+export function buildAgentPromptContent(data: AgentPromptData): string {
+    const clean: AgentPromptData = {
+        v: 1,
+        name: sanitize(data.name),
+        prompt: sanitize(data.prompt),
+        ts: data.ts,
+    };
+    return `${AGENT_PROMPT_FENCE}\n${JSON.stringify(clean)}\n;;;`;
+}
+
+/** 从 custom 块 content 解析；非 JSON/缺字段回 null 不炸（与脚本块同款剥围栏行） */
+export function parseAgentPromptContent(content: string): AgentPromptData | null {
+    try {
+        const raw = (content ?? "")
+            .split("\n")
+            .filter(l => l.trim() && !l.trim().startsWith(";;;"))
+            .join("");
+        const obj = JSON.parse(raw);
+        if (obj && typeof obj === "object" && typeof obj.prompt === "string" && typeof obj.name === "string") {
+            return { v: 1, name: obj.name, prompt: obj.prompt, ts: typeof obj.ts === "number" ? obj.ts : 0 };
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+/** 提示词仓库文档定位（写后立查索引延迟同脚本仓库，首建后立扫由调用方 sleep 兜） */
+export async function findAgentPromptDocID(): Promise<string | null> {
+    const rows = await siyuan.sql(
+        `select id from blocks where type='d' and content='${AGENT_PROMPT_DOC_TITLE.replace(/'/g, "''")}' limit 1`,
+    );
+    return rows?.[0]?.id ?? null;
+}
+
 /** 从 custom 块 content（围栏内 JSON 行）解析；非 JSON/缺字段回 null 不炸 */
 export function parseAgentScriptContent(content: string): AgentScriptData | null {
     try {

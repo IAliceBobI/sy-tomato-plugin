@@ -8,6 +8,7 @@
 import { getTomatoPluginInstance, siyuan } from "./libs/utils";
 import { debugLog } from "./libs/logUtils";
 import { tomatoI18n } from "./tomatoI18n";
+import { agentIconSymbolID } from "./agentIcon";
 import { ANNO_CHAT_BLOCK_TYPE, parseAnnoChatContent, renderNoteLines, type AnnoChatBlockMsg } from "./libs/annoChatBlock";
 
 /** 最小注册面接口（siyuan 1.2.5 类型声明无 customBlockRenders，结构化窄化避免 as any 满天飞） */
@@ -57,7 +58,7 @@ function renderCard(element: HTMLElement, content: string): void {
     const head = document.createElement("div");
     head.className = "tomato-annochat-card__head";
     const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    icon.innerHTML = '<use xlink:href="#iconSparkles"></use>';
+    icon.innerHTML = `<use xlink:href="#${agentIconSymbolID()}"></use>`;
     const title = document.createElement("span");
     title.className = "tomato-annochat-card__title";
     title.textContent = tomatoI18n.讨论沉淀;

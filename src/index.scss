@@ -4,6 +4,12 @@
   color: var(--b3-theme-primary) !important;
 }
 
+// agentqa □2 番茄 AI 图标（iconTomatoAgent）着色：常态番茄红（symbol 内 var 回落值同源），
+// dock 选中态蓝药丸上转白——同构官方 dock 选中转白惯例（vision P1：固定红对蓝 ~1.1:1 发浊）
+.dock__item--active {
+  --tomato-agent-red: var(--b3-theme-on-primary, #fff);
+}
+
 .protyle-wysiwyg div[custom-staticlink],
 .protyle-wysiwyg div[custom-tomato-readingpoint] {
   opacity: 0.65;

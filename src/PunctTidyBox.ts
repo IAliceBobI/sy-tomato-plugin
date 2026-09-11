@@ -1,7 +1,7 @@
 import { IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { punctTidyEnable, punctTidyExtRules } from "./libs/stores";
-import { tidyPunctuationBlock } from "./libs/punctTidy";
+import { punctTidyEnable, punctTidyExtRules, punctTidyCustomMap } from "./libs/stores";
+import { tidyPunctuationBlock, parsePunctMap } from "./libs/punctTidy";
 import { debugLog } from "./libs/logUtils";
 
 // 打字标点自动整理（puncttidy 战役 2026-09-10，自 seller MyToolBox 迁入番茄公开侧，免费）。
@@ -50,13 +50,17 @@ export class PunctTidyBox {
                                 // 单批新增块（data-node-id，去重后）>2 = 粘贴/拖拽/撤销等批量插入，整批跳过
                                 if (new Set(added.filter((e: any) => e.getAttribute("data-node-id"))).size > 2) return;
                                 const candidates = new Set([...added, ...mutationsList.map(i => i.previousSibling)]);
+                                // 自定义映射（□7）实时读：每批解析一次（行数个位级，零负担）；
+                                // 空 map 传 undefined=引擎与预筛回落现网基线行为
+                                const map = parsePunctMap(punctTidyCustomMap.get());
+                                const mapOpt = map.size ? map : undefined;
                                 for (const e of candidates) {
                                     const el = e as HTMLElement;
                                     if (!el || !el.getAttribute) continue;
                                     if (!el.isConnected) continue;
                                     // 单候选异常不打断同批（review P2-3）：整理是非关键增强，坏了留痕自愈
                                     try {
-                                        tidyPunctuationBlock(protyle, el, { ext: punctTidyExtRules.get() });
+                                        tidyPunctuationBlock(protyle, el, { ext: punctTidyExtRules.get(), map: mapOpt });
                                     } catch (err) {
                                         debugLog("punctTidy", `candidate failed: ${err}`);
                                     }

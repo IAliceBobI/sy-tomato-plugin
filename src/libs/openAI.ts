@@ -179,35 +179,57 @@ export class OpenAIClient {
         }
     }
 
-    private async do_completions(model: string, useInputTxt: string, anchorID: string, noSup: boolean) {
+    /** 流式问答并把结果写进 anchorID 后方块（AIBox 主链路；progressive 生词 AI 经 getOfficalModel 同达）。
+     *  agentrev □3 健壮化：目标块懒插（首个写入才插——请求失败不再留空 sb 孤儿块）、
+     *  空响应/中断且无实质内容时清块并返回 undefined（调用方弹失败提示）。
+     *  返回 undefined 三态：请求失败 / 空响应 / 中断且一字未出；有部分内容时保留返回。 */
+    async do_completions(model: string, useInputTxt: string, anchorID: string, noSup: boolean) {
         const messages = buildMessages(useInputTxt);
         const stream = await createStream(this.openai, model, messages);
-        if (!stream) return;
+        if (!stream) return undefined;
 
         let targetID = "";
-        if (anchorID) {
+        const ensureTarget = async () => {
+            if (targetID || !anchorID) return;
             targetID = NewNodeID();
             await siyuan.insertBlockAfter(`{: id="${targetID}"}`, anchorID);
-        }
-
-        const write = (txt: string) => targetID
-            ? siyuan.safeUpdateBlock(targetID, `{{{row\n\n${txt}\n\n}}}\n{: id="${targetID}" custom-ai-response="1"}`)
-            : undefined;
+        };
+        const write = async (txt: string) => {
+            await ensureTarget();
+            return targetID
+                ? siyuan.safeUpdateBlock(targetID, `{{{row\n\n${txt}\n\n}}}\n{: id="${targetID}" custom-ai-response="1"}`)
+                : undefined;
+        };
+        const finalize = async (raw: string) => {
+            // hasReal=流里真出过正文/思考（appendChunk 无内容时 display 是「thinking N...」
+            // 占位文案——中断时不能把它当正文落块）
+            const hasReal = !!(state.texts.join("").trim() || state.reasoning_texts.join("").trim());
+            const txt = stripThinkTag(raw).trim();
+            if (!txt || !hasReal) {
+                if (targetID) await siyuan.deleteBlock(targetID).catch(() => undefined);
+                return undefined;
+            }
+            await write(txt);
+            if (noSup && targetID) {
+                await cancelSuperBlock(targetID);
+            }
+            return { targetID, aiRespTxt: txt };
+        };
 
         let state: StreamState = { texts: [], reasoning_texts: [], count: 0 };
         let aiRespTxt = "";
-        for await (const chunk of stream) {
-            const r = appendChunk(state, chunk);
-            state = r.state;
-            aiRespTxt = r.display;
-            if (state.count % 50 === 0) await write(aiRespTxt);
+        try {
+            for await (const chunk of stream) {
+                const r = appendChunk(state, chunk);
+                state = r.state;
+                aiRespTxt = r.display;
+                if (state.count % 50 === 0) await write(aiRespTxt);
+            }
+        } catch (e) {
+            // 收流中断（网络断等）：已出的实质内容按完成态落块保留，一字未出则清块报失败
+            console.error("[tomato] AI 收流中断：", e);
+            return finalize(aiRespTxt);
         }
-
-        aiRespTxt = stripThinkTag(aiRespTxt);
-        await write(aiRespTxt);
-        if (noSup && targetID) {
-            await cancelSuperBlock(targetID);
-        }
-        return { targetID, aiRespTxt };
+        return finalize(aiRespTxt);
     }
 }

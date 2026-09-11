@@ -19,9 +19,10 @@ export { createSkillsTool, skillsDoc } from "./skillTools";
 /** 装配 tomato 全部工具（pomodoro+search+skills+coze，后续期工具在此追加）。
  *  装配点统一再包一层 wrapHandler（双重 wrap 无害）——个别工具忘 wrap 也不漏异常给内核。
  *  coze 依赖外网 HTTP：kernel 门脸（canExternalHttp=false）不装配，外部 /mcp 列表保持干净；
- *  skills 纯静态内联零环境依赖，双门脸恒装配。 */
+ *  skills 纯静态内联零环境依赖，双门脸恒装配（agentrev □4：前端门脸 env 具 getAgentDocs
+ *  → skills 另挂用户 Skill 段；kernel 门脸保持纯手册，MCP 能力面不变）。 */
 export function createTomatoTools(env: ToolEnv): ToolDefinition[] {
-  const tools = [createPomodoroTool(env), createSearchTool(env), createSkillsTool()];
+    const tools = [createPomodoroTool(env), createSearchTool(env), createSkillsTool(env)];
   if (env.canExternalHttp) tools.push(createCozeTool(env));
   return tools.map(t => ({ ...t, handler: wrapHandler(t.handler) }));
 }

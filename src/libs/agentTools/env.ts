@@ -64,4 +64,10 @@ export interface ToolEnv {
   runUserJS?(code: string): Promise<{ result: string }>;
   /** 读块 markdown（□6 edit 的预览/撤销快照用；kernel 可实现=纯读） */
   readBlockMarkdown?(blockID: string): Promise<{ markdown: string }>;
+  /**
+   * 用户在设置里挑选的 Agent 上下文文档 id（agentrev □4：knowledge=领域知识/skills=Skill）。
+   * 可选面=能力水线：仅前端门脸实现（读 petal 设置）——kernel env 缺此面 → skills 工具的
+   * 用户 Skill 段自动缺席（MCP 面 skills 保持纯插件手册语义，对外能力面不变）。
+   */
+  getAgentDocs?(): Promise<{ knowledge: string[]; skills: string[] }>;
 }

@@ -6,7 +6,7 @@
 import type { Plugin } from "siyuan";
 import { siyuan, getMarkdownsByTrees } from "./libs/siyuanApi";
 import { debugLog } from "./libs/logUtils";
-import { cozeSearchAppID, cozeSearchKnowledgeID, cozeSearchOauthTokenID } from "./libs/stores";
+import { agentKnowledgeDocs, agentSkillDocs, cozeSearchAppID, cozeSearchKnowledgeID, cozeSearchOauthTokenID } from "./libs/stores";
 import { createToolCaller, type ToolCaller, type ToolEnv } from "./libs/agentTools";
 
 export function createFrontendToolEnv(plugin: Plugin): ToolEnv {
@@ -92,6 +92,13 @@ export function createFrontendToolEnv(plugin: Plugin): ToolEnv {
     async readBlockMarkdown(blockID: string) {
       const { kramdown } = await siyuan.getBlockKramdown(blockID);
       return { markdown: kramdown ?? "" };
+    },
+    // agentrev □4：用户挑选的 Agent 上下文文档（领域知识/Skill）——skills 工具按此挂用户 Skill 段
+    getAgentDocs() {
+      return Promise.resolve({
+        knowledge: (agentKnowledgeDocs.get() ?? []) as string[],
+        skills: (agentSkillDocs.get() ?? []) as string[],
+      });
     },
     async runUserJS(code: string) {
       // 前端 window 域执行（⚠️ 非安全沙箱——真防线=AgentPanel 调用前的代码人审闸）：
