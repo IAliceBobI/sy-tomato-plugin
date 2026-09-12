@@ -4,7 +4,7 @@
     import { tomatoI18n } from "./tomatoI18n";
     import { linkBoxSyncBlockAuto } from "./libs/stores";
     import { getAttribute, siyuan, stringToNumber } from "./libs/utils";
-    import { syncFromBlock } from "./LinkBox";
+    import { syncFromBlock } from "./SyncBlock";
     import type { VerMapCache } from "./libs/syncDecision";
     import { onMount } from "svelte";
     interface Props {

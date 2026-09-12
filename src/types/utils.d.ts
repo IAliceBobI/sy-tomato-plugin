@@ -170,6 +170,8 @@ type TomatoSettings = {
     floatbarFlatCollapsed: boolean,
     digSubrankOpen: boolean,
     floatbarExpandPref: boolean | null,
+    /** □2 平铺区二级编排：按 kind 分份 × 5 段顺序清单（段名=FLAT_SEG_IDS，钮归属+段内序） */
+    floatbarFlatManifest: Record<string, Record<string, string[]>>,
     markOriginTextBG: boolean,
     materialCapsuleBorder: boolean,
     writingPoolUnderBook: boolean,

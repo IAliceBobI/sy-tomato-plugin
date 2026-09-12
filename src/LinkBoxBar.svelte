@@ -13,7 +13,7 @@
         sleep,
         stringToNumber,
     } from "./libs/utils";
-    import { getRowAndMaxVer, showSyncBlocks, syncAllBlocks } from "./LinkBox";
+    import { getRowAndMaxVer, syncAllBlocks } from "./SyncBlock";
     import { tomatoI18n } from "./tomatoI18n";
     import { linkBoxSyncBlockAuto } from "./libs/stores";
     import { OpenSyFile2 } from "./libs/docUtils";
@@ -22,6 +22,8 @@
         plugin: Plugin;
         syncBlock: HTMLElement;
         verMap: Map<string, VerMapCache>;
+        /** 打开「查看所有同步位置」清单——由 LinkBox.addBar 注入（UI 入口在 LinkBox.ts，避免组件↔宿主循环 import） */
+        showAll: () => void;
     }
 
     let props: Props = $props();
@@ -83,7 +85,7 @@
     }
 
     function showAll() {
-        showSyncBlocks(null, props.plugin, props.syncBlock);
+        props.showAll();
     }
 
     async function openAll() {

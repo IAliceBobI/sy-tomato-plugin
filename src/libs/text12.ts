@@ -439,22 +439,6 @@ export abstract class TomatoI18nABC12 extends TomatoI18nABC13 {
         }
     }
 
-    public get 计划提醒() {
-        switch (this.lang) {
-            case "zh_CN": return "计划提醒";
-            case "es_ES": return "Recordatorio de planificación";
-            case "fr_FR": return "Rappel de planification";
-            case "ja_JP": return "計画リマインダー";
-            case "zh_CHT": return "計劃提醒";
-            case "it_IT": return "Promemoria pianificazione";
-            case "de_DE": return "Planungserinnerung";
-            case "he_IL": return "תזכורת לתכנון";
-            case "ru_RU": return "Напоминание о плане";
-            case "pl_PL": return "Przypomnienie o planie";
-            case "en_US":
-            default: return "Plan reminder";
-        }
-    }
     public get 导出图片() {
         switch (this.lang) {
             case "zh_CN": return "导出图片";

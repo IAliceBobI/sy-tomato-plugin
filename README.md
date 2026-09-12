@@ -72,6 +72,7 @@ The all-in-one productivity toolbox for SiYuan — one plugin slot for a whole n
 ## Docs & Community
 
 - 📖 **[Documentation](https://my.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)** (Chinese, with GIFs & videos for every feature)
+- 🤖 **[Connect AI to SiYuan (MCP)](https://my.feishu.cn/docx/BkRldeWJ7o3T4ExE2fdciZbgnRV)** (Chinese) — let AI query focus stats and search your notes; three-step setup for ZCode / Trae / CodeBuddy / Qoder
 - 🙏 [Acknowledgments](https://my.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
 - 💬 [QQ Group](https://pd.qq.com/s/r3jz0g16) (Chinese) — feedback and feature requests
 - 💬 [Feishu Group](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=f08gff0c-d6b0-4a0d-8323-c8a0553e4fff&qr_code=true) (Chinese) — feedback and feature requests

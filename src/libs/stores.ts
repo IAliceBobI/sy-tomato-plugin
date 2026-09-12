@@ -916,6 +916,13 @@ export const digSubrankOpen = settingFactory(
 // 上岗即展开不看它（□11 拍板）；移动端 ✕=本会话隐藏、free ✕=下班，均不写它
 export const floatbarExpandPref = settingFactory(
     "floatbarExpandPref", null, STORAGE_Prog_SETTINGS, null as TSK);
+// □2 平铺区二级编排（progtail 2026-09-11，群 650189「二级工具无法拖动排序」）：
+// 按 kind 分份（piece/free/digest/book）× 5 段顺序清单（low+制卡/收集/移动/提取整理，
+// 段名=FLAT_SEG_IDS）——记录「钮归属哪段+段内顺序」的用户显式意志。空对象=全按固有
+// 编排（老用户升级零迁移）；未记录的钮垫尾（applyFlatManifest 滤未知 id+固有段垫尾，
+// 继承 mainIds 族纪律）
+export const floatbarFlatManifest = settingFactory(
+    "floatbarFlatManifest", {} as Record<string, Record<string, string[]>>, STORAGE_Prog_SETTINGS, null as TSK);
 
 // ---------------
 export const navSourceBlock = settingFactory("navSourceBlock", true, STORAGE_SETTINGS, null as TSK);

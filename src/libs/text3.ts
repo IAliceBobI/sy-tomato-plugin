@@ -41,25 +41,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
         }
     }
 
-    public get 清理Coze多余文件() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "清理Coze多余文件";
-            case "es_ES":
-                return "Limpiar archivos innecesarios de Coze";
-            case "fr_FR":
-                return "Nettoyer les fichiers superflus de Coze";
-            case "ja_JP":
-                return "Cozeの不要なファイルをクリーンアップ";
-            case "zh_CHT":
-                return "清理Coze多餘文件";
-            case "it_IT":
-                return "Pulizia file superflui di Coze";
-
-            default:
-                return "Clean up unnecessary Coze files";
-        }
-    }
     public get conceptBarTitle点击(): string {
         switch (this.lang) {
             case "zh_CN":
@@ -193,90 +174,6 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
         }
     }
 
-    public 只上传这个时间之后更新的内容(x: string) {
-        switch (this.lang) {
-            case "zh_CN":
-                return `只上传${x}之后更新的内容`;
-            case "es_ES":
-                return `Subir solo contenido actualizado después de ${x}`;
-            case "fr_FR":
-                return `Télécharger uniquement les contenus mis à jour après ${x}`;
-            case "ja_JP":
-                return `${x}以降に更新されたコンテンツのみをアップロードする`;
-            case "zh_CHT":
-                return `僅上傳${x}之後更新的內容`;
-            case "it_IT":
-                return `Carica solo i contenuti aggiornati dopo ${x}`;
-            case "de_DE":
-                return `Nur Inhalte hochladen, die nach ${x} aktualisiert wurden`;
-            case "he_IL":
-                return `העלה רק תוכן שעודכן לאחר ${x}`;
-            case "ru_RU":
-                return `Загружать только обновленный контент после ${x}`;
-            case "pl_PL":
-                return `Prześlij tylko zaktualizowane treści po ${x}`;
-            case "en_US":
-            default:
-                return `Upload only content updated after ${x}`;
-        }
-    }
-    public get 清理所有文件() {
-        // 请为我补充缺失的语言
-        switch (this.lang) {
-            case "zh_CN":
-                return "清理coze中所有文件";
-            case "es_ES":
-                return "Borrar todos los archivos de coze";
-            case "fr_FR":
-                return "Supprimer tous les fichiers de coze";
-            case "ja_JP":
-                return "coze内のすべてのファイルを削除";
-            case "zh_CHT":
-                return "清理coze中的所有文件";
-            case "it_IT":
-                return "Cancella tutti i file di coze";
-            case "de_DE":
-                return "Alle Dateien in coze löschen";
-            case "he_IL":
-                return "למחוק את כל הקבצים ב-coze";
-            case "ru_RU":
-                return "Удалить все файлы coze";
-            case "pl_PL":
-                return "Usuń wszystkie pliki coze";
-            case "en_US":
-                return "Delete all files in coze";
-            default:
-                // 默认情况下使用英文
-                return "Delete all files in coze";
-        }
-    }
-    public get 删除Coze中当前文件以及子文件() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "删除Coze中当前文件以及子文件";
-            case "es_ES":
-                return "Eliminar el archivo actual y sus subarchivos en Coze";
-            case "fr_FR":
-                return "Supprimer le fichier actuel et ses sous-fichiers dans Coze";
-            case "ja_JP":
-                return "Coze内の現在のファイルとそのサブファイルを削除する";
-            case "zh_CHT":
-                return "刪除Coze中目前檔案及其子檔案";
-            case "it_IT":
-                return "Elimina il file corrente e i suoi sottofile in Coze";
-            case "de_DE":
-                return "Löschen Sie die aktuelle Datei und ihre Unterdateien in Coze";
-            case "he_IL":
-                return "מחק את הקובץ הנוכחי והקובצי תתי שלו ב-Coze";
-            case "ru_RU":
-                return "Удалить текущий файл и его подфайлы в Coze";
-            case "pl_PL":
-                return "Usuń bieżący plik oraz jego podpliki w Coze";
-            case "en_US":
-            default:
-                return "Delete the current file and its subfiles in Coze";
-        }
-    }
     public get 激活码() {
         switch (this.lang) {
             case "zh_CN":

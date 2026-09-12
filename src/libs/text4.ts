@@ -1126,6 +1126,40 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "Copying as image, please wait";
         }
     }
+    public get 没有可复制的图片内容() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "没有可复制的图片内容";
+            case "es_ES":
+                return "No hay contenido para copiar como imagen";
+            case "fr_FR":
+                return "Aucun contenu à copier en image";
+            case "ja_JP":
+                return "画像としてコピーできる内容がありません";
+            case "zh_CHT":
+                return "沒有可複製的圖片內容";
+
+            default:
+                return "Nothing to copy as image";
+        }
+    }
+    public get 复制失败请重试() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "复制失败请重试";
+            case "es_ES":
+                return "Error al copiar, inténtalo de nuevo";
+            case "fr_FR":
+                return "Échec de la copie, veuillez réessayer";
+            case "ja_JP":
+                return "コピーに失敗しました。もう一度お試しください";
+            case "zh_CHT":
+                return "複製失敗請重試";
+
+            default:
+                return "Copy failed, please retry";
+        }
+    }
     public get 复制完成() {
         switch (this.lang) {
             case "zh_CN":
@@ -1177,59 +1211,5 @@ it means that as long as one of these keywords appears, it will match.</strong><
                 return "Lock Content/Unlock Content";
         }
     }
-    public get 百度千帆转发器监听地址() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "百度千帆转发器监听地址";
-            case "es_ES":
-                return "Dirección de escucha del transmisor de Baidu Qianfan";
-            case "fr_FR":
-                return "Adresse d'écoute du transmetteur Baidu Qianfan";
-            case "ja_JP":
-                return "百度千帆転送器リスニングアドレス";
-            case "zh_CHT":
-                return "百度千帆轉發器監聽地址";
-
-            default:
-                return "Baidu Qianfan Transmitter Listening Address";
-        }
-    }
-
-    public get 添加百度千帆的密钥() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "添加百度千帆的密钥";
-            case "es_ES":
-                return "Agregar clave de Baidu Qianfan";
-            case "fr_FR":
-                return "Ajouter la clé de Baidu Qianfan";
-            case "ja_JP":
-                return "百度千帆のキーを追加";
-            case "zh_CHT":
-                return "添加百度千帆的密鑰";
-
-            default:
-                return "Add Baidu Qianfan Key";
-        }
-    }
-
-    public get 添加知识库得到ID() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "添加知识库得到ID";
-            case "es_ES":
-                return "Agregar base de conocimientos para obtener ID";
-            case "fr_FR":
-                return "Ajouter une base de connaissances pour obtenir l'ID";
-            case "ja_JP":
-                return "知識ベースを追加してIDを取得";
-            case "zh_CHT":
-                return "添加知識庫得到ID";
-
-            default:
-                return "Add Knowledge Base to Get ID";
-        }
-    }
-
 
 }

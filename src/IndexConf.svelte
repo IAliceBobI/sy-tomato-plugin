@@ -1,5 +1,5 @@
 <script lang="ts">
-    // 设置对话框主壳：付费状态条、搜索栏、左侧 17 域导航、sticky footer 保存条 + 17 个域组件
+    // 设置对话框主壳：付费状态条、搜索栏、左侧 19 域导航、sticky footer 保存条 + 19 个域组件
     // （Conf*.svelte，右侧单域渲染）。共享样式在 ./IndexConf.css（.tomato-settings-dialog 作用域）。
     // 2026-08 重构：原 2628 行大文件按功能域拆出 8 个分区子组件；2026-09-03 设置页重划：
     // □1 双栏壳（左导航+右长滚动）→ □2 域组件拆并——旧 10 个 Conf 退役，域组件
@@ -48,6 +48,8 @@
     import ConfVault from "./ConfVault.svelte";
     import ConfAgent from "./ConfAgent.svelte";
     import ConfCommands from "./ConfCommands.svelte";
+    // AI 接入（MCP）引导卡（mcpcopy 2026-09-11；09-12 二期迁入导航「AI 接入」独立域渲染）
+    import McpPromo from "./McpPromo.svelte";
     interface Props {
         dm: DestroyManager;
         plugin: BaseTomatoPlugin;
@@ -67,7 +69,7 @@
     });
     let searchKey = $state("");
     const SearchKeyItemKey = "tomato_settings_SearchKeyItemKey_RfrUm9VLS4GehTzg5ygRrNT";
-    // 导航 17 域（二期 2026-09-05 起；featgate □1 +16 命令开关、punctcfg +打字标点域、
+    // 导航 19 域（二期 2026-09-05 起；featgate □1 +16 命令开关、punctcfg +打字标点域、
     // agentrev 2026-09-10 +AI 助手域）：上半 9=已翻新大牌（番茄钟/
     // 批注/反链与引用/可视化/阅读/块编辑/悬浮球/导出工作空间/AI 助手），下半 8=待翻新按受欢迎排
     // （闪卡/文档管理/编辑器工具/速记/通用/杂项）+ 功能仓库垫底（三期：AI 问答域退役两卡
@@ -98,6 +100,9 @@
         // featgate □1（2026-09-10）：第 16 域「命令开关」——commandToggles 逐命令开关
         // 集中管理（数据驱动自 commandGroups.ts），垫底与功能仓库作伴（管理域非功能域）
         { id: "commands", label: () => tomatoI18n.命令开关 },
+        // mcpcopy 二期（2026-09-12）：MCP 引导卡自顶部通栏迁入导航独立域（bear：通栏占空间），
+        // 垫底与管理域作伴；卡本体 McpPromo.svelte 不变
+        { id: "mcp", label: () => tomatoI18n.AI接入 },
     ];
     let navActive = $state("pomodoro");
     const NavKeyItemKey = "tomato_settings_NavKeyItemKey_LE2WBlXRG9LGVH2AA3VwzehW1";
@@ -110,7 +115,7 @@
         ai: "anno",
         aibox: "vault",
     };
-    // □3 聚合视图：searchKey 非空=全 17 域聚合渲染，navActive 冻结待清空回位；
+    // □3 聚合视图：searchKey 非空=全 19 域聚合渲染，navActive 冻结待清空回位；
     // navHits=各域是否有命中卡（searchSettings 过滤后从 DOM 回读），驱动导航项高亮
     let navHits: Record<string, boolean> = $state({});
     // 输入沿聚合视图进出跳变跟踪（非响应式：只用于进/出沿触发滚顶，逐键过滤不触发）
@@ -275,7 +280,7 @@
             {/each}
         </nav>
         <div class="tomato-nav-content">
-            <!-- 17 域组件渲染抽出 snippet 供两个分支复用（ConfAnno/ConfReader/ConfEditorTools/
+            <!-- 19 域组件渲染抽出 snippet 供两个分支复用（ConfAnno/ConfReader/ConfEditorTools/
                  ConfFloatBall/ConfMiscDomain/ConfVault/ConfAgent/ConfGeneral 无 VIP 门控行不收 codeValid，
                  其余域原样；ConfGeneral 杂项分家后无 VIP 行三期起加入此列） -->
             {#snippet domainCards(id: string)}
@@ -313,12 +318,14 @@
                     <ConfVault></ConfVault>
                 {:else if id === "commands"}
                     <ConfCommands></ConfCommands>
+                {:else if id === "mcp"}
+                    <McpPromo></McpPromo>
                 {:else}
                     <ConfGeneral></ConfGeneral>
                 {/if}
             {/snippet}
             {#if searchKey}
-                <!-- 聚合视图（□3）：全 17 域同屏+域标题行做域界标，data-domain 供 updateNavHits
+                <!-- 聚合视图（□3）：全 19 域同屏+域标题行做域界标，data-domain 供 updateNavHits
                      回读命中态；searchSettings 深收按域过滤、空域整节隐藏 -->
                 {#each NAV_DOMAINS as d (d.id)}
                     <section class="conf-group" data-domain={d.id}>

@@ -30,7 +30,7 @@ export default defineConfig({
       output: {
         entryFileNames: "kernel.js",
         // goja 无动态加载，内核插件必须单文件
-        inlineDynamicImports: true,
+        codeSplitting: false,
       },
     },
   },

@@ -72,6 +72,7 @@
 ## 文档与社区
 
 - 📖 **[帮助文档](https://my.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink)**——每个功能都有配图和视频演示，5 分钟看懂全部玩法
+- 🤖 **[把 AI 助手接进思源（MCP）](https://my.feishu.cn/docx/BkRldeWJ7o3T4ExE2fdciZbgnRV)**——让 AI 查专注记录、全库搜笔记，ZCode / Trae / CodeBuddy / Qoder 三步接入
 - 🙏 [鸣谢](https://my.feishu.cn/docx/FQ7udC3jeorfDYxI39ict2UNn2g?from=from_copylink)
 - 💬 [QQ 交流群](https://pd.qq.com/s/r3jz0g16)——反馈、催更、蹲新功能
 - 💬 [飞书群](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=f08gff0c-d6b0-4a0d-8323-c8a0553e4fff&qr_code=true)——反馈、催更、蹲新功能
