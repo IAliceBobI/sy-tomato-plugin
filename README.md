@@ -4,7 +4,7 @@ The all-in-one productivity toolbox for SiYuan — one plugin slot for a whole n
 
 ## Highlights
 
-- 🧰 **All-in-one toolbox** — 15 domains, 40+ features: focus, reading, review, capture, references, visualization, AI. One install replaces a row of plugins
+- 🧰 **All-in-one toolbox** — 40+ features grouped by scenario: focus, reading, review, capture, references, visualization, AI. One install replaces a row of plugins
 - 🍅 **Status-bar Pomodoro** — one click to start; focus/break cycles rotate automatically, with configurable backgrounds and sounds
 - 🤖 **AI power** — knowledge-base Q&A grounded in your own notes, streaming answers with sources; annotation discussions can be saved as content blocks
 - 📖 **Reading input loop** — reading points remember where you stopped, annotations mark as you read, and what you read turns into review cards in one click
@@ -53,20 +53,18 @@ The all-in-one productivity toolbox for SiYuan — one plugin slot for a whole n
 
 - **Workspace export** — export your workspace as Markdown, with allow/deny lists and automatic incremental runs
 - **Document merging** — merge multiple documents in one click
-- **Prefix document tree** — organize the doc tree by title prefixes
 - **DailyNote tools** — navigate between journals, review past days, move content in bulk
 
 ### 🤖 AI
 
 - **AI knowledge-base Q&A** — ask questions over your own notes, streaming answers with sources
-- **coze Q&A** — connect Doubao / coze agents
 
 > Plus a row of editor mini-tools: enhanced folding, multi-select, list tools, copy-as-image, document aliases… right in the context menu, no extra plugin slot needed.
 
 ## Getting Started
 
 1. After installing, look at the SiYuan status bar — click the tomato icon to start your first Pomodoro
-2. Open plugin settings (SiYuan Settings → Plugins → Tomato Toolbox) and tune any of the 15 domains to your liking
+2. Open plugin settings (SiYuan Settings → Plugins → Tomato Toolbox) and tune each domain to your liking
 3. No need to memorize the rest: search "Tomato" in the command palette, or browse the docs by use case
 
 ## Docs & Community
@@ -79,7 +77,7 @@ The all-in-one productivity toolbox for SiYuan — one plugin slot for a whole n
 - 📱 Scan to join: ![Group QR codes (left: QQ Channel, right: Feishu)](group-qr.png)
 - 🔓 [Open-source repo](https://github.com/IAliceBobI/sy-tomato-plugin) — what you see is what's compiled: built by GitHub Actions
 
-📊 SiYuan Marketplace: 136,000+ downloads · ★ 4.8
+📊 SiYuan Marketplace: 141,000+ downloads
 
 ## Support the Author
 
