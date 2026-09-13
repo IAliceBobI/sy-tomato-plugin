@@ -576,6 +576,25 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "After creating the card, add related concepts at the top";
         }
     }
+    public get 制卡时链接原文块() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "制卡时在卡尾链接原文块";
+            case "es_ES":
+                return "Al crear tarjetas, enlazar el bloque original al final de la tarjeta";
+            case "fr_FR":
+                return "Lors de la création de cartes, lier le bloc source en bas de la carte";
+            case "ja_JP":
+                return "カード作成時にカード末尾へ原文ブロックをリンク";
+            case "zh_CHT":
+                return "製卡時在卡尾連結原文塊";
+            case "it_IT":
+                return "Durante la creazione di carte, collegare il blocco di origine in coda alla carta";
+
+            default:
+                return "Link the source block at the card tail when making cards";
+        }
+    }
     public get 给闪卡添加底部边框() {
         switch (this.lang) {
             case "zh_CN":

@@ -45,6 +45,7 @@
         storeRefreshStaticBkLnk,
         storeOpenRefsMenu,
         storeOpenRefsClick,
+        refCleanMenu,
     } from "./libs/stores";
     import { cleanDataview, icon } from "./libs/utils";
     import { BK启用禁用文档的底部反链 } from "./BackLinkBottomBox";
@@ -296,6 +297,16 @@
                 class:codeNotValid
             />
             {tomatoI18n.点击引用数打开所有引用}<TomatoVIP {codeValid}></TomatoVIP>
+        </div>
+    </div>
+    <!-- 失效引用清理（vipdoctree □4 2026-09-13）：检查/列出免费，转文本/删除两动作
+         在 Dialog 内门（lastVerifyResult）——门禁可见性>功能数口径 -->
+    <div class="settingBox">
+        <div class="section-title">{tomatoI18n.失效引用清理}</div>
+        <div>{tomatoI18n.失效引用清理说明()}</div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$refCleanMenu} />
+            {tomatoI18n.menu添加右键菜单}: {tomatoI18n.检查失效引用}
         </div>
     </div>
     <!-- 折叠垫底区：数据库反链 + 引用修复（二期 2026-09-05 收拢：疑弃/搁置功能垫域底，

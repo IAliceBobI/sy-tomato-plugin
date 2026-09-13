@@ -529,6 +529,10 @@ export const cardBoxCardtab = settingFactory("cardBoxCardtab", false, STORAGE_SE
 export const card_refresh_visible_only = settingFactory("card_refresh_visible_only", true, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSuperCard = settingFactory("cardBoxSuperCard", false, STORAGE_SETTINGS, null as TSK);
 export const cardBoxAddConcepts = settingFactory("cardBoxAddConcepts", false, STORAGE_SETTINGS, null as TSK);
+// □1（vipdoctree 2026-09-13）：右键「复习此文档及子文档」菜单开关（文档树+编辑器双落点，默认开）
+export const cardBoxReviewDocMenu = settingFactory("cardBoxReviewDocMenu", true, STORAGE_SETTINGS, null as TSK);
+// □4（vipdoctree 2026-09-13）：右键「检查失效引用」菜单开关（文档树+编辑器双落点，默认开）
+export const refCleanMenu = settingFactory("refCleanMenu", true, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSpradEvenlyPostpone = settingFactory("cardBoxSpradEvenlyPostpone", true, STORAGE_SETTINGS, null as TSK);
 export const cardBoxDelayDays = settingFactory("cardBoxDelayDays", 0.1, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSettingsShow = settingFactory("cardBoxSettingsShow", false, STORAGE_SETTINGS, null as TSK);
@@ -819,6 +823,10 @@ export const revisitRhythmMenu = settingFactory("revisitRhythmMenu", true, STORA
 export const windowOpenStyle = settingFactory("windowOpenStyle", "1", STORAGE_Prog_SETTINGS, null as TSK);
 export const flashcardNotebook = settingFactory("flashcardNotebook", "", STORAGE_Prog_SETTINGS, null as TSK);
 export const flashcardAddRefs = settingFactory("flashcardAddRefs", true, STORAGE_Prog_SETTINGS, null as TSK);
+// 制卡加原文引用（2026-09-13，bear 拍板「原文快删不想要指向原文的引用」）：卡尾 `*`（原
+// 文块）/分片场景 `@`（原书块）统一开关，默认开=老用户零感知；关=全通道（快捷键/浮条/
+// 右键）默认不加，⌥S「制卡无引用」显式 noRef 恒优先（合成见 progressive/flashCardRef.ts）
+export const flashcardAddOriginRef = settingFactory("flashcardAddOriginRef", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const flashcardMultipleLnks = settingFactory("flashcardMultipleLnks", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const digestNoBacktraceLink = settingFactory("digestNoBacktraceLink", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const pieceNoBacktraceLink = settingFactory("pieceNoBacktraceLink", true, STORAGE_Prog_SETTINGS, null as TSK);

@@ -9,6 +9,7 @@
         cardBoxCardtab,
         cardBoxCheckbox,
         cardBoxDeleteNoConfirm,
+        cardBoxReviewDocMenu,
         cardBoxSpradEvenlyPostpone,
         cardBoxSuperCard,
         cardPriorityBoxAutoHide,
@@ -75,7 +76,11 @@
 
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxSuperCard} />
-                {tomatoI18n.menu添加右键菜单}: {tomatoI18n.用选中的行创建超级块超级块制卡取消制卡}<HotkeyCap hk={CardBox用选中的行创建超级块超级块制卡取消制卡} pluginName="sy-tomato-plugin"></HotkeyCap>
+                {tomatoI18n.menu添加右键菜单 + "：" + tomatoI18n.用选中的行创建超级块超级块制卡取消制卡}<HotkeyCap hk={CardBox用选中的行创建超级块超级块制卡取消制卡} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$cardBoxReviewDocMenu} />
+                {tomatoI18n.menu添加右键菜单 + "：" + tomatoI18n.复习此文档及子文档}
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxCardtab} />

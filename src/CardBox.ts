@@ -5,7 +5,7 @@ import { EventType, events } from "./libs/Events";
 import { getIDFromCard, pressSkip, removeDocCards, skipThenRemoveCards } from "./libs/cardUtils";
 import { CardSettingsID } from "./libs/gconst";
 import { addFlashCard } from "./libs/listUtils";
-import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxSettingsShow, cardBoxSuperCard, cardBoxCardtab, card_refresh_visible_only, writableWithGet } from "./libs/stores";
+import { cardBoxAddConcepts, cardBoxCheckbox, cardBoxReviewDocMenu, cardBoxSettingsShow, cardBoxSuperCard, cardBoxCardtab, card_refresh_visible_only, writableWithGet } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { getDocTracer, locTree, OpenSyFile2 } from "./libs/docUtils";
 import { closeAllDialog } from "./libs/keyboard";
@@ -120,6 +120,30 @@ class CardBox {
                     await addFlashCard(detail.protyle, await getDocTracer(), this.plugin, cardBoxAddConcepts.get())
                 },
             }, CardBox用选中的行创建超级块超级块制卡取消制卡.menu());
+            // □1（vipdoctree 2026-09-13）：编辑器内右键当前文档=页签式复习该文档子树
+            // （menu key 与文档树入口同一串，menuManager 一处藏两处消）
+            addIfVisible(menu, "m.cardBox.reviewDoc", {
+                label: tomatoI18n.复习此文档及子文档,
+                icon: "iconRiffCard",
+                click: () => {
+                    const docID = detail.protyle?.block?.rootID;
+                    if (docID) openTab({ app: this.plugin.app, card: { type: "doc", id: docID } });
+                },
+            }, cardBoxReviewDocMenu.get());
+        });
+        // □1（vipdoctree 2026-09-13）：文档树右键单文档→页签式复习该文档子树（用户主场景）。
+        // 通道=官方 openTab card type:"doc"（progressive openDocReview 同款：官方 tree 复习按
+        // 文档子树递归）；type 守卫挡 notebook/docs 等其余形态（多选官方通道只收单 id 语义
+        // 不成立），elements[0] 取值兜底
+        this.plugin.eventBus.on("open-menu-doctree", ({ detail }) => {
+            if (detail.type !== "doc") return;
+            const docID = detail.elements?.[0]?.getAttribute("data-node-id");
+            if (!docID) return;
+            addIfVisible(detail.menu, "m.cardBox.reviewDoc", {
+                label: tomatoI18n.复习此文档及子文档,
+                icon: "iconRiffCard",
+                click: () => openTab({ app: this.plugin.app, card: { type: "doc", id: docID } }),
+            }, cardBoxReviewDocMenu.get());
         });
         events.addListener("CardBox2025-5-9 23:55:35", (eventType, detail) => {
             if (eventType == EventType.loaded_protyle_static

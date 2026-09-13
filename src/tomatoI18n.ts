@@ -4925,18 +4925,26 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
-    public 火苗提示(read: number, quota: number, debt: number, digestDue = 0) {
+    public 火苗提示(read: number, quota: number, todayGap: number, histDebt: number, digestDue = 0) {
+        // □4⑤ 来源拆分（治「读 9/3·欠债 2」并存困惑）：今日缺口与历史欠债分开标注，
+        // 读满显「已达标」、历史债显「历史欠债 N」——债从哪来一眼可读。
         // 期2 复访通道尾行：非阻塞提示（不占 quota 不进欠债），无到期不占行
         const due = digestDue > 0
             ? (this.lang === "zh_CN" ? `\n今日还有 ${digestDue} 条到期摘抄`
                 : this.lang === "zh_CHT" ? `\n今日還有 ${digestDue} 條到期摘抄`
                     : `\n${digestDue} digest(s) due today`)
             : "";
+        const seg = (zh: string, cht: string, en: string) => this.lang === "zh_CN" ? zh : this.lang === "zh_CHT" ? cht : en;
+        const parts: string[] = [];
+        if (todayGap > 0) parts.push(seg(`今日缺 ${todayGap}`, `今日缺 ${todayGap}`, `${todayGap} to go`));
+        else if (read >= quota && read > 0) parts.push(seg("已达标", "已達標", "goal met"));
+        if (histDebt > 0) parts.push(seg(`历史欠债 ${histDebt}`, `歷史欠債 ${histDebt}`, `${histDebt} owed earlier`));
+        const mid = parts.length ? ` · ${parts.join(" · ")}` : "";
         switch (this.lang) {
-            case "zh_CN": return `今日已读 ${read}/${quota} · 欠债 ${debt}${due}\n点击直达下一片`;
-            case "zh_CHT": return `今日已讀 ${read}/${quota} · 欠債 ${debt}${due}\n點擊直達下一片`;
+            case "zh_CN": return `今日已读 ${read}/${quota}${mid}${due}\n点击直达下一片`;
+            case "zh_CHT": return `今日已讀 ${read}/${quota}${mid}${due}\n點擊直達下一片`;
             case "en_US":
-            default: return `Today ${read}/${quota} · debt ${debt}${due}\nClick for next piece`;
+            default: return `Today ${read}/${quota}${mid}${due}\nClick for next piece`;
         }
     }
 
@@ -6164,6 +6172,154 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "不刪，打開下一片";
             case "en_US":
             default: return "Keep this piece, open the next";
+        }
+    }
+
+    // ===== □4② 写作书槽导航（回看/下一槽按钮的槽语境形态——阅读书的片在写作书=槽，
+    // 导航语义同构但绝不能删槽；槽间浏览是纯导航不计数） =====
+    public get 上一槽() {
+        switch (this.lang) {
+            case "zh_CN": return "上一槽";
+            case "zh_CHT": return "上一槽";
+            case "en_US":
+            default: return "Prev slot";
+        }
+    }
+
+    public get 下一槽() {
+        switch (this.lang) {
+            case "zh_CN": return "下一槽";
+            case "zh_CHT": return "下一槽";
+            case "en_US":
+            default: return "Next slot";
+        }
+    }
+
+    public get tip上一槽() {
+        switch (this.lang) {
+            case "zh_CN": return "跳到上一个槽，不删除任何内容";
+            case "zh_CHT": return "跳到上一個槽，不刪除任何內容";
+            case "en_US":
+            default: return "Go to the previous slot; nothing is deleted";
+        }
+    }
+
+    public get tip下一槽() {
+        switch (this.lang) {
+            case "zh_CN": return "跳到下一个槽，不删除任何内容";
+            case "zh_CHT": return "跳到下一個槽，不刪除任何內容";
+            case "en_US":
+            default: return "Go to the next slot; nothing is deleted";
+        }
+    }
+
+    public get 已是第一个槽() {
+        switch (this.lang) {
+            case "zh_CN": return "已是第一个槽";
+            case "zh_CHT": return "已是第一個槽";
+            case "en_US":
+            default: return "Already the first slot";
+        }
+    }
+
+    public get 已是最后一个槽() {
+        switch (this.lang) {
+            case "zh_CN": return "已是最后一个槽";
+            case "zh_CHT": return "已是最後一個槽";
+            case "en_US":
+            default: return "Already the last slot";
+        }
+    }
+
+    // ===== □4③ 写作语境换一本（浮条「换书」钮在写作书系文档的槽语境形态） =====
+    public get tip换写作书() {
+        switch (this.lang) {
+            case "zh_CN": return "换到下一本写作书（现场跳转，不计数）";
+            case "zh_CHT": return "換到下一本寫作書（現場跳轉，不計數）";
+            case "en_US":
+            default: return "Switch to the next writing book (navigation only, no count)";
+        }
+    }
+
+    public get 没有其他写作书() {
+        switch (this.lang) {
+            case "zh_CN": return "没有其他写作书了";
+            case "zh_CHT": return "沒有其他寫作書了";
+            case "en_US":
+            default: return "No other writing book";
+        }
+    }
+
+    // ===== □4④ 本书槽列表（浮条「本书槽」格 → Menu 直达） =====
+    public get 本书槽() {
+        switch (this.lang) {
+            case "zh_CN": return "本书槽";
+            case "zh_CHT": return "本書槽";
+            case "en_US":
+            default: return "Slots";
+        }
+    }
+
+    public get tip本书槽() {
+        switch (this.lang) {
+            case "zh_CN": return "列出本书全部写作槽（含定稿），点击直达";
+            case "zh_CHT": return "列出本書全部寫作槽（含定稿），點擊直達";
+            case "en_US":
+            default: return "List all writing slots of this book (incl. finalized); click to jump";
+        }
+    }
+
+    public 本书N槽M定稿(n: number, m: number) {
+        switch (this.lang) {
+            case "zh_CN": return `本书 ${n} 槽 · ${m} 定稿`;
+            case "zh_CHT": return `本書 ${n} 槽 · ${m} 定稿`;
+            case "en_US":
+            default: return `${n} slot(s) · ${m} finalized`;
+        }
+    }
+
+    public get 已定稿槽() {
+        switch (this.lang) {
+            case "zh_CN": return "已定稿";
+            case "zh_CHT": return "已定稿";
+            case "en_US":
+            default: return "finalized";
+        }
+    }
+
+    public get 当前槽() {
+        switch (this.lang) {
+            case "zh_CN": return "当前";
+            case "zh_CHT": return "當前";
+            case "en_US":
+            default: return "current";
+        }
+    }
+
+    public get 本书还没有槽() {
+        switch (this.lang) {
+            case "zh_CN": return "这本书还没有写作槽——先在目录里规划槽位";
+            case "zh_CHT": return "這本書還沒有寫作槽——先在目錄裡規劃槽位";
+            case "en_US":
+            default: return "No writing slot yet — plan slots in the outline first";
+        }
+    }
+
+    public get 写作槽不支持删除类操作() {
+        switch (this.lang) {
+            case "zh_CN": return "写作槽是定稿文档，不支持删除/重插类操作";
+            case "zh_CHT": return "寫作槽是定稿文檔，不支持刪除/重插類操作";
+            case "en_US":
+            default: return "Writing slots are finalized docs; delete/refill actions don't apply";
+        }
+    }
+
+    public get 当前后文档不是写作槽() {
+        switch (this.lang) {
+            case "zh_CN": return "当前文档不是这本书的写作槽";
+            case "zh_CHT": return "當前文檔不是這本書的寫作槽";
+            case "en_US":
+            default: return "This document is not a writing slot of the book";
         }
     }
 
@@ -8169,6 +8325,14 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "製卡時在卡片開頭附一行「相關概念」塊引用，複習時可跳回原文看上下文";
             case "en_US":
             default: return "When making a card, prepend a \"related concepts\" block-ref line so you can jump back to the context while reviewing";
+        }
+    }
+    public get tip设置原文引用() {
+        switch (this.lang) {
+            case "zh_CN": return "制卡时在卡内容尾部附一个指向原文块的引用（分片场景指向原书块），复习时可跳回；原文即将删除或不需要跳转时关闭";
+            case "zh_CHT": return "製卡時在卡片內容尾部附加指向原文塊的引用（分片場景指向原書塊），複習時可跳回；原文即將刪除或不需要跳轉時關閉";
+            case "en_US":
+            default: return "Append a block-ref pointing to the source block at the card tail when making cards (piece cards point to the book block); turn it off if the source is about to be deleted or you don't need the jump";
         }
     }
     public get tip设置分片回溯() {
@@ -12822,6 +12986,308 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "展開矢印行の行高を統一（ブックマーク・タグなども対象）";
             case "en_US":
             default: return "Normalizes expand-arrow row height, also in bookmark/tag panels";
+        }
+    }
+    // □1（vipdoctree 2026-09-13）：文档树/编辑器右键「页签式复习该文档子树」入口文案
+    public get 复习此文档及子文档() {
+        switch (this.lang) {
+            case "zh_CN": return "复习此文档及子文档";
+            case "zh_CHT": return "複習此文檔及子文檔";
+            case "es_ES": return "Repasar este documento y subdocumentos";
+            case "fr_FR": return "Réviser ce document et ses sous-documents";
+            case "ja_JP": return "このドキュメントとサブドキュメントを復習";
+            case "en_US":
+            default: return "Review this doc and subdocuments";
+        }
+    }
+    // □4（vipdoctree 2026-09-13）：失效引用/锚点链接检查清理（检测语义对齐官方
+    // ListInvalidBlockRefs，插件增量=范围化+批量动作；文案键全链查重零撞）
+    public get 失效引用清理() {
+        switch (this.lang) {
+            case "zh_CN": return "失效引用清理";
+            case "zh_CHT": return "失效引用清理";
+            case "es_ES": return "Limpiar referencias rotas";
+            case "fr_FR": return "Nettoyage des références rompues";
+            case "ja_JP": return "壊れた参照のクリーンアップ";
+            case "en_US":
+            default: return "Broken reference cleaner";
+        }
+    }
+    public 失效引用清理说明() {
+        switch (this.lang) {
+            case "zh_CN": return "检查文档（可含子文档）中的失效块引用与锚点链接，勾选后批量转成文本或删除。检查免费，批量清理为 Pro";
+            case "zh_CHT": return "檢查文檔（可含子文檔）中的失效塊引用與錨點連結，勾選後批次轉成文字或刪除。檢查免費，批次清理為 Pro";
+            case "es_ES": return "Busca referencias de bloque y enlaces de anclaje rotos en el documento (incl. subdocumentos) y permite convertirlos en texto o eliminarlos. Revisar es gratis; la limpieza por lotes es Pro";
+            case "fr_FR": return "Recherche les références de blocs et liens d'ancre rompus dans le document (sous-documents inclus), puis les convertit en texte ou les supprime en lot. La vérification est gratuite ; le nettoyage par lot est Pro";
+            case "ja_JP": return "ドキュメント（サブドキュメント含む）内の壊れたブロック参照とアンカーリンクを検査し、テキスト化または一括削除できます。検査は無料、一括クリーンアップは Pro です";
+            case "en_US":
+            default: return "Finds broken block references and anchor links in a doc (subdocs included), then converts them to text or removes them in batch. Checking is free; batch cleaning is Pro";
+        }
+    }
+    public get 检查失效引用() {
+        switch (this.lang) {
+            case "zh_CN": return "检查失效引用";
+            case "zh_CHT": return "檢查失效引用";
+            case "es_ES": return "Buscar referencias rotas";
+            case "fr_FR": return "Rechercher les références rompues";
+            case "ja_JP": return "壊れた参照を検査";
+            case "en_US":
+            default: return "Check broken references";
+        }
+    }
+    public get 失效块引用() {
+        switch (this.lang) {
+            case "zh_CN": return "失效块引用";
+            case "zh_CHT": return "失效塊引用";
+            case "es_ES": return "Referencias rotas";
+            case "fr_FR": return "Références rompues";
+            case "ja_JP": return "壊れた参照";
+            case "en_US":
+            default: return "Broken refs";
+        }
+    }
+    public get 失效锚点链接() {
+        switch (this.lang) {
+            case "zh_CN": return "失效锚点链接";
+            case "zh_CHT": return "失效錨點連結";
+            case "es_ES": return "Enlaces de anclaje rotos";
+            case "fr_FR": return "Liens d'ancre rompus";
+            case "ja_JP": return "壊れたアンカーリンク";
+            case "en_US":
+            default: return "Broken anchors";
+        }
+    }
+    public get 未发现失效引用或锚点链接() {
+        switch (this.lang) {
+            case "zh_CN": return "未发现失效引用或锚点链接";
+            case "zh_CHT": return "未發現失效引用或錨點連結";
+            case "es_ES": return "No se han encontrado referencias ni enlaces rotos";
+            case "fr_FR": return "Aucune référence ni lien rompu trouvé";
+            case "ja_JP": return "壊れた参照やアンカーリンクは見つかりませんでした";
+            case "en_US":
+            default: return "No broken references or anchor links found";
+        }
+    }
+    public get 正在检查() {
+        switch (this.lang) {
+            case "zh_CN": return "正在检查…";
+            case "zh_CHT": return "正在檢查…";
+            case "es_ES": return "Buscando…";
+            case "fr_FR": return "Recherche…";
+            case "ja_JP": return "検査中…";
+            case "en_US":
+            default: return "Checking…";
+        }
+    }
+    public get 转成文本() {
+        switch (this.lang) {
+            case "zh_CN": return "转成文本";
+            case "zh_CHT": return "轉成文字";
+            case "es_ES": return "Convertir en texto";
+            case "fr_FR": return "Convertir en texte";
+            case "ja_JP": return "テキスト化";
+            case "en_US":
+            default: return "To text";
+        }
+    }
+    // 「删除」复用基类 text7.ts 同名键（值全语种一致，子类重定义=TS2416 风险）
+    public get 反选() {
+        switch (this.lang) {
+            case "zh_CN": return "反选";
+            case "zh_CHT": return "反選";
+            case "es_ES": return "Invertir selección";
+            case "fr_FR": return "Inverser la sélection";
+            case "ja_JP": return "選択反転";
+            case "en_US":
+            default: return "Invert";
+        }
+    }
+    public 处理完成(ok: number, fail: number) {
+        const o = String(ok), f = String(fail);
+        switch (this.lang) {
+            case "zh_CN": return `处理完成：成功 ${o} 项${f === "0" ? "" : `，失败 ${f} 项`}`;
+            case "zh_CHT": return `處理完成：成功 ${o} 項${f === "0" ? "" : `，失敗 ${f} 項`}`;
+            case "es_ES": return `Hecho: ${o} correctos${f === "0" ? "" : `, ${f} fallidos`}`;
+            case "fr_FR": return `Terminé : ${o} réussis${f === "0" ? "" : `, ${f} échoués`}`;
+            case "ja_JP": return `完了：成功 ${o} 件${f === "0" ? "" : `、失敗 ${f} 件`}`;
+            case "en_US":
+            default: return `Done: ${o} succeeded${f === "0" ? "" : `, ${f} failed`}`;
+        }
+    }
+
+    // ============ □8 知识地图（渐进）：视图层显示面 ============
+    public 知识地图() {
+        switch (this.lang) {
+            case "zh_CN": return "知识地图";
+            case "zh_CHT": return "知識地圖";
+            case "es_ES": return "Mapa de conocimiento";
+            case "fr_FR": return "Carte du savoir";
+            case "ja_JP": return "知識マップ";
+            case "en_US":
+            default: return "Knowledge map";
+        }
+    }
+    public 全景图() {
+        switch (this.lang) {
+            case "zh_CN": return "全景图";
+            case "zh_CHT": return "全景圖";
+            case "es_ES": return "Panorama";
+            case "fr_FR": return "Panorama";
+            case "ja_JP": return "パノラマ";
+            case "en_US":
+            default: return "Panorama";
+        }
+    }
+    public 保存视图() {
+        switch (this.lang) {
+            case "zh_CN": return "保存视图";
+            case "zh_CHT": return "保存視圖";
+            case "es_ES": return "Guardar vista";
+            case "fr_FR": return "Enregistrer la vue";
+            case "ja_JP": return "ビューを保存";
+            case "en_US":
+            default: return "Save view";
+        }
+    }
+    /** □9：视图攒多时的整理入口轻提示（≥6 张显示；pull 不 push，只指路不动作） */
+    public 视图整理提示() {
+        switch (this.lang) {
+            case "zh_CN": return "视图较多，可让 AI 助手整理归并（map_tidy）";
+            case "zh_CHT": return "視圖較多，可讓 AI 助手整理歸併（map_tidy）";
+            case "es_ES": return "¿Muchas vistas? Pide a tu asistente de IA que las ordene (map_tidy)";
+            case "fr_FR": return "Trop de vues ? Demandez à votre assistant IA de les trier (map_tidy)";
+            case "ja_JP": return "ビューが多い場合は AI アシスタントに整理を任せられます（map_tidy）";
+            case "en_US":
+            default: return "Many views? Ask your AI assistant to tidy them (map_tidy)";
+        }
+    }
+    public 返回全景() {
+        switch (this.lang) {
+            case "zh_CN": return "返回全景";
+            case "zh_CHT": return "返回全景";
+            case "es_ES": return "Volver al panorama";
+            case "fr_FR": return "Retour au panorama";
+            case "ja_JP": return "パノラマに戻る";
+            case "en_US":
+            default: return "Back to panorama";
+        }
+    }
+    public 暂无地图数据() {
+        switch (this.lang) {
+            case "zh_CN": return "本书还没有知识地图。可用 AI 客户端经思源 MCP 调 book-map 工具建图（map_context 读素材 → map_save 存池子），再回到这里查看。";
+            case "zh_CHT": return "本書還沒有知識地圖。可用 AI 客戶端經思源 MCP 調 book-map 工具建圖（map_context 讀素材 → map_save 存池子），再回到這裡查看。";
+            case "es_ES": return "Aún no hay mapa. Pide a tu cliente IA que use la herramienta book-map vía MCP (map_context → map_save) y vuelve aquí.";
+            case "fr_FR": return "Pas encore de carte. Demandez à votre client IA d'utiliser l'outil book-map via MCP (map_context → map_save), puis revenez ici.";
+            case "ja_JP": return "まだ知識マップがありません。AI クライアントから SiYuan MCP の book-map ツールで作成し（map_context → map_save）、ここに戻ってください。";
+            case "en_US":
+            default: return "No map yet. Ask your AI client to build one via the SiYuan MCP book-map tool (map_context → map_save), then come back here.";
+        }
+    }
+    public 地图加载失败() {
+        switch (this.lang) {
+            case "zh_CN": return "知识地图加载失败";
+            case "zh_CHT": return "知識地圖載入失敗";
+            case "es_ES": return "Error al cargar el mapa";
+            case "fr_FR": return "Échec du chargement de la carte";
+            case "ja_JP": return "マップの読み込みに失敗しました";
+            case "en_US":
+            default: return "Failed to load knowledge map";
+        }
+    }
+    public 视图已保存() {
+        switch (this.lang) {
+            case "zh_CN": return "视图已保存";
+            case "zh_CHT": return "視圖已保存";
+            case "es_ES": return "Vista guardada";
+            case "fr_FR": return "Vue enregistrée";
+            case "ja_JP": return "ビューを保存しました";
+            case "en_US":
+            default: return "View saved";
+        }
+    }
+    public 视图保存失败() {
+        switch (this.lang) {
+            case "zh_CN": return "视图保存失败（地图文档不可写或内容被并发修改）";
+            case "zh_CHT": return "視圖保存失敗（地圖文檔不可寫或內容被並發修改）";
+            case "es_ES": return "No se pudo guardar la vista (documento no escribible o modificado en concurrente)";
+            case "fr_FR": return "Échec de l'enregistrement (document non inscriptible ou modifié en concurrence)";
+            case "ja_JP": return "ビューの保存に失敗しました（ドキュメントが書き込み不可または並行変更）";
+            case "en_US":
+            default: return "Failed to save view (map doc unwritable or concurrently modified)";
+        }
+    }
+    public 视图名称占位() {
+        switch (this.lang) {
+            case "zh_CN": return "视图名称";
+            case "zh_CHT": return "視圖名稱";
+            case "es_ES": return "Nombre de la vista";
+            case "fr_FR": return "Nom de la vue";
+            case "ja_JP": return "ビュー名";
+            case "en_US":
+            default: return "View name";
+        }
+    }
+    public 已导出地图图片() {
+        switch (this.lang) {
+            case "zh_CN": return "地图图片已导出（可用于图片遮挡自测）";
+            case "zh_CHT": return "地圖圖片已導出（可用於圖片遮擋自測）";
+            case "es_ES": return "Imagen exportada (úsala para autoevaluación con oclusión)";
+            case "fr_FR": return "Image exportée (utilisable pour l'auto-évaluation masquée)";
+            case "ja_JP": return "マップ画像を書き出しました（画像隠蔽セルフテストに利用可）";
+            case "en_US":
+            default: return "Map image exported (use it for image-occlusion self-testing)";
+        }
+    }
+    public 正在导出图片() {
+        switch (this.lang) {
+            case "zh_CN": return "正在导出图片…";
+            case "zh_CHT": return "正在導出圖片…";
+            case "es_ES": return "Exportando imagen…";
+            case "fr_FR": return "Export de l'image…";
+            case "ja_JP": return "画像を書き出しています…";
+            case "en_US":
+            default: return "Exporting image…";
+        }
+    }
+    /** 节点类型五枚举显示名（数据层英文键→显示面，bookMapCore MapNodeType） */
+    public 地图节点类型(t: string) {
+        const table: Record<string, [string, string, string, string, string, string]> = {
+            person: ["人物", "人物", "Character", "Personnage", "キャラクター", "Character"],
+            concept: ["概念", "概念", "Concepto", "Concept", "概念", "Concept"],
+            event: ["事件", "事件", "Evento", "Événement", "出来事", "Event"],
+            place: ["地点", "地點", "Lugar", "Lieu", "場所", "Place"],
+            theme: ["主题", "主題", "Tema", "Thème", "テーマ", "Theme"],
+        };
+        const row = table[t] ?? table.theme;
+        const idx = ["zh_CN", "zh_CHT", "es_ES", "fr_FR", "ja_JP"].indexOf(this.lang);
+        return idx >= 0 ? row[idx] : row[5];
+    }
+    /** 簇节点标签：「人物 · 23」 */
+    public 地图簇标签(t: string, n: number) {
+        return `${this.地图节点类型(t)} · ${n}`;
+    }
+    /** 导出 PNG 失败（html2canvas 异常；复评 P2：占位键换专键） */
+    public 导出图片失败() {
+        switch (this.lang) {
+            case "zh_CN": return "导出图片失败";
+            case "zh_CHT": return "導出圖片失敗";
+            case "es_ES": return "Error al exportar la imagen";
+            case "fr_FR": return "Échec de l'export de l'image";
+            case "ja_JP": return "画像の書き出しに失敗しました";
+            case "en_US":
+            default: return "Failed to export image";
+        }
+    }
+    /** 双击节点但无证据锚可跳 */
+    public 无证据锚提示() {
+        switch (this.lang) {
+            case "zh_CN": return "该节点没有挂在片上的证据锚，无法跳原文";
+            case "zh_CHT": return "該節點沒有掛在片上的證據錨，無法跳原文";
+            case "es_ES": return "Este nodo no tiene anclajes en fragmentos para saltar";
+            case "fr_FR": return "Ce nœud n'a pas d'ancrages de fragment pour sauter";
+            case "ja_JP": return "このノードにはフラグメントの証拠アンカーがなく、原文へ跳べません";
+            case "en_US":
+            default: return "This node has no piece anchors to jump to";
         }
     }
 }

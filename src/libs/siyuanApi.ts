@@ -940,11 +940,12 @@ export const siyuan = {
     },
     async reviewRiffCardByBlockID(blockID: string, rating: number, deckID = Constants.QUICK_DECK_ID) {
         const all = await siyuan.getRiffCardsByBlockIDs([blockID]);
-        if (all.has(blockID)) {
-            const card = all.get(blockID).slice().pop();
-            if (card) {
-                return siyuan.reviewRiffCard(card.riffCardID, rating, deckID);
-            }
+        // □7：内核 GetFlashcardsByBlockIDs 对无卡块补占位条目（riffCardID=""）——不过滤
+        // 会拿占位卡以空 cardID 调 reviewRiffCard → 内核 reject。Map.has 恒真（占位也在
+        // Map，keys() 语义恒错——readCurve.ts:46 同坑），真卡判定=riffCardID 非空
+        const card = (all.get(blockID) ?? []).filter(c => !!c.riffCardID).slice().pop();
+        if (card) {
+            return siyuan.reviewRiffCard(card.riffCardID, rating, deckID);
         }
     },
     async getRiffCards(page = 1, pageSize = 1000, deckID = ""): Promise<GetCardRet> {
