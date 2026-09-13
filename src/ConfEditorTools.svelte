@@ -2,19 +2,14 @@
     // 设置域组件（二期 14 域 2026-09-05；三期 2026-09-08 增文档别名卡）：编辑器工具
     // （待翻新小功能下沉域）——平铺 5 卡 = 块折叠助手（6 开关原样）/ 多行选择（移动端+
     // 桌面端两卡合一、两行开关，store 与文案原样）/ 列表工具 / 复制为图片 / 文档别名
-    // （三期自通用域杂项卡归位）；收拢 1 卡 = 「编辑器外观与行为」折叠卡收 8 个单开关
-    // （默认收起、summary 带计数，搜索命中自动展开）。自 ConfEditBlock.svelte 拆出
+    // （三期自通用域杂项卡归位）；收拢 1 卡 = 「编辑器行为」（uiclean 2026-09-12：原
+    // 「编辑器外观与行为」折叠卡 8 开关中的 6 件纯 CSS 外观件迁外观域 ConfAppearance，
+    // 余 2 件行为开关保留、折叠展开为普通两行）。自 ConfEditBlock.svelte 拆出
     // （各卡整块迁入内部一行不动），共享样式见 IndexConf.css。
     import {
         addSelectionBtnsDesktop,
         addSelectionBtnsMobile,
         awaysExitFocusStore,
-        cssListBackgound,
-        cssNattyList,
-        cssShowMemo,
-        cssShowHomeEndIcon,
-        cssHomeEndIconLeft,
-        cssSuperBlockBorder,
         foldTypes,
         foldTypesBLOCKQUOTE,
         foldTypesNODE_HEADING,
@@ -243,53 +238,19 @@
         {tomatoI18n.menu添加右键菜单}: {MixBox将选择文字与其拼音加入文档的别名.langText()}<HotkeyCap hk={MixBox将选择文字与其拼音加入文档的别名} pluginName="sy-tomato-plugin"></HotkeyCap>
     </div>
 </div>
-<!-- 编辑器外观与行为（二期收拢：8 个单开关小卡合一张折叠卡垫域底，默认收起；
-     搜索命中 searchSettings 自动展开，块配对折叠区同款） -->
-<details class="settingBox">
-    <summary class="section-title">{tomatoI18n.编辑器外观与行为}<span class="setting-count">8</span><!-- 计数与下方开关行同步增删 --></summary>
-    <div class="softBox">
-        <!-- 显示备注 -->
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$cssShowMemo} />
-            {tomatoI18n.显示备注}
-        </div>
-        <!-- 给所有超级块加上边框 -->
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$cssSuperBlockBorder} />
-            {tomatoI18n.给所有超级块加上边框}
-        </div>
-        <!-- 极简无序列表样式 -->
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$cssNattyList} />
-            {tomatoI18n.极简无序列表样式}
-        </div>
-        <!-- 给无序列表加上背景色 -->
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$cssListBackgound} />
-            {tomatoI18n.给无序列表加上背景色}
-        </div>
-        <!-- 永久显示文档右侧的HomeEnd图标 -->
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$cssShowHomeEndIcon} />
-            {tomatoI18n.永久显示文档右侧的HomeEnd图标}
-        </div>
-        <!-- HomeEnd图标放到左边 -->
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$cssHomeEndIconLeft} />
-            {tomatoI18n.HomeEnd图标放到左边}
-        </div>
-        <!-- 总是保持已经加载的内容 -->
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$keepLazyLoadStore} />
-            {tomatoI18n.总是保持已经加载的内容}
-        </div>
-        <!-- 总是退出聚焦 -->
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$awaysExitFocusStore} />
-            {tomatoI18n.总是退出聚焦}
-        </div>
+<!-- 编辑器行为（uiclean 2026-09-12：原「编辑器外观与行为」折叠卡的 6 件纯 CSS 外观开关
+     迁外观域 ConfAppearance，本卡留 2 件行为开关、折叠展开为普通两行） -->
+<div class="settingBox">
+    <div class="section-title">{tomatoI18n.编辑器行为}</div>
+    <div>
+        <input type="checkbox" class="b3-switch" bind:checked={$keepLazyLoadStore} />
+        {tomatoI18n.总是保持已经加载的内容}
     </div>
-</details>
+    <div>
+        <input type="checkbox" class="b3-switch" bind:checked={$awaysExitFocusStore} />
+        {tomatoI18n.总是退出聚焦}
+    </div>
+</div>
 
 <style>
     /* □2 双栏右栏收窄暴露：折叠助手 6 个开关 label 整组换行（白名单换行点在 label 边界），

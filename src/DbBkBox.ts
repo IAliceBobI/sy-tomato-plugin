@@ -6,6 +6,7 @@ import { AvBuilder, domNewLine } from "./libs/sydom";
 import { getBlockDiv, NewNodeID, siyuan, timeUtil, } from "./libs/utils";
 import { doGetBackLinks } from "./libs/bkUtils";
 import { OpenSyFile2 } from "./libs/docUtils";
+import { debugLog } from "./libs/logUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
 import { gatedAddCommand } from "./libs/cmdGate";
@@ -94,7 +95,9 @@ class DbBkBox {
                 return {}
             })
             .then(async ({ avID, pkID, mSelectID, contentID, viewID, blockID, updatedID, createdID }) => {
+                let isNew = false;
                 if (!avID || !pkID || !mSelectID || !contentID || !viewID || !updatedID || !createdID) {
+                    isNew = true;
                     const avBuilder = new AvBuilder();
                     await avBuilder.init();
                     avID = avBuilder.avID;
@@ -149,18 +152,33 @@ class DbBkBox {
                         ops.push(siyuan.transSetAttrViewColHidden(avID, blockID, createdID));
                     }
                 }
-                return { avID, pkID, mSelectID, contentID, viewID, blockID, updatedID, createdID }
+                return { isNew, avID, pkID, mSelectID, contentID, viewID, blockID, updatedID, createdID }
             });
 
         const { linkItems, backLinks, block2mSelect, block2lnks } = await doGetBackLinks(docID, "", "", dbBkBoxMaxBacklinkSize.get(), 0)
 
-        const { avID, mSelectID, contentID, blockID, updatedID, createdID } = await taskInitAv;
+        const { isNew, avID, mSelectID, contentID, blockID, updatedID, createdID } = await taskInitAv;
+
+        // audit □31：官方 UI 手动添加的行其行 id 是随机 NewNodeID≠块 id（官方靠 RetData 回填，
+        // 插件事务通道拿不到），cell 更新按块 id 寻行必 not found→整笔回滚（□28 同款）。
+        // 已有库先反查真实行 id；未绑定/反查失败回退块 id（=自建行行 id 本就等于块 id）
+        const rowIDs: Record<string, string> = {};
+        if (!isNew) {
+            const blockIDs = [...new Set([...linkItems.map(l => l.id), ...backLinks.map(b => b.blockID)])];
+            // siyuan.call 一切路径不抛（404/code!=0/网络异常均吞掉返回 null/undefined），
+            // 降级观测只能判返回值：老内核（<3.3.1）无此 API 时回退块 id 并留 Loki 痕迹
+            const m = await siyuan.getItemIDsByBoundIDs(avID, blockIDs);
+            if (m) Object.assign(rowIDs, m);
+            else debugLog("dbbk.refill", "行id反查不可用（老内核<3.3.1?）已回退块id", "dbbk");
+        }
+        const rowIDOf = (blockID: string) => rowIDs[blockID] || blockID;
 
         // add concept pk
         ops.push(siyuan.transInsertAttrViewBlock(avID, blockID, linkItems.map(lnk => {
             return {
                 isDetached: false,
                 id: lnk.id,
+                itemID: lnk.id,
             } as IOperationSrcs
         })));
         // add backlink pk
@@ -168,6 +186,7 @@ class DbBkBox {
             return {
                 isDetached: false,
                 id: bk.blockID,
+                itemID: bk.blockID,
             } as IOperationSrcs
         })));
         // add concept ref
@@ -181,7 +200,7 @@ class DbBkBox {
             if (/[0-9]{4}-[0-9]{2}-[0-9]{2}/g.test(lnk.text)) mSelect.set("🗓️", { content: "🗓️" })
             return {
                 avID,
-                rowID_BlockID: lnk.id,
+                rowID_BlockID: rowIDOf(lnk.id),
                 colID: mSelectID,
                 value: { mSelect: [...mSelect.values()] } as IAVCellValue,
             }
@@ -190,7 +209,7 @@ class DbBkBox {
         ops.push(...siyuan.transUpdateAttrViewCellBatch(linkItems.map((lnk) => {
             return {
                 avID,
-                rowID_BlockID: lnk.id,
+                rowID_BlockID: rowIDOf(lnk.id),
                 colID: contentID,
                 value: { text: { content: lnk.text } } as IAVCellValue,
             }
@@ -209,7 +228,7 @@ class DbBkBox {
             })
             return {
                 avID,
-                rowID_BlockID: b.blockID,
+                rowID_BlockID: rowIDOf(b.blockID),
                 colID: mSelectID,
                 value: { mSelect: [...mSelect.values()] } as IAVCellValue,
             }
@@ -218,7 +237,7 @@ class DbBkBox {
         ops.push(...siyuan.transUpdateAttrViewCellBatch(backLinks.map(b => {
             return {
                 avID,
-                rowID_BlockID: b.blockID,
+                rowID_BlockID: rowIDOf(b.blockID),
                 colID: contentID,
                 value: { text: { content: b.bkDiv.textContent } } as IAVCellValue,
             }
@@ -228,7 +247,7 @@ class DbBkBox {
             const content = timeUtil.dateFromYYYYMMDDHHmmssShort(b.backlink.updated).getTime()
             return {
                 avID,
-                rowID_BlockID: b.blockID,
+                rowID_BlockID: rowIDOf(b.blockID),
                 colID: updatedID,
                 value: { date: { isNotTime: false, hasEndDate: false, isNotEmpty: true, content } } as IAVCellValue,
             }
@@ -238,7 +257,7 @@ class DbBkBox {
             const content = timeUtil.dateFromYYYYMMDDHHmmssShort(b.backlink.created).getTime()
             return {
                 avID,
-                rowID_BlockID: b.blockID,
+                rowID_BlockID: rowIDOf(b.blockID),
                 colID: createdID,
                 value: { date: { isNotTime: false, hasEndDate: false, isNotEmpty: true, content } } as IAVCellValue,
             }

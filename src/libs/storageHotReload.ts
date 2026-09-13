@@ -47,6 +47,9 @@ const STRUCTURAL_KEYS = new Set([
     "cssRefEffect", "cssSuperBlockBorder", "cssFlashThoughts", "cssShowMemo",
     "cssShowFlashCardBlank", "cssShowHomeEndIcon", "cssHomeEndIconLeft",
     "dailyNoteCopyShowPath", "showDocAttrs", "cssNattyList", "cssListBackgound", "cssRefAsTags",
+    // 外观域·界面净化 6 开关（uiclean 2026-09-12：load_uiClean 一次性注入族同上）
+    "uiCleanTabClose", "uiCleanTabBarBtns", "uiCleanTopbarStatus",
+    "uiCleanEmptyHelp", "uiCleanDocTreeBadge", "uiCleanDocTreeCompact",
 ]);
 
 /** 结构性键判定：显式清单 + *Checkbox/*CheckBox 总开关族（Box 注册门控，宁多重载不漏） */

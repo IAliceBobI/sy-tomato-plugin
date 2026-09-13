@@ -208,6 +208,13 @@ type TomatoSettings = {
     cssHomeEndIconLeft: boolean,
     cssRefSquareBrackets: boolean,
     cssShowMemo: boolean,
+    // 外观域·界面净化 6 开关（2026-09-12 uiclean：seller 写死 CSS 迁移改造，默认全关）
+    uiCleanTabClose: boolean,
+    uiCleanTabBarBtns: boolean,
+    uiCleanTopbarStatus: boolean,
+    uiCleanEmptyHelp: boolean,
+    uiCleanDocTreeBadge: boolean,
+    uiCleanDocTreeCompact: boolean,
     cssShowFlashCardBlank: boolean,
     cssFlashThoughts: boolean,
     flashThoughtUseDialog: boolean,
@@ -382,6 +389,7 @@ type AttrType = {
     "custom-block-editor"?: string,
     "custom-ref-id"?: string,
     "custom-ref-snapshot-"?: string,
+    "custom-ai-response"?: string,
     title?: string,
     alias?: string, // comma separated
     memo?: string,

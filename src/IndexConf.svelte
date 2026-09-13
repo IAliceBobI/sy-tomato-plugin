@@ -1,5 +1,5 @@
 <script lang="ts">
-    // 设置对话框主壳：付费状态条、搜索栏、左侧 19 域导航、sticky footer 保存条 + 19 个域组件
+    // 设置对话框主壳：付费状态条、搜索栏、左侧 20 域导航、sticky footer 保存条 + 20 个域组件
     // （Conf*.svelte，右侧单域渲染）。共享样式在 ./IndexConf.css（.tomato-settings-dialog 作用域）。
     // 2026-08 重构：原 2628 行大文件按功能域拆出 8 个分区子组件；2026-09-03 设置页重划：
     // □1 双栏壳（左导航+右长滚动）→ □2 域组件拆并——旧 10 个 Conf 退役，域组件
@@ -41,6 +41,7 @@
     import ConfFlashcard from "./ConfFlashcard.svelte";
     import ConfDocs from "./ConfDocs.svelte";
     import ConfEditorTools from "./ConfEditorTools.svelte";
+    import ConfAppearance from "./ConfAppearance.svelte";
     import ConfPunct from "./ConfPunct.svelte";
     import ConfCapture from "./ConfCapture.svelte";
     import ConfGeneral from "./ConfGeneral.svelte";
@@ -69,8 +70,8 @@
     });
     let searchKey = $state("");
     const SearchKeyItemKey = "tomato_settings_SearchKeyItemKey_RfrUm9VLS4GehTzg5ygRrNT";
-    // 导航 19 域（二期 2026-09-05 起；featgate □1 +16 命令开关、punctcfg +打字标点域、
-    // agentrev 2026-09-10 +AI 助手域）：上半 9=已翻新大牌（番茄钟/
+    // 导航 20 域（二期 2026-09-05 起；featgate □1 +16 命令开关、punctcfg +打字标点域、
+    // agentrev 2026-09-10 +AI 助手域、uiclean 2026-09-12 +外观域）：上半 9=已翻新大牌（番茄钟/
     // 批注/反链与引用/可视化/阅读/块编辑/悬浮球/导出工作空间/AI 助手），下半 8=待翻新按受欢迎排
     // （闪卡/文档管理/编辑器工具/速记/通用/杂项）+ 功能仓库垫底（三期：AI 问答域退役两卡
     // 迁仓库、杂项 21 项分家 11 项独立成域；仓库只收设置入口，功能照常活，翻新一个拎回主域）；
@@ -80,6 +81,9 @@
         { id: "anno", label: () => tomatoI18n.批注 },
         { id: "link", label: () => tomatoI18n.反链与引用 },
         { id: "visual", label: () => tomatoI18n.可视化 },
+        // uiclean（2026-09-12）：第 5 域「外观」——界面净化 6 开关 + 编辑器外观 6 件
+        // 自编辑器工具域迁入（视觉类相邻，紧跟可视化）
+        { id: "appearance", label: () => tomatoI18n.外观 },
         { id: "reader", label: () => tomatoI18n.阅读 },
         { id: "blockedit", label: () => tomatoI18n.块编辑 },
         { id: "floatball", label: () => tomatoI18n.悬浮球 },
@@ -280,8 +284,8 @@
             {/each}
         </nav>
         <div class="tomato-nav-content">
-            <!-- 19 域组件渲染抽出 snippet 供两个分支复用（ConfAnno/ConfReader/ConfEditorTools/
-                 ConfFloatBall/ConfMiscDomain/ConfVault/ConfAgent/ConfGeneral 无 VIP 门控行不收 codeValid，
+            <!-- 20 域组件渲染抽出 snippet 供两个分支复用（ConfAnno/ConfReader/ConfEditorTools/
+                 ConfAppearance/ConfFloatBall/ConfMiscDomain/ConfVault/ConfAgent/ConfGeneral 无 VIP 门控行不收 codeValid，
                  其余域原样；ConfGeneral 杂项分家后无 VIP 行三期起加入此列） -->
             {#snippet domainCards(id: string)}
                 {#if id === "pomodoro"}
@@ -308,6 +312,8 @@
                     <ConfDocs {codeValid}></ConfDocs>
                 {:else if id === "editortools"}
                     <ConfEditorTools></ConfEditorTools>
+                {:else if id === "appearance"}
+                    <ConfAppearance></ConfAppearance>
                 {:else if id === "punct"}
                     <ConfPunct></ConfPunct>
                 {:else if id === "capture"}

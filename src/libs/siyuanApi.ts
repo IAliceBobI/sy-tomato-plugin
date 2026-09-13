@@ -273,6 +273,9 @@ export const siyuan = {
     async getAttributeView(id: string): Promise<GetAttributeView> {
         return siyuan.call("/api/av/getAttributeView", { id });
     },
+    async getItemIDsByBoundIDs(avID: string, blockIDs: string[]): Promise<Record<string, string>> {
+        return siyuan.call("/api/av/getAttributeViewItemIDsByBoundIDs", { avID, blockIDs });
+    },
     async renderAttributeView(id: string, pageSize = 50, page = 1, query = "", viewID = ""): Promise<RenderAttributeView> {
         if (page <= 0) throw Error("页码必须大于等于1")
         return siyuan.call("/api/av/renderAttributeView", { id, pageSize, query, page, viewID });

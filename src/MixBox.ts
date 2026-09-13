@@ -132,14 +132,18 @@ class MixBox {
             langText: MixBox收集当前文档与子文档所有的未完成任务.langText(),
             hotkey: MixBox收集当前文档与子文档所有的未完成任务.m,
             callback: async () => {
-                await addTaskPage(this.plugin, events.protyle.protyle)
+                const protyle = events.protyle?.protyle;
+                if (!protyle) { await siyuan.pushMsg(tomatoI18n.请先打开一个文档); return; }
+                await addTaskPage(this.plugin, protyle)
             },
         });
         gatedAddCommand(this.plugin, MixBox列出当前文档与子文档中没被引用的文档.langKey, {
             langText: MixBox列出当前文档与子文档中没被引用的文档.langText(),
             hotkey: MixBox列出当前文档与子文档中没被引用的文档.m,
             callback: async () => {
-                await addNoRefPage(this.plugin, events.protyle.protyle)
+                const protyle = events.protyle?.protyle;
+                if (!protyle) { await siyuan.pushMsg(tomatoI18n.请先打开一个文档); return; }
+                await addNoRefPage(this.plugin, protyle)
             },
         });
         gatedAddCommand(this.plugin, MixBox将选择文字与其拼音加入文档的别名.langKey, {

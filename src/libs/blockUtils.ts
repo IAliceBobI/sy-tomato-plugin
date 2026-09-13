@@ -540,7 +540,10 @@ function getAllRef(div: Element[]) {
     return div.map(i => i.querySelectorAll(`span[data-type="block-ref"]`).values().toArray()).flat()
 }
 
-export async function cancelSuperBlock(targetID: string) {
+/** 拆掉 targetID 的超级块：子块提升到原位置、sb 容器删除。
+ *  carryAttrs：拆出子块 HTML 预挂的属性（如 AIBox 的 custom-ai-response）——事务 HTML
+ *  通道块 id 恒被内核重生成，拆完后旧 id 即失效，属性只能在插入时随块预挂（audit □27）。 */
+export async function cancelSuperBlock(targetID: string, carryAttrs: Record<string, string> = {}) {
     if (!targetID) return;
     const { dom } = await siyuan.getBlockDOM(targetID);
     if (!dom) return;
@@ -548,7 +551,11 @@ export async function cancelSuperBlock(targetID: string) {
     if (!div) return;
     const doms = [...div.children]
         .filter(e => getAttribute(e, "data-node-id"))
-        .map(e => cloneCleanDiv(e as any).div.outerHTML);
+        .map(e => {
+            const d = cloneCleanDiv(e as any).div;
+            for (const [k, v] of Object.entries(carryAttrs)) d.setAttribute(k, v);
+            return d.outerHTML;
+        });
     const ops = siyuan.transInsertBlocksAfter(doms, targetID);
     ops.push(...siyuan.transDeleteBlocks([targetID]));
     await siyuan.transactions(ops);

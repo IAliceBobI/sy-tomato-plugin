@@ -643,6 +643,7 @@ interface IOperation {
 
 interface IOperationSrcs {
     id: string,
+    itemID?: string, // 行 ID：缺省时内核自生成新 id，导致同笔事务内按块 id 寻行的 cell 更新必然 item not found（audit □28）
     content?: string, // use when isDetached=true
     isDetached: boolean
 }

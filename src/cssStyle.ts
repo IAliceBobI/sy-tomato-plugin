@@ -1,14 +1,28 @@
 import { DATA_NODE_ID, DocAttrShowKey, SPACE } from "./libs/gconst";
-import { cardPriBarPos, cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefEffect, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, showDocAttrs } from "./libs/stores";
+import { cardPriBarPos, cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefEffect, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, showDocAttrs, uiCleanDocTreeBadge, uiCleanDocTreeCompact, uiCleanEmptyHelp, uiCleanTabBarBtns, uiCleanTabClose, uiCleanTopbarStatus } from "./libs/stores";
 import { verifyKeyTomato } from "./libs/user";
 import { getAttribute, Siyuan } from "./libs/utils";
 
 let observer: MutationObserver;
 let _loaded = false;
 
+// 本模块运行时注入的 style 统一打标：官方 destroyPlugin 只清插件资产 CSS，
+// 不清 head 里运行时注入的 style——族缺口实锤 2026-09-12（超级块边框开关 OFF+保存
+// 重载后旧规则残留继续生效）。loadCss 每轮先扫除旧标记样式再按当前开关值重注入=
+// 关开关即生效，既有 15 个 load_* 开关同享（全关时重载后零注入=自然卸下）。
+const STYLE_FLAG = "data-tomato-injected-style";
+
+function appendTomatoStyle(css: string) {
+    const style = document.createElement('style');
+    style.setAttribute(STYLE_FLAG, "");
+    style.innerText = css;
+    document.head.appendChild(style);
+}
+
 export function loadCss() {
     navigator.locks.request("loadCss 2024-12-18 13:06:25", (lock) => {
         if (lock && !_loaded) {
+            document.querySelectorAll(`style[${STYLE_FLAG}]`).forEach(el => el.remove());
             _loadCss();
             _loaded = true;
         }
@@ -41,23 +55,22 @@ function _loadCss() {
     load_listBackground();
 
     load_cssRefAsTags();
+
+    load_uiClean();
 }
 
 async function load_listBackground() {
     if (!cssListBackgound.get()) return;
-    let style = document.createElement('style');
-    style.innerText = `
+    appendTomatoStyle(`
         .protyle-wysiwyg div.list[data-subtype="u"] {
             background-color: var(--b3-font-background5);
         }
-    `;
-    document.head.appendChild(style);
+    `)
 }
 
 async function load_nattyList() {
     if (!cssNattyList.get()) return;
-    let style = document.createElement('style');
-    style.innerText = `
+    appendTomatoStyle(`
         .protyle-wysiwyg {
             .li[data-subtype="u"]::before {
                 content: none !important;
@@ -75,8 +88,7 @@ async function load_nattyList() {
                 opacity: 0;
             }
         }
-    `;
-    document.head.appendChild(style);
+    `)
 }
 
 async function load_cardPriorityBoxCheckbox() {
@@ -84,11 +96,10 @@ async function load_cardPriorityBoxCheckbox() {
     load_cardPriBarPos();
     if (!cardPriorityBoxAutoHide.get()) return;
     if (!await verifyKeyTomato()) return;
-    let style = document.createElement('style');
     // !important 必带：按钮条组件 scoped 样式 .container>div{display:inline-flex}（cardrenew
     // □3 引入，约 0,2,2）压过这里的 display:none（0,1,1）——曾致 autoHide 静默失效（1548 □2
     // 实测：鼠标移出块条不隐藏）。两条同 important 时 hover 规则特异性更高，悬停显示仍赢
-    style.innerText = `
+    appendTomatoStyle(`
         div[custom-riff-decks]:hover {
             div[cardPriBar] {
                 display: inherit !important;
@@ -97,8 +108,7 @@ async function load_cardPriorityBoxCheckbox() {
         div[cardPriBar] {
             display: none !important;
         }
-    `;
-    document.head.appendChild(style);
+    `)
 }
 
 // 按钮条位置档位（1548 □1 四形态下拉）：内核 _attr.scss 把 protyle-attr 钉死块右上
@@ -124,9 +134,7 @@ function load_cardPriBarPos() {
         css = `${attr} { left: 0 !important; right: auto !important; top: 0 !important; opacity: 1 !important; }`
             + `div[custom-riff-decks]:has(> .protyle-attr div[cardPriBar]) { padding-top: 24px; }`;
     }
-    const style = document.createElement('style');
-    style.innerText = css;
-    document.head.appendChild(style);
+    appendTomatoStyle(css)
 }
 
 // 引用效果五档（2026-09-03 多档化，cssRefStyle/cssRefSquareBrackets 双开关合并）：
@@ -136,7 +144,6 @@ function load_cardPriBarPos() {
 async function load_cssRefEffect() {
     const effect = cssRefEffect.get();
     if (effect === "none") return;
-    let style = document.createElement('style');
     const css: Record<string, string> = {
         // 0.2 在深色主题几乎隐形，0.3 两种模式稳定可辨；豁免行防与「渲染为标签」叠成 [["@xx]] 双重注记
         "brackets": `
@@ -176,8 +183,7 @@ async function load_cssRefEffect() {
             }
         `,
     };
-    style.innerText = css[effect] ?? "";
-    document.head.appendChild(style);
+    appendTomatoStyle(css[effect] ?? "")
 }
 
 async function load_cssRefAsTags() {
@@ -187,15 +193,13 @@ async function load_cssRefAsTags() {
     if (!tags) return;
     const list = tags.trim().replaceAll("，", ",").split(",").map(i => i?.trim()).filter(i => !!i)
     if (list.length == 0) return;
-    let style = document.createElement('style');
-    style.innerText = `
+    appendTomatoStyle(`
         span[${TAG}] {
             color: var(--b3-font-color5) !important;
             background-color: var(--b3-font-background5) !important;
             border-radius: var(--b3-border-radius) !important;
         }
-    `;
-    document.head.appendChild(style);
+    `)
 
     observer = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
@@ -221,32 +225,27 @@ async function load_cssRefAsTags() {
 
 function load_cssHomeEndIconLeft() {
     if (!cssHomeEndIconLeft.get()) return;
-    let style = document.createElement('style');
-    style.innerText = `
+    appendTomatoStyle(`
         .protyle-scroll {
             left: 10px !important;
         }
-    `;
-    document.head.appendChild(style);
+    `)
 }
 
 function load_showDocAttrs() {
     if (!showDocAttrs.get()) return;
-    let style = document.createElement('style');
-    style.innerText = `
+    appendTomatoStyle(`
         div[${DocAttrShowKey}]::after {
             content: attr(${DocAttrShowKey});
             color: var(--b3-font-color2);
             opacity: 0.7;
         }
-    `;
-    document.head.appendChild(style);
+    `)
 }
 
 function load_dailyNoteCopyShowPath() {
     if (!dailyNoteCopyShowPath.get()) return;
-    let style = document.createElement('style');
-    style.innerText = `
+    appendTomatoStyle(`
         .protyle-wysiwyg div[custom-tomato-ref-hpath]::before {
             content: attr(custom-tomato-ref-hpath);
             opacity: 0.5;
@@ -254,64 +253,54 @@ function load_dailyNoteCopyShowPath() {
             color: var(--b3-font-color5);
             padding-left: 15px;
         }
-    `;
-    document.head.appendChild(style);
+    `)
 }
 
 function load_cssShowHomeEndIcon() {
     if (!cssShowHomeEndIcon.get()) return;
-    let style = document.createElement('style');
-    style.innerText = `
+    appendTomatoStyle(`
         .protyle-scroll__down,.protyle-scroll__up {
             opacity: 1 !important;
             color: var(--b3-font-color1) !important;
         }
-    `;
-    document.head.appendChild(style);
+    `)
 }
 
 function load_cssShowFlashCardBlank() {
     if (!cssShowFlashCardBlank.get()) return;
-    let style = document.createElement('style');
-    style.innerText = `
+    appendTomatoStyle(`
         .card__block--hidemark span[data-type~=mark]:hover {
             font-size: ${Siyuan.config.editor.fontSize}px !important;
         }
         .card__block--hidemark span[data-type~=mark]:hover::before {
             content: "${SPACE + SPACE}";
         }
-    `;
-    document.head.appendChild(style);
+    `)
 }
 
 function load_cssShowMemo() {
     if (!cssShowMemo.get()) return;
-    let style = document.createElement('style');
-    style.innerText = `
+    appendTomatoStyle(`
         .protyle-wysiwyg div[memo]:not([custom-prog-button]):not([custom-book-button])::before {
             content: "✒️" attr(memo);
             color: var(--b3-font-color4);
             background-color: var(--b3-font-background4);
         }
-    `;
-    document.head.appendChild(style);
+    `)
 }
 
 function load_superblock_border() {
     if (!cssSuperBlockBorder.get()) return;
-    let style = document.createElement('style');
-    style.innerText = `
+    appendTomatoStyle(`
         .protyle-wysiwyg div[data-type="NodeSuperBlock"] {
             border: 1px solid var(--b3-font-color7);
         }
-    `;
-    document.head.appendChild(style);
+    `)
 }
 
 function load_cssFlashThoughts() {
     if (!cssFlashThoughts.get()) return;
-    let style = document.createElement('style');
-    style.innerText = `
+    appendTomatoStyle(`
         /* □3 时间戳胶囊化：11px 等宽+1px 边框圆角胶囊（极淡主色底，与主面板 chips 同语言）、去浮雕阴影 */
         .protyle-wysiwyg div[custom-tomato-idea-time]::before {
             content: attr(custom-tomato-idea-time);
@@ -341,7 +330,45 @@ function load_cssFlashThoughts() {
             display: flex !important;
             flex-direction: row !important;
         }
-    `;
-    document.head.appendChild(style);
+    `)
 }
+
+// 外观域·界面净化 6 开关（uiclean 2026-09-12，自 seller index.scss 写死规则迁移改造）。
+// 选择器相对 seller 原版修正三处：
+// ① aria-label 中文锚点（「引用」「修改图标」）换类名锚点——英文界面同样生效，且不受内核
+//   「点击图标=展开」设置影响（内核 layout/dock/Files.ts:2073 计数角标=popover__block counter、
+//   :2093 文档/笔记本行图标=b3-list-item__icon）；
+// ② span[data-type="more"] 加 .layout-tab-bar--readonly 限定——裸选择器误伤收件箱/文件树等
+//   面板头的 ⋯ 钮（内核 Wnd.ts:191 页签下拉与 Inbox.ts:67 面板头两处同名）；
+// ③ 关闭钮与主页签条对齐加 :not(.layout-tab-bar--readonly) 限定（readonly 条本无关闭钮，防御性）。
+// 文档图标用 .sy__file 容器限定（Files.ts:93 面板根独占类；.file-tree 是全体 dock 面板共用类，
+// 会误伤书签/标签/反链面板的同名行图标）。
+function load_uiClean() {
+    const rules: string[] = [];
+    if (uiCleanTabClose.get()) {
+        rules.push(`ul.layout-tab-bar:not(.layout-tab-bar--readonly) span.item__close { display: none !important; }`);
+    }
+    if (uiCleanTabBarBtns.get()) {
+        rules.push(`.layout-tab-bar--readonly span[data-type="new"],
+.layout-tab-bar--readonly span[data-type="more"] { display: none !important; }`);
+    }
+    if (uiCleanTopbarStatus.get()) {
+        rules.push(`span[data-type="inbox"], #statusHelp { display: none !important; }`);
+    }
+    if (uiCleanEmptyHelp.get()) {
+        rules.push(`#editorEmptyHelp, #editorEmptyNewNotebook, #editorEmptyFile { display: none !important; }`);
+    }
+    if (uiCleanDocTreeBadge.get()) {
+        // 计数角标全局隐藏（所有面板的 popover__block counter 与 seller 实效一致）；文档图标限文件树面板
+        rules.push(`.popover__block.counter, .sy__file .b3-list-item__icon { display: none !important; }`);
+    }
+    if (uiCleanDocTreeCompact.get()) {
+        // toggle 规则作用面含全部 b3-list 家族（seller 原样），设置文案按此写诚实
+        rules.push(`.b3-list-item__toggle { margin: 0 !important; padding-top: 0 !important; padding-bottom: 0 !important; height: 26px !important; }
+.b3-list-item[data-type="navigation-file"] { padding-left: 0 !important; }`);
+    }
+    if (!rules.length) return;
+    appendTomatoStyle(rules.join("\n"));
+}
+
 

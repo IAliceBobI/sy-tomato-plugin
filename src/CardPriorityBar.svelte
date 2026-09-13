@@ -75,6 +75,9 @@
             const all = await siyuanCache.getRiffCardsByBlockIDs(5 * 1000, [
                 cardID,
             ]);
+            // await 归来时组件可能已被属性写触发的重挂拆卸（doStopCards 竞态，bind:this 清空），
+            // 判活早退防 priText 赋值落空抛 pageerror（audit □30）
+            if (!priText) return;
             const cards = all.get(cardID) ?? [];
             for (const card of cards) {
                 if (card.riffCard) {

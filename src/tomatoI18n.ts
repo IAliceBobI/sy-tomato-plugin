@@ -4082,6 +4082,128 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    /** 回访频率档位（渐进 □3）：对象级重现间隔快慢——低=间隔 ×1.5/中=默认 ×2/高=×0.7 */
+    public 回访频率() {
+        switch (this.lang) {
+            case "zh_CN": return "回访频率";
+            case "zh_CHT": return "回訪頻率";
+            case "en_US":
+            default: return "Revisit rate";
+        }
+    }
+
+    public 回访频率档名(f: string) {
+        switch (this.lang) {
+            case "zh_CN":
+            case "zh_CHT":
+                return f === "l" ? "低" : f === "h" ? "高" : "中";
+            case "en_US":
+            default:
+                return f === "l" ? "Slower" : f === "h" ? "Faster" : "Default";
+        }
+    }
+
+    public 已设回访频率(label: string) {
+        switch (this.lang) {
+            case "zh_CN": return `回访频率已设为「${label}」`;
+            case "zh_CHT": return `回訪頻率已設為「${label}」`;
+            case "en_US":
+            default: return `Revisit rate set to ${label}`;
+        }
+    }
+
+    /** □6 产出率反哺（渐进）：30 天零摘抄零制卡自动放宽的透明面三键 */
+    public 回访已自动放宽() {
+        switch (this.lang) {
+            case "zh_CN": return "30 天零摘抄，回访间隔已放宽";
+            case "zh_CHT": return "30 天零摘抄，回訪間隔已放寬";
+            case "en_US":
+            default: return "Auto-relaxed after 30 days without digests or cards";
+        }
+    }
+    public 已自动放宽() {
+        switch (this.lang) {
+            case "zh_CN": return "已自动放宽";
+            case "zh_CHT": return "已自動放寬";
+            case "en_US":
+            default: return "Auto-relaxed";
+        }
+    }
+    public 恢复默认回访() {
+        switch (this.lang) {
+            case "zh_CN": return "恢复默认回访频率";
+            case "zh_CHT": return "恢復預設回訪頻率";
+            case "en_US":
+            default: return "Restore default revisit rate";
+        }
+    }
+    public 恢复默认() {
+        switch (this.lang) {
+            case "zh_CN": return "恢复默认";
+            case "zh_CHT": return "恢復預設";
+            case "en_US":
+            default: return "Default";
+        }
+    }
+
+    /** □4 回访留言（渐进）：对象文档内的「给未来自己」内容块族 */
+    public 留言() {
+        switch (this.lang) {
+            case "zh_CN": return "留言";
+            case "zh_CHT": return "留言";
+            case "en_US":
+            default: return "Note";
+        }
+    }
+    public 写留言() {
+        switch (this.lang) {
+            case "zh_CN": return "写留言";
+            case "zh_CHT": return "寫留言";
+            case "en_US":
+            default: return "Leave a note";
+        }
+    }
+    public 留言已添加() {
+        switch (this.lang) {
+            case "zh_CN": return "留言已添加到本文档末尾";
+            case "zh_CHT": return "留言已添加到本文檔末尾";
+            case "en_US":
+            default: return "Note added to the end of this document";
+        }
+    }
+    public 最近留言() {
+        switch (this.lang) {
+            case "zh_CN": return "最近留言";
+            case "zh_CHT": return "最近留言";
+            case "en_US":
+            default: return "Latest note";
+        }
+    }
+    public 留言取消() {
+        switch (this.lang) {
+            case "zh_CN": return "取消";
+            case "zh_CHT": return "取消";
+            case "en_US":
+            default: return "Cancel";
+        }
+    }
+    public 留言确认() {
+        switch (this.lang) {
+            case "zh_CN": return "确认";
+            case "zh_CHT": return "確認";
+            case "en_US":
+            default: return "Confirm";
+        }
+    }
+    public 留言占位() {
+        switch (this.lang) {
+            case "zh_CN": return "给未来回访这里的自己留一句（读到哪、想到什么）";
+            case "zh_CHT": return "給未來回訪這裡的自己留一句（讀到哪、想到什麼）";
+            case "en_US":
+            default: return "A line to your future self on revisit (where you are, what you think)";
+        }
+    }
+
     public 计划逾期N(n: number) {
         switch (this.lang) {
             case "zh_CN": return `逾期 ${n} 天`;
@@ -4106,6 +4228,54 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return `${n} 天後`;
             case "en_US":
             default: return `in ${n}d`;
+        }
+    }
+
+    // ============ □5 今日清单日历投影（条带标签与预估分钟；zh+en 一等，余语种落 en） ============
+
+    public 未来N天复习量(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `未来 ${n} 天复习量`;
+            case "zh_CHT": return `未來 ${n} 天複習量`;
+            case "en_US":
+            default: return `${n}-day review load`;
+        }
+    }
+
+    public get 条带明天() {
+        switch (this.lang) {
+            case "zh_CN": return "明天";
+            case "zh_CHT": return "明天";
+            case "en_US":
+            default: return "tomorrow";
+        }
+    }
+
+    /** 周历标签：n=1..7（周一=1 … 周日=7） */
+    public 周N(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `周${"一二三四五六日"[n - 1] ?? n}`;
+            case "zh_CHT": return `週${"一二三四五六日"[n - 1] ?? n}`;
+            case "en_US":
+            default: return ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][n - 1] ?? String(n);
+        }
+    }
+
+    public 约N分钟(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `约 ${n} 分钟`;
+            case "zh_CHT": return `約 ${n} 分鐘`;
+            case "en_US":
+            default: return `~${n} min`;
+        }
+    }
+
+    public get 该日无到期() {
+        switch (this.lang) {
+            case "zh_CN": return "该日无到期项";
+            case "zh_CHT": return "該日無到期項";
+            case "en_US":
+            default: return "Nothing due this day";
         }
     }
 
@@ -7033,6 +7203,56 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "⚠ Already in progressive reading: confirming will reset progress, delete all existing pieces and re-split with current settings (move handwritten notes in pieces first)";
         }
     }
+    // ---- □1 目录成书（书=文档集）：AddBook 成书方式选法 ----
+    public get 成书方式() {
+        switch (this.lang) {
+            case "zh_CN": return "成书方式";
+            case "zh_CHT": return "成書方式";
+            case "en_US":
+            default: return "Book source";
+        }
+    }
+    public get 单篇成书() {
+        switch (this.lang) {
+            case "zh_CN": return "单篇成书";
+            case "zh_CHT": return "單篇成書";
+            case "en_US":
+            default: return "Single document";
+        }
+    }
+    /** {n}=直接子文档数 */
+    public get 目录成书篇数() {
+        switch (this.lang) {
+            case "zh_CN": return "目录成书（{n} 篇）";
+            case "zh_CHT": return "目錄成書（{n} 篇）";
+            case "en_US":
+            default: return "Folder ({n} docs)";
+        }
+    }
+    public get 目录成书说明() {
+        switch (this.lang) {
+            case "zh_CN": return "子文档即文章，读书顺序=文件树顺序（拖动可调整）；分片挂各自文章下，序号全书连续";
+            case "zh_CHT": return "子文檔即文章，讀書順序=文件樹順序（拖動可調整）；分片掛各自文章下，序號全書連續";
+            case "en_US":
+            default: return "Child docs are articles; reading order follows the doc tree (drag to reorder); pieces mount under their source doc with book-wide numbering";
+        }
+    }
+    public get 单篇成书说明() {
+        switch (this.lang) {
+            case "zh_CN": return "将本文档自身作为一本书，与现有加书行为一致";
+            case "zh_CHT": return "將本文檔自身作為一本書，與現有加書行為一致";
+            case "en_US":
+            default: return "Treat this document itself as one book, same as the current behavior";
+        }
+    }
+    public get 目录书须自动分片() {
+        switch (this.lang) {
+            case "zh_CN": return "目录成书依赖自动切分，手动分片已关闭";
+            case "zh_CHT": return "目錄成書依賴自動切分，手動分片已關閉";
+            case "en_US":
+            default: return "Folder books require auto-splitting; manual split is off";
+        }
+    }
     /** 重划分清旧片期间的反馈（2026-08-31 重划分删旧片，review P2-1） */
     public get 正在重建分片() {
         switch (this.lang) {
@@ -7072,6 +7292,115 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "⚠ 本書有超大段落塊（常見於 Word/PDF 導入未斷段）：分片按塊切分，超大塊不會被拆開，整本書可能集中在少數幾片裡。建議先在文檔裡把大段落拆開再加書；片內閱讀可配合下方「斷句」改善";
             case "en_US":
             default: return "⚠ This book has oversized paragraph blocks (common with Word/PDF imports): pieces are split by block and oversized blocks are never broken up, so the whole book may land in just a few pieces. Consider splitting large paragraphs before adding; the sentence-split option below can improve in-piece reading";
+        }
+    }
+    // ---- □2 物理分卷：巨文档按标题层级切卷（菜单/命令/Dialog/AddBook 巨书建议条）；
+    // 沿 □1 三语档模式（zh_CN/zh_CHT/en_US），其余语种落英文兜底 ----
+    public get 物理分卷() {
+        switch (this.lang) {
+            case "zh_CN": return "物理分卷";
+            case "zh_CHT": return "物理分卷";
+            case "en_US":
+            default: return "Split into Volumes";
+        }
+    }
+    public get 物理分卷说明() {
+        switch (this.lang) {
+            case "zh_CN": return "把长文档按标题切分为多个子文档，便于查阅与保存。原文档保留为目录壳，正文移入各卷";
+            case "zh_CHT": return "把長文檔按標題切分為多個子文檔，便於查閱與保存。原文檔保留為目錄殼，正文移入各卷";
+            case "en_US":
+            default: return "Split a long doc into child docs by headings for easier browsing and storage. The original doc stays as the folder shell; its content moves into volumes";
+        }
+    }
+    public get 每卷字数上限() {
+        switch (this.lang) {
+            case "zh_CN": return "每卷字数上限";
+            case "zh_CHT": return "每卷字數上限";
+            case "en_US":
+            default: return "Max chars per volume";
+        }
+    }
+    /** 滑块档位单位（20万/30万…与数字拼接） */
+    public get 万字() {
+        switch (this.lang) {
+            case "zh_CN": return "万";
+            case "zh_CHT": return "萬";
+            case "en_US":
+            default: return "00k";
+        }
+    }
+    public get 卷预览() {
+        switch (this.lang) {
+            case "zh_CN": return "卷预览";
+            case "zh_CHT": return "卷預覽";
+            case "en_US":
+            default: return "Volume preview";
+        }
+    }
+    /** {n}=预览卷数 */
+    public get 切分为N卷() {
+        switch (this.lang) {
+            case "zh_CN": return "切分为 {n} 卷";
+            case "zh_CHT": return "切分為 {n} 卷";
+            case "en_US":
+            default: return "Split into {n} volumes";
+        }
+    }
+    public get 无需分卷() {
+        switch (this.lang) {
+            case "zh_CN": return "按当前设置只需 1 卷，无需分卷（可调高标题层级或调低上限）";
+            case "zh_CHT": return "按當前設置只需 1 卷，無需分卷（可調高標題層級或調低上限）";
+            case "en_US":
+            default: return "Current settings produce a single volume — no split needed (try a deeper heading level or a smaller cap)";
+        }
+    }
+    public get 切分中() {
+        switch (this.lang) {
+            case "zh_CN": return "切分中…";
+            case "zh_CHT": return "切分中…";
+            case "en_US":
+            default: return "Splitting…";
+        }
+    }
+    public get 切分完成即将加书() {
+        switch (this.lang) {
+            case "zh_CN": return "切分完成，即将打开加书弹窗";
+            case "zh_CHT": return "切分完成，即將打開加書彈窗";
+            case "en_US":
+            default: return "Split done — opening the add-book dialog";
+        }
+    }
+    public get 本文档已有子文档() {
+        switch (this.lang) {
+            case "zh_CN": return "⚠ 本文档已有子文档（或上次切分的残留卷）：请先在文件树清理后再分卷；若本就是目录结构，直接关闭本弹窗，去「加入渐进阅读」选「目录成书」";
+            case "zh_CHT": return "⚠ 本文檔已有子文檔（或上次切分的殘留卷）：請先在文件樹清理後再分卷；若本就是目錄結構，直接關閉本彈窗，去「加入漸進閱讀」選「目錄成書」";
+            case "en_US":
+            default: return "⚠ This doc already has child docs (or leftover volumes from a previous split): clean them up in the doc tree first. If it is already a folder structure, close this dialog and use \"Add to progressive reading\" with the folder mode";
+        }
+    }
+    public get 切分须知() {
+        switch (this.lang) {
+            case "zh_CN": return "确认后：① 逐卷建子文档（按 Markdown 复制，个别特殊块样式可能简化）② 清空原文档正文（可从文件历史恢复）③ 自动打开加书弹窗。已是渐进书籍的会按新结构重新分片（阅读进度重置）";
+            case "zh_CHT": return "確認後：① 逐卷建子文檔（按 Markdown 複製，個別特殊塊樣式可能簡化）② 清空原文檔正文（可從文件歷史恢復）③ 自動打開加書彈窗。已是漸進書籍的會按新結構重新分片（閱讀進度重置）";
+            case "en_US":
+            default: return "On confirm: ① create volume child docs one by one (Markdown copy; a few exotic blocks may lose styling) ② clear the original doc's content (recoverable from file history) ③ open the add-book dialog. A doc already registered as a book gets re-split on the new structure (reading progress resets)";
+        }
+    }
+    public get 巨书建议分卷() {
+        switch (this.lang) {
+            case "zh_CN": return "⚠ 本书超 50 万字：建议先「物理分卷」（文档树右键本文档）切成多个小卷再加书，打开与保存更快";
+            case "zh_CHT": return "⚠ 本書超 50 萬字：建議先「物理分卷」（文檔樹右鍵本文檔）切成多個小卷再加書，打開與保存更快";
+            case "en_US":
+            default: return "⚠ This book exceeds 500k chars: consider \"Split into Volumes\" first (right-click the doc in the tree) so opening and saving stay fast";
+        }
+    }
+    /** {n}=卷数 {c}=总字数（合计行） */
+    public get 共N卷C字() {
+        switch (this.lang) {
+            case "zh_CN": return "共 {n} 卷 · {c} 字";
+            case "zh_CHT": return "共 {n} 卷 · {c} 字";
+            case "en_US":
+            default: return "{n} volumes · {c} chars";
         }
     }
     public get 路线书加书() {
@@ -12338,6 +12667,161 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "この本にはまだカードがありません";
             case "en_US":
             default: return "No cards in this book yet";
+        }
+    }
+    // ===== 外观域（uiclean 2026-09-12）：界面净化 6 开关 + 编辑器外观 6 件迁移 =====
+    public get 外观() {
+        switch (this.lang) {
+            case "zh_CN": return "外观";
+            case "zh_CHT": return "外觀";
+            case "es_ES": return "Apariencia";
+            case "fr_FR": return "Apparence";
+            case "ja_JP": return "外観";
+            case "en_US":
+            default: return "Appearance";
+        }
+    }
+    public get 界面净化() {
+        switch (this.lang) {
+            case "zh_CN": return "界面净化";
+            case "zh_CHT": return "介面淨化";
+            case "es_ES": return "Limpieza de la interfaz";
+            case "fr_FR": return "Allègement de l'interface";
+            case "ja_JP": return "UI スッキリ";
+            case "en_US":
+            default: return "UI Cleanup";
+        }
+    }
+    public get 编辑器外观() {
+        switch (this.lang) {
+            case "zh_CN": return "编辑器外观";
+            case "zh_CHT": return "編輯器外觀";
+            case "es_ES": return "Apariencia del editor";
+            case "fr_FR": return "Apparence de l'éditeur";
+            case "ja_JP": return "エディターの外観";
+            case "en_US":
+            default: return "Editor Appearance";
+        }
+    }
+    public get 编辑器行为() {
+        switch (this.lang) {
+            case "zh_CN": return "编辑器行为";
+            case "zh_CHT": return "編輯器行為";
+            case "es_ES": return "Comportamiento del editor";
+            case "fr_FR": return "Comportement de l'éditeur";
+            case "ja_JP": return "エディターの動作";
+            case "en_US":
+            default: return "Editor Behavior";
+        }
+    }
+    public get 隐藏页签上的关闭按钮() {
+        switch (this.lang) {
+            case "zh_CN": return "隐藏页签上的关闭按钮";
+            case "zh_CHT": return "隱藏頁籤上的關閉按鈕";
+            case "es_ES": return "Ocultar el botón de cierre de las pestañas";
+            case "fr_FR": return "Masquer le bouton de fermeture des onglets";
+            case "ja_JP": return "タブの閉じるボタンを非表示";
+            case "en_US":
+            default: return "Hide close buttons on tabs";
+        }
+    }
+    public get 隐藏页签栏的新建与切换按钮() {
+        switch (this.lang) {
+            case "zh_CN": return "隐藏页签栏的新建与切换按钮";
+            case "zh_CHT": return "隱藏頁籤欄的新建與切換按鈕";
+            case "es_ES": return "Ocultar los botones de nuevo y cambiar de pestaña";
+            case "fr_FR": return "Masquer les boutons nouveau et changement d'onglet";
+            case "ja_JP": return "タブバーの新規・切替ボタンを非表示";
+            case "en_US":
+            default: return "Hide new-doc & tab-switcher buttons on the tab bar";
+        }
+    }
+    public get 隐藏顶栏收件箱与状态栏帮助() {
+        switch (this.lang) {
+            case "zh_CN": return "隐藏顶栏收件箱与状态栏帮助";
+            case "zh_CHT": return "隱藏頂欄收件匣與狀態欄幫助";
+            case "es_ES": return "Ocultar el buzón de la barra superior y la ayuda de la barra de estado";
+            case "fr_FR": return "Masquer la boîte de réception de la barre supérieure et l'aide de la barre d'état";
+            case "ja_JP": return "トップバーの受信トレイとステータスバーのヘルプを非表示";
+            case "en_US":
+            default: return "Hide top-bar inbox & status-bar help";
+        }
+    }
+    public get 隐藏空白页引导内容() {
+        switch (this.lang) {
+            case "zh_CN": return "隐藏空白页引导内容";
+            case "zh_CHT": return "隱藏空白頁引導內容";
+            case "es_ES": return "Ocultar la guía de la página vacía";
+            case "fr_FR": return "Masquer le guide de la page vide";
+            case "ja_JP": return "空白ページのガイドを非表示";
+            case "en_US":
+            default: return "Hide the empty-page guide";
+        }
+    }
+    public get 文件树隐藏引用计数与文档图标() {
+        switch (this.lang) {
+            case "zh_CN": return "文件树：隐藏引用计数与文档图标";
+            case "zh_CHT": return "文件樹：隱藏引用計數與文檔圖標";
+            case "es_ES": return "Árbol de archivos: ocultar contadores de refs e iconos";
+            case "fr_FR": return "Arborescence : masquer compteurs de réf. et icônes";
+            case "ja_JP": return "ファイルツリー：参照数とアイコンを非表示";
+            case "en_US":
+            default: return "File tree: hide ref counts & doc icons";
+        }
+    }
+    public get 文件树紧凑模式() {
+        switch (this.lang) {
+            case "zh_CN": return "文件树：紧凑模式";
+            case "zh_CHT": return "文件樹：緊湊模式";
+            case "es_ES": return "Árbol de archivos: modo compacto";
+            case "fr_FR": return "Arborescence : mode compact";
+            case "ja_JP": return "ファイルツリー：コンパクトモード";
+            case "en_US":
+            default: return "File tree: compact mode";
+        }
+    }
+    public get 净化提示页签关闭钮() {
+        switch (this.lang) {
+            case "zh_CN": return "关闭页签可按 ⌘W / Ctrl+W，或用鼠标中键点击页签";
+            case "zh_CHT": return "關閉頁籤可按 ⌘W / Ctrl+W，或用滑鼠中鍵點擊頁籤";
+            case "es_ES": return "Cierra pestañas con ⌘W / Ctrl+W o clic central";
+            case "fr_FR": return "Fermez les onglets avec ⌘W / Ctrl+W ou le clic du milieu";
+            case "ja_JP": return "タブを閉じるには ⌘W / Ctrl+W または中クリック";
+            case "en_US":
+            default: return "Close tabs with ⌘W / Ctrl+W or middle-click";
+        }
+    }
+    public get 净化提示页签新建钮() {
+        switch (this.lang) {
+            case "zh_CN": return "新建文档可按 ⌘N / Ctrl+N";
+            case "zh_CHT": return "新建文件可按 ⌘N / Ctrl+N";
+            case "es_ES": return "Crea documentos con ⌘N / Ctrl+N";
+            case "fr_FR": return "Créez des documents avec ⌘N / Ctrl+N";
+            case "ja_JP": return "新規文書は ⌘N / Ctrl+N で作成";
+            case "en_US":
+            default: return "Create docs with ⌘N / Ctrl+N";
+        }
+    }
+    public get 净化提示文档图标() {
+        switch (this.lang) {
+            case "zh_CN": return "文档图标可在文件树右键菜单中随时修改";
+            case "zh_CHT": return "文檔圖標可在文件樹右鍵選單中隨時修改";
+            case "es_ES": return "Los iconos siguen cambiándose desde el menú contextual del árbol";
+            case "fr_FR": return "Les icônes restent modifiables via le menu contextuel de l'arborescence";
+            case "ja_JP": return "アイコンはファイルツリーの右クリックメニューから変更できます";
+            case "en_US":
+            default: return "Doc icons remain changeable via the file tree context menu";
+        }
+    }
+    public get 净化提示紧凑模式() {
+        switch (this.lang) {
+            case "zh_CN": return "统一展开箭头行的行高档位，作用面含书签、标签等面板的同类行";
+            case "zh_CHT": return "統一展開箭頭行的行高檔位，作用面含書籤、標籤等面板的同類行";
+            case "es_ES": return "Normaliza la altura de las filas con flecha, también en marcadores y etiquetas";
+            case "fr_FR": return "Normalise la hauteur des lignes à flèche, aussi dans les marque-pages et étiquettes";
+            case "ja_JP": return "展開矢印行の行高を統一（ブックマーク・タグなども対象）";
+            case "en_US":
+            default: return "Normalizes expand-arrow row height, also in bookmark/tag panels";
         }
     }
 }

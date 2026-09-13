@@ -19,14 +19,17 @@ export async function delAllchecked(docID: string) {
 
 export async function uncheckAll(docID: string) {
     if (!docID) return;
-    const doms = await Promise.all((await siyuan.sql(`select id from blocks 
+    const doms = (await Promise.all((await siyuan.sql(`select id from blocks 
         where type='i' and subType='t' and root_id="${docID}"
         and (markdown like "* [X] %" or markdown like "- [X] %")
         limit 30000
-    `)).map(b => siyuan.getBlockDOM(b.id)));
+    `)).map(b => siyuan.getBlockDOM(b.id)))).filter(Boolean);
     await siyuan.updateBlocks(doms.map(({ id, dom }) => {
         const div = dom2div(dom);
         div.classList.remove("protyle-task--done");
+        // 勾选语义真源是 data-task（NodeListItem 根 div），class-only 变更内核视为
+        // 块无变化静默丢弃——class 与 data-task 必须同刀（audit □26）
+        div.removeAttribute("data-task");
         return { id, domStr: div.outerHTML };
     }));
     setTimeout(() => {

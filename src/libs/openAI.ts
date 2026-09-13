@@ -197,9 +197,16 @@ export class OpenAIClient {
         const write = async (txt: string) => {
             await ensureTarget();
             return targetID
-                ? siyuan.safeUpdateBlock(targetID, `{{{row\n\n${txt}\n\n}}}\n{: id="${targetID}" custom-ai-response="1"}`)
+                ? siyuan.safeUpdateBlock(targetID, `{{{row\n\n${txt}\n\n}}}`)
                 : undefined;
         };
+        // 回答块标记统一在收尾挂：write 的 markdown IAL 不被 update 通道解析（挂不上），
+        // 拆链路径子块 id 会被内核重生成、只能插入时预挂（audit □27）
+        // ⚠ noSup=false 分支挂 sb 容器护不住子块——punctTidy 只查块自身属性不爬祖先，
+        // 未来若启用须改为遍历子块逐个挂（当前全仓无 noSup=false 调用方=死分支，audit □32 P3-②）
+        const markAIResponse = (ids: string[]) =>
+            Promise.all(ids.filter(Boolean).map(id =>
+                siyuan.setBlockAttrs(id, { "custom-ai-response": "1" } as AttrType).catch(() => undefined)));
         const finalize = async (raw: string) => {
             // hasReal=流里真出过正文/思考（appendChunk 无内容时 display 是「thinking N...」
             // 占位文案——中断时不能把它当正文落块）
@@ -211,8 +218,12 @@ export class OpenAIClient {
             }
             await write(txt);
             if (noSup && targetID) {
-                await cancelSuperBlock(targetID);
+                await cancelSuperBlock(targetID, { "custom-ai-response": "1" });
+            } else if (targetID) {
+                await markAIResponse([targetID]);
             }
+            // ⚠ noSup 路径下 targetID 指向已删 sb 死块（拆出子块 id 被内核重生成，
+            // HTTP 事务通道拿不到真实值）——仓内无消费方；未来要用须 SQL 按内容反查首块
             return { targetID, aiRespTxt: txt };
         };
 
