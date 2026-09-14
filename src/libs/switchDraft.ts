@@ -4,6 +4,7 @@ import { events } from "./Events";
 import { storeNoteBox_fastnote, fastNoteBoxDelAfterCreating, fastNoteBoxAdd2Flashcard, fastNoteBoxDocPrefix } from "./stores";
 import { verifyKeyTomato } from "./user";
 import { siyuan, getContextPath, cloneCleanDiv, NewLute, NewNodeID, timeUtil } from "./utils";
+import { DATA_NODE_ID } from "./gconst";
 import { getNotebookByID } from "./notebookUtils";
 import { tomatoI18n } from "../tomatoI18n";
 
@@ -39,14 +40,10 @@ export async function switchDraft(plugin: Plugin, protyle: IProtyle) {
 }
 
 
-export async function createNote(plugin: Plugin, protyle: IProtyle, allowFlashcard = true, attrs: AttrType = {}, title = "") {
-    // 失败静默是原实现最大可用性问题（qn-robust）：按键无反应无从排查——补 toast 反馈。
-    // 顺序：先 protyle（无文档=最常见可自救态）；boxID 空需 store 未配+getOr 兜底
-    // events.boxID 也无笔记本上下文，纯防御位（getOr 兜底当前笔记本，有文档在开即非空）
-    if (!protyle) {
-        siyuan.pushMsg(tomatoI18n.请先打开一个文档);
-        return;
-    }
+export async function createNote(plugin: Plugin, protyle?: IProtyle, allowFlashcard = true, attrs: AttrType = {}, title = "") {
+    // protyle 缺失不再拦截（bear 2026-09-14 空笔记语义）：它只服务于摘选中/溯源头/
+    // 只读判定，建文件+打开本身不需要——刷新后 events 单例冷启动空窗照常可建空
+    // 笔记；boxID 走 store+getOr 兜底，同样不依赖 protyle
     const boxID = storeNoteBox_fastnote.getOr();
     if (!boxID) {
         siyuan.pushMsg(tomatoI18n.请先配置快速笔记的落点笔记本);
@@ -60,19 +57,23 @@ export async function createNote(plugin: Plugin, protyle: IProtyle, allowFlashca
         return;
     }
     const { selected, ids, cursorOnly } = await events.selectedDivs(protyle);
-    if (!ids || ids.length <= 0) {
-        siyuan.pushMsg(tomatoI18n.请先选中内容或放置光标);
-        return;
-    }
-
-    const { getPathMd } = await getContextPath(ids[0]);
+    // 无选中/无光标不再 toast 拦截（bear 2026-09-14 需求）：改建空快速笔记，溯源
+    // path 头照带——面包屑 API 对文档 id 返回 name 空（主实例实测），种子须用文档
+    // 内块 id（wysiwyg 首个 data-node-id，纯 DOM 零往返）；空笔记 cursorOnly 恒
+    // true，删原文链不触发
+    const seedID = ids?.[0]
+        ?? protyle?.wysiwyg?.element?.querySelector(`div[${DATA_NODE_ID}]`)?.getAttribute(DATA_NODE_ID)
+        ?? "";
+    const { getPathMd } = seedID ? await getContextPath(seedID) : { getPathMd: () => "" };
     const path = `${getPathMd()}\n{: id="${NewNodeID()}"}\n`
     const lute = NewLute();
     const content = selected.map(d => {
         d = cloneCleanDiv(d).div
         return lute.BlockDOM2Md(d.outerHTML);
     });
-    const taskRo = isReadonly(protyle)
+    // ids 非空蕴含 protyle 非空（selectedDivs 有 element/docID 才有 ids）；空笔记无
+    // 原文可删，isReadonly(undefined) 会 throw——短路假值即可（判据不被消费）
+    const taskRo = ids.length > 0 ? isReadonly(protyle) : Promise.resolve("false")
     const id = await createAndOpenFastNote(protyle, boxID, plugin, attrs, title, path + content.join("\n"));
     if (!id) return null; // 创建失败已 toast——原文不删（防内容双向落空）、卡不加（review P1-1）
     if (await verifyKeyTomato() && fastNoteBoxDelAfterCreating.get() && await taskRo === "false" && !cursorOnly) await siyuan.transactions(siyuan.transDeleteBlocks(ids));
@@ -84,12 +85,12 @@ export async function createNote(plugin: Plugin, protyle: IProtyle, allowFlashca
     return id;
 }
 
-export async function createAndOpenFastNote(protyle: IProtyle, boxID: string, plugin: Plugin, attrs: AttrType = {}, title: string = "", md = "") {
+export async function createAndOpenFastNote(protyle: IProtyle | undefined, boxID: string, plugin: Plugin, attrs: AttrType = {}, title: string = "", md = "") {
     const { y, M, d, h, m, s } = timeUtil.nowYMDStrPad();
     if (!title) title = `f${y}-${M}-${d} ${h}:${m}:${s}`;
     if (fastNoteBoxDocPrefix.get()) {
         const { name } = events.getInfo(protyle)
-        title = `${name} | ${title}`
+        if (name) title = `${name} | ${title}` // 空 protyle（冷启动）getInfo 回 {}——name 缺失不加前缀防 "undefined | f..."
     }
     const hpath = `/fast note/f${y}/f${y}-${M}/${title}`;
     const id = await siyuan.createDocWithMdIfNotExists(boxID, hpath, md, { ...attrs, "custom-fastnote": y + M + d + h + m + s });

@@ -17,6 +17,20 @@ import { getAllFilesAsBigText } from "./fileScanUtils";
 import { cleanDivOnly } from "./blockUtils";
 import { IUILayoutTabSearchConfigTypes } from "./types";
 
+// □6（0954 档）p5 告警节流：轮询环族（渐进分片调度等）在书不可达/索引重建期会以
+// 500ms~1s 间隔反复命中同码错误——同 code+msg 签名 10s 窗内只 warn 一次，保可诊断
+// 性防刷屏（09-14 关笔记本控制台被刷穿实报）。签名按 msg 计（msg 含书 id 时各书
+// 各自节流，条目有限；失控兜底清空）。
+const p5WarnAt = new Map<string, number>();
+function warnP5Throttled(code: unknown, msg: string, reqData: any) {
+    const sig = `${String(code)}|${msg}`;
+    const now = Date.now();
+    if (now - (p5WarnAt.get(sig) ?? 0) < 10_000) return;
+    if (p5WarnAt.size > 500) p5WarnAt.clear();
+    p5WarnAt.set(sig, now);
+    console.warn(`p5: ${code} ${msg} ${JSON.stringify(reqData)}`);
+}
+
 export const siyuan = {
     async pushMsg(msg: string, timeoutMs = 7000) {
         const url = "/api/notification/pushMsg";
@@ -147,7 +161,7 @@ export const siyuan = {
             });
             const json = await data.json();
             if (json?.code && json?.code != 0) {
-                console.warn(`p5: ${json?.code} ${json?.msg} ${JSON.stringify(reqData)}`);
+                warnP5Throttled(json?.code, json?.msg, reqData);
                 return null;
             }
             if (json?.data === undefined)

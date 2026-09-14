@@ -15,6 +15,7 @@ import changelog2025 from "./changelog/2025.json";
 import changelog2026 from "./changelog/2026.json";
 import { openHelpDialog } from "./libs/helpDialog";
 import helpDocs from "./help.json";
+import pluginJson from "../plugin.json";
 import { openHelpMenu } from "./libs/helpMenu";
 import { buildSettingsHeader } from "./libs/settingsHeader";
 import { readingPointBox } from "./ReadingPointBox";
@@ -514,7 +515,7 @@ export default class ThePlugin extends BaseTomatoPlugin {
         // outline 保存钮退役（帮助收进菜单，保存走 footer「保存并关闭」）
         const header = buildSettingsHeader({
             title: tomatoI18n.番茄工具箱 + " · " + tomatoI18n.设置,
-            version: "v" + this.pluginSpec?.version + "t",
+            version: "v" + pluginJson.version + "t",
             pro: lastVerifyResult() === true,
             onHelp: (e) => openHelpMenu(e, {
                 usage: () => openHelpDialog("https://my.feishu.cn/docx/IWPcd438yoL3C6xHC0xcOXDKnmh?from=from_copylink", helpDocs),
@@ -652,9 +653,6 @@ export default class ThePlugin extends BaseTomatoPlugin {
         bindShorthandRelay(this, getTargetID);
 
         this.eventBus.on(EventType.click_blockicon, this.blockIconEventBindThis);
-        utils.getPluginSpec(this.name).then(sp => {
-            this.pluginSpec = sp
-        });
 
         // 顶栏设置齿轮挂家族红（topbar-gear 战役 2026-09-08）：官方 iconSettings 形态不动零迁移，
         // 仅挂类着色与渐进火苗琥珀/仿写双页青绿构成三插件家族色——机制同 recite 顶栏

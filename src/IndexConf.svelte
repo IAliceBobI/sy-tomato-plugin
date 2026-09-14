@@ -325,7 +325,7 @@
                 {:else if id === "commands"}
                     <ConfCommands></ConfCommands>
                 {:else if id === "mcp"}
-                    <McpPromo></McpPromo>
+                    <McpPromo plugin="tomato"></McpPromo>
                 {:else}
                     <ConfGeneral></ConfGeneral>
                 {/if}
