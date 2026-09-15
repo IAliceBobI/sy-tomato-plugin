@@ -32,7 +32,7 @@ The all-in-one productivity toolbox for SiYuan — one plugin slot for a whole n
 ### ⚡ Capture & Quick Notes
 
 - **Photo flash notes** — snap a photo, capture the thought instantly
-- **Quick notes** — jot in a mini window outside the app, drafts saved automatically
+- **Quick notes** — jot in a mini window outside the app, drafts saved automatically; create an empty note even with nothing selected
 - **Move to today's notes** — move any block into today's daily note; copy fragments straight from a text selection
 
 ### 🔗 References & Sync
@@ -51,6 +51,7 @@ The all-in-one productivity toolbox for SiYuan — one plugin slot for a whole n
 
 ### 🗂 Doc Organization & Export
 
+- **Prefix doc tree** — auto-group documents into series by filename prefix, no manual folder upkeep; the companion Tags float window browses docs by tag with intersection filtering, always-on independently (Shift+Alt+F6)
 - **Workspace export** — export your workspace as Markdown, with allow/deny lists and automatic incremental runs
 - **Document merging (Pro)** — merge multiple documents in one click
 - **DailyNote tools** — navigate between journals, review past days, move content in bulk
@@ -74,8 +75,8 @@ One rule of thumb: **everything you need to read, annotate, memorize and stay fo
 | ⚡ Capture | Photo notes, quick notes, reading points | Conflict guard for photo notes across synced devices; delete the source selection once the note is created; flip to a document's backside draft and back with one keystroke |
 | 🔗 References | Sync blocks, bidirectional links, text-to-citation, bottom & database backlinks; invalid-ref check & bulk cleanup; click a ref-count to open its backlinks; jump-to-bottom button on the backlink panel; list conversion that keeps refs | Turn what you type into a citation with a space; pinyin aliases so two or three letters cite the right doc; render refs as tags; embed bilinks inline; sync-block menu with origin links |
 | 🧭 Visualization | Block graph (incl. click-to-jump), block editor, mind guides | Mind-wire line styles & relation colors — even dense maps stay readable at a glance |
-| 🗂 Export | Workspace export on demand, DailyNote tools; always jump to bottom when opening today's note | Scheduled incremental export with automatic cleanup — backup takes care of itself; merge documents into one file |
-| 🎈 Floating ball | Jump to docs & keymaps from the ball | Extended list capacity — every doc you keep handy fits |
+| 🗂 Export | Prefix doc tree & Tags float window; workspace export on demand, DailyNote tools; always jump to bottom when opening today's note | Scheduled incremental export with automatic cleanup — backup takes care of itself; merge documents into one file |
+| 🎈 Floating ball | Jump to docs & keymaps from the ball; toggle the doc ball with Cmd/Ctrl+Shift+F8 | Extended list capacity — every doc you keep handy fits |
 | 🤖 AI Q&A | Free, fully | — |
 
 **Pro is ¥72, one-time.** Purchase & activation: plugin settings → order → paste the redemption code back in settings — it binds to your SiYuan account automatically and recovers on any device where you log in with the same account.
