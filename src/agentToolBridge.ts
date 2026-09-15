@@ -2,12 +2,13 @@
 // 浏览器环境——SQL 走 siyuanApi 的 siyuan.call（window fetch+内核鉴权），JSON 存储走
 // plugin.loadData（与 kernel siyuan.storage 同目录同数据）。□5 内部面板用 createFrontendToolCaller
 // 直接函数调用，不走 /mcp（面板可用性不绑实例级 MCP 暴露开关，也无 HTTP/握手开销）。
-// □3 起：外网 HTTP（coze）与文档树导出只在此门脸可用（kernel goja 无 fetch）。
+// □3 起：外网 HTTP 与文档树导出只在此门脸可用（kernel goja 无 fetch）。
 import type { Plugin } from "siyuan";
 import { siyuan, getMarkdownsByTrees } from "./libs/siyuanApi";
 import { debugLog } from "./libs/logUtils";
-import { agentKnowledgeDocs, agentSkillDocs, cozeSearchAppID, cozeSearchKnowledgeID, cozeSearchOauthTokenID } from "./libs/stores";
+import { agentKnowledgeDocs, agentSkillDocs } from "./libs/stores";
 import { createToolCaller, type ToolCaller, type ToolEnv } from "./libs/agentTools";
+import { createDefaultChannel } from "./libs/knowledgeChannel";
 
 export function createFrontendToolEnv(plugin: Plugin): ToolEnv {
   return {
@@ -76,13 +77,6 @@ export function createFrontendToolEnv(plugin: Plugin): ToolEnv {
       const rows = await getMarkdownsByTrees([docID], "", true);
       return rows.map(r => ({ id: r.id, content: String(r.content ?? ""), markdown: String(r.markdown ?? "") }));
     },
-    async getCozeConfig() {
-      return {
-        token: cozeSearchOauthTokenID.get(),
-        knowledgeID: cozeSearchKnowledgeID.get(),
-        appID: cozeSearchAppID.get(),
-      };
-    },
     // ---- □6 写/执行面（可选能力=水线：仅前端门脸实现；kernel env 缺这些面 → edit/run_js 不进 MCP）----
     async writeBlock(blockID: string, markdown: string) {
       // updateBlock 走事务写盘；data 恒 null（写类端点契约），失败由 siyuan.call 抛——真伪复核由调用方（面板撤销快照）兜
@@ -100,6 +94,8 @@ export function createFrontendToolEnv(plugin: Plugin): ToolEnv {
         skills: (agentSkillDocs.get() ?? []) as string[],
       });
     },
+    // knowledgebox □4：知识库工具口（Agent 面板与 /mcp 同源工具；通道单例与同步/问答面板共享）
+    getKbChannel: async () => createDefaultChannel(),
     async runUserJS(code: string) {
       // 前端 window 域执行（⚠️ 非安全沙箱——真防线=AgentPanel 调用前的代码人审闸）：
       // new Function 包 async 体+return；Promise.race 5s 超时熔断（放弃等待，脚本本身无法强杀）

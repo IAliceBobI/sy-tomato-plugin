@@ -1,10 +1,10 @@
 <script lang="ts">
     // 杂项独立域（三期 2026-09-08，15 域终态）：通用域杂项卡 21 项大分家后的留驻 11 项——
     // mixBoxCheckbox 总开关照旧门控（显示文档属性/删块闪卡/制表/模糊/跳剪贴板/flag 书签×2/
-    // 收集未完成任务/锁定内容/插入脑图/复制标准 MD），各回各家与进功能仓库的 10 项见
-    // ConfLink/ConfDocs/ConfEditorTools/ConfVault。自 ConfGeneral 杂项卡迁入（行内一行不动，
-    // 仅迁出 {#if} 归属新卡），共享样式见 IndexConf.css。命名 ConfMiscDomain 避开历史 ConfMisc
-    // （一期退役件）防混淆。
+    // 收集未完成任务/锁定内容/插入脑图/复制标准 MD），各回各家的 8 项见
+    // ConfLink/ConfDocs/ConfEditorTools；已收纳命令卡两条（空格转引用/复制纯文本）prefixui □3
+    // 自功能仓库域迁入本域（仓库退役）。自 ConfGeneral 杂项卡迁入（行内一行不动，仅迁出 {#if}
+    // 归属新卡），共享样式见 IndexConf.css。命名 ConfMiscDomain 避开历史 ConfMisc（一期退役件）防混淆。
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
     import { tomatoI18n } from "./tomatoI18n";
@@ -25,6 +25,8 @@
         MixBox添加一个flag书签,
         MixBox跳转到剪贴板中ID的块,
         MixBox锁定内容,
+        MixBox复制文档为纯文本,
+        MixBox空格隔开的所有内容都转为引用,
     } from "./MixBox";
 </script>
 
@@ -85,4 +87,16 @@
                 {tomatoI18n.menu添加右键菜单}: {MixBox复制文档为标准Markdown.langText()}<HotkeyCap hk={MixBox复制文档为标准Markdown} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
         {/if}
+    </div>
+    <!-- 已收纳命令（prefixui □3 自功能仓库域整卡迁入杂项桶本位：被官方/自家新版替代收纳待翻新，
+         命令与键帽功能照常，不受 mixBoxCheckbox 门控——原卡形态不变） -->
+    <div class="settingBox">
+        <div class="section-title">{tomatoI18n.已收纳命令}</div>
+        <div>{tomatoI18n.已收纳命令说明}</div>
+        <div>
+            {MixBox空格隔开的所有内容都转为引用.langText()}<HotkeyCap hk={MixBox空格隔开的所有内容都转为引用} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <div>
+            {MixBox复制文档为纯文本.langText()}<HotkeyCap hk={MixBox复制文档为纯文本} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
     </div>

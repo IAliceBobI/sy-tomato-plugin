@@ -21,7 +21,8 @@
     z-index: 10;
     margin: 10px 12px 0;
     padding: 8px 10px;
-    border: 1px solid var(--b3-theme-surface-lighter);
+    /* 暗色可见性：surface-lighter 在 midnight 下近隐身（conf-group/导航列同款修法，pjux □6） */
+    border: 1px solid var(--b3-border-color);
     border-radius: var(--b3-border-radius);
     /* 终审 P2-f：向下 6px 补条盖 sticky 实高与导航列钉住位间缝（桌面=域标题/内容从缝里
      * 划过，窄屏=tab 条上方同源）；向上 10px 补条盖 margin-top 滚掉后的缝（上方晃动修复
@@ -797,6 +798,11 @@
     opacity: 0.75;
 }
 .tomato-settings-dialog .tomato-menu-manage-toolbar {
+    /* prefixui □3：右对齐 slim 工具行——低频兜底动作收敛工具属性，
+       勿左上实心主色独占一行（vision P1：层级压过域标题倒挂） */
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 6px;
     margin-bottom: 12px;
 }
 .tomato-settings-dialog .tomato-menu-manage-group {

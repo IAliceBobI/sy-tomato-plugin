@@ -1,25 +1,6 @@
 import { TomatoI18nABC4 } from "./text4";
 
 export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
-    public get 添加智能体ID() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "添加智能体ID";
-            case "es_ES":
-                return "Añadir ID de agente";
-            case "fr_FR":
-                return "Ajouter l'ID de l'agent";
-            case "ja_JP":
-                return "エージェントIDを追加";
-            case "zh_CHT":
-                return "添加智能體ID";
-            case "it_IT":
-                return "Aggiungi ID agente";
-
-            default:
-                return "Add Agent ID";
-        }
-    }
 
     public get 调试智能体() {
         switch (this.lang) {

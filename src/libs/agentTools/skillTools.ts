@@ -47,7 +47,7 @@ export async function listUserSkills(env?: ToolEnv): Promise<UserSkillEntry[]> {
 
 function buildSkillsDescription(env?: ToolEnv): string {
     const base = [
-        "番茄插件 AI 工具使用文档（pomodoro/search/coze 的参数契约、常见坑与配置指引）。",
+        "番茄插件 AI 工具使用文档（pomodoro/search 的参数契约、常见坑与配置指引）。",
         "首次调用番茄工具前或工具报错拿不准原因时拉取本文档，可减少试错轮次；无参数，返回全量 markdown。",
     ];
     if (hasUserSkillsFace(env)) {

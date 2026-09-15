@@ -366,11 +366,22 @@ class LinkBox {
             const newToIDs: string[] = [];
             const realToIDs: string[] = [];
             if (toIDs) {
-                for (const id of toIDs.split(",")) {
-                    const rows = await siyuan.sqlAttr(`select block_id from attributes where name="custom-lnk-my-id" and value="${id}" limit 1`)
-                    if (rows?.length > 0) {
-                        realToIDs.push(rows[0].block_id)
-                        newToIDs.push(id);
+                // 单发 IN 查询替逐 id N+1（audit P2：串行 await N 发 SQL，长链路秒级拖慢）；
+                // 值经 sqlQuoteStr 包裹（手改属性掺引号防语句炸裂）；同值多行取首个（原 limit 1 语义）
+                const ids = toIDs.split(",").filter(Boolean);
+                if (ids.length) {
+                    const inList = ids.map(i => utils.sqlQuoteStr(i)).join(",");
+                    const rows = await siyuan.sqlAttr(`select block_id, value from attributes where name="custom-lnk-my-id" and value in (${inList}) limit 999999`);
+                    const byVal = new Map<string, string>();
+                    for (const r of rows ?? []) {
+                        if (!byVal.has(r.value)) byVal.set(r.value, r.block_id);
+                    }
+                    for (const id of ids) {
+                        const b = byVal.get(id);
+                        if (b) {
+                            realToIDs.push(b);
+                            newToIDs.push(id);
+                        }
                     }
                 }
             }

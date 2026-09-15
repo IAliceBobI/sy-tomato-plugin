@@ -1,33 +1,50 @@
 <script lang="ts">
-    // 设置域组件（三期 2026-09-08 收纳改组终态）：通用——单卡「快捷键与开关」（原 IndexConf
-    // 内联段）。杂项卡 21 项已分家（□2：8 项各回各家/2 项进功能仓库/11 项随杂项独立域）；
-    // 右键菜单管理卡已退役（□3：exportFiles 四开关归位文档树工具卡、「全部显示」兜底钮迁
-    // 功能仓库域头部）——本组件不再含杂项、VIP 行与菜单管理（codeValid 不收）。共享样式见
-    // IndexConf.css。
+    // 设置域组件（prefixui □3 起）：通用——单卡「快捷键与开关」（原 IndexConf 内联段）+
+    // 头部「全部显示」兜底钮（右键菜单管理卡三期退役后隐藏项唯一恢复入口，prefixui □3
+    // 自功能仓库域迁回=三期前原籍；功能仓库域随 □3 退役）。杂项卡 21 项已分家；VIP 行
+    // 不收（codeValid 不收）。
+    // confgather（2026-09-15）：顶栏钮六行（大刷新+四工具钮+语言切换钮）整段裁出独立
+    // 「顶栏工具」域 ConfToolbar.svelte（bear 拍板「裁出去一次干净」）。共享样式见 IndexConf.css。
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
     import { tomatoI18n } from "./tomatoI18n";
-    import { tomatoSettingsOpenHK, tomatoBigReloadHK } from "./libs/entryHotkeys";
+    import { tomatoSettingsOpenHK } from "./libs/entryHotkeys";
     import { ScheduleCopyID } from "./Schedule";
     import { addFoldCmd折叠, addFoldCmd展开 } from "./fold";
     import { SPACE } from "./libs/gconst";
+    import { copyIdCheckbox, foldCmdCheckbox, hiddenMenuItems } from "./libs/stores";
     import {
-        bigReloadTopbar,
-        copyIdCheckbox,
-        foldCmdCheckbox,
-        toolbarspacerepeat,
-        toolbarrefreshVr,
-        toolbarlocatedoc,
-        toolbarTidy,
-        toolbarEN2CHBtn,
-    } from "./libs/stores";
-    import {
-        ToolBarBox间隔重复,
-        ToolBarBox刷新虚拟引用,
-        ToolBarBox突出定位文档,
-        ToolBarBox整理assets下的图片视频音频,
-    } from "./ToolbarBox";
+        EXPORT_CARD_MENU_ITEMS,
+        ANNO_CARD_MENU_ITEMS,
+        DOCTREE_CARD_MENU_ITEMS,
+    } from "./libs/menuItemRegistry";
+
+    // 右键菜单「全部显示」兜底（prefixui □3 自功能仓库域迁回通用域=三期前原籍；功能仓库退役后
+    // 右键菜单管理卡仍是退役态，此钮=隐藏项唯一恢复入口）：清空隐藏集+逐组开 store/master
+    // ——跨三组功能卡常量（导出白/黑名单、批注五项、文档树工具四项），漏一组=勾选态假恢复；
+    // 含历史被藏项（行删除后无逐项写入路径，清空整个隐藏集故照常覆盖迁移项）
+    function showAllMenuItems() {
+        hiddenMenuItems.set([]);
+        const all = [
+            ...EXPORT_CARD_MENU_ITEMS,
+            ...ANNO_CARD_MENU_ITEMS,
+            ...DOCTREE_CARD_MENU_ITEMS,
+        ];
+        for (const it of all) {
+            it.store?.set(true);
+            it.master?.set(true);
+        }
+    }
 </script>
+
+    <!-- 右键菜单「全部显示」兜底（prefixui □3 自功能仓库域头部迁回；隐藏项唯一恢复入口） -->
+    <div class="tomato-menu-manage-toolbar">
+        <button
+            type="button"
+            class="b3-button b3-button--small"
+            onclick={showAllMenuItems}>{tomatoI18n.全部显示}</button
+        >
+    </div>
 
     <!-- 快捷键 -->
     <div class="settingBox">
@@ -49,35 +66,8 @@
             <input type="checkbox" class="b3-switch" bind:checked={$foldCmdCheckbox} />
             {addFoldCmd展开.langText()}<HotkeyCap hk={addFoldCmd展开} pluginName="sy-tomato-plugin"></HotkeyCap>
         </div>
-        <!-- 大刷新（2026-09-06 seller 迁入）：开关+键帽合一行（用户拍板不分家）——开关=顶栏
-             钮显隐（命令/热键恒在），键帽=HotkeyCap 全套改键；保存→插件级重载生效 -->
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$bigReloadTopbar} />
-            {tomatoBigReloadHK.langText()}<HotkeyCap hk={tomatoBigReloadHK} pluginName="sy-tomato-plugin"></HotkeyCap>
-        </div>
-        <!-- 工具箱顶栏钮族（2026-09-06 开关归拢救活死键）：开关=钮显隐，命令/热键恒在
-             （大刷新同款语义）；四命令原零键帽行，此处顺手补 HotkeyCap 全套改键 -->
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$toolbarspacerepeat} />
-            {ToolBarBox间隔重复.langText()}<HotkeyCap hk={ToolBarBox间隔重复} pluginName="sy-tomato-plugin"></HotkeyCap>
-        </div>
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$toolbarrefreshVr} />
-            {ToolBarBox刷新虚拟引用.langText()}<HotkeyCap hk={ToolBarBox刷新虚拟引用} pluginName="sy-tomato-plugin"></HotkeyCap>
-        </div>
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$toolbarlocatedoc} />
-            {ToolBarBox突出定位文档.langText()}<HotkeyCap hk={ToolBarBox突出定位文档} pluginName="sy-tomato-plugin"></HotkeyCap>
-        </div>
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$toolbarTidy} />
-            {ToolBarBox整理assets下的图片视频音频.langText()}<HotkeyCap hk={ToolBarBox整理assets下的图片视频音频} pluginName="sy-tomato-plugin"></HotkeyCap>
-        </div>
         <!-- 打字标点全家（总开关/速记折叠/自定义映射）已迁独立域「打字标点」
              （2026-09-10 punctcfg，bear 提议独立导航项；结构化规则行编辑器见 ConfPunct.svelte） -->
-        <!-- 语言切换六钮（中/英/臺/日/西/法）显隐：无命令热键，纯开关行 -->
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$toolbarEN2CHBtn} />
-            {tomatoI18n.语言切换顶栏钮}
-        </div>
+        <!-- 顶栏钮六行（大刷新+四工具钮+语言切换钮）已迁独立域「顶栏工具」
+             （2026-09-15 confgather，见 ConfToolbar.svelte） -->
     </div>

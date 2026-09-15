@@ -113,7 +113,8 @@ import {
     MarkdownExport增量导出,
     MarkdownExport确保导出符合配置,
 } from "../MarkdownExportBox";
-import { PrefixArticles前缀文档树 } from "../PrefixArticles";
+import { PrefixArticles前缀文档树, PrefixArticlesTags } from "../PrefixArticles";
+import { KnowledgeBox知识库面板 } from "../KnowledgeBox";
 import {
     ListBox取消勾选当前文档所有已完成的todo任务,
     ListBox删除当前文档所有已完成的todo任务,
@@ -123,6 +124,7 @@ import { ImgBoxHotKey } from "../ImgBox";
 import {
     FloatingBall添加文档,
     FloatingBallTab添加文档,
+    FloatingBall显示或隐藏悬浮文档,
 } from "../FloatingBall";
 import {
     FastNoteBox创建快速笔记,
@@ -173,17 +175,20 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
         label: () => tomatoI18n.通用,
         items: [
             { langKey: "openTomatoBuyDialog", label: () => tomatoI18n.打开番茄工具箱购买页 },
-            { langKey: tomatoBigReloadHK.langKey, label: () => tomatoBigReloadHK.langText(), hk: tomatoBigReloadHK },
         ],
     },
+    // confgather（2026-09-15）：大刷新自 general 挪入——开关在顶栏工具域（ConfToolbar），
+    // 族卡与设置域同名对上家（bear 拍板「裁出去一次干净」）
     {
         id: "toolbar",
         label: () => tomatoI18n.顶栏工具,
         items: [
-            { langKey: ToolBarBox整理assets下的图片视频音频.langKey, label: () => ToolBarBox整理assets下的图片视频音频.langText(), hk: ToolBarBox整理assets下的图片视频音频 },
+            // 行序与设置域卡 ConfToolbar 一致（vision P2：两视图同序防对照困惑）
+            { langKey: tomatoBigReloadHK.langKey, label: () => tomatoBigReloadHK.langText(), hk: tomatoBigReloadHK },
             { langKey: ToolBarBox间隔重复.langKey, label: () => ToolBarBox间隔重复.langText(), hk: ToolBarBox间隔重复 },
             { langKey: ToolBarBox刷新虚拟引用.langKey, label: () => ToolBarBox刷新虚拟引用.langText(), hk: ToolBarBox刷新虚拟引用 },
             { langKey: ToolBarBox突出定位文档.langKey, label: () => ToolBarBox突出定位文档.langText(), hk: ToolBarBox突出定位文档 },
+            { langKey: ToolBarBox整理assets下的图片视频音频.langKey, label: () => ToolBarBox整理assets下的图片视频音频.langText(), hk: ToolBarBox整理assets下的图片视频音频 },
         ],
     },
     // 杂项组（featgate □3）：MixBox 15 条全量迁入；与杂项域（ConfMiscDomain）行共存——
@@ -276,9 +281,12 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
     // 互链与引用组（featgate □5）：LinkBox 单功能 4+互链族 8+同步块 3（注册经
     // addPairCmd 包装，cmdOn 门控=命令+速查项齐走）
     {
-        id: "bilink",
-        label: () => tomatoI18n.互链与引用,
+        id: "pairtools",
+        label: () => tomatoI18n.块配对工具,
         items: [
+            // confgather（2026-09-15）：原 bilink（互链与引用 15 条）+longcontent（长内容工具
+            // 4 条）两族合并——块配对是一个引擎一个总开关（pairBarEnabled），设置域同名对上家
+            //（bear 拍板做法丁）；命令开关按命令 langKey 存储不受族重组影响
             { langKey: LinkBoxbilink.langKey, label: () => LinkBoxbilink.langText(), hk: LinkBoxbilink },
             { langKey: LinkBox链接到块底部.langKey, label: () => LinkBox链接到块底部.langText(), hk: LinkBox链接到块底部 },
             { langKey: LinkBox修复双向链接.langKey, label: () => LinkBox修复双向链接.langText(), hk: LinkBox修复双向链接 },
@@ -294,14 +302,8 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
             { langKey: LinkBox查看所有同步位置.langKey, label: () => LinkBox查看所有同步位置.langText(), hk: LinkBox查看所有同步位置 },
             { langKey: LinkBox同步块选择.langKey, label: () => LinkBox同步块选择.langText(), hk: LinkBox同步块选择 },
             { langKey: LinkBox同步块创建.langKey, label: () => LinkBox同步块创建.langText(), hk: LinkBox同步块创建 },
-        ],
-    },
-    // 长内容工具组（featgate □5）：CpBox 3+PairBar 触发 1（块配对总开关族内）；PairBar
-    // 触发保留回调级 pairBarEntryHotkey 行为门（双 gate 并存：注册级管命令面板可见性）
-    {
-        id: "longcontent",
-        label: () => tomatoI18n.长内容工具,
-        items: [
+            // 原长内容工具族（featgate □5）：CpBox 3+PairBar 触发 1；PairBar 触发保留回调级
+            // pairBarEntryHotkey 行为门（双 gate 并存：注册级管命令面板可见性）
             { langKey: CpBox批量删除大量连续内容块.langKey, label: () => CpBox批量删除大量连续内容块.langText(), hk: CpBox批量删除大量连续内容块 },
             { langKey: CpBox批量移动大量连续内容块.langKey, label: () => tomatoI18n.批量移动大量连续内容块, hk: CpBox批量移动大量连续内容块 },
             { langKey: CpBox批量复制大量连续内容块.langKey, label: () => tomatoI18n.批量复制大量连续内容块, hk: CpBox批量复制大量连续内容块 },
@@ -346,11 +348,29 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
             { langKey: MarkdownExport确保导出符合配置.langKey, label: () => MarkdownExport确保导出符合配置.langText(), hk: MarkdownExport确保导出符合配置 },
         ],
     },
+    // confgather（2026-09-15）：docs 大杂烩拆分——知识库/前缀文档树各自立族对上设置位置
+    //（知识库域 ConfKnowledge / 功能仓库域前缀文档树卡），docs 族只留 ListBox 两条
+    {
+        id: "prefixarticles",
+        label: () => tomatoI18n.前缀文档树,
+        items: [
+            { langKey: PrefixArticles前缀文档树.langKey, label: () => PrefixArticles前缀文档树.langText(), hk: PrefixArticles前缀文档树 },
+            // Tags 窗开关命令（tagsdecouple □2）：状态栏钮/快捷键两通道的命令本体——钮挂载只受
+            // prefixArticlesEnable 总开关门控，命令行开关在此独立可关（review P1 补登）
+            { langKey: PrefixArticlesTags.langKey, label: () => PrefixArticlesTags.langText(), hk: PrefixArticlesTags },
+        ],
+    },
+    {
+        id: "knowledge",
+        label: () => tomatoI18n.知识库,
+        items: [
+            { langKey: KnowledgeBox知识库面板.langKey, label: () => KnowledgeBox知识库面板.langText(), hk: KnowledgeBox知识库面板 },
+        ],
+    },
     {
         id: "docs",
         label: () => tomatoI18n.文档管理,
         items: [
-            { langKey: PrefixArticles前缀文档树.langKey, label: () => PrefixArticles前缀文档树.langText(), hk: PrefixArticles前缀文档树 },
             { langKey: ListBox取消勾选当前文档所有已完成的todo任务.langKey, label: () => ListBox取消勾选当前文档所有已完成的todo任务.langText(), hk: ListBox取消勾选当前文档所有已完成的todo任务 },
             { langKey: ListBox删除当前文档所有已完成的todo任务.langKey, label: () => ListBox删除当前文档所有已完成的todo任务.langText(), hk: ListBox删除当前文档所有已完成的todo任务 },
         ],
@@ -370,6 +390,7 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
         items: [
             { langKey: FloatingBall添加文档.langKey, label: () => FloatingBall添加文档.langText(), hk: FloatingBall添加文档 },
             { langKey: FloatingBallTab添加文档.langKey, label: () => FloatingBallTab添加文档.langText(), hk: FloatingBallTab添加文档 },
+            { langKey: FloatingBall显示或隐藏悬浮文档.langKey, label: () => FloatingBall显示或隐藏悬浮文档.langText(), hk: FloatingBall显示或隐藏悬浮文档 },
         ],
     },
     // 快速笔记组：前两条两参常量 label 直写 i18n（与注册点一致）

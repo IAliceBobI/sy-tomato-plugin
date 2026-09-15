@@ -3,6 +3,7 @@
 // 逻辑本体在 src/libs/agentTools（A 层），本文件只做环境接线（ai-agent □1）。
 import type { ToolEnv } from "../../libs/agentTools";
 import * as api from "../api";
+import { getKbChannel } from "../kbChannel";
 
 export function createKernelEnv(): ToolEnv {
   return {
@@ -29,7 +30,7 @@ export function createKernelEnv(): ToolEnv {
         return { available: false };
       }
     },
-    // kernel goja 无 fetch，外网能力物理不存在：coze 类工具靠 canExternalHttp=false 不装配，
+    // kernel goja 无 fetch，外网能力物理不存在：外网依赖面靠 canExternalHttp=false 不装配，
     // 以下外网成员只为 ToolEnv 接口完整（不会被调到；防御性抛清晰错误）
     canExternalHttp: false,
     async postExternal(): Promise<any> {
@@ -41,8 +42,7 @@ export function createKernelEnv(): ToolEnv {
     async getDocTreeMarkdown(): Promise<{ id: string; content: string; markdown: string }[]> {
       throw new Error("kernel 侧无文档导出通道");
     },
-    async getCozeConfig(): Promise<{ token: string; knowledgeID: string; appID: string }> {
-      return { token: "", knowledgeID: "", appID: "" };
-    },
+    // knowledgebox □4：知识库工具口——外网经 /api/network/proxy 转发自足执行（kbChannel.ts）
+    getKbChannel: () => getKbChannel(),
   };
 }

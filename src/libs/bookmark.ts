@@ -308,16 +308,20 @@ async function cleanLegacyPoints(ids: string[]) {
     await siyuan.deleteBlocks(ids);
 }
 
+/** 文档最新阅读点块 id（新格式直取/老格式兜底；空=无点）——渐进手动书滚筒落点复用
+ *  （fbfeat □2「回原书阅读点」），与 gotoBookmark 同一解析口径防两处漂移 */
+export async function readPointBlockOfDoc(docID: string): Promise<string> {
+    const rows = await newPointsOfDoc(docID);
+    if (rows.length > 0) return rows[0].blockID;
+    const legacy = await siyuan.sqlAttr(`select block_id from attributes where name="${READINGPOINT}" and root_id="${docID}"`);
+    return legacy?.[0]?.block_id ?? "";
+}
+
 /** 跳到当前文档的阅读点：新格式直跳原文块；老格式兜底打开阅读点卡片（内含原文链接） */
 export async function gotoBookmark(docID: string, plugin: Plugin) {
-    const rows = await newPointsOfDoc(docID);
-    if (rows.length > 0) {
-        await OpenSyFile2(plugin, rows[0].blockID);
-        return;
-    }
-    const legacy = await siyuan.sqlAttr(`select block_id from attributes where name="${READINGPOINT}" and root_id="${docID}"`);
-    if (legacy.length > 0) {
-        await OpenSyFile2(plugin, legacy[0].block_id);
+    const blockID = await readPointBlockOfDoc(docID);
+    if (blockID) {
+        await OpenSyFile2(plugin, blockID);
         return;
     }
     await siyuan.pushMsg(tomatoI18n.当前文档无阅读点, 2000);

@@ -2,12 +2,13 @@ import { addIfVisible } from "./libs/menuManager";
 import { confirm, IProtyle, Plugin, Protyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
 import { cleanDivOnly, cloneCleanDiv, downloadStringAsFile, getAttribute, getBlocksByTrees, getMarkdownsByTrees, getTomatoPluginInstance, isEditor, removeInvisibleChars, siyuan, } from "./libs/utils";
+import { doubleLnOutsideFences } from "./libs/strUtils";
 import { tomatoI18n } from "./tomatoI18n";
 import { TOMATO_LINE_THROUGH } from "./libs/gconst";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { DomSuperBlockBuilder } from "./libs/sydom";
 import { isMe, verifyKeyTomato } from "./libs/user";
-import { addSelectionBtnsDesktop, addSelectionBtnsMobile, noteBoxCheckbox } from "./libs/stores";
+import { addSelectionBtnsDesktop, addSelectionBtnsMobile, exportFilesMenu, noteBoxCheckbox } from "./libs/stores";
 import { addCustomButton, addSelectionMLButtons, disposeSelectionML, getSelectionML } from "./libs/selectionML";
 import { debugLog } from "./libs/logUtils";
 import { noteBox } from "./NoteBox";
@@ -36,7 +37,7 @@ export function mergeDocMenuListener() {
                         siyuan.pushMsg(tomatoI18n.此功能需要激活VIP)
                     }
                 }
-            })
+            }, exportFilesMenu.get())
             addIfVisible(detial.menu, "m.exportFiles.mergeCopy", {
                 label: tomatoI18n.合并为单个文件 + " · " + tomatoI18n.复制,
                 icon: "iconCopy",
@@ -49,7 +50,7 @@ export function mergeDocMenuListener() {
                         siyuan.pushMsg(tomatoI18n.此功能需要激活VIP)
                     }
                 }
-            })
+            }, exportFilesMenu.get())
         }
     })
 }
@@ -89,7 +90,7 @@ export function exportAsOneFile() {
                 label: tomatoI18n.导出所有文档到单个文件,
                 icon: "iconUpload",
                 click: () => { exportBigText(ids) }
-            })
+            }, exportFilesMenu.get())
         }
     })
 }
@@ -108,7 +109,7 @@ export function importMD() {
                         doImportMD(ids.at(0), mdPath)
                     }, false, tomatoI18n.utf8Encoding)
                 }
-            })
+            }, exportFilesMenu.get())
         }
     })
 }
@@ -116,15 +117,25 @@ export function importMD() {
 async function doImportMD(docID: string, mdPath: string) {
     const row = await siyuan.getRowByID(docID)
     const fs = osFs()
-    if (fs.readFile && row?.id) {
-        let file = await fs.readFile(mdPath, { encoding: "utf-8" })
-        file = file.trim();
-        const title = file.slice(0, 15).replaceAll("\n", "");
-        file = file.replaceAll("\n", "\n\n")
-        row.hpath = row.hpath.split("/").slice(0, -1).extend(title).join("/")
-        const id = await siyuan.createDocWithMd(row.box, row.hpath, file);
-        await OpenSyFile2(getTomatoPluginInstance(), id);
+    if (!fs.readFile || !row?.id) return;
+    let file: string;
+    try {
+        file = await fs.readFile(mdPath, { encoding: "utf-8" })
+    } catch (e) {
+        await siyuan.pushMsg("❌" + tomatoI18n.读取文件失败请检查路径 + "：" + mdPath);
+        return;
     }
+    file = file.trim();
+    if (!file) {
+        await siyuan.pushMsg("❌" + tomatoI18n.文件内容为空);
+        return;
+    }
+    // 标题去 /：斜杠会把 hpath 劈成不存在的父层级（createDocWithMd 静默建垃圾树）
+    const title = file.slice(0, 15).replaceAll("\n", "").replaceAll("/", "-");
+    file = doubleLnOutsideFences(file);
+    row.hpath = row.hpath.split("/").slice(0, -1).extend(title).join("/")
+    const id = await siyuan.createDocWithMd(row.box, row.hpath, file);
+    await OpenSyFile2(getTomatoPluginInstance(), id);
 }
 
 async function exportBigText(ids: string[]) {

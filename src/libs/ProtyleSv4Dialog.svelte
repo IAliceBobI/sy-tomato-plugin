@@ -4,14 +4,16 @@
     import { DestroyManager } from "./destroyer";
     import { Protyle } from "siyuan";
     import { getTomatoPluginInstance, siyuan } from "./utils";
+    import { scrollDocBottomForDoc } from "./ballDocToggle";
 
     interface Props {
         dm: DestroyManager;
         docName?: string;
         docID?: string;
+        openBottom?: boolean;
     }
 
-    let { dm, docName = "", docID = $bindable("") }: Props = $props();
+    let { dm, docName = "", docID = $bindable(""), openBottom = false }: Props = $props();
     let protyleTarget: HTMLElement = $state();
 
     onDestroy(() => {
@@ -29,7 +31,6 @@
                 protyleTarget,
                 {
                     blockId: docID,
-                    action: ["cb-get-focus"],
                     render: {
                         background: false,
                         title: false,
@@ -41,6 +42,11 @@
                 },
             );
             dm.add("protyle", () => protyle.destroy());
+            // 滚底（fbfeat □1 落底；□13 禁聚焦拍板后转纯滚动）；openBottom 由调用方
+            // 传入（共享组件不读悬浮球域设置）
+            if (openBottom) {
+                void scrollDocBottomForDoc(protyleTarget, docID, (id) => siyuan.getDocLastID(id));
+            }
         }
     });
 </script>

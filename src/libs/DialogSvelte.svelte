@@ -441,14 +441,17 @@
                 h = cfg[key("height")] || null;
             }
 
+            // height prop="auto"（Tags 窗精简态）时不回放存档 h：拖动结束也落档 w/h（非只有
+            // resize 才有尺寸档），回放则 auto 收矮被存档定高压回（tagsdecouple □3 review P1）
+            const hApply = height === "auto" ? null : h;
             // 球位展开联动（块编辑器）：posOverride 只作无存档兜底——面板位置独立记忆
             // （拖后 savePosition 落档，重开/重启回拖后位置=「跟悬浮球一样」，usertest2 □6）；
             // 有存档优先存档，都无居中
             if (posOverride && !x && !y) {
-                setPosition(`${posOverride.x}px`, `${posOverride.y}px`, w, h);
+                setPosition(`${posOverride.x}px`, `${posOverride.y}px`, w, hApply);
                 return;
             }
-            setPosition(x, y, w, h);
+            setPosition(x, y, w, hApply);
         } catch (error) {
             console.error("Failed to load dialog position:", error);
             // 加载失败时居中显示
@@ -534,7 +537,8 @@
                 dialogElement.style.left,
                 dialogElement.style.top,
                 dialogElement.style.width,
-                dialogElement.style.height,
+                // style.height="auto" 直传则 parseInt=NaN、top 钳制静默失效（同 loadPosition 的 auto 规则传 null）
+                dialogElement.style.height === "auto" ? null : dialogElement.style.height,
             );
         }
     }

@@ -12,7 +12,6 @@ import { tomatoI18n } from "./tomatoI18n";
 import { back_link_dailynote_off, back_link_default_off, back_link_goto_bottom_btn, backLinkBottomBoxCheckbox, fastNoteBoxDisableBK, bk启用禁用文档的底部反链menu, back_link_refresh_off, bk_refresh_interval_sec, bk_visible_only } from "./libs/stores";
 import { OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { verifyKeyTomato } from "./libs/user";
 import { debugLog } from "./libs/logUtils";
 import { applyEntryCount, cachedEntryCount } from "./libs/bkRevision";
 import { winHotkey } from "./libs/winHotkey";
@@ -363,7 +362,8 @@ class BackLinkBottomBox {
         debugLog("bk.mount", `doTheWork doc=${docID} type=${eventType}`, "bk");
 
         maker.doTheWork(detail, attrs);
-        if (back_link_goto_bottom_btn.get() && await verifyKeyTomato() && !events.isMobile) {
+        // 2026-09-15 转免费（C 窗口清零）：跳底钮属琐碎门，撤 Pro
+        if (back_link_goto_bottom_btn.get() && !events.isMobile) {
             this.addIcon2Title(maker);
         }
     }

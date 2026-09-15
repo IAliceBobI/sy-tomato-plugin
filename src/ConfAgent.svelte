@@ -1,9 +1,10 @@
 <script lang="ts">
     // AI 助手域（agentrev □2，bear ①「独立出来，不放到功能仓库」）：Agent 相关设置独立成域
     // ——面板总开关+轮数上限+人审两开关（bear ②「短链最多 4 轮可以配置」「受控必须人审核可以
-    // 配置」）+ AIBox 卡（bear：轻量改写工具留用，翻新=□3）+ coze 折叠垫底（bear ⑦「不起眼
-    // 位置折叠，暂时没人用」——只收设置入口，工具能力照常）。□4□5 领域知识/Skill/提示词
-    // 管理卡落位本域。三卡自 ConfVault 迁入（内部结构一行不动，coze 改折叠壳）。
+    // 配置」）+ AIBox 卡（bear：轻量改写工具留用，翻新=□3）。
+    // □4□5 领域知识/Skill/提示词管理卡落位本域。
+    // knowledgebox □9（2026-09-15）：知识库通道卡迁出→独立「知识库」域 ConfKnowledge.svelte
+    //（bear 拍板 A1：功能卡+通道卡收敛一处）。
     import {
         aiBoxCheckbox,
         aiBoxMenuShow,
@@ -15,10 +16,6 @@
         agentSkillDocs,
         agentHistoryMsgs,
         agentDocSnapshotLimit,
-        cozeSearchAppID,
-        cozeSearchKnowledgeID,
-        cozeSearchOauthTokenID,
-        cozeSearchSpaceID,
     } from "./libs/stores";
     import { AIBoxHotkey } from "./AIBox";
     import { tomatoI18n } from "./tomatoI18n";
@@ -96,30 +93,3 @@
         </div>
     {/if}
 </div>
-<!-- coze 知识库问答（迁自功能仓库并折叠垫底：bear ⑦ 暂时没人用收不起眼位；折叠壳=ConfLink
-     数据库反链折叠区同款 details.settingBox+softBox，功能与四输入原样保留） -->
-<details class="settingBox">
-    <summary class="section-title">
-        coze{tomatoI18n.知识库问答}（AI 工具）
-        <ConfHelpIcon token="ENZfd6zfKoTZPqxZxf2c4uWVnow" />
-    </summary>
-    <div class="softBox">
-        <div>{tomatoI18n.供AI工具层的coze工具使用}</div>
-        <div>
-            <input class="b3-text-field" placeholder={tomatoI18n.添加令牌} bind:value={$cozeSearchOauthTokenID} />
-            <a href="https://www.coze.cn/open/oauth/pats">{tomatoI18n.添加令牌}</a>
-        </div>
-        <div>
-            <input class="b3-text-field" placeholder={tomatoI18n.添加空间ID} bind:value={$cozeSearchSpaceID} />
-            <a href="https://www.coze.cn/space">{tomatoI18n.添加空间ID}</a>
-        </div>
-        <div>
-            <input class="b3-text-field" placeholder={tomatoI18n.添加知识库ID} bind:value={$cozeSearchKnowledgeID} />
-            <a href="https://www.coze.cn/space/{$cozeSearchSpaceID}/library">{tomatoI18n.添加知识库ID}</a>
-        </div>
-        <div>
-            <input class="b3-text-field" placeholder={tomatoI18n.添加智能体ID} bind:value={$cozeSearchAppID} />
-            <a href="https://www.coze.cn/space/{$cozeSearchSpaceID}/develop">{tomatoI18n.添加智能体ID}</a>
-        </div>
-    </div>
-</details>

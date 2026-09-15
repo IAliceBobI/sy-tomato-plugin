@@ -34,7 +34,7 @@ export async function focusSiyuan() {
 }
 
 /**
- * @param action ["cb-get-context", "cb-get-focus", "cb-get-hl"]
+ * @param action ["cb-get-context", "cb-get-hl"]（默认；cb-get-focus 已按禁聚焦政策退役）
  * @param position nop 0, front 1, back 2, right 3, bottom 4, move 5
  * @returns
  */
@@ -52,7 +52,8 @@ export async function OpenSyFile2(
     } else if (events.isMobile) {
         openMobileFileById(plugin.app, docID);
     } else {
-        if (action == null) action = ["cb-get-context", "cb-get-focus"];
+        // bear 09-15 拍板全插件禁聚焦：打开文档只滚动定位（cb-get-hl），不落光标
+        if (action == null) action = ["cb-get-context", "cb-get-hl"];
         let keepCursor = null;
         switch (position) {
             case "5":
@@ -110,7 +111,7 @@ export async function OpenSyFile2(
     }
 }
 
-// // recommand: ["cb-get-context", "cb-get-focus"]
+// // recommand: ["cb-get-context", "cb-get-hl"]
 // export async function OpenSyFile(plugin: Plugin, docID: string, action?: TProtyleAction[], zoomIn?: boolean, position?: "right" | "bottom", afterOpen?: () => void) {
 //     if (events.isMobile) {
 //         openMobileFileById(plugin.app, docID);

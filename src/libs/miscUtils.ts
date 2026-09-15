@@ -51,6 +51,16 @@ export async function pmapNull<A, T>(list: Array<A>, fn: (a: A) => Promise<T>) {
     return list.map((i, idx) => { return { k: i, v: a[idx] }; })
 }
 
+/** 并发封顶 map（audit P2：3 万行 Promise.all 直射会打爆浏览器连接池/内核）。
+ *  保序：分批 await，批内并发=limit，结果按原序拼接 */
+export async function mapLimit<A, T>(list: Array<A>, limit: number, fn: (a: A) => Promise<T>): Promise<T[]> {
+    const out: T[] = [];
+    for (let i = 0; i < list.length; i += limit) {
+        out.push(...await Promise.all(list.slice(i, i + limit).map(fn)));
+    }
+    return out;
+}
+
 export async function pmap<A, T>(list: Array<A>, fn: (a: A) => Promise<T | null | undefined>) {
     return pmapNull(list, fn).then(l => l.filter(({ v }) => v != null));
 }

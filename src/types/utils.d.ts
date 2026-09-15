@@ -21,6 +21,12 @@ type TomatoSettings = {
     annoAutoArchive: boolean,
     dailyQuota: string,
     prefixArticlesSoftLimit: string,
+    knowledgeBoxCheckbox: boolean,
+    knowledgeMenu: boolean,
+    exportFilesMenu: boolean,
+    knowledgeAutoSyncMin: string,
+    zhipuApiKey: string,
+    zhipuKbName: string,
     toolbarTidyExt: string,
     blockEditorBox: boolean,
     navSourceBlock: boolean,
@@ -39,6 +45,7 @@ type TomatoSettings = {
     cardBoxReviewDocMenu: boolean,
     refCleanMenu: boolean,
     prefixArticlesTagsShow: boolean,
+    prefixArticlesTagsGroup: boolean,
     fastNoteBoxDocPrefix: boolean,
     foldTypesNODE_listITEM: boolean,
     dailyNoteMoveLeaveLnk: boolean,
@@ -46,6 +53,7 @@ type TomatoSettings = {
     prefixArticlesEnable: boolean,
     floatingballDocMenu: boolean,
     floatingballEnable: boolean,
+    floatingballDocOpenBottom: boolean,
     floatingballDocList: FloatingDocItem[],
     floatingballKeyboardList: FloatingKeyboardItem[],
     floatingballBallList: BallItem[],
@@ -302,10 +310,6 @@ type TomatoSettings = {
     agentSkillDocs: string[],
     agentHistoryMsgs: number,
     agentDocSnapshotLimit: number,
-    cozeSearchSpaceID: string,
-    cozeSearchKnowledgeID: string,
-    cozeSearchOauthTokenID: string,
-    cozeSearchAppID: string,
     "daily-note-box-id": string,
     "tomato-clocks": string,
     tomato_clocks_force_dialog: boolean,
@@ -472,8 +476,6 @@ type AttrType = {
     "custom-database-backlink-createdID"?: string,
     "custom-tomato-idea-time"?: string,
     "custom-tomato-idea-interval"?: string,
-    "custom-coze-doc-md5"?: string,
-    "custom-coze-knowledge-file-id"?: string,
     "custom-qf-doc-md5"?: string,
     "custom-qf-knowledge-file-id"?: string,
     "custom-qf-file-id"?: string,
@@ -682,67 +684,6 @@ interface WsMainData {
 
 interface WsMainTask {
     action: string;
-}
-
-type CozeListDoc = {
-    code?: number;
-    document_infos?: CozeDocumentInfo[];
-    msg?: string;
-    total?: number;
-}
-
-type CozeDocumentInfo = {
-    char_count?: number;
-    chunk_strategy?: CozeChunkStrategy;
-    create_time?: number;
-    document_id?: string;
-    filter_strategy?: CozeStrategy;
-    format_type?: number;
-    hit_count?: number;
-    index_strategy?: CozeStrategy;
-    name?: string;
-    parsing_strategy?: CozeParsingStrategy;
-    size?: number;
-    slice_count?: number;
-    source_type?: number;
-    status?: number;
-    type?: string;
-    update_interval?: number;
-    update_time?: number;
-    update_type?: number;
-    web_url?: string;
-}
-
-type CozeChunkStrategy = {
-    chunk_type?: number;
-    max_tokens?: number;
-    remove_extra_spaces?: boolean;
-    remove_urls_emails?: boolean;
-    separator?: string;
-}
-
-type CozeStrategy = {
-}
-
-type CozeParsingStrategy = {
-    image_extraction?: boolean;
-    image_ocr?: boolean;
-    parsing_type?: number;
-    table_extraction?: boolean;
-}
-
-type CozeAddDoc = {
-    docID?: string,
-    docName?: string,
-    cozeName?: string,
-    docContent?: string,
-    md5?: string,
-    attrs?: AttrType,
-    newAttrs?: AttrType,
-    cozeDoc?: CozeDocumentInfo,
-    syExists?: boolean,
-    done?: boolean,
-    updated?: string,
 }
 
 type FloatingDocItem = {

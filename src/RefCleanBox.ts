@@ -1,8 +1,8 @@
 // 失效引用/锚点链接检查清理（vipdoctree □4，2026-09-13）：检测层+手术层+Box 接线。
 // 检测语义对齐官方 ListInvalidBlockRefs（kernel/model/search.go：块引用+指向块的锚点
 // 链接，目标块不存在即失效），插件增量=①范围化（本文档/含子文档递归）②批量动作
-// （转文本/删除，UI 在 RefCleanDialog.svelte）。收费挂法（□4 拍板⑥，呈报可调）：
-// 检查/列出免费，批量动作在 Dialog 内 lastVerifyResult 门（见 RefCleanDialog.svelte）。
+// （转文本/删除，UI 在 RefCleanDialog.svelte）。2026-09-15 转全免费（bear 反馈拍板：
+// 集市同类有免费开源竞品，检查免费/修要钱是钓鱼式切法）。
 import { siyuan } from "./libs/siyuanApi";
 import { tomatoI18n } from "./tomatoI18n";
 import { addIfVisible } from "./libs/menuManager";

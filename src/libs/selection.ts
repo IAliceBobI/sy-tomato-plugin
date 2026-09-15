@@ -12,14 +12,21 @@
 // 硬契约（review P1-3）：rangeText 仅 level="range" 时有效、range 仅活（isConnected）
 // 时透传——detached 的陈旧 toolbar.range cloneContents 照样吐旧文本，其他 level 照给
 // 会自相矛盾，文本消费方只在真拖蓝态取用。
+//
+// fine 档（fbfeat □5，群反馈 650189）：摘抄/制卡族 opt-in——一二级不再「嵌套块归
+// 容器整块」，拿用户真选的块（容器部分被盖=下钻子块；块选标记=标记块本体，仅
+// 「祖先也在选集则归祖先」防碎片）。v3.4.0 老代码即此语义（读思源块选标记本体）；
+// □8 期1 统一时收成容器粒度，容器内拖蓝摘抄整锅端=回归。tomato 顶层流（keep/靶）
+// 不传 fine 维持原语义。
 
-import { blocksUnderRange } from "./domUtils";
+import { blocksUnderRange, fineBlocksUnderRange } from "./domUtils";
 import { DATA_NODE_ID, PROTYLE_WYSIWYG_SELECT } from "./gconst";
 
 export type SelectionLevel = "select" | "range" | "cursor" | "none";
 
 export interface SelectionResult {
-    /** 涉及的顶层块（嵌套块归容器整块，文档序去重） */
+    /** 涉及的块（默认档=顶层块，嵌套块归容器整块，文档序去重；fine 档=用户真选的
+     *  块，见文件头 fine 注释） */
     blocks: HTMLElement[];
     /** 命中链级：块选/拖蓝/光标兜底/全空 */
     level: SelectionLevel;
@@ -34,7 +41,7 @@ export interface SelectionResult {
 
 export function collectSelectedBlocks(
     wysiwyg: HTMLElement,
-    opts: { range?: Range; cursorEl?: Element | null; blockEl?: HTMLElement } = {},
+    opts: { range?: Range; cursorEl?: Element | null; blockEl?: HTMLElement; fine?: boolean } = {},
 ): SelectionResult {
     // 子块上爬最近 wysiwyg 直接子级（与 blocksUnderRange「只认直接子级块」语义对齐）
     const topOf = (el: Element | null): HTMLElement | null => {
@@ -73,10 +80,14 @@ export function collectSelectedBlocks(
         return { blocks: [opts.blockEl], level, rangeText: "", range: outRange, viaBlockEl: true };
     };
     const hits = [...wysiwyg.querySelectorAll(`.${PROTYLE_WYSIWYG_SELECT}`)] as HTMLElement[];
-    let blocks = dedup(hits.map(topOf));
+    // fine 档一级不爬容器（标记块=用户点的块本体），仅祖先去重：容器与子同时被标
+    // 记时归容器（容器被选=整容器语义，且防同选集碎片化——□7 教训的去重目标不变）
+    let blocks = dedup(opts.fine
+        ? hits.filter(h => !hits.some(o => o !== h && o.contains(h)))
+        : hits.map(topOf));
     if (blocks.length) return finish(blocks, "select");
 
-    blocks = dedup(blocksUnderRange(wysiwyg, range));
+    blocks = dedup(opts.fine ? fineBlocksUnderRange(wysiwyg, range) : blocksUnderRange(wysiwyg, range));
     if (blocks.length) return finish(blocks, "range");
 
     // 光标三级仅一二级皆空才走（真 collapsed）；焦点可能在别的页签/面板——不在本

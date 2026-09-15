@@ -30,7 +30,6 @@
         if (vedioID) {
             const protyle = new Protyle(tomatoClock.plugin.app, protyleTarget, {
                 blockId: vedioID,
-                action: ["cb-get-focus"],
                 render: {
                     background: false,
                     title: false,

@@ -74,7 +74,6 @@
 
 - [杂项](https://my.feishu.cn/docx/Yw4UdhdaTo25dhxtiPUcPnNzn3c)
 - [人工智能（流式 stream）](https://my.feishu.cn/docx/Kbuvd9lbhoDWTCxggz9cxQgJnAH)
-- [coze知识库问答（豆包）](https://my.feishu.cn/docx/ENZfd6zfKoTZPqxZxf2c4uWVnow)
 - [JS脚本集合](https://my.feishu.cn/docx/L9pEdXjdOoqTd7xk6gscRcFFnYe)
 
 ## 反馈与支持

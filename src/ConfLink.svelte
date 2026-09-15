@@ -299,8 +299,8 @@
             {tomatoI18n.点击引用数打开所有引用}<TomatoVIP {codeValid}></TomatoVIP>
         </div>
     </div>
-    <!-- 失效引用清理（vipdoctree □4 2026-09-13）：检查/列出免费，转文本/删除两动作
-         在 Dialog 内门（lastVerifyResult）——门禁可见性>功能数口径 -->
+    <!-- 失效引用清理（vipdoctree □4 2026-09-13）：2026-09-15 起全免费（bear 反馈拍板，
+         原「检查免费/批量动作 Pro」挂法撤销——竞品免费+钓鱼观感） -->
     <div class="settingBox">
         <div class="section-title">{tomatoI18n.失效引用清理}</div>
         <div>{tomatoI18n.失效引用清理说明()}</div>

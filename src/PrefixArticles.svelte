@@ -1,15 +1,15 @@
 <script lang="ts">
     import DialogSvelte from "./libs/DialogSvelte.svelte";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
     import { getDocTracer, OpenSyFile2, resetDocTracer } from "./libs/docUtils";
     import { reloadSelfPlugin } from "./libs/pluginReload";
     import { getTomatoPluginInstance, Siyuan, siyuan } from "./libs/utils";
+    import { sqlQuoteStr } from "./libs/strUtils";
     import { events, EventType } from "./libs/Events";
     import { getPrefixDocs } from "./PrefixArticles";
     import { Protyle } from "siyuan";
     import { tomatoI18n } from "./tomatoI18n";
-    import PrefixArticleParts from "./PrefixArticleParts.svelte";
     import { prefixArticlesTagsShow } from "./libs/stores";
 
     interface Props {
@@ -39,17 +39,13 @@
         } else {
             initDialog();
         }
-        dm.setData("refresh1", async () => {
-            prefixDocs = await getPrefixDocs(
-                currentDocID,
-                currentDocName,
-                true,
-            );
-        });
     });
 
     async function initDialog() {
         if (currentDocID) {
+            // prefixDocs 赋值后 DOM 未刷（Svelte 异步渲染）——直查行必扑空走 else 清掉
+            // currentDocID，当前文档高亮/滚动定位双失（旧版同款竞态，高亮形态下显形）
+            await tick();
             const btn = document.getElementById(
                 `prefixDoc#${isDock}#${currentDocID}`,
             ) as HTMLButtonElement;
@@ -125,7 +121,8 @@
         }
         await siyuan.createSnapshot("tomato-prefix-rename");
         const rows = await siyuan.sql(
-            `select id,content,box,path from blocks where type='d' and content like "${oldPrefix}%" limit 999999`,
+            // 用户输入直拼 SQL 掺引号会炸语句（内核静默 null）——like 值整体过 sqlQuoteStr
+            `select id,content,box,path from blocks where type='d' and content like ${sqlQuoteStr(oldPrefix + "%")} limit 999999`,
         );
         for (const row of rows) {
             const title = row.content.replace(oldPrefix, newPrefix);
@@ -136,9 +133,9 @@
         siyuan.pushMsg(tomatoI18n.已经创建快照, 1000 * 20);
     }
 
+    // 独立挂载后各刷各的（tagsdecouple □1）：面板刷新=重读列表，不再联动 Tags 窗
     async function refresh() {
         prefixDocs = await getPrefixDocs(currentDocID, currentDocName, true);
-        dm.getFn("refresh2")();
         await siyuan.pushMsg(tomatoI18n.刷新, 1000);
     }
 
@@ -149,52 +146,80 @@
     }
 </script>
 
-{#snippet count_and_btn()}
-    <div class="kbd">
-        <span title={tomatoI18n.文档数量}>#{prefixDocs.length}</span>
+<div class="pa-panel" class:pa-panel--dialog={!isDock}>
+    <div class="pa-head">
+        <span class="pa-count" title={tomatoI18n.文档数量}
+            >{prefixDocs.length}{tomatoI18n.篇}</span
+        >
         <button
             title={tomatoI18n.切换笔记本}
-            class="b3-button b3-button--text tomato-button"
+            class="pa-iconbtn"
             onclick={switchNotebook}
         >
-            📒
+            <svg><use xlink:href="#iconNotebook"></use></svg>
         </button>
         <button
             title={tomatoI18n.批量改前缀}
-            class="b3-button b3-button--text tomato-button"
+            class="pa-iconbtn"
             onclick={() => {
                 showPrefixDialog = !showPrefixDialog;
             }}
         >
-            ✍️
+            <svg><use xlink:href="#iconEdit"></use></svg>
         </button>
-        <button
-            title={tomatoI18n.标题内竖线分割出来的标签}
-            class="b3-button b3-button--text tomato-button"
-            onclick={() => {
-                prefixArticlesTagsShow.write(!$prefixArticlesTagsShow);
-            }}
-        >
-            🏷️
-        </button>
+        {#if isDock}
+            <!-- Tags 钮只留 dock 面板（review P1-3）：Dialog 分支（⇧⌥G/右键弹窗）开着时独立
+                 Tags 窗 z=12 压在官方 Dialog 遮罩（z 自 200 爬升）之下变暗不可点——入口收敛 -->
+            <button
+                title={tomatoI18n.标题内竖线分割出来的标签}
+                class="pa-iconbtn"
+                class:pa-iconbtn--on={$prefixArticlesTagsShow}
+                onclick={() => {
+                    prefixArticlesTagsShow.write(!$prefixArticlesTagsShow);
+                }}
+            >
+                <svg><use xlink:href="#iconTags"></use></svg>
+            </button>
+        {/if}
         <button
             title={tomatoI18n.刷新}
-            class="b3-button b3-button--text tomato-button"
+            class="pa-iconbtn"
             onclick={refresh}
         >
-            🔄
+            <svg><use xlink:href="#iconRefresh"></use></svg>
         </button>
     </div>
-{/snippet}
-
-<div>
-    {@render count_and_btn()}
-    <PrefixArticleParts
-        {dm}
-        bind:show={$prefixArticlesTagsShow}
-        bind:docID={currentDocID}
-        bind:docName={currentDocName}
-    ></PrefixArticleParts>
+    {#if prefixDocs.length === 0}
+        <div class="pa-empty">{tomatoI18n.暂无相关文档}</div>
+    {:else}
+        <div class="pa-list">
+            {#each prefixDocs as doc (doc.id)}
+                {#if doc}
+                    <button
+                        class="pa-row"
+                        id={`prefixDoc#${isDock}#${doc.id}`}
+                        class:pa-row--cur={doc.id === currentDocID}
+                        onclick={async () => {
+                            if (await siyuan.checkBlockExist(doc.id)) {
+                                OpenSyFile2(getTomatoPluginInstance(), doc.id);
+                            } else {
+                                const tracer = await getDocTracer();
+                                tracer.removeDoc(doc.id);
+                                currentDocID = "";
+                            }
+                            if (!isDock) {
+                                dm.destroyBy();
+                            }
+                        }}
+                    >
+                        <svg class="pa-row__icon"><use xlink:href="#iconFile"></use></svg>
+                        <span class="pa-row__name">{doc.docName}</span>
+                        <span class="pa-row__hit" title={doc.prefix}>{doc.prefix}</span>
+                    </button>
+                {/if}
+            {/each}
+        </div>
+    {/if}
     <DialogSvelte
         title={tomatoI18n.批量改前缀}
         bind:show={showPrefixDialog}
@@ -227,74 +252,149 @@
             </div>
         {/snippet}
     </DialogSvelte>
-    {#each prefixDocs as doc, i}
-        {#if doc}
-            <div>
-                <button
-                    class="doc-button"
-                    id={`prefixDoc#${isDock}#${doc.id}`}
-                    class:current-doc={doc.id === currentDocID}
-                    class:doc-even={i % 2 === 0}
-                    class:doc-odd={i % 2 !== 0}
-                    onclick={async () => {
-                        if (await siyuan.checkBlockExist(doc.id)) {
-                            OpenSyFile2(getTomatoPluginInstance(), doc.id);
-                        } else {
-                            const tracer = await getDocTracer();
-                            tracer.removeDoc(doc.id);
-                            currentDocID = "";
-                        }
-                        if (!isDock) {
-                            dm.destroyBy();
-                        }
-                    }}
-                >
-                    📄{doc.docName}
-                </button>
-            </div>
-        {/if}
-    {/each}
-    {@render count_and_btn()}
 </div>
 
 <style>
-    .doc-even {
-        color: var(--b3-font-color2);
-        background-color: var(--b3-theme-surface);
+    /* dock 高度塌缩家族防御（css.md 同款）：dock 挂载点已 flex 化（PrefixArticles.ts init），
+       面板 flex:1 接管；⇧⌥G Dialog 分支无 flex 父链=fallback 内容自然高、dialog body 自滚 */
+    .pa-panel {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
     }
-    .doc-odd {
-        background-color: var(--b3-theme-surface);
-        color: var(--b3-font-color4);
+    .pa-head {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        /* 10px 与列表区（4px 容器+6px 行内 padding）两侧对齐（vision 二轮 P2-1 实测） */
+        padding: 4px 10px;
+        border-bottom: 1px solid var(--b3-border-color);
+        /* Dialog 分支（挂载点无 flex 链）由 b3-dialog__body 滚动：头部吸顶防滚出视野 */
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: var(--b3-theme-background);
     }
-    .current-doc {
-        font-weight: bold;
-        background-color: var(--b3-font-background6);
+    /* 弹窗 body 是 surface 色一档（非 background）：吸顶头同底才不显异色带（vision 二轮 P1-1） */
+    .pa-panel--dialog .pa-head {
+        background: var(--b3-theme-surface);
     }
-    .doc-button {
-        border: none;
+    .pa-count {
+        margin-right: auto;
+        /* 窄 dock（~150px）下「17篇」曾被挤成两行竖排（□4 vision P1）：可收缩+nowrap+省略，
+           计数 chip 先让位（图标钮 flex:none 恒保） */
+        flex: 0 1 auto;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 11px;
+        color: var(--b3-theme-on-surface-light);
+        padding: 1px 6px;
+        border-radius: var(--b3-border-radius);
+        background: color-mix(in srgb, var(--b3-theme-on-surface-light) 10%, transparent);
+    }
+    .pa-iconbtn {
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
         padding: 0;
-        margin-left: 0;
-        margin-right: 0;
-        margin-top: 8px;
-        margin-bottom: 8px;
-        font-size: calc(var(--b3-font-size-editor) * 0.7);
+        border: none;
+        border-radius: var(--b3-border-radius);
+        background: transparent;
+        color: var(--b3-theme-on-surface-light);
         cursor: pointer;
-        text-align: left;
-        display: block;
-        width: 100%;
     }
-    .kbd {
-        padding: 2px 4px;
-        font:
-            100% Consolas,
-            "Liberation Mono",
-            Menlo,
-            Courier,
-            monospace,
-            var(--b3-font-family);
-        line-height: 1;
+    .pa-iconbtn svg {
+        width: 14px;
+        height: 14px;
+    }
+    .pa-iconbtn:hover {
+        background: var(--b3-list-hover);
         color: var(--b3-theme-on-surface);
-        vertical-align: middle;
-        background-color: var(--b3-theme-surface);
+    }
+    /* Tags 窗开着=激活态（主色示开，与按钮热区同 24px） */
+    .pa-iconbtn--on,
+    .pa-iconbtn--on:hover {
+        color: var(--b3-theme-primary);
+        background: color-mix(in srgb, var(--b3-theme-primary) 10%, transparent);
+    }
+    .pa-list {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 4px;
+    }
+    .pa-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 4px 6px;
+        margin: 0;
+        border: none;
+        border-radius: var(--b3-border-radius);
+        background: transparent;
+        font-size: 12px;
+        line-height: 1.4;
+        text-align: left;
+        cursor: pointer;
+    }
+    .pa-row:hover {
+        background: var(--b3-list-hover);
+    }
+    .pa-row__icon {
+        flex: none;
+        width: 14px;
+        height: 14px;
+        color: var(--b3-theme-on-surface-light);
+    }
+    .pa-row__name {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--b3-theme-on-surface);
+    }
+    /* 命中原因徽章（想法3）：这篇靠哪个标签/前缀进组 */
+    .pa-row__hit {
+        flex: none;
+        max-width: 42%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 11px;
+        color: var(--b3-theme-on-surface-light);
+        padding: 0 4px;
+        border-radius: var(--b3-border-radius);
+        background: color-mix(in srgb, var(--b3-theme-on-surface-light) 10%, transparent);
+    }
+    /* 亮色系统灰 2.85:1 偏低，加深一档（kb-folder 家族同款先例，4.6:1） */
+    :global(html[data-theme-mode="light"]) .pa-row__hit,
+    :global(html[data-theme-mode="light"]) .pa-count {
+        color: #6f7377;
+    }
+    .pa-row--cur .pa-row__name {
+        color: var(--b3-theme-primary);
+        font-weight: 600;
+    }
+    .pa-row--cur .pa-row__icon {
+        color: var(--b3-theme-primary);
+    }
+    .pa-row--cur,
+    .pa-row--cur:hover {
+        background: color-mix(in srgb, var(--b3-theme-primary) 8%, transparent);
+    }
+    .pa-empty {
+        padding: 12px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--b3-theme-on-surface-light);
     }
 </style>

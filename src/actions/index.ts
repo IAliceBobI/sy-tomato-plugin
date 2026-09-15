@@ -14,6 +14,7 @@ export interface BallAction {
     display(ball: BallItem): string;
     tooltip(ball: BallItem): string;
     ConfigPanel?: any; // 期5：设置面板类型专属配置区组件
+    toggle?: () => Promise<void>; // fbfeat □1：域级开关入口（doc 型=⌘⇧F8 显示/隐藏悬浮文档）
 }
 
 export const actionRegistry: Record<string, BallAction> = {

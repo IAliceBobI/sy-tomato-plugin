@@ -7,6 +7,7 @@
         floatingballBallList,
         floatingballDocMenu,
         floatingballDocTabMenu,
+        floatingballDocOpenBottom,
         floatingballEnable,
     } from "./libs/stores";
     import {
@@ -392,6 +393,11 @@
                 <input type="checkbox" class="b3-switch" bind:checked={$floatingballDocTabMenu} />
                 {tomatoI18n.menu添加右键菜单}: {FloatingBallTab添加文档.langText()}
                 <HotkeyCap hk={FloatingBallTab添加文档} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <!-- fbfeat □1：速记接着写——文档球打开（tab/对话框/悬浮窗）时光标落文档底部 -->
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$floatingballDocOpenBottom} />
+                {tomatoI18n.悬浮文档打开时跳到底部}
             </div>
             <!-- 列出球绑定（期1 统一列表：文档/快捷键两堆合一）；□7：超限 ⚠️ 挂 .alert 行内块，
                  外层整体条件渲染避免空行占位 -->

@@ -67,6 +67,9 @@ export class FloatingBall {
 
 export const FloatingBall添加文档 = winHotkey("shift+alt+ctrl+f5", "绑定文档到悬浮按钮", "iconPin", () => tomatoI18n.绑定文档到悬浮按钮, false, floatingballDocMenu)
 export const FloatingBallTab添加文档 = winHotkey("shift+alt+h", "FloatingBallTab添加文档", "iconLayout", () => tomatoI18n.绑定文档到Tab, false, floatingballDocTabMenu)
+// fbfeat □1：文档窗开关（与 ⌘⇧F7「显示/隐藏悬浮球」对偶——F7 切球本体/F8 切文档窗；
+// 2026-09-15 现扫 keymap 255 键+四插件声明 ⌘⇧F8 空闲）
+export const FloatingBall显示或隐藏悬浮文档 = winHotkey("⌘⇧F8", "toggleFloatingDoc", "iconEye", () => tomatoI18n.显示或隐藏悬浮文档)
 
 export function linkDoc2floatBall(addDoc_docName: string, addDoc_docIcon: string, addDoc_useDialog: number, docID?: string) {
     if (!addDoc_docName) return;
@@ -170,6 +173,15 @@ export function loadFloatingBall() {
     }
     if (floatingballEnable.get()) {
         {
+            gatedAddCommand(getTomatoPluginInstance(), FloatingBall显示或隐藏悬浮文档.langKey, {
+                langText: FloatingBall显示或隐藏悬浮文档.langText(),
+                hotkey: FloatingBall显示或隐藏悬浮文档.m,
+                callback: () => {
+                    // 语义组装在 docAction.toggle（最近球选择+float 显式关）；经注册表
+                    // 调用防 FloatingBall↔docAction 静态 import 成环（CJS 打包顺序敏感）
+                    void actionRegistry.doc.toggle?.();
+                },
+            });
             gatedAddCommand(getTomatoPluginInstance(), FloatingBallTab添加文档.langKey, {
                 langText: FloatingBallTab添加文档.langText(),
                 hotkey: FloatingBallTab添加文档.m,
@@ -226,9 +238,16 @@ export function loadFloatingBall() {
 }
 
 // 悬浮文档 dialog（float 打开方式实现件；dm 键 protyle#2#<docID> 去重）
-export function getFloatingBallProtyleDialog(ball: BallItem) {
-    const address = `protyle#2#${ball.action?.docID}`
-    const dm = globalThis[FloatingBall.key(address)] as DestroyManager;
+/** float 悬浮窗开态只读探测（toggle 决策用）：活着返回其 dm，不在返回 undefined——
+ *  不像 getFloatingBallProtyleDialog 会顺手建窗 */
+export function getFloatingBallProtyleDialogDM(ball: BallItem): DestroyManager | undefined {
+    return globalThis[FloatingBall.key(`protyle#2#${ball.action?.docID}`)] as DestroyManager | undefined;
+}
+export function getFloatingBallProtyleDialog(ball: BallItem, docID?: string) {
+    // dm 键恒绑 item.docID（稳定性优先：$$dailynote 每天新 id 不进键，跨天 toggle
+    // 探测不漂移）；docID 参数=本次渲染用的解析值（$$dailynote 现建日记等场景）
+    const address = `protyle#2#${ball.action?.docID}`;
+    const dm = getFloatingBallProtyleDialogDM(ball);
     if (dm) {
         return dm;
     } else {
@@ -240,6 +259,7 @@ export function getFloatingBallProtyleDialog(ball: BallItem) {
                     dm,
                     key: FloatingBall.key(address),
                     ball,
+                    docID: docID || ball.action?.docID,
                 }
             });
         }, () => { /* 保留件沿用「树不卸载」现状 */ });

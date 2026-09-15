@@ -2,28 +2,28 @@ import { IProtyle, Plugin } from "siyuan";
 import { events } from "./Events";
 import { BlockNodeEnum, CUSTOM_RIFF_DECKS, DATA_NODE_ID, DATA_TYPE } from "./gconst";
 import { NewNodeID, cloneCleanDiv, count, dom2div, getAttribute, pmap, prepend_refs, siyuan } from "./utils";
+import { mapLimit } from "./miscUtils";
 import { domNewLine, DomSuperBlockBuilder, getSpans } from "./sydom";
 import { DocTracer, OpenSyFile2 } from "./docUtils";
-import { lastVerifyResult } from "./user";
 
 export async function delAllchecked(docID: string) {
     if (!docID) return;
-    const kramdowns = await Promise.all((await siyuan.sql(`select id from blocks 
+    const kramdowns = await mapLimit((await siyuan.sql(`select id from blocks
         where type='i' and subType='t' and root_id="${docID}"
         and (markdown like "* [X] %" or markdown like "- [X] %")
         limit 30000
-    `)).map(b => siyuan.getBlockKramdown(b.id)));
+    `)), 100, b => siyuan.getBlockKramdown(b.id));
     await siyuan.deleteBlocks(kramdowns.map(b => b.id));
     await siyuan.pushMsg(`removed ${kramdowns.length} todos`);
 }
 
 export async function uncheckAll(docID: string) {
     if (!docID) return;
-    const doms = (await Promise.all((await siyuan.sql(`select id from blocks 
+    const doms = (await mapLimit((await siyuan.sql(`select id from blocks
         where type='i' and subType='t' and root_id="${docID}"
         and (markdown like "* [X] %" or markdown like "- [X] %")
         limit 30000
-    `)).map(b => siyuan.getBlockDOM(b.id)))).filter(Boolean);
+    `)), 100, b => siyuan.getBlockDOM(b.id))).filter(Boolean);
     await siyuan.updateBlocks(doms.map(({ id, dom }) => {
         const div = dom2div(dom);
         div.classList.remove("protyle-task--done");
@@ -68,20 +68,11 @@ export async function addFlashCard(protyle: IProtyle, docTracer: DocTracer, plug
     }
 }
 
-let convert2listNotVIPLimit = 3;
 async function convert2list(selected: HTMLElement[], ids: string[], docTracer: DocTracer, plugin: Plugin, addRef: boolean) {
     if (!(selected.length > 0)) return;
 
-    const { spans } = await (async () => {
-        let spans: HTMLElement[] = []
-        if (!lastVerifyResult()) {
-            convert2listNotVIPLimit--;
-        }
-        if (addRef && convert2listNotVIPLimit > 0) {
-            spans = await getSpans(selected, docTracer)
-        }
-        return { spans };
-    })();
+    // 2026-09-15 转免费（C 窗口清零）：带引用的列表转换撤「前 3 次免费」限次
+    const spans = addRef ? await getSpans(selected, docTracer) : [];
 
     const sup = new DomSuperBlockBuilder();
     sup.setAttr("custom-super-card-box", "1")

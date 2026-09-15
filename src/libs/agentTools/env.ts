@@ -1,6 +1,7 @@
 // ToolEnv：工具核心与运行环境之间唯一的水线（A 层同源化，ai-agent □1）。
 // kernel 实现=siyuan.client.fetch + siyuan.storage；前端实现=siyuanApi fetch + plugin.loadData。
 // 两边读写同一份数据（SQL 索引库 / data/storage/petal/<插件>/），故同一工具双门脸结果一致。
+import type { KbChannel } from "../knowledgeChannelCore";
 
 export interface ToolEnv {
   /** 跑一条 SQL 查询（只读面；写操作工具后续期再扩本接口）。
@@ -48,8 +49,6 @@ export interface ToolEnv {
    * 前端实现走文档导出链；kernel 无此通道（canExternalHttp=false 的门脸不会用到）。
    */
   getDocTreeMarkdown(docID: string): Promise<{ id: string; content: string; markdown: string }[]>;
-  /** Coze 配置（token/knowledgeID/appID；空串=未配置） */
-  getCozeConfig(): Promise<{ token: string; knowledgeID: string; appID: string }>;
   /**
    * 写块通道（□6 受控编辑；可选面=能力水线）：只由前端门脸实现（面板确认闸之后）；
    * kernel env 不实现 → edit 工具不装配进 MCP 面，外部 Agent 恒无写权限。
@@ -70,4 +69,11 @@ export interface ToolEnv {
    * 用户 Skill 段自动缺席（MCP 面 skills 保持纯插件手册语义，对外能力面不变）。
    */
   getAgentDocs?(): Promise<{ knowledge: string[]; skills: string[] }>;
+  /**
+   * 知识库通道（knowledgebox □4；可选面=能力水线）：返回配置好的智谱知识库通道，
+   * knowledge_search/knowledge_status 两工具按此装配。async 签名=kernel 侧每次调用
+   * 先刷新 petal 设置缓存（goja 读 storage 异步，而 ZhipuCfg.apiKey() 是同步读缓存）。
+   * 缺此面的门脸 → 两工具不装配（诚实裁剪，同 canExternalHttp 先例）。
+   */
+  getKbChannel?(): Promise<KbChannel>;
 }

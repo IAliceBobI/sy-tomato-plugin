@@ -6,8 +6,8 @@
 // 迁至导出卡①段（EXPORT_CARD_MENU_ITEMS）。
 // 2026-09-08 三期归位收官：末代残留 exportFiles 4 项自通用域「右键菜单管理」卡迁
 // DOCTREE_CARD_MENU_ITEMS（UI 在 ConfDocs 文档树工具卡=开关跟功能走），管理卡与
-// MENU_MANAGE_GROUPS 随之退役删除；「全部显示」兜底钮迁功能仓库域头部（ConfVault，
-// 跨三组常量恢复：EXPORT/ANNO/DOCTREE——含历史被藏项，清空整个隐藏集故照常覆盖）。
+// MENU_MANAGE_GROUPS 随之退役删除；「全部显示」兜底钮现居通用域 ConfGeneral 头部（prefixui
+// □3 自功能仓库迁回；跨三组常量恢复：EXPORT/ANNO/DOCTREE——含历史被藏项，清空整个隐藏集故照常覆盖）。
 // key 与 menuManager.addIfVisible 用的 key 严格一致（winHotkey langKey 或 m.<模块>.<语义>）。
 // 新增菜单项：有开关的进功能主卡，无开关的补对应功能卡常量。
 import { commentBoxMenu } from "./stores";

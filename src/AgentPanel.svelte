@@ -10,7 +10,8 @@
     import { siyuan } from "./libs/utils";
     import { events } from "./libs/Events";
     import { debugLog } from "./libs/logUtils";
-    import { getTomatoPluginInstance, NewConfiguredLute } from "./libs/globals";
+    import { getTomatoPluginInstance } from "./libs/globals";
+    import { renderMD } from "./libs/mdRender";
     import { createFrontendToolEnv } from "./agentToolBridge";
     import { createToolCaller } from "./libs/agentTools";
     import { createPanelOnlyTools, needsHumanReview } from "./libs/agentTools/editTools";
@@ -54,33 +55,6 @@
         streamView = "";
     }
 
-    // ---- markdown 渲染：Lute Md2HTML + 消毒 + hljs（思源自带全局） ----
-    let lute: any = null;
-    function renderMD(md: string): string {
-        if (!lute) lute = NewConfiguredLute() as any;
-        let html = "";
-        try {
-            html = lute.Md2HTML(md) ?? "";
-        } catch {
-            return "";
-        }
-        return sanitizeHTML(html);
-    }
-    /** AI 输出不可全信（虽经 Lute 转义，兜一层）：剥可执行节点/事件属性/js: 协议 */
-    function sanitizeHTML(html: string): string {
-        const doc = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
-        const root = doc.body.firstElementChild!;
-        root.querySelectorAll("script,iframe,object,embed,link,style").forEach(n => n.remove());
-        root.querySelectorAll("*").forEach(el => {
-            for (const attr of [...el.attributes]) {
-                if (/^on/i.test(attr.name)) el.removeAttribute(attr.name);
-                if ((attr.name === "href" || attr.name === "src") && /^\s*javascript:/i.test(attr.value)) {
-                    el.removeAttribute(attr.name);
-                }
-            }
-        });
-        return root.innerHTML;
-    }
 
     // ---- 当前文档跟随（头部指示） ----
     function curDocID(): string {
@@ -336,7 +310,7 @@
         if (knowledgeSec) parts.push(knowledgeSec);
         if (skillSec) parts.push(skillSec);
         parts.push(
-            "你可以调用工具（pomodoro 番茄数据 / search 知识库检索 / skills 工具手册与技能 / coze 知识库问答 / read 读块或文档全文 / edit 修改文档块 / run_js 执行计算）。\n" +
+            "你可以调用工具（pomodoro 番茄数据 / search 知识库检索 / skills 工具手册与技能 / read 读块或文档全文 / edit 修改文档块 / run_js 执行计算）。\n" +
             "首次调用任何工具前，先调 skills 工具拉取使用手册，按手册的参数契约调用；与当前文档无关的问题可直接回答。\n" +
             // agentrev □6 硬约束（□4 记档癖：qwen 被问引用内容时用自有知识猜答不调 read）
             "上文领域知识/当前文档里的 ((id '文字')) 块引用、{: id=\"…\"} 块 id 与 siyuan://blocks/… 链接都不含被引正文。" +

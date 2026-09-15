@@ -3,8 +3,8 @@
 // 「外部 /mcp 调工具」与「内部面板调工具」走同一份代码（ai-agent □1）。
 import { createPomodoroTool } from "./tomatoTools";
 import { createSearchTool } from "./searchTools";
-import { createCozeTool } from "./cozeTools";
 import { createSkillsTool } from "./skillTools";
+import { createKnowledgeTools } from "./knowledgeTools";
 import { wrapHandler, type ToolDefinition, type ToolResponse } from "./common";
 import type { ToolEnv } from "./env";
 
@@ -13,17 +13,18 @@ export { successResponse, errorResponse, objectSchema, wrapHandler } from "./com
 export type { ToolEnv } from "./env";
 export { createPomodoroTool, parseBookIDFromCtime, aggregateFlashcards } from "./tomatoTools";
 export { createSearchTool } from "./searchTools";
-export { createCozeTool, getCozeName } from "./cozeTools";
 export { createSkillsTool, skillsDoc } from "./skillTools";
+export { createKnowledgeTools } from "./knowledgeTools";
 
-/** 装配 tomato 全部工具（pomodoro+search+skills+coze，后续期工具在此追加）。
+/** 装配 tomato 全部工具（pomodoro+search+skills+knowledge，后续期工具在此追加）。
  *  装配点统一再包一层 wrapHandler（双重 wrap 无害）——个别工具忘 wrap 也不漏异常给内核。
- *  coze 依赖外网 HTTP：kernel 门脸（canExternalHttp=false）不装配，外部 /mcp 列表保持干净；
  *  skills 纯静态内联零环境依赖，双门脸恒装配（agentrev □4：前端门脸 env 具 getAgentDocs
- *  → skills 另挂用户 Skill 段；kernel 门脸保持纯手册，MCP 能力面不变）。 */
+ *  → skills 另挂用户 Skill 段；kernel 门脸保持纯手册，MCP 能力面不变）。
+ *  knowledge 工具按 env.getKbChannel 能力面装配（knowledgebox □4：前端=Agent 面板，
+ *  kernel=/mcp 代理转发自足执行；只读面——同步写操作不进工具面）。coze 工具已随
+ *  knowledgebox □3 下架（□2 拍板：智谱首发；通道层=libs/knowledgeChannelCore.ts）。 */
 export function createTomatoTools(env: ToolEnv): ToolDefinition[] {
-    const tools = [createPomodoroTool(env), createSearchTool(env), createSkillsTool(env)];
-  if (env.canExternalHttp) tools.push(createCozeTool(env));
+    const tools = [createPomodoroTool(env), createSearchTool(env), createSkillsTool(env), ...createKnowledgeTools(env)];
   return tools.map(t => ({ ...t, handler: wrapHandler(t.handler) }));
 }
 

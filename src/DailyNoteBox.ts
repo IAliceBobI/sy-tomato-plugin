@@ -16,7 +16,6 @@ import { getTime } from "./NoteBox";
 import { winHotkey } from "./libs/winHotkey";
 import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
-import { lastVerifyResult } from "./libs/user";
 import { debugLog } from "./libs/logUtils";
 
 export const DailyNoteBox上一个日志 = winHotkey("⌥Q", "previousNote", "iconLeft", () => tomatoI18n.上一个日志,)
@@ -302,7 +301,8 @@ class DailyNoteBox {
             if (events.isMobile) {
                 await OpenSyFile2(this.plugin, targetDocID);
             } else {
-                if (dailyNoteGoToBottom.get() === true && lastVerifyResult()) {
+                // 2026-09-15 转免费（C 窗口清零）：跳底属琐碎门，撤 Pro
+                if (dailyNoteGoToBottom.get() === true) {
                     const id = await siyuan.getDocLastID(targetDocID)
                     if (id) {
                         await OpenSyFile2(this.plugin, id);

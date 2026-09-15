@@ -284,7 +284,7 @@ class Events {
         return true;
     }
 
-    async selectedDivs(protyle?: IProtyle) {
+    async selectedDivs(protyle?: IProtyle, opts: { fine?: boolean } = {}) {
         if (!protyle) protyle = this.protyle?.protyle;
         let docName = protyle?.title?.editElement?.textContent;
         if (!docName) {
@@ -293,7 +293,7 @@ class Events {
         const element = protyle?.wysiwyg?.element;
         const docID = protyle?.block?.rootID;
         if (element && docID) {
-            let { selected, ids, rangeText, range, cursorOnly } = this.collectInfo(element);
+            let { selected, ids, rangeText, range, cursorOnly } = this.collectInfo(element, opts.fine);
             return { selected, ids, docID, element, rangeText, range, docName, boxID: protyle.notebookId, cursorOnly };
         } else {
             // 早退补默认字段（review P2-4）：解构 {...selected} 的调用方（seller hotMenuTools 五处）
@@ -302,20 +302,20 @@ class Events {
         }
     }
 
-    selectedDivsSync(protyle?: IProtyle) {
+    selectedDivsSync(protyle?: IProtyle, opts: { fine?: boolean } = {}) {
         if (!protyle) protyle = this.protyle?.protyle;
         let docName = protyle?.title?.editElement?.textContent;
         const element = protyle?.wysiwyg?.element;
         const docID = protyle?.block?.rootID;
         if (element && docID) {
-            let { selected, ids, rangeText, range, cursorOnly } = this.collectInfo(element);
+            let { selected, ids, rangeText, range, cursorOnly } = this.collectInfo(element, opts.fine);
             return { selected, ids, docID, element, rangeText, range, docName, boxID: protyle.notebookId, cursorOnly };
         } else {
             return { selected: [], ids: [], docID: "", element: undefined, rangeText: "", range: undefined, docName, boxID: protyle?.notebookId, cursorOnly: true };
         }
     }
 
-    private collectInfo(element: HTMLDivElement) {
+    private collectInfo(element: HTMLDivElement, fine = false) {
         // □8 期3：三级链委托跨插件共享函数（libs/selection.ts 唯一事实源），此处只剩
         // tomato 侧语义保真映射——共享函数光标级上爬顶层容器是 recite/progressive 顶层流
         // 语义，tomato 消费方（fold 折叠列表项/快速笔记摘块/Tag2Ref 取块文本/PairBar 预填
@@ -323,10 +323,12 @@ class Events {
         // 全空两态（消费方判据「非块选/拖蓝」）；rangeText 走共享函数硬契约（仅拖蓝态，
         // 块选/跨面板的陈旧划词残留不再误当文本——Annotations isSel/划词摘抄消费方更稳）。
         // range 只认活 selection（不引入 toolbar.range 回退链，保持 tomato 现行为）。
+        // fine（fbfeat □5）：摘抄/制卡族经 selectedDivs(protyle, {fine:true}) 透传——
+        // 一二级细粒度拿用户真选的块，tomato 默认消费方不传维持「归容器」原语义。
         const cursorEl = getCursorElement();
         const sel = document.getSelection();
         const live = sel?.rangeCount ? sel.getRangeAt(0) : undefined;
-        const { blocks, level, rangeText, range } = collectSelectedBlocks(element, { range: live, cursorEl });
+        const { blocks, level, rangeText, range } = collectSelectedBlocks(element, { range: live, cursorEl, fine });
         const selected = level === "cursor" && cursorEl && element.contains(cursorEl)
             ? [cursorEl as HTMLElement] : blocks;
         const ids = selected.map(i => i.getAttribute(DATA_NODE_ID));

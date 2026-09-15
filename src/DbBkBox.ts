@@ -361,6 +361,8 @@ class DbBkBox {
                                 const filters: IAVFilter[] = db.av.views?.find(i => i.id == db.av.viewID)?.table?.filters ?? [];
                                 const newFilters = JSON.parse(JSON.stringify(filters)) as IAVFilter[];
                                 const filter = newFilters.find(f => f.column == colID)
+                                // 该列无现存 filter（或值非 mSelect）时无可排除项：静默返回而非 TypeError
+                                if (!filter?.value?.mSelect) return;
                                 filter.value.mSelect = filter.value.mSelect.filter(i => i.content != span.textContent)
                                 const op1 = siyuan.transSetAttrViewFilters(avID, blockID, newFilters);
                                 const op2 = siyuan.transSetAttrViewFilters(avID, blockID, filters);

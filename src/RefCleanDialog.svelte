@@ -1,12 +1,10 @@
 <script lang="ts">
-    // 失效引用清理小窗（vipdoctree □4）：统计行+范围切换（仅本文档/含子文档，检查免费）
+    // 失效引用清理小窗（vipdoctree □4）：统计行+范围切换（仅本文档/含子文档）
     // +勾选列表（类型徽标+锚文本+失效目标尾 6 位）+全选/反选+两动作按钮。
-    // 收费挂法（□4 拍板⑥，呈报可调）：检查/列出免费；转文本/删除执行时 lastVerifyResult
-    // 门（零试用拍板——按钮恒可点，未激活点击弹统一解锁框，徽标仅提示）。
+    // 2026-09-15 转全免费（bear 反馈拍板）：集市同类功能有免费开源竞品，且
+    // 「检查免费、修要钱」是钓鱼式切法——检查/列出/批量动作全免费。
     import { detectInvalidRefs, applyRefClean, type RefCleanItem } from "./RefCleanBox";
-    import { lastVerifyResult, isMe } from "./libs/user";
     import { tomatoI18n } from "./tomatoI18n";
-    import TomatoVIP from "./TomatoVIP.svelte";
     import { siyuan } from "./libs/siyuanApi";
     import { onMount } from "svelte";
 
@@ -27,7 +25,6 @@
     const anchorCount = $derived(items.filter((i) => i.kind === "anchor").length);
     const checkedCount = $derived(items.filter((i) => checked[key(i)]).length);
     const allChecked = $derived(items.length > 0 && checkedCount === items.length);
-    const vip = lastVerifyResult() || isMe();
 
     async function run() {
         if (loading || running) return;
@@ -46,11 +43,6 @@
 
     async function act(mode: "totext" | "remove") {
         if (running || loading || checkedCount === 0) return;
-        if (!lastVerifyResult() && !isMe()) {
-            const { openUnlockDialog } = await import("./unlockDialog");
-            openUnlockDialog({ product: "tomato" });
-            return;
-        }
         running = true;
         message = "";
         let r: { ok: number; fail: number } | null = null;
@@ -134,7 +126,6 @@
             {tomatoI18n.反选}
         </button>
         <span class="fn__flex-1"></span>
-        <TomatoVIP codeValid={vip} />
         <button
             class="b3-button b3-button--outline"
             disabled={loading || running || checkedCount === 0}

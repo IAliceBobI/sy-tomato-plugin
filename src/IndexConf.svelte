@@ -1,5 +1,5 @@
 <script lang="ts">
-    // 设置对话框主壳：付费状态条、搜索栏、左侧 20 域导航、sticky footer 保存条 + 20 个域组件
+    // 设置对话框主壳：付费状态条、搜索栏、左侧 24 域导航、sticky footer 保存条 + 24 个域组件
     // （Conf*.svelte，右侧单域渲染）。共享样式在 ./IndexConf.css（.tomato-settings-dialog 作用域）。
     // 2026-08 重构：原 2628 行大文件按功能域拆出 8 个分区子组件；2026-09-03 设置页重划：
     // □1 双栏壳（左导航+右长滚动）→ □2 域组件拆并——旧 10 个 Conf 退役，域组件
@@ -13,10 +13,12 @@
     // 收折叠垫底区；导航一列不分段、不显式标记翻新状态（旧 navActive id 三枚映射兼容）。
     // 双栏样式挂 .tomato-settings-nav 新作用域类（渐进/recite 根节点同挂 .tomato-settings-dialog，公共类勿动）。
     // 三期收纳（2026-09-08）：AI 问答域退役（ConfAIBox 两卡整卡迁功能仓库域 ConfVault 垫底
-    // ——仓库只收设置入口不降功能，翻新一个拎回主域）；旧 navActive aibox 映射落 vault。
+    // ——仓库只收设置入口不降功能，翻新一个拎回主域）。
     // 其余收纳已落地：杂项 21 项分家（11 项独立杂项域+8 项各回各家+2 项入仓库已收纳命令卡）、
     // exportFiles 四开关归位文档树工具卡（开关跟功能走）、右键菜单管理卡退役（「全部显示」
     // 兜底钮+前缀文档树卡迁功能仓库）。
+    // prefixui □3（2026-09-15）：功能仓库域退役——前缀文档树独立成域（ConfPrefix 占原位）、
+    // 「全部显示」兜底钮迁回通用域、已收纳命令卡迁杂项域。
     import "./IndexConf.css";
     import { onDestroy, onMount, tick } from "svelte";
     import { DestroyManager } from "./libs/destroyer";
@@ -46,8 +48,18 @@
     import ConfCapture from "./ConfCapture.svelte";
     import ConfGeneral from "./ConfGeneral.svelte";
     import ConfMiscDomain from "./ConfMiscDomain.svelte";
-    import ConfVault from "./ConfVault.svelte";
+    // prefixui □3（bear 拍板）：功能仓库域退役——前缀文档树独立成域 ConfPrefix（占 vault 原位）；
+    // 「全部显示」兜底钮迁回通用域、已收纳命令卡迁杂项域
+    import ConfPrefix from "./ConfPrefix.svelte";
     import ConfAgent from "./ConfAgent.svelte";
+    // knowledgebox □9（bear 拍板 A1）：知识库域独立成域——功能卡自 ConfVault、通道卡自
+    // ConfAgent 迁入收敛一处（「同一功能的东西都在一起」）
+    import ConfKnowledge from "./ConfKnowledge.svelte";
+    // confgather（2026-09-15，bear 拍板「裁出去一次干净」）：顶栏工具/日记/块配对工具三域
+    // 新立——配置按功能聚拢（找配置靠浏览不靠搜索），命令开关域族卡与设置域同名对上家
+    import ConfToolbar from "./ConfToolbar.svelte";
+    import ConfDailyNote from "./ConfDailyNote.svelte";
+    import ConfPairTools from "./ConfPairTools.svelte";
     import ConfCommands from "./ConfCommands.svelte";
     // AI 接入（MCP）引导卡（mcpcopy 2026-09-11；09-12 二期迁入导航「AI 接入」独立域渲染）
     import McpPromo from "./McpPromo.svelte";
@@ -70,12 +82,14 @@
     });
     let searchKey = $state("");
     const SearchKeyItemKey = "tomato_settings_SearchKeyItemKey_RfrUm9VLS4GehTzg5ygRrNT";
-    // 导航 20 域（二期 2026-09-05 起；featgate □1 +16 命令开关、punctcfg +打字标点域、
-    // agentrev 2026-09-10 +AI 助手域、uiclean 2026-09-12 +外观域）：上半 9=已翻新大牌（番茄钟/
-    // 批注/反链与引用/可视化/阅读/块编辑/悬浮球/导出工作空间/AI 助手），下半 8=待翻新按受欢迎排
-    // （闪卡/文档管理/编辑器工具/速记/通用/杂项）+ 功能仓库垫底（三期：AI 问答域退役两卡
-    // 迁仓库、杂项 21 项分家 11 项独立成域；仓库只收设置入口，功能照常活，翻新一个拎回主域）；
-    // label 为惰性取值（tomatoI18n 依 window 语言动态切，模板每次渲染现取，勿在模块顶层快照）
+    // 导航 24 域（二期 2026-09-05 起；featgate □1 +16 命令开关、punctcfg +打字标点域、
+    // agentrev 2026-09-10 +AI 助手域、uiclean 2026-09-12 +外观域、knowledgebox □9 2026-09-15
+    // +知识库域、confgather 2026-09-15 +顶栏工具/日记/块配对工具三域、prefixui □3 2026-09-15
+    // 功能仓库退役+前缀文档树独立域〔confgather 24 域中 vault 换 prefix，总数不变〕）：
+    // 上半=已翻新大牌（番茄钟/批注/反链与引用/可视化/阅读点/块编辑/块配对工具/悬浮球/顶栏工具/
+    // 导出工作空间/AI 助手/知识库），下半=待翻新按受欢迎排（闪卡/日记/文档管理/编辑器工具/
+    // 速记/通用/杂项/前缀文档树）；label 为惰性取值（tomatoI18n 依 window 语言动态切，
+    // 模板每次渲染现取，勿在模块顶层快照）
     const NAV_DOMAINS: Array<{ id: string; label: () => string }> = [
         { id: "pomodoro", label: () => tomatoI18n.番茄钟 },
         { id: "anno", label: () => tomatoI18n.批注 },
@@ -84,14 +98,27 @@
         // uiclean（2026-09-12）：第 5 域「外观」——界面净化 6 开关 + 编辑器外观 6 件
         // 自编辑器工具域迁入（视觉类相邻，紧跟可视化）
         { id: "appearance", label: () => tomatoI18n.外观 },
-        { id: "reader", label: () => tomatoI18n.阅读 },
+        // confgather（2026-09-15）：「阅读」更名「阅读点」——域名对齐功能名与命令开关域族名
+        { id: "reader", label: () => tomatoI18n.阅读点 },
         { id: "blockedit", label: () => tomatoI18n.块编辑 },
+        // confgather（2026-09-15）：块配对工具独立成域（做法丁）——整卡自块编辑域裁出，
+        // 命令开关域「互链与引用」+「长内容工具」两族同期合并为「块配对工具」族
+        { id: "pairtools", label: () => tomatoI18n.块配对工具 },
         { id: "floatball", label: () => tomatoI18n.悬浮球 },
+        // confgather（2026-09-15）：顶栏工具独立成域——顶栏钮六行自通用域裁出，
+        // 命令开关域「顶栏工具」族对上家（界面元素相邻，紧跟悬浮球）
+        { id: "toolbar", label: () => tomatoI18n.顶栏工具 },
         { id: "export", label: () => tomatoI18n.导出工作空间域 },
         // agentrev □2（2026-09-10）：AI 助手独立成域（bear ① 自功能仓库迁出三卡+轮数/人审
         // 配置落位）；紧跟已翻新大牌组尾
         { id: "agent", label: () => tomatoI18n.AI助手 },
+        // knowledgebox □9（2026-09-15）：知识库独立成域（bear 拍板 A1——功能卡自功能仓库+
+        // 通道卡自 AI 助手域迁入收敛；「拆域按功能聚合」原则首个落地案例），与 AI 助手作伴
+        { id: "knowledge", label: () => tomatoI18n.知识库 },
         { id: "flashcard", label: () => tomatoI18n.闪卡 },
+        // confgather（2026-09-15）：日记独立成域——DailyNote 卡自文档管理域首裁出，
+        // 命令开关域「日记」族对上家；原居 docs 域首故紧邻其后排位
+        { id: "dailynote", label: () => tomatoI18n.日记 },
         { id: "docs", label: () => tomatoI18n.文档管理 },
         { id: "editortools", label: () => tomatoI18n.编辑器工具 },
         // punctcfg（2026-09-10）：第 17 域「打字标点」——标点整理全家（总开关/速记折叠/
@@ -100,9 +127,11 @@
         { id: "capture", label: () => tomatoI18n.速记 },
         { id: "general", label: () => tomatoI18n.通用 },
         { id: "misc", label: () => tomatoI18n.杂项 },
-        { id: "vault", label: () => tomatoI18n.功能仓库 },
+        // prefixui □3（2026-09-15）：前缀文档树独立成域占功能仓库原位（尾部区，杂项之后）——
+        // 功能仓库域退役（住户三件：兜底钮→通用域/已收纳命令卡→杂项域/前缀文档树卡→本域）
+        { id: "prefix", label: () => tomatoI18n.前缀文档树 },
         // featgate □1（2026-09-10）：第 16 域「命令开关」——commandToggles 逐命令开关
-        // 集中管理（数据驱动自 commandGroups.ts），垫底与功能仓库作伴（管理域非功能域）
+        // 集中管理（数据驱动自 commandGroups.ts），垫底与管理域作伴（管理域非功能域）
         { id: "commands", label: () => tomatoI18n.命令开关 },
         // mcpcopy 二期（2026-09-12）：MCP 引导卡自顶部通栏迁入导航独立域（bear：通栏占空间），
         // 垫底与管理域作伴；卡本体 McpPromo.svelte 不变
@@ -111,15 +140,16 @@
     let navActive = $state("pomodoro");
     const NavKeyItemKey = "tomato_settings_NavKeyItemKey_LE2WBlXRG9LGVH2AA3VwzehW1";
     // 二期存量兼容：一期 9 域 id 与新 id 不同名的三枚映射（其余 6 个旧 id 不变名免映射；
-    // 未命中 some 校验落默认番茄钟的既有兜底保留）；三期补 aibox→vault（AI 问答域退役，
-    // 旧 navActive 落功能仓库）
+    // 未命中 some 校验落默认番茄钟的既有兜底保留）；三期 aibox→vault（AI 问答域退役）；
+    // prefixui □3：功能仓库域退役，vault（含前代 aibox 链）改挂 prefix（域总数不变）
     const LEGACY_NAV_MAP: Record<string, string> = {
         editblock: "blockedit",
         capture: "floatball",
         ai: "anno",
-        aibox: "vault",
+        aibox: "prefix",
+        vault: "prefix",
     };
-    // □3 聚合视图：searchKey 非空=全 19 域聚合渲染，navActive 冻结待清空回位；
+    // □3 聚合视图：searchKey 非空=全 21 域聚合渲染，navActive 冻结待清空回位；
     // navHits=各域是否有命中卡（searchSettings 过滤后从 DOM 回读），驱动导航项高亮
     let navHits: Record<string, boolean> = $state({});
     // 输入沿聚合视图进出跳变跟踪（非响应式：只用于进/出沿触发滚顶，逐键过滤不触发）
@@ -285,7 +315,7 @@
         </nav>
         <div class="tomato-nav-content">
             <!-- 20 域组件渲染抽出 snippet 供两个分支复用（ConfAnno/ConfReader/ConfEditorTools/
-                 ConfAppearance/ConfFloatBall/ConfMiscDomain/ConfVault/ConfAgent/ConfGeneral 无 VIP 门控行不收 codeValid，
+                 ConfAppearance/ConfFloatBall/ConfMiscDomain/ConfPrefix/ConfAgent/ConfGeneral 无 VIP 门控行不收 codeValid，
                  其余域原样；ConfGeneral 杂项分家后无 VIP 行三期起加入此列） -->
             {#snippet domainCards(id: string)}
                 {#if id === "pomodoro"}
@@ -299,17 +329,25 @@
                 {:else if id === "reader"}
                     <ConfReader></ConfReader>
                 {:else if id === "blockedit"}
-                    <ConfBlockEdit {codeValid}></ConfBlockEdit>
+                    <ConfBlockEdit></ConfBlockEdit>
+                {:else if id === "pairtools"}
+                    <ConfPairTools {codeValid}></ConfPairTools>
                 {:else if id === "floatball"}
                     <ConfFloatBall></ConfFloatBall>
+                {:else if id === "toolbar"}
+                    <ConfToolbar></ConfToolbar>
                 {:else if id === "export"}
                     <ConfExport {codeValid}></ConfExport>
                 {:else if id === "agent"}
                     <ConfAgent></ConfAgent>
+                {:else if id === "knowledge"}
+                    <ConfKnowledge></ConfKnowledge>
                 {:else if id === "flashcard"}
                     <ConfFlashcard {codeValid}></ConfFlashcard>
+                {:else if id === "dailynote"}
+                    <ConfDailyNote {codeValid}></ConfDailyNote>
                 {:else if id === "docs"}
-                    <ConfDocs {codeValid}></ConfDocs>
+                    <ConfDocs></ConfDocs>
                 {:else if id === "editortools"}
                     <ConfEditorTools></ConfEditorTools>
                 {:else if id === "appearance"}
@@ -320,8 +358,8 @@
                     <ConfCapture {codeValid}></ConfCapture>
                 {:else if id === "misc"}
                     <ConfMiscDomain></ConfMiscDomain>
-                {:else if id === "vault"}
-                    <ConfVault></ConfVault>
+                {:else if id === "prefix"}
+                    <ConfPrefix></ConfPrefix>
                 {:else if id === "commands"}
                     <ConfCommands></ConfCommands>
                 {:else if id === "mcp"}
@@ -331,7 +369,7 @@
                 {/if}
             {/snippet}
             {#if searchKey}
-                <!-- 聚合视图（□3）：全 19 域同屏+域标题行做域界标，data-domain 供 updateNavHits
+                <!-- 聚合视图（□3）：全 24 域同屏+域标题行做域界标，data-domain 供 updateNavHits
                      回读命中态；searchSettings 深收按域过滤、空域整节隐藏 -->
                 {#each NAV_DOMAINS as d (d.id)}
                     <section class="conf-group" data-domain={d.id}>

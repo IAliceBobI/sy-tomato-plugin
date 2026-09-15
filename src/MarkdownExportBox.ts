@@ -10,7 +10,7 @@ import { getDocBlocks } from "./libs/docUtils";
 import { winHotkey } from "./libs/winHotkey";
 import { gatedAddCommand } from "./libs/cmdGate";
 import { walkAndClean, cleanWalkPolicy, shouldAbortClean, WalkPolicy, NamingCtx, getNamingCtx } from "./libs/exportNaming";
-import { pushUniq, setGlobal } from "stonev5-utils";
+import { pushUniq, setGlobal, getGlobal } from "stonev5-utils";
 
 export const MarkdownExport增量导出 = winHotkey("alt+f6", "增量导出", "", () => tomatoI18n.增量导出)
 export const MarkdownExport确保导出符合配置 = winHotkey("alt+f7", "确保导出符合配置", "", () => tomatoI18n.确保导出符合配置)
@@ -110,6 +110,13 @@ class MarkdownExportBox {
             }
         });
     }
+
+    // onload 的两个 setInterval（自动导出/自动清理）只靠 setGlobal 换柄防重——插件禁用/卸载
+    // 后无人清理会孤儿跑（onload 早退路径也无碍：clearInterval(undefined)=no-op）
+    onunload() {
+        clearInterval(getGlobal("export workspace Handle"));
+        clearInterval(getGlobal("cleanExportedMds 2025-06-13 16:06:30"));
+    }
 }
 
 function ref2lnk(span: HTMLElement) {
@@ -200,6 +207,9 @@ async function parallelExport(docs: Block[], dir: string, ctx: NamingCtx | null 
     const tasks = docs.map(async doc => {
         // ctx 未收录（TTL 窗口内新建/笔记本失联/构建失败）→ 退旧 #id 路径（唯一性恒成立）
         const safePath = ctx?.getExpPath(doc, dir) ?? getExpPath(doc, dir);
+        // hpath/path 缺失（笔记本根行等）算不出路径：跳过而非抛错——抛错会让本 chunk 的
+        // 增量游标（maxUpdated）不前移，之后每 tick 重拉同一批卡死循环
+        if (!safePath) return "";
         await writeDocMd(doc, safePath);
         return doc.content
     });
@@ -343,7 +353,6 @@ async function checkSync(expDir: string, validIDs: Set<string>, ctx: NamingCtx |
         // content 列：图片分支 getDocBlocks 需要（共享 writeDocMd）
         const rows = await siyuan.sql(`select box,id,path,hpath,content,updated from blocks where id in (${ids}) limit 9999999 `)
         for (const row of rows) {
-            sleep(10);
             const path = ctx?.getExpPath(row, expDir) ?? getExpPath(row, expDir)
             if (!path) continue;
             let mtime: Date;
@@ -356,6 +365,8 @@ async function checkSync(expDir: string, validIDs: Set<string>, ctx: NamingCtx |
                     continue;
                 }
             }
+            // 写盘节流（原 sleep(10) 裸调用无 await=零效果，挪到真正要写的行前才生效）
+            await sleep(10);
             await writeDocMd(row, path);
         }
     }

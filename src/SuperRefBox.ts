@@ -55,7 +55,13 @@ class SuperRefBox {
                 const protyle: IProtyle = detail.protyle;
                 return navigator.locks.request("scanDocRefs 2025年8月30日21:21:21", { mode: "exclusive" }, async (lock) => {
                     if (lock) {
-                        await scanRefs(events.getInfo(protyle).docID, true);
+                        const docID = events.getInfo(protyle).docID;
+                        // docID 空（protyle 未挂 block 等）跳过：scanRefs 空参会退化成全库扫
+                        if (!docID) return;
+                        // 事件驱动只补缺快照（force=false）；原 force=true 把每次开/切文档
+                        // 变成该文档全部快照的重写事务（写放大+属性抖动），与手动全局加固
+                        // 的 fill-missing 语义也不一致
+                        await scanRefs(docID, false);
                     }
                 });
             }

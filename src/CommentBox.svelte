@@ -60,8 +60,6 @@
     import { findElementByAttr } from "./libs/listUtils";
     import { zipNways } from "./libs/functional";
     import { events } from "./libs/Events";
-    import { lastVerifyResult } from "./libs/user";
-    import { getGlobal, setGlobal } from "stonev5-utils";
     import { ANNOTATIONS_ATTR } from "./libs/annotationsAttr";
     import { annoTextToHtml } from "./libs/annoKramdown";
     import {
@@ -627,21 +625,9 @@
         }
     });
 
-    function vipLocate(ref: Ref) {
-        if (lastVerifyResult()) {
-            locate(ref.def_block_id);
-        } else {
-            const key = "tomato comment locate limit 2025-06-22 10:41:02";
-            const count = parseInt(getGlobal(key)) || 0;
-            setGlobal(key, (count + 1).toString());
-            if (count < 3) {
-                locate(ref.def_block_id);
-            } else {
-                siyuan.pushMsg(
-                    `${tomatoI18n.vip功能}: ${tomatoI18n.在当前文档中定位}`,
-                );
-            }
-        }
+    // 2026-09-15 转免费（C 窗口清零）：面板定位属琐碎门，原「前 3 次免费」限次一并撤销
+    function locateRef(ref: Ref) {
+        locate(ref.def_block_id);
     }
 </script>
 
@@ -884,7 +870,7 @@
                             aria-label={`${tomatoI18n.vip功能}: ${tomatoI18n.在当前文档中定位}`}
                             onmouseenter={(e) => showPanelTip(e.currentTarget)}
                             onmouseleave={hidePanelTip}
-                            onclick={() => vipLocate(ref)}
+                            onclick={() => locateRef(ref)}
                         >
                             <svg><use xlink:href="#iconVIP"></use></svg>
                         </button>

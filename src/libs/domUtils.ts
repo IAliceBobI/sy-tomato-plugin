@@ -25,6 +25,24 @@ export function closeTabByTitle(tabs: AttrType[], excludeDocID: string) {
     return closed;
 }
 
+/** 按 docID 关页签（$$dailynote 球等「页签标题≠绑定名」场景 closeTab 按标题恒 miss）。
+ *  页签文档 id=tab.model.editor.protyle.block.rootID（model 本体差一层 .editor，直取
+ *  model.protyle 恒 undefined）；走 layout 树递归，Tab.close() 官方通道 */
+export function closeTabByDocID(docID: string) {
+    if (!docID) return false;
+    const walk = (o: any): boolean => {
+        for (const c of o?.children ?? []) {
+            if (c?.model?.editor?.protyle?.block?.rootID === docID) {
+                c.close?.();
+                return true;
+            }
+            if (walk(c)) return true;
+        }
+        return false;
+    };
+    return walk((window as any).siyuan?.layout);
+}
+
 export function getProtyleByDocID(docID: string) {
     return getAllEditor().filter(protyle => protyle.protyle.block.rootID === docID)
 }
@@ -150,6 +168,49 @@ export function blocksUnderRange(container: HTMLElement, range: Range): HTMLElem
     return [...container.children].filter(
         b => b.hasAttribute(gconst.DATA_NODE_ID) && range.intersectsNode(b)
     ) as HTMLElement[];
+}
+
+/** 拖蓝细粒度覆盖块（文档序）：blocksUnderRange 的细粒度版——range 只盖容器一部分时
+    不整锅端容器，下钻到被盖的子块；整盖的块（含整个列表项）整块收以保结构语义；
+    叶子块部分盖=整块收（块级消费方语义）。群反馈 650189（fbfeat □5）：列表/引述块
+    内拖蓝两段，摘抄/制卡应收那两段而非整个容器。opt-in——tomato 顶层流消费方维持
+    「嵌套块归容器」旧语义（blocksUnderRange），仅摘抄/制卡族经 selection.fine 进此通道。 */
+export function fineBlocksUnderRange(container: HTMLElement, range: Range): HTMLElement[] {
+    if (!range || range.collapsed || !container.contains(range.startContainer) || !container.contains(range.endContainer)) return [];
+    // probe 端点须规范化进最深子孙：DOM 边界点全序里 (容器, 子节点数) 恒严格大于
+    // 「块内末文本末位」（拖蓝终点几乎总落在后者），裸 selectNodeContents 比较会把
+    // 「拖到块内容末尾」误判为未整盖（vitest 实锤：整盖列表项碎成裸段落）。
+    const deepest = (n: Node, last: boolean): Node => {
+        let c = n;
+        while (true) {
+            const next = last ? c.lastChild : c.firstChild;
+            if (!next) break;
+            c = next;
+        }
+        return c;
+    };
+    const endOffset = (n: Node) => n.nodeType === 3 ? (n as Text).length : n.childNodes.length;
+    const fullyCovered = (b: Element) => {
+        const r = document.createRange();
+        r.selectNodeContents(b);
+        if (b.firstChild) {
+            r.setStart(deepest(b, false), 0);
+            r.setEnd(deepest(b, true), endOffset(deepest(b, true)));
+        }
+        return range.compareBoundaryPoints(Range.START_TO_START, r) <= 0
+            && range.compareBoundaryPoints(Range.END_TO_END, r) >= 0;
+    };
+    const out: HTMLElement[] = [];
+    const walk = (parent: Element) => {
+        for (const b of parent.children) {
+            if (!(b instanceof HTMLElement) || !b.hasAttribute(gconst.DATA_NODE_ID)) continue;
+            if (!range.intersectsNode(b)) continue;
+            if (fullyCovered(b) || !b.querySelector(`[${gconst.DATA_NODE_ID}]`)) out.push(b);
+            else walk(b);
+        }
+    };
+    walk(container);
+    return out;
 }
 
 /** 词级导线选区有效性（MindWire currentTextRange 提纯，二期 □1 工具条/快捷键通道复用）：

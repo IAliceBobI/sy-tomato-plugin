@@ -7,7 +7,6 @@ import { locateDoc, tidyAssets } from "./libs/docUtils";
 import { toolbarEN2CHBtn, toolbarlocatedoc, toolbarrefreshVr, toolbarspacerepeat, toolbarTidy } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { verifyKeyTomato } from "./libs/user";
 import { winHotkey } from "./libs/winHotkey";
 import { gatedAddCommand } from "./libs/cmdGate";
 import { setGlobal } from "stonev5-utils";
@@ -73,58 +72,61 @@ class ToolbarBox {
             }
         }
 
-        verifyKeyTomato().then(v => {
-            if (v && toolbarEN2CHBtn.get()) {
-                plugin.addTopBar({
-                    icon: addIcon(plugin, "CN"),
-                    title: "        中文",
-                    position: "left",
-                    callback: async () => {
-                        await changeLang("zh_CN");
-                    }
-                })
-                plugin.addTopBar({
-                    icon: addIcon(plugin, "EN"),
-                    title: "        English",
-                    position: "left",
-                    callback: async () => {
-                        await changeLang("en_US");
-                    }
-                })
-                plugin.addTopBar({
-                    icon: addIcon(plugin, "CT"),
-                    title: "        中國臺灣",
-                    position: "left",
-                    callback: async () => {
-                        await changeLang("zh_CHT");
-                    }
-                })
-                plugin.addTopBar({
-                    icon: addIcon(plugin, "JP"),
-                    title: "        日本語",
-                    position: "left",
-                    callback: async () => {
-                        await changeLang("ja_JP");
-                    }
-                })
-                plugin.addTopBar({
-                    icon: addIcon(plugin, "ES"),
-                    title: "        es_ES",
-                    position: "left",
-                    callback: async () => {
-                        await changeLang("es_ES");
-                    }
-                })
-                plugin.addTopBar({
-                    icon: addIcon(plugin, "FR"),
-                    title: "        fr_FR",
-                    position: "left",
-                    callback: async () => {
-                        await changeLang("fr_FR");
-                    }
-                })
-            }
-        });
+        // 语言切换六钮（2026-09-15 转免费，bear 反馈拍板：价值撑不起 Pro，挂门反而稀释含金量）。
+        // 必须传 BCP 47 码（kernel util.LangLegacyToBCP47 权威映射）：内核 setAppearance 对
+        // appearance.lang 原样落盘、只规范顶层 Conf.Lang，而前端 UI 语言匹配只认 BCP——
+        // 传历史码（zh_CN 等）= 内核 code 0 落盘但 reload 后 UI 语言不变（langfix 6810 实锤，
+        // en_US 侥幸能用是前端默认语言恰为 en；zh_CN 回切必卡死）
+        if (toolbarEN2CHBtn.get()) {
+            plugin.addTopBar({
+                icon: addIcon(plugin, "CN"),
+                title: "        中文",
+                position: "left",
+                callback: async () => {
+                    await changeLang("zh-CN");
+                }
+            })
+            plugin.addTopBar({
+                icon: addIcon(plugin, "EN"),
+                title: "        English",
+                position: "left",
+                callback: async () => {
+                    await changeLang("en");
+                }
+            })
+            plugin.addTopBar({
+                icon: addIcon(plugin, "CT"),
+                title: "        中國臺灣",
+                position: "left",
+                callback: async () => {
+                    await changeLang("zh-TW");
+                }
+            })
+            plugin.addTopBar({
+                icon: addIcon(plugin, "JP"),
+                title: "        日本語",
+                position: "left",
+                callback: async () => {
+                    await changeLang("ja");
+                }
+            })
+            plugin.addTopBar({
+                icon: addIcon(plugin, "ES"),
+                title: "        es_ES",
+                position: "left",
+                callback: async () => {
+                    await changeLang("es");
+                }
+            })
+            plugin.addTopBar({
+                icon: addIcon(plugin, "FR"),
+                title: "        fr_FR",
+                position: "left",
+                callback: async () => {
+                    await changeLang("fr");
+                }
+            })
+        }
 
         // featgate □1 试点：四命令迁 gatedAddCommand（commandToggles 逐条关=命令面板项+
         // 快捷键齐不注册；族总开关仍管顶栏钮注册，两层开关语义独立）
@@ -209,7 +211,9 @@ async function _showCardNumber(e: HTMLElement) {
 
 async function changeLang(lang: string) {
     const c = await siyuan.getConf();
-    // TLang 在 siyuan@1.2.x 只剩 BCP 47 码；内核 util.LangToBCP47 仍接受 zh_CN 等历史码，行为不变
+    // lang 必须是 BCP 47 码（调用点注释有实锤详情）：内核 setAppearance 把 appearance.lang
+    // 原样落盘且只规范顶层 Conf.Lang，前端 UI 语言匹配不认历史码——传 zh_CN 等=落盘成功
+    // 但 reload 后 UI 不变（09-15 langfix 6810 实锤，en_US 侥幸能用纯属前端默认语言巧合）
     c.conf.appearance.lang = lang as Config.TLang;
     await siyuan.setAppearance(c.conf.appearance);
     // 换的是内核 appearance.lang（思源本体 UI 语言），插件级 reloadSelfPlugin 刷不动

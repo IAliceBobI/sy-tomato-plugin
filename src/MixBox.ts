@@ -14,7 +14,7 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
 import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
-import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
+import { verifyKeyTomato } from "./libs/user";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -181,7 +181,8 @@ class MixBox {
                 copyTextOnly(protyle);
             },
         });
-        if (storeOpenRefsClick.get() && lastVerifyResult()) {
+        // 2026-09-15 转免费（C 窗口清零）：点引用数定位属琐碎门，撤 Pro
+        if (storeOpenRefsClick.get()) {
             events.addListener("storeOpenRefsClick2024-9-12 23:52:01", (eventType, detail) => {
                 if (eventType == EventType.loaded_protyle_static
                     || eventType == EventType.loaded_protyle_dynamic

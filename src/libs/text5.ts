@@ -999,65 +999,8 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "Save search conditions";
         }
     }
-    public get 添加空间ID() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "添加空间ID";
-            case "es_ES":
-                return "Añadir ID de espacio";
-            case "fr_FR":
-                return "Ajouter un ID d'espace";
-            case "ja_JP":
-                return "スペースIDを追加";
-            case "zh_CHT":
-                return "添加空間ID";
-            case "it_IT":
-                return "Aggiungi ID spazio";
 
-            default:
-                return "Add Space ID";
-        }
-    }
 
-    public get 添加知识库ID() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "添加知识库ID";
-            case "es_ES":
-                return "Añadir ID de base de conocimientos";
-            case "fr_FR":
-                return "Ajouter un ID de base de connaissances";
-            case "ja_JP":
-                return "ナレッジベースIDを追加";
-            case "zh_CHT":
-                return "添加知識庫ID";
-            case "it_IT":
-                return "Aggiungi ID knowledge base";
-
-            default:
-                return "Add Knowledge Base ID";
-        }
-    }
-
-    public get 添加令牌() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "添加令牌";
-            case "es_ES":
-                return "Añadir token";
-            case "fr_FR":
-                return "Ajouter un jeton";
-            case "ja_JP":
-                return "トークンを追加";
-            case "zh_CHT":
-                return "添加令牌";
-            case "it_IT":
-                return "Aggiungi token";
-
-            default:
-                return "Add Token";
-        }
-    }
 
     public get 上传当前文档以及所有子文档() {
         switch (this.lang) {

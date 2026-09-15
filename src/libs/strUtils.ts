@@ -380,3 +380,12 @@ export class TabBuilder {
         return this.md.join("\n");
     }
 }
+
+// 导入MD/文本的换行翻倍（□5）：逐行成块（txt 日志语义）只作用围栏外——代码块内 \n
+// 翻倍会击穿原始内容。``` 切分后奇数段=围栏内（配对前提；未配对围栏按奇偶兜底，
+// 与主流渲染器口径一致）。exportFiles.doImportMD 用。
+export function doubleLnOutsideFences(md: string): string {
+    return md.split("```")
+        .map((part, i) => i % 2 == 1 ? part : part.replaceAll("\n", "\n\n"))
+        .join("```");
+}
