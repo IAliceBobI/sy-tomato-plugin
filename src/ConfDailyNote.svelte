@@ -2,7 +2,6 @@
     // 日记域（confgather 2026-09-15，bear 拍板「裁出去一次干净」）：DailyNote 卡整卡自
     // 「文档管理」域域首裁出独立成域——命令开关域「日记」族自此对上家；卡内一行不动
     // （受欢迎待翻新）。共享样式见 IndexConf.css。
-    import TomatoVIP from "./TomatoVIP.svelte";
     import NotebookSelect from "./NotebookSelect.svelte";
     import {
         dailyNoteBoxCheckbox,
@@ -78,7 +77,7 @@
                 class="b3-switch"
                 bind:checked={$dailyNoteGoToBottom}
             />
-            {tomatoI18n.打开DailyNote时总是跳到底部}<TomatoVIP {codeValid}></TomatoVIP>
+            {tomatoI18n.打开DailyNote时总是跳到底部}
         </div>
 
         <div>

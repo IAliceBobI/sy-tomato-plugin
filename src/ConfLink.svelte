@@ -222,7 +222,7 @@
             <input type="checkbox" class="b3-switch" disabled={codeNotValid} class:codeNotValid bind:checked={$spaceRefEnabled} />
             {tomatoI18n.空格转引用}
             <TomatoVIP {codeValid}></TomatoVIP>
-            <ConfHelpIcon token="SpaRefBoxHelpDoc09x3Q1w2E3" />
+            <ConfHelpIcon token="KLVWdKT9qoBGMDxXfi8czVMvnQe" />
         </div>
         {#if $spaceRefEnabled}
             <div>{tomatoI18n.空格转引用说明}</div>
@@ -243,7 +243,7 @@
     <div class="settingBox">
         <div class="section-title">
             {tomatoI18n.引用效果}
-            <ConfHelpIcon token="RefStyleHelpDoc09x3Q1w2E3" />
+            <ConfHelpIcon token="NVApdj8akoobhjxvAiGct4RDnDb" />
         </div>
         <div>{tomatoI18n.引用效果说明}</div>
         <div>
@@ -288,15 +288,13 @@
             <input type="checkbox" class="b3-switch" bind:checked={$storeOpenRefsMenu} />
             {tomatoI18n.menu添加右键菜单}: {MixBox定位所有引用Menu.langText()}<HotkeyCap hk={MixBox定位所有引用Menu} pluginName="sy-tomato-plugin"></HotkeyCap>
         </div>
-        <div class:codeNotValid>
+        <div>
             <input
                 type="checkbox"
                 class="b3-switch"
                 bind:checked={$storeOpenRefsClick}
-                disabled={codeNotValid}
-                class:codeNotValid
             />
-            {tomatoI18n.点击引用数打开所有引用}<TomatoVIP {codeValid}></TomatoVIP>
+            {tomatoI18n.点击引用数打开所有引用}
         </div>
     </div>
     <!-- 失效引用清理（vipdoctree □4 2026-09-13）：2026-09-15 起全免费（bear 反馈拍板，

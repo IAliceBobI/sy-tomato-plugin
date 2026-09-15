@@ -10,8 +10,8 @@
         add_href,
         attrNewLine,
         cleanDivOnly,
-        getAllContentEditableText,
         getBlockDiv,
+        getBlockOwnEditableText,
         getDocLastElement,
         htmlUnescape,
         icon,
@@ -508,7 +508,7 @@
         let id = backLink.blockID;
         if (backLink.parentID) id = backLink.parentID;
         const div = (await getBlockDiv(id)).div;
-        const txt = getAllContentEditableText(div);
+        const txt = getBlockOwnEditableText(div);
         if (id && txt) {
             await siyuan.appendBlock(
                 `((${id} '${txt}'))\n${attrNewLine()}\n${attrNewLine()}`,
@@ -569,7 +569,7 @@
         let targetID = backLink.blockID;
         if (backLink.parentID) targetID = backLink.parentID;
         const div = (await getBlockDiv(targetID)).div;
-        const txt = getAllContentEditableText(div);
+        const txt = getBlockOwnEditableText(div);
         const id = div.getAttribute(DATA_NODE_ID);
         if (id && txt) {
             const lastID = (

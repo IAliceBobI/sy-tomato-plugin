@@ -1,7 +1,7 @@
 import { IProtyle, Lute } from "siyuan";
 import { EventType, events } from "./libs/Events";
 import { BlockNodeEnum, DATA_NODE_ID, DATA_TYPE, SPACE } from "./libs/gconst";
-import { getAllContentEditableText, NewLute, siyuan, } from "./libs/utils";
+import { getBlockOwnEditableText, NewLute, siyuan, } from "./libs/utils";
 import { createRefDoc } from "./libs/docUtils";
 import { tag2RefBoxCheckbox, tag2RefSearchLnk, tag2RefSearchRef } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
@@ -119,7 +119,7 @@ class Tag2RefBox {
             if (rangeText) {
                 selectedText = rangeText;
             } else {
-                selectedText = getAllContentEditableText(selected[0]);
+                selectedText = getBlockOwnEditableText(selected[0]);
             }
             siyuan.pushMsg("fuzzy search: " + selectedText)
             if (selectedText) {

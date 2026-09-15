@@ -70,7 +70,7 @@ class LinkBox {
         //     .reduce((all, i) => all && i === gconst.BlockNodeEnum.NODE_PARAGRAPH, true)
         if (selected.length > 0 /*&& allp*/) {
             this.selectedDivs = selected;
-            const txt = utils.getAllContentEditableText(this.selectedDivs[0]);
+            const txt = utils.getBlockOwnEditableText(this.selectedDivs[0]);
             await siyuan.pushMsg(`【${tomatoI18n.双向互链}】selected：${txt}`);
         } else {
             this.selectedDivs = [];

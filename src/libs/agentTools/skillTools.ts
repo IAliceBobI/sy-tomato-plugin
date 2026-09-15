@@ -1,5 +1,5 @@
 // skills 工具（A 层，□4）：把插件工具使用文档（SKILL.md）作为工具暴露给 AI 按需拉取，
-// 减少试错轮次=省 token（tasknote get_siyuan_skills 同模式）。文档编译期内联（?raw）——
+// 减少试错轮次=省 token（开源任务管理插件 get_siyuan_skills 同模式）。文档编译期内联（?raw）——
 // kernel goja 读不了插件包文件，内联=双门脸同源零运行时 IO；包内 skills/ 文件由
 // vite-static-copy 同步分发（静态可见性，用户/浏览器可直接读）。
 // 文档事实源=src/agentSkills/SKILL.md，改文档只改它。

@@ -10239,6 +10239,15 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 写作书不进阅读轮转() {
+        switch (this.lang) {
+            case "zh_CN": return "暂无可轮转的阅读书；写作书的素材与槽位请点旁边的写作火苗（青色）";
+            case "zh_CHT": return "暫無可輪轉的閱讀書；寫作書的素材與槽位請點旁邊的寫作火苗（青色）";
+            case "en_US":
+            default: return "No reading books to serve; for writing materials and slots, click the writing flame (teal) beside";
+        }
+    }
+
     public get 手动分片模式说明() {
         switch (this.lang) {
             case "zh_CN": return "已开启手动分片：不自动切分，阅读时用浮条摘抄，每次摘抄即一片";

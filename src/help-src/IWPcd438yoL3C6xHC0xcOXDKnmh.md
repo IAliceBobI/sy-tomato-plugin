@@ -17,8 +17,8 @@
 - [底部反链](https://my.feishu.cn/docx/SVELdPHKYoGMj1xkmF3cIPg3nZd)
 - [双向互链](https://my.feishu.cn/docx/DmGUdmtacol9ANxy0Encl1ownfP)
 - [文本转引用](https://my.feishu.cn/docx/OikodVWC1oJK16xUfm9cmpfAnQd)
-- [空格转引用](https://my.feishu.cn/docx/SpaRefBoxHelpDoc09x3Q1w2E3)
-- [引用样式](https://my.feishu.cn/docx/RefStyleHelpDoc09x3Q1w2E3)
+- [空格转引用](https://my.feishu.cn/docx/KLVWdKT9qoBGMDxXfi8czVMvnQe)
+- [引用样式](https://my.feishu.cn/docx/NVApdj8akoobhjxvAiGct4RDnDb)
 - [引用修复工具](https://my.feishu.cn/docx/WTgxdUINHoYXHbxmU87cxs5knfd)
 - [数据库反链](https://my.feishu.cn/docx/W4WxdA0Bzo0O7UxwHFFcAHUUnSd)
 
@@ -52,7 +52,7 @@
 
 - [文档树工具](https://my.feishu.cn/docx/NXSPd81W4oxUJrxW2XsctewUn5g)
 - [DailyNote工具](https://my.feishu.cn/docx/MuXadWNNEoSsuExVj7dcZcY1nJb)
-- [日记回顾](https://my.feishu.cn/docx/DailyReviewHelpDoc09x3Q1w2E3)
+- [日记回顾](https://my.feishu.cn/docx/Gy14dSYTmo0xiCxDwnDcz29VniP)
 - [前缀文档树](https://my.feishu.cn/docx/WD3Nd8WCxozzE4xXIJucpFBPn9a)
 
 **🍅 编辑器工具**
@@ -73,6 +73,8 @@
 **🍅 更多与高级**
 
 - [杂项](https://my.feishu.cn/docx/Yw4UdhdaTo25dhxtiPUcPnNzn3c)
+- [AI 助手](https://my.feishu.cn/docx/Pg1nd5hwWoCSsqxva3AczmEankc)
+- [知识库](https://my.feishu.cn/docx/U4iXdLubLoVxo9xDYAfcyL88ngh)
 - [人工智能（流式 stream）](https://my.feishu.cn/docx/Kbuvd9lbhoDWTCxggz9cxQgJnAH)
 - [JS脚本集合](https://my.feishu.cn/docx/L9pEdXjdOoqTd7xk6gscRcFFnYe)
 

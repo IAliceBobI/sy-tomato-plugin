@@ -311,6 +311,27 @@ export function getAllContentEditableText(element: Element, join = "\n") {
     return getAllText([element], join);
 }
 
+/** 块自己的正文容器文本（断句/摘抄断句取文专用）：只认块的直接 [contenteditable]
+ *  子层中「无 class」的正文容器。思源正文层恒为无 class 的 <div contenteditable
+ *  spellcheck>，而官方 protyle-attr 与第三方插件注入的只读标注容器（如 enhance 块
+ *  时间 enProtyleAttrContainer）恒带 class——不枚举类名、以结构特征分界（2026-09-15
+ *  鸟反馈：断句把外来插件标注当正文拆出垃圾句）。⚠️不能只认 "true"：只读模式下
+ *  正文层也是 false；摘抄克隆体经 cleanDivOnly 已把块内 false 统一翻 true（class
+ *  不受影响）。判据失配（无 class 直子不存在）时退回 getAllContentEditableText
+ *  老行为——宁混入不漏取。 */
+export function getBlockOwnEditableText(element: Element, join = "\n") {
+    if (!element) return "";
+    const bodies: string[] = [];
+    for (const child of Array.from(element.children)) {
+        if (child.hasAttribute(gconst.CONTENT_EDITABLE) && child.classList.length === 0) {
+            const t = child.textContent ?? "";
+            if (t) bodies.push(t);
+        }
+    }
+    if (bodies.length === 0) return getAllContentEditableText(element, join);
+    return cleanText(bodies.join(join));
+}
+
 export function getContenteditableElement(element: Element) {
     if (!element) return element;
     const ed = element.getAttribute(gconst.CONTENT_EDITABLE);
