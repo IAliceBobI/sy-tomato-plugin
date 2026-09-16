@@ -41,6 +41,9 @@ function scopeSubquery(docID: string, tree: boolean): string {
 
 /** markdown 内锚点 URL 全局提取（? 参数被捕获组边界天然排除；;;; 围栏不影响） */
 const ANCHOR_RE = /siyuan:\/\/blocks\/([0-9]{14}-[a-z0-9]+)/g;
+/** span 锚形态的 data-type 词边界匹配（anno2 □8）：加粗锚是复合词表（如 "strong a"，
+ *  第四词表坑——精确匹配漏提取/漏手术）；\b 保证匹配词 a（"a-b"/"tag" 不误中） */
+const SPAN_A_TYPE = `[^"]*\\ba(?: [^"]*)?`;
 /** 空 id 失效引用形态（目标先删后插入/粘贴场景，内核 Lute 渲染把 id 段置空：
  *  `(( '文本'))`——有效引用恒有 id 不会误伤；e2e 09-13 实锤）。完整闭合形态：
  *  LIKE 候选捞取与复核判据共用（挡代码块字面文本误报） */
@@ -91,7 +94,7 @@ export async function detectInvalidRefs(docID: string, tree: boolean): Promise<R
         const missing = await missingIDs(allIDs);
         // 锚点内文本提取（展示用）：按 defID 提取首个 span/链接形态的文本组
         const anchorText = (md: string, defID: string): string => {
-            let m = md.match(new RegExp(`<span data-type="a" data-href="siyuan://blocks/${defID}(?:\\?[^"]*)?">([^<]*)</span>`));
+            let m = md.match(new RegExp(`<span data-type="${SPAN_A_TYPE}" data-href="siyuan://blocks/${defID}(?:\\?[^"]*)?">([^<]*)</span>`));
             if (m) return m[1];
             m = md.match(new RegExp(`\\[([^\\]]*)\\]\\(siyuan://blocks/${defID}(?:\\?[^)]*)?\\)`));
             return m ? m[1] : "";
@@ -150,7 +153,7 @@ function replaceInvalid(md: string, it: RefCleanItem, mode: "totext" | "remove")
     const keep = mode === "totext";
     // 顺序敏感：先具体 span/链接形态，后裸 ((id))——防宽形态先吞窄形态的文本组
     const pats: RegExp[] = [
-        new RegExp(`<span data-type="a" data-href="siyuan://blocks/${id}(?:\\?[^"]*)?">([^<]*)</span>`),
+        new RegExp(`<span data-type="${SPAN_A_TYPE}" data-href="siyuan://blocks/${id}(?:\\?[^"]*)?">([^<]*)</span>`),
         new RegExp(`\\[([^\\]]*)\\]\\(siyuan://blocks/${id}(?:\\?[^)]*)?\\)`),
         new RegExp(`<span data-type="block-ref" data-id="${id}">([^<]*)</span>`),
         new RegExp(`\\(\\(${id} '((?:[^']|\\\\')*)'\\)\\)`),

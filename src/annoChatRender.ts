@@ -10,6 +10,9 @@ import { debugLog } from "./libs/logUtils";
 import { tomatoI18n } from "./tomatoI18n";
 import { agentIconSymbolID } from "./agentIcon";
 import { ANNO_CHAT_BLOCK_TYPE, parseAnnoChatContent, renderNoteLines, type AnnoChatBlockMsg } from "./libs/annoChatBlock";
+import { inlineHtml, stripAllAnnoLinks } from "./libs/annoKramdown";
+import { cardHostName } from "./libs/cardNav";
+import { fillSourceRow } from "./libs/sourceQuery";
 
 /** 最小注册面接口（siyuan 1.2.5 类型声明无 customBlockRenders，结构化窄化避免 as any 满天飞） */
 export interface CustomBlockPlugin {
@@ -38,6 +41,23 @@ export function registerAnnoChatRender(plugin: CustomBlockPlugin): void {
 /** 宿主块 id：content 元素自身不带，上爬最近 [data-node-id]（探针同款判法） */
 function blockIdOf(element: HTMLElement): string {
     return element.closest("[data-node-id]")?.getAttribute("data-node-id") ?? "";
+}
+
+/** 摘录现查回填：宿主块 kramdown 剥 IAL 尾行+批注锚点链接；查空/孤儿/渲染宿主已换=静默保持
+ *  hidden；折叠溢出检测须挂载后测（rAF，rp excerpt 同款） */
+async function fillExcerpt(body: HTMLElement, hostID: string, more: HTMLButtonElement): Promise<void> {
+    let text = "";
+    try {
+        const kd = (await siyuan.getBlockKramdown(hostID) as { kramdown?: string })?.kramdown ?? "";
+        text = stripAllAnnoLinks(kd.replace(/\n\{:[^\n]*\}\s*$/, "")).trim();
+    } catch { /* 取数失败=摘录缺席，卡面其余照常 */ }
+    // ZWSP 空段判空（String.trim 剥不掉 \u200b，空块会渲染「看似空白的摘录框」）
+    if (!text.replace(/[\s\u200b]/g, "") || !body.isConnected) return;
+    body.textContent = text;
+    body.hidden = false;
+    requestAnimationFrame(() => {
+        if (body.scrollHeight > body.clientHeight + 4) more.hidden = false;
+    });
 }
 
 function renderCard(element: HTMLElement, content: string): void {
@@ -75,6 +95,34 @@ function renderCard(element: HTMLElement, content: string): void {
     head.append(icon, title, meta, mkBtn);
     card.append(head);
 
+    // ---- □8 来源行+原文摘录：仅复习界面宿主（编辑器宿主卡就在原文下方，重复是噪音；rp 同构）。
+    // 来源行=hostID 现查回填（存量卡零迁移、改名跟最新、孤儿静默）；摘录=host 块 kramdown 剥
+    // IAL 尾行+全部批注锚点链接（标记是 UI 非内容），超长 CSS 折叠
+    if (cardHostName(element) === "review") {
+        const source = document.createElement("div");
+        source.className = "tomato-annochat-card__source";
+        source.hidden = true; // 现查到才显，空行不占高
+        card.append(source);
+        void fillSourceRow(source, data.hostID);
+
+        const excerptWrap = document.createElement("div");
+        excerptWrap.className = "tomato-annochat-card__excerpt";
+        excerptWrap.hidden = true; // 现查到文本才显
+        const more = document.createElement("button");
+        more.className = "tomato-annochat-card__more";
+        more.hidden = true; // 溢出检测通过才显
+        const moreLabel = document.createElement("span");
+        moreLabel.textContent = tomatoI18n.展开全文;
+        more.append(moreLabel);
+        more.addEventListener("click", () => {
+            const open = !excerptWrap.classList.contains("is-open");
+            excerptWrap.classList.toggle("is-open", open);
+            moreLabel.textContent = open ? tomatoI18n.收起 : tomatoI18n.展开全文;
+        });
+        card.append(excerptWrap, more);
+        void fillExcerpt(excerptWrap, data.hostID, more);
+    }
+
     // ---- 笔记层（无 Pro 档=纯讨论档案卡，缺省不渲染）----
     if (data.note) {
         const note = document.createElement("div");
@@ -82,7 +130,8 @@ function renderCard(element: HTMLElement, content: string): void {
         for (const line of renderNoteLines(data.note)) {
             const el = document.createElement(line.type === "li" ? "div" : line.type === "p" ? "div" : "span");
             el.className = `tomato-annochat-card__n-${line.type}`;
-            el.textContent = line.text ?? "";
+            // 行内 md 渲染（陆杰 09-16 反馈：`**` 星号字面显示）——inlineHtml 先转义后插标签，勿 innerHTML 裸灌原文
+            el.innerHTML = inlineHtml(line.text ?? "");
             note.append(el);
         }
         card.append(note);
@@ -105,7 +154,8 @@ function renderCard(element: HTMLElement, content: string): void {
         }
         const text = document.createElement("div");
         text.className = "tomato-annochat-card__mtext";
-        text.textContent = m.content;
+        // 行内 md 渲染（与气泡观感对齐）；__m 的 pre-wrap 保 \n 换行，标签逐行不跨行
+        text.innerHTML = inlineHtml(m.content);
         wrap.append(text);
         msgsBox.append(wrap);
         prev = m;

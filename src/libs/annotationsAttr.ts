@@ -12,17 +12,28 @@ import { newID } from "stonev5-utils";
 export const ANNOTATIONS_ATTR = "custom-tomato-annotations";
 export const ANNO_HREF_PREFIX = "#tomato-anno-";
 export const ANNO_TEXT_SOFT_LIMIT = 2000;
+/** □9 评论式追加软限（信号不拦截，对齐主文 2000 软限哲学）：单条 500 字 + 每批注 20 条 */
+export const ANNO_REPLY_TEXT_SOFT_LIMIT = 500;
+export const ANNO_REPLY_MAX_COUNT = 20;
+
+/** □9 追加条目：思考路径时间线的一格（主 text=首条正文语义、主 time 不被追加刷新） */
+export interface AnnoReply {
+    text: string;
+    time: number;
+}
 
 export interface TomatoAnnotation {
     id: string;
     /** 批注正文（kramdown，草稿块剥壳产物） */
     text: string;
     /** 最后修改时间（ms）：创建时=创建时刻，编辑保存链显式传新值刷新；
-     *  update 不隐式刷新，要刷显式传 patch.time */
+     *  update 不隐式刷新，要刷显式传 patch.time；追加（appendReply）不刷新 */
     time: number;
     /** 选区批注才有：被标记的原文快照，仅面板预览辅助 */
     sel?: { txt: string };
     color?: string;
+    /** □9 评论式追加时间线（无=旧形态照跑；sanitize 保证要么缺省要么非空净化数组） */
+    replies?: AnnoReply[];
 }
 
 export type AnnotationPatch = { text?: string; color?: string | null; time?: number };
@@ -52,6 +63,20 @@ function sanitize(raw: unknown): TomatoAnnotation | null {
         delete e.sel;
     }
     if (typeof r.color !== "string") delete e.color;
+    // □9 replies 逐条净化：text 非 string/空串丢条、time 宽容 0；清空删键（不留 "[]" 壳）
+    if (Array.isArray(r.replies)) {
+        const rs: AnnoReply[] = [];
+        for (const item of r.replies) {
+            if (typeof item !== "object" || item == null) continue;
+            const it = item as Record<string, unknown>;
+            if (typeof it.text !== "string" || it.text.length === 0) continue;
+            rs.push({ text: it.text, time: typeof it.time === "number" && Number.isFinite(it.time) ? it.time : 0 });
+        }
+        if (rs.length > 0) e.replies = rs;
+        else delete e.replies;
+    } else {
+        delete e.replies;
+    }
     return e;
 }
 
@@ -117,13 +142,37 @@ export function removeAnnotation(attr: string | null | undefined, id: string): s
     return serializeAnnotations(next);
 }
 
+/** □9 评论式追加：目标批注 replies 尾加一条（不动主 text/主 time——按日期归档搬家依据不被
+ *  追加刷新）；条目未命中返回原串（update 同语义）；reply.text 非法直接 throw（写入侧设防）。
+ *  浅拷贝条目+新数组：防跨条目共享 replies 引用被后续序列化互相污染 */
+export function appendReply(attr: string | null | undefined, id: string, reply: AnnoReply): string {
+    if (typeof reply.text !== "string") throw new Error("appendReply: reply.text 必须是 string");
+    let hit = false;
+    const next = parseAnnotations(attr).map((e) => {
+        if (e.id !== id) return e;
+        hit = true;
+        return { ...e, replies: [...(e.replies ?? []), { text: reply.text, time: reply.time }] };
+    });
+    if (!hit) return attr ?? "";
+    return serializeAnnotations(next);
+}
+
 export function findAnnotation(attr: string | null | undefined, id: string): TomatoAnnotation | undefined {
     return parseAnnotations(attr).find((e) => e.id === id);
 }
 
-export function isOverLimit(text: string): boolean {
+function overCodepoints(text: string, limit: number): boolean {
     // 按码点计数：emoji/CJK 扩展 B 是代理对，UTF-16 length 双计会误报
-    return [...text].length > ANNO_TEXT_SOFT_LIMIT;
+    return [...text].length > limit;
+}
+
+export function isOverLimit(text: string): boolean {
+    return overCodepoints(text, ANNO_TEXT_SOFT_LIMIT);
+}
+
+/** □9 单条追加软限（信号不拦截，UI 层 toast 用） */
+export function isReplyOverLimit(text: string): boolean {
+    return overCodepoints(text, ANNO_REPLY_TEXT_SOFT_LIMIT);
 }
 
 export function oversizedIds(list: TomatoAnnotation[]): string[] {

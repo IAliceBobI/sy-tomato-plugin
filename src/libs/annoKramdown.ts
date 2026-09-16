@@ -65,8 +65,9 @@ export function stripAllAnnoLinks(kramdown: string): string {
     return kramdown.replace(new RegExp(`\\[([^\\]]*)\\]\\(${escapeRegExp(ANNO_HREF_PREFIX)}[0-9a-zA-Z-]+\\)`, "g"), "$1");
 }
 
-/** 行内标记（先 escape 后应用；code 占位保护→strong→em→链接；不完整标记保持字面） */
-function inlineHtml(text: string): string {
+/** 行内标记（先 escape 后应用；code 占位保护→strong→em→链接；不完整标记保持字面）。
+ *  导出供 anno-chat 沉淀卡两层消费（笔记层 li/p 文本+讨论层消息体，pre-wrap 下 \n 原样保留换行） */
+export function inlineHtml(text: string): string {
     const s = escapeHtml(text);
     // code 优先且占位保护（reasoning P2-5①）：内容里的 **/链接语法不再被后续正则二次解析成嵌套标签
     const codes: string[] = [];

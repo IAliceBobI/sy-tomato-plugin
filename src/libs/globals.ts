@@ -23,6 +23,9 @@ export function NewConfiguredLute(): Lute {
     lute.SetBlockRef(true);
     lute.SetKramdownIAL(true);
     lute.SetTextMark(true);
+    // sb 超级块解析（官方 setLute 共享单例同款）：不开则 Md2BlockDOM 把 {{{row 落成
+    // 字面段落——收集 sb 卡/围栏全平铺（09-16 anno-round2 □2 实弹 vision 实锤）
+    lute.SetSuperBlock(true);
     return lute as Lute;
 }
 

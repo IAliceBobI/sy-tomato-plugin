@@ -51,6 +51,21 @@ class BlockEditor {
         }, BlockEditor打开编辑器.menu());
     };
 
+    // 块柄右键/块图标菜单通道（gutter.renderMenu 只 emit click-blockicon 不 emit
+    // open-menu-content——3.8.3 内核 gutter/index.ts:1531 实证；09-16 陆杰反馈「添加右键
+    // 菜单：块编辑器」在块右键的插件子菜单不显示，根因=菜单项只挂了内容区通道）。
+    // detail={protyle, blockElements:[nodeElement]}，两通道互斥不双份
+    private blockIconHandler = ({ detail }: any) => {
+        const menu = detail.menu;
+        const els: Element[] = detail.blockElements ?? [];
+        const blockID = els.length ? getAttribute(els[0], DATA_NODE_ID) : "";
+        addIfVisible(menu, BlockEditor打开编辑器.langKey, {
+            label: BlockEditor打开编辑器.langText(),
+            icon: BlockEditor打开编辑器.icon,
+            click: () => this.pinFromMenu(blockID),
+        }, BlockEditor打开编辑器.menu());
+    };
+
     async onload() {
         if (!blockEditorBox.get()) return;
         gatedAddCommand(getTomatoPluginInstance(), BlockEditor打开编辑器.langKey, {
@@ -59,6 +74,7 @@ class BlockEditor {
             callback: () => this.toggleExistence(),
         });
         getTomatoPluginInstance().eventBus.on("open-menu-content", this.menuHandler as any);
+        getTomatoPluginInstance().eventBus.on("click-blockicon", this.blockIconHandler as any);
         this.mountStatusBtn();
         // □5 常驻球：配置开即挂（存在层生命周期从「toggle 后」提前到 onload）；位置=存档位
         if (qeFloatBall.get()) this.spawnBall();
@@ -68,6 +84,7 @@ class BlockEditor {
         // 在场面板/球连存在层一起清；eventBus 监听摘除（防 reload 后双份菜单项，见 menuHandler 注释）；
         // 状态栏钮常驻元素须摘（addStatusBar 只 push 不移除，番茄钟先例）
         getTomatoPluginInstance()?.eventBus?.off?.("open-menu-content", this.menuHandler as any);
+        getTomatoPluginInstance()?.eventBus?.off?.("click-blockicon", this.blockIconHandler as any);
         this.dm?.destroyBy();
         const el = this.statusEl;
         if (!el) return;

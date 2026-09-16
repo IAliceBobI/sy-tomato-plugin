@@ -908,6 +908,18 @@ export const siyuan = {
         }
         return total;
     },
+    // cardpostpone（09-16）：复习作用域交集的笔记本侧全量通道（树版同款分页模式）
+    async getNotebookRiffCardsAll(id: string): Promise<GetCardRetBlock[]> {
+        const total: GetCardRetBlock[] = [];
+        for (let i = 1; ; i++) {
+            const ret = await siyuan.getNotebookRiffCards(id, i);
+            if (!ret?.blocks) break;
+            total.push(...ret.blocks);
+            if (total.length >= ret.total) break;
+            if (i >= ret.pageCount + 3) break;
+        }
+        return total;
+    },
     async getTreeRiffCards(id: string, page: number, pageSize = 10000): Promise<GetCardRet> {
         if (page <= 0) throw Error("页码必须大于等于1")
         return siyuan.call("/api/riff/getTreeRiffCards", { id, page, pageSize });

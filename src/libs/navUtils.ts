@@ -33,8 +33,36 @@ export async function focusSiyuan() {
     }
 }
 
+/** 禁聚焦善后（bear 09-16 森林图反馈推广 t/p/r；project openDocNoFocus 80e8d2e7 同款）：
+ *  思源 3.8.3 原生打开即聚焦——开文档=标题输入框获焦、块定位通道=光标落块（action 不防，
+ *  文件树/?id= 原生通道同形实锤）。openTab 完成后归还键盘焦点+清选区，防误打误改
+ *  （blur 先例=内核 openFile 开 PDF 同款）。双拍兜底：afterOpen 在新页签内容加载
+ *  （onGet 落焦点）之前触发，晚拍 1100ms 覆盖慢加载窗口。OpenSyFile2 全部调用面
+ *  （t 的图谱/复习/批注/日记等、p/r 跨插件导入）经此一处收口。 */
+export function noFocusAfterOpen(afterOpen?: () => void): (model?: any) => void {
+    // model 收域（review P1）：afterOpen 携带本次打开的 Editor model——善后只对
+    // 该 protyle 容器内的焦点/选区出手，防 400/1100ms 窗口内误伤用户自己正编辑的
+    // 其他文档（back 后台打开路径尤其：隐藏页签本无落焦，宽拍纯属打扰）；model 空
+    // （pdf 加载中/跨窗口/asset·custom 页签）=无收域目标，跳过两拍
+    let root: HTMLElement | undefined;
+    return (model?: any) => {
+        root = model?.editor?.protyle?.element;
+        for (const delay of [400, 1100]) {
+            setTimeout(() => {
+                const ae = document.activeElement;
+                if (root && ae instanceof HTMLElement && root.contains(ae)) ae.blur();
+                const sel = window.getSelection();
+                if (root && sel?.rangeCount && sel.anchorNode && root.contains(sel.anchorNode)) sel.removeAllRanges();
+            }, delay);
+        }
+        afterOpen?.();
+    };
+}
+
 /**
- * @param action ["cb-get-context", "cb-get-hl"]（默认；cb-get-focus 已按禁聚焦政策退役）
+ * @param action ["cb-get-context", "cb-get-hl"]（默认；cb-get-focus 已按禁聚焦政策退役；
+ *               09-16 起另织入 noFocusAfterOpen 双拍 blur 善后——action 只管滚动定位，
+ *               归还焦点由善后拍兜底）
  * @param position nop 0, front 1, back 2, right 3, bottom 4, move 5
  * @returns
  */
@@ -94,6 +122,8 @@ export async function OpenSyFile2(
                                 doc: { id: originID, action, zoomIn: false },
                                 position: position as any,
                                 keepCursor,
+                                // peek 1500ms 后复原文档=又一次原生打开，同样吃善后
+                                afterOpen: noFocusAfterOpen(),
                             })
                         }, 1500);
                     }
@@ -106,7 +136,7 @@ export async function OpenSyFile2(
             doc: { id: docID, action, zoomIn: false },
             position: position as any,
             keepCursor,
-            afterOpen,
+            afterOpen: noFocusAfterOpen(afterOpen),
         });
     }
 }

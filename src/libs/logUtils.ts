@@ -33,7 +33,15 @@ function portLabel(): string {
 
 // app：stream label 分流（LinkBox 既有查询用默认 "linkbox"；跨插件复用时传自己的
 // 标识，如 sy-my-plugin Sign 面板传 "sign"，LogQL 按此分流互不混流）
+
+// 网络层熔断（2026-09-16 群反馈实锤）：思源多开第二实例自动落 6807+ 段=isDevPort 误放行，
+// 本机无 Loki 时每条打点一次失败 fetch——红行是浏览器自动打进 console 的（catch 拦不住），
+// 高频打点刷屏 30+ 条。网络层失败（fetch reject=TypeError，仅连接拒绝/DNS 之类）一次即
+// 熔断本会话；HTTP 4xx/2xx 走 then 不触发（Loki 活着的乱序 400 不误杀）。重启插件恢复。
+let lokiDead = false;
+
 export function debugLog(tag: string, msg: string, app: string = "linkbox"): void {
+    if (lokiDead) return;
     if (!isMe() && !isDevInstance()) return;
     const line = `[${tag}] ${msg}`;
     console.debug(`[tomato] ${line}`);
@@ -49,6 +57,6 @@ export function debugLog(tag: string, msg: string, app: string = "linkbox"): voi
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body,
-        }).catch(() => { });
+        }).catch(() => { lokiDead = true; });
     } catch { /* 静默 */ }
 }

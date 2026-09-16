@@ -1,15 +1,18 @@
 // 批注收集（2026-09-02 spec docs/tomato-anno-collect-design.md）：纯函数层——
 // 幂等键/子树前缀/片段裁剪/引用行/节装配/同日替换边界定位。零 UI/零 siyuan 依赖，
 // tests/unit/annoCollect.test.ts 锁定契约。取数与执行编排在文件下半段。
-import { parseAnnotations } from "./annotationsAttr";
+import { parseAnnotations, type TomatoAnnotation } from "./annotationsAttr";
+import { stripAllAnnoLinks } from "./annoKramdown";
+import { clipAnnoNoteAnchor } from "./annoNoteBlock";
 import type { AnnoPanelItem } from "./annoPanelList";
+import { fmtAnnoTime, mapLimit } from "./annoPanelList";
 import { siyuan } from "./utils";
 import { NewConfiguredLute } from "./globals";
 import { lastVerifyResult, isMe } from "./user";
 import { resolveDailyNotebookID } from "./annoDraft";
 import { events } from "./Events";
 import { tomatoI18n } from "../tomatoI18n";
-import { annoCollectScope, annoCollectDest, annoCollectTargetDoc, commentBoxAnnoDraftNotebook } from "./stores";
+import { annoCollectScope, annoCollectDest, annoCollectTargetDoc, annoCollectAnchor, annoCollectColor, commentBoxAnnoDraftNotebook } from "./stores";
 import { debugLog } from "./logUtils";
 // openUnlockDialog 走动态 import：unlockDialog → UnlockDialog.svelte 链会把 svelte 组件
 // 卷进本模块，单测（node 环境无 svelte 插件）suite 级挂掉；CJS 打包动态导入被内联无副作用
@@ -64,17 +67,104 @@ export function subtreePrefix(path: string): string {
     return path.slice(0, -3) + "/";
 }
 
-/** 片段：按码点截 limit 加 …，文本内 " 转义 \"（块引用锚文本语法要求）；
- *  换行折叠为空格——跨块批注 sel.txt 与容器块 content 天然含 \n，锚文本是行内语法 */
-export function clipSnippet(txt: string, limit = 100): string {
+/** 片段折叠（纯划线列表行用）：按码点截 limit 加 …，换行折叠为空格——列表项内引述单行
+ *  保结构；引号不转义（旧锚文本通道 `((id "…"))` 才要求，引述块纯文本原样即可） */
+export function clipFlatText(txt: string, limit = 100): string {
     const flat = txt.replace(/\s*(?:\r\n|\r|\n)+\s*/g, " ").trim();
     const cps = [...flat];
-    const cut = cps.length > limit ? cps.slice(0, limit).join("") + "…" : flat;
-    return cut.replaceAll('"', '\\"');
+    return cps.length > limit ? cps.slice(0, limit).join("") + "…" : flat;
 }
 
-export function refLineMarkdown(hostID: string, snippet: string): string {
-    return `> ((${hostID} "${snippet}"))`;
+// ---------------- 陆杰 09-16 排版改造：sb 卡 + 纯划线列表 + 锚/颜色双开关 ----------------
+// 形态契约（6811 实测 insertBlock markdown 通道四形态全落）：
+// - 纵向 sb：`{{{row … }}}\n{: custom-tomato-anno-collected="annoID"}` → sb 块(type=s)+custom 落 sb
+// - 引述多段：`> 段1\n>\n> 段2` → 单引述块多段；段间 `>` 空前缀行防拆两块
+// - 尾锚：`((hostID "*"))` → 块引用文本锚（锚文本单 * 官方引用样式渲染，点击跳回原文；
+//   思源无上标块引用形态，`*` 字面前缀会渲染成杂散双星号——vision 09-16 实锤）
+// - 色号：`==文字=={: style="background-color: var(--b3-font-backgroundN);"}` → 官方 mark 行内 IAL
+
+/** sb 内 custom 属性名（收集产物逐批注定位用；sb 挂卡等后续消费方的锚点） */
+export const ANNO_COLLECTED_ATTR = "custom-tomato-anno-collected";
+
+/** 官方 mark 色变量提取（颜色同步开关 ON 用）：宿主块 kramdown（getBlockKramdown 实测=
+ *  IAL 后缀形态 `==[文本](#anchor)=={: style="background-color: var(--b3-font-backgroundN);"}`）
+ *  中批注锚所处 mark 区间的色变量名（思源划线色板官方通道，明暗主题自适应）。
+ *  邻域配对防串色：kramdown 块内容整块单行，行级粒度会取到同块其它划线的色（陆杰
+ *  红=问题/蓝=实践体系下取错色=语义错乱）——开标记==须在锚前、闭合后缀在锚后、
+ *  区间内恰一对 ==。锚不处于任何 mark 区间 → null = 该条导出无色。 */
+export function markVarOfAnchor(kramdown: string, annoID: string): string | null {
+    const idx = kramdown.indexOf(`#tomato-anno-${annoID}`);
+    if (idx < 0) return null;
+    const m = kramdown.slice(idx).match(/==\{: style="background-color: var\((--b3-font-background\d+)\);"\}/);
+    if (!m || m.index === undefined) return null;
+    const closeAt = idx + m.index;
+    const openAt = kramdown.slice(0, idx).lastIndexOf("==");
+    if (openAt < 0) return null;
+    // 区间恰一对 ==（开+闭）：夹更多 = 闭合属于嵌套/相邻 mark，非包裹本锚
+    const between = kramdown.slice(openAt, closeAt + 2);
+    if ((between.match(/==/g) ?? []).length !== 2) return null;
+    return m[1];
+}
+
+/** 引文 mark 包裹：写通道=行内 span 形态（Md2BlockDOM 实测认 span 不认 ==…=={: style} IAL
+ *  后缀——后者是 getBlockKramdown 的输出形态，解析方向不回灌；读通道见 markVarOfAnchor） */
+function markWrap(text: string, markVar: string | undefined): string {
+    return markVar ? `<span data-type="mark" style="background-color: var(${markVar});">${text}</span>` : text;
+}
+
+/** 引述块文案（保形多段）：整条 500 码点截断对齐 anno-note 锚快照语义（防巨块收集膨胀）；
+ *  空白段剔陬、段间 `>` 空前缀行保持单引述块多段；末段行尾接上标锚（开关一） */
+function quoteBlockMarkdown(raw: string, markVar: string | undefined, anchorTail: string): string {
+    const clipped = clipAnnoNoteAnchor(raw);
+    const paras = clipped.split("\n").map((l) => l.trim()).filter((l) => l !== "");
+    if (paras.length === 0) return "";
+    return paras
+        .map((p, i) => {
+            const tail = i === paras.length - 1 ? anchorTail : "";
+            return `> ${markWrap(p, markVar)}${tail}`;
+        })
+        .join("\n>\n");
+}
+
+/** sectionBlocks 装配选项（陆杰 09-16 排版改造） */
+export interface SectionOpts {
+    tree: boolean;
+    /** 引述末尾跳回原文锚（开关一；OFF 省略 ((hostID "*")) 尾锚） */
+    anchor: boolean;
+    /** annoID → 宿主反查信息（开关二；markVar=划线色变量（缺=无色），quoteText=宿主
+     *  kramdown 净化文本（块级批注无 sel 时的引文源——blockContent 列是残缺简写形态，
+     *  锚 href/mark 半标记裸露，实弹 09-16 实锤不可直用） */
+    hostInfo?: Map<string, { markVar?: string; quoteText?: string }>;
+}
+
+/** 条目引文来源：选区快照优先；块级批注用宿主 kramdown 净化文本；末退块内容 */
+function itemQuoteText(it: { blockContent: string; entry: TomatoAnnotation }, hostInfo?: SectionOpts["hostInfo"]): string {
+    if (it.entry.sel?.txt) return it.entry.sel.txt;
+    const q = hostInfo?.get(it.entry.id)?.quoteText;
+    if (q) return q;
+    return it.blockContent;
+}
+
+/** 有想法的批注 → 纵向 sb 卡：想法段（kramdown 原样可多段）+ 追加行时间线 + 原文引述块 */
+function annoSbMarkdown(it: { hostID: string; blockContent: string; entry: TomatoAnnotation }, opts: SectionOpts): string {
+    const parts: string[] = [it.entry.text];
+    for (const r of it.entry.replies ?? []) parts.push(`${fmtAnnoTime(r.time)} ${r.text}`);
+    const anchorTail = opts.anchor ? ` ((${it.hostID} "*"))` : "";
+    const quote = quoteBlockMarkdown(itemQuoteText(it, opts.hostInfo), opts.hostInfo?.get(it.entry.id)?.markVar, anchorTail);
+    if (quote) parts.push(quote);
+    return `{{{row\n${parts.join("\n\n")}\n}}}\n{: ${ANNO_COLLECTED_ATTR}="${it.entry.id}"}`;
+}
+
+/** 纯划线（无想法）条目 → 无序列表行：`- > 引文`；整组聚合一个列表块（陆杰「逐条」） */
+function plainListItems(items: { hostID: string; blockContent: string; entry: TomatoAnnotation }[], opts: SectionOpts): string | null {
+    const lines: string[] = [];
+    for (const it of items) {
+        const snippet = clipFlatText(itemQuoteText(it, opts.hostInfo));
+        if (!snippet) continue;
+        const anchorTail = opts.anchor ? ` ((${it.hostID} "*"))` : "";
+        lines.push(`- > ${markWrap(snippet, opts.hostInfo?.get(it.entry.id)?.markVar)}${anchorTail}`);
+    }
+    return lines.length > 0 ? lines.join("\n") : null;
 }
 
 /** 「收集 → 当天日记」落本：用户设置（含启动注入的官方默认，initAnnoDraftNotebookDefault）
@@ -93,13 +183,21 @@ export function sectionHeadingMD(scopeName: string, md: string, attrValue: strin
 export function collectGroups(rows: AnnoCollectRow[], names: Record<string, string>): AnnoCollectGroup[] {
     const byId = new Map<string, AnnoPanelItem>();
     const docOf = new Map<string, Set<string>>(); // docID → entryIDs（保首见序）
+    // hostCount 先全量数完再产出（annoPanelFromRows 同款双遍，防首行产出时计数不全）
+    const parsed: { id: string; root: string; content: string; entries: ReturnType<typeof parseAnnotations> }[] = [];
     for (const r of rows ?? []) {
         if (r?.id == null || r.id === "") continue;
-        for (const entry of parseAnnotations(r.v)) {
+        const entries = parseAnnotations(r.v);
+        if (entries.length > 0) parsed.push({ id: r.id, root: r.r, content: typeof r.c === "string" ? r.c : "", entries });
+    }
+    const hostCount = new Map<string, number>();
+    for (const p of parsed) for (const e of p.entries) hostCount.set(e.id, (hostCount.get(e.id) ?? 0) + 1);
+    for (const p of parsed) {
+        for (const entry of p.entries) {
             if (byId.has(entry.id)) continue; // 跨块批注只收一条，引用行指向首宿主
-            byId.set(entry.id, { hostID: r.id, blockContent: typeof r.c === "string" ? r.c : "", entry });
-            if (!docOf.has(r.r)) docOf.set(r.r, new Set());
-            docOf.get(r.r)!.add(entry.id);
+            byId.set(entry.id, { hostID: p.id, hostCount: hostCount.get(entry.id) ?? 1, blockContent: p.content, entry });
+            if (!docOf.has(p.root)) docOf.set(p.root, new Set());
+            docOf.get(p.root)!.add(entry.id);
         }
     }
     const groups: AnnoCollectGroup[] = [];
@@ -140,17 +238,21 @@ export function groupByDay(groups: AnnoCollectGroup[]): Map<string, AnnoCollectG
 }
 
 /** 整节块数组（每块一个元素，供事务 insert ops / 剪贴板文本 join）。
- *  卡片 = entry.text 原样（kramdown 富文本走 markdown 通道无损迁移）+ 引用行；
- *  tree=true 时每组前渲染 ### 《组名》（单文档模式无组标题）。 */
-export function sectionBlocks(heading: string, groups: AnnoCollectGroup[], tree: boolean): string[] {
+ *  陆杰 09-16 排版改造：有想法=纵向 sb 卡（想法+引述保形多段+上标锚，闪卡正反面联动）；
+ *  纯划线=组内无序列表逐条；tree=true 时每组前渲染 ### 《组名》（单文档模式无组标题）。
+ *  空文本判定容 ZWSP（空段快照=纯划线语义）。 */
+export function sectionBlocks(heading: string, groups: AnnoCollectGroup[], opts: SectionOpts): string[] {
+    const isEmptyText = (t: string) => t.replace(/[\s\u200b]/g, "") === "";
     const blocks: string[] = [heading];
     for (const g of groups) {
-        if (tree) blocks.push(`### 《${g.docName}》`);
+        if (opts.tree) blocks.push(`### 《${g.docName}》`);
+        const plains: { hostID: string; blockContent: string; entry: TomatoAnnotation }[] = [];
         for (const it of g.items) {
-            if (it.entry.text) blocks.push(it.entry.text);
-            const snippet = clipSnippet(it.entry.sel?.txt || it.blockContent);
-            if (snippet) blocks.push(refLineMarkdown(it.hostID, snippet));
+            if (isEmptyText(it.entry.text)) plains.push(it);
+            else blocks.push(annoSbMarkdown(it, opts));
         }
+        const list = plainListItems(plains, opts);
+        if (list) blocks.push(list);
     }
     return blocks;
 }
@@ -285,7 +387,10 @@ function luteForCollect(): { Md2BlockDOM: (md: string) => string } {
     // （官方 getLute 全配置单例，与粘贴通道同款、随用户编辑器设置）；无编辑器时兜底
     // 自建实例开最小旗标集（BlockRef 管 引用行，Spin/WYSIWYG/TextMark 管卡片富文本）。
     // 惰性：模块顶层建会在单测 node 环境炸（无 globalThis.Lute）
-    const shared = (events.protyle as unknown as { lute?: { Md2BlockDOM: (md: string) => string } })?.lute;
+    // events.protyle 是 Protyle 包装类，lute 在内层 IProtyle 上（直取包装层恒空=恒走
+    // 兜底，09-16 实弹根因）；双形态容错后再兜 NewConfiguredLute
+    const shared = (events.protyle as unknown as { protyle?: { lute?: { Md2BlockDOM: (md: string) => string } }, lute?: { Md2BlockDOM: (md: string) => string } })?.protyle?.lute
+        ?? (events.protyle as unknown as { lute?: { Md2BlockDOM: (md: string) => string } })?.lute;
     if (shared?.Md2BlockDOM) _lute = shared;
     else _lute = NewConfiguredLute() as unknown as { Md2BlockDOM: (md: string) => string };
     return _lute;
@@ -302,7 +407,7 @@ async function writeSection(targetDocID: string, blocks: string[], attrValue: st
                 ? siyuan.transInsertBlocksAfter(doms, plan.previousID)
                 : siyuan.transInsertBlocksAsChildOf(doms, targetDocID);
             const txs = await siyuan.transactions([...siyuan.transDeleteBlocks(plan.delIDs), ...ins]);
-            await ensureSectionAttr(txs, targetDocID, attrValue);
+            await ensureSectionAttrs(txs, targetDocID, attrValue, blocks);
             return;
         }
     }
@@ -310,14 +415,17 @@ async function writeSection(targetDocID: string, blocks: string[], attrValue: st
     const txs = tail
         ? await siyuan.insertBlocksAfter(doms, tail)
         : await siyuan.transactions(siyuan.transInsertBlocksAsChildOf(doms, targetDocID));
-    await ensureSectionAttr(txs, targetDocID, attrValue);
+    await ensureSectionAttrs(txs, targetDocID, attrValue, blocks);
 }
 
 /** insert markdown 通道的 IAL 不进 attributes 索引表（e2e 实锤：blocks 表 markdown 可见、
  *  attributes 表恒空；setBlockAttrs 写的才进）——幂等定位链依赖三层查找，故每条插入路径
- *  完成后从事务返回找新节标题块（data 含属性名的 insert op）补写 setBlockAttrs + 更新
- *  内存缓存。失败不阻塞：幂等退化为末尾追加（多一节，无数据损坏）。 */
-async function ensureSectionAttr(txs: unknown, targetDocID: string, attrValue: string): Promise<void> {
+ *  完成后从事务返回补写 setBlockAttrs + 更新内存缓存：
+ *  ①节标题块（data 含 COLLECT_ATTR 的 insert op）→ 幂等键；
+ *  ②sb 卡（data 含 NodeSuperBlock 的 insert op，与 blocks 内 sb 序对齐）→ 逐批注定位锚
+ *  （Md2BlockDOM 产物无 data-node-id，事务通道 custom-* 恒丢——两硬契约之一，实弹 09-16
+ *  实锤 s 块 ial 零属性）。失败不阻塞：幂等退化为末尾追加 / sb 属性缺位（无数据损坏）。 */
+async function ensureSectionAttrs(txs: unknown, targetDocID: string, attrValue: string, blocks: string[]): Promise<void> {
     try {
         const ops = (Array.isArray(txs) ? txs : []).flatMap((t: any) => (t?.doOperations ?? []) as any[]);
         const op = ops.find((o) => o?.action === "insert" && typeof o.data === "string" && o.data.includes(COLLECT_ATTR));
@@ -325,8 +433,14 @@ async function ensureSectionAttr(txs: unknown, targetDocID: string, attrValue: s
             await siyuan.setBlockAttrs(op.id, { [COLLECT_ATTR]: attrValue } as any);
             sectionCache.set(`${targetDocID}|${attrValue}`, op.id);
         }
+        const sbMDs = blocks.filter((b) => b.startsWith("{{{row"));
+        const sbOps = ops.filter((o) => o?.action === "insert" && typeof o.data === "string" && o.data.includes("NodeSuperBlock"));
+        for (let k = 0; k < sbOps.length && k < sbMDs.length; k++) {
+            const m = sbMDs[k].match(/\{: custom-tomato-anno-collected="([^"]+)"\}\s*$/);
+            if (m) await siyuan.setBlockAttrs(sbOps[k].id, { [ANNO_COLLECTED_ATTR]: m[1] } as any);
+        }
     } catch (e) {
-        console.warn("[tomato anno] ensure section attr failed:", e);
+        console.warn("[tomato anno] ensure section attrs failed:", e);
     }
 }
 
@@ -353,6 +467,48 @@ export async function findOrCreateDailyDoc(box: string, ymd: string): Promise<st
     const docID = await siyuan.createDocWithMd(box, backfillDailyPath(hpath, ymd), "", "", { [attrName]: ymd } as any);
     await siyuan.setBlockAttrs(docID, { [attrName]: ymd } as any);
     return docID;
+}
+
+/** 宿主 kramdown → 块级批注引文文本：剥锚链接/块 IAL 尾/mark 样式包装（fetchSource 同款净化
+ *  + mark 展平——引文色由 markVar 通道统一重放，kramdown 残留的半标记会裸露到引文里） */
+export function hostQuoteText(kramdown: string): string {
+    return stripAllAnnoLinks(kramdown.replace(/\n\{:[^\n]*\}\s*$/, ""))
+        .replace(/==(.+?)==\{: style="[^"]*"\}/g, "$1")
+        .replace(/==/g, "");
+}
+
+/** 宿主反查（开关二颜色 + 块级批注引文净化双动机）：按宿主块去重拉 kramdown——
+ *  ①锚所处 mark 区间色变量（颜色同步 ON）；②无 sel 条目的净化引文文本（无条件——
+ *  blockContent 列是残缺简写形态不可直用，实弹 09-16 实锤）。
+ *  同块多条目共享一次取数；失败不阻塞收集（该条目无色/退 blockContent 降级）。 */
+async function annotateHostInfo(groups: AnnoCollectGroup[], colorOn: boolean): Promise<NonNullable<SectionOpts["hostInfo"]>> {
+    const byHost = new Map<string, AnnoCollectGroup["items"]>();
+    for (const g of groups) {
+        for (const it of g.items) {
+            const needQuote = !it.entry.sel?.txt;
+            if (!colorOn && !needQuote) continue; // 颜色 OFF 时只服务无 sel 条目的引文净化
+            if (!byHost.has(it.hostID)) byHost.set(it.hostID, []);
+            byHost.get(it.hostID)!.push(it);
+        }
+    }
+    const info = new Map<string, { markVar?: string; quoteText?: string }>();
+    await mapLimit([...byHost.entries()], 4, async ([hostID, items]) => {
+        try {
+            const kd = (await siyuan.getBlockKramdown(hostID))?.kramdown ?? "";
+            for (const it of items) {
+                const rec: { markVar?: string; quoteText?: string } = {};
+                if (colorOn) {
+                    const v = markVarOfAnchor(kd, it.entry.id);
+                    if (v) rec.markVar = v;
+                }
+                if (!it.entry.sel?.txt) rec.quoteText = hostQuoteText(kd);
+                if (rec.markVar || rec.quoteText) info.set(it.entry.id, rec);
+            }
+        } catch {
+            // 单块失败=该块条目降级（无色/退 blockContent），收集主链不受影响
+        }
+    });
+    return info;
 }
 
 /** 执行编排：VIP 门 → 取数 → 装配 → 目标解析 → 幂等写入/剪贴板 → pushMsg 回执。
@@ -385,6 +541,13 @@ export async function runCollect(input: CollectInput): Promise<void> {
         }
         const byDay = groupByDay(groups);
         debugLog("anno_collect", `scope=${scope} dest=${dest} groups=${groups.length} items=${count} days=${byDay.size}`, "anno");
+        // 陆杰排版改造双开关：锚（跳回原文）+ 颜色同步（mark 色反查）
+        const colorOn = annoCollectColor.get();
+        const sectionOpts = {
+            tree: scope === "tree",
+            anchor: annoCollectAnchor.get(),
+            hostInfo: await annotateHostInfo(groups, colorOn),
+        };
         // clipboard/file 保持扁平不分桶（纯文本/单文档无日期归位问题），节日期=收集日
         const flatBlocks = async () => {
             const now = new Date();
@@ -394,7 +557,7 @@ export async function runCollect(input: CollectInput): Promise<void> {
                 `${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`,
                 attrValue,
             );
-            return { attrValue, blocks: sectionBlocks(heading, groups, scope === "tree") };
+            return { attrValue, blocks: sectionBlocks(heading, groups, sectionOpts) };
         };
         if (dest === "clipboard") {
             const { blocks } = await flatBlocks();
@@ -419,7 +582,7 @@ export async function runCollect(input: CollectInput): Promise<void> {
                 const attrValue = collectKeyValue(ymd, input.scopeDocID);
                 keepKeys.add(attrValue);
                 const heading = sectionHeadingMD(scopeName, `${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`, attrValue);
-                await writeSection(targetDocID, sectionBlocks(heading, dayGroups, scope === "tree"), attrValue);
+                await writeSection(targetDocID, sectionBlocks(heading, dayGroups, sectionOpts), attrValue);
             }
             await removeStaleSections(box, keepKeys, input.scopeDocID);
             const [first] = byDay.keys();
@@ -473,4 +636,123 @@ export async function quickCollect(scopeDocID: string, dest: "clipboard" | "dail
     annoCollectDest.set(dest);
     void annoCollectDest.write();
     await runCollect({ scopeDocID, scope, dest, targetDoc: dest === "file" ? annoCollectTargetDoc.get() : undefined });
+}
+
+// ---------------- □3 划线总览多选收集（anno-round2）：即席选择集通道 ----------------
+
+/** 总览选中条目（浮层侧从 OverviewItem+组元映射而来；key=条目稳定键供选择幂等哈希） */
+export interface SelectedItem {
+    key: string;
+    hostID: string;
+    docID: string;
+    docName: string;
+    quote: string;
+    markVar?: string;
+    /** 批注条目本体；缺=纯 mark 划线（伪条目通道） */
+    entry?: TomatoAnnotation;
+}
+
+/** djb2 → 8 位十六进制（选择集幂等键的短哈希；碰撞=两不同选择共用节，可接受的退化） */
+function hash8(s: string): string {
+    let h = 5381;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+    return h.toString(16).padStart(8, "0");
+}
+
+/** 选择集装配计划（纯函数，tests/unit/annoCollect.test.ts 锁定契约） */
+export interface SelectedPlan {
+    groups: AnnoCollectGroup[];
+    hostInfo: NonNullable<SectionOpts["hostInfo"]>;
+    multi: boolean;
+    attrValue: string;
+    heading: string;
+}
+
+/** 选择集 → 装配计划：保选择序按 docID 分组（Map 键序=首见序）；伪条目 id 与 hostInfo
+ *  单遍同源；无 sel 真条目（块级）引文走 quoteText；节键=day|sel:hash8(排序 keys)。 */
+export function selectedCollectPlan(
+    items: SelectedItem[],
+    scopeName: string,
+    now: number,
+): SelectedPlan {
+    const byDoc = new Map<string, { docName: string; items: SelectedItem[] }>();
+    for (const it of items) {
+        if (!byDoc.has(it.docID)) byDoc.set(it.docID, { docName: it.docName, items: [] });
+        byDoc.get(it.docID)!.items.push(it);
+    }
+    const d = new Date(now);
+    const hostInfo: NonNullable<SectionOpts["hostInfo"]> = new Map();
+    const groups: AnnoCollectGroup[] = [...byDoc.entries()].map(([docID, g]) => ({
+        docID,
+        docName: g.docName,
+        items: g.items.map((it, i) => {
+            const entry = it.entry ?? { id: `marksel-${hash8(it.key)}-${i}`, text: "", time: now, sel: { txt: it.quote } };
+            const rec: { markVar?: string; quoteText?: string } = {};
+            if (it.markVar) rec.markVar = it.markVar;
+            if (!entry.sel?.txt && it.quote) rec.quoteText = it.quote;
+            if (rec.markVar || rec.quoteText) hostInfo.set(entry.id, rec);
+            // 选择集链不消费 hostCount（收集面只用 hostID 定锚），伪条目语义自洽填 1
+            return { hostID: it.hostID, hostCount: 1, blockContent: "", entry };
+        }),
+    }));
+    const attrValue = collectKeyValue(dayStamp(d), `sel:${hash8([...items].map((i) => i.key).sort().join("|"))}`);
+    const heading = sectionHeadingMD(scopeName || "?", `${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`, attrValue);
+    return { groups, hostInfo, multi: byDoc.size > 1, attrValue, heading };
+}
+
+/**
+ * 多选收集：与 runCollect 的分野——选择集是即席语义，不做 scope 全量重算/按日分桶/
+ * removeStaleSections（全量重算会把「本次没选的历史批注」从节里删掉，语义错）。
+ * 节键=`day|sel:<hash8(排序后 keys)>`：同选择重收集幂等替换、异选择各自追加成节，
+ * runCollect 的空节清理按 `|scopeID` 后缀匹配永不波及 sel 键。
+ * 多文档组（书域）→ VIP 门（runCollect tree 同款：灰档弹统一解锁框零写入）；
+ * 纯 mark 无 entry → 伪条目 text=""（sectionBlocks 纯划线支路=无序列表行+markWrap 色）。
+ */
+export async function collectSelected(items: SelectedItem[], dest: "daily" | "file", scopeName: string): Promise<void> {
+    if (items.length === 0) return;
+    const plan = selectedCollectPlan(items, scopeName, Date.now());
+    if (plan.multi && !lastVerifyResult() && !isMe()) {
+        const { openUnlockDialog } = await import("../unlockDialog");
+        openUnlockDialog({ product: "tomato" });
+        return;
+    }
+    try {
+        const blocks = sectionBlocks(plan.heading, plan.groups, {
+            tree: plan.multi,
+            anchor: annoCollectAnchor.get(),
+            hostInfo: plan.hostInfo,
+        });
+        const now = new Date();
+        if (dest === "daily") {
+            const box = dailyCollectBoxID(commentBoxAnnoDraftNotebook.get(), await resolveDailyNotebookID());
+            if (!box) {
+                siyuan.pushMsg(tomatoI18n.未找到日记笔记本);
+                return;
+            }
+            const targetDocID = await findOrCreateDailyDoc(box, dayStamp(now));
+            if (!targetDocID) {
+                siyuan.pushMsg(tomatoI18n.未找到日记笔记本);
+                return;
+            }
+            await writeSection(targetDocID, blocks, plan.attrValue);
+            siyuan.pushMsg(`${tomatoI18n.已收集} ${items.length} ${tomatoI18n.条批注} → ${pad2(now.getMonth() + 1)}-${pad2(now.getDate())} ${tomatoI18n.日记}`);
+            debugLog("anno_collect", `selected daily items=${items.length} groups=${plan.groups.length}`, "anno");
+            return;
+        }
+        // dest=file：目标记忆失效即清（下次需重选，runCollect 同款）
+        const targetDocID = annoCollectTargetDoc.get();
+        if (!targetDocID || !(await siyuan.checkBlockExist(targetDocID))) {
+            annoCollectTargetDoc.set("");
+            void annoCollectTargetDoc.write();
+            siyuan.pushMsg(tomatoI18n.收集目标已失效请重选);
+            return;
+        }
+        await writeSection(targetDocID, blocks, plan.attrValue);
+        siyuan.pushMsg(`${tomatoI18n.已收集} ${items.length} ${tomatoI18n.条批注} → 《${await collectDocName(targetDocID)}》`);
+        debugLog("anno_collect", `selected file target=${targetDocID} items=${items.length}`, "anno");
+    } catch (e) {
+        console.warn("[tomato anno] collectSelected failed:", e);
+        debugLog("anno_collect", `selected error=${String(e)}`, "anno");
+        siyuan.pushMsg(tomatoI18n.收集失败);
+    }
 }

@@ -16,6 +16,13 @@
         tomato_clocks_force_notice,
         tomato_clocks_opacity,
         tomato_clocks_position_right,
+        tomato_microbreak,
+        tomato_microbreak_min,
+        tomato_microbreak_max,
+        tomato_microbreak_duration,
+        tomato_microbreak_dialog,
+        tomato_microbreak_notice,
+        tomato_microbreak_notification,
     } from "./libs/stores";
     import { tomatoI18n } from "./tomatoI18n";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
@@ -286,6 +293,39 @@
                 <div class="tomato-input-row">
                     <input class="b3-text-field" type="number" min="1" bind:value={$tomato_clocks_break} />
                     <span class="tomato-row-label">{tomatoI18n.休息时长分钟}</span>
+                </div>
+            {/if}
+
+            <!-- 微休息（devbatch □3，陆杰 09-16）：工作时段内每随机间隔插 N 秒小休息，默认关；
+                 三通道开关自由选，展开行=间隔区间+时长 -->
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak} />
+                {tomatoI18n.微休息}
+                <div class="helpText">{tomatoI18n.微休息开关帮助}</div>
+            </div>
+
+            {#if $tomato_microbreak}
+                <div class="tomato-input-row tomato-mb-interval">
+                    <input class="b3-text-field" type="number" min="1" bind:value={$tomato_microbreak_min} />
+                    <span class="tomato-row-sep">~</span>
+                    <input class="b3-text-field" type="number" min="1" bind:value={$tomato_microbreak_max} />
+                    <span class="tomato-row-label">{tomatoI18n.微休息间隔分钟}</span>
+                </div>
+                <div class="tomato-input-row tomato-mb-duration">
+                    <input class="b3-text-field" type="number" min="5" max="60" bind:value={$tomato_microbreak_duration} />
+                    <span class="tomato-row-label">{tomatoI18n.微休息时长秒}</span>
+                </div>
+                <div>
+                    <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak_dialog} />
+                    {tomatoI18n.微休息弹窗}
+                </div>
+                <div>
+                    <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak_notice} />
+                    {tomatoI18n.微休息轻提示}
+                </div>
+                <div>
+                    <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak_notification} />
+                    {tomatoI18n.微休息系统通知}
                 </div>
             {/if}
 

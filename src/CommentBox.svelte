@@ -27,6 +27,7 @@
     import { onDestroy, onMount } from "svelte";
     import { commentBox, CommentBox刷新文档正引 } from "./CommentBox";
     import { openAnnoCollectDialog } from "./AnnoCollectDialog";
+    import { openAnnoOverview } from "./annoOverviewBox";
     import { quickCollect } from "./libs/annoCollect";
     import {
         deleteBlock,
@@ -43,6 +44,7 @@
     import { BlockNodeEnum, SPACE, TOMATO_BK_IGNORE } from "./libs/gconst";
     import {
         commentBoxAnnotations,
+        commentBoxAnnoViewFontSize,
         commentBoxBackwardRef,
         commentBoxForwardRef,
         commentBoxMaxProtyleHeight,
@@ -62,6 +64,7 @@
     import { events } from "./libs/Events";
     import { ANNOTATIONS_ATTR } from "./libs/annotationsAttr";
     import { annoTextToHtml } from "./libs/annoKramdown";
+    import { renderMD } from "./libs/mdRender";
     import {
         annoPanelFromRows,
         fmtAnnoTime,
@@ -475,7 +478,17 @@
     function renderDocContent(ref: Ref) {
         return (node: HTMLElement) => {
             node.style.maxHeight = $commentBoxMaxProtyleHeight + "px";
-            node.innerHTML = ref.docContent.replaceAll("\n\n", "\n");
+            // 全文正链卡（陆杰 09-16 反馈）：docContent 是 copyStdMarkdown 的 md 纯文本，
+            // 直灌 innerHTML = md 源码字面显示——走 Lute Md2HTML+消毒出阅读样式；
+            // 失败（renderMD 回 ""）回退纯文本现状。HTML 模式关 pre-wrap（.docContent 默认值服务纯文本换行）
+            const html = renderMD(ref.docContent);
+            if (html) {
+                node.style.whiteSpace = "normal";
+                node.innerHTML = html;
+            } else {
+                node.style.whiteSpace = "";
+                node.innerHTML = ref.docContent.replaceAll("\n\n", "\n");
+            }
         };
     }
 
@@ -635,6 +648,7 @@
     class="tomato-panel"
     data-skin={$commentBoxPanelSkin === "classic" ? undefined : $commentBoxPanelSkin}
     style:--tomato-card-h={$commentBoxMaxProtyleHeight + "px"}
+    style:--tomato-anno-view-fs={Math.min(22, Math.max(12, $commentBoxAnnoViewFontSize || 13)) + "px"}
 >
     <div class="tomato-toolbar">
         <span class="tomato-toolbar__group tomato-toolbar__group--mode">
@@ -724,6 +738,22 @@
                     onchange={() => commentBoxAnnotations.write()}
                 />
             </label>
+            <button
+                class="tomato-icon-btn"
+                aria-label={tomatoI18n.全书划线总览说明}
+                onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                onmouseleave={hidePanelTip}
+                onclick={(e) => openAnnoOverview({
+                    // 活读兜底：?id= 直开未点编辑器时 docID 未被 svelteCallback 喂上（面板
+                    // 既有收集钮同病），点击时刻直取激活编辑器 rootID（pickFirst 同款链）
+                    docID: docID || events.docID
+                        || events.protyle?.protyle?.block?.rootID
+                        || getAllEditor().find((ed) => ed.protyle?.block?.rootID)?.protyle?.block?.rootID
+                        || "",
+                }, e)}
+            >
+                <svg><use xlink:href="#iconMark"></use></svg>
+            </button>
             <button
                 class="tomato-icon-btn"
                 aria-label={tomatoI18n.收集批注说明}
@@ -986,6 +1016,11 @@
                                 >{tomatoI18n.块级}</span
                             >
                         {/if}
+                        {#if item.hostCount > 1}
+                            <span class="tomato-badge tomato-badge--anno"
+                                >{tomatoI18n.跨N块(item.hostCount)}</span
+                            >
+                        {/if}
                         <span class="tomato-anno-item__time"
                             >{fmtAnnoTime(item.entry.time)}</span
                         >
@@ -998,6 +1033,16 @@
                     <div class="tomato-anno-item__text">
                         {@html annoTextToHtml(item.entry.text)}
                     </div>
+                    {#if (item.entry.replies ?? []).length > 0}
+                        <div class="tomato-anno-item__replies">
+                            {#each item.entry.replies ?? [] as r, i (`${item.entry.id}-r${i}`)}
+                                <div class="tomato-anno-item__reply">
+                                    <span class="tomato-anno-item__rtime">{fmtAnnoTime(r.time)}</span>
+                                    <div class="tomato-anno-item__rtext">{@html annoTextToHtml(r.text)}</div>
+                                </div>
+                            {/each}
+                        </div>
+                    {/if}
                 </div>
             {/each}
             {#if annoLoaded && annoItems.length === 0}
@@ -1245,6 +1290,30 @@
         object-fit: contain;
     }
 
+    /* renderMD 渲染态（Md2HTML 注入 DOM 不带 scoped hash，子规则一律 :global）；
+       p/ul/ol/code/a 对齐气泡 .tomato-anno-pop 同族，h1~h6 为全文正链卡紧凑梯度 */
+    .docContent :global(h1) { font-size: 1.35em; font-weight: 600; margin: .4em 0 .3em; }
+    .docContent :global(h2) { font-size: 1.22em; font-weight: 600; margin: .4em 0 .3em; }
+    .docContent :global(h3),
+    .docContent :global(h4),
+    .docContent :global(h5),
+    .docContent :global(h6) { font-size: 1.1em; font-weight: 600; margin: .4em 0 .25em; }
+    .docContent :global(p) { margin: 0 0 6px; }
+    .docContent :global(p:last-child) { margin-bottom: 0; }
+    .docContent :global(ul),
+    .docContent :global(ol) { margin: 0 0 6px; padding-left: 18px; }
+    .docContent :global(ul:last-child),
+    .docContent :global(ol:last-child) { margin-bottom: 0; }
+    .docContent :global(li) { margin: 2px 0; }
+    .docContent :global(strong) { font-weight: 600; }
+    .docContent :global(code) {
+        font-size: 0.92em;
+        padding: 1px 4px;
+        border-radius: 4px;
+        background: var(--b3-theme-surface-lighter);
+    }
+    .docContent :global(a) { color: var(--b3-protyle-inline-link-color); }
+
     /* ---- 批注分区 ---- */
     .tomato-anno-list {
         display: flex;
@@ -1252,15 +1321,20 @@
     }
 
     .tomato-anno-item {
-        padding: 6px 8px;         /* 行式条目，比卡密一档 */
-        border-radius: 4px;       /* hover 底成圆角行 */
-        cursor: pointer;          /* 整行可点=跳原块 */
-        margin-bottom: 4px;       /* 4=行间距基数，配 hover 不用分隔线 */
-        transition: background 0.15s;
+        /* 卡片化（陆杰 09-16「没有层次都是一体的、一个批注一个卡片」）：
+           边框+surface 底从面板背景浮出，条目间距撑开 */
+        padding: 8px 10px;
+        border: 1px solid var(--b3-border-color);
+        border-radius: 6px;
+        background: var(--b3-theme-surface);
+        cursor: pointer;          /* 整卡可点=跳原块 */
+        margin-bottom: 6px;
+        transition: border-color 0.15s, background 0.15s;
     }
 
     .tomato-anno-item:hover {
         background: var(--b3-list-hover);
+        border-color: var(--b3-theme-primary);   /* hover 主色描边=可点可供性 */
     }
 
     .tomato-anno-item__meta {
@@ -1298,13 +1372,13 @@
     }
 
     .tomato-anno-item__text {
-        font-size: 12px;             /* 密读档；不加下划线——下划线只属于 quote */
+        font-size: var(--tomato-anno-view-fs, 13px); /* 查看态字号与气泡同源（面板原 12 顺提一档） */
         line-height: 1.6;
         word-break: break-word;
         color: var(--b3-theme-on-background);
     }
 
-    /* 批注富文本子集（innerHTML 动态注入，须 :global；参数照抄 anno-pop__text 档、字号 12） */
+    /* 批注富文本子集（innerHTML 动态注入，须 :global；参数照抄 anno-pop__text 档） */
     .tomato-anno-item__text :global(p) { margin: 0 0 4px; }
     .tomato-anno-item__text :global(ul),
     .tomato-anno-item__text :global(ol) { margin: 0 0 4px; padding-left: 18px; }
@@ -1318,6 +1392,38 @@
     }
     .tomato-anno-item__text :global(a) { color: var(--b3-protyle-inline-link-color); }
     .tomato-anno-item__text :global(> :last-child) { margin-bottom: 0; }
+
+    /* ---- □9 追加时间线：正文之后的思考路径（浅缩进+细分隔，与正文视觉分层） ---- */
+    .tomato-anno-item__replies {
+        margin-top: 6px;
+        padding-left: 8px;
+        border-left: 2px solid var(--b3-border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .tomato-anno-item__reply {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+    .tomato-anno-item__reply + .tomato-anno-item__reply {
+        border-top: 1px solid var(--b3-border-color);
+        padding-top: 4px;
+    }
+    .tomato-anno-item__rtime {
+        font-size: 11px;
+        opacity: 0.62;
+        font-variant-numeric: tabular-nums;
+    }
+    .tomato-anno-item__rtext {
+        font-size: 12px;
+        line-height: 1.6;
+        word-break: break-word;
+        color: var(--b3-theme-on-surface); /* 追加=次级正文，较主文浅一档 */
+    }
+    .tomato-anno-item__rtext :global(p) { margin: 0 0 2px; }
+    .tomato-anno-item__rtext :global(> :last-child) { margin-bottom: 0; }
 
     /* ---- ShowID 行 ---- */
     .tomato-ids {

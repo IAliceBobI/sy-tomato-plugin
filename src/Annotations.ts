@@ -29,18 +29,28 @@ import {
 import {
     ANNOTATIONS_ATTR,
     ANNO_HREF_PREFIX,
+    ANNO_REPLY_MAX_COUNT,
+    ANNO_REPLY_TEXT_SOFT_LIMIT,
     ANNO_TEXT_SOFT_LIMIT,
     appendAnnotation,
+    appendReply,
     clipAnnoSelText,
     findAnnotation,
     isOverLimit,
+    isReplyOverLimit,
     makeAnnotation,
     parseAnnotations,
     removeAnnotation,
     updateAnnotation,
 } from "./libs/annotationsAttr";
-import { annoIdFromHref, blockSubRanges, hasBlockLevelEntry, type BlockSubRange } from "./libs/annoDom";
+import { ANNO_SPAN_SEL, annoIdFromHref, blockSubRanges, hasBlockLevelEntry, markAnnoFragments, type BlockSubRange } from "./libs/annoDom";
 import { stripAllAnnoLinks, stripAnnoLinks } from "./libs/annoKramdown";
+import {
+    buildAnnoNoteBlockMD,
+    buildAnnoNoteContent,
+    clipAnnoNoteAnchor,
+} from "./libs/annoNoteBlock";
+import { refreshAnnoNoteCards, supportsAnnoNoteBlock } from "./annoNoteRender";
 import { newDraftBlock, sweepDraftDoc } from "./libs/annoDraft";
 import { runCollect } from "./libs/annoCollect";
 import { clearChat } from "./libs/annoChat";
@@ -51,7 +61,6 @@ import AnnoEdit from "./AnnoEdit.svelte";
 import AnnoBubble from "./AnnoBubble.svelte";
 
 const BLOCK_CLASS = "tomato-anno-block";
-const ANNO_SPAN_SEL = 'span[data-type="a"][data-href^="#tomato-anno-"]';
 /** 块级色条 hover 热区宽（spec §2.2：色条 3px + 向左外扩 10px ≈ 14px） */
 const HOT_ZONE = 14;
 /** 编辑弹窗尺寸/位置记忆 key（思源原生 dialogPosition 存储；data-key 同值挂 dialog 根，□3） */
@@ -136,6 +145,14 @@ class Annotations {
                     this.syncAll();
                     break;
                 }
+                // 内容事务（action 词表=ws op 形态 update/insert，非 API 名）：块 DOM 重建会
+                // 重排批注 span 碎片（新建标记后 setInlineMark 异步回声/编辑被批注文本/粘贴），
+                // 就地重打碎片归一类。常规打字也逐事务过一次（无 span 文档被首查询短路，近零开销）
+                if (((ops as any).action === "update" || (ops as any).action === "insert")
+                    && typeof (ops as any).id === "string" && (ops as any).id
+                    && document.querySelector(ANNO_SPAN_SEL)) {
+                    this.divsById((ops as any).id).forEach((div) => this.syncDiv(div));
+                }
             }
         });
 
@@ -205,6 +222,8 @@ class Annotations {
                     onEdit: (entry: TomatoAnnotation, anchor: HTMLElement) => this.openEdit(entry, anchor),
                     onAsk: (entry: TomatoAnnotation, anchor: HTMLElement) => this.openEdit(entry, anchor, { autoChat: true }),
                     onDelete: (entry: TomatoAnnotation, anchor: HTMLElement) => this.confirmRemove(entry, anchor),
+                    onAppend: (entry: TomatoAnnotation, text: string, anchor: HTMLElement) =>
+                        this.enqueue(() => this.doAppendReply(entry, text, anchor)),
                 },
             }) as any;
         };
@@ -272,7 +291,7 @@ class Annotations {
                     return "";
                 }
             };
-            // rich 模式预建草稿与入口取数并行（草稿块 SQL 索引等待是大头，重叠掉 fetchSource
+            // rich 模式预建草稿与入口取数并行（草稿块插入是一次内核往返，重叠掉 fetchSource
             // 串行段；plain 模式不建——秒开链路建了即删纯浪费）
             const draftP = commentBoxAnnoEditorMode.get() === "plain" ? null : newDraftBlock("");
             const [source, ctxExtra] = await Promise.all([fetchSource(), this.chatContextExtra(host)]);
@@ -403,8 +422,41 @@ class Annotations {
 
         // 3. class 同步（块级=色条+全块下划线宿主）
         divs.forEach((div) => this.syncDiv(div));
-        // 4. 保留设置项语义：被批注块加卡
-        if (commentBoxAddFlashCard.get()) siyuan.addRiffCards(ids);
+        // 4. 保留设置项语义：被批注块加卡（□8 方案 A：勾选闪卡=生成 anno-note 批注卡块→挂卡——
+        //    官方复习界面卡面现批注内容+原文上下文；卡失败不否决批注本体=属性已落只 toast。
+        //    老内核（<3.8.3）无渲染注册面 → 回落旧链直挂原文块（卡面无批注的现状行为））
+        if (commentBoxAddFlashCard.get()) {
+            if (supportsAnnoNoteBlock()) {
+                const anchor = (entry.sel?.txt || divs[0]?.textContent || "").trim();
+                let cardBlockID = "";
+                const content = buildAnnoNoteContent({
+                    v: 1,
+                    annoID: entry.id,
+                    hostID: ids[0],
+                    annoText: text,
+                    anchorSnapshot: clipAnnoNoteAnchor(anchor),
+                    replies: [], // 新建链建卡时 replies 恒空（appendReply 走气泡入口）
+                    ts: Date.now(),
+                });
+                try {
+                    // markdown 通道默认 dataType ✓；响应=事务数组，doOperations[0].id=新块 id 直取
+                    const r = await siyuan.insertBlockAfter(buildAnnoNoteBlockMD(content), ids[0]);
+                    const newID = (r as { doOperations?: { id?: string }[] }[] | null)?.[0]?.doOperations?.[0]?.id;
+                    if (!newID) throw new Error("anno-note insert rejected");
+                    cardBlockID = newID;
+                    const rr = await siyuan.addRiffCards([newID]); // 已带默认 deckID（无 3.8.x 裸调 no-op 坑）
+                    if (!rr) throw new Error("addRiffCards rejected");
+                    debugLog("anno_note", `card_made host=${ids[0]} anno=${entry.id} anchor=${anchor.length}`, "anno");
+                } catch (e) {
+                    // 半途态留痕（reasoning P2）：插块成功但挂卡失败=文档残留无卡 anno-note 块，
+                    // blockID 打进日志便于人工清理/补挂（addRiffCards 入口=卡面「制成闪卡」钮）
+                    debugLog("anno_note", `card_fail host=${ids[0]} anno=${entry.id} block=${cardBlockID} err=${String(e)}`, "anno");
+                    siyuan.pushMsg(tomatoI18n.批注卡创建失败);
+                }
+            } else {
+                siyuan.addRiffCards(ids);
+            }
+        }
         // 5. 软限信号（不拦截）
         if (isOverLimit(text)) siyuan.pushMsg(`${tomatoI18n.批注超过软限} ${ANNO_TEXT_SOFT_LIMIT}`);
         if (markFail) siyuan.pushMsg(tomatoI18n.标记写入失败批注已保存);
@@ -498,6 +550,7 @@ class Annotations {
                     source,
                     selText: entry.sel?.txt ?? "",
                     initialText: entry.text,
+                    replies: entry.replies ?? [],
                     autoChat: !!opts?.autoChat,
                     ...ctxExtra,
                     onSave: async (text: string) => {
@@ -601,10 +654,75 @@ class Annotations {
                 this.syncDiv(div);
             });
         });
+        refreshAnnoNoteCards(annoId); // 编辑器内 anno-note 卡面正文就地跟最新（免 reload）
         // 气泡重开由 openEdit 的 onSave 包装层延迟驱动（弹窗销毁期事件防误关）
         if (isOverLimit(text)) siyuan.pushMsg(`${tomatoI18n.批注超过软限} ${ANNO_TEXT_SOFT_LIMIT}`);
         // 编辑保存同样触发自动归档——time 已刷为保存时刻，全量重算即搬家
         this.fireAutoArchive(ids[0]);
+        return true;
+    }
+
+    /** □9 评论式追加：目标批注 replies 尾加一条（doEditSave 同款读改写+读回验证范式）；
+     *  主 text/主 time 不动（归档天不漂移）；软限信号不拦截；成功后重开查看气泡（新代 entries
+     *  触发 {#key} 重渲染=时间线即现）+ 刷新编辑器内引用该批注的 anno-note 卡面 */
+    private async doAppendReply(entry: TomatoAnnotation, text: string, anchor: HTMLElement): Promise<boolean> {
+        const ids0 = await this.holderIdsFor(entry.id);
+        if (ids0.length === 0) {
+            siyuan.pushMsg(tomatoI18n.批注已被删除); // 气泡在场=宿主 div 应在 DOM，空集≈他端已删
+            return false;
+        }
+        let ids = ids0;
+        // 先读现值再定宿主集（reasoning P1-2）：holderIdsFor=DOM∪SQL 两路都可能带 stale 宿主
+        // （ws 回声未到/SQL ial 索引分钟级陈旧），混入会把已成功的写入误报失败——重试再追加
+        // 同文=真宿主重复 replies（追加式不幂等，与 doEditSave 覆盖式后果不同）
+        let cur: { [id: string]: Record<string, string> } | null = null;
+        try {
+            cur = await siyuan.batchGetBlockAttrs(ids); // ids 已过非空早退
+        } catch { /* 静默 null 与异常同路处理 */ }
+        if (cur == null) {
+            siyuan.pushMsg(tomatoI18n.批注写入失败); // 取数整体失败≠已删除（网络/异常同路）
+            return false;
+        }
+        ids = ids.filter((id) => findAnnotation(cur![id]?.[ANNOTATIONS_ATTR], entry.id) != null);
+        if (ids.length === 0) {
+            siyuan.pushMsg(tomatoI18n.批注已被删除); // 全部宿主已不含该条目（他端已删）
+            return false;
+        }
+        const reply = { text, time: Date.now() };
+        const ops = ids.map((id) => ({
+            id,
+            attrs: { [ANNOTATIONS_ATTR]: appendReply(cur![id]?.[ANNOTATIONS_ATTR], entry.id, reply) },
+        }));
+        try {
+            await siyuan.batchSetBlockAttrs(ops);
+        } catch { /* 读回验证兜住 */ }
+        let after: { [id: string]: Record<string, string> } | null = null;
+        try {
+            after = await siyuan.batchGetBlockAttrs(ids);
+        } catch { /* 同上 */ }
+        const written = after != null && ids.every((id) =>
+            after![id] == null // 宿主块已被他端删除：放行（doEditSave 同款）
+            || parseAnnotations(after![id]?.[ANNOTATIONS_ATTR]).some((e) =>
+                e.id === entry.id && (e.replies ?? []).some((r) => r.text === reply.text && r.time === reply.time)));
+        if (!written) {
+            siyuan.pushMsg(tomatoI18n.批注写入失败);
+            return false;
+        }
+        ids.forEach((id, i) => {
+            this.divsById(id).forEach((div) => {
+                setAttribute(div, ANNOTATIONS_ATTR, ops[i].attrs[ANNOTATIONS_ATTR]);
+                this.syncDiv(div);
+            });
+        });
+        // 软限信号不拦截（对齐主文软限哲学）：单条 500 字、每批注 20 条，各自独立出信号
+        if (isReplyOverLimit(text)) siyuan.pushMsg(`${tomatoI18n.追加超过软限} ${ANNO_REPLY_TEXT_SOFT_LIMIT}`);
+        const n = parseAnnotations(ops[0].attrs[ANNOTATIONS_ATTR]).find((e) => e.id === entry.id)?.replies?.length ?? 0;
+        if (n > ANNO_REPLY_MAX_COUNT) siyuan.pushMsg(`${tomatoI18n.追加条数超过软限} ${ANNO_REPLY_MAX_COUNT}`);
+        // 追加也进归档产物（收集逐条带出）；主 time 未变=同天重算幂等不搬家
+        this.fireAutoArchive(ids[0]);
+        refreshAnnoNoteCards(entry.id); // 编辑器内 anno-note 卡面就地跟最新（免 reload）
+        debugLog("anno_reply", `anno=${entry.id} len=${[...text].length} hosts=${ids.length}`, "anno");
+        if (anchor.isConnected) this.show(anchor, "view");
         return true;
     }
 
@@ -741,6 +859,7 @@ class Annotations {
     private syncDiv(div: HTMLElement) {
         const entries = parseAnnotations(div.getAttribute(ANNOTATIONS_ATTR));
         div.classList.toggle(BLOCK_CLASS, hasBlockLevelEntry(entries));
+        markAnnoFragments(div); // 拆段归一：块内同批注碎片收帽拼缝（陆杰 09-16）
     }
 
     private syncClasses(protyle: IProtyle) {

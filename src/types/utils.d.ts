@@ -18,6 +18,8 @@ type TomatoSettings = {
     annoCollectScope: string,
     annoCollectDest: string,
     annoCollectTargetDoc: string,
+    annoCollectAnchor: boolean,
+    annoCollectColor: boolean,
     annoAutoArchive: boolean,
     dailyQuota: string,
     prefixArticlesSoftLimit: string,
@@ -126,6 +128,8 @@ type TomatoSettings = {
     readingFloatBar: boolean,
     readingFloatBallHidden: boolean,
     readingAdd2Card: boolean,
+    /** anno-round2 □4：开=设点只顶同文档旧点（一书多点）；关=一书一点顶替全书 */
+    readingPointPerDoc: boolean,
     readingFloatBallPos: { anchor: number, offsetX: number, offsetY: number },
     bkenableAndDisablemenu: boolean,
     linkBoxBilinkMenu: boolean,
@@ -322,6 +326,13 @@ type TomatoSettings = {
     tomato_clocks_break: string,
     tomato_clocks_notice: boolean,
     tomato_clocks_focus: boolean,
+    tomato_microbreak: boolean,
+    tomato_microbreak_min: string,
+    tomato_microbreak_max: string,
+    tomato_microbreak_duration: string,
+    tomato_microbreak_dialog: boolean,
+    tomato_microbreak_notice: boolean,
+    tomato_microbreak_notification: boolean,
     "back-link-max-size": number,
     "back-link-mention-count": number,
     "back-link-default-off": boolean,
@@ -389,6 +400,8 @@ type TomatoSettings = {
     commentBoxAnnoEditorMode: string,
     /** 批注编辑器字号 px（两模式统一，12~22） */
     commentBoxAnnoEditorFontSize: number,
+    /** 批注查看态字号 px（气泡+面板正文同源，12~22，默认 13） */
+    commentBoxAnnoViewFontSize: number,
     linkBoxAttrIconOnHide: boolean,
 };
 

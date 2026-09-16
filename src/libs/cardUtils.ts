@@ -182,3 +182,48 @@ export async function getIDFromCard() {
     return cardID;
 }
 
+// ── 复习界面推迟作用域（cardpostpone 战役，2026-09-16 群反馈 650189）──
+// 老病：复习界面「推迟闪卡」（⌘F9/⌘⇧8）无条件走 getRestCards()=全库 builtin 到期卡，
+// 文档闪卡复习里一按=全库遭殃。修法=交集：作用域内全量卡（树/笔记本分页全量）∩ 到期卡集。
+// 作用域权威源=复习界面筛选钮 DOM（[data-type="filter"] 的 data-cardtype/data-id）——
+// 用户中途切筛选只改这两个属性（内核 fetchNewRound 同款读法），tab.model.data 停留在
+// 初始打开值跟不上切换；tab.model 通道弃用。
+
+// id 形态防御：官方筛选菜单「文件树」选文档时 data-id 被写成文档名（getDisplayName
+// 产物，思源 openCard.ts movePathTo 分支），而内核 getTreeRiffCards/getNotebookRiffCards
+// 对 id 有 ValidateFlashcardBlockIDs 硬校验，非 id 形态必 code=-1——先本地拦截，非法
+// 直接兜底全库（老语义），宁全勿炸
+const SCOPE_ID_FORM = /^\d{14}(-[\w-]+)?$/;
+
+export function getReviewFilterScope(): { cardType: string, id: string } | null {
+    // 多复习页签并存时取可见者（单页签常态与 querySelector 首个一致）
+    const filters = [...document.querySelectorAll('[data-type="filter"][data-cardtype]')] as HTMLElement[];
+    const el = filters.find(f => f.offsetParent !== null) ?? filters[0];
+    if (!el) return null;
+    return { cardType: el.getAttribute("data-cardtype") || "", id: el.getAttribute("data-id") || "" };
+}
+
+// 复习界面到期卡·按当前筛选作用域取：doc=文档树卡∩到期、notebook=笔记本卡∩到期、
+// all（含卡包）/拿不到合法作用域/作用域取卡失败=全库到期（老语义兜底）。不做每日限额
+// （作用域内全量到期推走，符合「清掉这批复习」预期；getRestCards 全量化本身即
+// 2026-09-07 为绕限额漏卡修的）
+export async function getDueCardsInReviewScope(): Promise<GetCardRetBlock[]> {
+    const scope = getReviewFilterScope();
+    if (scope && SCOPE_ID_FORM.test(scope.id)
+        && (scope.cardType === "doc" || scope.cardType === "notebook")) {
+        try {
+            const scoped = scope.cardType === "doc"
+                ? await siyuan.getTreeRiffCardsAll(scope.id)
+                : await siyuan.getNotebookRiffCardsAll(scope.id);
+            const rest = await getRestCards();
+            const ids = new Set(scoped.map(c => c.ial?.id || c.id));
+            const hit = rest.filter(b => ids.has(b.ial.id));
+            debugLog("CardBox", `复习作用域交集：作用域卡 ${scoped.length}、全库到期 ${rest.length}、交集 ${hit.length}`, "cardbox");
+            return hit;
+        } catch (err) {
+            debugLog("CardBox", `复习作用域取卡失败退全库: ${err}`, "cardbox");
+        }
+    }
+    return getRestCards();
+}
+

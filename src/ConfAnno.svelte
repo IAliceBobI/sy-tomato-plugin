@@ -5,6 +5,8 @@
     import NotebookSelect from "./NotebookSelect.svelte";
     import {
         annoAutoArchive,
+        annoCollectAnchor,
+        annoCollectColor,
         commentBoxAnnoBg,
         commentBoxAnnoDraftNotebook,
         commentBoxAnnoLineType,
@@ -95,6 +97,15 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$annoAutoArchive} />
                 {tomatoI18n.自动归档到日记}
+            </div>
+            <!-- 收集排版双开关（陆杰 09-16 □2）：锚/颜色同步，见 annoCollect sectionBlocks -->
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$annoCollectAnchor} />
+                {tomatoI18n.收集带跳回锚}
+            </div>
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$annoCollectColor} />
+                {tomatoI18n.收集同步划线颜色}
             </div>
             <div>
                 {tomatoI18n.批注标记形态}

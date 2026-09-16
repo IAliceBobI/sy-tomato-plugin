@@ -193,10 +193,10 @@ export async function ensureDraftDocID(): Promise<string> {
 /** 开弹窗建独立草稿块（超级块容器，□1 Spike 契约形态）。
  *  不走 markdown 预置 IAL id（`}}}\n{: id=}` 形态内核会额外插一个空段落兄弟块，e2e 实锤）；
  *  sb id 从事务返回的 doOperations 里按 NodeSuperBlock 解析。
- *  插入后等 SQL 索引落地才返回：protyle 首拉经索引解析 rootID，新鲜插入的 ~2.6s 索引窗口内
- *  首拉会渲染成空文档（e2e 实测），等到索引可见再挂编辑器是确定性防线 */
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
+ *  返回即用、不等 SQL 索引（陆杰 09-16 6s 慢治本）：/api/block/insertBlock 内核同步提交
+ *  （PerformTransactions+FlushTxQueue 完才回包），blocktree/.sy 已就绪，getBlockKramdown/
+ *  deleteBlock 等直读 API 消费方零等待。旧 350ms 步进轮询只为「以新鲜 sb id 作 protyle
+ *  挂载锚」——挂载锚已换草稿文档 id（AnnoEdit.mountRich，索引早已就绪），等待窗口整个不再需要 */
 export async function newDraftBlock(text: string): Promise<string> {
     const docID = await ensureDraftDocID();
     if (!docID) return "";
@@ -229,17 +229,6 @@ export async function newDraftBlock(text: string): Promise<string> {
         console.warn("[tomato anno] create draft block failed:", e);
         return "";
     }
-    for (let i = 0; i < 24; i++) {
-        try {
-            const row = await siyuan.sqlOne(`select id from blocks where id="${id}" limit 1`);
-            if (row?.id) {
-                activeDrafts().set(id, Date.now());
-                return id;
-            }
-        } catch { /* 重试兜底 */ }
-        await sleep(350);
-    }
-    console.warn("[tomato anno] draft block index not visible in 8s, mount anyway:", id);
     activeDrafts().set(id, Date.now());
     return id;
 }

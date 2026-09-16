@@ -22,6 +22,9 @@ export async function createRefDoc(notebookId: string, name: string, category?: 
     const row = await siyuan.sqlOne(`select id from blocks where type='d' and content=${sqlQuoteStr(name)} limit 1`);
     if (row?.id) {
         await updateAttr(row.id);
+        if (tag_to_ref_add_card.get()) {
+            await siyuan.addRiffCards([row.id]);
+        }
         return row.id;
     }
 

@@ -40,6 +40,8 @@
         /** 被批注块原文（Annotations.openEdit 剥 IAL/标记后的 kramdown） */
         source: string;
         selText: string;
+        /** □9 追加时间线（上下文取数：AI 看到完整思考路径） */
+        replies?: { text: string; time: number }[];
         /** 上下文补强（□3）：文档 hpath + 前后相邻块（空=缺省不出段） */
         docTitle?: string;
         prev?: string;
@@ -54,7 +56,7 @@
         busy?: boolean;
     }
     let {
-        dm, mobile, open, annoId, hostID = "", source, selText, docTitle = "", prev = "", next = "",
+        dm, mobile, open, annoId, hostID = "", source, selText, replies = [], docTitle = "", prev = "", next = "",
         getAnnoText, onCompressed,
         canCompress = $bindable(false), busy = $bindable(false),
     }: Props = $props();
@@ -126,7 +128,7 @@
         active = { label: recorder ? tomatoI18n.记录员 : role ? roleName(role) : "AI", text: "", status: "thinking" };
         try {
             const note = await getAnnoText().catch(() => "");
-            const ctx = { source, sel: selText || undefined, note, docTitle, prev, next };
+            const ctx = { source, sel: selText || undefined, note, docTitle, prev, next, replies };
             const cfg = await ensureCfg();
             if (!cfg) { active = null; return; }
             const client = new OpenAIClient(cfg.apiKey, cfg.baseURL);

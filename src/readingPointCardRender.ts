@@ -3,18 +3,16 @@
 // element=DIV.custom-block__content（块 id 在宿主 [data-node-id]，内核已做编辑器事件隔离）；
 // 旧内核（<3.8.3）无此注册面 → 不注册，官方 renderFallback <pre> 显围栏原文兜底。
 // 卡面（设计拍板=老版原样）：身份行（阅读点家族 #iconBookmark+相对时间）+ excerpt 设点快照
-// （超长 CSS 折叠可展开）+「回原文继续读」按钮。
-// 按钮链=先关后跳：复习界面宿主 → 官方正门 window.siyuan.dialogs.find(data-key=dialog-opencard)
-// .destroy()（内核 openCardByData 重入关旧界面即此调用，destroy 回收 editor/焦点/登记表）；
-// 编辑器宿主 → 仅聚焦原块。关闭失效回落=复习界面保留（跳转照常）。
+// （超长 CSS 折叠可展开）+「回原文继续读」按钮（先关后跳=libs/cardNav，□8 起与 anno-note 共用；
+// 来源行现查=libs/sourceQuery，与 anno-note/anno-chat 复习卡共用）。
 // riff 3.9.0 v2 重写在途：升 3.9 前重验 addRiffCards/review 挂卡链（memory 预警）。
 import { getTomatoPluginInstance } from "./libs/utils";
 import { debugLog } from "./libs/logUtils";
 import { tomatoI18n } from "./tomatoI18n";
 import { RPCARD_BLOCK_TYPE } from "./libs/gconst";
-import { buildSourceText, parseRPCardContent, relativeTime, splitHPath, unescapeBlockText, type RPCardSource } from "./libs/readingPointCore";
-import { OpenSyFile2 } from "./libs/navUtils";
-import { siyuan } from "./libs/siyuanApi";
+import { parseRPCardContent, relativeTime } from "./libs/readingPointCore";
+import { cardHostName, goOriginCloseFirst } from "./libs/cardNav";
+import { fillSourceRow } from "./libs/sourceQuery";
 
 /** 最小注册面接口（siyuan 1.2.5 类型声明无 customBlockRenders，结构化窄化避免 as any 满天飞） */
 export interface CustomBlockPlugin {
@@ -40,26 +38,9 @@ export function registerReadingPointCardRender(plugin: CustomBlockPlugin): void 
     };
 }
 
-/** 复习界面 Dialog 登记项（结构化窄化：destroy/element 均为内核公开面，openCardByData 同款） */
-interface ReviewDialog {
-    destroy(): void;
-    element: HTMLElement;
-}
-
-/** 官方正门关闭通道：window.siyuan.dialogs 里 data-key=dialog-opencard 且真包含本按钮的那个 */
-function findReviewDialog(btn: HTMLElement): ReviewDialog | null {
-    const dialogs = (window.siyuan as { dialogs?: ReviewDialog[] })?.dialogs ?? [];
-    return dialogs.find((d) => d.element?.getAttribute("data-key") === "dialog-opencard" && d.element.contains(btn)) ?? null;
-}
-
-/** 渲染宿主名（Loki 打点用）：.card__main=复习界面（Dialog/页签两种宿主都有），否则=编辑器 */
-function hostName(element: HTMLElement): string {
-    return element.closest(".card__main") ? "review" : "editor";
-}
-
 function renderCard(element: HTMLElement, content: string): void {
     const data = parseRPCardContent(content);
-    const host = hostName(element);
+    const host = cardHostName(element);
     debugLog("rp_card_render", `ok=${!!data} host=${host}`, "readpoint");
     if (!data) {
         const tip = document.createElement("div");
@@ -96,7 +77,7 @@ function renderCard(element: HTMLElement, content: string): void {
         source.className = "tomato-rp-card__source";
         source.hidden = true; // 现查到才显，空行不占高
         card.append(source);
-        void fillSourceRow(source, data.origin);
+        void fillSourceRow(source, data.origin, "readpoint"); // label 保 rp 观测连续（共享抽取后事件名统一 card_source）
     }
 
     // ---- excerpt 快照：设点时原文全文（超长折叠，溢出才显展开钮）----
@@ -123,7 +104,7 @@ function renderCard(element: HTMLElement, content: string): void {
     const gIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     gIcon.innerHTML = '<use xlink:href="#iconForward"></use>';
     go.append(gIcon, document.createTextNode(tomatoI18n.回原文继续读));
-    go.addEventListener("click", () => void goOrigin(go, data.origin));
+    go.addEventListener("click", () => void goOriginCloseFirst(go, data.origin, "readpoint"));
     card.append(go);
     element.append(card);
 
@@ -131,69 +112,4 @@ function renderCard(element: HTMLElement, content: string): void {
     requestAnimationFrame(() => {
         if (body.scrollHeight > body.clientHeight + 4) more.hidden = false;
     });
-}
-
-/** 先关后跳：复习界面宿主=官方正门 destroy（openCardByData 重入同款）；编辑器宿主=仅聚焦原块 */
-async function goOrigin(btn: HTMLElement, origin: string): Promise<void> {
-    const plugin = getTomatoPluginInstance();
-    if (!plugin || !origin) return;
-    let closed = false;
-    if (btn.closest(".card__main")) {
-        const dialog = findReviewDialog(btn);
-        if (dialog) {
-            dialog.destroy();
-            closed = true;
-        }
-    }
-    debugLog("rp_card_go", `origin=${origin} closed=${closed}`, "readpoint");
-    await OpenSyFile2(plugin, origin);
-}
-
-/** 来源行现查回填：查到才显（title=完整 hpath 兜底超长截断）；查空/异常=保持 hidden 静默降级 */
-async function fillSourceRow(el: HTMLElement, origin: string): Promise<void> {
-    let s: RPCardSource | null = null;
-    try {
-        s = await fetchRPCardSource(origin);
-    } catch { /* SQL 链失败=来源行缺席，卡面其余照常 */ }
-    const text = s ? buildSourceText(s) : "";
-    debugLog("rp_card_source", `ok=${!!s} len=${text.length}`, "readpoint");
-    if (!text) return;
-    el.textContent = text;
-    el.title = `${s.parentPath}/${s.docTitle}`;
-    el.hidden = false;
-}
-
-/** origin 反查来源三件：origin 行 join 文档 hpath → 父链爬最近标题块。
- *  origin 已删（孤儿卡）=行查不到 → null */
-async function fetchRPCardSource(origin: string): Promise<RPCardSource | null> {
-    const rows = (await siyuan.sql(
-        `SELECT b.type AS btype, b.content AS bcontent, b.parent_id AS parent, r.hpath AS hpath
-         FROM blocks b INNER JOIN blocks r ON r.id = b.root_id WHERE b.id = '${origin}'`,
-    )) as { btype: string; bcontent: string | null; parent: string | null; hpath: string | null }[];
-    const row = rows?.[0];
-    if (!row) return null;
-    const { docTitle, parentPath } = splitHPath(row.hpath ?? "");
-    const section = await nearestSectionHeading(row.btype, row.bcontent, row.parent);
-    return { docTitle: unescapeBlockText(docTitle), parentPath, section: unescapeBlockText(section) };
-}
-
-/** 最近标题块：设点块自身是标题→取自身文本；否则沿父链上爬（文档行 parent_id 恒空=自然
- *  终止；上限 16 层防环防失控） */
-async function nearestSectionHeading(btype: string, bcontent: string | null, parentID: string | null): Promise<string> {
-    if (btype === "h") return collapseSpaces(bcontent);
-    let id = parentID ?? "";
-    for (let i = 0; i < 16 && id; i++) {
-        const rows = (await siyuan.sql(
-            `SELECT type, content, parent_id FROM blocks WHERE id = '${id}'`,
-        )) as { type: string; content: string | null; parent_id: string | null }[];
-        const row = rows?.[0];
-        if (!row) break;
-        if (row.type === "h") return collapseSpaces(row.content);
-        id = row.parent_id ?? "";
-    }
-    return "";
-}
-
-function collapseSpaces(s: string | null): string {
-    return (s ?? "").replace(/\s+/g, " ").trim();
 }

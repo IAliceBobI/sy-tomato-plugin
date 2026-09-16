@@ -9,6 +9,7 @@
         readingAddRPmenu,
         readingFloatBar,
         readingPointBoxCheckbox,
+        readingPointPerDoc,
         readingStatusBar,
         readingTopBar,
     } from "./libs/stores";
@@ -41,6 +42,10 @@
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$readingAdd2Card} />
             {tomatoI18n.阅读点加入闪卡}
+        </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$readingPointPerDoc} />
+            {tomatoI18n.阅读点每文档独立}
         </div>
         <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
         <div>

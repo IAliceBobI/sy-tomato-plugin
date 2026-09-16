@@ -155,21 +155,32 @@
     // 输入沿聚合视图进出跳变跟踪（非响应式：只用于进/出沿触发滚顶，逐键过滤不触发）
     let searching = false;
     let navListEl: HTMLElement = $state();
-    // 窄屏 tab 条（480 断点横滚形态）：激活项滚入视野（vision R1 P1-1）。宽屏一列
-    // 形态横向无溢出 scrollTo 天然无感；三期 15 域后纵向列矮弹窗自滚（max-height 封顶），
-    // 激活项同步纵向滚入（横滚态 offsetTop 恒等→top 0 无害）。只滚 tab 条/导航列自身，
-    // 不用 scrollIntoView——它会连带滚外层滚动容器把面板内容拽走。除切域（$effect 跟
-    // navActive）外，跨断点 resize（navActive 不变）由 resize 监听补一滚
+    // 激活项滚入视野，但只在出视野的轴上滚（2026-09-16 用户反馈：点击可见项不得重定位
+    // ——原版无差别把激活项顶到列首，点完想连点上面的项还得回滚）。纵向（24 域矮弹窗
+    // 自滚）最小量贴边滚入：上出顶对齐、下出底对齐（各 8px 余量；下出贴底=上方项全保持
+    // 可见，连点上面的项不再被打飞）；横向（窄屏 480 断点 tab 条横滚形态，vision R1
+    // P1-1）保持居中入视野。只滚 tab 条/导航列自身，不用 scrollIntoView——它会连带滚
+    // 外层滚动容器把面板内容拽走。除切域（$effect 跟 navActive）外，跨断点 resize
+    // （navActive 不变）由 resize 监听补一滚
     function keepActiveTabVisible() {
         if (!navListEl) return;
         const active = navListEl.querySelector<HTMLElement>(".tomato-nav-item--active");
         if (!active) return;
-        navListEl.scrollTo({
-            left: Math.max(0, active.offsetLeft - (navListEl.clientWidth - active.offsetWidth) / 2),
-            top: navListEl.scrollHeight > navListEl.clientHeight
+        const inView = (pos: number, size: number, scroll: number, client: number) =>
+            pos >= scroll && pos + size <= scroll + client;
+        // 横轴：出视野才居中滚入（宽屏一列横向无溢出恒 inView，left 不动）
+        const left = inView(active.offsetLeft, active.offsetWidth, navListEl.scrollLeft, navListEl.clientWidth)
+            ? navListEl.scrollLeft
+            : Math.max(0, active.offsetLeft - (navListEl.clientWidth - active.offsetWidth) / 2);
+        // 纵轴：可滚且出视野才贴边滚入（横滚 tab 条形态纵向恒等不进）
+        let top = navListEl.scrollTop;
+        if (navListEl.scrollHeight > navListEl.clientHeight
+            && !inView(active.offsetTop, active.offsetHeight, top, navListEl.clientHeight)) {
+            top = active.offsetTop < top
                 ? Math.max(0, active.offsetTop - 8)
-                : 0,
-        });
+                : active.offsetTop + active.offsetHeight + 8 - navListEl.clientHeight;
+        }
+        navListEl.scrollTo({ left, top });
     }
     $effect(() => {
         if (navActive) keepActiveTabVisible();
@@ -213,6 +224,31 @@
     // 逐键输入不触发——用户在聚合结果里翻看时续输字符不能拽回顶部）
     function scrollPanelTop() {
         (settingsDiv?.closest(".b3-dialog__body") as HTMLElement | null)?.scrollTo({ top: 0 });
+    }
+
+    // □15 ① IME 合成期门控：受控 value 替代 bind:value——合成期 input（拼音中间态）不进
+    // searchKey，聚合视图不误开、全列不闪「无命中」。compositionend 兜底：Chrome 末笔
+    // input 先于 compositionend 且 isComposing=true 被上面跳过，上屏值在此同步；Safari
+    // 末笔 input isComposing=false 走主路，此处重放同值幂等（搜索态沿检测不双触发）
+    async function applySearch(v: string): Promise<void> {
+        searchKey = v;
+        try {
+            localStorage.setItem(SearchKeyItemKey, searchKey);
+        } catch { /* 隐私模式等场景静默（四家统一守卫，review P2-3） */ }
+        const entering = !!searchKey && !searching;
+        const leaving = !searchKey && searching;
+        searching = !!searchKey;
+        // 空→非空跳变须等聚合视图挂载再过滤（同分支跳变 tick 只是空冲刷）
+        await tick();
+        searchSettings(settingsDiv, searchKey);
+        if (searchKey) updateNavHits();
+        else navHits = {};
+        if (entering || leaving) scrollPanelTop();
+        // 进聚合视图导航列回顶（vision □5 P1）：navActive 冻结不触发 keepActiveTabVisible，
+        // 列停在浏览态滚动位置时首命中域高亮滚出视野——聚合无「当前域」概念，整体可见；
+        // 离聚合态对称恢复激活项入视野（navActive 值未变 $effect 不重跑）
+        if (entering) navListEl?.scrollTo({ top: 0 });
+        if (leaving) keepActiveTabVisible();
     }
 
     onMount(async () => {
@@ -278,24 +314,12 @@
             bind:this={searchInput}
             class="b3-text-field"
             placeholder={tomatoI18n.search搜索配置}
-            bind:value={searchKey}
-            oninput={async () => {
-                localStorage.setItem(SearchKeyItemKey, searchKey);
-                const entering = !!searchKey && !searching;
-                const leaving = !searchKey && searching;
-                searching = !!searchKey;
-                // 空→非空跳变须等聚合视图挂载再过滤（同分支跳变 tick 只是空冲刷）
-                await tick();
-                searchSettings(settingsDiv, searchKey);
-                if (searchKey) updateNavHits();
-                else navHits = {};
-                if (entering || leaving) scrollPanelTop();
-                // 进聚合视图导航列回顶（vision □5 P1）：navActive 冻结不触发 keepActiveTabVisible，
-                // 列停在浏览态滚动位置时首命中域高亮滚出视野——聚合无「当前域」概念，整体可见；
-                // 离聚合态对称恢复激活项入视野（navActive 值未变 $effect 不重跑）
-                if (entering) navListEl?.scrollTo({ top: 0 });
-                if (leaving) keepActiveTabVisible();
+            value={searchKey}
+            oninput={(e) => {
+                if (e instanceof InputEvent && e.isComposing) return;
+                void applySearch(e.currentTarget.value);
             }}
+            oncompositionend={(e) => void applySearch(e.currentTarget.value)}
         />
     </div>
     <!-- 双栏：左 9 域导航 + 右内容区（浏览态单域渲染 / 搜索态「全部」聚合视图）。

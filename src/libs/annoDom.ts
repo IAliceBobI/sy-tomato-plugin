@@ -3,7 +3,17 @@
 // 关键契约：思源 setInlineMark 对 type:"a" 的跨块判定=range 首末容器的最近 data-node-id 块相同
 // （toolbar/index.ts hasClosestBlock），故拆分粒度=最近块（段落级），非顶层块。
 import type { TomatoAnnotation } from "./annotationsAttr";
-import { ANNO_HREF_PREFIX } from "./annotationsAttr";
+import { ANNOTATIONS_ATTR, ANNO_HREF_PREFIX } from "./annotationsAttr";
+
+/** 编辑器内批注标记 span（内核 setInlineMark 产物）；a 形态=导出/预览，碎片类不进 kramdown 不适用。
+ *  词匹配 ~=：内核把行内格式合并进锚点 span（data-type="strong a" 等复合词表，顺序不定），
+ *  精确匹配会漏掉带格式 run——样式/打标/命中判定全断（陆杰 09-16 拆段反馈的隐藏半边） */
+export const ANNO_SPAN_SEL = 'span[data-type~="a"][data-href^="#tomato-anno-"]';
+
+/** 碎片归一类（ Annotations 同步渲染时打标，index.scss 三档形态据此收帽/拼缝） */
+export const ANNO_FRAG_FIRST = "tomato-anno-frag-first";
+export const ANNO_FRAG_MID = "tomato-anno-frag-mid";
+export const ANNO_FRAG_LAST = "tomato-anno-frag-last";
 
 /** 块含无 sel 条目 ⇒ 是块级批注宿主，同步 .tomato-anno-block class（spec §6） */
 export function hasBlockLevelEntry(entries: TomatoAnnotation[]): boolean {
@@ -13,6 +23,37 @@ export function hasBlockLevelEntry(entries: TomatoAnnotation[]): boolean {
 /** 从 data-href 值剥批注 id；非本插件前缀返回 null（点击/hover 命中判定用） */
 export function annoIdFromHref(href: string): string | null {
     return href.startsWith(ANNO_HREF_PREFIX) ? href.slice(ANNO_HREF_PREFIX.length) : null;
+}
+
+/** 块内碎片归一打标（陆杰 09-16 拆段反馈）。
+ *  setInlineMark 遇行内样式/行内引用等非纯文本节点边界，会把同一批注的标记 span 拆成
+ *  多个（同 data-href）；每段独立渲染小盒+首尾装饰 =「多个分段显示/emoji 重复」。
+ *  本函数按「宿主块 × href」分组（querySelectorAll 文档序），组内首/中/尾 span 打类，
+ *  CSS 只在真首/真尾渲染首尾装饰、接缝去帽拼连续——块内一条连续标记。
+ *  跨块边界不归一：块与块是独立行、无「接缝」可言，每块自成完整胶囊（各组独立分组天然成立）。
+ *  幂等：先清 scope 内全部碎片类再重打（删除摘 span 后残留类会被下一轮清掉）。 */
+export function markAnnoFragments(scope: ParentNode): void {
+    const spans = [...scope.querySelectorAll<HTMLElement>(ANNO_SPAN_SEL)];
+    for (const s of spans) s.classList.remove(ANNO_FRAG_FIRST, ANNO_FRAG_MID, ANNO_FRAG_LAST);
+    // 宿主块（div[custom-tomato-annotations]）→ href → span 组
+    const byHolder = new Map<ParentNode, Map<string, HTMLElement[]>>();
+    for (const s of spans) {
+        const holder = (s.closest(`div[${ANNOTATIONS_ATTR}]`) ?? s.parentElement) as ParentNode | null;
+        if (holder == null) continue;
+        let byHref = byHolder.get(holder);
+        if (!byHref) byHolder.set(holder, (byHref = new Map()));
+        const list = byHref.get(s.getAttribute("data-href") ?? "");
+        if (list) list.push(s);
+        else byHref.set(s.getAttribute("data-href") ?? "", [s]);
+    }
+    for (const byHref of byHolder.values()) {
+        for (const list of byHref.values()) {
+            if (list.length < 2) continue;
+            list[0].classList.add(ANNO_FRAG_FIRST);
+            list[list.length - 1].classList.add(ANNO_FRAG_LAST);
+            for (let i = 1; i < list.length - 1; i++) list[i].classList.add(ANNO_FRAG_MID);
+        }
+    }
 }
 
 export interface BlockSubRange {

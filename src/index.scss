@@ -191,7 +191,7 @@
   stroke-linecap: round;
 }
 
-.protyle-wysiwyg span[data-type="a"][data-href^="#tomato-mindwire-"] {
+.protyle-wysiwyg span[data-type~="a"][data-href^="#tomato-mindwire-"] {
   color: inherit;
   text-decoration-line: none;
   cursor: pointer;
@@ -539,7 +539,7 @@ html[data-theme-mode="dark"] .protyle-wysiwyg {
    双限定（父块属性 + href 前缀）保证不碰普通链接；
    span = 编辑器内行内链接形态，a = 导出/预览形态 */
 .protyle-wysiwyg div[custom-tomato-annotations] {
-  span[data-type="a"][data-href^="#tomato-anno-"],
+  span[data-type~="a"][data-href^="#tomato-anno-"],
   a[href^="#tomato-anno-"] {
     color: inherit;
     text-decoration-line: underline;
@@ -558,6 +558,25 @@ html[data-theme-mode="dark"] .protyle-wysiwyg {
       background-color: var(--tomato-anno-bg-hover);
     }
   }
+
+  /* 拆段归一（陆杰 09-16）：块内同批注 span 碎片（行内样式/行内引用边界拆出）接缝去帽——
+     seam 侧 padding/圆角归零把微底色拼连续（下划线本身跨 span 连续）；
+     碎片类由 annoDom.markAnnoFragments 渲染期打标 */
+  span[data-type~="a"][data-href^="#tomato-anno-"].tomato-anno-frag-first {
+    padding-right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  span[data-type~="a"][data-href^="#tomato-anno-"].tomato-anno-frag-mid {
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+  }
+  span[data-type~="a"][data-href^="#tomato-anno-"].tomato-anno-frag-last {
+    padding-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
 }
 
 /* =====================================================================
@@ -569,7 +588,7 @@ html[data-theme-mode="dark"] .protyle-wysiwyg {
 /* 背景开关（下划线式子维度）：关=微底色与 hover 加深一并盖掉；
    装饰串是 background-image 不受影响（spec §11.1.1 共存表） */
 html[data-tomato-anno-bg="off"] .protyle-wysiwyg div[custom-tomato-annotations] {
-  span[data-type="a"][data-href^="#tomato-anno-"],
+  span[data-type~="a"][data-href^="#tomato-anno-"],
   a[href^="#tomato-anno-"] {
     background-color: transparent;
 
@@ -595,7 +614,7 @@ html[data-theme-mode="dark"][data-tomato-anno-style="marker"] .protyle-wysiwyg {
 
 /* 马克笔式 M1 斜角手涂带：无下划线纯底色，带高=厚度档×3px（spec §11.2.1） */
 html[data-tomato-anno-style="marker"] .protyle-wysiwyg div[custom-tomato-annotations] {
-  span[data-type="a"][data-href^="#tomato-anno-"],
+  span[data-type~="a"][data-href^="#tomato-anno-"],
   a[href^="#tomato-anno-"] {
     text-decoration-line: none;
     background-color: transparent;
@@ -610,6 +629,22 @@ html[data-tomato-anno-style="marker"] .protyle-wysiwyg div[custom-tomato-annotat
     &:hover {
       --tomato-anno-marker-band: var(--tomato-anno-marker-band-hover);
     }
+  }
+
+  /* 拆段归一：斜角褪晕只在整条批注真首/真尾各一次，中段碎片平涂——高亮带拼连续 */
+  span[data-type~="a"][data-href^="#tomato-anno-"].tomato-anno-frag-first {
+    background-image: linear-gradient(100deg,
+      transparent 0%, var(--tomato-anno-marker-band) 4%,
+      var(--tomato-anno-marker-band) 100%);
+  }
+  span[data-type~="a"][data-href^="#tomato-anno-"].tomato-anno-frag-mid {
+    background-image: linear-gradient(100deg,
+      var(--tomato-anno-marker-band) 0%, var(--tomato-anno-marker-band) 100%);
+  }
+  span[data-type~="a"][data-href^="#tomato-anno-"].tomato-anno-frag-last {
+    background-image: linear-gradient(100deg,
+      var(--tomato-anno-marker-band) 0%,
+      var(--tomato-anno-marker-band) 96%, transparent 100%);
   }
 }
 
@@ -632,7 +667,7 @@ html[data-theme-mode="dark"][data-tomato-anno-style="frame"] .protyle-wysiwyg {
 /* 花边框 F2 文字流蝴蝶：框体 + 首尾 ::before/::after 蝴蝶（inline-flow，折行跟首/末行零飘移，
    spec §11.3.2/§11.4；clone 让每行完整胶囊） */
 html[data-tomato-anno-style="frame"] .protyle-wysiwyg div[custom-tomato-annotations] {
-  span[data-type="a"][data-href^="#tomato-anno-"],
+  span[data-type~="a"][data-href^="#tomato-anno-"],
   a[href^="#tomato-anno-"] {
     text-decoration-line: none;
     background-color: var(--tomato-anno-frame-bg);
@@ -659,12 +694,47 @@ html[data-tomato-anno-style="frame"] .protyle-wysiwyg div[custom-tomato-annotati
       mask: var(--tomato-bfly) center / contain no-repeat;
     }
   }
+
+  /* 拆段归一（陆杰 09-16，vision 实证拆段交界背靠背双蝴蝶=「emoji 重复」观感来源）：
+     蝴蝶只在整条批注真首/真尾各渲染一次；中段碎片去双边框+双内距+双圆角拼连续胶囊 */
+  span[data-type~="a"][data-href^="#tomato-anno-"].tomato-anno-frag-first {
+    border-right: none;
+    padding-right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    &::after {
+      display: none;
+    }
+  }
+  span[data-type~="a"][data-href^="#tomato-anno-"].tomato-anno-frag-mid {
+    border-left: none;
+    border-right: none;
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+  span[data-type~="a"][data-href^="#tomato-anno-"].tomato-anno-frag-last {
+    border-left: none;
+    padding-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+
+    &::before {
+      display: none;
+    }
+  }
 }
 
 /* 线型扩展档：圆点串 dot-bead（background 渐变通道替代下划线，spec §11.1.1；
    padding-bottom 下探=inline 背景绘制区止于 content box，装饰须悬挂字底不咬字） */
 html[data-tomato-anno-underline="dot-bead"] .protyle-wysiwyg div[custom-tomato-annotations] {
-  span[data-type="a"][data-href^="#tomato-anno-"],
+  span[data-type~="a"][data-href^="#tomato-anno-"],
   a[href^="#tomato-anno-"] {
     text-decoration-line: none;
     padding-bottom: calc(var(--tomato-anno-underline-width, 2) * 3px);
@@ -682,7 +752,7 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
   --tomato-anno-ringw: max(1px, calc(var(--tomato-anno-underline-width, 2) * 0.6px));
 
   div[custom-tomato-annotations] {
-    span[data-type="a"][data-href^="#tomato-anno-"],
+    span[data-type~="a"][data-href^="#tomato-anno-"],
     a[href^="#tomato-anno-"] {
       text-decoration-line: none;
       padding-bottom: calc(var(--tomato-anno-underline-width, 2) * 3px);
@@ -745,12 +815,17 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
   }
 }
 
-/* hover 轻预览：列表式 + 时间戳 + 滚动，纯展示不接指针（点击穿透进查看） */
+/* hover 轻预览：列表式 + 时间戳 + 滚动，纯展示不接指针（点击穿透进查看）；
+   字号钉基线档（var 只服务 view 态，preview 不随用户放大） */
 .tomato-anno-pop--preview {
   min-width: 220px;
   max-width: 340px;
   border-radius: var(--b3-border-radius);
   pointer-events: none;
+
+  .tomato-anno-pop__text {
+    font-size: 13px;
+  }
 }
 
 .tomato-anno-pop__list {
@@ -800,7 +875,7 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
 }
 
 .tomato-anno-pop__text {
-  font-size: 13px;
+  font-size: var(--tomato-anno-view-fs, 13px); /* 查看态字号可调（气泡 foot A−/A+；preview 恒默认档不放大） */
   line-height: 1.6;
   word-break: break-word;
 
@@ -901,9 +976,60 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
 .tomato-anno-pop__foot {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 8px;
   padding: 8px 12px 10px;
   border-top: 1px solid var(--b3-border-color);
+}
+
+/* view 态多条目：条目内衬+浅分隔（陆杰 09-16「平面列表没层次」） */
+.tomato-anno-pop--view .tomato-anno-pop__body {
+  padding: 2px 0;
+}
+
+.tomato-anno-pop--view .tomato-anno-pop__item {
+  padding: 6px 12px;
+}
+
+.tomato-anno-pop--view .tomato-anno-pop__item + .tomato-anno-pop__item {
+  border-top: 1px solid var(--b3-border-color);
+}
+
+/* foot 字号组（查看态字号就近调，与编辑弹窗工具条同款 A−/数字/A+；弱化不与操作钮抢层级） */
+.tomato-anno-fsgroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tomato-anno-fsbtn {
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1;
+  padding: 5px 6px;
+  border: none;
+  border-radius: var(--b3-border-radius);
+  background: transparent;
+  color: var(--b3-theme-on-surface-light, #999);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--b3-theme-surface-lighter);
+    color: var(--b3-theme-on-surface);
+  }
+
+  &:disabled {
+    opacity: 0.38;
+    cursor: default;
+  }
+}
+
+.tomato-anno-fsnum {
+  min-width: 18px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--b3-theme-on-surface-light, #999);
+  font-variant-numeric: tabular-nums;
 }
 
 .tomato-anno-btn {
@@ -927,6 +1053,87 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
     border-color: var(--b3-theme-error);
     background: transparent;
   }
+
+  /* □9 追加钮展开态（输入行在场）：主色描边标示当前动作 */
+  &.is-active {
+    color: var(--b3-theme-primary);
+    border-color: var(--b3-theme-primary);
+  }
+}
+
+/* □9 追加时间线：正文之后的思考路径（浅缩进+细分隔，与正文视觉分层） */
+.tomato-anno-pop__replies {
+  margin-top: 6px;
+  padding-left: 8px;
+  border-left: 2px solid var(--b3-border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tomato-anno-pop__reply + .tomato-anno-pop__reply {
+  border-top: 1px solid var(--b3-border-color);
+  padding-top: 4px;
+}
+
+.tomato-anno-pop__rtime {
+  display: block;
+  font-size: 11px;
+  line-height: 1.4;
+  opacity: 0.62;
+  font-variant-numeric: tabular-nums;
+}
+
+.tomato-anno-pop__rtext {
+  font-size: 12px;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--b3-theme-on-surface); /* 追加=次级正文，较主文浅一档 */
+
+  p {
+    margin: 0 0 2px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+/* □9 追加输入行（气泡内就地展开，秒开轻链路） */
+.tomato-anno-pop__append {
+  margin: 2px 12px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tomato-anno-pop__ata {
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 6px 8px;
+  border: 1px solid var(--b3-border-color);
+  border-radius: var(--b3-border-radius);
+  background: var(--b3-theme-surface);
+  color: var(--b3-theme-on-background);
+  resize: vertical;
+  min-height: 44px;
+  max-height: 160px;
+  outline: none;
+
+ &:focus {
+    border-color: var(--b3-theme-primary);
+  }
+
+  &::placeholder {
+    color: var(--b3-theme-on-surface-light, #999);
+  }
+}
+
+.tomato-anno-pop__arow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 // □5 面板 tooltip 自建单例（libs/panelTip.ts）：纯提示常驻不拦指针
@@ -935,22 +1142,34 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
   pointer-events: none;
 }
 
-// □3 默认关可发现性入口条（bk-bottom 战役 spec §10）：普通文档流元素非浮层，
-// 计数=0 完全不渲染；点击整条=enableBK 挂载面板。□4 终值：开启钮 button 化（语义）。
+// □3 默认关可发现性入口条（bk-bottom 战役 spec §10）：计数=0 完全不渲染；
+// 点击整条=enableBK 挂载面板。□4 终值：开启钮 button 化（语义）。
+// 09-16 陆杰反馈：内核给 wysiwyg 动态写内联 padding-bottom（打字机模式=编辑器高一半、
+// 普通=16px），文档流内挂载（wysiwyg afterend）的条在空白/短文档时悬在编辑区中间；
+// sticky bottom 只「拉住」不「推下」（自然位置高于底时不钉），治不了本形态——
+// 浮层化 absolute 钉 .protyle（position:relative）底缘：短文档贴底、长文档滚动常驻。
+// 代价=不占流高，用 :has 给滚动容器补底部占位防末行被遮；surface+上边线做面板感
+//（vision 09-16：纯 theme-background 与页面零区分，截断感似渲染残缺）。
 .tomato-bk-entry-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   gap: 6px;
   height: 28px;
-  margin: 4px 0;
+  margin: 0;
   padding: 0 8px;
   font-size: 12px;
   color: var(--b3-theme-on-surface-light);
   cursor: pointer;
-  background: transparent;
+  background: var(--b3-theme-surface);
+  border-top: 1px solid var(--b3-border-color);
 
+  // 主背景常驻 surface 后，hover 反馈改色阶微暗（原 transparent→surface 已无差）
   &:hover {
-    background: var(--b3-theme-surface);
+    background: color-mix(in srgb, var(--b3-theme-surface), var(--b3-theme-on-surface) 6%);
   }
 
   .tomato-bk-entry-bar__text {
@@ -970,6 +1189,11 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
     color: var(--b3-theme-primary);
     cursor: pointer;
   }
+}
+
+// 入口条在场时给滚动容器让出条高（absolute 不占流，否则滚动中末行被条拦腰截断）
+.protyle-content:has(> .tomato-bk-entry-bar) {
+  padding-bottom: 40px;
 }
 
 /* =====================================================================
@@ -1026,7 +1250,7 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
 // 触屏无 hover 也可辨（非 hover 等价天然满足）。变量化供 flash keyframes 首尾帧
 // 引用（防首尾 transparent 洗掉常态底的二次闪烁）。hot 18% 特异性更高，单值覆盖
 // 不叠加（勿在此再加混合）
-.protyle-wysiwyg span[data-type="a"][data-href^="#tomato-mindwire-"] {
+.protyle-wysiwyg span[data-type~="a"][data-href^="#tomato-mindwire-"] {
   --tomato-mind-wire-word-bg: color-mix(in srgb, var(--tomato-mind-wire-accent, var(--b3-font-color4)) 10%, transparent);
   background-color: var(--tomato-mind-wire-word-bg);
   border-radius: 2px; // 常态底色有了可见边界，圆角对齐 hot 档
@@ -1034,13 +1258,13 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
 
 // 暗色提档：思源权威判别通道 html[data-theme-mode]（批注段同款，不裸用 prefers-color-scheme）；
 // 暗底同比例混合可感性低，批注 12→15 先例同构收 13%
-html[data-theme-mode="dark"] .protyle-wysiwyg span[data-type="a"][data-href^="#tomato-mindwire-"] {
+html[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="a"][data-href^="#tomato-mindwire-"] {
   --tomato-mind-wire-word-bg: color-mix(in srgb, var(--tomato-mind-wire-accent, var(--b3-font-color4)) 13%, transparent);
 }
 
 // 顶缘锚圆点（D13）：对端在上方时本端词顶出线，点翻字顶上方悬浮（底缘镜像：
 // 中心≈字顶−4.5px，与曲线起点 y=top−8 衔接）；隔离环/hot scale(1.4) 规格沿用
-.protyle-wysiwyg span[data-type="a"][data-href^="#tomato-mindwire-"].tomato-mind-wire-top::after {
+.protyle-wysiwyg span[data-type~="a"][data-href^="#tomato-mindwire-"].tomato-mind-wire-top::after {
   bottom: auto;
   top: -7px;
 }
@@ -1414,3 +1638,231 @@ html[data-theme-mode="dark"] .tomato-annochat-card__m--user {
 }
 .tomato-rp-card__go > svg { width: 12px; height: 12px; }
 .tomato-rp-card__go:hover { background: var(--b3-theme-surface-lighter); }
+
+/* ---- □8 批注卡块 anno-note（复习卡面=批注内容+原文上下文；rp 卡同构语汇） ---- */
+.tomato-annonote-card [hidden] { display: none; }
+.tomato-annonote-card {
+    margin: 2px 0;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    border: 1px solid var(--b3-border-color);
+    border-radius: var(--b3-border-radius);
+    background: var(--b3-theme-surface);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.tomato-annonote-card__broken {
+    padding: 6px 8px;
+    font-size: 12px;
+    color: var(--b3-theme-on-surface-light, #999);
+}
+.tomato-annonote-card__head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 24px;
+}
+.tomato-annonote-card__head > svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--b3-theme-secondary);
+}
+.tomato-annonote-card__title {
+    font-weight: 500;
+    white-space: nowrap;
+}
+.tomato-annonote-card__meta {
+    font-size: 11px;
+    color: var(--b3-theme-on-surface-light, #999);
+    white-space: nowrap;
+}
+/* 来源行（仅复习宿主；现查回填，孤儿静默）：《文档》· 小节 · /路径 */
+.tomato-annonote-card__source {
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--b3-theme-on-surface-light, #999);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* 原文摘录（anchorSnapshot 快照；折叠档 ≈6 行，rp excerpt 同款） */
+.tomato-annonote-card__excerpt {
+    margin-top: 6px;
+    color: var(--b3-theme-on-surface); /* vision P2：复习宿主内小字+灰底叠加观感偏灰，显式钉深色 */
+    padding: 6px 10px;
+    border-radius: var(--b3-border-radius-b);
+    background: var(--b3-theme-surface-lighter);
+    max-height: 132px;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 12.5px;
+    position: relative;
+}
+.tomato-annonote-card__excerpt.is-open { max-height: none; overflow: visible; }
+.tomato-annonote-card__excerpt.is-open::after { content: none; }
+.tomato-annonote-card__excerpt:not(.is-open)::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 28px;
+    background: linear-gradient(transparent, var(--b3-theme-surface-lighter));
+    pointer-events: none;
+}
+.tomato-annonote-card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    margin-left: -6px;
+    padding: 2px 6px;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--b3-theme-on-surface-light, #999);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+}
+.tomato-annonote-card__more:hover {
+    color: var(--b3-theme-on-surface);
+    background: var(--b3-theme-surface-lighter);
+}
+/* 批注正文：主内容区（annoTextToHtml 富文本子集，anno-pop__text 同参数） */
+.tomato-annonote-card__text {
+    margin-top: 6px;
+    word-break: break-word;
+
+    p { margin: 0 0 6px; &:last-child { margin-bottom: 0; } }
+    ul, ol {
+        margin: 0 0 6px;
+        padding-left: 18px;
+        &:last-child { margin-bottom: 0; }
+    }
+    li { margin: 2px 0; }
+    strong { font-weight: 600; }
+    code {
+        font-size: 0.92em;
+        padding: 1px 4px;
+        border-radius: 4px;
+        background: var(--b3-theme-surface-lighter);
+    }
+    a { color: var(--b3-protyle-inline-link-color); }
+}
+/* replies 时间线（□9 思考路径；气泡/面板同款语汇：浅缩进+细分隔） */
+.tomato-annonote-card__replies {
+    margin-top: 6px;
+    padding-left: 8px;
+    border-left: 2px solid var(--b3-border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.tomato-annonote-card__reply + .tomato-annonote-card__reply {
+    border-top: 1px solid var(--b3-border-color);
+    padding-top: 4px;
+}
+.tomato-annonote-card__rtime {
+    display: block;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--b3-theme-on-surface-light, #999);
+    font-variant-numeric: tabular-nums;
+}
+.tomato-annonote-card__rtext {
+    font-size: 12px;
+    line-height: 1.6;
+    word-break: break-word;
+    color: var(--b3-theme-on-surface);
+
+    p { margin: 0 0 2px; &:last-child { margin-bottom: 0; } }
+}
+/* 回原文：主行动钮（rp go 同款轻框形态） */
+.tomato-annonote-card__go {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 10px;
+    flex-shrink: 0;
+    border: 1px solid var(--b3-border-color);
+    border-radius: var(--b3-border-radius);
+    background: transparent;
+    color: var(--b3-theme-on-surface);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s;
+}
+.tomato-annonote-card__go > svg { width: 12px; height: 12px; }
+.tomato-annonote-card__go:hover { background: var(--b3-theme-surface-lighter); }
+
+/* 复习宿主内容区按视口比例分配（实测 ~35vh），富卡（来源+摘录+正文+replies）在矮视口溢出
+ * 被裁、尾钮（回原文/展开讨论）落进官方评级条底下不可点——内核对 custom 块先例=pre 内滚
+ * （overflow:auto），卡面同款：30vh 上限内滚，大屏卡矮于上限零感知 */
+.card__main .tomato-annonote-card,
+.card__main .tomato-annochat-card {
+    max-height: 30vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* ---- □8 沉淀卡（anno-chat）复习宿主来源行+原文摘录（rp/__annonote 同款语汇） ---- */
+.tomato-annochat-card__source {
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--b3-theme-on-surface-light, #999);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tomato-annochat-card__excerpt {
+    margin-top: 6px;
+    color: var(--b3-theme-on-surface); /* vision P2：复习宿主内小字+灰底叠加观感偏灰，显式钉深色 */
+    padding: 6px 10px;
+    border-radius: var(--b3-border-radius-b);
+    background: var(--b3-theme-surface-lighter);
+    max-height: 132px;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 12.5px;
+    position: relative;
+}
+.tomato-annochat-card__excerpt.is-open { max-height: none; overflow: visible; }
+.tomato-annochat-card__excerpt.is-open::after { content: none; }
+.tomato-annochat-card__excerpt:not(.is-open)::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 28px;
+    background: linear-gradient(transparent, var(--b3-theme-surface-lighter));
+    pointer-events: none;
+}
+.tomato-annochat-card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    margin-left: -6px;
+    padding: 2px 6px;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--b3-theme-on-surface-light, #999);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+}
+.tomato-annochat-card__more:hover {
+    color: var(--b3-theme-on-surface);
+    background: var(--b3-theme-surface-lighter);
+}

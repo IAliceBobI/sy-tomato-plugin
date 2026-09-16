@@ -6,7 +6,9 @@ import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { DestroyManager } from "./libs/destroyer";
 import TomatoVedio from "./TomatoClockVedio.svelte";
 import { addIcon, isPinned, removeStatusBar } from "./libs/ui";
-import { tomato_clocks, tomato_clocks_audio, tomato_clocks_break, tomato_clocks_change_bg, tomato_clocks_change_bg_dark, tomato_clocks_force_dialog, tomato_clocks_force_notice, tomato_clocks_focus, tomato_clocks_loop, tomato_clocks_notice, tomato_clocks_opacity, tomato_clocks_position_right, tomatoClockCheckbox } from "./libs/stores";
+import { tomato_clocks, tomato_clocks_audio, tomato_clocks_break, tomato_clocks_change_bg, tomato_clocks_change_bg_dark, tomato_clocks_force_dialog, tomato_clocks_force_notice, tomato_clocks_focus, tomato_clocks_loop, tomato_clocks_notice, tomato_clocks_opacity, tomato_clocks_position_right, tomatoClockCheckbox, tomato_microbreak, tomato_microbreak_dialog, tomato_microbreak_duration, tomato_microbreak_max, tomato_microbreak_min, tomato_microbreak_notice, tomato_microbreak_notification } from "./libs/stores";
+import MicroBreakDialog from "./MicroBreakDialog.svelte";
+import { MicroBreakScheduler, clampMicroBreakDuration } from "./libs/MicroBreakCore";
 import { tomatoI18n } from "./tomatoI18n";
 import { verifyKeyTomato } from "./libs/user";
 import { newID } from "stonev5-utils";
@@ -16,6 +18,16 @@ import { dayKey, recordPomodoro, statsFor, type TomatoStatsData } from "./libs/T
 import { FOCUS_ATTR, mergeFocusMinutes } from "./libs/TomatoFocus";
 import { parseClocks } from "./libs/TomatoClockList";
 import { NOTICE_AUDIO_URL } from "./libs/TomatoAudioList";
+import { debugLog } from "./libs/logUtils";
+import {
+    armNoticeAudioUnlock,
+    blockedGuidance,
+    disarmNoticeAudioUnlock,
+    playNoticeAudio as playNoticeAudioCh,
+    raceNoticePlay,
+    unlockNoticeAudio,
+    type NoticeAudioResult,
+} from "./libs/NoticeAudio";
 
 function formatClock(ms: number): string {
     const total = Math.floor(ms / 1000);
@@ -50,6 +62,11 @@ class TomatoClock {
     private customTab: (options: any) => Custom;
     /** 明暗主题切换监听（□4）：计时中换主题即时换背景图，不再等下一次状态变化 */
     private themeObserver: MutationObserver | null = null;
+    /** 微休息调度器（devbatch □3）：工作时段内随机时刻触发，snap 由 tick 透传 */
+    private micro: MicroBreakScheduler | null = null;
+    /** 微休息弹窗（到点自动关；同时至多一个，新触发顶掉旧窗）与窗内组件实例 */
+    private microDialog: Dialog | null = null;
+    private microComp: ReturnType<typeof mount> | null = null;
 
     /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役 */
     onload(plugin: BaseTomatoPlugin) {
@@ -57,6 +74,8 @@ class TomatoClock {
 
         this.customTab;
         this.plugin = plugin;
+        // 09-16 提示音加固：加载即挂首次交互兜底解锁（reload 后自动恢复计时、尚未点击的场景）
+        armNoticeAudioUnlock(() => this.noticeAudioUrl());
 
         // 跨代残留清理：reload 惰性路径不调 onunload，上一代拖动中的预览层可能挂在 body 上
         deleteBgDiv(PREVIEW_ID);
@@ -74,6 +93,14 @@ class TomatoClock {
             onPhaseComplete: (finished, next, finishedMinutes, via) => {
                 this.onPhaseComplete(finished, next, finishedMinutes, via);
             },
+        });
+        // 微休息（devbatch □3）：设置每 tick 热读（面板改完即生效），触发出三通道开关分发
+        this.micro = new MicroBreakScheduler({
+            now: () => Date.now(),
+            enabled: () => tomato_microbreak.get(),
+            minMs: () => Number(tomato_microbreak_min.get()) * 60_000,
+            maxMs: () => Number(tomato_microbreak_max.get()) * 60_000,
+            onFire: () => this.fireMicroBreak(),
         });
 
         // 重启恢复（W1）：新四字段格式；旧格式/过期数据由状态机判垃圾静默丢弃
@@ -139,8 +166,10 @@ class TomatoClock {
 
     onunload() {
         bgMountSeq++; // 并发守卫（□7，评审 P1-1）：作废一切在飞挂载轮——卸载删层后不得被在飞 mount 回挂
+        disarmNoticeAudioUnlock();
         clearInterval(this.tickID);
         this.closeBreakDialog();
+        this.closeMicroBreakDialog(); // 微休息弹窗（□3）：卸载即撤，倒计时 interval 随组件 unmount 清
         this.themeObserver?.disconnect();
         this.themeObserver = null;
         deleteBgDiv(PREVIEW_ID);
@@ -166,6 +195,7 @@ class TomatoClock {
             if (snap && snap.phase == "break" && this.breakCountdownEl) {
                 this.breakCountdownEl.textContent = formatClock(snap.remainingMs);
             }
+            this.micro?.tick(snap); // 微休息（□3）：非 work 态/暂停内部自清，嵌套不打扰大循环
         }, 1000);
     }
 
@@ -364,6 +394,7 @@ class TomatoClock {
         const statusIconTemp = document.createElement("template");
         statusIconTemp.innerHTML = `<div class="toolbar__item ariaLabel" aria-label="${label}"><svg><use xlink:href="#${icon}"></use></svg></div>`;
         statusIconTemp.content.firstElementChild.addEventListener("click", async () => {
+            unlockNoticeAudio(this.noticeAudioUrl()); // 09-16 加固：手势栈内静音解锁（幂等，开始计时正是最需要声音的时刻）
             const snap = this.timer.snapshot();
             if (minute === 0) {
                 if (snap) {
@@ -394,11 +425,97 @@ class TomatoClock {
 
     // ---------------- 到点/跳段副作用 ----------------
 
+    /** 微休息触发（devbatch □3）：按三通道开关分发——弹窗倒计时（主）/轻提示（提示音+toast）/
+     *  系统通知（桌面 Notification）。三开关全关时不打扰（间隔照常重掷，等于只记账无声版）。
+     *  微休息期间工作计时照常走（嵌套非替代）。 */
+    private fireMicroBreak() {
+        const seconds = clampMicroBreakDuration(Number(tomato_microbreak_duration.get()));
+        debugLog("microbreak", `fire duration=${seconds}s`, "tomato");
+        if (tomato_microbreak_dialog.get()) this.showMicroBreakDialog(seconds);
+        if (tomato_microbreak_notice.get()) {
+            void this.playNoticeAudio(); // 复用到点提示音单例链（含解锁态），失败自有 Loki 打点
+            void siyuan.pushMsg(`${tomatoI18n.微休息}: ${tomatoI18n.微休息提示语}`, seconds * 1000);
+        }
+        if (tomato_microbreak_notification.get()) this.pushMicroBreakNotification(seconds);
+    }
+
+    /** 微休息弹窗：轻量居中小窗+倒计时自治（组件内 interval，到 0 回调关闭）；新触发顶旧窗。
+     *  显式关闭钮（vision P1-2）：时长可设 60s，不可逃弹窗不妥——header 补 ×（内核 Dialog
+     *  桌面端默认无 ×，isMobile 限定），提前关只关窗、工作计时照常走。 */
+    private showMicroBreakDialog(seconds: number) {
+        this.closeMicroBreakDialog();
+        const hostId = newID();
+        const dialog = new Dialog({
+            title: `${tomatoI18n.番茄钟}·${tomatoI18n.微休息}`,
+            content: `<div id="${hostId}"></div>`,
+            width: events.isMobile ? "80vw" : "280px",
+            height: null,
+            destroyCallback: () => {
+                if (this.microDialog === dialog) {
+                    this.microDialog = null;
+                    this.unmountMicroComp();
+                }
+            },
+        });
+        // 关闭钮（vision P1-2 二轮修订）：内核 .b3-dialog__close 是 **svg 本体的类**、
+        // 挂 .b3-dialog__container 直下（桌面端默认 fn__none、内核样式 18px+padding8+
+        // 右上角定位全按这个形态给）——span 包一层塞 header=svg 拿不到尺寸约束渲染成
+        // 漂浮大 ×。正解=完全复刻内核形态：裸 svg 直接 append 到 container。
+        const container = dialog.element.querySelector(".b3-dialog__container");
+        if (container instanceof HTMLElement) {
+            const close = document.createElement("span");
+            close.innerHTML = '<svg class="b3-dialog__close" style="display:block"><use xlink:href="#iconCloseRound"></use></svg>';
+            const svg = close.firstElementChild as SVGSVGElement | null;
+            if (svg) {
+                svg.classList.remove("fn__none");
+                svg.addEventListener("click", () => this.closeMicroBreakDialog());
+                container.appendChild(svg);
+            }
+        }
+        this.microDialog = dialog;
+        this.microComp = mount(MicroBreakDialog, {
+            target: dialog.element.querySelector("#" + hostId) as HTMLElement,
+            props: { durationSec: seconds, onDone: () => this.closeMicroBreakDialog() },
+        });
+    }
+
+    private closeMicroBreakDialog() {
+        this.microDialog?.destroy();
+    }
+
+    private unmountMicroComp() {
+        if (this.microComp) {
+            unmount(this.microComp);
+            this.microComp = null;
+        }
+    }
+
+    /** 系统通知通道：桌面 Electron renderer 可用 web Notification；浏览器版权限拒绝/移动端
+     *  不支持=静默跳过（有弹窗/轻提示兜底，通知只是加分项） */
+    private pushMicroBreakNotification(seconds: number) {
+        try {
+            if (typeof Notification === "undefined") return;
+            const title = `${tomatoI18n.番茄钟}·${tomatoI18n.微休息}`;
+            if (Notification.permission === "default") {
+                void Notification.requestPermission().then(p => {
+                    if (p === "granted") new Notification(title, { body: tomatoI18n.微休息提示语 });
+                });
+                return;
+            }
+            if (Notification.permission === "granted") {
+                new Notification(title, { body: `${tomatoI18n.微休息提示语}（${seconds}s）` });
+            }
+        } catch (e) {
+            debugLog("microbreak", `notification fail ${String(e)}`, "tomato");
+        }
+    }
+
     private async onPhaseComplete(finished: TomatoPhase, next: TomatoSnapshot | null, finishedMinutes: number, via: TomatoCompleteVia) {
         const name = tomatoI18n.番茄钟;
         // 自然到点统一出声+记账；skip 是用户主动跳段，弹窗/toast 已是反馈，不叠声音不计数
+        let audioBlocked = false;
         if (via === "expire") {
-            this.playNoticeAudio();
+            audioBlocked = (await this.playNoticeAudio()) === "blocked";
             if (finished === "work") {
                 this.recordStat(finishedMinutes);
                 void this.writeBackFocus(finishedMinutes);
@@ -407,11 +524,11 @@ class TomatoClock {
         if (finished === "work") {
             if (next) {
                 // 自动循环：进休息段——弹休息小窗（带倒计时，到点自动关）
-                await this.showBreakDialog(next);
+                await this.showBreakDialog(next, audioBlocked);
                 await siyuan.pushMsg(`${name}${tomatoI18n.进入休息分钟(next.durationMs / 60000)}`, 5000);
             } else {
                 // 单段模式到点：维持原强提醒行为
-                await this.showTimeoutDialog(finishedMinutes);
+                await this.showTimeoutDialog(finishedMinutes, audioBlocked);
             }
             return;
         }
@@ -419,6 +536,16 @@ class TomatoClock {
         this.closeBreakDialog();
         if (next) {
             await siyuan.pushMsg(`${name}${tomatoI18n.休息结束开始工作(next.workMinutes)}`, 5000);
+        }
+        // blocked 且无弹窗面可挂兜底钮（罕见：恢复计时后零交互到点），toast 引导一次；
+        // toast 承诺「点击页面任意位置一次，下一轮即可恢复」——arm 兜底是首次交互一次性、
+        // 到点 blocked 时多半已消费，弹 toast 前必须重挂（blockedGuidance：先 arm 后 toast，
+        // 删 arm 行有测试钉）
+        if (audioBlocked) {
+            blockedGuidance(
+                () => armNoticeAudioUnlock(() => this.noticeAudioUrl()),
+                () => void siyuan.pushMsg(tomatoI18n.提示音被浏览器拦截, 5000),
+            );
         }
     }
 
@@ -457,17 +584,21 @@ class TomatoClock {
     }
 
     /** 休息小窗：Dialog + 视频区 + 顶部倒计时行；休息到点由 onPhaseComplete 自动关，
-     *  用户提前关窗只关内容、休息计时照常走（状态栏倒计时仍在） */
-    private async showBreakDialog(breakSnap: TomatoSnapshot) {
+     *  用户提前关窗只关内容、休息计时照常走（状态栏倒计时仍在）。
+     *  audioBlocked（09-16）：到点提示音被自动播放策略拦时，窗内挂「播放提示音」兜底钮。 */
+    private async showBreakDialog(breakSnap: TomatoSnapshot, audioBlocked = false) {
         this.closeBreakDialog();
         const vedioID = await this.pickNoticeVedioID();
         const breakMinutes = breakSnap.durationMs / 60000;
         const dm = new DestroyManager();
         const id = newID();
         const cdID = newID();
+        const audioRowID = newID();
+        const audioBtnID = newID();
+        const audioRow = audioBlocked ? this.audioFallbackHtml(audioRowID) : "";
         const dialog = new Dialog({
             title: `${tomatoI18n.番茄钟}☕${tomatoI18n.休息N分钟(breakMinutes)}`,
-            content: `<div id="${cdID}" style="text-align:center;font-size:1.6em;padding:4px 0 8px 0;font-variant-numeric:tabular-nums;"></div><div id="${id}"></div>`,
+            content: `${audioRow}<div id="${cdID}" style="text-align:center;font-size:1.6em;padding:4px 0 8px 0;font-variant-numeric:tabular-nums;"></div><div id="${id}"></div>`,
             width: events.isMobile ? "90vw" : "500px",
             height: events.isMobile ? "180vw" : null,
             destroyCallback: () => {
@@ -484,6 +615,7 @@ class TomatoClock {
         });
         dm.add("1", () => dialog.destroy())
         dm.add("2", () => unmount(d))
+        if (audioBlocked) this.wireAudioFallbackBtn(dialog, audioRowID, audioBtnID);
         this.breakDialog = dialog;
         this.breakCountdownEl = dialog.element.querySelector("#" + cdID);
         const snap = this.timer.snapshot();
@@ -496,25 +628,65 @@ class TomatoClock {
         this.breakDialog?.destroy();
     }
 
-    /** 到点提示音（□2）：设置可关；自定义 URL 优先，留空回落内置 mp3；主窗/移动端才播
-     *  （isMainWin 的 focus 按钮在移动端恒 false 会把移动端整类拦死——对齐 isWriteWin 判定，
-     *  否则移动端试听响、到点永不响，误导；浮窗无 #toolbar 天然排除，无多实例双响）。
-     *  自定义音失败弹一次 toast（用户配了自定义说明在意，静默最坑——Windows 本地路径无声问题的教训）；
-     *  内置音失败只 console.warn（不打扰，理论不会发生）。 */
-    private playNoticeAudio() {
-        if (!tomato_clocks_notice.get()) return;
-        if (!this.isWriteWin()) return;
+    /** 到点提示音 URL（设置自定义优先，空回落内置 mp3） */
+    private noticeAudioUrl(): string {
         const custom = (tomato_clocks_audio.get() ?? "").trim();
-        const url = custom || NOTICE_AUDIO_URL;
-        const fail = (e: unknown) => {
-            console.warn("Failed to play notice audio:", url, e);
-            if (custom) void siyuan.pushMsg(tomatoI18n.提示音播放失败, 3000);
-        };
-        try {
-            new Audio(url).play()?.catch?.(fail);
-        } catch (e) {
-            fail(e);
-        }
+        return custom || NOTICE_AUDIO_URL;
+    }
+
+    /** 到点提示音（09-16 加固）：单例通道（libs/NoticeAudio）+失败分类。返回 played/blocked/error，
+     *  notice 关/非主窗返回 null。blocked=自动播放拦截（调用方挂「播放提示音」兜底钮/toast 引导）；
+     *  error 且配了自定义音=沿用「播放失败」toast（用户配了说明在意，静默最坑）。播放结果 1.5s
+     *  不落地（自定义外链加载慢）按已播处理——到点弹窗不被慢 URL 阻塞（竞速+迟到补 toast=raceNoticePlay） */
+    private async playNoticeAudio(): Promise<NoticeAudioResult | null> {
+        if (!tomato_clocks_notice.get()) return null;
+        if (!this.isWriteWin()) return null;
+        const custom = (tomato_clocks_audio.get() ?? "").trim();
+        const r = await raceNoticePlay(
+            playNoticeAudioCh(this.noticeAudioUrl()),
+            () => {
+                if (custom) void siyuan.pushMsg(tomatoI18n.提示音播放失败, 3000);
+            },
+        );
+        if (r === "error" && custom) void siyuan.pushMsg(tomatoI18n.提示音播放失败, 3000);
+        return r;
+    }
+
+    /** blocked 兜底行（行壳）：按钮本体由 wireAudioFallbackBtn 用 DOM+textContent 造——
+     *  i18n 文案不进 innerHTML 拼接；点击必在手势栈内必响，成功即解锁后续轮次 */
+    private audioFallbackHtml(rowID: string): string {
+        return `<div id="${rowID}" style="padding:0 0 6px 0;text-align:center;"></div>`;
+    }
+
+    private wireAudioFallbackBtn(dialog: Dialog, rowID: string, btnID: string): void {
+        const row = dialog.element.querySelector("#" + rowID);
+        if (!row) return;
+        const btn = document.createElement("button");
+        btn.id = btnID;
+        btn.className = "b3-button b3-button--outline";
+        btn.textContent = tomatoI18n.播放提示音;
+        // □13-① 结果反馈：点了钮零反应（error/blocked）不再裸丢返回值——失败 toast+按钮留场可
+        // 重试；成功（含超时按已播）按钮退场（声音本身即反馈）
+        btn.addEventListener("click", () => {
+            btn.disabled = true;
+            void this.playNoticeAudio().then((r) => {
+                if (r === "blocked") {
+                    blockedGuidance(
+                        () => armNoticeAudioUnlock(() => this.noticeAudioUrl()),
+                        () => void siyuan.pushMsg(tomatoI18n.提示音被浏览器拦截, 5000),
+                    );
+                    btn.disabled = false; // 手势栈内仍被拦（极边角）：留钮重试
+                    return;
+                }
+                if (r === "error") {
+                    // 「播放失败」toast 由 playNoticeAudio 内部按自定义音已出；无自定义音的 error 静默留钮
+                    btn.disabled = false;
+                    return;
+                }
+                row.remove();
+            });
+        });
+        row.appendChild(btn);
     }
 
     /** 从设置指定的文档（及子文档）随机挑一个视频块 id；未配置返回空 */
@@ -528,15 +700,18 @@ class TomatoClock {
         return "";
     }
 
-    private async showTimeoutDialog(minute: number) {
+    private async showTimeoutDialog(minute: number, audioBlocked = false) {
         const vedioID = await this.pickNoticeVedioID();
         const title = `${tomatoI18n.番茄钟}🍅${minute} ${tomatoI18n.分钟已到}`
         if (events.isBrowser || tomato_clocks_force_dialog.get()) {
             const dm = new DestroyManager();
             const id = newID();
+            const audioRowID = newID();
+            const audioBtnID = newID();
+            const audioRow = audioBlocked ? this.audioFallbackHtml(audioRowID) : "";
             const dialog = new Dialog({
                 title,
-                content: `<div id="${id}"></div>`,
+                content: `${audioRow}<div id="${id}"></div>`,
                 width: events.isMobile ? "90vw" : "500px",
                 height: events.isMobile ? "180vw" : null,
                 destroyCallback: () => {
@@ -549,7 +724,16 @@ class TomatoClock {
             });
             dm.add("1", () => { dialog.destroy() })
             dm.add("2", () => { unmount(d) })
+            if (audioBlocked) this.wireAudioFallbackBtn(dialog, audioRowID, audioBtnID);
         } else {
+            // 桌面浮窗面挂不进兜底钮（TomatoVedio 组件不在此构造）；blocked 极罕见（桌面端粘性
+            // 激活即放行），toast 引导兜底；弹前重挂 arm 兑现「点击一次即恢复」的引导（blockedGuidance）
+            if (audioBlocked) {
+                blockedGuidance(
+                    () => armNoticeAudioUnlock(() => this.noticeAudioUrl()),
+                    () => void siyuan.pushMsg(tomatoI18n.提示音被浏览器拦截, 5000),
+                );
+            }
             const tab = await openTab({ // custom
                 app: this.plugin.app,
                 custom: {

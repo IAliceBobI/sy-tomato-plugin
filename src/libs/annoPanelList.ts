@@ -13,20 +13,37 @@ export interface AnnoPanelRow {
 /** 面板批注条目：批注条目本体 + 宿主块定位信息（点击跳原文块用 hostID） */
 export interface AnnoPanelItem {
     hostID: string;
+    /** 该条批注挂链的宿主块总数（跨块批注 >1；面板「跨 N 块」徽标数据源，anno-round2 □7） */
+    hostCount: number;
     blockContent: string;
     entry: TomatoAnnotation;
 }
 
-/** 行 → 面板条目列表：每块展开为多条目，整列 time 降序；属性脏值/零有效条目的块整块跳过 */
+/** 行 → 面板条目列表：每块展开为条目后按 annoId 去重（陆杰 09-16：跨块批注多块各挂
+ *  同 id 属性串，逐块展开=同一条记录重复 N 条；数据层不动——多块挂链是锚点机制），
+ *  整列 time 降序；属性脏值/零有效条目的块整块跳过。重复条目保首个宿主块（点击定位
+ *  落在批注覆盖的某一块即可；卡片引文走 entry.sel.txt 快照，与宿主块无关）；hostCount
+ *  =同 id 宿主块计数（去重不丢「跨块」感知）。 */
 export function annoPanelFromRows(rows: AnnoPanelRow[] | null | undefined): AnnoPanelItem[] {
-    const items: AnnoPanelItem[] = [];
+    // 解析结果缓存（hostCount 预数一遍，块行不重复 parseAnnotations）
+    const parsed: { id: string; content: string; entries: TomatoAnnotation[] }[] = [];
     for (const r of rows ?? []) {
         if (r?.id == null || r.id === "") continue;
         const entries = parseAnnotations(r.v);
         if (entries.length === 0) continue;
-        const content = typeof r.c === "string" ? r.c : "";
-        for (const entry of entries) {
-            items.push({ hostID: r.id, blockContent: content, entry });
+        parsed.push({ id: r.id, content: typeof r.c === "string" ? r.c : "", entries });
+    }
+    const hostCount = new Map<string, number>();
+    for (const p of parsed) {
+        for (const e of p.entries) hostCount.set(e.id, (hostCount.get(e.id) ?? 0) + 1);
+    }
+    const items: AnnoPanelItem[] = [];
+    const seen = new Set<string>();
+    for (const p of parsed) {
+        for (const entry of p.entries) {
+            if (seen.has(entry.id)) continue;
+            seen.add(entry.id);
+            items.push({ hostID: p.id, hostCount: hostCount.get(entry.id) ?? 1, blockContent: p.content, entry });
         }
     }
     items.sort((a, b) => b.entry.time - a.entry.time);

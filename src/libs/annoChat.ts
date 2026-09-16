@@ -9,6 +9,8 @@
 // - 对话缓存：内存级 Map（批注 id→消息数组），globalThis 跨模块代共享（防插件 reload 惰性换代的
 //   跨代读取，annoDraft 登记簿同款手法）；插件重载不丢、思源重启自然清空；持久化拍板=不做
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import { fmtAnnoTime } from "./annoPanelList";
+import type { AnnoReply } from "./annotationsAttr";
 
 export interface AnnoChatMsg {
     role: "user" | "assistant";
@@ -35,6 +37,8 @@ export interface AnnoChatCtx {
     prev?: string;
     /** 宿主块后一个相邻块文本（超限截断） */
     next?: string;
+    /** □9 追加时间线（思考路径；有才出段，openEdit 从条目 replies 透传） */
+    replies?: AnnoReply[];
 }
 
 export interface AnnoRole {
@@ -107,6 +111,8 @@ function contextBlock(ctx: AnnoChatCtx): string {
     if (nb(ctx.prev)) parts.push(`【前文】${nb(ctx.prev)}`);
     if (nb(ctx.next)) parts.push(`【后文】${nb(ctx.next)}`);
     parts.push(`【批注】${ctx.note ?? ""}`);
+    // □9 追加时间线：让 AI 看到完整思考路径（主批注之后的演进）
+    for (const r of ctx.replies ?? []) parts.push(`【追加·${fmtAnnoTime(r.time)}】${r.text}`);
     return parts.join("\n");
 }
 

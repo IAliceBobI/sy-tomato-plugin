@@ -396,6 +396,10 @@ export const annoCollectDest = settingFactory("annoCollectDest", "daily", STORAG
  *  归位到各自日记；默认关（收集仍是显式动作） */
 export const annoAutoArchive = settingFactory("annoAutoArchive", false, STORAGE_SETTINGS, null as TSK);
 export const annoCollectTargetDoc = settingFactory("annoCollectTargetDoc", "", STORAGE_SETTINGS, null as TSK);
+/** 收集排版双开关（陆杰 09-16，anno-round2 □2）：锚=引述末尾跳回原文上标锚；
+ *  颜色=划线 mark 色同步到收集引文（官方 --b3-font-backgroundN 通道）；双双默认开 */
+export const annoCollectAnchor = settingFactory("annoCollectAnchor", true, STORAGE_SETTINGS, null as TSK);
+export const annoCollectColor = settingFactory("annoCollectColor", true, STORAGE_SETTINGS, null as TSK);
 export const exportIntervalSec = settingFactory("exportIntervalSec", "5", STORAGE_SETTINGS, null as TSK);
 export const exportIntervalSecOn = settingFactory("exportIntervalSecOn", true, STORAGE_SETTINGS, null as TSK);
 export const exportCleanFiles = settingFactory("exportCleanFiles", "60", STORAGE_SETTINGS, null as TSK);
@@ -476,6 +480,15 @@ export const tomato_clocks_position_right = settingFactory("tomato_clocks_positi
 export const tomato_clocks_opacity = settingFactory("tomato_clocks_opacity", "0.16", STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_loop = settingFactory("tomato_clocks_loop", false, STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_break = settingFactory("tomato_clocks_break", "5", STORAGE_SETTINGS, null as TSK);
+// 微休息（devbatch □3，陆杰 09-16；默认关，Achuan-2 参考形态）：工作时段内每随机
+// [min,max] 分钟插 duration 秒小休息；三通道=弹窗倒计时（主）/轻提示/系统通知各开关
+export const tomato_microbreak = settingFactory("tomato_microbreak", false, STORAGE_SETTINGS, null as TSK);
+export const tomato_microbreak_min = settingFactory("tomato_microbreak_min", "3", STORAGE_SETTINGS, null as TSK);
+export const tomato_microbreak_max = settingFactory("tomato_microbreak_max", "5", STORAGE_SETTINGS, null as TSK);
+export const tomato_microbreak_duration = settingFactory("tomato_microbreak_duration", "10", STORAGE_SETTINGS, null as TSK);
+export const tomato_microbreak_dialog = settingFactory("tomato_microbreak_dialog", true, STORAGE_SETTINGS, null as TSK);
+export const tomato_microbreak_notice = settingFactory("tomato_microbreak_notice", false, STORAGE_SETTINGS, null as TSK);
+export const tomato_microbreak_notification = settingFactory("tomato_microbreak_notification", false, STORAGE_SETTINGS, null as TSK);
 export const toolbarEN2CHBtn = settingFactory("toolbarEN2CHBtn", false, STORAGE_SETTINGS, null as TSK);
 export const toolbarTidy = settingFactory("toolbarTidy", false, STORAGE_SETTINGS, null as TSK);
 // 快捷键卡「快捷键与开关」纯命令族开关（2026-09-06 开关归拢）：关=命令面板项+快捷键齐消失（注册门控）
@@ -517,6 +530,9 @@ export const readingFloatBallHidden = settingFactory("readingFloatBallHidden", f
 // 设点入闪卡（readpoint □2-B 复活 2026-09-08）：设点=原文块进闪卡+立即到期（复习卡=「回原文
 // 继续读」锚，与渐进复习流联动）；老版同开关名复活，翻新期存量 petal 值残留=正好无缝接回默认偏好
 export const readingAdd2Card = settingFactory("readingAdd2Card", true, STORAGE_SETTINGS, null as TSK);
+// 阅读点每文档独立（anno-round2 □4，2026-09-16 鸟反馈）：开=设点只顶同文档旧点、不清
+// 同书其他分片（一书多点，每文档一点进复习节奏）；关=一书一点现状（任一分片设点顶掉全书）
+export const readingPointPerDoc = settingFactory("readingPointPerDoc", false, STORAGE_SETTINGS, null as TSK);
 /** 球位置持久化：九宫格锚点(0-8)+像素偏移（ballGeometry 同款语义；anchor=5 中右默认，避让 recite 右下/渐进左下） */
 export interface RPBallPos {
     anchor: number; offsetX: number; offsetY: number;
@@ -784,6 +800,9 @@ export const commentBoxAnnoEditorMode = settingFactory("commentBoxAnnoEditorMode
 // 批注编辑器字号（px，两模式统一；2026-09-01 用户反馈字体小→可调+记忆）。默认 16=思源正文档，
 // 比 Dialog 基准 14 大一档；范围 12~22 由 AnnoEdit 内 clamp。
 export const commentBoxAnnoEditorFontSize = settingFactory("commentBoxAnnoEditorFontSize", 16, STORAGE_SETTINGS, null as TSK);
+// 批注查看态字号（px；陆杰 09-16「查看文字小希望能调大」）：气泡+面板批注正文同源，气泡 foot A−/A+
+// 就近调（编辑字号独立不混）。默认 13=气泡正文现状基线（面板 12 顺提一档），范围 12~22 clamp。
+export const commentBoxAnnoViewFontSize = settingFactory("commentBoxAnnoViewFontSize", 13, STORAGE_SETTINGS, null as TSK);
 
 // ---------------
 

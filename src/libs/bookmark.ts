@@ -4,7 +4,7 @@ import { READAT, READINGPOINT, RPCARD } from "./gconst";
 import { tomatoI18n } from "../tomatoI18n";
 import { OpenSyFile2 } from "./docUtils";
 import { getBookID, parseBookID } from "./progressive";
-import { readingAdd2Card } from "./stores";
+import { readingAdd2Card, readingPointPerDoc } from "./stores";
 import { buildRPCardBlockMD, buildRPCardContent, mergeReadingPoints, siblingReadatBlocks, type RPEntry, type RPSQLRow, type RPRootAttrRow } from "./readingPointCore";
 import { supportsReadingPointBlock } from "../readingPointCardRender";
 import { debugLog } from "./logUtils";
@@ -44,6 +44,10 @@ async function siblingReadatOf(docID: string, bookID?: string): Promise<string[]
         siyuan.sqlAttr(`select root_id, value from attributes where name="custom-progmark" limit 10000000`) as Promise<RPRootAttrRow[]>,
         siyuan.sqlAttr(`select root_id, value from attributes where name="custom-book-writing" limit 10000000`) as Promise<RPRootAttrRow[]>,
     ]);
+    // 写后立读竞态注记（anno-round2 □4 e2e 实锤 2026-09-16）：兄弟清扫的 readat 全表查询在
+    // 他片设点 ~2-4s 内读 0 行（SQL 索引窗，displaced 同款查询 +4s 即可见）——一书一点在
+    // 「秒级连设两点」下漏顶替。真实人速（切文档阅读再设点）不中招，故不修；修法预留=
+    // 清扫改 getBlockAttrs 直读或索引窗轮询（打磨档）
     return siblingReadatBlocks(readatRows ?? [], markRows ?? [], writingRows ?? [], docID, parseBookID);
 }
 
@@ -259,8 +263,8 @@ async function removePointCards(ids: string[]) {
     debugLog("rp_card_remove", ids.join(","), "readpoint");
 }
 
-/** 设点：清同文档新格式旧属性+同书其他分片的点（一书一点）+同书老格式块 → 原文块挂
- *  readat=now（+制卡联动）。返回 false=块无效 */
+/** 设点：清同文档新格式旧属性+同书其他分片的点（一书一点；readingPointPerDoc 开=跳过
+ *  兄弟分片顶替）+同书老格式块 → 原文块挂 readat=now（+制卡联动）。返回 false=块无效 */
 export async function setReadingPoint(blockID: string): Promise<boolean> {
     const docRow = await siyuan.getDocRowByBlockID(blockID);
     if (!docRow?.id) return false;
@@ -278,8 +282,12 @@ export async function setReadingPoint(blockID: string): Promise<boolean> {
     await cleanLegacyPoints(legacyIDs);
     attrOps.pop();
     attrOps.push({ id: blockID, attrs: { [READAT]: ts, [READINGPOINT]: "" } as AttrType });
-    // 书级唯一：同书其他分片的新格式点一并顶掉（同文档旧点已在 attrOps 里清）
-    const siblings = (await siblingReadatOf(docID, bookID)).filter(id => id != blockID);
+    // 书级唯一：同书其他分片的新格式点一并顶掉（同文档旧点已在 attrOps 里清）。
+    // 每文档独立开关（anno-round2 □4）：开=跳过兄弟分片顶替（含三次全量 SQL），一书多点、
+    // 每文档各留一点进复习节奏；同文档顶替/复用链不受开关影响
+    const siblings = readingPointPerDoc.get()
+        ? []
+        : (await siblingReadatOf(docID, bookID)).filter(id => id != blockID);
     for (const id of siblings) attrOps.push({ id, attrs: { [READAT]: "" } as AttrType });
     await siyuan.batchSetBlockAttrs(attrOps);
     // 制卡联动：新点入卡；被顶掉的旧点/兄弟点清卡（顺序在后：挂属性成功才算「点成立」）

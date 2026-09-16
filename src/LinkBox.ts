@@ -341,12 +341,13 @@ class LinkBox {
                     and value in (${toIDs.map(i => `"${i}"`).join(",")}) limit 999999`)
                 .then(attrs => attrs?.map(a => a.block_id)) ?? [];
             for (const bID of blockIDs) {
-                div.querySelectorAll(`span[data-type="a"][data-href^="siyuan://blocks/${bID}"]`)
+                // ~= 词匹配：加粗锚 span 的 data-type 是复合词表（如 "strong a"），精确匹配漏删（第四词表坑，anno2 □8）
+                div.querySelectorAll(`span[data-type~="a"][data-href^="siyuan://blocks/${bID}"]`)
                     .forEach(e => {
                         e.parentElement.removeChild(e);
                     });
             }
-            div.querySelectorAll(`span[data-type="a"]`)
+            div.querySelectorAll(`span[data-type~="a"]`)
                 .forEach(e => {
                     if (e.textContent == "[<-*]" || e.textContent == "[->*]") {
                         e.parentElement.removeChild(e);

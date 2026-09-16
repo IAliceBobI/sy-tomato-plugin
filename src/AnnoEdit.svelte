@@ -14,7 +14,7 @@
     import { confirm } from "siyuan";
     import { createProtyle } from "./libs/bkUtils";
     import { DestroyManager } from "./libs/destroyer";
-    import { deleteDraftBlock, newDraftBlock, readDraftText } from "./libs/annoDraft";
+    import { deleteDraftBlock, ensureDraftDocID, newDraftBlock, readDraftText } from "./libs/annoDraft";
     import { diagnoseAIAsync } from "./libs/openAI";
     import { events } from "./libs/Events";
     import { commentBoxAddFlashCard, commentBoxAnnoEditorFontSize, commentBoxAnnoEditorMode } from "./libs/stores";
@@ -38,6 +38,8 @@
         selText: string;
         /** 当前批注正文（kramdown），回填草稿块=重开续写 */
         initialText: string;
+        /** □9 追加时间线（AI 上下文透传；保存链不消费——追加走气泡入口） */
+        replies?: { text: string; time: number }[];
         /** 气泡「问 AI」入口：挂载后自动展开讨论区（AI 未配置仍走 confirm 引导，□3） */
         autoChat?: boolean;
         /** AI 讨论上下文补强（□3）：文档 hpath + 前后相邻块（空=缺省不出段） */
@@ -52,7 +54,7 @@
         draftReady?: Promise<string> | null;
         onSave: (text: string) => Promise<boolean>;
     }
-    let { dm, annoId, hostID = "", source, selText, initialText, autoChat = false, docTitle = "", prev = "", next = "", create = false, blockCount = 0, draftReady = null, onSave }: Props = $props();
+    let { dm, annoId, hostID = "", source, selText, initialText, replies = [], autoChat = false, docTitle = "", prev = "", next = "", create = false, blockCount = 0, draftReady = null, onSave }: Props = $props();
 
     type EditorMode = "rich" | "plain";
     let mode = $state<EditorMode>(commentBoxAnnoEditorMode.get() === "plain" ? "plain" : "rich");
@@ -123,7 +125,14 @@
             destroy();
             return;
         }
-        pob = createProtyle(draftID, getTomatoPluginInstance());
+        // 6s 治本（陆杰 09-16）：挂载锚=草稿文档 id——文档早已索引就绪，protyle 首拉
+        // （GetDoc→blocktree→直读 .sy）零等待；新鲜 sb 块 id 作锚须等 SQL 索引窗口
+        // （正常 ~2.6s/大库 ~6s）才能解析 rootID，曾以 350ms 轮询硬等。此刻草稿文档只含
+        // 这一个 sb（开窗前基线空段已清），视图等价；保存链 readDraftText/appendDraft/
+        // deleteDraftBlock 仍按 sb id 走 blocktree 直读 API，不受挂载锚影响。
+        // ensureDraftDocID 此处必命中缓存（newDraftBlock 已建好），壳解析失败兜底退回 sb id
+        const mountID = (await ensureDraftDocID()) || draftID;
+        pob = createProtyle(mountID, getTomatoPluginInstance());
         editor.appendChild(pob.p.protyle.element);
         // loading 先落：下方聚焦链任何异常都不得卡死保存键（Ctrl+Enter/button 均被 loading 守卫拦）
         loading = false;
@@ -361,6 +370,7 @@
         {hostID}
         {source}
         {selText}
+        {replies}
         {docTitle}
         {prev}
         {next}
@@ -409,7 +419,7 @@
         overflow: hidden;
         font-size: 12px;
         line-height: 1.6;
-        color: var(--b3-theme-on-surface-light, #999);
+        color: var(--b3-theme-on-surface); /* vision P2：light 档压浅底对比度不足，正文档+小字号保持次级观感 */
         border-left: 2px solid var(--b3-theme-on-surface-light, #999);
         padding: 2px 8px;
         margin: 4px 0;
@@ -521,6 +531,11 @@
         display: block;
         width: 100%;
         min-height: 120px;
+        /* 撑满 editor 容器（陆杰 09-16「纯文本不能完整显示」：textarea 固定 120px 内部滚
+           +容器剩余空白。容器本就 flex grow 撑满 wrap——textarea 跟满即「弹窗可用高度用满」，
+           内容超出可视高才内部滚动，字号无关）；border-box 使 padding 计入不溢出 */
+        height: 100%;
+        box-sizing: border-box;
         border: none;
         outline: none;
         resize: none;

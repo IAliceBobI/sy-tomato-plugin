@@ -779,6 +779,71 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Collect to file";
         }
     }
+    // 陆杰 09-16 排版改造双开关（anno-round2 □2）
+    public get 收集带跳回锚() {
+        switch (this.lang) {
+            case "zh_CN": return "收集带跳回原文锚";
+            case "zh_CHT": return "收集帶跳回原文錨";
+            case "ja_JP": return "収集に原文アンカー付き";
+            case "en_US":
+            default: return "Collect with back-to-source anchors";
+        }
+    }
+    public get 收集同步划线颜色() {
+        switch (this.lang) {
+            case "zh_CN": return "收集同步划线颜色";
+            case "zh_CHT": return "收集同步劃線顏色";
+            case "ja_JP": return "収集にマーカー色を同期";
+            case "en_US":
+            default: return "Sync highlight colors when collecting";
+        }
+    }
+    // □3 划线总览浮层（anno-round2）
+    public get 全书划线总览() {
+        switch (this.lang) {
+            case "zh_CN": return "全书划线总览";
+            case "zh_CHT": return "全書劃線總覽";
+            case "ja_JP": return "划線と注釈の総覧";
+            case "en_US":
+            default: return "Highlights & notes";
+        }
+    }
+    public get 全书划线总览说明() {
+        switch (this.lang) {
+            case "zh_CN": return "浏览全书的划线与批注：按颜色筛选、点击跳原文、勾选收集";
+            case "zh_CHT": return "瀏覽全書的劃線與批註：按顏色篩選、點擊跳原文、勾選收集";
+            case "ja_JP": return "全書の划線と注釈を見る：色で絞り込み、原文へジャンプ、選択して収集";
+            case "en_US":
+            default: return "Browse highlights & notes of the book: filter by color, jump to source, select to collect";
+        }
+    }
+    public 已选条数(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `已选 ${n} 条`;
+            case "zh_CHT": return `已選 ${n} 條`;
+            case "ja_JP": return `${n} 件選択中`;
+            case "en_US":
+            default: return `${n} selected`;
+        }
+    }
+    public get 无色() {
+        switch (this.lang) {
+            case "zh_CN": return "无色";
+            case "zh_CHT": return "無色";
+            case "ja_JP": return "無色";
+            case "en_US":
+            default: return "No color";
+        }
+    }
+    public get 本书暂无划线与批注() {
+        switch (this.lang) {
+            case "zh_CN": return "本书暂无划线与批注";
+            case "zh_CHT": return "本書暫無劃線與批註";
+            case "ja_JP": return "划線も注釈もまだありません";
+            case "en_US":
+            default: return "No highlights or notes yet";
+        }
+    }
     public get 收集范围() {
         switch (this.lang) {
             case "zh_CN": return "收集范围";
@@ -990,6 +1055,26 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "ブロック";
             case "en_US":
             default: return "block(s)";
+        }
+    }
+    /** 跨块批注徽标（anno-round2 □7：去重后单卡标出覆盖块数） */
+    public 跨N块(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `跨 ${n} 块`;
+            case "zh_CHT": return `跨 ${n} 塊`;
+            case "ja_JP": return `${n} ブロックにまたがる`;
+            case "en_US":
+            default: return `${n} blocks`;
+        }
+    }
+    /** 划线总览组头计数 aria（anno-round2 □7 顺手件：裸数字胶囊消歧） */
+    public 共N条(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `共 ${n} 条`;
+            case "zh_CHT": return `共 ${n} 條`;
+            case "ja_JP": return `全 ${n} 件`;
+            case "en_US":
+            default: return `${n} items`;
         }
     }
     public get 批注下划线粗细() {
@@ -2747,6 +2832,96 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    // 微休息（devbatch □3，2026-09-16 陆杰）：工作时段内每随机 N 分钟插 10 秒小休息
+    public get 微休息() {
+        switch (this.lang) {
+            case "zh_CN": return "微休息";
+            case "zh_CHT": return "微休息";
+            case "es_ES": return "Micro-pausa";
+            case "fr_FR": return "Micro-pause";
+            case "ja_JP": return "ミニ休憩";
+            case "en_US":
+            default: return "Micro-break";
+        }
+    }
+    public get 微休息提示语() {
+        switch (this.lang) {
+            case "zh_CN": return "离开屏幕，看看远处";
+            case "zh_CHT": return "離開屏幕，看看遠處";
+            case "es_ES": return "Aparta la vista de la pantalla";
+            case "fr_FR": return "Quitter l'écran des yeux";
+            case "ja_JP": return "画面から目を離して遠くを見ましょう";
+            case "en_US":
+            default: return "Look away from the screen";
+        }
+    }
+    public get 微休息开关帮助() {
+        switch (this.lang) {
+            case "zh_CN": return "工作时段内每随机间隔插入一次小休息，工作计时不受影响";
+            case "zh_CHT": return "工作時段內每隨機間隔插入一次小休息，工作計時不受影響";
+            case "es_ES": return "Inserta una micro-pausa a intervalos aleatorios durante el trabajo; el cronómetro sigue";
+            case "fr_FR": return "Insère une micro-pause à intervalles aléatoires pendant le travail ; le minuteur continue";
+            case "ja_JP": return "作業中にランダムな間隔でミニ休憩を挟みます。作業タイマーは影響を受けません";
+            case "en_US":
+            default: return "Insert a short break at random intervals during work; the work timer keeps running";
+        }
+    }
+    public get 微休息间隔分钟() {
+        switch (this.lang) {
+            case "zh_CN": return "随机间隔（分钟，最小~最大）";
+            case "zh_CHT": return "隨機間隔（分鐘，最小~最大）";
+            case "es_ES": return "Intervalo aleatorio (min, de ~ a)";
+            case "fr_FR": return "Intervalle aléatoire (min, de ~ à)";
+            case "ja_JP": return "ランダム間隔（分、最小〜最大）";
+            case "en_US":
+            default: return "Random interval (min, low~high)";
+        }
+    }
+    public get 微休息时长秒() {
+        switch (this.lang) {
+            case "zh_CN": return "时长（秒）";
+            case "zh_CHT": return "時長（秒）";
+            case "es_ES": return "Duración (segundos)";
+            case "fr_FR": return "Durée (secondes)";
+            case "ja_JP": return "時間（秒）";
+            case "en_US":
+            default: return "Duration (seconds)";
+        }
+    }
+    public get 微休息弹窗() {
+        switch (this.lang) {
+            case "zh_CN": return "弹窗倒计时";
+            case "zh_CHT": return "彈窗倒計時";
+            case "es_ES": return "Ventana con cuenta regresiva";
+            case "fr_FR": return "Fenêtre avec compte à rebours";
+            case "ja_JP": return "カウントダウンウィンドウ";
+            case "en_US":
+            default: return "Countdown dialog";
+        }
+    }
+    public get 微休息轻提示() {
+        switch (this.lang) {
+            case "zh_CN": return "轻提示（提示音）";
+            case "zh_CHT": return "輕提示（提示音）";
+            case "es_ES": return "Aviso ligero (sonido)";
+            case "fr_FR": return "Avis léger (son)";
+            case "ja_JP": return "軽い通知（サウンド）";
+            case "en_US":
+            default: return "Light notice (sound)";
+        }
+    }
+    public get 微休息系统通知() {
+        switch (this.lang) {
+            case "zh_CN": return "系统通知";
+            case "zh_CHT": return "系統通知";
+            case "es_ES": return "Notificación del sistema";
+            case "fr_FR": return "Notification système";
+            case "ja_JP": return "システム通知";
+            case "en_US":
+            default: return "System notification";
+        }
+    }
+
     // 渐进学习文案从 progressive JSON 轨迁入（2026-08-25 i18n 归一为 TS 轨）
     public get 请等待索引建立() {
         switch (this.lang) {
@@ -2795,26 +2970,66 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Content is still being indexed. Please try splitting again later";
         }
     }
-    public get 重新推送本书() {
+    // progpush □2 暂停改造（忽略→暂停：引擎不动改词汇；旧键「重新推送本书/已经忽略
+    // 本书」随之退役——消费面清零后删，勿复活）
+    public get 已暂停本书() {
         switch (this.lang) {
-            case "zh_CN": return "重新推送本书";
-            case "zh_CHT": return "重新推送本書";
-            case "es_ES": return "reenviar este libro";
-            case "fr_FR": return "Réenvoi de ce livre";
-            case "ja_JP": return "この本のプッシュを再開";
+            case "zh_CN": return "已暂停本书，右键书卡可恢复";
+            case "zh_CHT": return "已暫停本書，右鍵書卡可恢復";
             case "en_US":
-            default: return "Re-push This Book";
+            default: return "Paused. Right-click the book card to resume";
         }
     }
-    public get 已经忽略本书() {
+    public get 已恢复推送() {
         switch (this.lang) {
-            case "zh_CN": return "已经忽略本书";
-            case "zh_CHT": return "已經忽略本書";
-            case "es_ES": return "ya se ha ignorado este libro";
-            case "fr_FR": return "Ce livre a déjà été ignoré";
-            case "ja_JP": return "この本は無視されました";
+            case "zh_CN": return "已恢复推送";
+            case "zh_CHT": return "已恢復推送";
             case "en_US":
-            default: return "This Book Has Been Ignored";
+            default: return "Push resumed";
+        }
+    }
+    // 暂停卡 chip（⏸ 前缀在模板侧）/说明行
+    public get 已暂停() {
+        switch (this.lang) {
+            case "zh_CN": return "已暂停";
+            case "zh_CHT": return "已暫停";
+            case "en_US":
+            default: return "Paused";
+        }
+    }
+    public get 已暂停推送说明() {
+        switch (this.lang) {
+            case "zh_CN": return "已暂停推送，点击或右键书卡恢复";
+            case "zh_CHT": return "已暫停推送，點擊或右鍵書卡恢復";
+            case "en_US":
+            default: return "Push paused. Click or right-click the card to resume";
+        }
+    }
+    // 暂停态右键菜单首项（恢复=最高频动作置顶）
+    public get 继续阅读() {
+        switch (this.lang) {
+            case "zh_CN": return "继续阅读";
+            case "zh_CHT": return "繼續閱讀";
+            case "en_US":
+            default: return "Resume Reading";
+        }
+    }
+    // 管理页暂停开关（switch：开=已暂停）
+    public get 暂停() {
+        switch (this.lang) {
+            case "zh_CN": return "暂停";
+            case "zh_CHT": return "暫停";
+            case "en_US":
+            default: return "Pause";
+        }
+    }
+    // 火苗 tooltip 尾行（progpush □2；DebtSummary.totalRead=各日 read 全历史求和）
+    public 累计已读N篇(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `累计已读 ${n} 篇`;
+            case "zh_CHT": return `累計已讀 ${n} 篇`;
+            case "en_US":
+            default: return `${n} pieces read in total`;
         }
     }
     public get 自动制卡() {
@@ -5204,10 +5419,10 @@ export class TomatoI18n extends TomatoI18nABC {
 
     public get 忽略本书菜单() {
         switch (this.lang) {
-            case "zh_CN": return "忽略（不再推送）";
-            case "zh_CHT": return "忽略（不再推送）";
+            case "zh_CN": return "暂停本书（沉底不推送）";
+            case "zh_CHT": return "暫停本書（沉底不推送）";
             case "en_US":
-            default: return "Ignore (stop scheduling)";
+            default: return "Pause This Book (parked, no push)";
         }
     }
 
@@ -7639,6 +7854,15 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return `Today ${read}/${quota}`;
         }
     }
+    // progpush □1 出片硬闸统一拦截提示（书卡/滚筒/「下一个分片」全入口；档位=每书日限）
+    public 今日已读满N篇(name: string, quota: number) {
+        switch (this.lang) {
+            case "zh_CN": return `《${name}》今日已读满 ${quota} 篇，明天再来。想连读可直接打开原书`;
+            case "zh_CHT": return `《${name}》今日已讀滿 ${quota} 篇，明天再來。想連讀可直接打開原書`;
+            case "en_US":
+            default: return `"${name}": today's ${quota}-piece limit reached, come back tomorrow. To keep reading, open the source doc directly`;
+        }
+    }
     // □2 片尾收束卡总开关（基础设置域）
     public get 片尾收束卡() {
         switch (this.lang) {
@@ -8051,6 +8275,15 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    public get 番茄插件未启用() {
+        switch (this.lang) {
+            case "zh_CN": return "「番茄笔记」插件未启用，划线总览不可用";
+            case "zh_CHT": return "「番茄筆記」插件未啟用，划線總覽不可用";
+            case "ja_JP": return "「トマトノート」プラグインが無効です";
+            case "en_US":
+            default: return "Tomato Notes plugin is disabled";
+        }
+    }
     public get 仿写插件版本过旧() {
         switch (this.lang) {
             case "zh_CN": return "仿写练习插件版本过旧（无定向练习入口），请升级后重试；刚建的副本已保留";
@@ -8333,6 +8566,29 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "音声ファイルを選択してください（mp3、wav、ogg、m4a など）";
             case "en_US":
             default: return "Please choose an audio file (mp3, wav, ogg, m4a, …)";
+        }
+    }
+    // ── 提示音播放加固（09-16）：blocked 兜底钮/自动播放拦截引导 toast ──
+    public get 播放提示音() {
+        switch (this.lang) {
+            case "zh_CN": return "播放提示音";
+            case "zh_CHT": return "播放提示音";
+            case "es_ES": return "Reproducir el aviso";
+            case "fr_FR": return "Lire le son d'alerte";
+            case "ja_JP": return "通知音を再生";
+            case "en_US":
+            default: return "Play the notice sound";
+        }
+    }
+    public get 提示音被浏览器拦截() {
+        switch (this.lang) {
+            case "zh_CN": return "提示音被浏览器自动播放限制拦下；点击页面任意位置一次，下一轮即可恢复";
+            case "zh_CHT": return "提示音被瀏覽器自動播放限制攔下；點擊頁面任意位置一次，下一輪即可恢復";
+            case "es_ES": return "El navegador bloqueó el sonido (reproducción automática); haga clic una vez en la página y volverá en la siguiente ronda";
+            case "fr_FR": return "Le son a été bloqué par le navigateur (lecture automatique) ; cliquez une fois sur la page et il reviendra au prochain tour";
+            case "ja_JP": return "サウンドがブラウザーの自動再生制限でブロックされました。ページのどこかを一度クリックすると、次のラウンドから復帰します";
+            case "en_US":
+            default: return "The sound was blocked by the browser autoplay policy; click anywhere on the page once and it will return next round";
         }
     }
     // ── 背景图自定义（□4）：空态/占位/校验/toast ──
@@ -9221,6 +9477,74 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "議論を折りたたむ";
             case "en_US":
             default: return "Hide discussion";
+        }
+    }
+    // ── □9 评论式追加（陆杰 09-16：批注可追加感想看思考路径，不在原文上编辑）──
+    public get 追加() {
+        switch (this.lang) {
+            case "zh_CN": return "追加";
+            case "zh_CHT": return "追加";
+            case "es_ES": return "Añadir";
+            case "fr_FR": return "Ajouter";
+            case "ja_JP": return "追加";
+            case "en_US":
+            default: return "Append";
+        }
+    }
+    public get 追加内容() {
+        switch (this.lang) {
+            case "zh_CN": return "追加内容，随时间记录思考路径";
+            case "zh_CHT": return "追加內容，隨時間記錄思考路徑";
+            case "es_ES": return "Añade contenido; se registra con marca de tiempo";
+            case "fr_FR": return "Ajoutez du contenu ; horodaté pour retracer votre réflexion";
+            case "ja_JP": return "内容を追記すると時刻付きで思考の経緯を記録します";
+            case "en_US":
+            default: return "Append a thought; timestamped to trace your thinking";
+        }
+    }
+    public get 追加超过软限() {
+        switch (this.lang) {
+            case "zh_CN": return "追加超过软限";
+            case "zh_CHT": return "追加超過軟限";
+            case "es_ES": return "Texto añadido demasiado largo";
+            case "fr_FR": return "Texte ajouté trop long";
+            case "ja_JP": return "追記文が上限を超えています";
+            case "en_US":
+            default: return "Appended text over limit";
+        }
+    }
+    public get 追加条数超过软限() {
+        switch (this.lang) {
+            case "zh_CN": return "追加条数超过软限";
+            case "zh_CHT": return "追加條數超過軟限";
+            case "es_ES": return "Demasiadas entradas añadidas";
+            case "fr_FR": return "Trop d'entrées ajoutées";
+            case "ja_JP": return "追記件数が上限を超えています";
+            case "en_US":
+            default: return "Too many appended entries";
+        }
+    }
+    // ── □8 批注卡块（anno-note 复习卡面）──
+    public get 回原文() {
+        switch (this.lang) {
+            case "zh_CN": return "回原文";
+            case "zh_CHT": return "回原文";
+            case "es_ES": return "Volver al texto";
+            case "fr_FR": return "Retour au texte";
+            case "ja_JP": return "本文に戻る";
+            case "en_US":
+            default: return "Back to text";
+        }
+    }
+    public get 批注卡创建失败() {
+        switch (this.lang) {
+            case "zh_CN": return "批注卡创建失败";
+            case "zh_CHT": return "批註卡創建失敗";
+            case "es_ES": return "No se pudo crear la tarjeta de anotación";
+            case "fr_FR": return "Échec de création de la carte d'annotation";
+            case "ja_JP": return "注釈カードの作成に失敗しました";
+            case "en_US":
+            default: return "Failed to create annotation card";
         }
     }
     public get 制成闪卡() {
@@ -12183,6 +12507,18 @@ export class TomatoI18n extends TomatoI18nABC {
             case "it_IT": return "Aggiungi alle flashcard al marcatore (ripassare = tornare all'ancora; faccia completa richiede kernel 3.8.3+, i vecchi aggiungono il blocco originale)";
             case "en_US":
             default: return "Add to flashcards on marking (review = anchor back to original; full card face needs kernel 3.8.3+, older kernels add the source block itself)";
+        }
+    }
+    public get 阅读点每文档独立() {
+        switch (this.lang) {
+            case "zh_CN": return "阅读点每文档独立（开=设点只顶本文档旧点，一书多点；关=一书一点，设点顶掉同书其他分片）";
+            case "zh_CHT": return "閱讀點每文檔獨立（開=設點只頂本文檔舊點，一書多點；關=一書一點，設點頂掉同書其他分片）";
+            case "ja_JP": return "読書ポイントを文書ごとに独立（オン=設定時にこの文書の旧ポイントのみ置換、1書籍で複数ポイント；オフ=1書籍1ポイント、他の断片のポイントも置換）";
+            case "es_ES": return "Punto de lectura por documento (activado = marcar solo sustituye el punto anterior de este documento, varios por libro; desactivado = un punto por libro, marcar sustituye también el de otras piezas)";
+            case "fr_FR": return "Point de lecture par document (activé = marquer ne remplace que l'ancien point de ce document, plusieurs points par livre ; désactivé = un point par livre, marquer remplace aussi ceux des autres fragments)";
+            case "it_IT": return "Punto di lettura per documento (attivo = marcare sostituisce solo il punto precedente di questo documento, più punti per libro; disattivo = un punto per libro, marcare sostituisce anche quello delle altre parti)";
+            case "en_US":
+            default: return "Reading point per document (ON = marking only replaces this doc's old point, multiple points per book; OFF = one point per book, marking also replaces points in other pieces)";
         }
     }
     public get 已隐藏悬浮球() {

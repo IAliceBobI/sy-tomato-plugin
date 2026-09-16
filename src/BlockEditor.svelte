@@ -198,36 +198,38 @@
                     <span class="pinCrumb">{@html icon("iconPin", 12)} {docName}{pinnedTitle ? ` › ${pinnedTitle}` : ""}</span>
                     <button
                         aria-label={tomatoI18n.取消钉住}
-                        class="b3-button b3-button--text tomato-button b3-tooltips b3-tooltips__s unpinBtn"
+                        class="b3-button b3-button--text tomato-button b3-tooltips b3-tooltips__sw unpinBtn"
                         onclick={unpin}>{@html icon("iconLock", 12)}</button
                     >
                 </div>
             {/if}
+            <!-- 工具行 tip 一律 __sw（朝下西南锚）：行贴 dialog-content(overflow:auto) 顶界，
+                 朝上弹（__n）气泡顶 17px 必被裁（2026-09-16 群反馈）；__s 居中锚贴右缘溢尾巴 -->
             <div class="btnLine">
                 <!-- □5 跟随态可钉：钉住当前跟随文档（右键 pinFromMenu 同款 PinState）；钉住态隐藏（pinBar 的 🔓 承接取消） -->
                 {#if !pinnedBlockID}
                     <button
                         aria-label={tomatoI18n.钉住当前文档}
-                        class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__n"
+                        class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__sw"
                         onclick={() => pinBlock(followDocID())}
                         >{@html icon("iconPin", 14)}</button
                     >
                 {/if}
                 <button
                     aria-label={tomatoI18n.定位}
-                    class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__n"
+                    class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__sw"
                     onclick={locate}
                     >{@html icon("iconFocus", 14)}</button
                 >
                 <button
                     aria-label={tomatoI18n.刷新}
-                    class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__n"
+                    class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__sw"
                     onclick={() => reloadBlocks()}
                     >{@html icon("iconRefresh", 14)}
                 </button>
                 <button
                     aria-label={tomatoI18n.超级块}
-                    class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__n"
+                    class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__sw"
                     onclick={async () => {
                         let text = "";
                         if (!dm) text = "outline";

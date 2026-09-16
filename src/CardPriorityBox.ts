@@ -4,7 +4,7 @@ import { CARD_PRIORITY_STOP, CUSTOM_RIFF_DECKS, TOMATO_CONTROL_ELEMENT } from ".
 import { DialogText } from "./libs/DialogText";
 import { EventType, events } from "./libs/Events";
 import CardPriorityBar from "./CardPriorityBar.svelte";
-import { doStopCards, getIDFromCard, getRestCards } from "./libs/cardUtils";
+import { doStopCards, getDueCardsInReviewScope, getIDFromCard } from "./libs/cardUtils";
 import { auto_card_priority, cardPriorityBoxCheckbox, cardPriorityBoxPostponeCardMenu, cardPriorityBoxPriorityMenu, cardPriorityBoxSpradDelayMenu, cardPrioritySetPriInterval } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
@@ -133,10 +133,12 @@ class CardPriorityBox {
         const delay = async (spread = false) => {
             let blocks: GetCardRetBlock[];
             if (await getIDFromCard()) {
-                // 全量取卡统一走 cardUtils.getRestCards（分页全量+due 过滤，不受每日限额
-                // 截断——2026-09-07 修复；原类方法版依赖 beforeReview 快照比 state，快照源
-                // 受官方队列（限额内）二次截断，且 due<=now 已天然排除已评分卡）
-                blocks = await getRestCards()
+                // 复习界面：按当前筛选作用域取到期卡（cardpostpone 09-16）——文档/笔记本
+                // 闪卡复习=只推迟该作用域的到期卡（交集方案）；all（含卡包）/作用域拿不到
+                // 合法 id 时兜底全库。老病=这里无条件 getRestCards() 全库到期卡，文档闪卡
+                // 复习里一按 ⌘F9 全库遭殃（2026-09-16 群反馈）。到期过滤/绕限额语义在
+                // getRestCards 内不变（2026-09-07 全量化修复），这里只收作用域
+                blocks = await getDueCardsInReviewScope()
             } else {
                 blocks = await siyuan.getTreeRiffCardsAll(events.docID);
             }

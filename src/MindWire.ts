@@ -152,7 +152,7 @@ function ensureLayer(protyle: IProtyle): WireLayer | null {
     // 链接点击处理先于我们），拖选产生的非 collapsed 选区不触发（按下即拖动是选词）
     const clickHandler = (e: Event) => {
         if (!(mindWireEnable.get() && mindWireWordWire.get())) return;
-        const span = (e.target as HTMLElement)?.closest?.(`span[data-type="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`);
+        const span = (e.target as HTMLElement)?.closest?.(`span[data-type~="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`);
         if (!span || !element.contains(span)) return;
         const sel = window.getSelection();
         if (sel && !sel.isCollapsed) return;
@@ -205,7 +205,7 @@ function scheduleRedraw(protyle: IProtyle, wl: WireLayer) {
 
 /** 清词级锚词痕迹（accent 变量+跨行类+hot/flash/降级藏点残留）：重画前/门禁拒绝态/单端孤儿统一还原（与块级 clearAnchors 同模式） */
 function clearWordMarks(element: HTMLElement) {
-    element?.querySelectorAll(`span[data-type="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`).forEach((e: HTMLElement) => {
+    element?.querySelectorAll(`span[data-type~="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`).forEach((e: HTMLElement) => {
         e.style.removeProperty(ACCENT_VAR);
         e.classList.remove("tomato-mind-wire-ml", "tomato-mind-wire-nodot", "tomato-mind-wire-top", HOT_CLASS, FLASH_CLASS);
     });
@@ -343,10 +343,12 @@ function collectPairs(element: HTMLElement): [string, string][] {
 }
 
 /** 词级线收集（spec §3）：本编辑器内词级标记 span 按 wireId 分组配对；
- *  前缀选择器天然不命中批注（#tomato-anno-）与普通链接 */
+ *  前缀选择器天然不命中批注（#tomato-anno-）与普通链接。data-type 用 ~= 词匹配——
+ *  内核把加粗等行内格式合并进锚 span 成复合词表（"strong a"），精确匹配漏带格式 run
+ *  （anno 家族 09-16 同病已修，本族同款） */
 function collectWordWires(element: HTMLElement) {
     const items: { href: string; end: HTMLElement }[] = [];
-    element.querySelectorAll(`span[data-type="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`).forEach((e: HTMLElement) => {
+    element.querySelectorAll(`span[data-type~="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`).forEach((e: HTMLElement) => {
         const href = getAttribute(e, "data-href");
         if (href) items.push({ href, end: e });
     });
@@ -790,7 +792,7 @@ function syncWordWireToolbar() {
 /** 选区锚点落着的既有词级标记 wireId（「划在起点同一 span」判定用） */
 function selExistingWireId(range: Range): string | null {
     const asEl = (n: Node) => (n.nodeType === 3 ? n.parentElement : (n as HTMLElement));
-    const span = asEl(range.startContainer)?.closest?.(`span[data-type="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`);
+    const span = asEl(range.startContainer)?.closest?.(`span[data-type~="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`);
     return span ? wireIdFromHref(getAttribute(span, "data-href")) : null;
 }
 
@@ -1039,7 +1041,7 @@ class MindWire {
         // gate 含 checkbox 而成线锚词跳转（ensureLayer clickHandler）不含：拾回属两步流
         // 功能族（wordWire），跳转属线交互渲染族——门禁集合有意不同（□2 评审 P2-2）
         if (!(mindWireCheckbox.get() && mindWireWordWire.get() && mindWireEnable.get())) return;
-        const span = (e.target as HTMLElement | null)?.closest?.(`span[data-type="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`) as HTMLElement | null;
+        const span = (e.target as HTMLElement | null)?.closest?.(`span[data-type~="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`) as HTMLElement | null;
         if (!span || !span.isConnected) return;
         const protyle = protyleByElement(span);
         if (!protyle) return;
@@ -1050,7 +1052,7 @@ class MindWire {
         const href = getAttribute(span, "data-href");
         // 单端判定：同 href ≥2 span=成线不拦（放行给 ensureLayer 的跳转链）；wireId 仅
         // [0-9a-z] 可直接进属性选择器
-        const ends = protyle.element?.querySelectorAll(`span[data-type="a"][data-href="${href}"]`);
+        const ends = protyle.element?.querySelectorAll(`span[data-type~="a"][data-href="${href}"]`);
         if (!ends || ends.length !== 1) return;
         e.preventDefault();
         e.stopPropagation();
@@ -1246,7 +1248,7 @@ class MindWire {
         // （before-show-tooltip 官方钩子置空 message，批注 Annotations.ts 同款配方）
         this.plugin.eventBus.on("before-show-tooltip", (e) => {
             const t = (e as any).detail?.target;
-            if (t?.closest?.(`span[data-type="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`)) {
+            if (t?.closest?.(`span[data-type~="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`)) {
                 (e as any).detail.message = "";
             }
         });
