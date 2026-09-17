@@ -296,38 +296,44 @@
                 </div>
             {/if}
 
-            <!-- 微休息（devbatch □3，陆杰 09-16）：工作时段内每随机间隔插 N 秒小休息，默认关；
-                 三通道开关自由选，展开行=间隔区间+时长 -->
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak} />
-                {tomatoI18n.微休息}
-                <div class="helpText">{tomatoI18n.微休息开关帮助}</div>
-            </div>
+            <!-- 微休息折叠（confgather2 期2 A1，bear 拍板收折叠：不用微休息的人永远不用；
+                 devbatch □3 陆杰 09-16 需求）：工作时段内每随机间隔插 N 秒小休息，默认关；
+                 开关+间隔+时长+三通道六行整组进折叠，搜索命中自动展开（ui.ts data-search-opened） -->
+            <details class="settingBox">
+                <summary class="section-title">{tomatoI18n.微休息}</summary>
+                <div class="softBox">
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak} />
+                        {tomatoI18n.微休息}
+                        <div class="helpText">{tomatoI18n.微休息开关帮助}</div>
+                    </div>
 
-            {#if $tomato_microbreak}
-                <div class="tomato-input-row tomato-mb-interval">
-                    <input class="b3-text-field" type="number" min="1" bind:value={$tomato_microbreak_min} />
-                    <span class="tomato-row-sep">~</span>
-                    <input class="b3-text-field" type="number" min="1" bind:value={$tomato_microbreak_max} />
-                    <span class="tomato-row-label">{tomatoI18n.微休息间隔分钟}</span>
+                    {#if $tomato_microbreak}
+                        <div class="tomato-input-row tomato-mb-interval">
+                            <input class="b3-text-field" type="number" min="1" bind:value={$tomato_microbreak_min} />
+                            <span class="tomato-row-sep">~</span>
+                            <input class="b3-text-field" type="number" min="1" bind:value={$tomato_microbreak_max} />
+                            <span class="tomato-row-label">{tomatoI18n.微休息间隔分钟}</span>
+                        </div>
+                        <div class="tomato-input-row tomato-mb-duration">
+                            <input class="b3-text-field" type="number" min="5" max="60" bind:value={$tomato_microbreak_duration} />
+                            <span class="tomato-row-label">{tomatoI18n.微休息时长秒}</span>
+                        </div>
+                        <div>
+                            <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak_dialog} />
+                            {tomatoI18n.微休息弹窗}
+                        </div>
+                        <div>
+                            <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak_notice} />
+                            {tomatoI18n.微休息轻提示}
+                        </div>
+                        <div>
+                            <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak_notification} />
+                            {tomatoI18n.微休息系统通知}
+                        </div>
+                    {/if}
                 </div>
-                <div class="tomato-input-row tomato-mb-duration">
-                    <input class="b3-text-field" type="number" min="5" max="60" bind:value={$tomato_microbreak_duration} />
-                    <span class="tomato-row-label">{tomatoI18n.微休息时长秒}</span>
-                </div>
-                <div>
-                    <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak_dialog} />
-                    {tomatoI18n.微休息弹窗}
-                </div>
-                <div>
-                    <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak_notice} />
-                    {tomatoI18n.微休息轻提示}
-                </div>
-                <div>
-                    <input type="checkbox" class="b3-switch" bind:checked={$tomato_microbreak_notification} />
-                    {tomatoI18n.微休息系统通知}
-                </div>
-            {/if}
+            </details>
 
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$tomato_clocks_focus} />
@@ -380,11 +386,17 @@
                 </div>
             {/if}
 
-            <div class="tomato-input-row">
-                <input class="b3-text-field" bind:value={$tomato_clocks_force_notice} />
-                <span class="tomato-row-label">{tomatoI18n.随机视频}</span>
-                <div class="helpText">{tomatoI18n.随机视频帮助}</div>
-            </div>
+            <!-- 背景图与随机视频折叠（confgather2 期2 A2+A3，bear 拍板收折叠：付费+极低频）：
+                 随机视频 URL 行+明/暗背景 VIP 两行+透明度滑杆，四行整组进折叠；
+                 行内 VIP 门控/缩略图/滑杆预览逻辑原样 -->
+            <details class="settingBox">
+                <summary class="section-title">{tomatoI18n.背景图与随机视频}</summary>
+                <div class="softBox">
+                    <div class="tomato-input-row">
+                        <input class="b3-text-field" bind:value={$tomato_clocks_force_notice} />
+                        <span class="tomato-row-label">{tomatoI18n.随机视频}</span>
+                        <div class="helpText">{tomatoI18n.随机视频帮助}</div>
+                    </div>
 
             <!-- 背景图自定义（□4 整行重造）：明/暗各自配图——缩略图+手填 URL（非法标红）+选文件直传 assets -->
             <div class="tomato-input-row" class:codeNotValid>
@@ -497,5 +509,7 @@
                 <TomatoVIP {codeValid}></TomatoVIP>
                 <div class="helpText">{tomatoI18n.背景图透明度帮助}</div>
             </div>
+                </div>
+            </details>
         {/if}
     </div>

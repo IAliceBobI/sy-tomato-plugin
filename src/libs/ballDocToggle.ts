@@ -69,27 +69,34 @@ export function scrollDocBottom(container: HTMLElement): boolean {
 /** 尾块是否已滚进视口底（滚底完成判据——protyle 打开文档会异步恢复上次阅读位置，
  *  一次性的滚可能被它抢跑覆盖，故轮询以「尾块贴视口底」为收敛条件而非「执行过」；
  *  expectedTailId=真尾块 id 时还要求渲染末块就是它——懒加载下渲染窗口末块≠真尾块，
- *  按渲染快照自比对会假收敛（滚在中部却判定完成），不匹配则继续拉等懒加载续真尾） */
+ *  按渲染快照自比对会假收敛（滚在中部却判定完成），不匹配则继续拉等懒加载续真尾）。
+ *  到底判据=scrollTop 数学（fballfeedback □3 v2 实锤：原 rect 差判据有方向坑——尾块
+ *  在视口下方外未滚动时 content.bottom-tail.bottom 为负恒 ≤8，slider-jump 首拍即
+ *  假 settled 停在顶部；Loki 204ms settled + scrollTop=0 双证） */
 export function isDocBottomScrolled(container: HTMLElement, expectedTailId?: string): boolean {
     const wys = container.querySelector(".protyle-wysiwyg");
     const blocks = wys ? wys.querySelectorAll(":scope > [data-node-id]") : [];
     const tail = blocks[blocks.length - 1] as HTMLElement | undefined;
     if (!tail) return false;
     if (expectedTailId && tail.getAttribute("data-node-id") !== expectedTailId) return false;
-    // 尾块底边距滚动视口底 ≤8px 视为到位（content=protyle 滚动容器；jsdom 无布局
-    // rect 恒 0≈0 恒真，仅生产 Chromium 有真判据——单测侧 mock rect 驱动）
+    // 滚动条到底（content=protyle 滚动容器；jsdom scrollTop/scrollHeight 可 mock 驱动单测）
     const content = container.querySelector(".protyle-content") as HTMLElement | null
         ?? wys as HTMLElement;
-    return content.getBoundingClientRect().bottom - tail.getBoundingClientRect().bottom <= 8;
+    return content.scrollTop + content.clientHeight >= content.scrollHeight - 8;
 }
 
 /** 滚底轮询包装：new Protyle 异步取文档渲染，就绪前重试；protyle 恢复阅读位置的抢跑
  *  由「未收敛则再拉回」对抗，200ms 一拍，超时放弃（不抛错）。两道守卫：①container
  *  已 detach（autoclose 点外即关/手动关）即停；②轮询窗内用户在容器外
- *  pointerdown/keydown（点了主编辑器/别处开始打字）即停，不再打扰。 */
+ *  pointerdown/keydown（点了主编辑器/别处开始打字）即停，不再打扰。
+ *  fballfeedback □3（陆杰反馈跳底不生效，dev 200 段实测复现）：3s 超时扛不住懒加载长
+ *  文档——expectedTailId 严格匹配下渲染尾永远落后真尾，3s 仅推进 36% 即 TIMEOUT 停半
+ *  路；调用侧超时经 bottomTimeoutOf 放宽（真尾已知=15s 懒加载推进预算）。另加无进展看
+ *  护：连续 10 拍（2s）滚动位置/渲染块数双信号零推进且未收敛→提前 stalled 停（网络
+ *  死等不干耗满窗，正常懒加载节奏毫秒级 RTT 不会误伤）。 */
 export function scrollDocBottomWhenReady(container: HTMLElement, timeoutMs = 3000, expectedTailId?: string): void {
     const t0 = Date.now();
-    debugLog("fball", `whenReady start`, "fball");
+    debugLog("fball", `whenReady start timeout=${timeoutMs}`, "fball");
     let userTouched = false;
     const markUser = (e: Event) => {
         if (!container.contains(e.target as Node)) userTouched = true;
@@ -101,6 +108,8 @@ export function scrollDocBottomWhenReady(container: HTMLElement, timeoutMs = 300
         document.removeEventListener("keydown", markUser, true);
         debugLog("fball", `whenReady ${why} at ${Date.now() - t0}ms`, "fball");
     };
+    let lastProgress = "";
+    let stall = 0;
     const tick = () => {
         if (!container.isConnected) {
             done("abort:detached");
@@ -115,8 +124,95 @@ export function scrollDocBottomWhenReady(container: HTMLElement, timeoutMs = 300
             return;
         }
         scrollDocBottom(container);
+        const wys = container.querySelector(".protyle-wysiwyg");
+        const content = (container.querySelector(".protyle-content") ?? wys) as HTMLElement | null;
+        const progress = `${content?.scrollTop ?? 0}/${wys?.querySelectorAll(":scope > [data-node-id]").length ?? 0}`;
+        stall = progress === lastProgress ? stall + 1 : 0;
+        lastProgress = progress;
+        if (stall >= 10) {
+            done("stalled");
+            return;
+        }
         if (Date.now() - t0 > timeoutMs) {
             done("TIMEOUT");
+            return;
+        }
+        setTimeout(tick, 200);
+    };
+    tick();
+}
+
+/** 超时档选择（fballfeedback □3）：真尾已知（getLast 成功）=懒加载推进预算 15s——3s 实测
+ *  200 段长文档仅推进 36% 即超时停半路；真尾未知=按渲染末块落底的老语义维持 3s。stalled
+ *  看护在 whenReady 内兜底，15s 窗不会干等。 */
+export function bottomTimeoutOf(expectedTailId: string | undefined, base = 3000): number {
+    return expectedTailId ? Math.max(base, 15000) : base;
+}
+
+/** 跳底正轨通道（fballfeedback □3 v2，bear 09-17 反馈「只见最后一个块」）：此前把真尾块
+ *  id 喂构造 blockId，内核按 getDoc mode 0 块 id 语义只加载该块（「伪聚焦」家族；内核
+ *  protyle/index.ts:535 构造通道只有 mode 0/3，无尾窗）——悬浮窗只剩尾块、往上滚加载
+ *  不出前文。正解=blockId 恒文档 id（整篇头窗构造）+ 头窗就绪后合成点击 protyle 自带
+ *  滚动条「跳到底部」钮（.protyle-scroll__down）→ 内核 goEnd：getDoc mode 4 一次落尾窗
+ *  + onGet scrollCenter 滚到尾块，与主编辑器「跳到底部」按钮行为完全一致；往上滚动态
+ *  加载前窗=整篇可达。钮的监听绑在 .protyle-scroll 父容器 click（内核 scroll/index.ts
+ *  ~120，click 委托非 mousedown 族），合成 el.click() 可触发。
+ *  节奏：等头窗首块（点早了 goEnd 拿不到 rootID/尾元素=白点）→ 点钮 → 轮询落底收敛
+ *  （isDocBottomScrolled 不带期望——mode 4 后渲染末块即真尾），未收敛且距上次点击
+ *  ≥600ms 再点（goEnd 幂等：尾窗已载时内核走 scrollTop 直接收底）。200ms 一拍超时
+ *  放弃（不抛错）；容器 detach/用户容器外操作即停（whenReady 同款守卫——用户滚动
+ *  所有权优先，goEnd 自身也有 wheel 中断守卫）。 */
+export function jumpDocBottomViaSlider(container: HTMLElement, timeoutMs = 15000): void {
+    const t0 = Date.now();
+    debugLog("fball", `slider-jump start timeout=${timeoutMs}`, "fball");
+    let userTouched = false;
+    const markUser = (e: Event) => {
+        if (!container.contains(e.target as Node)) userTouched = true;
+    };
+    document.addEventListener("pointerdown", markUser, true);
+    document.addEventListener("keydown", markUser, true);
+    const done = (why: string) => {
+        document.removeEventListener("pointerdown", markUser, true);
+        document.removeEventListener("keydown", markUser, true);
+        debugLog("fball", `slider-jump ${why} at ${Date.now() - t0}ms`, "fball");
+    };
+    let lastClick = 0;
+    let clicks = 0;
+    const tick = () => {
+        if (!container.isConnected) {
+            done("abort:detached");
+            return;
+        }
+        if (userTouched) {
+            done("abort:user");
+            return;
+        }
+        const first = container.querySelector(".protyle-wysiwyg > [data-node-id]");
+        if (!first) {
+            // 头窗未就绪：内核 getDoc mode 0 在途，此拍点钮拿不到 rootID/尾元素
+            if (Date.now() - t0 > timeoutMs) {
+                done("TIMEOUT:head-not-ready");
+                return;
+            }
+            setTimeout(tick, 200);
+            return;
+        }
+        if (isDocBottomScrolled(container)) {
+            done("settled");
+            return;
+        }
+        if (Date.now() - lastClick >= 600) {
+            const btn = container.querySelector(".protyle-scroll__down");
+            if (!btn) {
+                done("abort:no-slider-btn");
+                return;
+            }
+            lastClick = Date.now();
+            clicks++;
+            (btn as HTMLElement).click();
+        }
+        if (Date.now() - t0 > timeoutMs) {
+            done(`TIMEOUT clicks=${clicks}`);
             return;
         }
         setTimeout(tick, 200);
@@ -137,5 +233,5 @@ export async function scrollDocBottomForDoc(
     } catch {
         // 真尾未知→不传期望，按渲染末块落底（老行为）
     }
-    scrollDocBottomWhenReady(container, timeoutMs, expected);
+    scrollDocBottomWhenReady(container, bottomTimeoutOf(expected, timeoutMs), expected);
 }

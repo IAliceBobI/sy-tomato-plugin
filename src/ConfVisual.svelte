@@ -3,11 +3,13 @@
     // （自 ConfClock.svelte 块关系图段整块迁入）。各卡内部一行不动，共享样式见 IndexConf.css。
     import TomatoVIP from "./TomatoVIP.svelte";
     import {
+        mindWireBlockWire,
         mindWireCheckbox,
         mindWireColorfull,
         mindWireDocMenu,
         mindWireDynamicLine,
         mindWireGlobalMenu,
+        mindWireHoverBar,
         mindWireLine,
         mindWireStarRefOnly,
         mindWireWidth,
@@ -17,6 +19,7 @@
         graphDefaultExpandLevel,
         graphDefaultLayout,
         graphHideStructEdges,
+        graphShowNumbers,
         graphMaxAllBlocks,
         graphMaxPBlocks,
         graph定位到图中的节点Menu,
@@ -86,9 +89,17 @@
             {tomatoI18n.只关联星号引用}
         </div>
         <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$mindWireBlockWire} />
+            {tomatoI18n.块级连线}
+        </div>
+        <div>
             <input type="checkbox" class="b3-switch" bind:checked={$mindWireWordWire} />
             {tomatoI18n.划词连线}
             <HotkeyCap hk={MindWire划词连线} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$mindWireHoverBar} />
+            {tomatoI18n.悬停显示选色条}
         </div>
         <div>
             {tomatoI18n.线型}
@@ -193,7 +204,11 @@
         </div>
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$graphHideStructEdges} />
-            隐藏结构连线（仅显示引用形成的连线）
+            {tomatoI18n.隐藏结构连线}
+        </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$graphShowNumbers} />
+            章节自动编号（结构视图标题前缀 1 / 1.1）
         </div>
         <div>
             {@html tomatoI18n.块关系图帮助}

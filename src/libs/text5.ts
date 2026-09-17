@@ -651,6 +651,43 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "Annotation"; // 英语：批注
         }
     }
+    // 查看字号三档行（陆杰 09-17）：设置面板紧凑行标题+三档短标签
+    public get 查看字号(): string {
+        switch (this.lang) {
+            case "zh_CN":
+                return "查看字号";
+            case "es_ES":
+                return "Tamaño de lectura";
+            case "fr_FR":
+                return "Taille de lecture";
+            case "ja_JP":
+                return "表示サイズ";
+            case "zh_CHT":
+                return "查看字號";
+            case "it_IT":
+                return "Dimensione di lettura";
+            default:
+                return "Reading font sizes";
+        }
+    }
+    public get 引文(): string {
+        switch (this.lang) {
+            case "zh_CN":
+                return "引文";
+            case "es_ES":
+                return "Cita";
+            case "fr_FR":
+                return "Citation";
+            case "ja_JP":
+                return "引用";
+            case "zh_CHT":
+                return "引文";
+            case "it_IT":
+                return "Citazione";
+            default:
+                return "Quote";
+        }
+    }
     public get 包含正反链() {
         switch (this.lang) {
             case "zh_CN":
@@ -1019,6 +1056,25 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
 
             default:
                 return "Upload current document and all subdocuments";
+        }
+    }
+    // □5 annofeed0917：瞬态全默认代保存被拦的 toast（guardSaveSettings）
+    public get 设置读取异常未保存(): string {
+        switch (this.lang) {
+            case "zh_CN":
+                return "设置读取异常，为防覆盖真配置本次未保存，请重开设置面板核对";
+            case "es_ES":
+                return "Error de lectura de ajustes; no se guardó nada para proteger su configuración. Reabra el panel de ajustes";
+            case "fr_FR":
+                return "Lecture des réglages échouée ; rien n'a été enregistré pour protéger votre configuration. Rouvrez le panneau";
+            case "ja_JP":
+                return "設定の読み込みに失敗したため保護のため保存しませんでした。設定画面を開き直してください";
+            case "zh_CHT":
+                return "設定讀取異常，為防覆蓋真設定本次未保存，請重開設定面板核對";
+            case "it_IT":
+                return "Lettura impostazioni anomala; nulla è stato salvato per proteggere la configurazione. Riapri il pannello";
+            default:
+                return "Settings read failed; nothing was saved to protect your config. Please reopen the settings panel";
         }
     }
 }

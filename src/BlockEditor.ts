@@ -95,10 +95,16 @@ class BlockEditor {
         this.statusEl = null;
     }
 
-    /** 存在层 toggle（快捷键 ⌥⇧5 / 状态栏钮，□5 语义=球显隐）：不在→收缩球出场；在→全关（收面板+销毁球+钉住态清） */
+    /** 存在层 toggle（快捷键 ⌥⇧5 / 状态栏钮，□5 语义=球显隐）：不在→收缩球出场；在→全关（收面板+销毁球+钉住态清）。
+     *  fballfeedback □2：关闭/开回双写 qeFloatBall 落盘——否则关闭是会话级，插件任何 petal 写触发
+     *  整重载后 onload 按 qeFloatBall 重新挂球=「隐藏了自己又冒出来」（陆杰 09-16 反馈）。单状态源：
+     *  × 与设置面板「常驻悬浮球」开关同源（不仿阅读点 FloatBar+Hidden 双 store——设置开而球恒缺更拧巴）。
+     *  write 走官方 saveData 恒带 app=本窗不被重载，无闪变 */
     private toggleExistence() {
         if (this.dm) this.dm.destroyBy();
         else this.spawnBall();
+        qeFloatBall.set(this.dm != null);
+        qeFloatBall.write();
     }
 
     /** 右键链路：未开则开（展开面板）并钉住该块、已展开则换钉；收缩态自动展开+换钉（右键就是要看） */
@@ -250,7 +256,7 @@ class BlockEditor {
         el.className = "toolbar__item ariaLabel";
         el.id = "tomato-qe-status";
         el.innerHTML = `<svg><use xlink:href="#iconEdit"></use></svg>`;
-        el.setAttribute("aria-label", tomatoI18n.块编辑器);
+        el.setAttribute("aria-label", `${tomatoI18n.块编辑器} ${BlockEditor打开编辑器.w()}`);
         el.addEventListener("click", () => this.toggleExistence());
         getTomatoPluginInstance().addStatusBar({ element: el, position: "left" });
         this.statusEl = el;

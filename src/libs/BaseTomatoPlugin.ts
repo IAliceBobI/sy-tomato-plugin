@@ -70,4 +70,7 @@ export class BaseTomatoPlugin extends Plugin {
     taskCfg: Promise<any>;
     settingCfg: TomatoSettings;
     pluginSpec: PluginSpec;
+    /** □5 annofeed0917 保存链守卫（设置面板/激活链保存前过闸）：默认放行——渐进/仿写等
+     *  子类未实现装载重试、无「瞬态全默认代」语义；tomato 覆写（读取曾失败+盘上真值在世=拦截） */
+    async guardSaveSettings(): Promise<boolean> { return true; }
 }

@@ -157,7 +157,10 @@ class DailyNoteBox {
             langText: tomatoI18n.复制到dailynote,
             hotkey: DailyNoteBox复制到dailynote.m,
             callback: () => {
-                this.findDivs(events.protyle.protyle, true, false);
+                // □1 annofeed0917：重载空窗 events.prototype 恒空裸取=TypeError——统一
+                // currentProtyle()（空窗回退 getActiveEditor），两路皆空不触发
+                const protyle = events.currentProtyle();
+                if (protyle) this.findDivs(protyle, true, false);
             },
         });
 
@@ -166,7 +169,8 @@ class DailyNoteBox {
                 langText: tomatoI18n.复制到dailynoteNewFile,
                 hotkey: DailyNoteBox复制到dailynoteNewFile.m,
                 callback: () => {
-                    this.findDivs(events.protyle.protyle, true, true);
+                    const protyle = events.currentProtyle();
+                    if (protyle) this.findDivs(protyle, true, true);
                 },
             });
         }

@@ -55,7 +55,7 @@ class ReadingPointBox {
         if (readingTopBar.get()) {
             plugin.addTopBar({
                 icon: "iconBookmark",
-                title: tomatoI18n.阅读点,
+                title: `${tomatoI18n.阅读点} ${ReadingPointBox显示或隐藏悬浮球.w()}`,
                 position: "left",
                 callback: () => this.onEntryClick(),
             });
@@ -338,13 +338,17 @@ class ReadingPointBox {
         if (seq !== this.statusSeq) return;
         // 球：推送当前文档点态（mount 返回 exports，AGENTS 踩坑表语义）
         this.ballSv?.refreshDocState?.(cur);
-        // 状态栏钮：开关语义反馈——球在场=点亮，球隐藏=半暗（点态指示已由球本体承接）
+        // 状态栏钮：开关语义反馈——球在场=点亮，球隐藏=半暗（点态指示已由球本体承接）；
+        // tooltip 带球显隐键位（confgather2 □3：w() 现读 keymap，refreshStatus 每次切换现求值）
         const el = this.statusEl;
         if (el) {
             const ballOn = readingFloatBar.get() && !readingFloatBallHidden.get();
             el.style.opacity = ballOn ? "" : "0.4";
             el.style.color = ballOn ? "var(--b3-theme-primary)" : "";
-            el.setAttribute("aria-label", ballOn ? tomatoI18n.隐藏悬浮球 : tomatoI18n.显示悬浮球);
+            el.setAttribute(
+                "aria-label",
+                `${ballOn ? tomatoI18n.隐藏悬浮球 : tomatoI18n.显示悬浮球} ${ReadingPointBox显示或隐藏悬浮球.w()}`,
+            );
         }
     }
 
@@ -387,6 +391,13 @@ class ReadingPointBox {
                     panel: () => this.showPanel(),
                     hide: () => void this.toggleBall(),
                     openMenu: (x: number, y: number) => this.openBallMenu(x, y),
+                },
+                // 四钮键位提示（confgather2 □3）：函数现求值防循环 import，改键随展开渲染刷新
+                keyHints: {
+                    setPoint: () => ReadingPointBox设置阅读点.w(),
+                    jump: () => ReadingPointBox跳到当前文档的阅读点.w(),
+                    del: () => ReadingPointBox删除当前文档的阅读点.w(),
+                    panel: () => ReadingPointBox查看阅读点.w(),
                 },
             },
         });

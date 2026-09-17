@@ -512,6 +512,17 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Annotation style";
         }
     }
+    /** □1 annofeed0917（review P2-4）：总开关关闭态提示——渲染链恒挂后语义=藏面板与
+     *  入口、文档内既有批注标记与查看气泡保留，明示防「关了标记还在」误报 bug */
+    public get 批注关闭提示() {
+        switch (this.lang) {
+            case "zh_CN": return "已关闭：隐藏面板与入口，文档内既有批注标记与查看气泡保留（可点击标记继续查看或删除）";
+            case "zh_CHT": return "已關閉：隱藏面板與入口，文檔內既有批註標記與查看氣泡保留（可點擊標記繼續查看或刪除）";
+            case "ja_JP": return "オフ：パネルと入口を隠します。ドキュメント内の既存の注釈マークと閲覧バブルは保持されます（マークをクリックして閲覧・削除可）";
+            case "en_US":
+            default: return "Off: hides the panel and entry points; existing annotation marks and their view bubbles stay in the document (click a mark to view or delete)";
+        }
+    }
     public get 形态下划线式() {
         switch (this.lang) {
             case "zh_CN": return "下划线式";
@@ -791,11 +802,11 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get 收集同步划线颜色() {
         switch (this.lang) {
-            case "zh_CN": return "收集同步划线颜色";
-            case "zh_CHT": return "收集同步劃線顏色";
-            case "ja_JP": return "収集にマーカー色を同期";
+            case "zh_CN": return "收集同步划线颜色（纯划线行）";
+            case "zh_CHT": return "收集同步劃線顏色（純劃線行）";
+            case "ja_JP": return "収集時にマーカー色を同期（無記入行）";
             case "en_US":
-            default: return "Sync highlight colors when collecting";
+            default: return "Sync highlight colors for plain marks";
         }
     }
     // □3 划线总览浮层（anno-round2）
@@ -969,11 +980,11 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get 未找到日记笔记本() {
         switch (this.lang) {
-            case "zh_CN": return "未找到日记笔记本，可改选指定文件";
-            case "zh_CHT": return "未找到日記筆記本，可改選指定文件";
-            case "ja_JP": return "日記ノートブックが見つかりません。ファイル指定に変更してください";
+            case "zh_CN": return "未选择日记笔记本，可在 设置 → 批注 中指定";
+            case "zh_CHT": return "未選擇日記筆記本，可在 設置 → 批註 中指定";
+            case "ja_JP": return "日記ノートブックが未選択です。設定 → 注釈 で指定してください";
             case "en_US":
-            default: return "No daily-note notebook found; pick a file instead";
+            default: return "No daily-note notebook picked; set one in Settings → Annotations";
         }
     }
     public get 收集目标已失效请重选() {
@@ -2061,6 +2072,105 @@ export class TomatoI18n extends TomatoI18nABC {
             case "pt_BR": return "Recolher o painel em uma bola flutuante";
             case "en_US":
             default: return "Collapse panel to floating ball";
+        }
+    }
+
+    // 块编辑器节列表收/展（fballfeedback □6）：工具行行首钮 aria-label，按当前态二选一
+    public get 收起节列表() {
+        switch (this.lang) {
+            case "zh_CN": return "收起目录列表，正文占满窗口";
+            case "zh_CHT": return "收起目錄列表，正文佔滿窗口";
+            case "ja_JP": return "目次リストを折りたたみ、本文を全画面に";
+            case "es_ES": return "Plegar la lista de secciones, el contenido ocupa toda la ventana";
+            case "fr_FR": return "Replier la liste des sections, le contenu occupe toute la fenêtre";
+            case "it_IT": return "Comprimi l'elenco delle sezioni, il contenuto occupa tutta la finestra";
+            case "de_DE": return "Abschnittsliste einklappen, Inhalt füllt das Fenster";
+            case "he_IL": return "צמצם את רשימת הסעיפים, התוכן ממלא את החלון";
+            case "ru_RU": return "Свернуть список разделов, содержимое займёт всё окно";
+            case "pl_PL": return "Zwiń listę sekcji, treść zajmie całe okno";
+            case "ar_SA": return "تصغير قائمة الأقسام ليملأ المحتوى النافذة";
+            case "pt_BR": return "Recolher a lista de seções, o conteúdo ocupa toda a janela";
+            case "en_US":
+            default: return "Collapse section list, content fills the window";
+        }
+    }
+
+    public get 展开节列表() {
+        switch (this.lang) {
+            case "zh_CN": return "展开目录列表";
+            case "zh_CHT": return "展開目錄列表";
+            case "ja_JP": return "目次リストを展開";
+            case "es_ES": return "Desplegar la lista de secciones";
+            case "fr_FR": return "Déplier la liste des sections";
+            case "it_IT": return "Espandi l'elenco delle sezioni";
+            case "de_DE": return "Abschnittsliste ausklappen";
+            case "he_IL": return "הרחב את רשימת הסעיפים";
+            case "ru_RU": return "Развернуть список разделов";
+            case "pl_PL": return "Rozwiń listę sekcji";
+            case "ar_SA": return "توسيع قائمة الأقسام";
+            case "pt_BR": return "Expandir a lista de seções";
+            case "en_US":
+            default: return "Expand section list";
+        }
+    }
+
+    // 块编辑器目录侧边化（blockside □2）：布局切换钮 aria-label，按当前态二选一（态显操作方向，
+    // 与折叠钮 ▾收/▸展 同约定）。记忆走 localStorage 不进设置面板；移动端恒上下无此钮
+    public get 切换为侧边布局() {
+        switch (this.lang) {
+            case "zh_CN": return "切换为侧边布局，目录在左、内容在右";
+            case "zh_CHT": return "切換為側邊佈局，目錄在左、內容在右";
+            case "ja_JP": return "サイドレイアウトに切り替え（目次左・本文右）";
+            case "es_ES": return "Cambiar al diseño lateral, índice a la izquierda y contenido a la derecha";
+            case "fr_FR": return "Passer en disposition latérale, sommaire à gauche et contenu à droite";
+            case "it_IT": return "Passa al layout laterale, indice a sinistra e contenuto a destra";
+            case "de_DE": return "Zum Seitenlayout wechseln, Verzeichnis links und Inhalt rechts";
+            case "he_IL": return "מעבר לפריסת צד, תוכן עניינים משמאל ותוכן מימין";
+            case "ru_RU": return "Переключить на боковую разметку: оглавление слева, содержимое справа";
+            case "pl_PL": return "Przełącz na układ boczny, spis treści po lewej i treść po prawej";
+            case "ar_SA": return "التبديل إلى تخطيط جانبي، الفهرس يسارًا والمحتوى يمينًا";
+            case "pt_BR": return "Alternar para layout lateral, índice à esquerda e conteúdo à direita";
+            case "en_US":
+            default: return "Switch to side layout, outline on the left and content on the right";
+        }
+    }
+
+    public get 切换为上下布局() {
+        switch (this.lang) {
+            case "zh_CN": return "切换为上下布局，目录在正文上方";
+            case "zh_CHT": return "切換為上下佈局，目錄在正文上方";
+            case "ja_JP": return "上下レイアウトに切り替え（目次は本文の上）";
+            case "es_ES": return "Cambiar al diseño vertical, índice encima del contenido";
+            case "fr_FR": return "Passer en disposition verticale, sommaire au-dessus du contenu";
+            case "it_IT": return "Passa al layout verticale, indice sopra il contenuto";
+            case "de_DE": return "Zum vertikalen Layout wechseln, Verzeichnis über dem Inhalt";
+            case "he_IL": return "מעבר לפריסה אנכית, תוכן עניינים מעל התוכן";
+            case "ru_RU": return "Переключить на вертикальную разметку: оглавление над содержимым";
+            case "pl_PL": return "Przełącz na układ pionowy, spis treści nad treścią";
+            case "ar_SA": return "التبديل إلى تخطيط عمودي، الفهرس أعلى المحتوى";
+            case "pt_BR": return "Alternar para layout vertical, índice acima do conteúdo";
+            case "en_US":
+            default: return "Switch to vertical layout, outline above the content";
+        }
+    }
+
+    // 侧边布局比例拖条（blockside □3）：separator aria-label
+    public get 拖动调整目录栏宽度() {
+        switch (this.lang) {
+            case "zh_CN": return "拖动调整目录栏宽度";
+            case "zh_CHT": return "拖動調整目錄欄寬度";
+            case "ja_JP": return "ドラッグして目次欄の幅を調整";
+            case "es_ES": return "Arrastre para ajustar el ancho de la columna del índice";
+            case "fr_FR": return "Faites glisser pour ajuster la largeur de la colonne du sommaire";
+            case "it_IT": return "Trascina per regolare la larghezza della colonna dell'indice";
+            case "de_DE": return "Ziehen, um die Breite der Verzeichnisspalte anzupassen";
+            case "he_IL": return "גרור כדי להתאים את רוחב עמודת תוכן העניינים";
+            case "ru_RU": return "Перетащите, чтобы изменить ширину колонки оглавления";
+            case "pl_PL": return "Przeciągnij, aby dostosować szerokość kolumny spisu treści";
+            case "ar_SA": return "اسحب لضبط عرض عمود الفهرس";
+            case "pt_BR": return "Arraste para ajustar a largura da coluna do índice";
+            case "en_US":
+            default: return "Drag to adjust outline column width";
         }
     }
 
@@ -8037,7 +8147,7 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CN": return "万";
             case "zh_CHT": return "萬";
             case "en_US":
-            default: return "00k";
+            default: return "0k";
         }
     }
     public get 卷预览() {
@@ -8057,12 +8167,22 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Split into {n} volumes";
         }
     }
+    /** {t}=全书字数 {m}=当前上限（万）——空态带数字行动导向（09-17 反馈改：旧文案无数字被误读成坏了） */
     public get 无需分卷() {
         switch (this.lang) {
-            case "zh_CN": return "按当前设置只需 1 卷，无需分卷（可调高标题层级或调低上限）";
-            case "zh_CHT": return "按當前設置只需 1 卷，無需分卷（可調高標題層級或調低上限）";
+            case "zh_CN": return "全书 {t} 字，一卷装得下（当前上限 {m} 万字），无需分卷";
+            case "zh_CHT": return "全書 {t} 字，一卷裝得下（當前上限 {m} 萬字），無需分卷";
             case "en_US":
-            default: return "Current settings produce a single volume — no split needed (try a deeper heading level or a smaller cap)";
+            default: return "The whole doc ({t} chars) fits in a single volume under the current cap ({m}0k) — no split needed";
+        }
+    }
+    /** 无需分卷的调细建议句——仅当存在更低档可调时渲染（小书 ≤10 万时调低上限是死建议） */
+    public get 无需分卷调细提示() {
+        switch (this.lang) {
+            case "zh_CN": return "。想拆得更细：调低每卷字数上限，或勾选更深的标题级";
+            case "zh_CHT": return "。想拆得更細：調低每卷字數上限，或勾選更深的標題層級";
+            case "en_US":
+            default: return ". For smaller volumes: lower the cap or check deeper heading levels";
         }
     }
     public get 切分中() {
@@ -8334,6 +8454,19 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "作業終了後に自動的に休憩へ移り、休憩終了後に作業へ戻ります";
             case "en_US":
             default: return "Switch to break automatically when work ends, and back to work when break ends";
+        }
+    }
+    // confgather2 期2 A2+A3（2026-09-17 bear 拍板收折叠）：番茄钟域「背景图与随机视频」折叠区标题
+    // ——付费+极低频（明/暗背景+透明度 VIP 三行+随机视频 URL 行）
+    public get 背景图与随机视频() {
+        switch (this.lang) {
+            case "zh_CN": return "背景图与随机视频";
+            case "zh_CHT": return "背景圖與隨機影片";
+            case "es_ES": return "Fondos y vídeo aleatorio";
+            case "fr_FR": return "Arrière-plans et vidéo aléatoire";
+            case "ja_JP": return "背景画像とランダム動画";
+            case "en_US":
+            default: return "Backgrounds & random video";
         }
     }
     public get 随机视频帮助() {
@@ -9870,6 +10003,24 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Word-level wires (select to link)";
         }
     }
+    public get 块级连线() {
+        switch (this.lang) {
+            case "zh_CN": return "块级导线（块引用连线）";
+            case "zh_CHT": return "塊級導線（塊引用連線）";
+            case "ja_JP": return "ブロック導線（ブロック参照接続）";
+            case "en_US":
+            default: return "Block-level wires (block refs)";
+        }
+    }
+    public get 悬停显示选色条() {
+        switch (this.lang) {
+            case "zh_CN": return "悬停显示选色条";
+            case "zh_CHT": return "懸停顯示選色條";
+            case "ja_JP": return "ホバーでカラーバー表示";
+            case "en_US":
+            default: return "Show color bar on hover";
+        }
+    }
     public get 线型() {
         switch (this.lang) {
             case "zh_CN": return "线型";
@@ -10255,6 +10406,43 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "大きなドキュメント：自動更新は一時停止中";
             case "en_US":
             default: return "Large doc: auto refresh paused";
+        }
+    }
+    // graphbox □2 结构优先视图（2026-09-17）：默认结构图+全量切换档+徽标
+    public get 显示全部块() {
+        switch (this.lang) {
+            case "zh_CN": return "显示全部块";
+            case "zh_CHT": return "顯示全部塊";
+            case "ja_JP": return "すべてのブロックを表示";
+            case "en_US":
+            default: return "Show all blocks";
+        }
+    }
+    public get 回到结构视图() {
+        switch (this.lang) {
+            case "zh_CN": return "回到结构视图";
+            case "zh_CHT": return "回到結構視圖";
+            case "ja_JP": return "構造ビューに戻る";
+            case "en_US":
+            default: return "Back to structure view";
+        }
+    }
+    public get 徽标段字() {
+        switch (this.lang) {
+            case "zh_CN": return "%1 段 · %2 字，点击展开";
+            case "zh_CHT": return "%1 段 · %2 字，點擊展開";
+            case "ja_JP": return "%1 段落 · %2 字、クリックで展開";
+            case "en_US":
+            default: return "%1 paras · %2 chars, click to expand";
+        }
+    }
+    public get 徽标已展开点击收起() {
+        switch (this.lang) {
+            case "zh_CN": return "%1 段 · %2 字，点击收起";
+            case "zh_CHT": return "%1 段 · %2 字，點擊收起";
+            case "ja_JP": return "%1 段落 · %2 字、クリックで折りたたみ";
+            case "en_US":
+            default: return "%1 paras · %2 chars, click to collapse";
         }
     }
     // graphbox 期3（2026-09-04）：大图缩放提示（「超级块/引述块」复用基类既有 getter 不重定义）；
@@ -14047,6 +14235,67 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Review this doc and subdocuments";
         }
     }
+    // confgather2 期3（2026-09-17 bear 拍板收折叠）：低频配置折叠区标题三键
+    // A5+A6 反链域「静态反链与失效引用清理」维护工具合集折叠（命名对齐「数据库反链与引用修复」先例）
+    public get 静态反链与失效引用清理() {
+        switch (this.lang) {
+            case "zh_CN": return "静态反链与失效引用清理";
+            case "zh_CHT": return "靜態反向連結與失效引用清理";
+            case "es_ES": return "Enlaces estáticos y limpiador de referencias";
+            case "fr_FR": return "Liens statiques et nettoyage des références";
+            case "ja_JP": return "静的リンクと壊れた参照のクリーンアップ";
+            case "en_US":
+            default: return "Static links & broken-ref cleaner";
+        }
+    }
+    // A7 闪卡域「闪卡优先级」卡内折叠（位置/自动加优先级/藏滑块/藏暂停钮/扫描间隔五细节行）
+    public get 优先级细节() {
+        switch (this.lang) {
+            case "zh_CN": return "优先级细节";
+            case "zh_CHT": return "優先級細節";
+            case "es_ES": return "Detalles de prioridad";
+            case "fr_FR": return "Détails de priorité";
+            case "ja_JP": return "優先度の詳細";
+            case "en_US":
+            default: return "Priority details";
+        }
+    }
+    // A8 杂项主卡低频命令键帽折叠（删块制卡/制表/模糊/剪贴板跳转/flag×2/收集未完成任务+已收纳命令两行）
+    public get 更多命令() {
+        switch (this.lang) {
+            case "zh_CN": return "更多命令";
+            case "zh_CHT": return "更多命令";
+            case "es_ES": return "Más comandos";
+            case "fr_FR": return "Plus de commandes";
+            case "ja_JP": return "その他のコマンド";
+            case "en_US":
+            default: return "More commands";
+        }
+    }
+    // confgather2 期4 顺手工程项（映射表拍板随期带做）：存量硬编码中文补 i18n 两处
+    //（块编辑器卡标题复用既有键 :1971）：引用修复工具卡标题 / 可视化域结构连线行
+    public get 引用修复工具() {
+        switch (this.lang) {
+            case "zh_CN": return "引用修复工具";
+            case "zh_CHT": return "引用修復工具";
+            case "es_ES": return "Herramienta de reparación de referencias";
+            case "fr_FR": return "Outil de réparation des références";
+            case "ja_JP": return "参照修復ツール";
+            case "en_US":
+            default: return "Reference repair tool";
+        }
+    }
+    public get 隐藏结构连线() {
+        switch (this.lang) {
+            case "zh_CN": return "隐藏结构连线（仅显示引用形成的连线）";
+            case "zh_CHT": return "隱藏結構連線（僅顯示引用形成的連線）";
+            case "es_ES": return "Ocultar conexiones estructurales (mostrar solo las creadas por referencias)";
+            case "fr_FR": return "Masquer les liens structurels (afficher uniquement ceux créés par les références)";
+            case "ja_JP": return "構造リンクを非表示（参照によるリンクのみ表示）";
+            case "en_US":
+            default: return "Hide structural links (show only reference links)";
+        }
+    }
     // □4（vipdoctree 2026-09-13）：失效引用/锚点链接检查清理（检测语义对齐官方
     // ListInvalidBlockRefs，插件增量=范围化+批量动作；文案键全链查重零撞）
     public get 失效引用清理() {
@@ -14062,13 +14311,13 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public 失效引用清理说明() {
         switch (this.lang) {
-            case "zh_CN": return "检查文档（可含子文档）中的失效块引用与锚点链接，勾选后批量转成文本或删除。检查免费，批量清理为 Pro";
-            case "zh_CHT": return "檢查文檔（可含子文檔）中的失效塊引用與錨點連結，勾選後批次轉成文字或刪除。檢查免費，批次清理為 Pro";
-            case "es_ES": return "Busca referencias de bloque y enlaces de anclaje rotos en el documento (incl. subdocumentos) y permite convertirlos en texto o eliminarlos. Revisar es gratis; la limpieza por lotes es Pro";
-            case "fr_FR": return "Recherche les références de blocs et liens d'ancre rompus dans le document (sous-documents inclus), puis les convertit en texte ou les supprime en lot. La vérification est gratuite ; le nettoyage par lot est Pro";
-            case "ja_JP": return "ドキュメント（サブドキュメント含む）内の壊れたブロック参照とアンカーリンクを検査し、テキスト化または一括削除できます。検査は無料、一括クリーンアップは Pro です";
+            case "zh_CN": return "检查文档（可含子文档）中的失效块引用与锚点链接，勾选后批量转成文本或删除";
+            case "zh_CHT": return "檢查文檔（可含子文檔）中的失效塊引用與錨點連結，勾選後批次轉成文字或刪除";
+            case "es_ES": return "Busca referencias de bloque y enlaces de anclaje rotos en el documento (incl. subdocumentos) y permite convertirlos en texto o eliminarlos";
+            case "fr_FR": return "Recherche les références de blocs et liens d'ancre rompus dans le document (sous-documents inclus), puis les convertit en texte ou les supprime en lot";
+            case "ja_JP": return "ドキュメント（サブドキュメント含む）内の壊れたブロック参照とアンカーリンクを検査し、テキスト化または一括削除できます";
             case "en_US":
-            default: return "Finds broken block references and anchor links in a doc (subdocs included), then converts them to text or removes them in batch. Checking is free; batch cleaning is Pro";
+            default: return "Finds broken block references and anchor links in a doc (subdocs included), then converts them to text or removes them in batch";
         }
     }
     public get 检查失效引用() {
@@ -15061,6 +15310,57 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "ドキュメント一覧を隠す";
             case "en_US":
             default: return "Hide document list";
+        }
+    }
+
+    // ---- □4 悬浮反链（bkfloat 2026-09-17）：设置行/命令/状态栏钮文案（zh+en 一等，其余落英文兜底） ----
+    public get 悬浮反链() {
+        switch (this.lang) {
+            case "zh_CN": return "悬浮反链";
+            case "zh_CHT": return "懸浮反鏈";
+            case "en_US":
+            default: return "Floating backlinks";
+        }
+    }
+    public get 悬浮反链说明() {
+        switch (this.lang) {
+            case "zh_CN": return "桌面端以悬浮球+悬浮面板取代底部面板与入口条；关闭后恢复底部形态。";
+            case "zh_CHT": return "桌面端以懸浮球+懸浮面板取代底部面板與入口條；關閉後恢復底部形態。";
+            case "en_US":
+            default: return "On desktop, replaces the bottom panel and entry bar with a floating ball + panel; turn off to restore the bottom layout.";
+        }
+    }
+    public get 展开或收起悬浮反链() {
+        switch (this.lang) {
+            case "zh_CN": return "展开或收起悬浮反链";
+            case "zh_CHT": return "展開或收起懸浮反鏈";
+            case "en_US":
+            default: return "Toggle floating backlinks panel";
+        }
+    }
+    public get 显示悬浮反链球() {
+        switch (this.lang) {
+            case "zh_CN": return "显示悬浮反链球";
+            case "zh_CHT": return "顯示懸浮反鏈球";
+            case "en_US":
+            default: return "Show floating backlink ball";
+        }
+    }
+    public get 隐藏悬浮反链球() {
+        switch (this.lang) {
+            case "zh_CN": return "隐藏悬浮反链球";
+            case "zh_CHT": return "隱藏懸浮反鏈球";
+            case "en_US":
+            default: return "Hide floating backlink ball";
+        }
+    }
+    /** 球显隐命令名（confgather2 □2）：命令面板/键帽行/命令开关域 label */
+    public get 显示或隐藏悬浮反链球() {
+        switch (this.lang) {
+            case "zh_CN": return "显示或隐藏悬浮反链球";
+            case "zh_CHT": return "顯示或隱藏懸浮反鏈球";
+            case "en_US":
+            default: return "Show or hide floating backlink ball";
         }
     }
 }

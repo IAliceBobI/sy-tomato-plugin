@@ -13,7 +13,8 @@ import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { mount, unmount } from "svelte";
 import { debugLog } from "./libs/logUtils";
-import { skeletonTreeFromHeadings, type HeadingRow } from "./libs/graphSkeleton";
+import { filterCustomRows } from "./libs/graphContent";
+import { structureRowsFromSql, type LightBlockRow } from "./libs/graphStructure";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -61,7 +62,7 @@ class GraphBox {
             if (graphAddTopbarIcon.get()) {
                 plugin.addTopBar({
                     icon: "iconGraphBox",
-                    title: tomatoI18n.打开块关系图,
+                    title: GraphBox打开块关系图.langText() + " " + GraphBox打开块关系图.w(),
                     position: "left",
                     callback: () => this.openGraphDock(),
                 });
@@ -233,9 +234,7 @@ class GraphBox {
                 return;
             }
             const st = data.getGraphState?.();
-            if (st?.mode === "skeleton") {
-                siyuan.pushMsg(tomatoI18n.定位骨架未含此块, 4000);
-            } else if (st?.blockCount && st.maxBlocks && st.blockCount > st.maxBlocks) {
+            if (st?.blockCount && st.maxBlocks && st.blockCount > st.maxBlocks) {
                 siyuan.pushMsg(tomatoI18n.定位超上限.replace("%1", `${st.maxBlocks}`), 4000);
             } else {
                 siyuan.pushMsg(tomatoI18n.定位未找到, 4000);
@@ -292,6 +291,8 @@ class GraphBox {
 
     private addDock() {
         const landscapeSwitchBtnID = newID();
+        // □2 结构⇄全量切换钮（默认结构优先，bear 方案 A 拍板）；态图标/文案由 Svelte 侧随 graphMode 刷新
+        const viewModeBtnID = newID();
         // siyuan@1.2.5 的 addDock.init 类型漏了 dock 参数（运行时 Custom 构造器仍 this.init(this) 传参），
         // init 是用词法 this 的箭头函数，不能改成 this 参数形式，整体 as any 保住现有语义
         this.plugin.addDock({
@@ -331,6 +332,10 @@ class GraphBox {
                                 <svg class="block__logoicon"><use xlink:href="#iconGraphBox"></use></svg>${tomatoI18n.块关系图}
                             </div>
                             <span class="fn__flex-1 fn__space"></span>
+                            <span id="${viewModeBtnID}" role="button" tabindex="0"
+                                  class="block__icon b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.显示全部块}">
+                                <svg><use id="${viewModeBtnID}-icon" xlink:href="#iconPreview"></use></svg>
+                            </span>
                             <span id="${landscapeSwitchBtnID}" role="button" tabindex="0"
                                   class="block__icon b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.切换布局形态.replace("%1", tomatoI18n.形态横排向右)}">
                                 <svg><use id="${landscapeSwitchBtnID}-icon" xlink:href="#iconGraphLayoutLR"></use></svg>
@@ -348,6 +353,7 @@ class GraphBox {
                             dock: dock as any,
                             plugin: this.plugin,
                             landscapeSwitchBtnID,
+                            viewModeBtnID,
                         }
                     }) as any;
                 } catch (e) {
@@ -511,8 +517,13 @@ export async function getData(docID: string, docName: string, maxPBlocks: number
             return true;
         }));
 
+    // □1 custom 块过滤（bear 拍板）：本档 DOM 通道（NodeCustomBlock→'custom' 空卡）
+    // 与引用端点 SQL 补块（content=纯 JSON 乱码）在此统一剔除，端点连坐边丢弃
+    const filtered = filterCustomRows(rows, refs);
+    refs = filtered.links;
+
     const docNameCache = new Map<string, string>();
-    for (const row of rows) {
+    for (const row of filtered.rows) {
         if (row.root_id != docID) {
             const otherID = row.root_id;
             let otherName = docNameCache.get(otherID);
@@ -523,8 +534,8 @@ export async function getData(docID: string, docName: string, maxPBlocks: number
             row.docName = otherName;
         }
     }
-    gbLog("graph.tree_build", `rows=${rows.length} links=${refs.length}`);
-    return { rows, links: refs };
+    gbLog("graph.tree_build", `rows=${filtered.rows.length} links=${refs.length}`);
+    return { rows: filtered.rows, links: refs };
 }
 
 // graphbox 期1 预检：count+length 毫秒级（AGENTS 性能锚点：巨书 getBlockDOM 25~39s/24MB 绝不无脑全量）。
@@ -542,16 +553,28 @@ export async function precheckDocSize(docID: string): Promise<{ cnt: number; tot
     }
 }
 
-// graphbox 期1 骨架轻通道：SQL 标题行拼章节树 + 引用边照画（refs SQL 独立便宜）+ 跨文档端点补节点。
-// 产物与全量 getData 同构 {rows, links}，渲染层 applyRowsAndLinks 零分叉。
-export async function getGraphSkeleton(docID: string, docName: string) {
+// graphbox □2 结构通道（大文档数据源，2026-09-17）：SQL 全块轻字段+容器 content → 容器子图
+// +徽标聚合 + 引用边（叶子端点重定向到容器）。产物与全量 getData 同构 {rows, links} 外加
+// info（StructureInfo），渲染层零分叉。替代退役的骨架标题树通道（结构通道覆盖其能力且更轻）。
+export async function getGraphStructure(docID: string, docName: string) {
     const t0 = performance.now();
-    const headings = (await siyuan.sql(
-        // limit 显式给：思源 SQL API 无 limit 默认截 64 行（2026-09-04 dev 实测 100 标题只回 64）
-        `select id,content,subtype,hpath from blocks where root_id="${docID}" and type='h' order by id limit 100000`
-    )) as HeadingRow[] ?? [];
-    gbLog("graph.skeleton_sql", `headings=${headings.length} ${Math.round(performance.now() - t0)}ms`);
-    const { rows, links } = skeletonTreeFromHeadings(docID, docName, headings);
+    // □3 文档序锚=getChildBlocks 平铺序（id 批量随机+hpath 不回填都非真序；标题恒顶层）
+    const orderP = siyuan.getChildBlocks(docID)
+        .then(kids => new Map(kids.map((k, i) => [k.id as string, i])))
+        .catch(() => new Map<string, number>());
+    const [light, contents, order] = await Promise.all([
+        // limit 显式给：思源 SQL API 无 limit 默认截 64 行（2026-09-04 dev 实测）
+        siyuan.sql(`select id,type,subtype,parent_id,length from blocks where root_id="${docID}" order by id limit 100000`),
+        siyuan.sql(`select id,content from blocks where root_id="${docID}" and type in ('d','h','i','s','b') order by id limit 100000`),
+        orderP,
+    ]) as [LightBlockRow[], { id: string; content: string }[], Map<string, number>];
+    gbLog("graph.structure_sql", `light=${light?.length ?? 0} containers=${contents?.length ?? 0} ${Math.round(performance.now() - t0)}ms`);
+    const byId = new Map((light ?? []).map(r => [r.id, r]));
+    for (const c of contents ?? []) {
+        const r = byId.get(c.id);
+        if (r) r.content = c.content ?? "";
+    }
+    const { rows, links, info } = structureRowsFromSql(light ?? [], docID, docName, order);
     const rowIDs = new Set(rows.map(r => r.id));
     const refs = await siyuan.sqlRef(refsSqlFor(docID));
     const ids = refs
@@ -562,8 +585,10 @@ export async function getGraphSkeleton(docID: string, docName: string) {
         .flat()
         .filter(i => i && !rowIDs.has(i));
     rows.push(...await siyuan.getRows([...new Set(ids)], "content,type,subtype,root_id,parent_id", false));
+    // □1 custom 块过滤（端点补块 content=纯 JSON 乱码）+ □2 引用边叶子端点重定向到容器
+    const filtered = filterCustomRows(rows, [...links, ...refs]);
     const docNameCache = new Map<string, string>();
-    for (const row of rows) {
+    for (const row of filtered.rows) {
         if (row.root_id != docID) {
             const otherID = row.root_id;
             let otherName = docNameCache.get(otherID);
@@ -574,6 +599,6 @@ export async function getGraphSkeleton(docID: string, docName: string) {
             row.docName = otherName;
         }
     }
-    gbLog("graph.skeleton_build", `rows=${rows.length} links=${links.length + refs.length}`);
-    return { rows, links: [...links, ...refs] };
+    gbLog("graph.structure_build", `rows=${filtered.rows.length} leaves=${info.containerOfLeaf.size} ${Math.round(performance.now() - t0)}ms`);
+    return { rows: filtered.rows, links: filtered.links, info };
 }

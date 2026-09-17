@@ -12,7 +12,7 @@ import {
 import { dialog2floating } from "../libs/DialogText";
 import { floatingballBallList, floatingballDocOpenBottom, storeNoteBox_selectedNotebook } from "../libs/stores";
 import { tomatoI18n } from "../tomatoI18n";
-import { getFloatingBall, ballOverLimit, getFloatingBallProtyleDialog, getFloatingBallProtyleDialogDM } from "../FloatingBall";
+import { getFloatingBall, ballOverLimit, FloatingBall, getFloatingBallProtyleDialog, getFloatingBallProtyleDialogDM } from "../FloatingBall";
 import { pickToggleBall, toggleDecision, isOpenDocTypeFloat, resolveFocusID } from "../libs/ballDocToggle";
 import {
     FloatingBallDocType_autoclose,
@@ -47,12 +47,34 @@ const focusIDOf = (docID: string) =>
 export function unbindBall(ball: BallItem) {
     const list = floatingballBallList.get() ?? [];
     const idx = list.findIndex((b) => b.id === ball.id);
-    if (idx >= 0) list.splice(idx, 1);
-    floatingballBallList.write();
+    if (idx >= 0) {
+        list.splice(idx, 1);
+        floatingballBallList.write();
+    }
     dialogs.get(ball)?.destroy();
     dialogs.delete(ball);
-    getFloatingBallProtyleDialog(ball)?.destroyBy();
-    getFloatingBall(ball)?.destroyBy();
+    // fballfeedback □4b：销毁走探测式（不新建）——getFloatingBall/getFloatingBallProtyleDialog
+    // 在 dm 不在时会顺手新建再销毁（净 0 浪费+重建瞬间有竞态窗）；悬浮窗已有 DM 探测版，
+    // 球侧同款直查 globalThis 键
+    getFloatingBallProtyleDialogDM(ball)?.destroyBy();
+    const ballKey = FloatingBall.key(`ball#${ball.id}`);
+    (globalThis[ballKey] as DestroyManager)?.destroyBy?.();
+    // □7 DOM 直删兜底：球 dm 曾有死锁形态（构造回调内 openOnCreate 自毁竞态，FloatingBall.ts
+    // □7 注释）——destroyBy 对死 dm 无效，按 floating-ball-key 属性直删 DOM 收尾（sweep 同款）
+    document.querySelectorAll(`[floating-ball-key="${ballKey}"]`).forEach((e) => e.remove());
+    delete (globalThis as any)[ballKey];
+    // □4b 幽灵球兜底：idx<0=列表本无此球（历史泄漏孤儿：页面上活着但列表没有，右键/
+    // 解除删除以列表为准对它必然无效，重启思源清全局态才消——陆杰 09-16 二分实验实锤）。
+    // 此时上方链条全空转，按键前缀直扫收掉本球遗留的球/窗（悬浮窗键绑 docID 一并收）
+    if (idx < 0) {
+        const winKey = ball.action?.docID ? FloatingBall.key(`protyle#2#${ball.action.docID}`) : null;
+        for (const k of Object.keys(globalThis)) {
+            if (k === ballKey || (winKey && k === winKey)) {
+                (globalThis[k] as DestroyManager)?.destroyBy?.();
+                delete (globalThis as any)[k];
+            }
+        }
+    }
 }
 
 export const docAction: BallAction = {

@@ -1,6 +1,6 @@
 import { getAllEditor, IEventBusMap, IMenuItem, IProtyle, Protyle } from "siyuan";
 import { mount, unmount } from "svelte";
-import { mindWireCheckbox, mindWireColorfull, mindWireDocMenu, mindWireDynamicLine, mindWireEnable, mindWireGlobalMenu, mindWireLine, mindWireStarRefOnly, mindWireWidth, mindWireWordWire, } from "./libs/stores";
+import { mindWireBlockWire, mindWireCheckbox, mindWireColorfull, mindWireDocMenu, mindWireDynamicLine, mindWireEnable, mindWireGlobalMenu, mindWireHoverBar, mindWireLine, mindWireStarRefOnly, mindWireWidth, mindWireWordWire, } from "./libs/stores";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { events, EventType } from "./libs/Events";
 import { getAttribute, getID, isEditor, normalizeWordRange, siyuan } from "./libs/utils";
@@ -254,12 +254,16 @@ async function drawWireLayer(protyle: IProtyle, wl: WireLayer) {
 
         const set = new Set<string>();
         let n = 0;
-        for (const [id1, id2] of collectPairs(element)) {
-            if (set.has(id1 + id2) || set.has(id2 + id1)) continue;
-            set.add(id1 + id2);
-            set.add(id2 + id1);
-            drawOne(wl, origin, id1, id2);
-            n++;
+        // 块级线独立开关（陆杰 09-16 反馈）：与词级 mindWireWordWire 对称；关时不扫不画
+        // （锚框/残端 chip 亦不产生——clearAnchors 已在上方统一清过上一轮痕迹）
+        if (mindWireBlockWire.get()) {
+            for (const [id1, id2] of collectPairs(element)) {
+                if (set.has(id1 + id2) || set.has(id2 + id1)) continue;
+                set.add(id1 + id2);
+                set.add(id2 + id1);
+                drawOne(wl, origin, id1, id2);
+                n++;
+            }
         }
         // 词级线（□2 数据链，spec §3）：标记 span 对按 wireId 配对 → 词级贝塞尔。
         // 关 mindWireWordWire 时不扫不清（功能关着不动数据）
@@ -486,7 +490,24 @@ function jumpWire(wl: WireLayer, s1: HTMLElement, s2: HTMLElement) {
 
 /** 迷你条单例：一次只一条线的（spec §4.5），换线/重画/删线即拆 */
 let wireToolbar: HTMLDivElement | null = null;
+/** 常驻 dismiss 监听的成对摘除器（随单例生命周期：showToolbar 挂 / removeWireToolbar 摘） */
+let toolbarDismissCleanup: (() => void) | null = null;
+/** 迷你条常驻化（陆杰 09-16 反馈 3：300ms 自动隐藏在多线文档里转瞬即逝，色点够不着）：
+ *  出现后不随 pointerleave 自动消失，点条/走廊外任意处或 Esc 才收。document 级 capture
+ *  （先于内核各处 stopPropagation），点走廊本身=jumpWire 不算 dismiss */
+const onToolbarDocClick = (e: Event) => {
+    const t = e.target as Element | null;
+    if (t?.closest?.(`.${TOOLBAR_CLASS}, .${HIT_CLASS}`)) return;
+    removeWireToolbar();
+};
+const onToolbarKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") removeWireToolbar();
+};
 function removeWireToolbar() {
+    if (toolbarDismissCleanup) {
+        toolbarDismissCleanup();
+        toolbarDismissCleanup = null;
+    }
     wireToolbar?.remove();
     wireToolbar = null;
 }
@@ -521,21 +542,16 @@ async function deleteWordWire(protyle: IProtyle, wireId: string) {
     dlog(`delete wire ${wireId}`);
 }
 
-/** 走廊交互挂接：桌面 pointerenter=hot+迷你条、leave=还原+300ms 延迟隐藏（给指针移入
- *  迷你条留路）；触屏无 hover——长按 350ms 唤迷你条；click=点线跳转（拖选不触发 click） */
+/** 走廊交互挂接：桌面 pointerenter=hot+迷你条、leave=还原（迷你条常驻，见 removeWireToolbar
+ *  节 dismiss 机制）；触屏无 hover——长按 350ms 唤迷你条；click=点线跳转（拖选不触发 click） */
 function attachWireInteraction(
     wl: WireLayer, protyle: IProtyle, wireId: string,
     path: SVGPathElement, hit: SVGPathElement, s1: HTMLElement, s2: HTMLElement,
     mid: { x: number; y: number }, relation: string | undefined,
 ) {
-    let hideTimer: number | undefined;
     const setHot = (on: boolean) => {
         path.style.strokeWidth = (mindWireWidth.get() + (on ? 1 : 0)) + "px";
         for (const s of [s1, s2]) s.classList.toggle(HOT_CLASS, on);
-    };
-    const hideToolbar = () => {
-        if (hideTimer) clearTimeout(hideTimer);
-        hideTimer = window.setTimeout(removeWireToolbar, 300);
     };
     const showToolbar = () => {
         removeWireToolbar();
@@ -566,10 +582,17 @@ function attachWireInteraction(
         x.innerHTML = `<svg><use xlink:href="#iconClose"></use></svg>`;
         x.addEventListener("click", () => void deleteWordWire(protyle, wireId));
         bar.appendChild(x);
-        bar.addEventListener("pointerenter", () => { if (hideTimer) { clearTimeout(hideTimer); hideTimer = undefined; } });
-        bar.addEventListener("pointerleave", hideToolbar);
         wl.layer.appendChild(bar);
         wireToolbar = bar;
+        // 常驻 dismiss 监听（幂等挂：换线重建不重复挂）
+        if (!toolbarDismissCleanup) {
+            document.addEventListener("click", onToolbarDocClick, true);
+            document.addEventListener("keydown", onToolbarKeydown, true);
+            toolbarDismissCleanup = () => {
+                document.removeEventListener("click", onToolbarDocClick, true);
+                document.removeEventListener("keydown", onToolbarKeydown, true);
+            };
+        }
         // □5 P2 避弧：弧 bbox（细线近似为盒）与条相交时水平让位（近垂直弧下移无效，
         // vision □5 评审）——挂层后测实矩形换算内容坐标，让位后不再二次钳制（瞬态件）
         const bb = path.getBBox();
@@ -587,12 +610,13 @@ function attachWireInteraction(
     hit.addEventListener("pointerenter", (e) => {
         if ((e as PointerEvent).pointerType === "touch") return;
         setHot(true);
-        showToolbar();
+        // 悬停弹条开关（bear 09-16 反馈：多线文档鼠标扫过频繁弹条）：关时只保留
+        // 线加粗/锚词高亮不弹迷你条；触屏长按唤出（下方 pointerdown）不受此开关管
+        if (mindWireHoverBar.get()) showToolbar();
     });
     hit.addEventListener("pointerleave", (e) => {
         if ((e as PointerEvent).pointerType === "touch") return;
         setHot(false);
-        hideToolbar();
     });
     let holdTimer: number | undefined;
     hit.addEventListener("pointerdown", (e) => {

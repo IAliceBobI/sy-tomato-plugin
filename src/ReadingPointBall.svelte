@@ -25,8 +25,16 @@
             hide(): void;
             openMenu(x: number, y: number): void;
         };
+        /** 四动作钮的键位提示（confgather2 □3）：函数 prop 现求值（与 actions 同由宿主注入，
+         *  防反向 import winHotkey 常量循环依赖；展开条渲染时现读 keymap） */
+        keyHints: {
+            setPoint(): string;
+            jump(): string;
+            del(): string;
+            panel(): string;
+        };
     }
-    let { plugin, dm, actions }: Props = $props();
+    let { plugin, dm, actions, keyHints }: Props = $props();
 
     const BALL_SIZE = 36;
     const RECENT_LIMIT = 5;
@@ -102,21 +110,21 @@
         <div class="rpfbar" class:rpfbar--left={alignLeft} class:rpfbar--down={flipDown}>
             <div class="rpfbar__actions">
                 <button
-                    class="b3-button rpfbar__btn" aria-label={tomatoI18n.设置阅读点}
+                    class="b3-button rpfbar__btn" aria-label={`${tomatoI18n.设置阅读点} ${keyHints.setPoint()}`}
                     onclick={() => actions.setPoint()}
                 ><svg><use xlink:href="#iconBookmark"></use></svg></button>
                 <button
-                    class="b3-button rpfbar__btn" aria-label={tomatoI18n.跳到当前文档的阅读点}
+                    class="b3-button rpfbar__btn" aria-label={`${tomatoI18n.跳到当前文档的阅读点} ${keyHints.jump()}`}
                     disabled={!docCur} title={docCur ? timeText(docCur.ts) : ""}
                     onclick={() => actions.jump()}
                 ><svg><use xlink:href="#iconForward"></use></svg></button>
                 <button
-                    class="b3-button rpfbar__btn" aria-label={tomatoI18n.删除当前文档的阅读点}
+                    class="b3-button rpfbar__btn" aria-label={`${tomatoI18n.删除当前文档的阅读点} ${keyHints.del()}`}
                     disabled={!docCur}
                     onclick={() => actions.del()}
                 ><svg><use xlink:href="#iconTrashcan"></use></svg></button>
                 <button
-                    class="b3-button rpfbar__btn" aria-label={tomatoI18n.查看阅读点}
+                    class="b3-button rpfbar__btn" aria-label={`${tomatoI18n.查看阅读点} ${keyHints.panel()}`}
                     onclick={() => { expanded = false; actions.panel(); }}
                 ><svg><use xlink:href="#iconList"></use></svg></button>
             </div>

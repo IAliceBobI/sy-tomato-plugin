@@ -91,6 +91,8 @@ type TomatoSettings = {
     mindWireDynamicLine: boolean,
     mindWireCheckbox: boolean,
     mindWireWordWire: boolean,
+    mindWireBlockWire: boolean,
+    mindWireHoverBar: boolean,
     addSelectionBtnsDesktop: boolean,
     addSelectionBtnsMobile: boolean,
     digestAddReadingpoint: boolean,
@@ -200,6 +202,7 @@ type TomatoSettings = {
     flashcardAddOriginRef: boolean,
     //------------------
     graphHideStructEdges: boolean,
+    graphShowNumbers: boolean,
     graphMaxAllBlocks: string,
     graphMaxPBlocks: string,
     // graphbox 期2：默认展开层级（按标题层级 h1=1；"all"=全部展开，段落链折叠独立于档位）
@@ -341,6 +344,7 @@ type TomatoSettings = {
     bk_refresh_interval_sec: number,
     bk_visible_only: boolean,
     back_link_goto_bottom_btn: boolean,
+    back_link_float: boolean,
     back_link_concept_fold: boolean,
     back_link_copy: boolean,
     back_link_move_to_dailynote: boolean,
@@ -402,6 +406,10 @@ type TomatoSettings = {
     commentBoxAnnoEditorFontSize: number,
     /** 批注查看态字号 px（气泡+面板正文同源，12~22，默认 13） */
     commentBoxAnnoViewFontSize: number,
+    /** 查看态追加分档字号 px（侧边栏+气泡追加时间线，11~20，默认 12，陆杰 09-17） */
+    commentBoxAnnoReplyFontSize: number,
+    /** 查看态引文分档字号 px（侧边栏引文摘要，11~20，默认 12，陆杰 09-17） */
+    commentBoxAnnoQuoteFontSize: number,
     linkBoxAttrIconOnHide: boolean,
 };
 
@@ -606,12 +614,13 @@ interface GraphDockData<T> {
     /** 期4：定位脉冲窗口内抑制自动刷新（expandTo 写属性→ws 回流→relayout 重建打断脉冲/打回 setCenter） */
     suppressAutoRefreshUntil?: number;
     /** graphbox 期1：Provider 内 useSvelteFlow 借道（relayout 末尾首屏视口适配） */
-    fitView?: (opts?: { padding?: number; duration?: number }) => void;
+    /** minZoom=fitView 缩放下限（防孤儿列/宽树过缩成不可见小簇，□2 vision P1） */
+    fitView?: (opts?: { padding?: number; duration?: number; minZoom?: number }) => void;
     /** graphbox 期2：展开目标节点的折叠祖先链（定位不静默）；返回是否有折叠变更 */
     expandTo?: (id: string) => Promise<boolean>;
     /** graphbox 期4：图当前通道态/文档/块上限（locateNode 的 toast 分支文案依据）；
      *  二期 □2 增 blockCount（precheck 真实块数，「超上限」文案只留给 cnt > maxBlocks 的真超限） */
-    getGraphState?: () => { mode: "full" | "skeleton"; docID: string; maxBlocks: number; blockCount?: number };
+    getGraphState?: () => { mode: "structure" | "full"; docID: string; maxBlocks: number; blockCount?: number };
     /** graphbox 二期 □2：图内全块 id 集（locateNode 定位兜底上爬祖先的「图内」判定） */
     graphIDsOf?: () => Set<string>;
     /** graphbox 期3：当前布局方向（横 LR=false 纵 TB=true）——zoom 过小提示切纵向的判定依据（期7 起随 isVertical 退役，改 layoutForm） */

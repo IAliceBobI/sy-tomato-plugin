@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import { createProtyle } from "./libs/bkUtils";
     import { DestroyManager } from "./libs/destroyer";
     import DialogSvelte from "./libs/DialogSvelte.svelte";
@@ -36,6 +36,60 @@
     let pinnedDocID = $state("");
     let pinnedTitle = $state("");
     let topBlocks: GetChildBlocks[] = [];
+    // 节列表折叠（fballfeedback □6）：标题多的文档列表占半屏挤没正文；收起后 .qeContent 占满。
+    // 手动操作优先——手动收/展过（secTouched）后，钉块自动收起/unpin 自动展开不再翻转
+    let secCollapsed = $state(false);
+    let secTouched = false;
+    // 侧边布局（blockside □2）：左目录右内容两栏独立滚动。移动端恒上下（钮不渲染）；
+    // 记忆走 localStorage 不进设置面板（brainstorm 定稿）；与 secCollapsed 正交——收起语义
+    // 只属上下布局，侧边布局下节列表=侧栏主体恒展开（钉单块不自动收侧栏同此守卫）
+    const SIDE_LAYOUT_KEY = "块编辑器布局_side";
+    let sideLayout = $state(!events.isMobile && localStorage.getItem(SIDE_LAYOUT_KEY) === "1");
+    // 侧栏比例（blockside □3）：15%~50% clamp；拖动事件驱动直写 $state（勿 $effect 回放——依赖集
+    // 含被写状态会被旧值打回，复习界面拖不动+振荡同根因）；pointerup 落 localStorage
+    const SIDE_RATIO_KEY = "块编辑器侧栏比例";
+    let sideRatio = $state(loadSideRatio());
+
+    function loadSideRatio(): number {
+        const v = parseFloat(localStorage.getItem(SIDE_RATIO_KEY) || "");
+        return isNaN(v) ? 0.32 : Math.min(0.5, Math.max(0.15, v));
+    }
+
+    function startSideDrag(e: PointerEvent & { currentTarget: HTMLElement }) {
+        e.preventDefault();
+        const handle = e.currentTarget;
+        const split = handle.parentElement;
+        if (!split) return;
+        // setPointerCapture：拖出元素丢事件防护（DialogSvelte 手柄同款先例）
+        handle.setPointerCapture(e.pointerId);
+        const move = (ev: PointerEvent) => {
+            const rect = split.getBoundingClientRect();
+            if (rect.width <= 0) return;
+            sideRatio = Math.min(0.5, Math.max(0.15, (ev.clientX - rect.left) / rect.width));
+        };
+        const up = (ev: PointerEvent) => {
+            handle.releasePointerCapture?.(ev.pointerId);
+            handle.removeEventListener("pointermove", move);
+            handle.removeEventListener("pointerup", up);
+            localStorage.setItem(SIDE_RATIO_KEY, String(sideRatio));
+        };
+        handle.addEventListener("pointermove", move);
+        handle.addEventListener("pointerup", up);
+    }
+
+    function toggleSecs() {
+        secCollapsed = !secCollapsed;
+        secTouched = true;
+    }
+
+    function toggleLayout() {
+        sideLayout = !sideLayout;
+        if (!events.isMobile) localStorage.setItem(SIDE_LAYOUT_KEY, sideLayout ? "1" : "0");
+        if (sideLayout) secCollapsed = false;
+        // 布局分支切换=editor 容器换新节点，protyle 须重挂（与点击节的实例重建同款成本）
+        const cur = selectedBlockID;
+        if (cur) tick().then(() => mountProtyle(cur));
+    }
 
     function syncPin() {
         onPinChange?.({ blockID: pinnedBlockID, docID: pinnedDocID, title: pinnedTitle, docName });
@@ -90,6 +144,9 @@
             : removeInvisibleChars(row?.content || "", true).slice(0, 20);
         pinnedBlockID = blockID;
         selectedBlockID = "";
+        // 钉单块自动收起节列表（弹窗只看这个块）；钉文档（blockID==rootID）不收——节列表即导航主体；
+        // 侧边布局不收（列表=侧栏主体，blockside □2 守卫）
+        if (!secTouched && !sideLayout) secCollapsed = blockID !== info.rootID;
         closeProtyle();
         await reloadBlocks(false);
         mountProtyle(blockID);
@@ -102,6 +159,8 @@
         pinnedDocID = "";
         pinnedTitle = "";
         currentDocID = "";
+        // 回跟随态恢复展开（自动收起只服务钉单块期间）
+        if (!secTouched) secCollapsed = false;
         syncPin();
     }
 
@@ -166,10 +225,14 @@
         if (!editor) return;
         selectedBlockID = blockID;
         closeProtyle();
-        editor.style.minHeight = "auto";
+        // 上下布局=auto（自然高）；侧边布局须 0——flex 收缩前提，inline auto 会压死
+        // .sideMain 链的 min-height:0（右栏被内容撑破，blockside □2 实锤）
+        editor.style.minHeight = sideLayout ? "0" : "auto";
         pob = createProtyle(blockID, getTomatoPluginInstance());
         if (pob && pob.p && pob.ob) {
             editor.appendChild(pob.p.protyle.element);
+            // createProtyle 给 element inline min-height:auto（自然高语义），侧边布局同因覆盖为 0
+            if (sideLayout) pob.p.protyle.element.style.minHeight = "0";
         }
     }
     function locate() {
@@ -181,9 +244,13 @@
     }
 </script>
 
-<!-- maxWidth 无单位是故意的历史现状：非法值被忽略=宽度不钳制，保住「自由拉宽的第二视口」；勿「修复」成 200px -->
+<!-- maxWidth 无单位是故意的历史现状：非法值被忽略=宽度不钳制，保住「自由拉宽的第二视口」；勿「修复」成 200px。
+     height/minWidth 布局联动（blockside □2）：侧边布局=显式 70vh（definite 高度是右栏 protyle 自滚
+     前提，fbfeat □1）+ minWidth 480 保分栏可用宽；上下布局不传=面板自然高+回放存档 h 的现状语义 -->
 <DialogSvelte
     maxWidth="200"
+    height={sideLayout ? "70vh" : undefined}
+    minWidth={sideLayout ? 480 : undefined}
     show={show && $navSourceBlock}
     title={docName}
     {dm}
@@ -192,10 +259,30 @@
     onClose={() => onCollapse?.()}
 >
     {#snippet dialogInner()}
+        {#snippet secButtons()}
+            {#each blocks as block (block.id)}
+                <button
+                    class="secBtn"
+                    class:secOn={selectedBlockID == block.id}
+                    style="margin-left: {headingIndent(block)}px"
+                    title={block.content}
+                    onclick={() => mountProtyle(block.id)}
+                    ondblclick={() => {
+                        // 双击=折叠钮快捷版：选中该节并收列表让正文最大化（目录侧边化 brainstorm 定稿）；
+                        // 单击幂等无害，click/dblclick 并存无需延迟区分；侧边布局不收（列表=侧栏主体，blockside □2）
+                        mountProtyle(block.id);
+                        if (!sideLayout) {
+                            secCollapsed = true;
+                            secTouched = true;
+                        }
+                    }}>{block.content}</button
+                >
+            {/each}
+        {/snippet}
         <div class="sticky-header">
             {#if pinnedBlockID}
                 <div class="pinBar">
-                    <span class="pinCrumb">{@html icon("iconPin", 12)} {docName}{pinnedTitle ? ` › ${pinnedTitle}` : ""}</span>
+                    <span class="pinCrumb">{@html icon("iconPin", 12)} {docName}{#if pinnedTitle}<span class="pinCrumbSec"> › {pinnedTitle}</span>{/if}</span>
                     <button
                         aria-label={tomatoI18n.取消钉住}
                         class="b3-button b3-button--text tomato-button b3-tooltips b3-tooltips__sw unpinBtn"
@@ -206,15 +293,34 @@
             <!-- 工具行 tip 一律 __sw（朝下西南锚）：行贴 dialog-content(overflow:auto) 顶界，
                  朝上弹（__n）气泡顶 17px 必被裁（2026-09-16 群反馈）；__s 居中锚贴右缘溢尾巴 -->
             <div class="btnLine">
-                <!-- □5 跟随态可钉：钉住当前跟随文档（右键 pinFromMenu 同款 PinState）；钉住态隐藏（pinBar 的 🔓 承接取消） -->
-                {#if !pinnedBlockID}
+                <!-- 节列表收/展（fballfeedback □6）：行首（节列表正上方）；态显操作方向 ▾收/▸展。
+                     □8c：无节可收（纯段落文档 secsFromChildRows 空）时禁用置灰防空转——在场不消失防跳动；
+                     侧边布局下收起职能被布局切换钮承接，同款禁用置灰（blockside □2） -->
+                <button
+                    aria-label={secCollapsed ? tomatoI18n.展开节列表 : tomatoI18n.收起节列表}
+                    aria-expanded={!secCollapsed}
+                    disabled={!blocks.length || sideLayout}
+                    class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__sw"
+                    onclick={toggleSecs}>{@html icon(secCollapsed ? "iconRight" : "iconDown", 14)}</button
+                >
+                <!-- 布局切换（blockside □2）：上下↔侧边，态显操作方向（与折叠钮同约定）；
+                     记忆 localStorage；移动端恒上下无此钮 -->
+                {#if !events.isMobile}
                     <button
-                        aria-label={tomatoI18n.钉住当前文档}
+                        aria-label={sideLayout ? tomatoI18n.切换为上下布局 : tomatoI18n.切换为侧边布局}
                         class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__sw"
-                        onclick={() => pinBlock(followDocID())}
-                        >{@html icon("iconPin", 14)}</button
+                        onclick={toggleLayout}>{@html icon(sideLayout ? "iconLayoutBottom" : "iconLayoutRight", 14)}</button
                     >
                 {/if}
+                <!-- □5 跟随态可钉：钉住当前跟随文档（右键 pinFromMenu 同款 PinState）；钉住态隐藏（pinBar 的 🔓 承接取消）。
+                     □8b：改恒渲染+btnHidden 占位——原 {#if} 摘除钮=行首收/展钮随右对齐整体右移 31px 从指针下跑掉 -->
+                <button
+                    aria-label={tomatoI18n.钉住当前文档}
+                    class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__sw"
+                    class:btnHidden={!!pinnedBlockID}
+                    onclick={() => pinBlock(followDocID())}
+                    >{@html icon("iconPin", 14)}</button
+                >
                 <button
                     aria-label={tomatoI18n.定位}
                     class="b3-button b3-button--text btnIcon b3-tooltips b3-tooltips__sw"
@@ -237,6 +343,9 @@
                             const id = await appendSuperBlock(pinnedDocID, text);
                             pinnedBlockID = id;
                             pinnedTitle = text;
+                            // ➕ 换钉终态=右键钉单块（新 sb≠rootID、正文只看它），自动收起同规（fballfeedback □6；
+                            // 侧边布局不收，blockside □2 守卫）
+                            if (!secTouched && !sideLayout) secCollapsed = true;
                             await reloadBlocks(false);
                             mountProtyle(id);
                             syncPin();
@@ -248,21 +357,38 @@
                     >{@html icon("iconAdd", 14)}
                 </button>
             </div>
-            <div class="secList">
-                {#each blocks as block (block.id)}
-                    <button
-                        class="secBtn"
-                        class:secOn={selectedBlockID == block.id}
-                        style="margin-left: {headingIndent(block)}px"
-                        onclick={() => mountProtyle(block.id)}>{block.content.slice(0, 15)}</button
-                    >
-                {/each}
+            {#if !sideLayout && !secCollapsed}
+                <div class="secList">
+                    {@render secButtons()}
+                </div>
+            {/if}
+        </div>
+        {#if sideLayout}
+            <!-- 侧边布局（blockside □2）：左目录右内容各栏独立滚动；工具行横贯两栏留在头部 -->
+            <div class="sideSplit">
+                <div class="sideNav" style="flex-basis: {sideRatio * 100}%">
+                    <div class="secList sideSecList">
+                        {@render secButtons()}
+                    </div>
+                </div>
+                <!-- 比例拖条（blockside □3）：4px 本体+负 margin 扩热区；比例 clamp 15%~50% -->
+                <div
+                    class="sideDrag"
+                    role="separator"
+                    aria-orientation="vertical"
+                    aria-label={tomatoI18n.拖动调整目录栏宽度}
+                    onpointerdown={startSideDrag}
+                ></div>
+                <div class="qeContent sideMain">
+                    <div bind:this={editor}></div>
+                </div>
             </div>
-        </div>
-        <!-- 期4 Top5：内容区包装容器——h1 压制/底缘渐隐/列表与内容区 12px 区距都挂这里（scoped 防泄全局） -->
-        <div class="qeContent">
-            <div bind:this={editor}></div>
-        </div>
+        {:else}
+            <!-- 期4 Top5：内容区包装容器——h1 压制/底缘渐隐/列表与内容区 12px 区距都挂这里（scoped 防泄全局） -->
+            <div class="qeContent">
+                <div bind:this={editor}></div>
+            </div>
+        {/if}
     {/snippet}
 </DialogSvelte>
 
@@ -289,6 +415,11 @@
     .btnLine .b3-button:hover {
         background: var(--b3-list-hover);
         color: var(--b3-theme-on-background);
+    }
+    /* □8b：占位防漂移专用——visibility 保盒模型（display:none/fn__none 不占位照样漂移）；
+       隐藏态不接事件不进无障碍树，tip/焦点天然关停 */
+    .btnLine .btnHidden {
+        visibility: hidden;
     }
     .sticky-header {
         position: sticky;
@@ -317,6 +448,11 @@
         font-size: var(--b3-font-size-mini, 12px);
         color: var(--b3-theme-on-surface);
     }
+    /* □8a：块名摘要段提一档（vision P2-2——on-surface 灰 12px 亮色 3.5:1 贴线；
+       on-background 与工具行 hover 提色同款先例，兼拉开文档名/摘要层级） */
+    .pinCrumbSec {
+        color: var(--b3-theme-on-background);
+    }
     .unpinBtn {
         flex: 0 0 auto;
         /* 28px 方形热区：与工具行/标题栏钮同构，右缘共线（期2 vision P1-1） */
@@ -340,13 +476,15 @@
         padding: 2px 0 4px 0;
     }
     .secBtn {
-        display: flex;
-        align-items: center;
+        /* block 而非 flex：text-overflow:ellipsis 对 flex 容器不生效（匿名 flex item
+           不吃省略号，长文=行尾硬裁切半个字形），垂直居中改走 line-height */
+        display: block;
         text-align: left;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         height: 28px;
+        line-height: 28px;
         /* secList 是 max-height 钳制的 column flex，默认 shrink=1 会把多行按钮整体纵向
            压扁成密排墨块（heading 多时 28px→个位数px，2026-09-07 群反馈实锤） */
         flex-shrink: 0;
@@ -392,5 +530,62 @@
         height: 14px;
         background: linear-gradient(to bottom, transparent, var(--b3-theme-background));
         pointer-events: none;
+    }
+    /* 侧边布局（blockside □2）：左目录右内容两栏独立滚动。height:100% 链的前提=面板
+       definite 高（height="70vh" 或存档 px 回放）——面板自然高时本链不成立勿在上下布局复用；
+       右栏滚动交给内部 protyle（overflow:hidden + editor 定高，fbfeat □1 无约束被撑全高教训） */
+    .sideSplit {
+        display: flex;
+        height: 100%;
+        gap: 8px;
+        margin-top: 8px;
+        min-height: 0;
+    }
+    .sideNav {
+        /* basis 由模板 inline style 控制（比例拖条，blockside □3）；此处 auto 仅为兜底缺省 */
+        flex: 0 0 auto;
+        min-width: 0;
+        overflow-y: auto;
+        padding: 2px 4px 4px 0;
+    }
+    /* 比例拖条（blockside □3）：4px 视觉条+左右各 2px 负 margin 扩热区到 8px；
+       hover/active 显 primary 细条反馈 */
+    .sideDrag {
+        flex: 0 0 4px;
+        margin: 0 -2px;
+        z-index: 1;
+        cursor: col-resize;
+        touch-action: none;
+        border-radius: 2px;
+        background: transparent;
+        transition: background-color 0.15s;
+    }
+    .sideDrag:hover,
+    .sideDrag:active {
+        background: var(--b3-theme-primary-lighter);
+    }
+    /* 侧栏列表解除 30vh 钳制（栏内全高滚动，收起语义不适用） */
+    .sideSecList {
+        max-height: none;
+        overflow-y: visible;
+        padding: 0;
+    }
+    .sideMain {
+        flex: 1 1 0;
+        min-width: 0;
+        margin-top: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .sideMain > div {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .sideMain > div > :global(.protyle) {
+        flex: 1;
+        min-height: 0;
     }
 </style>

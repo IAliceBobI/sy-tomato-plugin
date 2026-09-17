@@ -18,7 +18,7 @@
 <div class="settingBox">
     <div class="section-title">
         <input type="checkbox" class="b3-switch" bind:checked={$blockEditorBox} />
-        块编辑器
+        {tomatoI18n.块编辑器}
         <ConfHelpIcon token="AheDdwG35ol3qWxYPeYc8HennJf" />
     </div>
     {#if $blockEditorBox}

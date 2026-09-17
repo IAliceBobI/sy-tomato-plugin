@@ -170,38 +170,45 @@
                 {tomatoI18n.自动隐藏}<TomatoVIP {codeValid}></TomatoVIP>
             </div>
 
-            <div>
-                {tomatoI18n.优先级按钮条位置}
-                <select class="b3-select" bind:value={$cardPriBarPos}>
-                    <option value="right">{tomatoI18n.条位置块右上角}</option>
-                    <option value="left-top">{tomatoI18n.条位置块左上角}</option>
-                    <option value="block-tail">{tomatoI18n.条位置内容下方贴左}</option>
-                    <option value="block-head">{tomatoI18n.条位置内容上方贴左}</option>
-                </select>
-            </div>
+            <!-- 优先级细节折叠（confgather2 期3 A7，bear 拍板收折叠）：位置/自动加优先级/
+                 藏滑块/藏暂停钮/扫描间隔五细节行收进卡内折叠，高频行（键帽/菜单项/自动隐藏）留平铺 -->
+            <details class="settingBox">
+                <summary class="section-title">{tomatoI18n.优先级细节}</summary>
+                <div class="softBox">
+                    <div>
+                        {tomatoI18n.优先级按钮条位置}
+                        <select class="b3-select" bind:value={$cardPriBarPos}>
+                            <option value="right">{tomatoI18n.条位置块右上角}</option>
+                            <option value="left-top">{tomatoI18n.条位置块左上角}</option>
+                            <option value="block-tail">{tomatoI18n.条位置内容下方贴左}</option>
+                            <option value="block-head">{tomatoI18n.条位置内容上方贴左}</option>
+                        </select>
+                    </div>
 
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$auto_card_priority} />
-                {tomatoI18n.连续2次重来加优先级连续2次简单减优先级}
-            </div>
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$auto_card_priority} />
+                        {tomatoI18n.连续2次重来加优先级连续2次简单减优先级}
+                    </div>
 
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$card_priority_slider_hide} />
-                {tomatoI18n.隐藏优先级滑动块}
-            </div>
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$card_priority_slider_hide} />
+                        {tomatoI18n.隐藏优先级滑动块}
+                    </div>
 
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$card_priority_stopBtn_hide} />
-                {tomatoI18n.隐藏闪卡暂停按钮}
-            </div>
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$card_priority_stopBtn_hide} />
+                        {tomatoI18n.隐藏闪卡暂停按钮}
+                    </div>
 
-            <div>
-                <input class="b3-text-field" bind:value={$cardPrioritySetPriInterval} />
-                {tomatoI18n.间隔x分钟检查所有闪卡加上默认优先级($cardPrioritySetPriInterval)}
-                {#if !$cardPrioritySetPriInterval || $cardPrioritySetPriInterval == "0"}
-                    （{tomatoI18n.不扫描优先级}）
-                {/if}
-            </div>
+                    <div>
+                        <input class="b3-text-field" bind:value={$cardPrioritySetPriInterval} />
+                        {tomatoI18n.间隔x分钟检查所有闪卡加上默认优先级($cardPrioritySetPriInterval)}
+                        {#if !$cardPrioritySetPriInterval || $cardPrioritySetPriInterval == "0"}
+                            （{tomatoI18n.不扫描优先级}）
+                        {/if}
+                    </div>
+                </div>
+            </details>
         {/if}
     </div>
     <!-- 图片遮挡（自 ConfMisc.svelte 顺势归位闪卡域） -->

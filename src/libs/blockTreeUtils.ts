@@ -1,9 +1,10 @@
 // 块树读取与填充（getDocBlocks/fillChildren）、markdown 转 DOM、超级块追加。
 // 从原 docUtils.ts 拆出（2026-08 重构），docUtils.ts 现为 re-export 桶。
-import { siyuan, NewNodeID, getBlockDiv, removeInvisibleChars } from "./utils";
+import { siyuan, NewNodeID, getBlockDiv } from "./utils";
 import { BlockTypeContainer, BlockTypeContent, DATA_NODE_ID, DATA_NODE_INDEX, DATA_SUBTYPE, DATA_TYPE } from "./gconst";
 import { events } from "./Events";
 import { domNewLine, DomSuperBlockBuilder } from "./sydom";
+import { blockText, codeBlockText, tableCellText } from "./graphContent";
 
 export async function getTmpBlockID(text = "") {
     const box = events.boxID;
@@ -41,21 +42,12 @@ function getShortName(longName: string): string | undefined {
         "NodeWidget": "widget",
         "NodeThematicBreak": "tb",
         "NodeVideo": "video",
-        "NodeAudio": "audio"
+        "NodeAudio": "audio",
+        // graphbox □1：custom 块（;;;插件/类型 围栏）有了类型码才能在数据层被
+        // filterCustomRows 识别剔除（此前 type=undefined 落 noContentBlockLabel 渲染成全空卡）
+        "NodeCustomBlock": "custom",
     };
     return nodeNameMapping[longName];
-}
-
-/**
- * 获取元素内容，排除引用锚点文本
- * 引用元素的格式: <span data-type="block-ref" ...>anchor text</span>
- */
-function getContentWithoutRefs(element: HTMLElement): string {
-    // 克隆节点以避免修改原始DOM
-    const clone = element.cloneNode(true) as HTMLElement;
-    // 移除所有引用元素
-    clone.querySelectorAll('[data-type="block-ref"]').forEach(ref => ref.remove());
-    return clone.textContent || "";
 }
 
 /** 无正文块的 label 提取（graphbox 三期 □2，2026-09-04）：块全集进图后节点可辨。
@@ -106,9 +98,16 @@ export async function fillChildren(root: Block, div: HTMLElement, setContent: bo
             if (BlockTypeContent.includes(child.type)) {
                 if (child.type === 'm') {
                     child.content = e.getAttribute('data-content').trim();
+                } else if (child.type === 't') {
+                    // graphbox □1：表格按单元格连接，防全单元格无缝粘连
+                    child.content = tableCellText(e);
+                } else if (child.type === 'c') {
+                    // graphbox □1：语言行+代码正文换行分隔，防语言标记与代码粘连
+                    child.content = codeBlockText(e);
                 } else {
-                    // 排除引用锚点文本：只获取非引用元素的内容
-                    child.content = removeInvisibleChars(getContentWithoutRefs(e), true)
+                    // graphbox □1：保留引用锚点文本（剥锚点会把引用段挖成空洞），
+                    // 段内不可见字符全量剥除（行内 code 标记边界 ZWSP 家族）
+                    child.content = blockText(e);
                 }
                 if (!emptyContent) {
                     if (!child.content) continue;

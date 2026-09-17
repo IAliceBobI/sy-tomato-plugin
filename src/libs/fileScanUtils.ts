@@ -103,7 +103,12 @@ export async function tryFixCfg(pluginName: string, fileName: string) {
         const path = `data/storage/petal/${pluginName}/${fileName}`;
         const ret = await siyuan.getJson(path);
         if (!ret) {
-            await siyuan.removeFile(path)
+            // □5 review P2-8（annofeed0917）：getJson 把「取数失败（错误包装体/HTML 错误页
+            // →JSON.parse 抛）」与「真损坏」混为 undefined——瞬态失败也会删真值文件，守卫
+            // 的「放行建立基线」会把全默认合法化。改为保守不删+留痕：真损坏场景自愈闭环
+            // 已在（装载退避→全默认启动→守卫复盘非对象→放行基线覆盖坏档）。
+            const raw = await siyuan.getFile(path).catch(() => "");
+            console.warn(`[tomato settings-guard] ${fileName} 读数异常（getJson falsy，原文 ${String(raw).length} 字符）——保守不删，若确证损坏可手删 data/storage/petal/${pluginName}/${fileName}`);
         }
     } catch { }
 }

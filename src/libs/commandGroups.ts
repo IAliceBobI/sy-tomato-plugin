@@ -104,6 +104,7 @@ import {
 } from "../SuperRefBox";
 import { DbBkBox刷新数据库反链 } from "../DbBkBox";
 import { BK启用禁用文档的底部反链 } from "../BackLinkBottomBox";
+import { BKFloatToggle, BKFloatBallToggle } from "../BkFloat";
 import {
     CommentBox添加批注,
     CommentBox刷新文档正引,
@@ -323,6 +324,11 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
             { langKey: SuperRefBox全局修复引用.langKey, label: () => SuperRefBox全局修复引用.langText(), hk: SuperRefBox全局修复引用 },
             { langKey: DbBkBox刷新数据库反链.langKey, label: () => DbBkBox刷新数据库反链.langText(), hk: DbBkBox刷新数据库反链 },
             { langKey: BK启用禁用文档的底部反链.langKey, label: () => BK启用禁用文档的底部反链.langText(), hk: BK启用禁用文档的底部反链 },
+            // 悬浮反链面板开合（bkfloat 评审 P1-5：gatedAddCommand 注册点须同步本注册表，
+            // 缺席=「命令开关」域看不见该命令）
+            { langKey: BKFloatToggle.langKey, label: () => BKFloatToggle.langText(), hk: BKFloatToggle },
+            // 球显隐（confgather2 □2）：状态栏钮/命令面板/反链域键帽三通道同一动作
+            { langKey: BKFloatBallToggle.langKey, label: () => BKFloatBallToggle.langText(), hk: BKFloatBallToggle },
         ],
     },
     // 批注组：2 常量+4 字面量收集命令（右键菜单项另有 hiddenMenuItems 通道——本组管

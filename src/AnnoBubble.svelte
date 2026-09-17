@@ -6,7 +6,7 @@
     import { annoPop } from "./libs/annoPop";
     import { annoTextToHtml } from "./libs/annoKramdown";
     import { popPosition } from "./libs/annoDom";
-    import { commentBoxAnnoViewFontSize } from "./libs/stores";
+    import { commentBoxAnnoReplyFontSize, commentBoxAnnoViewFontSize } from "./libs/stores";
     import type { TomatoAnnotation } from "./libs/annotationsAttr";
     import { tomatoI18n } from "./tomatoI18n";
 
@@ -113,6 +113,7 @@
             class:is-show={placed}
             role={$annoPop.mode === "view" ? "dialog" : "tooltip"}
             style:--tomato-anno-view-fs="{viewFs}px"
+            style:--tomato-anno-reply-fs="{Math.min(20, Math.max(11, commentBoxAnnoReplyFontSize.get() || 12))}px"
             bind:this={root}
         >
             {#if $annoPop.mode === "preview"}

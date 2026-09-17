@@ -11,12 +11,15 @@
         commentBoxAnnoDraftNotebook,
         commentBoxAnnoLineType,
         commentBoxAnnoMarkStyle,
+        commentBoxAnnoQuoteFontSize,
+        commentBoxAnnoReplyFontSize,
         commentBoxAnnoUnderlineThickness,
         commentBoxCheckbox,
         commentBoxMenu,
         commentBoxAnnoToolbar,
         commentBoxPanelSkin,
         commentBoxShowID,
+        commentBoxAnnoViewFontSize,
         hiddenMenuItems,
     } from "./libs/stores";
     import { CommentBox添加批注 } from "./CommentBox";
@@ -94,6 +97,43 @@
                 ></NotebookSelect>
             </div>
             <div>{tomatoI18n.草稿笔记本自动说明}</div>
+            <!-- 查看字号三档（陆杰 09-17「批注有点大/追加有点小/原文也想调」）：正文/追加/引文
+                 各自独立选档，紧凑一行（bear 偏好：名称+控件一行）；正文档=气泡 A−/A+ 同源同键。
+                 正文档位 12~22 对齐消费端 clamp（review P1-3：错配则选 11 无效/A+ 到 21 面板空白），
+                 追加/引文 11~20；默认 13/12/12=现状基线零回归 -->
+            <div class="anno-fs-row">
+                <span class="anno-fs-row__label">{tomatoI18n.查看字号}</span>
+                {tomatoI18n.批注}
+                <select
+                    class="b3-select anno-fs-row__sel"
+                    value={String($commentBoxAnnoViewFontSize || 13)}
+                    onchange={(e) => commentBoxAnnoViewFontSize.write(Number(e.currentTarget.value))}
+                >
+                    {#each Array.from({ length: 11 }, (_, i) => i + 12) as n (n)}
+                        <option value={String(n)}>{n}</option>
+                    {/each}
+                </select>
+                {tomatoI18n.追加}
+                <select
+                    class="b3-select anno-fs-row__sel"
+                    value={String($commentBoxAnnoReplyFontSize || 12)}
+                    onchange={(e) => commentBoxAnnoReplyFontSize.write(Number(e.currentTarget.value))}
+                >
+                    {#each Array.from({ length: 10 }, (_, i) => i + 11) as n (n)}
+                        <option value={String(n)}>{n}</option>
+                    {/each}
+                </select>
+                {tomatoI18n.引文}
+                <select
+                    class="b3-select anno-fs-row__sel"
+                    value={String($commentBoxAnnoQuoteFontSize || 12)}
+                    onchange={(e) => commentBoxAnnoQuoteFontSize.write(Number(e.currentTarget.value))}
+                >
+                    {#each Array.from({ length: 10 }, (_, i) => i + 11) as n (n)}
+                        <option value={String(n)}>{n}</option>
+                    {/each}
+                </select>
+            </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$annoAutoArchive} />
                 {tomatoI18n.自动归档到日记}
@@ -203,6 +243,9 @@
                     <option value="airy">{tomatoI18n.皮肤疏朗}</option>
                 </select>
             </div>
+        {:else}
+            <!-- □1 annofeed0917（review P2-4）：渲染链恒挂后的开关语义明示 -->
+            <div>{tomatoI18n.批注关闭提示}</div>
         {/if}
     </div>
 
@@ -210,5 +253,17 @@
     /* 终审 P2-c：AI 批注卡各下拉宽度随最宽 option 浮动（笔记本宽/线型窄），统一 min-width 对齐 */
     select.b3-select {
         min-width: 88px;
+    }
+    /* 查看字号三档紧凑行（陆杰 09-17）：三组「标签+select」内联一行不折行。
+       select 宽度沿用通用款 88px（review P2-4：曾写 52px 窄款死规则——`select.b3-select`
+       (0,2,1) 恒压过类选择器从未生效；vision 已按 88px 形态验收，从实） */
+    .anno-fs-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px 6px;
+    }
+    .anno-fs-row__label {
+        margin-right: 2px;
     }
 </style>

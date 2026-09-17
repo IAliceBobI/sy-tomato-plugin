@@ -4,8 +4,8 @@ import {
     disableBK, enableBK,
 } from "./libs/bkUtils";
 import { getOpenedEditors, icon, isCardUI, isPopoverUI, isProtyleVisible, isSearchUI, removeBkDomResidue, siyuan, } from "./libs/utils";
-import { installedBkWithGen, isBacklinkUI } from "./libs/domUtils";
-import { MarkKey, TEMP_CONTENT, TOMATO_BK_IGNORE, BKMAKER_ADD, BKENTRY_ADD, BKGEN_ADD } from "./libs/gconst";
+import { clearBkEntryFloor, installedBkWithGen, isBacklinkUI } from "./libs/domUtils";
+import { MarkKey, TEMP_CONTENT, TOMATO_BK_IGNORE, BKMAKER_ADD, BKENTRY_ADD, BKGEN_ADD, BK_ENTRY_FLOOR_ADD } from "./libs/gconst";
 import BackLinkBottom from "./BackLinkBottom.svelte";
 import { DestroyManager } from "./libs/destroyer";
 import { tomatoI18n } from "./tomatoI18n";
@@ -19,6 +19,7 @@ import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { newID } from "stonev5-utils";
 import { mount, unmount } from "svelte";
+import { FloatBacklinkBox, bkFloatOn } from "./BkFloat";
 
 // □10 评审 P2① 代际标记：插件 reload 整轮重跑模块顶层（前端 loader window.eval
 // 无模块缓存），计数器挂 globalThis 跨代递增（盐前缀键防跨插件撞名）。旧实例
@@ -32,7 +33,49 @@ function bkEntryDivID(docID: string) {
 }
 
 function removeBkEntryBar(docID: string) {
-    document.querySelectorAll(`div[${BKENTRY_ADD}="${bkEntryDivID(docID)}"]`).forEach(e => e.remove());
+    document.querySelectorAll(`div[${BKENTRY_ADD}="${bkEntryDivID(docID)}"]`).forEach(e => {
+        clearBkEntryFloor(e as HTMLElement);
+        e.remove();
+    });
+}
+
+// ---- 入口条流内保底（09-17 回归修复，v5.13.0 absolute 钉底在分屏/编辑器被压布局下
+// 悬窗口中段+压字；回退文档流内后由这里治短文档悬空）----
+/** 条+上下 margin 的流内占位（28px 条高 + 4px*2） */
+const BK_ENTRY_BAR_SPACE = 36;
+
+function applyBkEntryFloor(bar: HTMLElement, wysiwyg: HTMLElement) {
+    const content = wysiwyg.parentElement;
+    if (!content || !bar.isConnected) return;
+    wysiwyg.setAttribute(BK_ENTRY_FLOOR_ADD, "1");
+    const top = wysiwyg.getBoundingClientRect().top - content.getBoundingClientRect().top;
+    const deficit = content.clientHeight - top - wysiwyg.getBoundingClientRect().height - BK_ENTRY_BAR_SPACE;
+    // border-box 语义下 min-height 即最小视觉高；内核动态写的 padB（打字机=半屏）
+    // 与本通道独立，二者叠加只增不减，无需对抗
+    wysiwyg.style.minHeight = deficit > 0
+        ? (wysiwyg.getBoundingClientRect().height + deficit) + "px"
+        : "";
+    ensureBkEntryResizeListener();
+}
+
+// 全局单例（globalThis 防插件重载重复注册；window.eval 无模块缓存踩坑同款）
+const gBkEntryResize = globalThis as { __tomato_zZmqus5PtYRi_bkEntryResize?: () => void };
+function ensureBkEntryResizeListener() {
+    if (gBkEntryResize.__tomato_zZmqus5PtYRi_bkEntryResize) return;
+    gBkEntryResize.__tomato_zZmqus5PtYRi_bkEntryResize = () => {
+        document.querySelectorAll(`[${BK_ENTRY_FLOOR_ADD}]`).forEach(el => {
+            const w = el as HTMLElement;
+            const bar = w.nextElementSibling;
+            // 条已不在（非正规卸载的残留）：自愈还原
+            if (!bar || !(bar as HTMLElement).classList?.contains("tomato-bk-entry-bar")) {
+                w.style.minHeight = "";
+                w.removeAttribute(BK_ENTRY_FLOOR_ADD);
+                return;
+            }
+            applyBkEntryFloor(bar as HTMLElement, w);
+        });
+    };
+    window.addEventListener("resize", gBkEntryResize.__tomato_zZmqus5PtYRi_bkEntryResize);
 }
 
 export class BKMaker {
@@ -169,9 +212,13 @@ export class BKMaker {
 
 export const BK启用禁用文档的底部反链 = winHotkey("shift+alt+9", "BK启用禁用文档的底部反链", "iconDock", () => tomatoI18n.enableBK启用禁用文档的底部反链,)
 
-class BackLinkBottomBox {
+// 类本体导出仅类型消费（BkFloat.ts FloatBacklinkBox 构造参数/InstanceType 引用），
+// 单例 backLinkBottomBox 仍是唯一运行时实例
+export class BackLinkBottomBox {
     public plugin: BaseTomatoPlugin;
     public settingCfg: TomatoSettings;
+    /** 悬浮反链宿主（float ON+桌面端才有）：handleProtyle 早退分流目的地 */
+    public floatBox: FloatBacklinkBox;
 
     async onload(plugin: BaseTomatoPlugin) {
         debugLog("bk.onload", `checkbox=${backLinkBottomBoxCheckbox.get()}`, "bk");
@@ -207,6 +254,13 @@ class BackLinkBottomBox {
                     click: () => editorCallback(detail.protyle),
                 });
             });
+        }
+
+        // 悬浮反链（bkfloat □4）：float ON+桌面端才挂（主开关已过、back_link_float 结构性
+        // 键 onload 读死）。须在事件监听/resweep 之前就位——早退分流的目的地。
+        if (bkFloatOn()) {
+            this.floatBox = new FloatBacklinkBox(this);
+            await this.floatBox.onload(plugin);
         }
 
         events.addListener("BackLinkBottomBox", (eventType, detail) => {
@@ -285,6 +339,16 @@ class BackLinkBottomBox {
             return;
         }
 
+        // 悬浮反链早退（bkfloat □4）：float ON 桌面端=球+面板全权接管，底部面板/入口条/
+        // per-doc gating 一律不进（spec：float OFF 分支零改动）。置于环境守卫（IGNORE/
+        // popover/反链/搜索/闪卡/docflow）与 docID 提取之后：悬浮浮层/搜索预览等非编辑器
+        // protyle 事件不污染球的活动文档追踪——spec「顶部早退」按此收窄，球要的是干净的
+        // 活动文档流，不是全部事件。
+        if (bkFloatOn()) {
+            this.floatBox?.handleProtyle(detail, eventType);
+            return;
+        }
+
         if (opts?.clearResidue) {
             removeBkDomResidue();
         }
@@ -304,6 +368,13 @@ class BackLinkBottomBox {
 
         removeBkEntryBar(docID);
         await this.attachMaker(detail, eventType, attrs);
+    }
+
+    /** 卸载（index.ts onunload 调）：float 宿主整链收尾（球/面板/状态栏钮/interval/
+     * 失效通道注销）；底部模式 DOM 残留仍由 index.ts 的 removeBkDomResidue 承担 */
+    onunload() {
+        this.floatBox?.unload();
+        this.floatBox = null;
     }
 
     /** 从环境检查到 BKMaker 挂载的完整链（handleProtyle 与入口条开启钮两路直达）。
@@ -377,7 +448,8 @@ class BackLinkBottomBox {
         let count: number;
         try {
             const cached = cachedEntryCount(docID);
-            const resp = await siyuan.getBacklink2(docID, "", "", "3", "3", cached?.revision ?? "");
+            // 入口条计数恒 containChildren=true：不继承用户「反链含子块」设置，防内容块引用被过滤后入口条永不出现（□2）
+            const resp = await siyuan.getBacklink2(docID, "", "", "3", "3", cached?.revision ?? "", true);
             count = applyEntryCount(docID, resp);
         } catch (e) {
             debugLog("bk.entry", `count failed doc=${docID}: ${e}`, "bk");
@@ -412,6 +484,7 @@ class BackLinkBottomBox {
             await this.attachMaker(detail);
         };
         wysiwyg.insertAdjacentElement("afterend", bar);
+        applyBkEntryFloor(bar, wysiwyg);
         debugLog("bk.entry", `mounted doc=${docID} count=${count}`, "bk");
     }
     private addIcon2Title(maker: BKMaker) {

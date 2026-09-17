@@ -878,6 +878,9 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
   font-size: var(--tomato-anno-view-fs, 13px); /* 查看态字号可调（气泡 foot A−/A+；preview 恒默认档不放大） */
   line-height: 1.6;
   word-break: break-word;
+  /* 陆杰 09-17「弹窗字色与背景不搭看不清」：正文提对比档（壳继承的 on-surface 中灰→on-background
+     正文档，与侧边栏卡片同通道；亮暗各自随 b3 变量走） */
+  color: var(--b3-theme-on-background);
 
   /* □4 富文本（spec §4：只读 b3-typography 子集——p/ul/ol/strong/em/code/链接） */
   p {
@@ -939,8 +942,9 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700; /* 陆杰 09-17 层级件：衬线体下 600 与正文拉不开，标题行提到 700+正文档色 */
   letter-spacing: 0.02em;
+  color: var(--b3-theme-on-background);
 
   &::before {
     /* 来源色标：8px 圆角方块，唯一允许的彩色点缀 */
@@ -982,9 +986,10 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
   border-top: 1px solid var(--b3-border-color);
 }
 
-/* view 态多条目：条目内衬+浅分隔（陆杰 09-16「平面列表没层次」） */
+/* view 态多条目：条目内衬+浅分隔（陆杰 09-16「平面列表没层次」）；
+   底部 8px 呼吸（陆杰 09-17 vision 件：末条 bullet 贴 foot 边框=切半观感） */
 .tomato-anno-pop--view .tomato-anno-pop__body {
-  padding: 2px 0;
+  padding: 2px 0 8px;
 }
 
 .tomato-anno-pop--view .tomato-anno-pop__item {
@@ -1085,7 +1090,7 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
 }
 
 .tomato-anno-pop__rtext {
-  font-size: 12px;
+  font-size: var(--tomato-anno-reply-fs, 12px); /* 追加分档字号（陆杰 09-17 三档行，气泡根挂变量） */
   line-height: 1.6;
   word-break: break-word;
   color: var(--b3-theme-on-surface); /* 追加=次级正文，较主文浅一档 */
@@ -1144,22 +1149,18 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
 
 // □3 默认关可发现性入口条（bk-bottom 战役 spec §10）：计数=0 完全不渲染；
 // 点击整条=enableBK 挂载面板。□4 终值：开启钮 button 化（语义）。
-// 09-16 陆杰反馈：内核给 wysiwyg 动态写内联 padding-bottom（打字机模式=编辑器高一半、
-// 普通=16px），文档流内挂载（wysiwyg afterend）的条在空白/短文档时悬在编辑区中间；
-// sticky bottom 只「拉住」不「推下」（自然位置高于底时不钉），治不了本形态——
-// 浮层化 absolute 钉 .protyle（position:relative）底缘：短文档贴底、长文档滚动常驻。
-// 代价=不占流高，用 :has 给滚动容器补底部占位防末行被遮；surface+上边线做面板感
-//（vision 09-16：纯 theme-background 与页面零区分，截断感似渲染残缺）。
+// 09-17 陆杰/木卫三反馈（v5.13.0 回归）：absolute 钉 .protyle 底缘在分屏/编辑器被压
+// 的布局下条悬在窗口中段+悬浮压字（条钉的是「编辑器底缘」非「窗口底」）。回退到文档
+// 流内挂载（wysiwyg afterend，永不压字、任何布局都在文档末尾）；短文档悬空（内核给
+// wysiwyg 动态写内联 padding-bottom，普通=16px 撑不满视口）由挂载侧 JS 写 wysiwyg
+// min-height 保底（见 BackLinkBottomBox.applyBkEntryFloor），不动内核 padB 通道。
+// surface+上边线做面板感（vision 09-16：纯 theme-background 与页面零区分）。
 .tomato-bk-entry-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
   display: flex;
   align-items: center;
   gap: 6px;
   height: 28px;
-  margin: 0;
+  margin: 4px 0;
   padding: 0 8px;
   font-size: 12px;
   color: var(--b3-theme-on-surface-light);
@@ -1189,11 +1190,6 @@ html[data-tomato-anno-underline="ring-bead"] .protyle-wysiwyg {
     color: var(--b3-theme-primary);
     cursor: pointer;
   }
-}
-
-// 入口条在场时给滚动容器让出条高（absolute 不占流，否则滚动中末行被条拦腰截断）
-.protyle-content:has(> .tomato-bk-entry-bar) {
-  padding-bottom: 40px;
 }
 
 /* =====================================================================
@@ -1865,4 +1861,12 @@ html[data-theme-mode="dark"] .tomato-annochat-card__m--user {
 .tomato-annochat-card__more:hover {
     color: var(--b3-theme-on-surface);
     background: var(--b3-theme-surface-lighter);
+}
+
+/* ---- 悬浮反链（bkfloat □4 2026-09-17）----
+   球/面板外壳样式在各自组件 <style>（scoped）；这里只放运行时挂载内容的选择器。
+   BackLinkBottom 尾部的 keepHeight 垫高 div 是底部形态的编辑器滚动补偿（200px 死空间），
+   悬浮面板语境无此语义且会占掉半屏正文——外层容器选择器隐藏，组件内部机制零改动带 */
+.tomato-bk-float-panel__body > .bk-panel ~ div {
+    display: none;
 }

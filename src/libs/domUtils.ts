@@ -408,7 +408,21 @@ export function installedBkWithGen(bkDivID: string, gen: string): boolean {
  * 属性名常量单源 gconst.ts（□10 评审 P2）。 */
 export function removeBkDomResidue() {
     [...document.querySelectorAll(`[${gconst.BKMAKER_ADD}],div[${gconst.BKENTRY_ADD}]`)]
-        .forEach(d => d.parentElement?.removeChild(d));
+        .forEach(d => {
+            if (d.hasAttribute(gconst.BKENTRY_ADD)) clearBkEntryFloor(d as HTMLElement);
+            d.parentElement?.removeChild(d);
+        });
+}
+
+/** 入口条流内保底的还原侧（09-17 回归修复）：删条前还原 wysiwyg 的 inline
+ * min-height（挂载侧写，见 BackLinkBottomBox.applyBkEntryFloor）。不还原则
+ * 文档内容被永久撑高。拓扑不变式：条=wysiwyg afterend 的紧邻弟弟。 */
+export function clearBkEntryFloor(bar: HTMLElement) {
+    const w = bar.previousElementSibling as HTMLElement | null;
+    if (w?.hasAttribute?.(gconst.BK_ENTRY_FLOOR_ADD)) {
+        w.style.minHeight = "";
+        w.removeAttribute(gconst.BK_ENTRY_FLOOR_ADD);
+    }
 }
 
 export function isCardByUpLook(e: HTMLElement) {

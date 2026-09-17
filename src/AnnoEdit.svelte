@@ -14,7 +14,7 @@
     import { confirm } from "siyuan";
     import { createProtyle } from "./libs/bkUtils";
     import { DestroyManager } from "./libs/destroyer";
-    import { deleteDraftBlock, ensureDraftDocID, newDraftBlock, readDraftText } from "./libs/annoDraft";
+    import { deleteDraftBlock, ensureDraftDocID, newDraftBlock, readDraftDocText, readDraftText } from "./libs/annoDraft";
     import { diagnoseAIAsync } from "./libs/openAI";
     import { events } from "./libs/Events";
     import { commentBoxAddFlashCard, commentBoxAnnoEditorFontSize, commentBoxAnnoEditorMode } from "./libs/stores";
@@ -71,6 +71,8 @@
     let loading = $state(true);
     let saving = $state(false);
     let draftID = "";
+    /** 草稿文档 id（挂载锚）：保存判空兜底 readDraftDocText 聚合用（09-16 回归修复） */
+    let draftDocID = "";
     /** 可变盒子：草稿清理钩须在 await 之前挂（reasoning P2-2——loading 窗口内关闭弹窗时
      *  dm 已销毁，晚挂的钩永不执行=草稿孤儿；钩读盒子取「挂靠时刻之后才写入」的 id） */
     const draftRef = { id: "" };
@@ -132,6 +134,7 @@
         // deleteDraftBlock 仍按 sb id 走 blocktree 直读 API，不受挂载锚影响。
         // ensureDraftDocID 此处必命中缓存（newDraftBlock 已建好），壳解析失败兜底退回 sb id
         const mountID = (await ensureDraftDocID()) || draftID;
+        draftDocID = mountID;
         pob = createProtyle(mountID, getTomatoPluginInstance());
         editor.appendChild(pob.p.protyle.element);
         // loading 先落：下方聚焦链任何异常都不得卡死保存键（Ctrl+Enter/button 均被 loading 守卫拦）
@@ -222,7 +225,12 @@
         saving = true;
         try {
             // readDraftText 在 try 内（reasoning P2-1）：草稿块被误清时炸成 toast，而非保存键静默失效
-            const text = mode === "plain" ? plainText : await readDraftText(draftID);
+            let text = mode === "plain" ? plainText : await readDraftText(draftID);
+            if (mode !== "plain" && text.trim().length === 0 && draftDocID) {
+                // sb 外落字兜底（09-16 回归修复）：视图=整个草稿文档，用户在 sb 外块打的字
+                // 主读取不到——聚合全文档顶层块文本，任何落点都不误报「批注内容为空」
+                text = await readDraftDocText(draftDocID);
+            }
             if (text.trim().length === 0) {
                 siyuan.pushMsg(tomatoI18n.批注内容为空);
                 return;

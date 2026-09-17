@@ -2,6 +2,7 @@ import { getAllEditor } from "siyuan";
 import { siyuan, getTomatoPluginInstance } from "../libs/utils";
 import { events } from "../libs/Events";
 import { debugLog } from "../libs/logUtils";
+import { toWin } from "../libs/winHotkey";
 import { tomatoI18n } from "../tomatoI18n";
 import type { BallAction } from "./index";
 
@@ -49,6 +50,10 @@ export const pluginCmdAction: BallAction = {
         return ball.icon || "⚡";
     },
     tooltip(ball: BallItem) {
-        return ball.label || findPluginCommand(ball.action?.cmdKey)?.langText || ball.action?.cmdKey || "cmd";
+        const cmd = findPluginCommand(ball.action?.cmdKey);
+        const base = ball.label || cmd?.langText || ball.action?.cmdKey || "cmd";
+        // 命令带快捷键时 tooltip 追加键位（confgather2 □3：hotkey 为 ⌘ 形态串，toWin 平台化）
+        const hk = cmd?.hotkey ? ` ${toWin(cmd.hotkey)}` : "";
+        return base + hk;
     },
 };

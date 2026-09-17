@@ -285,6 +285,9 @@
 
     async function save() {
         dm.destroyBy();
+        // □5 annofeed0917：瞬态全默认代的保存闸——读取曾失败且盘上真设置在世时拦截
+        // 本次保存（toast 提示重开面板），防内存全默认 cfg 整份覆盖盘上真值
+        if (!(await plugin.guardSaveSettings())) return;
         // □3 保存链与 onDataChanged 钩子共用热更通道（落盘对账+diff 刷 store）：
         // 常规键不再整重载（保存后本端也不闪），结构性键命中才 reloadSelfPlugin。
         // oldCfg 用「saveData 前的落盘值」——面板 bind 编辑在保存前已进内存 cfg，
@@ -306,7 +309,11 @@
     <UpgradeBar
         product="tomato"
         bind:codeValid
-        onActivated={() => plugin.saveData(STORAGE_SETTINGS, plugin.settingCfg)}
+        onActivated={async () => {
+            // □5 同款保存闸：激活码写入也走整份 saveData，全默认代同险覆盖真值
+            if (!(await plugin.guardSaveSettings())) return;
+            plugin.saveData(STORAGE_SETTINGS, plugin.settingCfg);
+        }}
     ></UpgradeBar>
     <!-- search -->
     <div class="settingBox search-bar" data-search>

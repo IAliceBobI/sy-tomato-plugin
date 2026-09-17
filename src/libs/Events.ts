@@ -1,4 +1,4 @@
-import { Plugin, getFrontend, Protyle, IProtyle, IEventBusMap, getBackend } from "siyuan";
+import { Plugin, getFrontend, getActiveEditor, Protyle, IProtyle, IEventBusMap, getBackend } from "siyuan";
 import { getCursorElement, getID, getNotebookFirstOne, siyuan } from "./utils";
 import { collectSelectedBlocks } from "./selection";
 import { DATA_NODE_ID } from "./gconst";
@@ -256,6 +256,15 @@ class Events {
         let obj = (protyle as Protyle)?.protyle?.getInstance();
         if (obj == null) obj = (protyle as IProtyle)?.getInstance();
         if (obj?.reload != null) obj?.reload(true);
+    }
+
+    /** □1 annofeed0917（陆杰 09-17 反复失效反馈）：命令回调取「当前编辑器」的统一通道。
+     *  插件重载后到首次 protyle 事件（点击/切换文档）前的空窗里 this.protyle 恒空——
+     *  各命令裸取 events.protyle.protyle=TypeError 快捷键静默死（CommentBox/DailyNoteBox/
+     *  CpBox 六处同病）；空则回退 getActiveEditor()（返回 Protyle 包装类，内层再剥
+     *  .protyle，pjux □12 在档）。两路皆空=undefined，调用方判空早退。 */
+    public currentProtyle(): IProtyle | undefined {
+        return this._protyle?.protyle ?? getActiveEditor()?.protyle;
     }
 
     public getInfo(protyle?: IProtyle) {

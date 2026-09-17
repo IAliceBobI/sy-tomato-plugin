@@ -52,26 +52,35 @@
         <div class="section-title">{tomatoI18n.命令开关}</div>
         <div class="helpText">{tomatoI18n.命令开关重载提示}</div>
     </div>
+    <!-- confgather2 期4（bear 拍板讨论点①选甲）：17 族卡各自折叠默认收起——集中管理定位
+         不变（管理域非功能域），首屏减重（99 行点开才见）；族头总开关在 summary 内照常可点
+         （summary 激活行为对交互内容子元素豁免=点开关不展开），计数徽章=族内命令数；
+         搜索命中 searchSettings 自动展开（data-search-opened 协议） -->
     {#each COMMAND_GROUPS as g (g.id)}
-        <div class="settingBox">
-            <div class="section-title">
+        <details class="settingBox">
+            <summary class="section-title">
                 <input type="checkbox" class="b3-switch" checked={groupOn(g)} onchange={(e) => flipGroup(g, e.currentTarget.checked)} />
                 {g.label()}
+                <span class="setting-count">{g.items.length}</span>
+            </summary>
+            <div class="softBox">
+                {#each g.items as item (item.langKey)}
+                    <div>
+                        <input type="checkbox" class="b3-switch" checked={isOn(item.langKey)} onchange={(e) => flip(item.langKey, e.currentTarget.checked)} />
+                        {item.label()}
+                        {#if item.hk}<HotkeyCap hk={item.hk} pluginName="sy-tomato-plugin"></HotkeyCap>{/if}
+                    </div>
+                {/each}
             </div>
-            {#each g.items as item (item.langKey)}
-                <div>
-                    <input type="checkbox" class="b3-switch" checked={isOn(item.langKey)} onchange={(e) => flip(item.langKey, e.currentTarget.checked)} />
-                    {item.label()}
-                    {#if item.hk}<HotkeyCap hk={item.hk} pluginName="sy-tomato-plugin"></HotkeyCap>{/if}
-                </div>
-            {/each}
-        </div>
+        </details>
     {/each}
 
 <style>
     /* 命令名含 emoji（🚩书签族）时字体行框膨胀行距不均（实测 28 vs 23px，vision P2-1
-       DOM 定案）；unitless 行高随字号缩放，钉平与面板常规行一致 */
-    .settingBox > div:not(.section-title) {
+       DOM 定案）；unitless 行高随字号缩放，钉平与面板常规行一致。
+       confgather2 期4：族卡折叠化后行嵌 .softBox 内（非 .settingBox 直接子代），
+       选择器同步下探一层（ConfMiscDomain「更多命令」折叠同款教训） */
+    .settingBox .softBox > div {
         line-height: 1.64;
     }
 </style>

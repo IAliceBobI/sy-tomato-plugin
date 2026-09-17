@@ -226,6 +226,13 @@ function notebookStoreFactory(k = "storeNoteBox_selectedNotebook") {
         save: () => {
             if (plugin && settingCfg) {
                 settingCfg[k] = get(store);
+                // □2 annofeed0917：□5 review P1-1 同款守卫下沉到本工厂（选择器写回
+                // commentBoxAnnoDraftNotebook 等单键保存面的放大器）——装载曾失败的那代
+                // 整份 saveData=全默认覆盖盘上真值，降级 mergedSaveKey 单键合并写
+                const guarded = plugin as unknown as { settingsLoadedOk?: boolean };
+                if (guarded.settingsLoadedOk === false) {
+                    return mergedSaveKey(plugin as unknown as Parameters<typeof mergedSaveKey>[0], STORAGE_SETTINGS, k, get(store));
+                }
                 plugin.saveData(STORAGE_SETTINGS, settingCfg);
             }
         },
@@ -241,6 +248,38 @@ export const storeNoteBox_fastnote = notebookStoreFactory("storeNoteBox_fastnote
 /** 批注草稿文档存放笔记本（2026-09-02）：未配置默认跟随系统日记本（annoDraft.initAnnoDraftNotebookDefault 注入） */
 export const DRAFT_NOTEBOOK_KEY = "commentBoxAnnoDraftNotebook";
 export const commentBoxAnnoDraftNotebook = notebookStoreFactory(DRAFT_NOTEBOOK_KEY);
+
+/** □5 annofeed0917（□1 review P2-2 放大器收口）：瞬态全默认代的保存闸（纯函数，单测覆盖）。
+ *  设置装载曾失败（loadedOk=false，三连退避仍非对象落 {} 的那代）时，盘上若仍有真设置对象，
+ *  内存全默认 cfg 的整份保存会把它永久覆盖——须拦截（提示重开面板，正常代读盘后重改）；
+ *  盘上也无有效对象（真·全新安装/文件损坏）则放行（保存=建立基线）。 */
+export function settingsSaveAllowed(loadedOk: boolean, disk: unknown): boolean {
+    if (loadedOk) return true;
+    return !(disk !== null && typeof disk === "object" && !Array.isArray(disk));
+}
+
+/** □5 review P1-1：单键写面的守卫代降级通道——settingFactory.write 在装载曾失败的那代
+ *  不再整份 saveData（全默认覆盖真值），改为「复盘真值 → 注入本键 → 落盘」；盘上无有效
+ *  对象则按基线整份写。成功合并后内存 cfg 对齐真值+转正标志（该代恢复健康态）。 */
+export async function mergedSaveKey(
+    plugin: { settingCfg: Record<string, unknown>; loadData: (f: string) => Promise<unknown>; saveData: (f: string, v: unknown) => Promise<unknown> },
+    file: string,
+    key: string,
+    value: unknown,
+): Promise<void> {
+    const disk = await plugin.loadData(file).catch(() => undefined);
+    if (settingsSaveAllowed(false, disk)) {
+        await plugin.saveData(file, plugin.settingCfg);
+        return;
+    }
+    const merged = { ...(disk as Record<string, unknown>), [key]: value };
+    await plugin.saveData(file, merged);
+    for (const k of Object.keys(plugin.settingCfg)) delete plugin.settingCfg[k];
+    Object.assign(plugin.settingCfg, merged);
+    (plugin as unknown as { settingsLoadedOk?: boolean }).settingsLoadedOk = true;
+    // logUtils→user→stores 循环依赖不能静态引入；错误通道 console.warn（annoDraft 先例）
+    console.warn(`[tomato settings-guard] 单键合并写恢复（${key}）——盘上真值 ${Object.keys(merged).length} 键保留，内存已对齐`);
+}
 
 export const storeAttrManager = () => {
     const store = writableWithGet({} as AttrType);
@@ -377,6 +416,15 @@ const settingFactory = <T>(key: TSK, defaultValue: T, file: string, _void: TSK) 
             if (value != null) {
                 save(value);
                 if (plugin && plugin.settingCfg) {
+                    // □5 annofeed0917 review P1-1（65+ 单键直写面是全默认覆盖的主通道）：
+                    // 装载曾失败的那代（settingsLoadedOk=false）整份 saveData=全默认覆盖盘上
+                    // 真值——单键写降级合并写：复盘真值 → 注入本键 → 落盘（真值+用户这一键
+                    // 意图都保住；盘上无有效对象则按基线整份写）。附带解掉激活链码烧不落盘
+                    // （UnlockDialog userToken.write）与面板 bind 半保存态两个 review 悬项。
+                    if ((plugin as any).settingsLoadedOk === false) {
+                        await mergedSaveKey(plugin, file, key as string, value);
+                        return;
+                    }
                     await plugin.saveData(file, plugin.settingCfg);
                 }
             }
@@ -459,6 +507,8 @@ export const graphMaxPBlocks = settingFactory("graphMaxPBlocks", 20, STORAGE_SET
 export const graphMaxAllBlocks = settingFactory("graphMaxAllBlocks", 800, STORAGE_SETTINGS, null as TSK);
 // graphbox 期1（2026-09-03）：结构边默认显示（树回归）。存量用户已存的 petal 值不受影响（settingFactory 语义）。
 export const graphHideStructEdges = settingFactory("graphHideStructEdges", false, STORAGE_SETTINGS, null as TSK);
+// □3 章节自动编号开关（思绪大纲感 1/1.1 前缀；标题自带序号的文档可关防双编号）
+export const graphShowNumbers = settingFactory("graphShowNumbers", true, STORAGE_SETTINGS, null as TSK);
 // graphbox 期2（2026-09-04）：折叠机制默认展开层级（"1"|"2"|"3"|"all"，按标题层级 h1=1；段落链折叠独立于档位）
 export const graphDefaultExpandLevel = settingFactory("graphDefaultExpandLevel", "2", STORAGE_SETTINGS, null as TSK);
 // graphbox 期7（2026-09-04）：默认布局形态（"lr"|"tb"|"vlr"|"vtb"；文档无 custom-graph-layout 时用，
@@ -627,6 +677,9 @@ export const back_link_refresh_off = settingFactory("back_link_refresh_off", tru
 export const bk_refresh_interval_sec = settingFactory("bk_refresh_interval_sec", 15, STORAGE_SETTINGS, null as TSK);
 export const bk_visible_only = settingFactory("bk_visible_only", true, STORAGE_SETTINGS, null as TSK);
 export const back_link_goto_bottom_btn = settingFactory("back_link_goto_bottom_btn", false, STORAGE_SETTINGS, null as TSK);
+// □4 悬浮反链总开关（bkfloat 2026-09-17，默认开）：桌面端把底部反链升级为悬浮球+悬浮面板。
+// 结构性键（storageHotReload 已登记）：BackLinkBottomBox.onload 期注册读死，改动须整插件重载生效
+export const back_link_float = settingFactory("back_link_float", true, STORAGE_SETTINGS, null as TSK);
 export const back_link_concept_fold = settingFactory("back_link_concept_fold", true, STORAGE_SETTINGS, null as TSK);
 export const back_link_copy = settingFactory("back_link_copy", false, STORAGE_SETTINGS, null as TSK);
 export const back_link_move_to_dailynote = settingFactory("back_link_move_to_dailynote", true, STORAGE_SETTINGS, null as TSK);
@@ -757,8 +810,14 @@ export const mindWireWidth = settingFactory("mindWireWidth", 2, STORAGE_SETTINGS
 export const mindWireLine = settingFactory("mindWireLine", false, STORAGE_SETTINGS, null as TSK);
 export const mindWireColorfull = settingFactory("mindWireColorfull", false, STORAGE_SETTINGS, null as TSK);
 export const mindWireStarRefOnly = settingFactory("mindWireStarRefOnly", true, STORAGE_SETTINGS, null as TSK);
+// 块级导线（块引用/互链自动连线）独立开关（陆杰 09-16 反馈：此前与词级同受 mindWireEnable
+// 总门禁只能全开全关，想要只留划词连线无从关起）；默认 true=老用户零感知
+export const mindWireBlockWire = settingFactory("mindWireBlockWire", true, STORAGE_SETTINGS, null as TSK);
 // □2 词级导线（划词连线）总开关（spec §4.8 行 5；设置 UI 行随 □5 ConfMindWire 落地）
 export const mindWireWordWire = settingFactory("mindWireWordWire", true, STORAGE_SETTINGS, null as TSK);
+// 悬停弹出选色迷你条开关（bear 09-16 反馈：多线文档鼠标扫过频繁弹条打扰）；默认 true=
+// 现状；关后悬停只保留高亮不弹条（触屏长按唤出不受影响——无 hover 打扰问题）
+export const mindWireHoverBar = settingFactory("mindWireHoverBar", true, STORAGE_SETTINGS, null as TSK);
 export const aiBoxMenuShow = settingFactory("aiBoxMenuShow", true, STORAGE_SETTINGS, null as TSK);
 export const aiBoxPrompts = settingFactory("aiBoxPrompts", [], STORAGE_SETTINGS, null as TSK);
 export const fastNoteBoxCheckbox = settingFactory("fastNoteBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
@@ -803,6 +862,10 @@ export const commentBoxAnnoEditorFontSize = settingFactory("commentBoxAnnoEditor
 // 批注查看态字号（px；陆杰 09-16「查看文字小希望能调大」）：气泡+面板批注正文同源，气泡 foot A−/A+
 // 就近调（编辑字号独立不混）。默认 13=气泡正文现状基线（面板 12 顺提一档），范围 12~22 clamp。
 export const commentBoxAnnoViewFontSize = settingFactory("commentBoxAnnoViewFontSize", 13, STORAGE_SETTINGS, null as TSK);
+// 查看态追加/引文分档字号（px；陆杰 09-17「追加有点小、原文也想调」）：侧边栏与气泡的追加时间线、
+// 侧边栏引文摘要各自独立可调（设置面板三档行），默认 12=现状基线零回归；范围 11~20（面板 select 档位）。
+export const commentBoxAnnoReplyFontSize = settingFactory("commentBoxAnnoReplyFontSize", 12, STORAGE_SETTINGS, null as TSK);
+export const commentBoxAnnoQuoteFontSize = settingFactory("commentBoxAnnoQuoteFontSize", 12, STORAGE_SETTINGS, null as TSK);
 
 // ---------------
 

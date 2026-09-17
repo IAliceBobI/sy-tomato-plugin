@@ -13,6 +13,7 @@
         back_link_dailynote_off,
         back_link_default_off,
         back_link_embed,
+        back_link_float,
         back_link_goto_bottom_btn,
         back_link_max_size,
         back_link_mention_count,
@@ -54,6 +55,7 @@
     import { Tag2RefBox模糊查找引用Lnk, Tag2RefBox模糊查找引用Ref } from "./Tag2RefBox";
     import { MixBox定位所有引用Menu } from "./MixBox";
     import { tomatoI18n } from "./tomatoI18n";
+    import { BKFloatToggle, BKFloatBallToggle } from "./BkFloat";
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
 
@@ -71,7 +73,7 @@
             <ConfHelpIcon token="SVELdPHKYoGMj1xkmF3cIPg3nZd" />
         </div>
         {#if $backLinkBottomBoxCheckbox}
-            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div class="helpText">{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$bk启用禁用文档的底部反链menu} />
                 {tomatoI18n.menu添加右键菜单}:
@@ -87,54 +89,74 @@
                 {tomatoI18n.mentionDocs最大展开的提及文件数}
             </div>
 
-            <div class="softBox">
-                <div>
-                    <input type="checkbox" class="b3-switch" bind:checked={$back_link_move_here} />
-                    <span class="b3-label__text"> {@html icon("Move", ICONS_SIZE)}</span>
-                    {tomatoI18n.移动到文档}
-                </div>
-                {#if $back_link_move_here}
+            <!-- 右键菜单项折叠（confgather2 期2 A4，bear 拍板收折叠）：悬浮反链面板右键的六项
+                 文档操作（移动到文档/移动到日记/删引用/复制/嵌入/引用）收进折叠——低频菜单项
+                 不占平铺位，批注卡「右键菜单项」隐藏集同款先例；搜索命中自动展开。
+                 原「移动到文档」softBox 子组拍平为普通行（条件子行随其后） -->
+            <details class="settingBox">
+                <summary class="section-title">{tomatoI18n.右键菜单项}</summary>
+                <div class="softBox">
                     <div>
-                        <input type="checkbox" class="b3-switch" bind:checked={$back_link_move_with_backlink} />
+                        <input type="checkbox" class="b3-switch" bind:checked={$back_link_move_here} />
                         <span class="b3-label__text"> {@html icon("Move", ICONS_SIZE)}</span>
-                        {tomatoI18n.移动内容后添加指向原来位置的链接}
+                        {tomatoI18n.移动到文档}
                     </div>
-                {/if}
-            </div>
+                    {#if $back_link_move_here}
+                        <div class="tomato-cond-subrow">
+                            <input type="checkbox" class="b3-switch" bind:checked={$back_link_move_with_backlink} />
+                            <span class="b3-label__text"> {@html icon("Move", ICONS_SIZE)}</span>
+                            {tomatoI18n.移动内容后添加指向原来位置的链接}
+                        </div>
+                    {/if}
 
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$back_link_move_to_dailynote} />
-                <span class="b3-label__text"> {@html icon("Calendar", ICONS_SIZE)}</span>
-                {tomatoI18n.移动到Dailynote}
-            </div>
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$back_link_move_to_dailynote} />
+                        <span class="b3-label__text"> {@html icon("Calendar", ICONS_SIZE)}</span>
+                        {tomatoI18n.移动到Dailynote}
+                    </div>
 
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$back_link_remove_refs} />
-                <span class="b3-label__text"> {@html icon("Unpin", ICONS_SIZE)}</span>
-                {tomatoI18n.把指向当前文档的引用删除}
-            </div>
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$back_link_remove_refs} />
+                        <span class="b3-label__text"> {@html icon("Unpin", ICONS_SIZE)}</span>
+                        {tomatoI18n.把指向当前文档的引用删除}
+                    </div>
 
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$back_link_copy} />
-                <span class="b3-label__text"> {@html icon("Copy", ICONS_SIZE)}</span>
-                {tomatoI18n.复制到文档}
-            </div>
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$back_link_copy} />
+                        <span class="b3-label__text"> {@html icon("Copy", ICONS_SIZE)}</span>
+                        {tomatoI18n.复制到文档}
+                    </div>
 
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$back_link_embed} />
-                <span class="b3-label__text"> {@html icon("SQL", ICONS_SIZE)}</span>
-                {tomatoI18n.嵌入到文档}
-            </div>
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$back_link_embed} />
+                        <span class="b3-label__text"> {@html icon("SQL", ICONS_SIZE)}</span>
+                        {tomatoI18n.嵌入到文档}
+                    </div>
 
-            <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$back_link_ref} />
-                <span class="b3-label__text"> {@html icon("Ref", ICONS_SIZE)}</span>
-                {tomatoI18n.引用到文档}
-            </div>
+                    <div>
+                        <input type="checkbox" class="b3-switch" bind:checked={$back_link_ref} />
+                        <span class="b3-label__text"> {@html icon("Ref", ICONS_SIZE)}</span>
+                        {tomatoI18n.引用到文档}
+                    </div>
+                </div>
+            </details>
 
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$back_link_default_off} />
                 {tomatoI18n.defaultBkDisabled底部反链默认关闭}
+            </div>
+
+            <!-- □4 悬浮反链（bkfloat 2026-09-17）：桌面端球+面板形态总开关；改动经结构性键整重载生效。
+                 键帽随功能走（09-17 bear 拍板：配置按功能归类不按类型集中，开关+名称+键帽一行紧凑形态） -->
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$back_link_float} />
+                {tomatoI18n.悬浮反链}<HotkeyCap hk={BKFloatToggle} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div class="helpText">{tomatoI18n.悬浮反链说明}</div>
+            <!-- 球显隐命令键帽行（confgather2 □2）：命令无独立开关（runtime localStorage 态），
+                 文本+键帽形态与命令开关域行同构 -->
+            <div>
+                {tomatoI18n.显示或隐藏悬浮反链球}<HotkeyCap hk={BKFloatBallToggle} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
 
             <div>
@@ -205,7 +227,7 @@
                 />{tomatoI18n.给文档添加简拼别名}
                 <TomatoVIP {codeValid}></TomatoVIP>
             </div>
-            <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+            <div class="helpText">{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$tag2RefSearchRef} />
                 {tomatoI18n.menu添加右键菜单}:{Tag2RefBox模糊查找引用Ref.langText()}<HotkeyCap hk={Tag2RefBox模糊查找引用Ref} pluginName="sy-tomato-plugin"></HotkeyCap>
@@ -225,7 +247,7 @@
             <ConfHelpIcon token="KLVWdKT9qoBGMDxXfi8czVMvnQe" />
         </div>
         {#if $spaceRefEnabled}
-            <div>{tomatoI18n.空格转引用说明}</div>
+            <div class="helpText">{tomatoI18n.空格转引用说明}</div>
             <div>
                 {tomatoI18n.空格转引用形态}
                 <select
@@ -245,7 +267,7 @@
             {tomatoI18n.引用效果}
             <ConfHelpIcon token="NVApdj8akoobhjxvAiGct4RDnDb" />
         </div>
-        <div>{tomatoI18n.引用效果说明}</div>
+        <div class="helpText">{tomatoI18n.引用效果说明}</div>
         <div>
             {tomatoI18n.引用效果样式}
             <select
@@ -276,37 +298,45 @@
             ></textarea>
         </div>
     </div>
-    <!-- 静态反链（三期自通用域杂项卡归位：刷新/删除两菜单项同 storeRefreshStaticBkLnk 门控，
-         默认关=不大受欢迎先收着；定位所有引用/点击引用数两行同批归位本域） -->
-    <div class="settingBox">
-        <div class="section-title">{tomatoI18n.静态反链}</div>
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$storeRefreshStaticBkLnk} />
-            {tomatoI18n.menu添加右键菜单}: {tomatoI18n.刷新静态反链} / {tomatoI18n.删除静态反链}
+    <!-- 折叠垫底区：静态反链 + 失效引用清理（confgather2 期3 A5+A6，bear 拍板收折叠：
+         低频维护工具合集，形态对齐「数据库反链与引用修复」垫底区先例；静态反链默认关=
+         不大受欢迎先收着观察一版〔表 C3 未勾不删〕，两卡整块收进 softBox 内部一行不动） -->
+    <details class="settingBox">
+        <summary class="section-title">{tomatoI18n.静态反链与失效引用清理}<span class="setting-count">2</span><!-- 计数与下方卡数同步增删（数据库垫底区同款） --></summary>
+        <div class="softBox">
+            <!-- 静态反链（三期自通用域杂项卡归位：刷新/删除两菜单项同 storeRefreshStaticBkLnk 门控，
+                 默认关；定位所有引用/点击引用数两行同批归位本域） -->
+            <div class="settingBox">
+                <div class="section-title">{tomatoI18n.静态反链}</div>
+                <div>
+                    <input type="checkbox" class="b3-switch" bind:checked={$storeRefreshStaticBkLnk} />
+                    {tomatoI18n.menu添加右键菜单}: {tomatoI18n.刷新静态反链} / {tomatoI18n.删除静态反链}
+                </div>
+                <div>
+                    <input type="checkbox" class="b3-switch" bind:checked={$storeOpenRefsMenu} />
+                    {tomatoI18n.menu添加右键菜单}: {MixBox定位所有引用Menu.langText()}<HotkeyCap hk={MixBox定位所有引用Menu} pluginName="sy-tomato-plugin"></HotkeyCap>
+                </div>
+                <div>
+                    <input
+                        type="checkbox"
+                        class="b3-switch"
+                        bind:checked={$storeOpenRefsClick}
+                    />
+                    {tomatoI18n.点击引用数打开所有引用}
+                </div>
+            </div>
+            <!-- 失效引用清理（vipdoctree □4 2026-09-13）：2026-09-15 起全免费（bear 反馈拍板，
+                 原「检查免费/批量动作 Pro」挂法撤销——竞品免费+钓鱼观感） -->
+            <div class="settingBox">
+                <div class="section-title">{tomatoI18n.失效引用清理}</div>
+                <div class="helpText">{tomatoI18n.失效引用清理说明()}</div>
+                <div>
+                    <input type="checkbox" class="b3-switch" bind:checked={$refCleanMenu} />
+                    {tomatoI18n.menu添加右键菜单}: {tomatoI18n.检查失效引用}
+                </div>
+            </div>
         </div>
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$storeOpenRefsMenu} />
-            {tomatoI18n.menu添加右键菜单}: {MixBox定位所有引用Menu.langText()}<HotkeyCap hk={MixBox定位所有引用Menu} pluginName="sy-tomato-plugin"></HotkeyCap>
-        </div>
-        <div>
-            <input
-                type="checkbox"
-                class="b3-switch"
-                bind:checked={$storeOpenRefsClick}
-            />
-            {tomatoI18n.点击引用数打开所有引用}
-        </div>
-    </div>
-    <!-- 失效引用清理（vipdoctree □4 2026-09-13）：2026-09-15 起全免费（bear 反馈拍板，
-         原「检查免费/批量动作 Pro」挂法撤销——竞品免费+钓鱼观感） -->
-    <div class="settingBox">
-        <div class="section-title">{tomatoI18n.失效引用清理}</div>
-        <div>{tomatoI18n.失效引用清理说明()}</div>
-        <div>
-            <input type="checkbox" class="b3-switch" bind:checked={$refCleanMenu} />
-            {tomatoI18n.menu添加右键菜单}: {tomatoI18n.检查失效引用}
-        </div>
-    </div>
+    </details>
     <!-- 折叠垫底区：数据库反链 + 引用修复（二期 2026-09-05 收拢：疑弃/搁置功能垫域底，
          弃时整区删；两卡整块收进 softBox 内部一行不动，summary 沿卡 ConfHelpIcon 原样） -->
     <details class="settingBox">
@@ -320,7 +350,7 @@
                     <ConfHelpIcon token="W4WxdA0Bzo0O7UxwHFFcAHUUnSd" />
                 </div>
                 {#if $dbBkBoxCheckbox}
-                    <div>{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
+                    <div class="helpText">{tomatoI18n.menu不显示菜单不影响快捷键的使用}</div>
                     <div>
                         <input type="checkbox" class="b3-switch" bind:checked={$dbBkBoxRefreshMenu} />
                         {tomatoI18n.menu添加右键菜单}:
@@ -354,7 +384,7 @@
             <div class="settingBox">
                 <div class="section-title">
                     <input type="checkbox" class="b3-switch" bind:checked={$superRefBoxCheckBox} />
-                    引用修复工具
+                    {tomatoI18n.引用修复工具}
                     <ConfHelpIcon token="WTgxdUINHoYXHbxmU87cxs5knfd" />
                 </div>
                 {#if $superRefBoxCheckBox}

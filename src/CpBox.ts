@@ -129,21 +129,24 @@ class CpBox {
     }
 
     private async deleteBlocks() {
-        const protyle = events.protyle.protyle;
+        // □1 annofeed0917：重载空窗 events.prototype 恒空裸取=TypeError——统一
+        // currentProtyle()（空窗回退 getActiveEditor）；reload 判空可缺（批量操作
+        // 主链已完成，仅刷新视图一步可跳）
+        const protyle = events.currentProtyle();
         siyuan.pushMsg(tomatoI18n.批量删除正在检查数据);
         await siyuan.deleteBlocksUtil();
-        protyle.getInstance().reload(false);
+        protyle?.getInstance()?.reload(false);
         await siyuan.pushMsg("batch deleted!");
     }
 
     private async moveBlocks(ops: boolean) {
-        const protyle = events.protyle.protyle;
+        const protyle = events.currentProtyle();
         siyuan.pushMsg(tomatoI18n.批量复制移动正在检查数据);
         const blocks = await siyuan.moveBlocksUtil(ops);
         if (blocks?.length > 0) {
             await OpenSyFile2(this.plugin, blocks[blocks.length - 1].id)
             await OpenSyFile2(this.plugin, blocks[0].id)
-            protyle.getInstance().reload(false);
+            protyle?.getInstance()?.reload(false);
         }
         await siyuan.pushMsg("batch moved!");
     }

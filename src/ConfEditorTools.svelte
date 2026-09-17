@@ -10,6 +10,8 @@
         addSelectionBtnsDesktop,
         addSelectionBtnsMobile,
         awaysExitFocusStore,
+        copyIdCheckbox,
+        foldCmdCheckbox,
         foldTypes,
         foldTypesBLOCKQUOTE,
         foldTypesNODE_HEADING,
@@ -30,7 +32,9 @@
         MixBox将选择文字加入文档的别名,
         MixBox将选择文字与其拼音加入文档的别名,
     } from "./MixBox";
-    import { BlockNodeEnum } from "./libs/gconst";
+    import { BlockNodeEnum, SPACE } from "./libs/gconst";
+    import { ScheduleCopyID } from "./Schedule";
+    import { addFoldCmd折叠, addFoldCmd展开 } from "./fold";
     import { pushUniq } from "stonev5-utils";
     import { removeFromArr } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
@@ -173,6 +177,16 @@
             {tomatoI18n.标题}
         </label>
     </div>
+    <!-- 折叠/展开命令开关+键帽（confgather2 期1 B1 自通用域「快捷键与开关」卡归位：foldCmd
+         就是块折叠命令，配置跟着功能走 09-17 bear 拍板；一对折叠/展开共用一个开关） -->
+    <div>
+        <input type="checkbox" class="b3-switch" bind:checked={$foldCmdCheckbox} />
+        {addFoldCmd折叠.langText()}<HotkeyCap hk={addFoldCmd折叠} pluginName="sy-tomato-plugin"></HotkeyCap>
+    </div>
+    <div>
+        <input type="checkbox" class="b3-switch" bind:checked={$foldCmdCheckbox} />
+        {addFoldCmd展开.langText()}<HotkeyCap hk={addFoldCmd展开} pluginName="sy-tomato-plugin"></HotkeyCap>
+    </div>
 </div>
 <!-- 多行选择（自 ConfEditor.svelte 迁入；二期两卡合一、两行开关；□4 补总开关=桌面/移动一键） -->
 <div class="settingBox">
@@ -227,7 +241,8 @@
         </div>
     {/if}
 </div>
-<!-- 文档别名（三期自通用域杂项卡归位：选字加入别名键帽+拼音开关） -->
+<!-- 文档别名（三期自通用域杂项卡归位：选字加入别名键帽+拼音开关；confgather2 期1 B2
+     复制ID 行自通用域「快捷键与开关」卡归位——跟编辑器小工具走） -->
 <div class="settingBox">
     <div class="section-title">{tomatoI18n.文档别名}</div>
     <div>
@@ -236,6 +251,10 @@
     <div>
         <input type="checkbox" class="b3-switch" bind:checked={$mixBoxPinyin} />
         {tomatoI18n.menu添加右键菜单}: {MixBox将选择文字与其拼音加入文档的别名.langText()}<HotkeyCap hk={MixBox将选择文字与其拼音加入文档的别名} pluginName="sy-tomato-plugin"></HotkeyCap>
+    </div>
+    <div>
+        <input type="checkbox" class="b3-switch" bind:checked={$copyIdCheckbox} />
+        {ScheduleCopyID.langText() + SPACE}<HotkeyCap hk={ScheduleCopyID} pluginName="sy-tomato-plugin"></HotkeyCap>
     </div>
 </div>
 <!-- 编辑器行为（uiclean 2026-09-12：原「编辑器外观与行为」折叠卡的 6 件纯 CSS 外观开关

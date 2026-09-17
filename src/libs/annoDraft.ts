@@ -10,10 +10,11 @@
 // - 每次开编辑弹窗预置 id 建独立超级块草稿（多窗口天然隔离）；保存/关闭即删，删除失败静默（清扫兜底）
 // - 清扫只清不建：启动时若找到草稿文档则清空子块（注：多窗口同工作区极端场景会误伤他窗在编辑的草稿，
 //   单窗口为主流用法，接受该边界——属性是 source of truth，草稿丢了重开编辑即恢复）
+import { Dialog } from "siyuan";
 import { siyuan } from "./utils";
 import { commentBoxAnnoDraftNotebook, DRAFT_NOTEBOOK_KEY } from "./stores";
 import { events } from "./Events";
-import { stripDraftShell } from "./annoKramdown";
+import { escapeHtml, stripDraftShell } from "./annoKramdown";
 
 export const DRAFT_DOC_TITLE = ".tomato-批注草稿";
 /** 模块级缓存：同会话重复开弹窗免查；reload=新代模块自然失效（window.eval 无模块缓存，AGENTS 踩坑表） */
@@ -89,6 +90,77 @@ export async function initAnnoDraftNotebookDefault(plugin: { settingCfg?: Record
     if (plugin.settingCfg && plugin.settingCfg[DRAFT_NOTEBOOK_KEY] !== undefined) return;
     const id = await resolveDailyNotebookID();
     if (id) commentBoxAnnoDraftNotebook.set(id);
+}
+
+/** □2 annofeed0917 ③案：官方同款日记本选择器（app/src/util/mount.ts openDailyNote 同构）。
+ *  解析链无果（多 open 本+无有效 local-dailynoteid+用户未配置）时，官方是弹 select 问用户、
+ *  插件原先是报错死路——对齐官方「问用户」语义：open 本列表选择器，选完写回
+ *  commentBoxAnnoDraftNotebook（设置面板同键联动+落盘）返回所选 id 供续链，一键收集永不死路。
+ *  取消/Esc/取数失败返回 ""（调用方 toast 指路设置）；单本直选不弹窗不写回（官方同款）。
+ *  文案走 window.siyuan.languages（官方同款形态零翻译面）；笔记本名=用户文本须转义。
+ *  auto 收集链（保存后即席 fire-and-forget）不弹——零打扰原则，仅 toast 指路。
+ *  重入守卫（□6 review P2-1）：并发触发（连点菜单+命令）共享同一次选择（官方 data-key
+ *  去重同语义），settle 后复位供下次再弹；构造链全程 try/catch（P2-2：Dialog 抛异常时
+ *  Promise 也须 settle，防收集链永久挂起）。 */
+let pickingDaily: Promise<string> | null = null;
+export function pickDailyNotebook(): Promise<string> {
+    pickingDaily ??= new Promise<string>((resolve) => {
+        void (async () => {
+            try {
+                await pickDailyNotebookOnce(resolve);
+            } catch (e) {
+                console.warn("[tomato anno] pick daily notebook failed:", e);
+                resolve("");
+            }
+        })();
+    }).finally(() => {
+        pickingDaily = null;
+    });
+    return pickingDaily;
+}
+async function pickDailyNotebookOnce(resolve: (v: string) => void): Promise<void> {
+    let open: { id?: string; name?: string }[] = [];
+    try {
+        open = (await siyuan.lsNotebooks(false)) ?? [];
+    } catch (e) {
+        console.warn("[tomato anno] pick daily notebook: lsNotebooks failed:", e);
+    }
+    const books = open.filter((b) => b?.id);
+    if (books.length === 0) {
+        resolve("");
+        return;
+    }
+    if (books.length === 1) { // resolver 竞态兜底（解析时多本/失败、此刻单本）
+        resolve(books[0].id!);
+        return;
+    }
+    const lang = ((window.siyuan as { languages?: Record<string, string> })?.languages) ?? {};
+    const options = books.map((b) => `<option value="${b.id}">${escapeHtml(b.name ?? b.id!)}</option>`).join("");
+    const stored = (window.siyuan as { storage?: Record<string, unknown> })?.storage?.["local-dailynoteid"];
+    const dialog = new Dialog({
+        title: lang.plsChoose ?? "?",
+        content: `<div class="b3-dialog__content">
+    <select class="b3-select fn__block">${options}</select>
+</div>
+<div class="b3-dialog__action">
+    <button class="b3-button b3-button--cancel">${lang.cancel ?? ""}</button><div class="fn__space"></div>
+    <button class="b3-button b3-button--text">${lang.confirm ?? ""}</button>
+</div>`,
+        width: events.isMobile ? "92vw" : "520px",
+        // Esc/遮罩关闭的兜底出口：resolve 幂等，确认支路先 resolve(id) 后此处静默
+        destroyCallback: () => resolve(""),
+    });
+    const btns = dialog.element.querySelectorAll(".b3-button");
+    const select = dialog.element.querySelector(".b3-select") as HTMLSelectElement;
+    if (typeof stored === "string" && stored) select.value = stored; // 官方同款：上次用的本预选（无匹配保持首项）
+    btns[0].addEventListener("click", () => dialog.destroy());
+    btns[1].addEventListener("click", () => {
+        const notebook = select.value;
+        commentBoxAnnoDraftNotebook.set(notebook);
+        void commentBoxAnnoDraftNotebook.save();
+        resolve(notebook);
+        dialog.destroy();
+    });
 }
 
 /** 月目录名退一月（纯函数，单测覆盖）：'2026-09'→'2026-08'、'2026-01'→'2025-12'；非 YYYY-MM 返回 "" */
@@ -200,21 +272,6 @@ export async function ensureDraftDocID(): Promise<string> {
 export async function newDraftBlock(text: string): Promise<string> {
     const docID = await ensureDraftDocID();
     if (!docID) return "";
-    // 基线空段清理（□2 创建统一）：内核在文档删空时自动补一个空 p（sweep 的稳态基线），
-    // 它排在草稿 sb 之前=弹窗里的第一行空行——空草稿场景用户点/聚焦第一行会把字打进基线段
-    // 而非 sb（readDraftText 读 sb 永远为空，e2e 实锤「批注内容为空」死循环）；编辑链路因
-    // sb 自带可见文本从未暴露。开窗前清掉（跳过登记在册的活跃草稿）；关窗删 sb 后内核会再补，
-    // 一次开窗多一轮事务可接受
-    try {
-        const children = (await siyuan.getChildBlocks(docID)) ?? [];
-        const active = activeDrafts();
-        const junk = children
-            .filter((c) => c.type === "p" && (c.content ?? "").replace(/\u200b/g, "").trim() === "")
-            .filter((c) => !active.has(c.id))
-            .map((c) => c.id)
-            .filter(Boolean);
-        if (junk.length > 0) await siyuan.deleteBlocks(junk);
-    } catch { /* 清不掉不阻塞：多一行空行仅影响聚焦目标 */ }
     // 空种子用 ZWSP：内核对纯空内容（`{{{row\n\n}}}`）会退化成无子 sb（kramdown 读回空串，
     // 实验实锤），ZWSP 能落成「sb 内含可编辑空段」；落库侧由 stripDraftShell 剥首尾 ZWSP 兜底
     const seed = text.replace(/\u200b/g, "").trim() === "" ? "\u200b" : text;
@@ -230,6 +287,20 @@ export async function newDraftBlock(text: string): Promise<string> {
         return "";
     }
     activeDrafts().set(id, Date.now());
+    // 草稿文档清场（□2 创建统一+09-16 回归修复）：删除一切非活跃残留子块——基线空段（sweep
+    // 稳态：内核在文档删空时自动补的空 p）与崩窗残留旧 sb。挂载锚=草稿文档 id（anno-round2
+    // 6s 治本）后视图=整个文档，sb 外任何残留块都可见可点，用户落字 sb 外=readDraftText 读
+    // sb 恒空→「批注内容为空」死循环（09-16 用户实锤）。**必须先插 sb 再清**（此刻文档非空，
+    // 删除不触发内核「删空补段」）——旧时序「先删后插」删空文档瞬间内核同事务补新空段，清理
+    // 形同虚设、空段恒挂 sb 尾（e2e 实锤 [sb, 空段] 现场）。getChildBlocks 走 blocktree 直读
+    // （kernel GetChildBlocksInBox→LoadTreeByBlockID），insert 响应后零等待可见，无 SQL 索引窗。
+    // 活跃登记簿（globalThis）跳过他窗在编辑的草稿，10min 宽限与 sweep 同语义
+    try {
+        const children = (await siyuan.getChildBlocks(docID)) ?? [];
+        const active = activeDrafts();
+        const junk = children.filter((c) => !active.has(c.id)).map((c) => c.id).filter(Boolean);
+        if (junk.length > 0) await siyuan.deleteBlocks(junk);
+    } catch { /* 清不掉不阻塞：保存链聚合兜底（readDraftDocText）不依赖清场成败 */ }
     return id;
 }
 
@@ -237,6 +308,29 @@ export async function newDraftBlock(text: string): Promise<string> {
 export async function readDraftText(blockID: string): Promise<string> {
     const resp = await siyuan.getBlockKramdown(blockID);
     return stripDraftShell((resp as { kramdown?: string })?.kramdown ?? "");
+}
+
+/** 保存判空兜底（09-16 回归修复）：聚合草稿文档全部顶层子块文本。
+ *  弹窗视图=整个草稿文档（挂载锚=文档 id），用户视角「弹窗里打的字=批注内容」——但保存主读
+ *  只读 sb（readDraftText），字落 sb 外（清场漏网/多窗并发/任何残留块）时误报「批注内容为空」。
+ *  主读为空时聚合全文档兜底：任何落点的可读文本都算批注内容。子块 kramdown 逐块剥壳后以空行
+ *  拼接；getChildBlocks 走 blocktree 直读无索引窗 */
+export async function readDraftDocText(docID: string): Promise<string> {
+    if (!docID) return "";
+    try {
+        const children = (await siyuan.getChildBlocks(docID)) ?? [];
+        const parts: string[] = [];
+        for (const c of children) {
+            if (!c?.id) continue;
+            const resp = await siyuan.getBlockKramdown(c.id).catch(() => null);
+            const t = stripDraftShell((resp as { kramdown?: string })?.kramdown ?? "");
+            if (t.trim()) parts.push(t);
+        }
+        return parts.join("\n\n");
+    } catch (e) {
+        console.warn("[tomato anno] read draft doc fallback failed:", e);
+        return "";
+    }
 }
 
 /** 删草稿块：静默失败（启动清扫兜底）；空 id 直接过；同步摘登记簿 */

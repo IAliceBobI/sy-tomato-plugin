@@ -31,6 +31,8 @@ export const TOMATO_BK_STATIC = "custom-tomato-bk-static";
 export const BKMAKER_ADD = "BKMAKER_ADD";
 export const BKENTRY_ADD = "BKENTRY_ADD";
 export const BKGEN_ADD = "BKGEN_ADD";
+/** 入口条流内保底标记（09-17 回归修复）：挂 wysiwyg 上，卸条时据此还原 inline min-height */
+export const BK_ENTRY_FLOOR_ADD = "data-tomato-bk-floor";
 export const STATICLINK = "custom-staticlink";
 export const READINGPOINT = "custom-tomato-readingpoint";
 /** 阅读点翻新（2026-09）：新模型直挂原文块，值=设置时刻 YYYYMMDDHHmmss；老 READINGPOINT 只读兼容 */

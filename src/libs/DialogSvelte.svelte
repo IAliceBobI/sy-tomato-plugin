@@ -119,12 +119,19 @@
             }
             if (height != null) {
                 dialogElement.style.height = height;
+            } else {
+                // height prop 撤销时清残留（块编辑器布局切换 70vh→自然高，blockside □2）——
+                // 恒定不传的调用方首跑清空无内联值=no-op；存档 h 回放在其后 tick 正常覆盖不受影响
+                dialogElement.style.height = "";
             }
             if (width != null) {
                 dialogElement.style.width = width;
             }
             if (minWidth != null) {
                 dialogElement.style.minWidth = `${minWidth}px`;
+            } else {
+                // 同 height：minWidth 撤销清残留（块编辑器侧边布局 480→上下布局回默认）
+                dialogElement.style.minWidth = "";
             }
             if (minHeight != null) {
                 dialogElement.style.minHeight = `${minHeight}px`;

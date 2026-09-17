@@ -44,7 +44,11 @@ export function parallelHeanders(root: Block, subtypeParent: string, subtypeChil
             p = children[i - 1];
             if (!p.children) p.children = [];
         }
-        if (children[i - 1].subtype < subtypeParent) {
+        // □3 破案（既有 bug）：清链只认「更浅的标题层级」——sb 块 subtype="row"/"col"
+        // 混进字典序比较（"col"<"h1"）会把章节链误断（MISC-H2 挂根=vision「不同列+
+        // 超长绕行线」根因）；非标题 subtype（null/布局词）=内容块，不断章节链
+        const prevSub = children[i - 1].subtype;
+        if (typeof prevSub === "string" && /^h[1-6]$/.test(prevSub) && prevSub < subtypeParent) {
             p = null;
         }
         const c = children[i];

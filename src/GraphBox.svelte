@@ -17,7 +17,7 @@
     } from "@xyflow/svelte";
     import "@xyflow/svelte/dist/style.css";
     import { Plugin, confirm, Menu, getAllEditor, type IProtyle } from "siyuan";
-    import { getData, getGraphSkeleton, precheckDocSize, graphFullLoadedBigDocs } from "./GraphBox";
+    import { getData, getGraphStructure, precheckDocSize, graphFullLoadedBigDocs } from "./GraphBox";
     import { newID } from "stonev5-utils";
     import {
         getBlockDiv,
@@ -39,11 +39,12 @@
         graphHideStructEdges,
         graphMaxAllBlocks,
         graphMaxPBlocks,
+        graphShowNumbers,
     } from "./libs/stores";
     import { OpenSyFile2 } from "./libs/docUtils";
     import { copyToClipboard } from "./libs/domUtils";
     import { debugLog } from "./libs/logUtils";
-    import { pickGraphChannel, formatCharsVolume } from "./libs/graphSkeleton";
+    import { pickGraphChannel } from "./libs/graphSkeleton";
     import {
         buildTreeIndex, initialCollapsedRows, computeVisible, filterEdges, expandAncestors,
         serializeCollapsed, parseCollapsed, type ExpandLevel, type GraphEdgeSpec, type RenderEdge,
@@ -53,6 +54,7 @@
         type LayoutForm,
     } from "./libs/graphLayout";
     import { mergeParagraphChains } from "./libs/graphParaMerge";
+    import { buildStructureInfo, redirectLinksToContainers, numberHeadingChain, chapterAnchorMap, type StructureInfo } from "./libs/graphStructure";
     import { graphDefaultLayout } from "./libs/stores";
     import { tomatoI18n } from "./tomatoI18n";
 
@@ -60,8 +62,9 @@
         plugin: Plugin;
         dock: { element: HTMLElement; data: any };
         landscapeSwitchBtnID: string;
+        viewModeBtnID: string;
     }
-    let { plugin, dock, landscapeSwitchBtnID }: ProposType = $props();
+    let { plugin, dock, landscapeSwitchBtnID, viewModeBtnID }: ProposType = $props();
     let colorMode: ColorMode = $state("system");
     let canvas: HTMLElement;
     const nodes = writable<Node[]>([]);
@@ -94,12 +97,25 @@
     let paraCount = new Map<string, number>();   // 链头 id → 链内块数（¶×N badge）
     let paraRedirect = new Map<string, string>();// 链成员 id → 链头 id（locateID 定位链中段重定向）
 
-    // graphbox 期1 三档状态：skeleton=骨架态显示提示条；stat 驱动文案；loading=全量构建遮罩；
-    // manualRefresh=当前文档处于全量态大文档（轮询已降级）
-    let graphMode: "full" | "skeleton" = $state("full");
+    // graphbox □2 通道语义反转（2026-09-17）：渲染默认=structure（结构优先：容器树+徽标），
+    // full=显式切换档（会话记忆 graphFullLoadedBigDocs=用户对该文档选过全量）。旧 skeleton
+    // 骨架标题树通道退役（结构 SQL 通道覆盖其能力且更轻）。
+    let graphMode: "structure" | "full" = $state("structure");
     let graphStat: { cnt: number; totalLen: number } | null = $state(null);
     let graphLoading = $state(false);
     let graphManualRefresh = $state(false);
+    // □2 结构态：叶子归属/聚合（buildStructureInfo 或 SQL 通道产物）；leafShowContainers=
+    // 点徽标展开的容器（会话态不持久化——与折叠持久化错键语义，第一版不混用）；
+    // leafContent=SQL 通道叶子按需正文（DOM 通道叶子正文在 directLeaves 的 Block 上）
+    let structInfo: StructureInfo | null = null;
+    // 结构态数据所属文档：lastDocID 在构建成功后才落（失败路径不切档），构建期徽标判定用本值
+    let structDocID = "";
+    // □4 章节编号独立字段（GraphNode 弱化渲染浅灰前缀；labels 不再拼接）
+    let structNumbers = new Map<string, string>();
+    let leafShowContainers = new Set<string>();
+    let leafContent = new Map<string, string>();
+    // □2 小文档全量数据缓存：结构⇄全量切换零重建（大文档走 confirm 完整加载链不缓存）
+    let fullRowsCache: { rows: Block[]; links: Ref[] } | null = null;
 
     function gbLog(tag: string, msg: string) {
         debugLog(tag, msg, "graphbox");
@@ -122,7 +138,7 @@
         const fitAt = (data() as any)?._fitAt ?? 0;
         if (!fitAt || Date.now() - fitAt > 5000) return;
         const t = setTimeout(() => {
-            data()?.fitView?.({ padding: 0.15, duration: 200 });
+            data()?.fitView?.({ padding: 0.15, duration: 200, minZoom: 0.25 });
         }, 300);
         return () => clearTimeout(t);
     });
@@ -196,6 +212,24 @@
                 syncIcon();
             })();
         }
+        // □2 结构⇄全量切换钮（同形态钮一族：click/Enter 双通道+态图标回显）
+        if (viewModeBtnID) {
+            (async () => {
+                let btn: HTMLElement;
+                while (!btn) {
+                    btn = document.getElementById(viewModeBtnID) as HTMLElement;
+                    await sleep(1);
+                }
+                btn.addEventListener("click", () => void onToggleViewMode());
+                btn.addEventListener("keydown", (ev: KeyboardEvent) => {
+                    if (ev.key === "Enter" || ev.key === " ") {
+                        ev.preventDefault();
+                        void onToggleViewMode();
+                    }
+                });
+                syncViewModeBtn();
+            })();
+        }
         // 期4：openGraphTab 页签通道退役，本组件仅由 dock 挂载（landscapeSwitchBtnID 恒非空）；
         // 原 else 分支（tab 冷启动 setCanvasSize+changeDoc+locateID）随之删除
     });
@@ -240,33 +274,41 @@
         currentDocName = docName;
         const taskLayoutForm = getLayoutForm(docID);
 
-        // 预检三档：毫秒级 count SQL 分流，绝不无脑 getBlockDOM（巨书 25~39s/24MB）
+        // □2 预检分流（渲染恒=结构优先初始）：小文档 DOM 全量数据源（缓存供切换档零重建）、
+        // 大文档 SQL 结构轻通道（绝不无脑 getBlockDOM——巨书 25~39s/24MB）；会话内选过
+        // 全量档的大文档（graphFullLoadedBigDocs）直取全量渲染（用户已付过构建成本）
         const stat = await precheckDocSize(docID);
-        let channel = pickGraphChannel(stat?.cnt ?? 0, graphMaxAllBlocks.get());
-        if (graphFullLoadedBigDocs.has(docID) && channel === "skeleton") {
-            channel = "full"; // 本会话进过全量态的大文档保持全量（手动刷新不回骨架，用户已付过全量构建成本）
-        }
-        gbLog("graph.channel", `doc=${docID.slice(0, 8)} → ${channel}`);
+        const fullData = graphFullLoadedBigDocs.has(docID)
+            || pickGraphChannel(stat?.cnt ?? 0, graphMaxAllBlocks.get()) === "full";
+        gbLog("graph.channel", `doc=${docID.slice(0, 8)} → structure(${fullData ? "dom" : "sql"})${graphFullLoadedBigDocs.has(docID) ? "+fullmem" : ""}`);
         graphStat = stat;
-        graphMode = channel;
         graphManualRefresh = graphFullLoadedBigDocs.has(docID);
 
         graphLoading = true;
         try {
-            let rows: Block[], links: Ref[];
-            if (channel === "skeleton") {
-                ({ rows, links } = await getGraphSkeleton(docID, docName));
-            } else {
+            if (fullData) {
                 const t0 = performance.now();
-                ({ rows, links } = await getData(
+                const { rows, links } = await getData(
                     docID,
                     docName,
                     graphMaxPBlocks.get(),
                     graphMaxAllBlocks.get(),
-                ));
+                );
                 gbLog("graph.full", `rows=${rows.length} links=${links.length} ${Math.round(performance.now() - t0)}ms`);
+                fullRowsCache = { rows, links };
+                if (graphFullLoadedBigDocs.has(docID)) {
+                    graphMode = "full";
+                    await applyRowsAndLinks(rows, links, docID);
+                } else {
+                    graphMode = "structure";
+                    await applyStructureView(rows, links, docID, buildStructureInfo(rows));
+                }
+            } else {
+                fullRowsCache = null;
+                graphMode = "structure";
+                const r = await getGraphStructure(docID, docName);
+                await applyStructureView(r.rows, r.links, docID, r.info);
             }
-            await applyRowsAndLinks(rows, links, docID, channel === "skeleton");
         } finally {
             graphLoading = false;
         }
@@ -285,9 +327,12 @@
 
     // rows/links → 段落链合并（期7：链子树整链并 ¶ 大节点，链成员剔除+边端点重定向）→
     // 全量树数据（折叠只影响「渲染哪些」不影响「建什么」）→ 可见子图 $nodes/$edges
-    // （全量与骨架两通道共用；骨架=纯结构，无视「隐藏结构连线」开关）
-    async function applyRowsAndLinks(rows: Block[], links: Ref[], docID: string, isSkeleton: boolean) {
-        const merged = mergeParagraphChains(rows, dedupeLinks(links, isSkeleton));
+    // （全量档渲染组装；□2 起结构态走 applyStructureView）
+    async function applyRowsAndLinks(rows: Block[], links: Ref[], docID: string) {
+        structInfo = null;
+        structDocID = "";
+        leafShowContainers = new Set();
+        const merged = mergeParagraphChains(rows, dedupeLinks(links, false));
         allRows = merged.rows;
         allLinks = merged.links;
         paraByText = merged.paraByText;
@@ -305,8 +350,57 @@
         applyCollapsedView();
     }
 
+    function byIdRow(rows: Block[], id: string): Block {
+        return rows.find(r => r.id === id) ?? rows[0];
+    }
+
     function normalizeExpandLevel(v: string): ExpandLevel {
         return v === "1" || v === "2" || v === "3" || v === "all" ? v : "2";
+    }
+
+    // □2 结构态组装：allRows=容器树+跨文档端点（叶子不进 allRows——归属/聚合已在 info），
+    // 引用边叶子端点重定向到容器（徽标承载引用语义）；结构边恒保留（容器树就是视图本体，
+    // 「隐藏结构连线」开关不适用）。折叠态=容器树默认展开层级推导（会话态不持久化，
+    // 与全量档的 custom-graph-collapsed 键语义分开，第一版不混用）
+    async function applyStructureView(rows: Block[], links: Ref[], docID: string, info: StructureInfo) {
+        structInfo = info;
+        structDocID = docID;
+        leafShowContainers = new Set();
+        const keep = new Set<string>(info.containers);
+        for (const r of rows) {
+            // 跨文档端点行（引用边另一头的块，root_id≠本档）恒保留为节点——
+            // 勿用 docName 判：fillChildren 给本档全部块都带 docName=文档名（历史噪音）
+            if (r.root_id !== docID) keep.add(r.id);
+        }
+        const structRows = rows.filter(r => keep.has(r.id));
+        // □3 vision 方案 A：DOM 通道顶层容器（shortenList 挂回 doc 的列表项/sb/引述）章节
+        // 领地重挂——树形与 SQL 通道对齐，默认展开层级才能压住列表项（默认只显章/节列）
+        const anchors = chapterAnchorMap(structRows, docID);
+        if (anchors.size) {
+            const doc = structRows.find(r => r.id === docID);
+            for (const r of structRows) {
+                const a = anchors.get(r.id);
+                if (!a || !doc?.children) continue;
+                const at = doc.children.indexOf(r);
+                if (at >= 0) doc.children.splice(at, 1);
+                r.parent_id = a;
+                (byIdRow(structRows, a).children ??= []).push(r);
+            }
+        }
+        allRows = structRows;
+        allLinks = redirectLinksToContainers(dedupeLinks(links, true), info)
+            .map(e => anchors.has(e.target) && e.source === docID
+                ? { ...e, source: anchors.get(e.target)!, id: anchors.get(e.target) + "->" + e.target }
+                : e);
+        // □3 章节自动编号（思绪大纲感 1/1.1，graphShowNumbers 可关——标题自带序号的文档防双编号）；
+        // □4 起编号走独立字段（GraphNode 浅灰弱化前缀——标题自带序号文档的「1.1 1.1」两段语义可分）
+        structNumbers = graphShowNumbers.get() ? numberHeadingChain(structRows, docID) : new Map<string, string>();
+        labels = new Map(structRows.map(row => {
+            const base = rowLabel(row, docID);
+            return [row.id, structNumbers.has(row.id) ? base.replace(/^#+\s*/, "") : base];
+        }));
+        collapsedSet = new Set(initialCollapsedRows(structRows, normalizeExpandLevel(graphDefaultExpandLevel.get())));
+        applyCollapsedView();
     }
 
     function rowLabel(row: Block, docID: string): string {
@@ -323,11 +417,13 @@
         return (row.content ?? "").slice(0, 30);
     }
 
-    function dedupeLinks(links: Ref[], isSkeleton: boolean): GraphEdgeSpec[] {
+    // □2 参数语义更名：structEdgesForced=结构边恒保留（结构态=容器树是视图本体）；
+    // 全量档 false=尊重「隐藏结构连线」开关
+    function dedupeLinks(links: Ref[], structEdgesForced: boolean): GraphEdgeSpec[] {
         const seen = new Set<string>();
         const out: GraphEdgeSpec[] = [];
         links.forEach((link) => {
-            if (!isSkeleton && graphHideStructEdges.get() && !link.isRef) return;
+            if (!structEdgesForced && graphHideStructEdges.get() && !link.isRef) return;
             const id = link.block_id + "-" + link.def_block_id;
             if (seen.has(id)) return;
             seen.add(id);
@@ -351,6 +447,7 @@
     function applyCollapsedView() {
         const tree = buildTreeIndex(allRows);
         const vis = computeVisible(allRows, collapsedSet);
+        const isStructure = graphMode === "structure" && !!structInfo;
         const groupIds = new Set<string>();
         for (const row of allRows) {
             if (!vis.visibleIds.has(row.id)) continue;
@@ -389,6 +486,10 @@
             // 跨文档/文档块图标数据（spec §8）：docName==content 的跨文档块与 type=d 同为文档语义
             const isDoc = row.type === "d" || (!!row.docName && row.docName === row.content);
             const crossDocName = !isDoc && row.docName && row.docName !== row.content ? row.docName : undefined;
+            // □2 结构态徽标：容器直属叶子聚合量（「N 段 · X 字」pill，点按展开/收起）
+            // □2 徽标只挂本档容器：跨文档端点行可能被 buildStructureInfo 误聚出量（端点段落的
+            // parent=端点文档根在 rows 里）——挂了会与端点节点本身重复渲染（keyed each 同 key）
+            const agg = isStructure && row.root_id === structDocID ? structInfo!.leafAgg.get(row.id) : undefined;
             nodeArr.push({
                 id: row.id,
                 type: isGroup ? "tomatoGroup" : "tomatoNode",
@@ -416,6 +517,11 @@
                     dagreH: isParaMerged ? 400 : isTextVertical(layoutForm) ? 118 : undefined,
                     // ¶ 无展开概念（期7）：不挂 toggle；双击=滚动链头段
                     toggle: isParaMerged ? undefined : () => void toggleCollapseNode(row.id),
+                    // □4 章节编号独立字段（弱化前缀渲染）
+                    number: isStructure ? structNumbers.get(row.id) : undefined,
+                    // □2 徽标数据（结构态容器专属； expanded 态随 leafShowContainers）
+                    structBadge: agg ? { ...agg, expanded: leafShowContainers.has(row.id) } : undefined,
+                    toggleBadge: agg ? () => void toggleBadge(row.id) : undefined,
                     dblclick: () => void showBlockInEditor(row.id),
                 },
                 position: { x: 0, y: idx++ * 100 },
@@ -428,11 +534,119 @@
             if (!e.isRef && groupIds.has(tree.parentOf.get(e.rTarget) ?? "")) continue;
             addRenderEdge(e, edgeArr);
         }
+        // □2 结构态展开叶子：点徽标放行该容器直属叶子（逐段节点；容器折叠时叶子随子树隐藏）。
+        // 叶子不在 allRows（归属在 structInfo），此处独立补节点+容器→叶子结构边
+        if (isStructure) {
+            for (const cid of leafShowContainers) {
+                if (!vis.visibleIds.has(cid)) continue;
+                for (const leaf of structInfo!.directLeaves.get(cid) ?? []) {
+                    const text = leafContent.get(leaf.id) || leaf.content || "";
+                    const textV = isTextVertical(layoutForm);
+                    // □4 MarginNote 式两段式内容卡片（标题栏=类型图标+首行；正文多行按行渲染
+                    // pre-wrap——代码「语言\n代码」恢复分行；line-clamp 8 截断+hover panelTip 全文）；
+                    // 竖排形态退普通窄卡（卡片不做竖排）
+                    const firstLine = text.split("\n")[0].slice(0, 20) || "…";
+                    // □4 vision P2：标题=首行时正文去重首行（代码卡「python」×2/公式卡 100% 重复）；
+                    // 单行内容（余文空）正文退回全文（标题 20 字截断与正文完整可共存）
+                    const nl = text.indexOf("\n");
+                    const bodyText = nl > 0 ? text.slice(nl + 1) : text;
+                    const bodyLines = Math.min((bodyText || text).split("\n").length, 8);
+                    nodeArr.push({
+                        id: leaf.id,
+                        type: "tomatoNode",
+                        data: {
+                            label: firstLine,
+                            fullText: text,
+                            bodyText: bodyText || text,
+                            collapsed: false,
+                            isParaMerged: false,
+                            blockType: leaf.type,
+                            structLeaf: !textV,
+                            dagreW: !textV ? 200 : 56,
+                            dagreH: !textV ? Math.min(30 + bodyLines * 17, 190) : 118,
+                            dblclick: () => void showBlockInEditor(leaf.id),
+                        },
+                        position: { x: 0, y: idx++ * 100 },
+                    });
+                    addRenderEdge(
+                        { id: `${cid}->${leaf.id}`, source: cid, target: leaf.id, label: "", isRef: false, rSource: cid, rTarget: leaf.id },
+                        edgeArr,
+                    );
+                }
+            }
+        }
         spreadEdgeLabels(edgeArr);
         // 官方通道更新（内部 store 赋值；onMount 前未挂时回退 nodes.set 首装）
         const gs = data()?.graphStore;
         if (gs) { gs.nodes = nodeArr; gs.edges = edgeArr; }
         else { nodes.set(nodeArr); edges.set(edgeArr); }
+    }
+
+    // □2 徽标展开/收起：放行该容器直属叶子（大文档叶子正文按需 getRows——SQL 通道首取不带
+    // 叶子 content；DOM 通道叶子正文在 directLeaves 的 Block 上零请求）
+    async function toggleBadge(cid: string) {
+        if (!structInfo) return;
+        if (leafShowContainers.has(cid)) {
+            leafShowContainers.delete(cid);
+        } else {
+            const stubs = structInfo.directLeaves.get(cid) ?? [];
+            const missing = stubs.filter(l => !l.content && !leafContent.has(l.id)).map(l => l.id);
+            if (missing.length) {
+                try {
+                    const rows = await siyuan.getRows(missing, "content,type,subtype,root_id,parent_id", false);
+                    for (const r of rows) leafContent.set(r.id, r.content ?? "");
+                } catch (e) {
+                    gbLog("graph.leaf_fetch_err", `${e}`);
+                }
+            }
+            leafShowContainers.add(cid);
+        }
+        gbLog("graph.badge_toggle", `node=${cid.slice(0, 8)} → ${leafShowContainers.has(cid) ? "expand" : "collapse"} leaves=${structInfo.directLeaves.get(cid)?.length ?? 0}`);
+        applyCollapsedView();
+        await relayout();
+    }
+
+    // □2 结构⇄全量切换（顶栏钮）：小文档=全量数据已在缓存零重建；大文档=confirm 完整加载
+    // 链（复用 onFullLoad 的锁+双查语义）；全量→结构=清会话全量记忆（重开回结构默认）
+    async function onToggleViewMode() {
+        if (!lastDocID) return;
+        if (graphMode === "structure") {
+            if (fullRowsCache) {
+                graphMode = "full";
+                await applyRowsAndLinks(fullRowsCache.rows, fullRowsCache.links, lastDocID);
+                await relayout(true);
+                syncViewModeBtn();
+            } else {
+                onFullLoad();
+            }
+        } else {
+            graphMode = "structure";
+            graphFullLoadedBigDocs.delete(lastDocID);
+            graphManualRefresh = false;
+            gbLog("graph.view_toggle", `doc=${lastDocID.slice(0, 8)} → structure`);
+            if (fullRowsCache) {
+                await applyStructureView(fullRowsCache.rows, fullRowsCache.links, lastDocID, buildStructureInfo(fullRowsCache.rows));
+            } else {
+                const r = await getGraphStructure(lastDocID, currentDocName);
+                await applyStructureView(r.rows, r.links, lastDocID, r.info);
+            }
+            await relayout(true);
+            syncViewModeBtn();
+        }
+    }
+
+    // 切换钮态回显：结构态显示「显示全部块」（iconPreview）；全量态显示「回到结构视图」
+    function syncViewModeBtn() {
+        const btn = viewModeBtnID ? document.getElementById(viewModeBtnID) : null;
+        const use = viewModeBtnID ? document.getElementById(viewModeBtnID + "-icon") : null;
+        if (!btn) return;
+        if (graphMode === "structure") {
+            use?.setAttribute("xlink:href", "#iconPreview");
+            btn.setAttribute("aria-label", tomatoI18n.显示全部块);
+        } else {
+            use?.setAttribute("xlink:href", "#iconContract");
+            btn.setAttribute("aria-label", tomatoI18n.回到结构视图);
+        }
     }
 
     // 折叠/展开 toggle：重算可见子图 + 持久化 + 局部重布局（复用 relayout 的 dagre+fitView 通道）
@@ -491,11 +705,13 @@
                                 graphMaxAllBlocks.get(),
                             );
                             if (lastDocID !== targetDocID) return; // 构建期间已切走，丢弃
-                            await applyRowsAndLinks(rows, links, targetDocID, false);
+                            fullRowsCache = null; // 大文档不缓存全量数据（内存守恒；切回结构走 SQL 轻通道）
+                            await applyRowsAndLinks(rows, links, targetDocID);
                             await relayout();
                             graphFullLoadedBigDocs.add(targetDocID);
                             graphMode = "full";
                             graphManualRefresh = true;
+                            syncViewModeBtn();
                             gbLog("graph.full_loaded", `rows=${rows.length} ${Math.round(performance.now() - t0)}ms`);
                         } finally {
                             graphLoading = false;
@@ -588,7 +804,7 @@
     function addRenderEdge(e: RenderEdge, into: Edge[]) {
         let label = e.label?.trim() ?? "";
         if (label === "*") label = "";
-            // 边双通道（spec §3）：引用边=主色实线+闭合箭头（视觉主角）；结构边=灰虚线无箭头（背景板）。
+            // 边双通道（spec §3）：引用边=主色实线+闭合箭头（视觉主角；□3 加 opacity .55——纯叠加渲染后长线扫屏噪声，淡化保树形主角）；结构边=灰虚线无箭头（背景板）。
             // stroke 走 CSS var 随主题自动换态；回边（isBackEdge）几何不动、样式同通道。
             // （Edge.style 是 CSS 字符串非对象——与 Node.style 机制不同）
             into.push({
@@ -598,7 +814,7 @@
                 label,
                 type: label ? "labeledEdge" : undefined,
                 style: e.isRef
-                    ? "stroke: var(--b3-theme-primary); stroke-width: 1.5;"
+                    ? "stroke: var(--b3-theme-primary); stroke-width: 1.5; opacity: 0.55;"
                     : "stroke: var(--b3-theme-on-surface-light); stroke-width: 1.25; stroke-dasharray: 4 3;",
                 markerEnd: e.isRef
                     ? { type: MarkerType.ArrowClosed, width: 16, height: 16, color: "var(--b3-theme-primary)" }
@@ -662,9 +878,10 @@
         }
         commit();
         // fitView prop 仅初始化生效，节点重建后须手动适配视口（vision P1：骨架/全量首屏空白画布）；
+        // minZoom 保底=孤儿列/宽树防 fitView 过缩成不可见小簇（□2 vision P1 实锤 14% 占比；□3 提 0.35=编号/label 可读下限）；
         // fitView 经 GraphControl 借道（useSvelteFlow 须在 Provider 内取）；
         // refit=false=同文档内容刷新（自动刷新链）：保留当前视口，不打回用户/定位视图（期4 P1）
-        if (refit) data()?.fitView?.({ padding: 0.15, duration: 200 });
+        if (refit) data()?.fitView?.({ padding: 0.15, duration: 200, minZoom: 0.35 });
     }
 
     // 检测两个节点是否重叠
@@ -726,6 +943,8 @@
         const kidIds = new Set(kids.map(k => k.id));
         const seen = new Set<string>();
         edges.forEach(e => {
+            // □3：引用边不参与布局（只渲染叠加）——拉扯容器内子树错位/挤压同层
+            if ((e as any).data?.isRef) return;
             if (!kidIds.has(e.source) || !kidIds.has(e.target)) return;
             const key = e.source + "-" + e.target;
             if (seen.has(key)) return;
@@ -780,7 +999,7 @@
         };
         const dagreGraph = new dagre.graphlib.Graph();
         dagreGraph.setDefaultEdgeLabel(() => ({}));
-        dagreGraph.setGraph({ rankdir });
+        dagreGraph.setGraph({ rankdir, nodesep: 70 });
         topNodes.forEach((node) => {
             const isGroup = (node as any).type === "tomatoGroup";
             dagreGraph.setNode(node.id, {
@@ -795,6 +1014,9 @@
         });
         const seenTopEdge = new Set<string>();
         edges.forEach((edge) => {
+            // □3：引用边不参与布局（只渲染叠加）——跨文档端点不受 rank 拉扯；展开叶列
+            // 间距由 nodesep 显式给（默认 50 在 pill 悬垂下视觉净距不足，vision P2）
+            if ((edge as any).data?.isRef) return;
             const s = nodeIdTop(edge.source), t = nodeIdTop(edge.target);
             if (s === t) return; // 纯容器内部边（内层已布局）
             const key = s + "-" + t;
@@ -867,6 +1089,32 @@
             if (docOrderSiblings.has(root) && !kidSet.has(root) && !fixedTop.has(root)) subtreeY(root);
         }
         yAssigned.forEach((y, id) => { dagreGraph.node(id).y = y; });
+        // □2 vision P1-1 修复：y 接管后孤儿节点（跨文档端点，无结构边）的 dagre y 与重排后
+        // 的结构树失配→盒叠。孤儿续排在结构树底部（右对齐树缘内侧的水平横列）——不撑宽
+        // 画布 bbox（首版右侧纵列曾把 fitView 压缩到 14% 的 P1 回归），零碰撞+语义=外部附录
+        {
+            const placed = topNodes.filter(n => yAssigned.has(n.id));
+            const orphans = topNodes.filter(n => !yAssigned.has(n.id) && !savedPositions[n.id]);
+            if (placed.length && orphans.length) {
+                const treeRight = Math.max(...placed.map(n => {
+                    const nd = dagreGraph.node(n.id);
+                    return (nd?.x ?? 0) + (nd?.width ?? nodeWidth) / 2;
+                }));
+                const baseY = Math.max(...placed.map(n => {
+                    const nd = dagreGraph.node(n.id);
+                    return (nd?.y ?? 0) + (nd?.height ?? nodeHeight) / 2;
+                })) + NODE_GAP * 2;
+                let oy = baseY;
+                orphans.sort((a, b) => (dagreGraph.node(a.id)?.y ?? 0) - (dagreGraph.node(b.id)?.y ?? 0));
+                for (const o of orphans) {
+                    const nd = dagreGraph.node(o.id);
+                    const h = nd?.height ?? nodeHeight;
+                    nd.x = Math.max(treeRight - (nd?.width ?? nodeWidth) / 2, (nd?.width ?? nodeWidth) / 2);
+                    nd.y = oy + h / 2;
+                    oy += h + NODE_GAP;
+                }
+            }
+        }
         gbLog("graph.dagre", `nodes=${nodes.length} tops=${topNodes.length} edges=${edges.length} ${Math.round(performance.now() - tDagre)}ms`);
 
         // 顶层节点绝对位置（savedPositions 固定 + 碰撞检测均只作用顶层——容器内子节点跟随容器）
@@ -1153,16 +1401,9 @@
         >
             <Controls showLock={true} />
             <Background gap={25} size={1.2} />
-            {#if $nodes.length >= 30}
+            <!-- □3：结构态藏 MiniMap——窄树条带导航价值低且库 viewBox 计算失真成「空白面板」（vision P1-4）；全量态保留 -->
+            {#if graphMode !== "structure" && $nodes.length >= 30}
                 <MiniMap pannable zoomable width={120} height={90} nodeColor={minimapNodeColor} />
-            {/if}
-            {#if graphMode === "skeleton"}
-                <Panel position="top-center">
-                    <div class="graph-skeleton-notice">
-                        <span>{tomatoI18n.骨架提示.replace("%1", `${graphStat?.cnt ?? 0}`).replace("%2", formatCharsVolume(graphStat?.totalLen ?? 0, tomatoI18n.lang))}</span>
-                        <button class="b3-button b3-button--outline" onclick={onFullLoad}>{tomatoI18n.完整加载}</button>
-                    </div>
-                </Panel>
             {/if}
             {#if graphManualRefresh}
                 <Panel position="top-right">

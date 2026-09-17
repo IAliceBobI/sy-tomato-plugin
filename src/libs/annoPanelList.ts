@@ -15,6 +15,9 @@ export interface AnnoPanelItem {
     hostID: string;
     /** 该条批注挂链的宿主块总数（跨块批注 >1；面板「跨 N 块」徽标数据源，anno-round2 □7） */
     hostCount: number;
+    /** 跨块批注的全部宿主块（annofeed0917 □3 A 案结构化引文数据源；缺省=单宿主兼容旧形态，
+     *  面板侧到达序——收集侧另按文档序重排） */
+    hostIDs?: string[];
     blockContent: string;
     entry: TomatoAnnotation;
 }
@@ -34,8 +37,14 @@ export function annoPanelFromRows(rows: AnnoPanelRow[] | null | undefined): Anno
         parsed.push({ id: r.id, content: typeof r.c === "string" ? r.c : "", entries });
     }
     const hostCount = new Map<string, number>();
+    const hostsOf = new Map<string, string[]>(); // annoId → 宿主块序列（到达序；□3 A 案同族数据源）
     for (const p of parsed) {
-        for (const e of p.entries) hostCount.set(e.id, (hostCount.get(e.id) ?? 0) + 1);
+        for (const e of p.entries) {
+            hostCount.set(e.id, (hostCount.get(e.id) ?? 0) + 1);
+            const hs = hostsOf.get(e.id) ?? [];
+            hs.push(p.id);
+            hostsOf.set(e.id, hs);
+        }
     }
     const items: AnnoPanelItem[] = [];
     const seen = new Set<string>();
@@ -43,7 +52,14 @@ export function annoPanelFromRows(rows: AnnoPanelRow[] | null | undefined): Anno
         for (const entry of p.entries) {
             if (seen.has(entry.id)) continue;
             seen.add(entry.id);
-            items.push({ hostID: p.id, hostCount: hostCount.get(entry.id) ?? 1, blockContent: p.content, entry });
+            const hostIDs = hostsOf.get(entry.id) ?? [];
+            items.push({
+                hostID: p.id,
+                hostCount: hostCount.get(entry.id) ?? 1,
+                ...(hostIDs.length > 1 ? { hostIDs } : {}),
+                blockContent: p.content,
+                entry,
+            });
         }
     }
     items.sort((a, b) => b.entry.time - a.entry.time);

@@ -163,8 +163,33 @@ export function ballOverLimit(): Set<string> {
     return over;
 }
 
+// fballfeedback □4b：悬浮球域全量收场（onload 清孤儿+onunload 正式摘除双用）——历史泄漏
+// 根因=index.ts onunload 摘了 20 个域唯独没有悬浮球域，插件重载卸载期球 DOM（body 直挂
+// 内核不摘）+globalThis DM 键全量残留：列表球靠 onload newProgFloatingDm 同键 destroyBy
+// 自愈，列表外球（删除漏销/历史遗留）无人再触达=「幽灵球」永生——页面上活着但列表没有，
+// 删除入口以列表为准对它必然无效，setPetalEnabled 卸载不清这层，只有重启思源整页刷新才
+// 消（陆杰 09-16 二分实验实锤「列表没有+重启才消」）。onload 时机=清孤儿（本代未建键，
+// 扫到的必是遗留）；onunload 时机=正式收场（destroyBy 走 dm 清场链：sv unmount+div 移
+// 除+键删除；div 已移除时 parentElement? 静默安全）。
+export function sweepFloatingBalls() {
+    let keyN = 0;
+    for (const k of Object.keys(globalThis)) {
+        if (k.startsWith(FloatingBall.DMKey + "_")) {
+            (globalThis[k] as DestroyManager)?.destroyBy?.();
+            delete globalThis[k];
+            keyN++;
+        }
+    }
+    // destroyBy 链已各自摘 div，此处兜底扫残余（链中途静默失败的老代遗留）
+    const doms = document.querySelectorAll("[floating-ball-key]");
+    const domN = doms.length;
+    doms.forEach(e => e.remove());
+    if (domN || keyN) debugLog("fball", `sweep balls keys=${keyN} dom=${domN}`, "fball");
+}
+
 export function loadFloatingBall() {
     debugLog("fball", `loadFloatingBall enter enable=${floatingballEnable.get()} ballList=${JSON.stringify(floatingballBallList.get()?.length)} doc=${(floatingballDocList.get() ?? []).length} kb=${(floatingballKeyboardList.get() ?? []).length}`, "fball");
+    sweepFloatingBalls();
     migrateLegacyFloatingBall();
     // □8 存量迁移（独立于上面那次：那边 ballList 非空即早退）：官方快捷键球 label
     // 原始键 → action.km。只读 keymap config（boot 早期就绪），不碰 languages。
@@ -198,14 +223,18 @@ export function loadFloatingBall() {
                     linkDoc2floatBall(name, "", FloatingBallDocType_float.id, docID);
                 },
             });
-            getTomatoPluginInstance().eventBus.on("open-menu-content", ({ detail }) => {
-                const menu = detail.menu;
+            // 两项菜单注入的公共体：open-menu-content（内容区右键）与 click-blockicon
+            // （块柄右键）双通道同款——块柄走内核 gutter.renderMenu 只 emit click-blockicon
+            // 不 emit open-menu-content（3.8.3 gutter/index.ts:1531 实证），单挂内容区通道
+            // 则块柄右键「插件」子菜单恒缺席（09-16 陆杰反馈；BlockEditor blockIconHandler
+            // 双通道先例）。两通道互斥不双份；卸载期监听摘除依赖内核 uninstall 整树摘（本域全线无 off）
+            const addBindDocMenuItems = (menu: any, protyle: any) => {
                 addIfVisible(menu, FloatingBall添加文档.langKey, {
                     icon: FloatingBall添加文档.icon,
                     accelerator: FloatingBall添加文档.m,
                     label: FloatingBall添加文档.langText(),
                     click: () => {
-                        const { name, docID } = events.getInfo(detail.protyle)
+                        const { name, docID } = events.getInfo(protyle)
                         linkDoc2floatBall(name, "", FloatingBallDocType_float.id, docID);
                     },
                 }, FloatingBall添加文档.menu());
@@ -214,10 +243,16 @@ export function loadFloatingBall() {
                     accelerator: FloatingBallTab添加文档.m,
                     label: FloatingBallTab添加文档.langText(),
                     click: () => {
-                        const { name, docID } = events.getInfo(detail.protyle)
+                        const { name, docID } = events.getInfo(protyle)
                         linkDoc2floatBall(name, "", FloatingBallDocType_tab.id, docID);
                     },
                 }, FloatingBallTab添加文档.menu());
+            };
+            getTomatoPluginInstance().eventBus.on("open-menu-content", ({ detail }) => {
+                addBindDocMenuItems(detail.menu, detail.protyle);
+            });
+            getTomatoPluginInstance().eventBus.on("click-blockicon", ({ detail }) => {
+                addBindDocMenuItems(detail.menu, detail.protyle);
             });
         }
         {
@@ -284,11 +319,19 @@ export function getFloatingBall(item: BallItem): DestroyManager {
                     item,
                 }
             });
-            if (item.action?.openOnCreate && !events.isMobile && item.type === "doc") {
-                actionRegistry.doc.execute(item, {});
-            }
             return sv;
         });
+        // fballfeedback □7（bear 反馈「解绑断不了」根因）：openOnCreate 的 execute 挪出
+        // 构造回调并延迟一拍——execute float 分支会 getFloatingBall(ball).destroyBy() 反杀
+        // 球本体，原先在 svFactory 内同步跑时 FloatingBall 构造未返回、dm.add(global/sv/div)
+        // 三段回调尚未注册：destroyBy 打在空 dm 上（destroied=true 且啥都没销毁），随后塞进
+        // 的回调永不执行=球 div 永久残留+dm 死锁，此后解绑/删除/sweep 的 destroyBy 全无效
+        // （窗开着时 reload 遗留 petal openOnCreate=true → 插件加载即自动开窗 → 必中）
+        if (item.action?.openOnCreate && !events.isMobile && item.type === "doc") {
+            setTimeout(() => {
+                if (!dm.destroyed) actionRegistry.doc.execute(item, {});
+            }, 0);
+        }
         return dm
     }
 }

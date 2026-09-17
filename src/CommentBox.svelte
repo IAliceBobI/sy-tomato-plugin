@@ -44,6 +44,8 @@
     import { BlockNodeEnum, SPACE, TOMATO_BK_IGNORE } from "./libs/gconst";
     import {
         commentBoxAnnotations,
+        commentBoxAnnoQuoteFontSize,
+        commentBoxAnnoReplyFontSize,
         commentBoxAnnoViewFontSize,
         commentBoxBackwardRef,
         commentBoxForwardRef,
@@ -202,6 +204,9 @@
     }
 
     async function _svelteCallback(protyle: IProtyle, force = false) {
+        // □1 annofeed0917（review P1-1）：events.currentProtyle() 两路皆空的空窗（重载后
+        // 未点过任何编辑器）会传 undefined——进 getAttribute 前先判空，防 unhandled rejection
+        if (!protyle) return;
         hidePanelTip(); // 刷新=卡片/条目/chip 可能整批重建，锚被摘除不派 mouseleave——先弃 tip
         if (getAttribute(protyle.element, TOMATO_BK_IGNORE)) return;
 
@@ -649,6 +654,8 @@
     data-skin={$commentBoxPanelSkin === "classic" ? undefined : $commentBoxPanelSkin}
     style:--tomato-card-h={$commentBoxMaxProtyleHeight + "px"}
     style:--tomato-anno-view-fs={Math.min(22, Math.max(12, $commentBoxAnnoViewFontSize || 13)) + "px"}
+    style:--tomato-anno-reply-fs={Math.min(20, Math.max(11, $commentBoxAnnoReplyFontSize || 12)) + "px"}
+    style:--tomato-anno-quote-fs={Math.min(20, Math.max(11, $commentBoxAnnoQuoteFontSize || 12)) + "px"}
 >
     <div class="tomato-toolbar">
         <span class="tomato-toolbar__group tomato-toolbar__group--mode">
@@ -1352,7 +1359,7 @@
     }
 
     .tomato-anno-item__quote {
-        font-size: 12px;
+        font-size: var(--tomato-anno-quote-fs, 12px); /* 引文分档字号（陆杰 09-17 三档行） */
         color: var(--b3-theme-on-surface);
         padding-left: 6px;              /* 2px 色条与文字的缝 */
         border-left: 2px solid var(--tomato-anno-color);   /* 引文左缘条=主色 */
@@ -1417,7 +1424,7 @@
         font-variant-numeric: tabular-nums;
     }
     .tomato-anno-item__rtext {
-        font-size: 12px;
+        font-size: var(--tomato-anno-reply-fs, 12px); /* 追加分档字号（陆杰 09-17 三档行） */
         line-height: 1.6;
         word-break: break-word;
         color: var(--b3-theme-on-surface); /* 追加=次级正文，较主文浅一档 */

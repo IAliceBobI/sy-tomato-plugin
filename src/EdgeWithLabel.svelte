@@ -68,15 +68,15 @@
 {/if}
 
 <style>
-    /* 引用边锚文本标签（spec §3.3 定稿）：淡蓝底=与引用边同通道编码；
-     * pointer-events none=纯展示，挡拖拽即 bug */
+    /* 引用边锚文本标签（spec §3.3 定稿；□2 vision P1-2：明态 primary-lightest 底≈画布同色
+     * 对比不足——改实底主题底色+加浓主色描边，明暗两态对比都达标）；pointer-events none=纯展示 */
     :global(.edge-label-custom) {
-        background: var(--b3-theme-primary-lightest);
+        background: var(--b3-theme-background);
         color: var(--b3-theme-on-background);
         font-size: 11px;
         line-height: 1.3;
         padding: 1px 6px;
-        border: 1px solid color-mix(in srgb, var(--b3-theme-primary) 30%, transparent);
+        border: 1px solid color-mix(in srgb, var(--b3-theme-primary) 45%, transparent);
         border-radius: 4px;
         max-width: 120px;
         overflow: hidden;

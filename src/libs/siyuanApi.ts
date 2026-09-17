@@ -783,8 +783,11 @@ export const siyuan = {
     async refreshBacklink(id: string) {
         return siyuan.call("/api/ref/refreshBacklink", { id });
     },
-    async getBacklink2(id: string, k = "", mk = "", sort = "3", mSort = "3", knownRevision = ""): Promise<GetBacklink2> {
-        const containChildren = (Siyuan.config.editor as any).backlinkContainChildren;
+    async getBacklink2(id: string, k = "", mk = "", sort = "3", mSort = "3", knownRevision = "", containChildren?: boolean): Promise<GetBacklink2> {
+        // containChildren 不传=跟随用户设置（面板列表语义，与官方反链面板一致）；
+        // 显式传值=调用方自带语义（入口条计数传 true：它只是「本文档有反链」的发现性信号，
+        // 不应继承用户的子块过滤偏好——用户关掉该设置时内容块引用被过滤，入口条会永不出现）
+        const containChildrenFinal = containChildren ?? (Siyuan.config.editor as any).backlinkContainChildren;
         //     SortModeNameASC                // 0：文件名字母升序
         //     SortModeNameDESC               // 1：文件名字母降序
         //     SortModeUpdatedASC             // 2：文件更新时间升序
@@ -802,7 +805,7 @@ export const siyuan = {
         //     SortModeSubDocCountDESC        // 14：子文档数降序
         //     SortModeFileTree               // 15：使用文档树排序规则
         //     SortModeUnassigned = 256       // 256：未指定排序规则，按照笔记本优先于文档树获取排序规则
-        const args = { id, k, mk, sort, mSort, containChildren, knownRevision };
+        const args = { id, k, mk, sort, mSort, containChildren: containChildrenFinal, knownRevision };
         if (!knownRevision) delete (args as any).knownRevision;
         return siyuan.call("/api/ref/getBacklink2", args);
     },

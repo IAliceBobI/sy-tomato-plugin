@@ -104,22 +104,22 @@
 /* ── 路径输入行：控件左 + 短标签右，行内 flex 布局 ──────────────
  * 治：b3-text-field 默认 ~165px 硬截断无省略号。input 弹性吃满剩余宽度，
  * 标签 flex-shrink:0 不被挤换行，帮助行 flex-basis:100% 独占下一行 */
-.tomato-settings-dialog .settingBox > .tomato-input-row {
+.tomato-settings-dialog .settingBox .tomato-input-row {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     column-gap: 8px;
 }
-.tomato-settings-dialog .settingBox > .tomato-input-row > input.b3-text-field {
+.tomato-settings-dialog .settingBox .tomato-input-row > input.b3-text-field {
     flex: 1 1 240px;
     min-width: 120px;
     text-overflow: ellipsis; /* 极端长值显省略号（不引入悬停完整值，YAGNI） */
 }
-.tomato-settings-dialog .settingBox > .tomato-input-row > .tomato-row-label {
+.tomato-settings-dialog .settingBox .tomato-input-row > .tomato-row-label {
     flex: 0 0 auto; /* 标签不收缩 */
     white-space: nowrap;
 }
-.tomato-settings-dialog .settingBox > .tomato-input-row > .helpText,
+.tomato-settings-dialog .settingBox .tomato-input-row > .helpText,
 /* chips 行同理：帮助行独占一整行（chips 换行后仍贴行尾不挤压） */
 .tomato-settings-dialog .settingBox > .tomato-chip-row > .helpText {
     flex: 1 0 100%; /* 帮助行独占一整行 */
@@ -128,12 +128,12 @@
  * 2~3 位数太宽），标签/分隔符跟随排；窄屏换行规则沿用上方通用款。
  * 特异性抬到 (0,4,1)（vision 复审 P1-1 根治）：p/s/r 兄弟插件携带 tomato 设置面板
  * CSS 副本、后注入同特异性通用款即覆盖窄化款——加 .tomato-input-row 类摆脱注入顺序依赖 */
-.tomato-settings-dialog .settingBox > .tomato-input-row.tomato-mb-interval > input.b3-text-field,
-.tomato-settings-dialog .settingBox > .tomato-input-row.tomato-mb-duration > input.b3-text-field {
+.tomato-settings-dialog .settingBox .tomato-input-row.tomato-mb-interval > input.b3-text-field,
+.tomato-settings-dialog .settingBox .tomato-input-row.tomato-mb-duration > input.b3-text-field {
     flex: 0 1 84px;
     min-width: 64px;
 }
-.tomato-settings-dialog .settingBox > .tomato-input-row.tomato-mb-interval > .tomato-row-sep {
+.tomato-settings-dialog .settingBox .tomato-input-row.tomato-mb-interval > .tomato-row-sep {
     flex: 0 0 auto;
     color: var(--b3-theme-on-surface-variant);
 }
@@ -142,12 +142,12 @@
  * nowrap 保留（标签本身不折字）。同款选择器在源文件更后出现即胜出，
  * progressive/recite 副本随三插件同步重建携带，无跨副本打架 */
 @media (max-width: 480px) {
-    .tomato-settings-dialog .settingBox > .tomato-input-row > .tomato-row-label {
+    .tomato-settings-dialog .settingBox .tomato-input-row > .tomato-row-label {
         flex: 1 0 100%;
     }
 }
 /* ── 提示音选择化（□3）：下拉行 + 自定义展开行 ── */
-.tomato-settings-dialog .settingBox > .tomato-input-row > select.tomato-audio-select {
+.tomato-settings-dialog .settingBox .tomato-input-row > select.tomato-audio-select {
     flex: 1 1 180px;
     min-width: 140px;
 }
@@ -210,7 +210,7 @@
     object-fit: cover;
     display: block;
 }
-.tomato-settings-dialog .settingBox > .tomato-input-row > .tomato-bg-thumb + input.b3-text-field {
+.tomato-settings-dialog .settingBox .tomato-input-row > .tomato-bg-thumb + input.b3-text-field {
     flex: 1 1 180px; /* 行内有 48px 缩略图+选文件按钮，输入框弹性基准比纯输入行收窄 */
     min-width: 120px;
     text-overflow: ellipsis;
@@ -234,14 +234,15 @@
     /* 双类升权 (0,3,0) 防跨插件副本压制（□3 实证坑） */
     color: var(--b3-card-error-color);
 }
-.tomato-settings-dialog .settingBox > .tomato-input-row > input.tomato-bg-opacity-slider {
+.tomato-settings-dialog .settingBox .tomato-input-row > input.tomato-bg-opacity-slider {
     flex: 1 1 180px;
     min-width: 120px;
     accent-color: var(--b3-theme-primary); /* 原生轨道填充色随主题（webkit 造型见 _slider.scss） */
 }
 .tomato-settings-dialog .tomato-bg-opacity-value {
     flex: 0 0 auto;
-    min-width: 5.5em; /* 与「选择文件…」按钮视觉宽度对齐，三行行尾标签成一条纵列（vision P2） */
+    min-width: 5.5em; /* 与「选择文件…」按钮视觉宽度对齐（confgather2 期2 入折叠后行宽变窄，
+       明/暗背景行尾标签会 flex-wrap 落到控件行下方——纵列对齐只在宽容器达成，正常响应式形态） */
     text-align: right;
     font-variant-numeric: tabular-nums; /* 数字跳变不抖动 */
 }
@@ -591,9 +592,9 @@
     margin-top: 2px;
     overflow-wrap: anywhere;
 }
-/* 定时器：小数字输入框。需压过 .settingBox > .tomato-input-row > input.b3-text-field
+/* 定时器：小数字输入框。需压过 .settingBox .tomato-input-row > input.b3-text-field
  * 的 flex:1 1 240px（(0,4,1)），双类升权到 (0,5,1)，不吃注入顺序运气 */
-.tomato-settings-dialog .settingBox > .tomato-input-row > input.tomato-timer-input.tomato-timer-input {
+.tomato-settings-dialog .settingBox .tomato-input-row > input.tomato-timer-input.tomato-timer-input {
     flex: 0 0 76px;
     min-width: 0;
     text-align: right;
@@ -786,6 +787,11 @@
  * .settingBox > div:not(:last-child) 管不到；收窄到 details 内，不外溢 ConfBacklink 的 softBox */
 .tomato-settings-dialog details.settingBox .softBox > div:not(:last-child) {
     margin-bottom: 12px;
+}
+/* confgather2 期2 A4（vision P1）：折叠内条件子行（父开关打开才出现的行）缩进一级——
+   与父行同图标同开关形态，不缩进会被读成平级菜单项 */
+.tomato-settings-dialog .softBox > div.tomato-cond-subrow {
+    margin-left: 22px;
 }
 /* ── 二期 14 域（2026-09-05）：顶级折叠卡──────────────────────────
  * details 直接作域内分区卡（ConfLink 垫底区/ConfEditorTools「编辑器外观与行为」），

@@ -14,6 +14,7 @@ import { mount, unmount } from "svelte";
 import { annotations } from "./Annotations";
 import { quickCollect, cachedDocName } from "./libs/annoCollect";
 import { openAnnoCollectDialog } from "./AnnoCollectDialog";
+import { debugLog } from "./libs/logUtils";
 
 const DOCK_TYPE = "dock_CommentBox";
 
@@ -65,17 +66,30 @@ class CommentBox {
             // 后续 selectionchange 会裸露成死钮（review P2-1），注册后立即 sync 一次关死窗口
             this.syncAnnoToolbar();
         }
-        if (!commentBoxCheckbox.get()) return;
+        // □1 annofeed0917（陆杰 09-17 反复失效反馈）：锚点渲染链（tooltip 压制/高亮类同步/
+        // 孤儿回收）恒挂，不随总开关早退——渲染链管的是既有批注数据的正确呈现，设置读取
+        // 瞬态异常/多端同步把开关扳 false 时，旧形态=整条链死、文档里批注锚点裸成
+        // #tomato-anno-* 原始链接串；恒挂后开关只收敛面板/dock/命令族（数据仍在+样式正常）。
+        // annotations.onload 自带防重复装载（this.cleanup 守卫），checkbox=true 路径零变化。
+        annotations.onload(plugin);
+        if (!commentBoxCheckbox.get()) {
+            debugLog("onload-chain", "CommentBox 早退：commentBoxCheckbox=false（面板/dock/命令族不注册；若非用户本意=设置读取或同步异常，查 petal tomato-settings.json）");
+            return;
+        }
         this.plugin = plugin;
         this.settingCfg = plugin.settingCfg;
+        // annofeed0917 □1 排查打点：checkbox 已过门（true），此后任何抛错=断链点
+        debugLog("onload-chain", `CommentBox 门内（checkbox=true）`);
         verifyKeyTomato();
-        annotations.onload(plugin);
 
         gatedAddCommand(this.plugin, CommentBox添加批注.langKey, {
             langText: CommentBox添加批注.langText(),
             hotkey: CommentBox添加批注.m,
             callback: () => {
-                this.findDivs(events.protyle.protyle, false);
+                // □1 annofeed0917：重载后到首次点击/切换文档前的空窗里 events.prototype
+                // 恒空，裸取 .protyle=TypeError 快捷键静默死——统一走 events.currentProtyle()
+                // （空窗回退 getActiveEditor，两路皆空=undefined，create 内部判空早退）
+                this.findDivs(events.currentProtyle(), false);
             },
         });
 
@@ -83,8 +97,9 @@ class CommentBox {
             langText: CommentBox刷新文档正引.langText(),
             hotkey: CommentBox刷新文档正引.m,
             callback: () => {
-                if (this.svelteCallback) {
-                    this.svelteCallback(events.protyle.protyle, true);
+                const protyle = events.currentProtyle();
+                if (protyle && this.svelteCallback) {
+                    this.svelteCallback(protyle, true);
                 }
             },
         });
@@ -146,6 +161,7 @@ class CommentBox {
 
         if (!events.isMobile) {
             this.addDock(); // 添加后有 bug，手机端在文档数更新后，无法显示 topbar icons.
+            debugLog("onload-chain", "addDock 完（dock_CommentBox 已注册）");
             events.addListener("tomato-comment-box-2024年12月19日21:48:42", (eventType, detail) => {
                 if (eventType == EventType.click_editorcontent) {
                     if (this.svelteCallback) {

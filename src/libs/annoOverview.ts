@@ -1,49 +1,27 @@
 // 划线总览（anno-round2 □3，B 案）：全书划线+批注总览的数据层。
-// 上半=纯函数（mark 区间解析 / 片归属 / 条目合并 / 分组与色筛选），零 siyuan 依赖，
+// 上半=纯函数（彩字区间解析 / 片归属 / 条目合并 / 分组与色筛选），零 siyuan 依赖，
 // tests/unit/annoOverview.test.ts 锁定契约；下半=取数编排（resolveOverviewScope）。
-// 数据源双份：官方高亮 mark（kramdown `==…=={: style="background-color: var(--b3-font-backgroundN);"}`
-// ——6811 实测 blocks.markdown LIKE 可命中；无色 mark 无 style IAL 不可靠命中，不进总览〔已知限制〕）
+// 数据源双份：带底色彩字（annocolor □1 扩源——A 面板一步上色 span/语义样式/mark 叠样式
+// 三通道全认，形态清单+真实样本=tests/unit/annoColorFixtures.ts；默认色 mark 无 style IAL
+// 不可靠命中、纯字体色/自定义 hex/自定义样式 v1 不认〔边界〕）
 // + 批注属性（custom-tomato-annotations，annoPanelFromRows 同源）。
-// 颜色通道唯一=mark 区间反查（markVarOfAnchor 同族），entry.color 建链未写恒缺省不作依据。
+// 颜色通道唯一=彩字区间反查（收集链 markVarOfAnchor 同族，归一函数共用），
+// entry.color 建链未写恒缺省不作依据。
 import { parseAnnotations, ANNO_HREF_PREFIX, type TomatoAnnotation } from "./annotationsAttr";
 import { hostQuoteText } from "./annoCollect";
 import { MarkKey, PDIGEST_CTIME, TEMP_CONTENT } from "./gconst";
+// 彩字色源机器下沉 annoColorVar（annocolor □3：收集链同源消费防循环）；此处 re-export
+// 维持历史 import 路径（libs 桶惯例）
+export {
+    bgVarOfStyle,
+    markVarOfAnchor,
+    normalizeBgVar,
+    parseColorIntervals,
+    type MarkInterval,
+} from "./annoColorVar";
+import { parseColorIntervals } from "./annoColorVar";
 
 // ---------------- 纯函数区 ----------------
-
-/** kramdown 内一条官方划线区间：净化文本 + 色变量 + 区间内批注锚 id 集 */
-export interface MarkInterval {
-    text: string;
-    markVar: string;
-    annoIDs: string[];
-}
-
-/** mark 区间整体（含 IAL 后缀）正则：内层禁 `==`（kramdown 里 == 即闭合，出现=跨区间吞并，
- *  会把前面无色 mark 的文本卷进有色区间）；style 形态来自 getBlockKramdown/blocks.markdown
- *  实测（6811）。无 style 的 mark（默认色）故意不匹配——SQL 通道本就筛不到它们。 */
-const MARK_RE = /==((?:[^=]|=(?!=))*)==\{: style="background-color: var\((--b3-font-background\d+)\);"\}/g;
-// 锚 id 字符集同 annoKramdown.stripAllAnnoLinks（[0-9a-zA-Z-]+）；前缀无正则元字符直拼。
-// 文本段容 ] 转义形态（Lute 对 [a\]b](#…) 的输出，reasoning review P1-1）：裸 ] 提前断配
-// 会让锚区间解不出→色丢+重复卡+残渣三联缺陷；捕获后去转义还原显示文本
-const ANCHOR_RE = new RegExp(`\\[((?:[^\\\\\\]]|\\\\.)*)\\]\\(${ANNO_HREF_PREFIX}([0-9a-zA-Z-]+)\\)`, "g");
-const unescapeKramdownText = (t: string) => t.replace(/\\(.)/g, "$1");
-
-/** 提取块 kramdown 的全部官方划线区间（文档序）：剥锚链接得净化文本、锚 id 收进 annoIDs */
-export function parseMarkIntervals(kramdown: string | null | undefined): MarkInterval[] {
-    if (!kramdown) return [];
-    const out: MarkInterval[] = [];
-    MARK_RE.lastIndex = 0;
-    let m: RegExpExecArray | null;
-    while ((m = MARK_RE.exec(kramdown)) != null) {
-        const inner = m[1];
-        const annoIDs: string[] = [];
-        ANCHOR_RE.lastIndex = 0;
-        let a: RegExpExecArray | null;
-        while ((a = ANCHOR_RE.exec(inner)) != null) annoIDs.push(a[2]);
-        out.push({ text: unescapeKramdownText(inner.replace(ANCHOR_RE, (_m, t: string) => t)), markVar: m[2], annoIDs });
-    }
-    return out;
-}
 
 export interface PieceMarkInfo {
     bookID: string;
@@ -122,7 +100,7 @@ export function overviewItemsFromRows(annoRows: OverviewAnnoRow[], markRows: Ove
     for (const r of annoRows ?? []) {
         if (r?.id == null || r.id === "") continue;
         byBlock.set(r.id, { docID: typeof r.r === "string" ? r.r : "", kd: typeof r.md === "string" ? r.md : "" });
-        const intervals = parseMarkIntervals(r.md);
+        const intervals = parseColorIntervals(r.md);
         for (const entry of parseAnnotations(r.v)) {
             if (seen.has(entry.id)) continue;
             seen.add(entry.id);
@@ -147,7 +125,7 @@ export function overviewItemsFromRows(annoRows: OverviewAnnoRow[], markRows: Ove
     }
     for (const [blockID, info] of byBlock) {
         let idx = 0;
-        for (const iv of parseMarkIntervals(info.kd)) {
+        for (const iv of parseColorIntervals(info.kd)) {
             if (iv.annoIDs.length > 0) continue;
             // 残渣防线：区间文本含锚 href 子串=疑似未识别锚（未来 kramdown 形态变体），
             // 宁缺勿脏——出卡会把锚语法裸露进卡面/收集产物（reasoning review P1-1 半边）
@@ -310,10 +288,13 @@ async function buildHostRanks(
     return ranks;
 }
 
-// type != 'c'：代码块里粘的字面 kramdown 形态（教程/帮助文档）不出假划线卡（review P2）
+// type != 'c'：代码块里粘的字面 kramdown 形态（教程/帮助文档）不出假划线卡（review P2）。
+// 双锚一刀齐（annocolor □1 主实例实证 57 块全命中）：色板变量覆盖 span+mark 两通道，
+// inline-builtin 覆盖语义样式；多命中块解析不出区间=自然无害。
+const COLOR_SQL_WHERE = `markdown like '%background-color: var(--b3-font-background%'
+    or markdown like '%background-color: var(--b3-inline-builtin%'`;
 const MARK_SQL = (inList: string) => `select id, root_id as r, markdown as md from blocks
-    where root_id in (${inList}) and type != 'c'
-    and markdown like '%==%{: style="background-color: var(--b3-font-background%' limit 20000`;
+    where root_id in (${inList}) and type != 'c' and (${COLOR_SQL_WHERE}) limit 20000`;
 
 /**
  * 种子 → 总览数据：bookID 直查书+片集；docID 先判片归属（是片→所在书，否则单文档域）。
