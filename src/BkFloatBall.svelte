@@ -16,8 +16,12 @@
         /** 面板开合键位提示（confgather2 □2）：函数 prop 挂载期求值一次（aria-label 表达式
          *  无响应式依赖，不随徽标/显隐重渲——改键后旧键位驻留至重挂载，顶栏齿轮先例同病） */
         panelKeyHint: () => string;
+        /** 共存模式防遮挡让位偏移（宿主 applyBallNudge 计算；null=原位）。仅叠加渲染，
+         *  不改写 x/y 记忆位；拖球启动时偏移被吸收进基准位并经 onShiftAbsorbed 清源 */
+        shift: Writable<{ x: number; y: number } | null>;
+        onShiftAbsorbed: () => void;
     }
-    let { count, hidden, onToggle, panelKeyHint }: Props = $props();
+    let { count, hidden, onToggle, panelKeyHint, shift, onShiftAbsorbed }: Props = $props();
 
     const SIZE = 36;
     const DRAG_THRESHOLD = 5;
@@ -27,6 +31,7 @@
     let dragging = $state(false);
     let x = 0;
     let y = 0;
+    let shiftVal = { x: 0, y: 0 };
     let armed = false;
     let moved = false;
     let activePointerId = -1;
@@ -41,12 +46,20 @@
 
     function applyPos() {
         if (!host) return;
-        // Math.max(0,..)：视口小于球时退化为 0，避免负区间锁死（DialogSvelte 同款）
+        // Math.max(0,..)：视口小于球时退化为 0，避免负区间锁死（DialogSvelte 同款）。
+        // 夹取只作用于基准位（x/y）：让位偏移由宿主按面板矩形算定，目标位已在视口内
         x = clamp(x, 0, Math.max(0, window.innerWidth - SIZE));
         y = clamp(y, 0, Math.max(0, window.innerHeight - SIZE));
-        host.style.left = `${x}px`;
-        host.style.top = `${y}px`;
+        host.style.left = `${x + shiftVal.x}px`;
+        host.style.top = `${y + shiftVal.y}px`;
     }
+
+    // 让位偏移响应（宿主 store 下发）：值变即按新偏移重渲；null 归位（面板收起）
+    $effect(() => {
+        const s = $shift;
+        shiftVal = s ?? { x: 0, y: 0 };
+        applyPos();
+    });
 
     function loadPos() {
         const fallback = () => {
@@ -104,7 +117,19 @@
         const dy = e.clientY - sy;
         // 位移阈值内不算拖（点击判定），越阈即拖
         if (!moved && dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
-        moved = true;
+        if (!moved) {
+            moved = true;
+            // 让位中的真拖拽启动（越阈=确非点击）：把视觉偏移吸收进基准位（offsetLeft/Top=
+            // 实际渲染位，此刻位移仅阈值级，视觉无跳变）并清源——宿主置 null→effect 重设
+            // shiftVal=0 重渲同一像素；本地先清零防后续 applyPos 叠双份偏移。
+            // 点击路径不过此（收面板时宿主直接清源，球回记忆原位）
+            if (shiftVal.x || shiftVal.y) {
+                x = host.offsetLeft;
+                y = host.offsetTop;
+                shiftVal = { x: 0, y: 0 };
+                onShiftAbsorbed();
+            }
+        }
         dragging = true;
         x = e.clientX - ox;
         y = e.clientY - oy;

@@ -14,7 +14,7 @@ import { newID } from "stonev5-utils";
 import { mount, unmount } from "svelte";
 import { debugLog } from "./libs/logUtils";
 import { filterCustomRows } from "./libs/graphContent";
-import { structureRowsFromSql, type LightBlockRow } from "./libs/graphStructure";
+import { structureRowsFromOutline, type LightBlockRow } from "./libs/graphStructure";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -222,6 +222,13 @@ class GraphBox {
         }
         if (docID && data.getGraphState?.().docID !== docID) {
             await data.changeDoc(this.protyleForChangeDoc(protyle, docID, docName));
+        }
+        // treemap □3 review P1-3 兜底：方块档 GraphControl 已卸载（locateID 置空）——
+        // 明示不支持而非 stale 闭包静默空转；矩形级定位映射=□4「选中态扩工具条」规划
+        if (!data.locateID) {
+            gbLog("graph.locate_skip", `mode=${data.getGraphState?.().mode}`);
+            siyuan.pushMsg(tomatoI18n.方块档暂不支持定位, 3000);
+            return;
         }
         const found = await data.locateID(id);
         gbLog("graph.locate_done", `found=${found}`);
@@ -553,28 +560,24 @@ export async function precheckDocSize(docID: string): Promise<{ cnt: number; tot
     }
 }
 
-// graphbox □2 结构通道（大文档数据源，2026-09-17）：SQL 全块轻字段+容器 content → 容器子图
-// +徽标聚合 + 引用边（叶子端点重定向到容器）。产物与全量 getData 同构 {rows, links} 外加
-// info（StructureInfo），渲染层零分叉。替代退役的骨架标题树通道（结构通道覆盖其能力且更轻）。
+// graphbox □2 结构通道（大文档数据源，2026-09-17；treemap 战役 □2 改 outline 真值骨架）：
+// SQL 全块轻字段 + getDocOutline 标题树 → 纯标题骨架+徽标聚合（前驱标题锚归属）+ 引用边
+// （叶子端点重定向到标题）。产物与全量 getData 同构 {rows, links} 外加 info（StructureInfo），
+// 渲染层零分叉。骨架跟左栏大纲面板永远一致（方案 A，bear 拍板）。
 export async function getGraphStructure(docID: string, docName: string) {
     const t0 = performance.now();
     // □3 文档序锚=getChildBlocks 平铺序（id 批量随机+hpath 不回填都非真序；标题恒顶层）
     const orderP = siyuan.getChildBlocks(docID)
         .then(kids => new Map(kids.map((k, i) => [k.id as string, i])))
         .catch(() => new Map<string, number>());
-    const [light, contents, order] = await Promise.all([
+    const [light, outline, order] = await Promise.all([
         // limit 显式给：思源 SQL API 无 limit 默认截 64 行（2026-09-04 dev 实测）
         siyuan.sql(`select id,type,subtype,parent_id,length from blocks where root_id="${docID}" order by id limit 100000`),
-        siyuan.sql(`select id,content from blocks where root_id="${docID}" and type in ('d','h','i','s','b') order by id limit 100000`),
+        siyuan.getDocOutline(docID).catch(() => [] as GetDocOutline[]),
         orderP,
-    ]) as [LightBlockRow[], { id: string; content: string }[], Map<string, number>];
-    gbLog("graph.structure_sql", `light=${light?.length ?? 0} containers=${contents?.length ?? 0} ${Math.round(performance.now() - t0)}ms`);
-    const byId = new Map((light ?? []).map(r => [r.id, r]));
-    for (const c of contents ?? []) {
-        const r = byId.get(c.id);
-        if (r) r.content = c.content ?? "";
-    }
-    const { rows, links, info } = structureRowsFromSql(light ?? [], docID, docName, order);
+    ]) as [LightBlockRow[], GetDocOutline[], Map<string, number>];
+    gbLog("graph.structure_sql", `light=${light?.length ?? 0} outline=${outline?.length ?? 0} ${Math.round(performance.now() - t0)}ms`);
+    const { rows, links, info } = structureRowsFromOutline(outline ?? [], light ?? [], docID, docName, order);
     const rowIDs = new Set(rows.map(r => r.id));
     const refs = await siyuan.sqlRef(refsSqlFor(docID));
     const ids = refs

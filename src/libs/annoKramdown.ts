@@ -1,6 +1,7 @@
 // 批注 kramdown 文本处理纯函数层（□4）：草稿超级块壳剥除 / 锚点链接摘除 / 气泡富文本渲染。
 // 零思源 API/DOM 依赖；所有函数对用户内容先转义后插标签（XSS 防线）。
 import { ANNO_HREF_PREFIX } from "./annotationsAttr";
+import { markVarCss } from "./annoColorVar";
 
 /** 五大 HTML 实体转义；annoTextToHtml 的第一道工序，用户内容永不裸插值 */
 export function escapeHtml(s: string): string {
@@ -65,7 +66,29 @@ export function stripAnnoLinks(kramdown: string, annoId: string): string {
  *  AI 讨论上下文的原文/前后相邻块专用：块内携带的批注标记是 UI 标记非内容，全剥防噪音进 prompt。
  *  锚后行内 IAL 尾同吸收（上色锚形态，见 stripAnnoLinks）。 */
 export function stripAllAnnoLinks(kramdown: string): string {
-    return kramdown.replace(new RegExp(`\\[([^\\]]*)\\]\\(${escapeRegExp(ANNO_HREF_PREFIX)}[0-9a-zA-Z-]+\\)(?:\\{:[^{}\\n]*\\})?`, "g"), "$1");
+    const esc = escapeRegExp(ANNO_HREF_PREFIX);
+    const text = `(?:[^\\[\\]]|\\\\\\[|\\\\\\])*`; // 划线文本含 [/] 时 Lute 转义 \[ \]，须吃转义形态（reasoning review P2-1）
+    const re = new RegExp(`\\[(${text})\\]\\(${esc}[0-9a-zA-Z-]+\\)(?:\\{:[^{}\\n]*\\})?`, "g");
+    return denestAnnoAnchors(kramdown).replace(re, "$1");
+}
+
+/** 双层嵌套锚归一（anno-fix □3 实锤）：内核对 setInlineMark 写入锚的 kramdown 序列化=
+ *  [[文本](#tomato-anno-id)](#tomato-anno-id)（外层 span 壳+内层链接），单遍锚正则只吃
+ *  外层壳前半=留烂尾——先归一成单层，既有单遍剥/重放逻辑不变。
+ *  加固（reasoning review P2）：文本含 [/] 时 Lute 转义为 \[/\]，字符类须吃转义形态；
+ *  内外层闭括号后各容可选 IAL 尾（上色锚变体）；循环到不动点兜三层嵌套。 */
+function denestAnnoAnchors(kramdown: string): string {
+    const esc = escapeRegExp(ANNO_HREF_PREFIX);
+    const text = `(?:[^\\[\\]]|\\\\\\[|\\\\\\])*`;
+    const ial = `(?:\\{:[^{}\\n]*\\})?`;
+    const re = new RegExp(`\\[\\[(${text})\\]\\(${esc}([0-9a-zA-Z-]+)\\)${ial}\\]\\(${esc}\\2\\)${ial}`, "g");
+    let s = kramdown;
+    for (let i = 0; i < 3; i++) {
+        const next = s.replace(re, (_m, t: string, id: string) => `[${t}](${ANNO_HREF_PREFIX}${id})`);
+        if (next === s) return next;
+        s = next;
+    }
+    return s;
 }
 
 /** 剥全部块 IAL（整行形态〔含缩进/引文 `>` 前缀——b 容器 kramdown 的段落 IAL 挂在 `> ` 行
@@ -103,7 +126,9 @@ export function markToSpans(kramdown: string): string {
 export function replayAnnoMark(kramdown: string, annoId: string, markVar?: string): string {
     if (!markVar) return kramdown;
     const re = new RegExp(`\\[([^\\]]*)\\]\\(${escapeRegExp(ANNO_HREF_PREFIX + annoId)}\\)(?:\\{:[^{}\\n]*\\})?`, "g");
-    return kramdown.replace(re, (_m, t: string) => `<span data-type="mark" style="background-color: var(${markVar});">${t}</span>`);
+    // 双层嵌套锚先归一（denestAnnoAnchors，anno-fix-0917），单遍重放即净；markVarCss=值域
+    // 含字面色值（□5）的 var() 包裹统一适配
+    return denestAnnoAnchors(kramdown).replace(re, (_m, t: string) => `<span data-type="mark" style="background-color: ${markVarCss(markVar)};">${t}</span>`);
 }
 
 /** 代码围栏分段（annofeed0917 □6 review P1-4）：```/~~~ 围栏内内容**原样**——IAL 剥除/

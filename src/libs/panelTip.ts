@@ -67,12 +67,15 @@ function ensureTipEl(): HTMLElement | null {
     return el;
 }
 
-/** 显示/移位：textContent 纯文本（多行制 \n 交给 .tooltip 的 break-spaces 换行） */
+/** 显示/移位：textContent 纯文本（多行制 \n 交给 .tooltip 的 break-spaces 换行）。
+ *  先验 label 再建/显形（09-18 vision 复核）：原「先 ensureTipEl 后判空 return」会在
+ *  aria-label 缺失时留下一个可见空壳 tip 悬在旧位置 */
 export function showPanelTip(el: HTMLElement) {
+    const text = el.getAttribute("aria-label");
+    if (!text) return; // aria-label 缺失静默无 tip，功能不受损（且不留空壳）
     armScrollGuard();
     const tip = ensureTipEl();
-    const text = el.getAttribute("aria-label");
-    if (!tip || !text) return; // aria-label 缺失静默无 tip，功能不受损
+    if (!tip) return;
     tip.className = "tooltip"; // 清上轮 fn__none 即显示
     tip.textContent = text;
     tip.removeAttribute("style"); // 清上轮定位再测宽（原生 showTooltip 同款）

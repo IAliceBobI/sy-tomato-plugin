@@ -23,6 +23,7 @@
     import type { StreamState } from "./libs/openAI";
     import { siyuan } from "./libs/utils";
     import { debugLog } from "./libs/logUtils";
+    import { hidePanelTip, showPanelTip } from "./libs/panelTip";
     import { vipVerified } from "./libs/user";
     import { openUnlockDialog } from "./unlockDialog";
     import { tomatoI18n } from "./tomatoI18n";
@@ -340,30 +341,47 @@
         {/if}
     </div>
 
+    <!-- tooltip 一律 panelTip（body 级 fixed 防溢）勿 b3-tooltips：chips 行 ov-x:auto 会把
+         纵向也强制裁切（CSS overflow 联动），__n 气泡画在容器外只露 1~3px 底边=「深色横线」
+         （09-18 用户 642533 实锤）；发送钮在弹窗右缘，b3 气泡居中锚定右溢还会撑出
+         .b3-dialog__body 横向滚动条。自定义角色 tip 显示提示词全文（chip 名是 6 字截断） -->
     <div class="anno-chat__chips" class:is-busy={busy}>
         {#each ANNO_ROLES as r (r.key)}
             <button
-                class="anno-chat__chip b3-tooltips b3-tooltips__n"
+                class="anno-chat__chip"
                 aria-label={tomatoI18n.以角色提问.replace("{x}", roleName(r))}
+                onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                onmouseleave={hidePanelTip}
                 onclick={() => void invite(r)}>{roleName(r)}{#if $vipVerified !== true}<span class="anno-chat__chip-pro">Pro</span>{/if}</button>
         {/each}
         {#each customs as r (r.key)}
-            <span class="anno-chat__chip b3-tooltips b3-tooltips__n" aria-label={tomatoI18n.以角色提问.replace("{x}", r.name)}>
-                <button class="anno-chat__chip-main" onclick={() => void invite(r)}>{r.name}{#if $vipVerified !== true}<span class="anno-chat__chip-pro">Pro</span>{/if}</button>
+            <span class="anno-chat__chip">
                 <button
-                    class="anno-chat__chip-del b3-tooltips b3-tooltips__n"
+                    class="anno-chat__chip-main"
+                    aria-label={tomatoI18n.以角色提问.replace("{x}", r.prompt)}
+                    onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                    onmouseleave={hidePanelTip}
+                    onclick={() => void invite(r)}>{r.name}{#if $vipVerified !== true}<span class="anno-chat__chip-pro">Pro</span>{/if}</button>
+                <button
+                    class="anno-chat__chip-del"
                     aria-label={tomatoI18n.删除角色}
+                    onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                    onmouseleave={hidePanelTip}
                     onclick={() => delCustom(r)}>×</button>
             </span>
         {/each}
         <button
-            class="anno-chat__chip anno-chat__chip--add b3-tooltips b3-tooltips__n"
+            class="anno-chat__chip anno-chat__chip--add"
             aria-label={tomatoI18n.新建角色}
+            onmouseenter={(e) => showPanelTip(e.currentTarget)}
+            onmouseleave={hidePanelTip}
             onclick={newCustom}>{tomatoI18n.新建角色}</button>
         {#if canPrecipitate}
             <button
-                class="anno-chat__chip anno-chat__chip--save b3-tooltips b3-tooltips__n"
+                class="anno-chat__chip anno-chat__chip--save"
                 aria-label={tomatoI18n.沉淀为块说明}
+                onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                onmouseleave={hidePanelTip}
                 disabled={busy || precipitating || msgs.length === 0}
                 onclick={() => void precipitate()}
             >{tomatoI18n.沉淀为块}</button>
@@ -379,8 +397,10 @@
             onkeydown={onTaKeydown}
         ></textarea>
         <button
-            class="anno-chat__send b3-tooltips b3-tooltips__n"
+            class="anno-chat__send"
             aria-label={tomatoI18n.发送提示}
+            onmouseenter={(e) => showPanelTip(e.currentTarget)}
+            onmouseleave={hidePanelTip}
             disabled={busy || !input.trim()}
             onclick={() => void send()}
         ><svg><use xlink:href="#iconSend"></use></svg></button>

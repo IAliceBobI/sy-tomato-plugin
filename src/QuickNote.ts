@@ -99,15 +99,40 @@ class QuickNote {
             debugLog("quicknote", `ch listen fail ${e}`, "quicknote");
         }
 
-        plugin.addCommand({
-            langKey: QuickNote速记器全局.langKey,
-            langText: QuickNote速记器全局.langText(),
-            hotkey: QuickNote速记器全局.m,
-            // callback=命令面板/自定义键入口：全局热键被其他实例抢注（后注册静默失败）
-            // 时 dev 实例仍可从命令面板唤起——e2e 验证通道保命
-            callback: () => void this.onHotkey(),
-            globalCallback: () => void this.onHotkey(),
-        });
+        // onload 断链防线（09-17「功能丢失」实锤）：思源 3.8.x 启动顺序=loadPlugins 先于
+        // window.siyuan.languages 挂载（index.ts:311→314），带 globalCallback 的 addCommand
+        // 末尾同步触发全局快捷键同步、读 languages._trayMenu——竞态输掉时 TypeError 从
+        // addCommand 抛进 onload，index.ts Box 链在本 Box 断（批注/思维导线等后续全灭），
+        // 每次刷新界面重演。守卫：languages 未挂=轮询等就绪再注册（通常 <1s 到）；15s 仍无
+        // （#18970 形态：languages 加载失败）=直接注册并吞错——commands.push 与命令面板注册
+        // 在思源炸点之前完成，仅丢系统级全局快捷键，命令面板/窗口内热键不受影响。
+        const registerCmd = () => {
+            try {
+                plugin.addCommand({
+                    langKey: QuickNote速记器全局.langKey,
+                    langText: QuickNote速记器全局.langText(),
+                    hotkey: QuickNote速记器全局.m,
+                    // callback=命令面板/自定义键入口：全局热键被其他实例抢注（后注册静默失败）
+                    // 时 dev 实例仍可从命令面板唤起——e2e 验证通道保命
+                    callback: () => void this.onHotkey(),
+                    globalCallback: () => void this.onHotkey(),
+                });
+            } catch (e) {
+                debugLog("quicknote", `命令注册失败（languages 异常环境，命令面板仍可用）：${e}`);
+            }
+        };
+        clearInterval(G.__qnCmdWatcher);
+        if ((window as any).siyuan?.languages) {
+            registerCmd();
+        } else {
+            const t0 = Date.now();
+            G.__qnCmdWatcher = setInterval(() => {
+                if ((window as any).siyuan?.languages || Date.now() - t0 > 15000) {
+                    clearInterval(G.__qnCmdWatcher);
+                    registerCmd();
+                }
+            }, 100);
+        }
     }
 
     private async onHotkey() {
@@ -367,6 +392,7 @@ class QuickNote {
 
     /** 插件禁用/reload 卸载时收尾：关监听+收窗。勿 destroy 窗——池化语义跨重载存活 */
     onunload() {
+        clearInterval(G.__qnCmdWatcher);
         try { this.ch?.close(); } catch { /* 已关 */ }
         G.__tomatoQuickNoteCh = null;
         this.hide();

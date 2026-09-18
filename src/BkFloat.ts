@@ -14,7 +14,7 @@ import { BKMaker, registerBkIndexCommitTarget } from "./BackLinkBottomBox";
 import type { BackLinkBottomBox } from "./BackLinkBottomBox";
 import type { Protyle } from "siyuan";
 import { events } from "./libs/Events";
-import { back_link_float, bk_refresh_interval_sec, bk_visible_only } from "./libs/stores";
+import { back_link_float, back_link_float_ball_stay, bk_refresh_interval_sec, bk_visible_only } from "./libs/stores";
 import { icon, isProtyleVisible, siyuan } from "./libs/utils";
 import { cachedEntryCount, applyEntryCount } from "./libs/bkRevision";
 import { gatedAddCommand } from "./libs/cmdGate";
@@ -68,6 +68,11 @@ export class FloatBacklinkBox {
     // 外部响应式状态：mount() 后经 writable store 下发组件（Svelte 5 外部更新正轨）
     private badgeStore = writable(0);
     private ballHiddenStore = writable(false);
+    private ballShiftStore = writable<{ x: number; y: number } | null>(null);
+    /** shift 镜像（渲染位−记忆位）：nudge 重算时从渲染 rect 反推记忆基准位用——重算时
+     *  旧 shift 在场（面板二次拖到让位球上/resize/stay 切换），量渲染位当基准会让新
+     *  shift 叠在旧偏移上=目标位漂移且错误态自锁（复评 P1-1）。写入统一走 setShift */
+    private lastShift: { x: number; y: number } | null = null;
     private panelOpenStore = writable(false);
     private panelTitleStore = writable("");
 
@@ -77,8 +82,7 @@ export class FloatBacklinkBox {
     private panelOpen = false;
     /** reload 恢复 Wish：onload 读档，首个 protyle 事件落地后开面板 */
     private pendingOpen = false;
-    /** 用户显隐意图（状态栏钮控制）；球实际显隐 = userHidden || panelOpen（评审 P1-6：
-     *  面板展开期间球藏起——「收缩成悬浮球」的自然反面，收起面板恢复） */
+    /** 用户显隐意图（状态栏钮/⌘⇧X 控制）；球实际显隐公式见 syncBallVisibility（含球驻留模式） */
     private userHidden = false;
     /** 面板正文挂载前对 wysiwyg inline paddingBottom 的快照（评审 P1-3：BackLinkBottom
      *  onMount 直写 0px+observer 对抗内核 padB——底部形态合理，悬浮形态编辑器白失打字机
@@ -90,6 +94,8 @@ export class FloatBacklinkBox {
 
     private badgeTimer: ReturnType<typeof setInterval> = null;
     private offInvalidate: () => void = null;
+    /** 球驻留设置订阅退订句柄：设置值变化（本端面板 bind/他端 dataChange 热更）即时重算球显隐 */
+    private offBallStay: () => void = null;
     private statusEl: HTMLElement = null;
 
     constructor(blBox: BackLinkBottomBox) {
@@ -102,6 +108,14 @@ export class FloatBacklinkBox {
         this.userHidden = localStorage.getItem(LS_BALL_HIDDEN) === "1";
         this.pendingOpen = localStorage.getItem(LS_OPEN) === "1";
         this.syncBallVisibility();
+        // 球驻留模式热生效：非结构性键不整重载，store 值变（面板 bind/他端 dataChange）即重算。
+        // subscribe 首拍即回调一次，与上方 syncBallVisibility 幂等无副作用
+        this.offBallStay = back_link_float_ball_stay.subscribe(() => {
+            if (this.alive) {
+                this.syncBallVisibility();
+                this.applyBallNudge();
+            }
+        });
 
         // 挂载序即绘制序：面板先挂、球后挂（同 z-index 10 下后者在上=面板不压球）
         this.panelHost = document.body.appendChild(document.createElement("div"));
@@ -118,6 +132,8 @@ export class FloatBacklinkBox {
                 onBody: (el: HTMLElement) => {
                     this.panelBodyEl = el;
                 },
+                // 拖拽/resize 落定后重算球让位（用户把面板拖到球上时球跳出让位）
+                onGeoChange: () => this.applyBallNudge(),
             },
         });
         this.ballSv = mount(BkFloatBall, {
@@ -128,6 +144,9 @@ export class FloatBacklinkBox {
                 onToggle: () => this.togglePanel(),
                 // 球 tooltip 提示的是面板开合键（球=面板入口；同上防循环 import 的函数 prop）
                 panelKeyHint: () => BKFloatToggle.w(),
+                // 共存模式防遮挡让位偏移（applyBallNudge 计算；null=原位）
+                shift: this.ballShiftStore,
+                onShiftAbsorbed: () => this.setShift(null),
             },
         });
 
@@ -158,11 +177,61 @@ export class FloatBacklinkBox {
         debugLog("bkfloat", `onload hidden=${this.userHidden} pendingOpen=${this.pendingOpen}`, "bk");
     }
 
-    /** 球实际显隐 = userHidden || panelOpen（评审 P1-6）：面板展开期间球藏起
-     *  （「收缩成悬浮球」语义的自然反面），收起面板/状态栏钮解除即恢复 */
+    /** 球实际显隐 = userHidden || (panelOpen && !球驻留)：
+     *  共存模式（back_link_float_ball_stay 默认开，09-18 bear 需求）：面板展开球留驻，
+     *  再点球收面板；关闭=旧互斥行为「面板展开球藏起」（评审 P1-6 收缩语义），收起恢复 */
     private syncBallVisibility() {
-        const hidden = this.userHidden || this.panelOpen;
+        const hidden = this.userHidden || (this.panelOpen && !back_link_float_ball_stay.get());
         this.ballHiddenStore.set(hidden);
+    }
+
+    /** shift 写入统一入口：维护 lastShift 镜像（不变式=渲染位−记忆位），见字段注 */
+    private setShift(v: { x: number; y: number } | null) {
+        this.lastShift = v;
+        this.ballShiftStore.set(v);
+    }
+
+    /** 共存模式防遮挡让位（vision P1）：面板开启期间球的记忆位若与面板矩形相交，会浮在
+     *  面板上压住头栏控件——临时让位到面板上方（空间不足依次左/右/下方），只下发视觉
+     *  偏移不写球的 localStorage 记忆位，收起面板/拖球即回原位。旧互斥模式球本就藏、
+     *  无此问题（恒清空偏移）。rAF 等 Svelte store→class 刷新后测量（hidden 翻转前
+     *  rect 全零），幂等可重入；相交判定与偏移目标都对记忆基准位求（复评 P1-1） */
+    private applyBallNudge() {
+        requestAnimationFrame(() => {
+            if (!this.alive) return;
+            if (!this.panelOpen || !back_link_float_ball_stay.get() || !this.ballHost || !this.panelHost) {
+                this.setShift(null);
+                return;
+            }
+            const ball = this.ballHost.querySelector<HTMLElement>(".tomato-bk-float-ball");
+            const panel = this.panelHost.querySelector<HTMLElement>(".tomato-bk-float-panel");
+            if (!ball || !panel) return;
+            const b = ball.getBoundingClientRect();
+            const p = panel.getBoundingClientRect();
+            const s = this.lastShift ?? { x: 0, y: 0 };
+            // 渲染位=基准+shift：反推记忆基准位（重算时旧偏移在场不得计入）
+            const base = {
+                left: b.left - s.x,
+                top: b.top - s.y,
+                right: b.right - s.x,
+                bottom: b.bottom - s.y,
+            };
+            const intersects = base.left < p.right && base.right > p.left && base.top < p.bottom && base.bottom > p.top;
+            if (!intersects) {
+                this.setShift(null);
+                return;
+            }
+            const GAP = 8;
+            // 让位目标按视口可用性择一：上→左→右→下（与球 clamp 同用 innerWidth/innerHeight 口径）
+            const target =
+                p.top - GAP - b.height >= 0 ? { x: 0, y: p.top - GAP - b.height - base.top } :
+                p.left - GAP - b.width >= 0 ? { x: p.left - GAP - b.width - base.left, y: 0 } :
+                p.right + GAP + b.width <= window.innerWidth ? { x: p.right + GAP - base.left, y: 0 } :
+                p.bottom + GAP + b.height <= window.innerHeight ? { x: 0, y: p.bottom + GAP - base.top } :
+                null;
+            // 全无空间（视口近乎被面板占满）：保持原位——球恒压面板上层可点可拖，不算死锁
+            this.setShift(target);
+        });
     }
 
     /** BackLinkBottomBox.handleProtyle 的 float 早退分流：只追活动文档徽标+面板跟随，
@@ -214,6 +283,7 @@ export class FloatBacklinkBox {
         this.panelOpen = true;
         this.panelOpenStore.set(true);
         this.syncBallVisibility();
+        this.applyBallNudge();
         try {
             localStorage.setItem(LS_OPEN, "1");
         } catch { /* 会话内生效 */ }
@@ -230,6 +300,8 @@ export class FloatBacklinkBox {
         this.panelOpen = false;
         this.panelOpenStore.set(false);
         this.syncBallVisibility();
+        // 让位偏移随面板收起解除（球回记忆原位；rAF 内 null 与 syncBallVisibility 顺序无耦合）
+        this.setShift(null);
         if (persist) {
             try {
                 localStorage.setItem(LS_OPEN, "0");
@@ -372,6 +444,9 @@ export class FloatBacklinkBox {
             localStorage.setItem(LS_BALL_HIDDEN, this.userHidden ? "1" : "0");
         } catch { /* 会话内生效 */ }
         if (this.statusEl) this.renderStatusBtn(this.statusEl);
+        // 恢复显示入口补让位（复评 P1-2）：隐藏期间面板可能已挪到球记忆位上，直接恢复=
+        // 球压面板头栏；rAF 等 unhide class 刷新后再量。隐藏方向无需（display:none 量全零）
+        if (!this.userHidden) this.applyBallNudge();
         // 从隐藏恢复时徽标可能已过期（轮询期间被跳过）：立即校准
         if (!this.userHidden && this.curDocID) this.updateBadge();
         debugLog("bkfloat", `ball userHidden=${this.userHidden}`, "bk");
@@ -396,6 +471,8 @@ export class FloatBacklinkBox {
         }
         this.offInvalidate?.();
         this.offInvalidate = null;
+        this.offBallStay?.();
+        this.offBallStay = null;
         this.removeStatusBtn();
         if (this.ballSv) {
             unmount(this.ballSv);

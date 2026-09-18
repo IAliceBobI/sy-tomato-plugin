@@ -1,7 +1,7 @@
 <script lang="ts">
     import { useSvelteFlow, useStore, type Node } from "@xyflow/svelte";
     import { Plugin } from "siyuan";
-    import { onMount, tick } from "svelte";
+    import { onMount, onDestroy, tick } from "svelte";
     import { siyuan } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
 
@@ -14,6 +14,17 @@
     }
 
     let { plugin, dock }: Props = $props();
+
+    // treemap □3 review P1-3：treemap 档本组件卸载（GraphBox 按 mode 条件挂载）——
+    // 置空 dock.data 注册防 locateNode 走 stale SvelteFlow 闭包静默空转
+    onDestroy(() => {
+        const d = getData();
+        if (d) {
+            d.graphStore = null;
+            d.fitView = null;
+            d.locateID = null;
+        }
+    });
 
     onMount(() => {
         plugin;

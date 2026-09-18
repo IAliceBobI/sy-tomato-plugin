@@ -4,7 +4,8 @@
 // 形态清单与真实样本=tests/unit/annoColorFixtures.ts（F1~F15，6810 真实 UI 通道采样）。
 import { ANNO_HREF_PREFIX } from "./annotationsAttr";
 
-/** kramdown 内一条彩字区间：净化文本 + 色变量（归一后恒为色板键）+ 区间内批注锚 id 集 */
+/** kramdown 内一条彩字区间：净化文本 + 色分组键（色板键或自定义字面色值，□5 起值域
+ *  扩——消费 var() 包裹须过 markVarCss）+ 区间内批注锚 id 集 */
 export interface MarkInterval {
     text: string;
     markVar: string;
@@ -22,15 +23,28 @@ const SEMANTIC_BG_TO_PALETTE: Record<string, string> = {
 };
 
 /** 背景色样式值 → 分组键（markVar）。认：色板 `var(--b3-font-backgroundN)`（span/mark 两通道
- *  同值）；语义样式 `var(--b3-inline-builtin-{四色}-background-color, var(--b3-card-…))`（归一）。
- *  不认（v1 边界，发版口径）：自定义 hex、自定义样式 var(--b3-inline-style-…)、其余任意值。 */
+ *  同值）；语义样式 `var(--b3-inline-builtin-{四色}-background-color, var(--b3-card-…))`（归一）；
+ *  自定义颜色字面值——hex/rgb()/rgba()/hsl()/hsla() 原样透传（treemap □5 反哺：陆杰 20:14
+ *  实锤划线总览只认色板变量、8 条自定义 hex 落无色分组；值即分组键兼 CSS color）。
+ *  不认（边界，发版口径）：自定义样式 var(--b3-inline-style-…)（块级解不出具体色）、
+ *  带任意 fallback 的 var、命名色（red）、其余杂值。 */
+const HEX_COLOR_RE = /^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+const FUNC_COLOR_RE = /^(?:rgb|rgba|hsl|hsla)\([^()]*\)$/;
 export function normalizeBgVar(styleValue: string): string | null {
     const v = styleValue.trim();
     let m = v.match(/^var\((--b3-font-background\d+)\)$/);
     if (m) return m[1];
     m = v.match(/^var\(--b3-inline-builtin-(error|warning|info|success)-background-color,/);
     if (m) return SEMANTIC_BG_TO_PALETTE[m[1]];
+    if (HEX_COLOR_RE.test(v) || FUNC_COLOR_RE.test(v)) return v;
     return null;
+}
+
+/** markVar → CSS color 值（消费面统一适配，□5 起 markVar 值域含字面色值）：色板键
+ *  （--b3-… 裸变量名）补 var() 包裹；hex/rgb() 等字面值原样（var() 参数必须是
+ *  自定义属性名，字面值直塞=整条声明非法静默失效）。 */
+export function markVarCss(v: string): string {
+    return v.startsWith("--") ? `var(${v})` : v;
 }
 
 /** style 串提取 background-color 值并归一（属性序无关；语义/色板值内无分号）；

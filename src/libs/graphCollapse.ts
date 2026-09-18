@@ -40,17 +40,43 @@ export function buildTreeIndex(rows: Block[]): TreeIndex {
  * 初始折叠集（按 rows 出现序，确定性；期7 起只按标题层级，段落链已改走 ¶ 合并通道）：
  * level="N"：标题层级 ≥N 且有图内子节点的标题；level="all"：空集。
  * 叶子标题（无子树）不进集——空角标点击无反应（e2e 实锤）；文档根不折叠。
+ * graphbox-listfix（2026-09-18 bear 拍板「列表不在展开范围也可以」）：非标题容器
+ * （结构态=列表项 i）默认折叠——层级可见靠展开 toggle（+N 角标），all 同样全展开。
  */
-export function initialCollapsedRows(rows: Block[], level: ExpandLevel): string[] {
+export function initialCollapsedRows(rows: Block[], level: ExpandLevel, base = 1): string[] {
     const tree = buildTreeIndex(rows);
     const minHeading = level === "all" ? 99 : parseInt(level, 10);
     const out: string[] = [];
     for (const r of rows) {
         if (r.type === "h" && r.subtype?.startsWith("h")) {
-            const lv = parseInt(r.subtype.slice(1), 10);
+            // 相对层级=绝对 hN 平移 base-1（文档最小标题级归一化：H2 起步文档 base=2
+            // 时章=h2 不再被默认 level=2 折掉——treemap 战役 □2 病灶③）
+            const lv = parseInt(r.subtype.slice(1), 10) - base + 1;
             if (lv >= minHeading && (tree.childrenOf.get(r.id)?.length ?? 0) > 0) out.push(r.id);
+        } else if (r.type === "i") {
+            // 列表不在「展开层级」范围（i 不占标题层级）；无子树不折（空角标无意义同款）
+            if (level !== "all" && (tree.childrenOf.get(r.id)?.length ?? 0) > 0) out.push(r.id);
         }
     }
+    return out;
+}
+
+/**
+ * 同文档刷新保留会话折叠态（graphbox-listfix，修「改原文结构→图塌回孤点找不着」）：
+ * - prev ∩ curAlive：用户折叠的存活节点保持折叠
+ * - defaults ∩ 新增节点（∉prevAlive）：本轮新出现的容器走默认推导（用户没见过=无用户态）
+ * - prevAlive 有但 prev 没有的存活节点=用户展开态，保持展开（不被 defaults 打回）
+ * - 已删除节点自然清除
+ */
+export function mergeCollapsedOnRefresh(
+    prev: Iterable<string>,
+    defaults: Iterable<string>,
+    prevAlive: Set<string>,
+    curAlive: Set<string>,
+): Set<string> {
+    const out = new Set<string>();
+    for (const id of prev) if (curAlive.has(id)) out.add(id);
+    for (const id of defaults) if (!prevAlive.has(id) && curAlive.has(id)) out.add(id);
     return out;
 }
 

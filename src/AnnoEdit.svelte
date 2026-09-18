@@ -353,8 +353,10 @@
         <span class="anno-ai-bar__tail">
             {#if chatOpen}
                 <button
-                    class="anno-ai-compress b3-tooltips b3-tooltips__n"
+                    class="anno-ai-compress"
                     aria-label={tomatoI18n.压缩成笔记说明}
+                    onmouseenter={(e) => showPanelTip(e.currentTarget)}
+                    onmouseleave={hidePanelTip}
                     disabled={!canCompress || chatBusy}
                     onclick={(e) => {
                         e.stopPropagation();

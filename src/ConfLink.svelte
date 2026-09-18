@@ -14,6 +14,7 @@
         back_link_default_off,
         back_link_embed,
         back_link_float,
+        back_link_float_ball_stay,
         back_link_goto_bottom_btn,
         back_link_max_size,
         back_link_mention_count,
@@ -153,6 +154,13 @@
                 {tomatoI18n.悬浮反链}<HotkeyCap hk={BKFloatToggle} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div class="helpText">{tomatoI18n.悬浮反链说明}</div>
+            <!-- 球驻留开关（09-18）：共存=面板展开球留驻、再点球收面板（默认）；关=旧「面板开球藏」。
+                 藏球只留快捷键通道=球显隐命令（下方键帽行 ⌘⇧X）+面板开合 ⌘⌥B，无需另设开关 -->
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$back_link_float_ball_stay} />
+                {tomatoI18n.面板展开时保留悬浮球}
+            </div>
+            <div class="helpText">{tomatoI18n.面板展开时保留悬浮球说明}</div>
             <!-- 球显隐命令键帽行（confgather2 □2）：命令无独立开关（runtime localStorage 态），
                  文本+键帽形态与命令开关域行同构 -->
             <div>

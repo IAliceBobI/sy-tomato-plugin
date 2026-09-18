@@ -11,6 +11,7 @@ import { winHotkey } from "./libs/winHotkey";
 import { gatedAddCommand } from "./libs/cmdGate";
 import { walkAndClean, cleanWalkPolicy, shouldAbortClean, WalkPolicy, NamingCtx, getNamingCtx } from "./libs/exportNaming";
 import { pushUniq, setGlobal, getGlobal } from "stonev5-utils";
+import { debugLog } from "./libs/logUtils";
 
 export const MarkdownExport增量导出 = winHotkey("alt+f6", "增量导出", "", () => tomatoI18n.增量导出)
 export const MarkdownExport确保导出符合配置 = winHotkey("alt+f7", "确保导出符合配置", "", () => tomatoI18n.确保导出符合配置)
@@ -187,9 +188,11 @@ async function _exportMd2Dir(dir: string, force = false, msg = true) {
         }
     }
     let acc = 0;
+    let brokenTotal = 0;
     for (const chunk of chunks(docs, 100)) {
         if (chunk.length == 0) continue;
-        const fileNames = await parallelExport(chunk, dir, ctx)
+        const { names: fileNames, broken } = await parallelExport(chunk, dir, ctx)
+        brokenTotal += broken;
 
         const updated = chunk.at(-1).updated;
         if (updated) {
@@ -201,27 +204,35 @@ async function _exportMd2Dir(dir: string, force = false, msg = true) {
             await siyuan.pushMsg(`(${acc}/${docs.length})${tomatoI18n.导出工作空间}：${fileNames.join(", ")}`);
         }
     }
+    // 失效引用轮末提示（自动导出静默走 debugLog）：跳过数>0 必告知，不静默吞
+    if (brokenTotal > 0) {
+        if (msg) await siyuan.pushMsg(tomatoI18n.导出跳过x个失效资源引用(brokenTotal), 10000);
+        debugLog("export", `跳过 ${brokenTotal} 个失效资源引用（源文件缺失，引用保留原样）`);
+    }
 }
 
-async function parallelExport(docs: Block[], dir: string, ctx: NamingCtx | null = null) {
+async function parallelExport(docs: Block[], dir: string, ctx: NamingCtx | null = null): Promise<{ names: string[]; broken: number }> {
+    let broken = 0;
     const tasks = docs.map(async doc => {
         // ctx 未收录（TTL 窗口内新建/笔记本失联/构建失败）→ 退旧 #id 路径（唯一性恒成立）
         const safePath = ctx?.getExpPath(doc, dir) ?? getExpPath(doc, dir);
         // hpath/path 缺失（笔记本根行等）算不出路径：跳过而非抛错——抛错会让本 chunk 的
         // 增量游标（maxUpdated）不前移，之后每 tick 重拉同一批卡死循环
         if (!safePath) return "";
-        await writeDocMd(doc, safePath);
+        broken += await writeDocMd(doc, safePath);
         return doc.content
     });
-    return Promise.all(tasks);
+    return { names: await Promise.all(tasks), broken };
 }
 
 // 共享写盘：图片分支（资源前缀改名 + 旧前缀清理）与 copyStdMarkdown 分支。
 // parallelExport 与 checkSync 补写共用——修掉此前 checkSync 图片模式下补写内容仍引用
 // assets/ 原路径、与导出时前缀改名不一致的 bug（spec「共享写盘函数」节）。
-async function writeDocMd(doc: Block, safePath: string) {
+// export 供单测（exportBrokenRef：失效引用防御行为）。
+export async function writeDocMd(doc: Block, safePath: string): Promise<number> {
     const fs = osFs();
     const ospath = osPath();
+    let brokenPics = 0;
     await fs.mkdir(ospath.dirname(safePath), { recursive: true });
     let md = ""
     if (markdownExportPics.get()) {
@@ -236,21 +247,34 @@ async function writeDocMd(doc: Block, safePath: string) {
             }
         }
 
+        // 失效引用防线（09-17 陆杰导出报错实锤）：引用的 assets 文件已不在盘上
+        // （被移走/删掉/跨空间迁移悬空引用）时跳过复制并保留原引用——旧实现裸
+        // copyFile 抛 ENOENT 会炸掉整轮导出，且增量游标（maxUpdated）卡在本批
+        // 不前移，自动导出每 tick 重拉同批无限重炸（用户控制台 19 连报）。
         async function setSrcAndCopyPic(e: Element, attr: AttrKey) {
             const dataFilePath = getAttribute(e, attr);
+            const src = ospath.join(Siyuan.config.system.dataDir, dataFilePath);
+            try {
+                await fs.access(src);
+            } catch {
+                brokenPics++;
+                return;
+            }
             const fileName = prefix + ospath.basename(dataFilePath)
-            setAttribute(e, attr, fileName);
             const destFile = ospath.join(destMdDir, fileName);
             try {
                 await fs.access(destFile);
                 // File exists, do not copy
             } catch {
-                // File does not exist, copy it
-                await fs.copyFile(
-                    ospath.join(Siyuan.config.system.dataDir, dataFilePath),
-                    destFile
-                );
+                // File does not exist, copy it；复制失败同计失效并保留原引用
+                try {
+                    await fs.copyFile(src, destFile);
+                } catch (e) {
+                    brokenPics++;
+                    return;
+                }
             }
+            setAttribute(e, attr, fileName);
         }
         const { div } = await getDocBlocks(doc.id, doc.content, false, true, 1)
         div.querySelectorAll(`span[data-type="block-ref"]`).forEach(e => {
@@ -281,6 +305,7 @@ async function writeDocMd(doc: Block, safePath: string) {
         md = await siyuan.copyStdMarkdown(doc.id);
     }
     await fs.writeFile(safePath, md, { encoding: 'utf8' });
+    return brokenPics;
 }
 
 function getExpPath(doc: Block, dir: string) {

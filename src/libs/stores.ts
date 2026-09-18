@@ -680,6 +680,9 @@ export const back_link_goto_bottom_btn = settingFactory("back_link_goto_bottom_b
 // □4 悬浮反链总开关（bkfloat 2026-09-17，默认开）：桌面端把底部反链升级为悬浮球+悬浮面板。
 // 结构性键（storageHotReload 已登记）：BackLinkBottomBox.onload 期注册读死，改动须整插件重载生效
 export const back_link_float = settingFactory("back_link_float", true, STORAGE_SETTINGS, null as TSK);
+// 面板展开时球驻留（09-18 bear 需求，默认开）：共存模式——开面板球不隐藏，再点球收面板；
+// 关=旧互斥行为「面板开球藏」。非结构性键：BkFloat 订阅本 store 即改即生效（含他端热更）
+export const back_link_float_ball_stay = settingFactory("back_link_float_ball_stay", true, STORAGE_SETTINGS, null as TSK);
 export const back_link_concept_fold = settingFactory("back_link_concept_fold", true, STORAGE_SETTINGS, null as TSK);
 export const back_link_copy = settingFactory("back_link_copy", false, STORAGE_SETTINGS, null as TSK);
 export const back_link_move_to_dailynote = settingFactory("back_link_move_to_dailynote", true, STORAGE_SETTINGS, null as TSK);
@@ -989,6 +992,12 @@ export const readCurveCadPlain = settingFactory("readCurveCadPlain", 0, STORAGE_
 export const writingQuota = settingFactory("writingQuota", 1, STORAGE_Prog_SETTINGS, null as TSK);
 export const cardUnderPiece = settingFactory("cardUnderPiece", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const cardAppendTime = settingFactory("cardAppendTime", false, STORAGE_Prog_SETTINGS, null as TSK);
+// 卡片顶部来源层级路径显示（09-17 MOUQIN 群反馈→09-18 三态化）：值域 "off"|"lite"|"full"
+// （lite=只显首段书名、full=相邻同名去重的完整串——权威定义在渐进 cardPathRender.ts 的
+// CardPathMode，此处 string 防共享库反向依赖渐进模块）；旧 boolean 存量由渐进 loadStore
+// 迁移（false→off、true→full）。渲染端=index.scss ::before content var(--card-path)
+// + body.prog-card-path-on 总闸（渐进 index.ts 订阅挂摘并驱动 JS 逐块写变量）
+export const flashcardShowPath = settingFactory("flashcardShowPath", "off", STORAGE_Prog_SETTINGS, null as TSK);
 export const mobileTopBar = settingFactory("mobileTopBar", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const initProgFloatBtnsDisable = settingFactory("initProgFloatBtnsDisable", false, STORAGE_Prog_SETTINGS, null as TSK);
 // 片态浮条首行勾选集（设置面板「浮条」区 checkbox 清单，□10 方案 B：勾=站首行大钮，

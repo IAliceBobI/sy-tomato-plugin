@@ -268,6 +268,75 @@ export abstract class TomatoI18nABC7 extends TomatoI18nABC8 {
                 return "After card creation, append time and title path";
         }
     }
+    public get 卡片上方显示来源路径() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "卡片上方显示来源路径";
+            case "es_ES":
+                return "Mostrar la ruta de origen encima de la tarjeta";
+            case "fr_FR":
+                return "Afficher le chemin d'origine au-dessus de la carte";
+            case "ja_JP":
+                return "カードの上部に出典パスを表示";
+            case "zh_CHT":
+                return "卡片上方顯示來源路徑";
+
+            default:
+                return "Show the source path above the card";
+        }
+    }
+    // 三态选项（09-18 精简档）：off/lite/full 的 select 文案，与「卡片上方显示来源路径」行 label 配套
+    public get 路径显示不显示() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "不显示";
+            case "es_ES":
+                return "No mostrar";
+            case "fr_FR":
+                return "Ne pas afficher";
+            case "ja_JP":
+                return "表示しない";
+            case "zh_CHT":
+                return "不顯示";
+
+            default:
+                return "Don't show";
+        }
+    }
+    public get 路径显示只文章名() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "只显示文章名";
+            case "es_ES":
+                return "Solo el nombre del artículo";
+            case "fr_FR":
+                return "Nom de l'article uniquement";
+            case "ja_JP":
+                return "記事名のみ表示";
+            case "zh_CHT":
+                return "只顯示文章名";
+
+            default:
+                return "Article name only";
+        }
+    }
+    public get 路径显示完整层级() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "完整层级";
+            case "es_ES":
+                return "Jerarquía completa";
+            case "fr_FR":
+                return "Hiérarchie complète";
+            case "ja_JP":
+                return "階層すべて表示";
+            case "zh_CHT":
+                return "完整層級";
+
+            default:
+                return "Full hierarchy";
+        }
+    }
     public get 已摘抄块显示背景色() {
         switch (this.lang) {
             case "zh_CN":

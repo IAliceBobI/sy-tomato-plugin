@@ -18,8 +18,10 @@
         onBody: (el: HTMLElement) => void;
         /** 面板开合键位提示（confgather2 □2）：收起钮 tooltip 后缀，函数 prop 现求值防循环 import */
         panelKeyHint: () => string;
+        /** 几何落定回调（拖拽/resize/窗口 resize 后）：宿主重算共存模式球让位 */
+        onGeoChange?: () => void;
     }
-    let { open, title, onCollapse, onBody, panelKeyHint }: Props = $props();
+    let { open, title, onCollapse, onBody, panelKeyHint, onGeoChange }: Props = $props();
 
     const LS_KEY = "tomato-bkfloat-panel";
     const MIN_W = 320;
@@ -155,14 +157,17 @@
         if (!dragging) return;
         dragging = false;
         saveGeo();
+        onGeoChange?.();
     }
 
-    /** pointercancel 收尾：清理监听复位状态，不落盘（打断≠完成一次拖动） */
+    /** pointercancel 收尾：清理监听复位状态，不落盘（打断≠完成一次拖动）。
+     *  cancel 前位移已实时应用（几何可能已变），补 onGeoChange 让宿主重算球让位 */
     function dragCancel() {
         window.removeEventListener("pointermove", dragMove);
         window.removeEventListener("pointerup", dragUp);
         window.removeEventListener("pointercancel", dragCancel);
         dragging = false;
+        onGeoChange?.();
     }
 
     // ---- SE 角 resize ----
@@ -209,14 +214,16 @@
         if (!resizing) return;
         resizing = false;
         saveGeo();
+        onGeoChange?.();
     }
 
-    /** pointercancel 收尾：清理监听复位状态，不落盘 */
+    /** pointercancel 收尾：清理监听复位状态，不落盘（打断≠完成；几何可能已变，补回调） */
     function resizeCancel() {
         window.removeEventListener("pointermove", resizeMove);
         window.removeEventListener("pointerup", resizeUp);
         window.removeEventListener("pointercancel", resizeCancel);
         resizing = false;
+        onGeoChange?.();
     }
 
     // ---- 透明度滑杆：input 跟手只改内存+style，change（松手/键盘步进提交）才落盘
@@ -247,6 +254,7 @@
 
     function onResize() {
         applyGeo();
+        onGeoChange?.();
     }
 
     // 正文容器就绪上报（一次性语义由宿主保证：bodyEl 恒在只会上报一次）

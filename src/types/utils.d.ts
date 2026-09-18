@@ -153,6 +153,8 @@ type TomatoSettings = {
     cardLanding: string,
     mobileTopBar: boolean,
     cardAppendTime: boolean,
+    /** 卡片顶部来源层级路径（custom-ref/origin-hpath ::before）显示开关，默认关（09-17 群反馈） */
+    flashcardShowPath: boolean,
     cardUnderPiece: boolean,
     openCardsOnOpenPiece: boolean,
     hideBtnsInFlashCard: boolean,
@@ -345,6 +347,7 @@ type TomatoSettings = {
     bk_visible_only: boolean,
     back_link_goto_bottom_btn: boolean,
     back_link_float: boolean,
+    back_link_float_ball_stay: boolean,
     back_link_concept_fold: boolean,
     back_link_copy: boolean,
     back_link_move_to_dailynote: boolean,
@@ -508,6 +511,7 @@ type AttrType = {
     "custom-bkRefDocCount"?: string,
     "custom-graph-isVertical"?: string,
     "custom-graph-layout"?: string,
+    "custom-graph-mode"?: string,
     "custom-graph-node-positions"?: string,
     "custom-graph-collapsed"?: string,
     "custom-super-list"?: string,
@@ -619,8 +623,9 @@ interface GraphDockData<T> {
     /** graphbox 期2：展开目标节点的折叠祖先链（定位不静默）；返回是否有折叠变更 */
     expandTo?: (id: string) => Promise<boolean>;
     /** graphbox 期4：图当前通道态/文档/块上限（locateNode 的 toast 分支文案依据）；
-     *  二期 □2 增 blockCount（precheck 真实块数，「超上限」文案只留给 cnt > maxBlocks 的真超限） */
-    getGraphState?: () => { mode: "structure" | "full"; docID: string; maxBlocks: number; blockCount?: number };
+     *  二期 □2 增 blockCount（precheck 真实块数，「超上限」文案只留给 cnt > maxBlocks 的真超限）；
+     *  treemap □5 增 marks 档（同 treemap 定位语义） */
+    getGraphState?: () => { mode: "structure" | "full" | "treemap" | "marks"; docID: string; maxBlocks: number; blockCount?: number };
     /** graphbox 二期 □2：图内全块 id 集（locateNode 定位兜底上爬祖先的「图内」判定） */
     graphIDsOf?: () => Set<string>;
     /** graphbox 期3：当前布局方向（横 LR=false 纵 TB=true）——zoom 过小提示切纵向的判定依据（期7 起随 isVertical 退役，改 layoutForm） */

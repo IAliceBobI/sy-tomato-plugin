@@ -47,14 +47,17 @@
     import { pickGraphChannel } from "./libs/graphSkeleton";
     import {
         buildTreeIndex, initialCollapsedRows, computeVisible, filterEdges, expandAncestors,
-        serializeCollapsed, parseCollapsed, type ExpandLevel, type GraphEdgeSpec, type RenderEdge,
+        serializeCollapsed, parseCollapsed, mergeCollapsedOnRefresh, type ExpandLevel, type GraphEdgeSpec, type RenderEdge,
     } from "./libs/graphCollapse";
     import {
         normalizeLayoutForm, rankdirOf, isTextVertical, migrateIsVertical, nextLayoutForm,
         type LayoutForm,
     } from "./libs/graphLayout";
     import { mergeParagraphChains } from "./libs/graphParaMerge";
-    import { buildStructureInfo, redirectLinksToContainers, numberHeadingChain, chapterAnchorMap, type StructureInfo } from "./libs/graphStructure";
+    import { redirectLinksToContainers, numberHeadingChain, chapterAnchorMap, structureRowsFromOutline, type StructureInfo } from "./libs/graphStructure";
+    import GraphTreemap from "./GraphTreemap.svelte";
+    import { defaultGraphMode, normalizeGraphMode, type GraphViewMode } from "./libs/graphViewMode";
+    import { fetchDocMarks, type DocMarks } from "./libs/graphMarks";
     import { graphDefaultLayout } from "./libs/stores";
     import { tomatoI18n } from "./tomatoI18n";
 
@@ -74,11 +77,17 @@
     const nodeHeight = 36;
     let canvasHeight: number = $state();
     let canvasWidth: number = $state();
-    let lastDocID = "";
+    let lastDocID = $state.raw("");
     // □2 闪烁治理指纹：同文档且 updated 未变 = 图数据必然未变，changeDoc 整次短路
     // （「打开所在文档」新页签/重复 loaded 事件/轮询必刷的白跑全被挡在构建前，零闪烁零成本）
     let lastFingerprint = "";
-    let currentDocName = ""; // 完整加载时 getData 需要文档名（根节点 label）
+    // □4 档位会话记忆（globalThis 跨插件重载存活——deploy/热重载重挂组件不丢）：读档最优先，
+    // 兜 setBlockAttrs 写后立读窗口的缓存回填（读回「无该键」旧 IAL → 档位被打回默认+指纹
+    // 短路锁死的震荡链，坑⑧同族）。写点=setGraphMode/onFullLoad 落笔处。
+    // review P2-5（有意为之）：memo 优先于 IAL=会话语义——他窗/属性面板手改 custom-graph-mode
+    // 本窗不感知（切走再切回仍读本窗记忆），低频可辩护
+    const graphModeMemo: Map<string, GraphViewMode> = ((globalThis as any).__tomatoGraphModeMemo ??= new Map());
+    let currentDocName = $state.raw(""); // 完整加载时 getData 需要文档名（根节点 label；□3 起 treemap props 消费）
     let stop = false;
     // 布局形态四态（期7）：lr/tb=横排文字，vlr/vtb=竖排文字（writing-mode）；
     // 树生长方向 rankdirOf(form)，持久化 custom-graph-layout（旧 custom-graph-isVertical 读时迁移）
@@ -88,8 +97,11 @@
 
     // graphbox 期2 折叠机制：完整树数据只建一次，$nodes/$edges 只装可见子图——
     // 折叠/展开 toggle 重算可见集（computeVisible/filterEdges）+局部重布局，折叠态图永远小、dagre 永远快
-    let allRows: Block[] = [];
+    let allRows: Block[] = $state.raw([] as Block[]); // □3 起 treemap props 消费（raw=引用替换零深代理）
     let allLinks: GraphEdgeSpec[] = [];
+    // treemap □4：结构态原始引用边（dedupeLinks 产物、redirect 重定向前——叶子端点粒度
+    // 保留，GraphTreemap 聚焦匹配消费；raw=引用替换零深代理，与 allRows 同款）
+    let structRefLinks: GraphEdgeSpec[] = $state.raw([] as GraphEdgeSpec[]);
     let labels = new Map<string, string>();
     let collapsedSet = new Set<string>();
     // 期7 ¶×N 重设计：段落链在数据预处理层整链合并（链成员从 allRows 剔除、边端点重定向链头）
@@ -100,16 +112,40 @@
     // graphbox □2 通道语义反转（2026-09-17）：渲染默认=structure（结构优先：容器树+徽标），
     // full=显式切换档（会话记忆 graphFullLoadedBigDocs=用户对该文档选过全量）。旧 skeleton
     // 骨架标题树通道退役（结构 SQL 通道覆盖其能力且更轻）。
-    let graphMode: "structure" | "full" = $state("structure");
+    let graphMode: GraphViewMode = $state("structure");
+    // □5 标记模式：标记块集合（marks 档喂 GraphTreemap——权重覆盖/叶子标记色；raw=引用
+    // 替换传导）。SWR 语义：缓存先显（切档零闪烁）+ 每次进档后台重拉刷新（划新线后
+    // 重进档即新数据，不做失效通知——标记 SQL 单文档开销毫秒级）。完成判据=marksReqID
+    // 末者胜出：fetchDocMarks 毫秒级远快于 changeDoc 全链（lastDocID 秒级后才落，实弹
+    // 6810 实锤恒假永不刷——首屏全 ε 薄框卡死形态）；marks 档外不刷（防瞬时污染）
+    let docMarks: DocMarks | undefined = $state.raw(undefined);
+    const marksCache = new Map<string, DocMarks>();
+    let marksReqID = 0;
+    async function ensureMarks(docID: string) {
+        if (!docID) return;
+        const req = ++marksReqID;
+        docMarks = marksCache.get(docID) ?? new Map();
+        try {
+            const m = await fetchDocMarks(docID);
+            if (req !== marksReqID || graphMode !== "marks") return;
+            marksCache.set(docID, m);
+            docMarks = m;
+        } catch (e) {
+            gbLog("graph.marks_err", `${e}`);
+        }
+    }
     let graphStat: { cnt: number; totalLen: number } | null = $state(null);
     let graphLoading = $state(false);
     let graphManualRefresh = $state(false);
     // □2 结构态：叶子归属/聚合（buildStructureInfo 或 SQL 通道产物）；leafShowContainers=
     // 点徽标展开的容器（会话态不持久化——与折叠持久化错键语义，第一版不混用）；
     // leafContent=SQL 通道叶子按需正文（DOM 通道叶子正文在 directLeaves 的 Block 上）
-    let structInfo: StructureInfo | null = null;
+    let structInfo: StructureInfo | null = $state.raw(null); // □3 起 treemap props 消费（raw=引用替换零深代理）
     // 结构态数据所属文档：lastDocID 在构建成功后才落（失败路径不切档），构建期徽标判定用本值
     let structDocID = "";
+    // treemap □3：结构数据版本号（structInfo/allRows 非 $state，{#key} 消费驱动 GraphTreemap
+    // 重挂=下钻态随切文档/数据刷新重置）
+    let structVersion = $state(0);
     // □4 章节编号独立字段（GraphNode 弱化渲染浅灰前缀；labels 不再拼接）
     let structNumbers = new Map<string, string>();
     let leafShowContainers = new Set<string>();
@@ -145,6 +181,14 @@
 
     // https://svelteflow.dev/examples/nodes/easy-connect
     onMount(() => {
+        // treemap □2 vision P0：主题热切换后画布色滞留（colorMode 此前只在切文档时从
+        // appearance config 刷新）——MutationObserver 跟 html[data-theme-mode]（3.8.3 判据）
+        const themeObserver = new MutationObserver(() => {
+            const m = document.documentElement.getAttribute("data-theme-mode");
+            const next: ColorMode = m === "dark" ? "dark" : m === "light" ? "light" : "system";
+            if (next !== colorMode) colorMode = next;
+        });
+        themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme-mode"] });
         data().setCanvasSize = () => {
             // dock.element 无固有高（历史上靠本函数写死 style 撑起，读它=自反馈虚高）；
             // 高按视口减法：顶锚 canvas.getBoundingClientRect().top、底到视口底（思源左侧
@@ -158,6 +202,18 @@
         };
         data().changeDoc = changeDoc;
         data().expandTo = expandTo;
+        // □4 首挂主动拉：?id= 直开/插件重载后事件空窗（switch-protyle 早于订阅、轮询吃
+        // events 单例空窗）曾致面板恒空档——挂载即从 getAllEditor 直取编辑器拉一轮。
+        // review P1-1：活动 Wnd 优先（.layout__wnd--active 判据）防分屏下初始化到非焦点
+        // 文档；空窗期轮询/openGraphDock 的 events.docID 同空无自愈，选错=错档直到手动切
+        if (!lastDocID) {
+            const editors = (getAllEditor() as any[]).filter(e => e?.protyle?.block?.rootID && e?.protyle?.title?.editElement?.textContent);
+            const p = (editors.find(e => e.protyle.wysiwyg?.element?.closest(".layout__wnd--active")) ?? editors[0])?.protyle;
+            if (p) {
+                gbLog("graph.mount_pull", `doc=${p.block.rootID.slice(0, 8)}`);
+                void changeDoc(p).catch(e => gbLog("graph.mount_pull_err", `${e}`));
+            }
+        }
         // 期7 ¶ 链中段定位重定向：目标块已并进 ¶ 大节点 → 图上节点=链头（GraphControl locateID 消费）
         data().paraRedirectOf = (id: string) => paraRedirect.get(id) ?? id;
         // 二期 □2 定位兜底数据通道：图内全块 id 集（locateNode 上爬祖先时的「图内」判定）
@@ -232,6 +288,7 @@
         }
         // 期4：openGraphTab 页签通道退役，本组件仅由 dock 挂载（landscapeSwitchBtnID 恒非空）；
         // 原 else 分支（tab 冷启动 setCanvasSize+changeDoc+locateID）随之删除
+        return () => themeObserver.disconnect(); // 插件 reload 卸载时清 observer 防累积
     });
 
     // changeDoc 与 onFullLoad 全量构建共用互斥锁：防止轮询/切文档的重建与「完整加载」交错
@@ -276,17 +333,46 @@
 
         // □2 预检分流（渲染恒=结构优先初始）：小文档 DOM 全量数据源（缓存供切换档零重建）、
         // 大文档 SQL 结构轻通道（绝不无脑 getBlockDOM——巨书 25~39s/24MB）；会话内选过
-        // 全量档的大文档（graphFullLoadedBigDocs）直取全量渲染（用户已付过构建成本）
-        const stat = await precheckDocSize(docID);
+        // 全量档的大文档（graphFullLoadedBigDocs）直取全量渲染（用户已付过构建成本）。
+        // treemap □3 档位：custom-graph-mode 存档优先 → 块数分流默认（>300 进方块档）；
+        // 大文档存档 full 但会话无全量数据=降级（全量须确认链，不该被自动路过）
+        const [stat, modeAttrs0] = await Promise.all([
+            precheckDocSize(docID),
+            siyuan.getBlockAttrs(docID).catch(() => ({}) as Record<string, string>),
+        ]);
+        // □4 实锤（引用验证C 方块档随机打回结构档）：getBlockAttrs 空 map 闪烁（cache/
+        // BlockTree 竞态，09-13 三验在档）曾被当「无存档」落默认档 → 档位震荡。合法态 IAL
+        // 恒含 id/title 基础字段，空 map=异常 → 重试一次；再空走 SQL ial 列双兜底（读档恢复
+        // 一次性场景非判向——ial 列写后立读窗的禁令只限比较现值链）
+        let modeAttrs = modeAttrs0;
+        if (!modeAttrs || !Object.keys(modeAttrs).length) {
+            await sleep(150);
+            modeAttrs = await siyuan.getBlockAttrs(docID).catch(() => ({}) as Record<string, string>);
+            if (!modeAttrs || !Object.keys(modeAttrs).length) {
+                const ialRow = await siyuan.sqlOne(`select ial from blocks where id='${docID}'`).catch(() => null);
+                modeAttrs = ialRow?.ial ? { "custom-graph-mode": ialRow.ial.match(/custom-graph-mode="([^"]*)"/)?.[1] ?? "" } : modeAttrs;
+                if (modeAttrs?.["custom-graph-mode"]) gbLog("graph.mode_ial_fallback", `doc=${docID.slice(0, 8)} mode=${modeAttrs["custom-graph-mode"]}`);
+            }
+        }
         const fullData = graphFullLoadedBigDocs.has(docID)
             || pickGraphChannel(stat?.cnt ?? 0, graphMaxAllBlocks.get()) === "full";
-        gbLog("graph.channel", `doc=${docID.slice(0, 8)} → structure(${fullData ? "dom" : "sql"})${graphFullLoadedBigDocs.has(docID) ? "+fullmem" : ""}`);
+        // □4 修复（档位震荡）：同文档重跑保持当前档（switch-protyle 回声/轮询不重设档位）；
+        // 切文档时读档优先级=会话记忆 > 存档属性 > 默认分流——会话记忆兜住 setBlockAttrs
+        // 写后立读缓存回填窗（读回「无该键」旧 IAL → 档位打回默认+指纹短路锁死，坑⑧同族）
+        const sameDoc = lastDocID === docID;
+        let targetMode = sameDoc
+            ? graphMode
+            : (graphModeMemo.get(docID)
+                ?? normalizeGraphMode(modeAttrs?.["custom-graph-mode"])
+                ?? defaultGraphMode(stat?.cnt ?? 0));
+        if (targetMode === "full" && !fullData) targetMode = "structure";
+        gbLog("graph.channel", `doc=${docID.slice(0, 8)} → ${targetMode}(${fullData ? "dom" : "sql"})${graphFullLoadedBigDocs.has(docID) ? "+fullmem" : ""}`);
         graphStat = stat;
         graphManualRefresh = graphFullLoadedBigDocs.has(docID);
 
         graphLoading = true;
         try {
-            if (fullData) {
+            if (targetMode === "full") {
                 const t0 = performance.now();
                 const { rows, links } = await getData(
                     docID,
@@ -296,18 +382,29 @@
                 );
                 gbLog("graph.full", `rows=${rows.length} links=${links.length} ${Math.round(performance.now() - t0)}ms`);
                 fullRowsCache = { rows, links };
-                if (graphFullLoadedBigDocs.has(docID)) {
-                    graphMode = "full";
-                    await applyRowsAndLinks(rows, links, docID);
-                } else {
-                    graphMode = "structure";
-                    await applyStructureView(rows, links, docID, buildStructureInfo(rows));
-                }
+                graphMode = "full";
+                await applyRowsAndLinks(rows, links, docID);
             } else {
-                fullRowsCache = null;
-                graphMode = "structure";
-                const r = await getGraphStructure(docID, docName);
-                await applyStructureView(r.rows, r.links, docID, r.info);
+                // structure 与 treemap 数据同源（outline 骨架），渲染层按 graphMode 分叉
+                // （marks □5 同渲染层：骨架数据不变，标记集合另走 ensureMarks 旁路拉取）
+                graphMode = targetMode;
+                if (targetMode === "marks") void ensureMarks(docID);
+                if (fullData) {
+                    const t0 = performance.now();
+                    const { rows, links } = await getData(
+                        docID,
+                        docName,
+                        graphMaxPBlocks.get(),
+                        graphMaxAllBlocks.get(),
+                    );
+                    gbLog("graph.full", `rows=${rows.length} links=${links.length} ${Math.round(performance.now() - t0)}ms`);
+                    fullRowsCache = { rows, links };
+                    await applyOutlineSkeleton(rows, links, docID, docName);
+                } else {
+                    fullRowsCache = null;
+                    const r = await getGraphStructure(docID, docName);
+                    await applyStructureView(r.rows, r.links, docID, r.info);
+                }
             }
         } finally {
             graphLoading = false;
@@ -318,8 +415,9 @@
         if (isNewDoc) {
             lastDocID = docID;
         }
+        syncViewModeBtn(); // □3：档位可能随存档/分流变化（图标+布局钮显隐回显）
         lastFingerprint = fingerprint; // 构建真正落地才落指纹（中途丢弃/异常不落）
-        await relayout(!refreshOnly);
+        if (graphMode !== "treemap" && graphMode !== "marks") await relayout(!refreshOnly); // review P2：treemap/marks 档无 xyflow 布局语义
         if (isNewDoc && data()?.locateID) {
             data()?.locateID($nodes.at(0)?.id);
         }
@@ -358,14 +456,49 @@
         return v === "1" || v === "2" || v === "3" || v === "all" ? v : "2";
     }
 
+    // treemap 战役 □2 方案 A：DOM 全量通道换 outline 真值骨架（与 SQL 通道同构——
+    // 骨架=大纲面板标题树；sb/引述/列表退化进徽标；结构边重建只留标题链，引用边保留
+    // isRef 筛选；跨文档端点行恒保留为节点——applyStructureView 的 keep 逻辑依赖其在场）。
+    // 锚必传：getData 产物经 parallelHeanders 层级化=树 DFS 序（标题链提前），前驱锚
+    // 归属必须按 getChildBlocks 物理平铺序（接线实锤：1.2 吸整章 4·168）
+    async function applyOutlineSkeleton(rows: Block[], links: Ref[], docID: string, docName: string) {
+        const entryFP = lastFingerprint; // □4：await 期间的位移探针（见下方丢弃判据注释）
+        const [outline, order] = await Promise.all([
+            siyuan.getDocOutline(docID).catch(e => {
+                gbLog("graph.outline_err", `${e}`); // review P2-3：outline 失败=骨架塌 [doc]，留痕防无痕钉死
+                return [] as GetDocOutline[];
+            }),
+            siyuan.getChildBlocks(docID)
+                .then(kids => new Map(kids.map((k, i) => [k.id as string, i])))
+                .catch(e => {
+                    gbLog("graph.order_err", `${e}`); // review P2-2：锚失败=传序兜底（DOM 树序错序形态），留痕
+                    return new Map<string, number>();
+                }),
+        ]);
+        const sk = structureRowsFromOutline(outline, rows, docID, docName, order);
+        // □4 修正（切回误杀）：丢弃判据原为 lastDocID!==docID——它在 await 间隙恒=上一轮文档，
+        // 「切走又切回」的正常回流被误判过时：数据丢弃但 _changeDoc_ 尾部照落指纹 → 死锁空面板。
+        // 改判 fingerprint 位移：await 期间有新轮完成（真切走）才丢，后发先至=末者胜
+        if (lastFingerprint !== entryFP) return;
+        const refLinks = links.filter(l => (l as GraphEdgeSpec).isRef);
+        const foreign = rows.filter(r => r.root_id !== docID);
+        await applyStructureView([...sk.rows, ...foreign], [...sk.links, ...refLinks], docID, sk.info);
+    }
+
     // □2 结构态组装：allRows=容器树+跨文档端点（叶子不进 allRows——归属/聚合已在 info），
     // 引用边叶子端点重定向到容器（徽标承载引用语义）；结构边恒保留（容器树就是视图本体，
     // 「隐藏结构连线」开关不适用）。折叠态=容器树默认展开层级推导（会话态不持久化，
     // 与全量档的 custom-graph-collapsed 键语义分开，第一版不混用）
     async function applyStructureView(rows: Block[], links: Ref[], docID: string, info: StructureInfo) {
+        // graphbox-listfix：同文档刷新（改原文→ws 回流）保留会话折叠/徽标展开态——
+        // 否则图塌回默认推导小簇+refreshOnly 旧视口 → 「图找不着」（主实例 09:29 实锤
+        // 30 秒内三次手动重开徽标）。切文档=全新推导。上轮态在 allRows 重赋值前取
+        const sameDoc = structDocID === docID;
+        const prevCollapsed = sameDoc ? collapsedSet : new Set<string>();
+        const prevAlive = new Set(allRows.map(r => r.id));
+        const prevLeafShow = sameDoc ? leafShowContainers : new Set<string>();
         structInfo = info;
         structDocID = docID;
-        leafShowContainers = new Set();
         const keep = new Set<string>(info.containers);
         for (const r of rows) {
             // 跨文档端点行（引用边另一头的块，root_id≠本档）恒保留为节点——
@@ -374,7 +507,8 @@
         }
         const structRows = rows.filter(r => keep.has(r.id));
         // □3 vision 方案 A：DOM 通道顶层容器（shortenList 挂回 doc 的列表项/sb/引述）章节
-        // 领地重挂——树形与 SQL 通道对齐，默认展开层级才能压住列表项（默认只显章/节列）
+        // 领地重挂——树形与 SQL 通道对齐，默认展开层级才能压住列表项（默认只显章/节列）。
+        // listfix：骨架层 i 已挂章节锚（parent_id≠根），重挂天然跳过
         const anchors = chapterAnchorMap(structRows, docID);
         if (anchors.size) {
             const doc = structRows.find(r => r.id === docID);
@@ -388,7 +522,9 @@
             }
         }
         allRows = structRows;
-        allLinks = redirectLinksToContainers(dedupeLinks(links, true), info)
+        const deduped = dedupeLinks(links, true);
+        structRefLinks = deduped.filter(e => e.isRef); // □4：重定向前留存（叶子粒度）
+        allLinks = redirectLinksToContainers(deduped, info)
             .map(e => anchors.has(e.target) && e.source === docID
                 ? { ...e, source: anchors.get(e.target)!, id: anchors.get(e.target) + "->" + e.target }
                 : e);
@@ -399,8 +535,22 @@
             const base = rowLabel(row, docID);
             return [row.id, structNumbers.has(row.id) ? base.replace(/^#+\s*/, "") : base];
         }));
-        collapsedSet = new Set(initialCollapsedRows(structRows, normalizeExpandLevel(graphDefaultExpandLevel.get())));
+        // treemap □2 病灶③：展开层级按文档最小标题级归一化（H2 起步文档 base=2，
+        // 章 h2 不再被默认 level=2 折掉；H1 文档 base=1 行为不变）
+        let minHeadingLv = 9;
+        for (const r of structRows) {
+            // review P2-5：限本档标题（跨文档端点标题行混入会把 base 拉回 1 抵消归一化）
+            if (r.type === "h" && r.root_id === docID && r.subtype?.startsWith("h")) minHeadingLv = Math.min(minHeadingLv, parseInt(r.subtype.slice(1), 10) || 1);
+        }
+        const defaults = initialCollapsedRows(structRows, normalizeExpandLevel(graphDefaultExpandLevel.get()), minHeadingLv === 9 ? 1 : minHeadingLv);
+        const curAlive = new Set(structRows.map(r => r.id));
+        collapsedSet = sameDoc
+            ? mergeCollapsedOnRefresh(prevCollapsed, defaults, prevAlive, curAlive)
+            : new Set(defaults);
+        // 徽标展开态同款保留：展开的容器仍在本档容器集才留（删块自然清退）
+        leafShowContainers = new Set([...prevLeafShow].filter(id => info.containers.has(id)));
         applyCollapsedView();
+        structVersion++;
     }
 
     function rowLabel(row: Block, docID: string): string {
@@ -606,43 +756,93 @@
         await relayout();
     }
 
-    // □2 结构⇄全量切换（顶栏钮）：小文档=全量数据已在缓存零重建；大文档=confirm 完整加载
-    // 链（复用 onFullLoad 的锁+双查语义）；全量→结构=清会话全量记忆（重开回结构默认）
-    async function onToggleViewMode() {
-        if (!lastDocID) return;
-        if (graphMode === "structure") {
+    // treemap □3：四档下拉菜单（bear 拍板弃二态循环——全量档危险〔巨书完整加载 10~40s〕
+    // 不该被路过；□5 扩展位兑现=「只看标记」）。当前项打勾；「显示全部块」大文档语义不变
+    // （仍走 onFullLoad 确认链）。
+    function onToggleViewMode(e?: Event) {
+        const btn = (e?.currentTarget ?? (viewModeBtnID ? document.getElementById(viewModeBtnID) : null)) as HTMLElement | null;
+        if (!btn) return;
+        const rect = btn.getBoundingClientRect();
+        gbLog("graph.view_menu", "open");
+        const menu = new (Menu as any)("graphViewMenu", undefined, true) as Menu; // independent 第三参：防 commonMenu 单例被同次冒泡清空（handleNodeContextMenu 同款）
+        const items: Array<[GraphViewMode, string, string, () => void]> = [
+            ["structure", "iconPreview", tomatoI18n.结构视图, () => void setGraphMode("structure")],
+            ["treemap", "iconLayoutGrid", tomatoI18n.方块总览, () => void setGraphMode("treemap")],
+            ["marks", "iconMark", tomatoI18n.只看标记, () => void setGraphMode("marks")],
+        ];
+        for (const [mode, icon, label, click] of items) {
+            menu.addItem({ icon, label, current: graphMode === mode, click });
+        }
+        menu.addItem({
+            icon: "iconContract",
+            label: tomatoI18n.显示全部块,
+            current: graphMode === "full",
+            click: () => void setGraphMode("full"),
+        });
+        // setTimeout 0 脱离 click 冒泡（同步 open 会被菜单全局「外点关闭」立即吃掉——
+        // 同文件 1377/1410 右键菜单同款配方）
+        setTimeout(() => menu.open({ x: Math.round(rect.left), y: Math.round(rect.bottom + 4) }), 0);
+    }
+
+    // □3 档位切换（菜单驱动）：structure/treemap 数据同源（outline 骨架），互切零重建只换
+    // 渲染层；full 走原确认链/缓存链。档位按文档持久化 custom-graph-mode（getLayoutForm 同款）。
+    async function setGraphMode(mode: GraphViewMode) {
+        if (!lastDocID || mode === graphMode) return;
+        // review P1-4：入口捕获文档身份，每个 await 后判变——重建期间切走即中止（防档位
+        // 写到别的文档头上/与 _changeDoc_ 交错重建）；快速连点菜单=后发先至末者胜出
+        const docID = lastDocID;
+        gbLog("graph.view_toggle", `doc=${docID.slice(0, 8)} → ${mode}`);
+        if (mode === "full") {
             if (fullRowsCache) {
                 graphMode = "full";
-                await applyRowsAndLinks(fullRowsCache.rows, fullRowsCache.links, lastDocID);
+                await applyRowsAndLinks(fullRowsCache.rows, fullRowsCache.links, docID);
+                if (lastDocID !== docID) return;
                 await relayout(true);
                 syncViewModeBtn();
             } else {
-                onFullLoad();
+                onFullLoad(); // confirm 完整加载链（成功后自落 full+持久化）
+                return;
             }
         } else {
-            graphMode = "structure";
-            graphFullLoadedBigDocs.delete(lastDocID);
-            graphManualRefresh = false;
-            gbLog("graph.view_toggle", `doc=${lastDocID.slice(0, 8)} → structure`);
-            if (fullRowsCache) {
-                await applyStructureView(fullRowsCache.rows, fullRowsCache.links, lastDocID, buildStructureInfo(fullRowsCache.rows));
-            } else {
-                const r = await getGraphStructure(lastDocID, currentDocName);
-                await applyStructureView(r.rows, r.links, lastDocID, r.info);
+            if (graphMode === "full") {
+                graphFullLoadedBigDocs.delete(docID);
+                graphManualRefresh = false;
             }
-            await relayout(true);
-            syncViewModeBtn();
+            graphMode = mode;
+            if (mode === "marks") void ensureMarks(docID); // □5：标记集合旁路拉取（SWR）
+            if (!structInfo || structDocID !== docID) {
+                if (fullRowsCache) {
+                    await applyOutlineSkeleton(fullRowsCache.rows, fullRowsCache.links, docID, currentDocName);
+                } else {
+                    const r = await getGraphStructure(docID, currentDocName);
+                    if (lastDocID !== docID) return;
+                    await applyStructureView(r.rows, r.links, docID, r.info);
+                }
+            }
+            if (mode !== "treemap" && mode !== "marks") await relayout(true); // 回 xyflow 档重挂布局；treemap/marks=纯渲染层
         }
+        if (lastDocID !== docID) return;
+        graphModeMemo.set(docID, mode); // 会话记忆先于落盘（写后立读窗内也读得到）
+        siyuan.setBlockAttrs(docID, { "custom-graph-mode": mode }).catch(() => { });
+        syncViewModeBtn();
     }
 
-    // 切换钮态回显：结构态显示「显示全部块」（iconPreview）；全量态显示「回到结构视图」
+    // 切换钮态回显：四档各显图标（菜单入口；布局钮在 treemap/marks 档隐藏——无布局语义）
     function syncViewModeBtn() {
         const btn = viewModeBtnID ? document.getElementById(viewModeBtnID) : null;
         const use = viewModeBtnID ? document.getElementById(viewModeBtnID + "-icon") : null;
         if (!btn) return;
+        const landscape = landscapeSwitchBtnID ? document.getElementById(landscapeSwitchBtnID) : null;
+        if (landscape) landscape.style.display = graphMode === "treemap" || graphMode === "marks" ? "none" : "";
         if (graphMode === "structure") {
             use?.setAttribute("xlink:href", "#iconPreview");
-            btn.setAttribute("aria-label", tomatoI18n.显示全部块);
+            btn.setAttribute("aria-label", tomatoI18n.结构视图);
+        } else if (graphMode === "treemap") {
+            use?.setAttribute("xlink:href", "#iconLayoutGrid");
+            btn.setAttribute("aria-label", tomatoI18n.方块总览);
+        } else if (graphMode === "marks") {
+            use?.setAttribute("xlink:href", "#iconMark");
+            btn.setAttribute("aria-label", tomatoI18n.只看标记);
         } else {
             use?.setAttribute("xlink:href", "#iconContract");
             btn.setAttribute("aria-label", tomatoI18n.回到结构视图);
@@ -711,6 +911,8 @@
                             graphFullLoadedBigDocs.add(targetDocID);
                             graphMode = "full";
                             graphManualRefresh = true;
+                            graphModeMemo.set(targetDocID, "full");
+                            siyuan.setBlockAttrs(targetDocID, { "custom-graph-mode": "full" }).catch(() => { }); // □3 档位存档（确认链入口）
                             syncViewModeBtn();
                             gbLog("graph.full_loaded", `rows=${rows.length} ${Math.round(performance.now() - t0)}ms`);
                         } finally {
@@ -1378,6 +1580,17 @@
     bind:clientHeight={canvasHeight}
     bind:clientWidth={canvasWidth}
 >
+    {#if graphMode === "treemap" || graphMode === "marks"}
+        <!-- treemap □3：方块总览渲染层（与 xyflow 画布互斥；{#key lastDocID}=文档身份重挂
+             〔下钻/选中态随切文档重置〕，同文档数据刷新走 allRows/structInfo/structRefLinks
+             的 $state.raw 引用替换传导——review P2-6 陈注释纠偏）。□5：marks 档同层复用，
+             标记集合 docMarks 另走 SWR 旁路（切档零闪烁+后台刷新） -->
+        {#key lastDocID}
+            <GraphTreemap rows={allRows} info={structInfo!} docID={lastDocID} docName={currentDocName}
+                marks={graphMode === "marks" ? docMarks : undefined}
+                refLinks={structRefLinks} onOpenDoc={id => void OpenSyFile2(plugin, id)} />
+        {/key}
+    {:else}
     <SvelteFlowProvider>
         <SvelteFlow
             bind:nodes={$nodes}
@@ -1414,16 +1627,17 @@
                 </Panel>
             {/if}
         </SvelteFlow>
-        {#if graphLoading}
-            <div class="graph-loading-mask">
-                <div class="graph-loading-card">
-                    <span class="graph-loading-spin"></span>
-                    <span>{tomatoI18n.图加载中}</span>
-                </div>
-            </div>
-        {/if}
         <GraphControl {dock} {plugin} />
     </SvelteFlowProvider>
+    {/if}
+    {#if graphLoading}
+        <div class="graph-loading-mask">
+            <div class="graph-loading-card">
+                <span class="graph-loading-spin"></span>
+                <span>{tomatoI18n.图加载中}</span>
+            </div>
+        </div>
+    {/if}
 </div>
 
 <style>
