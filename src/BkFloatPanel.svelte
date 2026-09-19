@@ -20,8 +20,16 @@
         panelKeyHint: () => string;
         /** 几何落定回调（拖拽/resize/窗口 resize 后）：宿主重算共存模式球让位 */
         onGeoChange?: () => void;
+        /** 头栏工具区容器就绪回调（一次）：宿主往里塞专属控件（悬浮图=四档钮组+形态钮，
+         *  graphfloat □3）；悬浮反链不传=无工具区 */
+        onTools?: (el: HTMLElement) => void;
+        /** 标题兜底文案（宿主未推 title 时显示；默认=悬浮反链，悬浮图传「悬浮图」） */
+        fallbackTitle?: string;
+        /** 裸正文模式（悬浮图）：去 padding+overflow hidden——画布类正文须精确填满
+         *  容器（clientWidth 即内容宽，padding 会让 setCanvasSize 溢出出滚动条） */
+        bare?: boolean;
     }
-    let { open, title, onCollapse, onBody, panelKeyHint, onGeoChange }: Props = $props();
+    let { open, title, onCollapse, onBody, panelKeyHint, onGeoChange, onTools, fallbackTitle = "", bare = false }: Props = $props();
 
     const LS_KEY = "tomato-bkfloat-panel";
     const MIN_W = 320;
@@ -112,9 +120,10 @@
 
     /** 交互子元素早退：滑杆/按钮/选择器在头栏内，pointerdown 冒泡进拖拽会把
      *  range 拖动杀死（preventDefault）+ setPointerCapture 重定向后续事件
-     *  （评审 P0 实锤：鼠标拖滑杆面板被拖走） */
+     *  （评审 P0 实锤：鼠标拖滑杆面板被拖走）。工具区（悬浮图四档钮组等 span
+     *  形态控件，非 button 元素）整区早退——capture 会吞 span 钮的 click（同族坑） */
     function interactiveTarget(e: PointerEvent): boolean {
-        return !!(e.target as HTMLElement)?.closest?.("input, button, select, textarea");
+        return !!(e.target as HTMLElement)?.closest?.("input, button, select, textarea, .tomato-bk-float-panel__tools");
     }
 
     function dragDown(e: PointerEvent) {
@@ -261,12 +270,22 @@
     $effect(() => {
         if (bodyEl) onBody(bodyEl);
     });
+
+    // 头栏工具区容器就绪上报（同一次性语义；未传 onTools 则不渲染）
+    let toolsEl: HTMLElement = $state();
+    $effect(() => {
+        if (toolsEl) onTools?.(toolsEl);
+    });
 </script>
 
 <div bind:this={root} class="tomato-bk-float-panel" class:hidden={!$open}>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <header class="tomato-bk-float-panel__head" onpointerdown={dragDown}>
-        <span class="tomato-bk-float-panel__title" title={$title}>{$title || tomatoI18n.悬浮反链}</span>
+        <span class="tomato-bk-float-panel__title" title={$title}>{$title || fallbackTitle || tomatoI18n.悬浮反链}</span>
+        {#if onTools}
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <span class="tomato-bk-float-panel__tools" bind:this={toolsEl}></span>
+        {/if}
         <input
             class="b3-slider tomato-bk-float-panel__opacity"
             type="range"
@@ -287,7 +306,7 @@
             }}
         >{@html icon("Down", 14)}</button>
     </header>
-    <div bind:this={bodyEl} class="tomato-bk-float-panel__body"></div>
+    <div bind:this={bodyEl} class="tomato-bk-float-panel__body" class:tomato-bk-float-panel__body--bare={bare}></div>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
         class="tomato-bk-float-panel__resizer"
@@ -341,6 +360,14 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+    /* 头栏工具区（悬浮图）：flex 收缩保护+钮间距；内部钮形态由宿主（dock 头栏同款
+       block__icon 族）自带，容器只管布局 */
+    .tomato-bk-float-panel__tools {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+    }
     .tomato-bk-float-panel__opacity {
         flex-shrink: 0;
         width: 88px;
@@ -373,6 +400,10 @@
         overflow: auto;
         padding: 6px 8px;
         box-sizing: border-box;
+    }
+    .tomato-bk-float-panel__body--bare {
+        padding: 0;
+        overflow: hidden;
     }
     .tomato-bk-float-panel__resizer {
         position: absolute;

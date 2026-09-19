@@ -57,7 +57,7 @@
     import { redirectLinksToContainers, numberHeadingChain, chapterAnchorMap, structureRowsFromOutline, type StructureInfo } from "./libs/graphStructure";
     import GraphTreemap from "./GraphTreemap.svelte";
     import { defaultGraphMode, resolveArchivedGraphMode, type GraphViewMode } from "./libs/graphViewMode";
-    import { fetchDocMarks, markTreeInfo, markAwareCollapsed, marksKeepSet, MARK_LEAF_FLAT_LIMIT, markCssOf, stripMarkSyntax, type DocMarks, type MarkTreeInfo } from "./libs/graphMarks";
+    import { fetchDocMarks, markTreeInfo, markAwareCollapsed, marksKeepSet, MARK_LEAF_FLAT_LIMIT, markCssOf, stripMarkSyntax, markCardTexts, type DocMarks, type MarkTreeInfo } from "./libs/graphMarks";
 import { focusNeighborhood, noStructureRows } from "./libs/graphFocus";
     import { graphDefaultLayout } from "./libs/stores";
     import { tomatoI18n } from "./tomatoI18n";
@@ -67,8 +67,12 @@ import { focusNeighborhood, noStructureRows } from "./libs/graphFocus";
         dock: { element: HTMLElement; data: any };
         landscapeSwitchBtnID: string;
         viewModeGroupID: string;
+        /** 画布尺寸策略（graphfloat □3）：dock=视口减法（左栏面板延伸到视口底，原有行为）；
+         *  host=量父容器填满（悬浮面板正文容器，flex:1 有确定尺寸）。dock.data 挂载面两通道
+         *  同构——悬浮窗传伪 dock { element: 面板正文容器, data: 独立暴露对象 } 即第二实例 */
+        fit?: "dock" | "host";
     }
-    let { plugin, dock, landscapeSwitchBtnID, viewModeGroupID }: ProposType = $props();
+    let { plugin, dock, landscapeSwitchBtnID, viewModeGroupID, fit = "dock" }: ProposType = $props();
     let colorMode: ColorMode = $state("system");
     let canvas: HTMLElement;
     const nodes = writable<Node[]>([]);
@@ -287,6 +291,18 @@ import { focusNeighborhood, noStructureRows } from "./libs/graphFocus";
         });
         themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme-mode"] });
         data().setCanvasSize = () => {
+            if (fit === "host") {
+                // 悬浮面板通道：canvas 父级（面板正文容器）flex:1 有确定尺寸，量自身填满。
+                // ⚠面板 display:none 期间宿主不得调本函数（测量归零→stop 误置→changeDoc
+                // 早退锁死），宿主只在 open 态调用
+                const host = canvas.parentElement;
+                const w = host?.clientWidth ?? 0;
+                const h = host?.clientHeight ?? 0;
+                canvas.style.width = `${w}px`;
+                canvas.style.height = `${h}px`;
+                stop = w < 10 || h < 10;
+                return;
+            }
             // dock.element 无固有高（历史上靠本函数写死 style 撑起，读它=自反馈虚高）；
             // 高按视口减法：顶锚 canvas.getBoundingClientRect().top、底到视口底（思源左侧
             // dock 面板延伸到视口底），窗口变化走 dock resize 钩子重算
@@ -436,15 +452,20 @@ import { focusNeighborhood, noStructureRows } from "./libs/graphFocus";
     // 把画面刷成 A 文档而状态留 B 文档（2026-09-04 dev 实锤竞态）
     const GRAPH_LOCK = "tomato-graph-box-lock2024-11-4 20:09:58";
 
-    async function changeDoc(protyle: IProtyle, refreshOnly = false) {
-        await navigator.locks.request(
+    // 返回是否真跑（gfloat review P1-2）：true=持锁执行（含组件内指纹短路——数据未变
+    // 也是正确终态）；false=GRAPH_LOCK 被占（ifAvailable 抢锁失败静默放弃）——轮询类
+    // 调用方据此决定是否提交 updated 指纹（预提交×锁丢弃=丢一次刷新且不自愈）
+    async function changeDoc(protyle: IProtyle, refreshOnly = false): Promise<boolean> {
+        return await navigator.locks.request(
             GRAPH_LOCK,
             { ifAvailable: true },
             async (lock) => {
                 if (lock && protyle) {
                     await _changeDoc_(protyle, refreshOnly);
                     await sleep(1000);
+                    return true;
                 }
+                return false;
             },
         );
     }
@@ -923,10 +944,10 @@ import { focusNeighborhood, noStructureRows } from "./libs/graphFocus";
                         const raw = leafContent.get(leaf.id) || leaf.content || "";
                         const text = stripMarkSyntax(raw);
                         const textV = isTextVertical(layoutForm);
-                        const firstLine = text.split("\n")[0].slice(0, 30) || "…";
-                        const nl = text.indexOf("\n");
-                        const bodyText = nl > 0 ? text.slice(nl + 1) : (text.length > 30 ? text : "");
-                        const bodyLines = bodyText ? Math.min(bodyText.split("\n").length, 2) : 0;
+                        // graphfloat □1：标题/正文切分走纯函数（首行截断→正文回退全文）
+                        const { label: firstLine, bodyText } = markCardTexts(text);
+                        // 行数估算含折行（回退正文的长单行按 ~15 字/行折到 2 行）；measured 二轮精修兜底
+                        const bodyLines = bodyText ? Math.min(Math.max(bodyText.split("\n").length, Math.ceil(bodyText.length / 15)), 2) : 0;
                         nodeArr.push({
                             id: leaf.id,
                             type: "tomatoNode",
@@ -1472,84 +1493,90 @@ import { focusNeighborhood, noStructureRows } from "./libs/graphFocus";
         // 结构边序（=文档 DFS 序）先序遍历，叶子自上而下堆叠、内部节点 y=子树首尾中位
         // （子贴父、兄弟文档序）；x/rank 沿用 dagre。手动拖拽固定的子树整树保持 dagre
         // 原位占位（savedPositions 语义优先）；跨文档补块的孤儿节点不在结构树内、保持原位
-        const NODE_GAP = 40; // 与 dagre 默认 nodesep 视觉密度同族
-        const docOrderSiblings = new Map<string, string[]>();
-        edges.forEach((edge) => {
-            if ((edge as any).data?.isRef) return; // 结构边（父子）才承载文档序
-            const s = nodeIdTop(edge.source), t = nodeIdTop(edge.target);
-            if (s === t) return;
-            const arr = docOrderSiblings.get(s) ?? docOrderSiblings.set(s, []).get(s)!;
-            if (!arr.includes(t)) arr.push(t);
-        });
-        const fixedTop = new Set(topNodes.filter(n => savedPositions[n.id]).map(n => n.id));
-        const readRange = (id: string): [number, number] => {
-            const n = dagreGraph.node(id);
-            let min = n.y - n.height / 2, max = n.y + n.height / 2;
-            for (const k of docOrderSiblings.get(id) ?? []) {
-                const [a, b] = readRange(k);
-                min = Math.min(min, a); max = Math.max(max, b);
-            }
-            return [min, max];
-        };
-        let yCursor = 0;
-        const yAssigned = new Map<string, number>();
-        const subtreeY = (id: string): [number, number] => {
-            const node = dagreGraph.node(id);
-            const h = node?.height ?? nodeHeight;
-            const kids = docOrderSiblings.get(id) ?? [];
-            if (fixedTop.has(id) || kids.length === 0) {
-                // fixed 整树保持 dagre 原位（子树成员都不动）；叶子按游标堆叠
-                const y = fixedTop.has(id) ? node.y : yCursor + h / 2;
-                if (!fixedTop.has(id)) yCursor += h + NODE_GAP;
-                yAssigned.set(id, y);
-                return fixedTop.has(id) ? readRange(id) : [y - h / 2, y + h / 2];
-            }
-            let min = Infinity, max = -Infinity;
-            for (const k of kids) {
-                if (fixedTop.has(k)) {
+        // graphfloat □1：y 接管是 LR 脑图语义（叶竖排+父贴子中位），TB 下同跑会把 dagre 的
+        // rank 层级 y 压平——单子链父 y==子 y 且 dagre-TB 又把单子父居中到子 x 附近，
+        // 父子卡整叠（v5.15.1 marks/structure 档 TB 形态实锤）。TB 回归 dagre 原生树
+        // （父上子下、siblings 横排），孤儿底置/文档序堆叠等 LR 增益一并不适用。
+        if (rankdir === "LR") {
+            const NODE_GAP = 40; // 与 dagre 默认 nodesep 视觉密度同族
+            const docOrderSiblings = new Map<string, string[]>();
+            edges.forEach((edge) => {
+                if ((edge as any).data?.isRef) return; // 结构边（父子）才承载文档序
+                const s = nodeIdTop(edge.source), t = nodeIdTop(edge.target);
+                if (s === t) return;
+                const arr = docOrderSiblings.get(s) ?? docOrderSiblings.set(s, []).get(s)!;
+                if (!arr.includes(t)) arr.push(t);
+            });
+            const fixedTop = new Set(topNodes.filter(n => savedPositions[n.id]).map(n => n.id));
+            const readRange = (id: string): [number, number] => {
+                const n = dagreGraph.node(id);
+                let min = n.y - n.height / 2, max = n.y + n.height / 2;
+                for (const k of docOrderSiblings.get(id) ?? []) {
                     const [a, b] = readRange(k);
-                    yCursor = Math.max(yCursor, b + NODE_GAP);
-                    min = Math.min(min, a); max = Math.max(max, b);
-                } else {
-                    const [a, b] = subtreeY(k);
                     min = Math.min(min, a); max = Math.max(max, b);
                 }
+                return [min, max];
+            };
+            let yCursor = 0;
+            const yAssigned = new Map<string, number>();
+            const subtreeY = (id: string): [number, number] => {
+                const node = dagreGraph.node(id);
+                const h = node?.height ?? nodeHeight;
+                const kids = docOrderSiblings.get(id) ?? [];
+                if (fixedTop.has(id) || kids.length === 0) {
+                    // fixed 整树保持 dagre 原位（子树成员都不动）；叶子按游标堆叠
+                    const y = fixedTop.has(id) ? node.y : yCursor + h / 2;
+                    if (!fixedTop.has(id)) yCursor += h + NODE_GAP;
+                    yAssigned.set(id, y);
+                    return fixedTop.has(id) ? readRange(id) : [y - h / 2, y + h / 2];
+                }
+                let min = Infinity, max = -Infinity;
+                for (const k of kids) {
+                    if (fixedTop.has(k)) {
+                        const [a, b] = readRange(k);
+                        yCursor = Math.max(yCursor, b + NODE_GAP);
+                        min = Math.min(min, a); max = Math.max(max, b);
+                    } else {
+                        const [a, b] = subtreeY(k);
+                        min = Math.min(min, a); max = Math.max(max, b);
+                    }
+                }
+                const y = (min + max) / 2;
+                yAssigned.set(id, y);
+                return [min, max];
+            };
+            // 结构真根=不在任何兄弟集合内的源点（doc/孤儿）；带子的顶层分叉节点（如嵌套
+            // 列表项）不是根——重复跑会把其子树二次分配到游标尾端（e2e 实锤）
+            const kidSet = new Set<string>();
+            docOrderSiblings.forEach(kids => kids.forEach(k => kidSet.add(k)));
+            for (const root of topNodes.map(n => n.id)) {
+                if (docOrderSiblings.has(root) && !kidSet.has(root) && !fixedTop.has(root)) subtreeY(root);
             }
-            const y = (min + max) / 2;
-            yAssigned.set(id, y);
-            return [min, max];
-        };
-        // 结构真根=不在任何兄弟集合内的源点（doc/孤儿）；带子的顶层分叉节点（如嵌套
-        // 列表项）不是根——重复跑会把其子树二次分配到游标尾端（e2e 实锤）
-        const kidSet = new Set<string>();
-        docOrderSiblings.forEach(kids => kids.forEach(k => kidSet.add(k)));
-        for (const root of topNodes.map(n => n.id)) {
-            if (docOrderSiblings.has(root) && !kidSet.has(root) && !fixedTop.has(root)) subtreeY(root);
-        }
-        yAssigned.forEach((y, id) => { dagreGraph.node(id).y = y; });
-        // □2 vision P1-1 修复：y 接管后孤儿节点（跨文档端点，无结构边）的 dagre y 与重排后
-        // 的结构树失配→盒叠。孤儿续排在结构树底部（右对齐树缘内侧的水平横列）——不撑宽
-        // 画布 bbox（首版右侧纵列曾把 fitView 压缩到 14% 的 P1 回归），零碰撞+语义=外部附录
-        {
-            const placed = topNodes.filter(n => yAssigned.has(n.id));
-            const orphans = topNodes.filter(n => !yAssigned.has(n.id) && !savedPositions[n.id]);
-            if (placed.length && orphans.length) {
-                const treeRight = Math.max(...placed.map(n => {
-                    const nd = dagreGraph.node(n.id);
-                    return (nd?.x ?? 0) + (nd?.width ?? nodeWidth) / 2;
-                }));
-                const baseY = Math.max(...placed.map(n => {
-                    const nd = dagreGraph.node(n.id);
-                    return (nd?.y ?? 0) + (nd?.height ?? nodeHeight) / 2;
-                })) + NODE_GAP * 2;
-                let oy = baseY;
-                orphans.sort((a, b) => (dagreGraph.node(a.id)?.y ?? 0) - (dagreGraph.node(b.id)?.y ?? 0));
-                for (const o of orphans) {
-                    const nd = dagreGraph.node(o.id);
-                    const h = nd?.height ?? nodeHeight;
-                    nd.x = Math.max(treeRight - (nd?.width ?? nodeWidth) / 2, (nd?.width ?? nodeWidth) / 2);
-                    nd.y = oy + h / 2;
-                    oy += h + NODE_GAP;
+            yAssigned.forEach((y, id) => { dagreGraph.node(id).y = y; });
+            // □2 vision P1-1 修复：y 接管后孤儿节点（跨文档端点，无结构边）的 dagre y 与重排后
+            // 的结构树失配→盒叠。孤儿续排在结构树底部（右对齐树缘内侧的水平横列）——不撑宽
+            // 画布 bbox（首版右侧纵列曾把 fitView 压缩到 14% 的 P1 回归），零碰撞+语义=外部附录
+            {
+                const placed = topNodes.filter(n => yAssigned.has(n.id));
+                const orphans = topNodes.filter(n => !yAssigned.has(n.id) && !savedPositions[n.id]);
+                if (placed.length && orphans.length) {
+                    const treeRight = Math.max(...placed.map(n => {
+                        const nd = dagreGraph.node(n.id);
+                        return (nd?.x ?? 0) + (nd?.width ?? nodeWidth) / 2;
+                    }));
+                    const baseY = Math.max(...placed.map(n => {
+                        const nd = dagreGraph.node(n.id);
+                        return (nd?.y ?? 0) + (nd?.height ?? nodeHeight) / 2;
+                    })) + NODE_GAP * 2;
+                    let oy = baseY;
+                    orphans.sort((a, b) => (dagreGraph.node(a.id)?.y ?? 0) - (dagreGraph.node(b.id)?.y ?? 0));
+                    for (const o of orphans) {
+                        const nd = dagreGraph.node(o.id);
+                        const h = nd?.height ?? nodeHeight;
+                        nd.x = Math.max(treeRight - (nd?.width ?? nodeWidth) / 2, (nd?.width ?? nodeWidth) / 2);
+                        nd.y = oy + h / 2;
+                        oy += h + NODE_GAP;
+                    }
                 }
             }
         }

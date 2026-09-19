@@ -7648,10 +7648,10 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get tip路径胶囊() {
         switch (this.lang) {
-            case "zh_CN": return "来自：点击回分片（原文块在→跳原文；片在→跳片；片删→自动重切同片；兜底→书）";
-            case "zh_CHT": return "來自：點擊回分片（原文塊在→跳原文；片在→跳片；片刪→自動重切同片；兜底→書）";
+            case "zh_CN": return "来自：点击回原文（选中行→定位该书原文块；未选中→定位首段；无引用→回片或发起文档→重切→书）";
+            case "zh_CHT": return "來自：點擊回原文（選中行→定位該書原文塊；未選中→定位首段；無引用→回片或發起文檔→重切→書）";
             case "en_US":
-            default: return "Came from: click to go back (source block → piece → auto-rebuild if deleted → book as last resort)";
+            default: return "Came from: click to locate the source text (selected line → its source block; no selection → first passage; no refs → piece/origin doc → rebuild → book)";
         }
     }
     public get 摘抄树() {
@@ -9502,8 +9502,8 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get 开源仓库() {
         switch (this.lang) {
-            case "zh_CN": return "开源仓库";
-            case "zh_CHT": return "開源倉庫";
+            case "zh_CN": return "源码仓库";
+            case "zh_CHT": return "源碼倉庫";
             case "ja_JP": return "ソースコード";
             case "en_US":
             default: return "Source Repository";
@@ -15613,6 +15613,40 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "顯示或隱藏懸浮反鏈球";
             case "en_US":
             default: return "Show or hide floating backlink ball";
+        }
+    }
+
+    // ---- graphfloat □3 悬浮图（2026-09-19）：设置行/命令/球 tooltip 文案（zh+en 一等，其余落英文兜底） ----
+    public get 悬浮图() {
+        switch (this.lang) {
+            case "zh_CN": return "悬浮图";
+            case "zh_CHT": return "懸浮圖";
+            case "en_US":
+            default: return "Floating graph";
+        }
+    }
+    public get 悬浮图说明() {
+        switch (this.lang) {
+            case "zh_CN": return "悬浮球随点随看当前文档的块关系图，⌘⌥⇧E 唤起或收起；左侧 dock 面板不受影响。";
+            case "zh_CHT": return "懸浮球隨點隨看當前文檔的塊關係圖，⌘⌥⇧E 喚起或收起；左側 dock 面板不受影響。";
+            case "en_US":
+            default: return "A floating ball to peek the block graph of the current document; toggle with ⌘⌥⇧E. The dock panel is unaffected.";
+        }
+    }
+    public get 展开或收起悬浮图() {
+        switch (this.lang) {
+            case "zh_CN": return "展开或收起悬浮图";
+            case "zh_CHT": return "展開或收起懸浮圖";
+            case "en_US":
+            default: return "Toggle floating graph panel";
+        }
+    }
+    public get 显示或隐藏悬浮图球() {
+        switch (this.lang) {
+            case "zh_CN": return "显示或隐藏悬浮图球";
+            case "zh_CHT": return "顯示或隱藏懸浮圖球";
+            case "en_US":
+            default: return "Show or hide floating graph ball";
         }
     }
 }

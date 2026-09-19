@@ -20,12 +20,19 @@
          *  不改写 x/y 记忆位；拖球启动时偏移被吸收进基准位并经 onShiftAbsorbed 清源 */
         shift: Writable<{ x: number; y: number } | null>;
         onShiftAbsorbed: () => void;
+        /** 复用参数化（graphfloat □3）：位置记忆键/图标名/tooltip 主文案——悬浮图球传
+         *  独立值，默认=悬浮反链原值（BkFloat.ts 零改动） */
+        lsKey?: string;
+        ballIcon?: string;
+        tip?: string;
+        /** 默认位（无 localStorage 记忆时的落点；函数形态窗口尺寸现求）。悬浮图球传
+         *  错开位——两球默认位完全重叠时图球后挂恒盖死反链球（gfloat review P1-3） */
+        defPos?: () => { x: number; y: number };
     }
-    let { count, hidden, onToggle, panelKeyHint, shift, onShiftAbsorbed }: Props = $props();
+    let { count, hidden, onToggle, panelKeyHint, shift, onShiftAbsorbed, lsKey = "tomato-bkfloat-ball-pos", ballIcon = "Link", tip = "", defPos }: Props = $props();
 
     const SIZE = 36;
     const DRAG_THRESHOLD = 5;
-    const LS_KEY = "tomato-bkfloat-ball-pos";
 
     let host: HTMLElement = $state();
     let dragging = $state(false);
@@ -64,11 +71,15 @@
     function loadPos() {
         const fallback = () => {
             // 默认位避让右侧 dock 条（48px：dock ~32px + 间距；已拖动用户走 localStorage 不受影响）
-            x = window.innerWidth - SIZE - 48;
-            y = Math.round(window.innerHeight * 0.4);
+            const p = defPos?.() ?? {
+                x: window.innerWidth - SIZE - 48,
+                y: Math.round(window.innerHeight * 0.4),
+            };
+            x = p.x;
+            y = p.y;
         };
         try {
-            const raw = localStorage.getItem(LS_KEY);
+            const raw = localStorage.getItem(lsKey);
             if (raw) {
                 const p = JSON.parse(raw);
                 x = Number(p?.x);
@@ -85,7 +96,7 @@
 
     function savePos() {
         try {
-            localStorage.setItem(LS_KEY, JSON.stringify({ x, y }));
+            localStorage.setItem(lsKey, JSON.stringify({ x, y }));
         } catch {
             /* 存储满/隐私模式：位置仅会话内生效 */
         }
@@ -184,9 +195,9 @@
 <div bind:this={host} class="tomato-bk-float-ball" class:dragging class:hidden={$hidden}>
     <button
         class="tomato-bk-float-ball__btn b3-tooltips b3-tooltips__n"
-        aria-label={`${tomatoI18n.展开或收起悬浮反链} ${panelKeyHint()}`}
+        aria-label={`${tip || tomatoI18n.展开或收起悬浮反链} ${panelKeyHint()}`}
         onpointerdown={onDown}
-    >{@html icon("Link", 18)}</button>
+    >{@html icon(ballIcon, 18)}</button>
     {#if $count > 0}
         <span class="tomato-bk-float-ball__badge">{$count > 99 ? "99+" : $count}</span>
     {/if}

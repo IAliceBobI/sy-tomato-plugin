@@ -16,6 +16,8 @@ import { debugLog } from "./libs/logUtils";
 import { filterCustomRows } from "./libs/graphContent";
 import { structureRowsFromOutline, type LightBlockRow } from "./libs/graphStructure";
 import { BLOCK_MARK_ATTR } from "./libs/graphMarks";
+import { graph_float } from "./libs/stores";
+import { graphFloatBox } from "./GraphFloatBox";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -24,6 +26,35 @@ const DOCK_TYPE = "dock_GraphBox"
 // graphbox 期1 打点：graphbox 族统一 app="graphbox" stream label（logcli 查 {job="tomato-plugin",app="graphbox"}）
 function gbLog(tag: string, msg: string) {
     debugLog(tag, msg, "graphbox");
+}
+
+/** dock 头栏与悬浮图面板头栏共用的控件组 HTML（graphfloat □3）：四档直切组+形态循环钮。
+ *  两 ID 由调用方各自生成（每实例独立——GraphBox.svelte 按钮绑定按 ID 找 DOM，
+ *  dock 实例与浮窗实例同文档共存互不串台） */
+export function graphToolbarHTML(viewModeGroupID: string, landscapeSwitchBtnID: string): string {
+    return `<span id="${viewModeGroupID}" class="tomato-graph-viewmodes" role="group" aria-label="${tomatoI18n.视图档位}">
+                                <span id="${viewModeGroupID}-structure" role="button" tabindex="0" data-graph-mode="structure"
+                                      class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.结构视图}">
+                                    <svg><use xlink:href="#iconPreview"></use></svg>
+                                </span>
+                                <span id="${viewModeGroupID}-marks" role="button" tabindex="0" data-graph-mode="marks"
+                                      class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.只看标记}">
+                                    <svg><use xlink:href="#iconMark"></use></svg>
+                                </span>
+                                <span id="${viewModeGroupID}-treemap" role="button" tabindex="0" data-graph-mode="treemap"
+                                      class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.方块总览}">
+                                    <svg><use xlink:href="#iconLayoutGrid"></use></svg>
+                                </span>
+                                <span class="tomato-graph-viewmodes__sep" aria-hidden="true"></span>
+                                <span id="${viewModeGroupID}-full" role="button" tabindex="0" data-graph-mode="full"
+                                      class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.显示全部块}">
+                                    <svg><use xlink:href="#iconListTree"></use></svg>
+                                </span>
+                            </span>
+                            <span id="${landscapeSwitchBtnID}" role="button" tabindex="0"
+                                  class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.切换布局形态.replace("%1", tomatoI18n.形态横排向右)}">
+                                <svg><use id="${landscapeSwitchBtnID}-icon" xlink:href="#iconGraphLayoutLR"></use></svg>
+                            </span>`;
 }
 
 // 大文档「完整加载」后进入全量态：3s 轮询与 ws 自动刷新均降级手动（handoff □1 档 3）。
@@ -129,6 +160,12 @@ class GraphBox {
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             this.locateNodeMenu(detail as any);
         });
+        // graphfloat □3：悬浮图（球+浮窗独立第二实例，dock 保留不动）——设置默认开、
+        // 桌面端闸（图移动端本就不可用：addDock 仅桌面+菜单项 !isMobile）；graph_float
+        // 为结构性键（onload 读死，改设置保存→插件级重载生效，back_link_float 同语义）
+        if (!events.isMobile && graph_float.get()) {
+            void graphFloatBox.onload(this.plugin);
+        }
     }
 
     blockIconEvent(detail: IEventBusMap["click-blockicon"]) {
@@ -177,6 +214,7 @@ class GraphBox {
 
     // 清理定时器
     destroy() {
+        graphFloatBox.unload(); // graphfloat □3：悬浮图收尾（球/面板/图组件 unmount）
         if (this.pollTimer) {
             clearInterval(this.pollTimer);
             this.pollTimer = null;
@@ -370,8 +408,9 @@ class GraphBox {
     // changeDoc 只读 title.editElement.textContent 与 block.rootID 两字段；events 单例侧
     // protyle 的 title 可能未渲染（标题异步/未激活页签）→ docName 空被 _changeDoc_ 静默
     // return（期4 e2e 实锤）。真 protyle 标题空时按同款两字段伪造（docName 走 selectedDivs
-    // 的 getDocNameByBlockID 兜底链，永不为空）
-    private protyleForChangeDoc(protyle: IProtyle | undefined, docID: string, docName?: string): IProtyle {
+    // 的 getDocNameByBlockID 兜底链，永不为空）。
+    // graphfloat □3 起 export：悬浮图宿主复用同款伪造（单一事实源）
+    protyleForChangeDoc(protyle: IProtyle | undefined, docID: string, docName?: string): IProtyle {
         const p = protyle ?? events.protyle?.protyle;
         if (p?.title?.editElement?.textContent) return p;
         return {
@@ -447,29 +486,7 @@ class GraphBox {
                                 <svg class="block__logoicon"><use xlink:href="#iconGraphBox"></use></svg>${tomatoI18n.块关系图}
                             </div>
                             <span class="fn__flex-1 fn__space"></span>
-                            <span id="${viewModeGroupID}" class="tomato-graph-viewmodes" role="group" aria-label="${tomatoI18n.视图档位}">
-                                <span id="${viewModeGroupID}-structure" role="button" tabindex="0" data-graph-mode="structure"
-                                      class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.结构视图}">
-                                    <svg><use xlink:href="#iconPreview"></use></svg>
-                                </span>
-                                <span id="${viewModeGroupID}-marks" role="button" tabindex="0" data-graph-mode="marks"
-                                      class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.只看标记}">
-                                    <svg><use xlink:href="#iconMark"></use></svg>
-                                </span>
-                                <span id="${viewModeGroupID}-treemap" role="button" tabindex="0" data-graph-mode="treemap"
-                                      class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.方块总览}">
-                                    <svg><use xlink:href="#iconLayoutGrid"></use></svg>
-                                </span>
-                                <span class="tomato-graph-viewmodes__sep" aria-hidden="true"></span>
-                                <span id="${viewModeGroupID}-full" role="button" tabindex="0" data-graph-mode="full"
-                                      class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.显示全部块}">
-                                    <svg><use xlink:href="#iconListTree"></use></svg>
-                                </span>
-                            </span>
-                            <span id="${landscapeSwitchBtnID}" role="button" tabindex="0"
-                                  class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.切换布局形态.replace("%1", tomatoI18n.形态横排向右)}">
-                                <svg><use id="${landscapeSwitchBtnID}-icon" xlink:href="#iconGraphLayoutLR"></use></svg>
-                            </span>
+                            ${graphToolbarHTML(viewModeGroupID, landscapeSwitchBtnID)}
                             <span data-type="min" class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="Min"><svg><use xlink:href="#iconMin"></use></svg></span>
                         </div>
                         <div id="${eleID}" class="fn__flex-1"></div>

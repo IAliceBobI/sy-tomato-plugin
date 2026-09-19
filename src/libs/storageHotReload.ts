@@ -49,6 +49,7 @@ const STRUCTURAL_KEYS = new Set([
     "cssShowFlashCardBlank", "cssShowHomeEndIcon", "cssHomeEndIconLeft",
     "dailyNoteCopyShowPath", "showDocAttrs", "cssNattyList", "cssListBackgound", "cssRefAsTags",
     "graphBlockMarkBar", // 块级标记左边条（graphmark 期2 review P1-2：Bar 结尾不中 checkbox 族，漏登=单独切换保存后不重载不生效）
+    "graph_float", // 悬浮图总开关（GraphBox.onload 读死：graphFloatBox 挂载+快捷键/命令注册族，gfloat review P1-1）
     // 外观域·界面净化 6 开关（uiclean 2026-09-12：load_uiClean 一次性注入族同上）
     "uiCleanTabClose", "uiCleanTabBarBtns", "uiCleanTopbarStatus",
     "uiCleanEmptyHelp", "uiCleanDocTreeBadge", "uiCleanDocTreeCompact",

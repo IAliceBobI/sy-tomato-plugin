@@ -1,5 +1,5 @@
 // 三插件设置面板统一帮助菜单（□3 header/footer 统一+帮助收敛，2026-08-31）：
-// header 单 iconHelp 入口弹 b3-menu：使用说明 / 更新日志 / 开源仓库（仅仿写）/
+// header 单 iconHelp 入口弹 b3-menu：使用说明 / 更新日志 / 源码仓库（仅仿写）/
 // 分隔线后「取消激活」（仅开发者 isMe，弱态——原三面板的 DevDeactivate 行收编于此，
 // 菜单点击时实时判 isMe，天然规避 user 冷启动未填充）。
 // 各插件传 action 回调；label 可覆盖（recite 特有文案走 plugin.i18n，缺省 tomatoI18n）。
@@ -20,7 +20,7 @@ export interface HelpMenuActions {
     usage: () => void;
     /** 更新日志（changelogDialog 通道） */
     changelog: () => void;
-    /** 开源仓库（仅仿写有） */
+    /** 源码仓库（仅仿写有） */
     repo?: () => void;
     /** 关于（仅仿写：版本+标语名片——hero 名片区退役后的承接位，□4） */
     about?: () => void;

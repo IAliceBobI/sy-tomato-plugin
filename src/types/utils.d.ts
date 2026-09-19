@@ -207,6 +207,8 @@ type TomatoSettings = {
     graphShowNumbers: boolean,
     graphblockmarkMenu: boolean,
     graphBlockMarkBar: boolean,
+    // graphfloat □3：悬浮图（球+浮窗看当前文档块关系图，dock 保留）
+    graph_float: boolean,
     graphMaxAllBlocks: string,
     graphMaxPBlocks: string,
     // graphbox 期2：默认展开层级（按标题层级 h1=1；"all"=全部展开，段落链折叠独立于档位）
@@ -617,8 +619,10 @@ interface GraphDockData<T> {
     setCanvasSize: () => void;
     /** 期4：true=已居中脉冲；false=目标不在图（调用方 toast 找不到的原因） */
     locateID: (id: string) => Promise<boolean>;
-    /** refreshOnly=true=同文档内容刷新：relayout 不 fitView（保用户/定位视图；期4 P1 竞态修复） */
-    changeDoc: (p: IProtyle, refreshOnly?: boolean) => Promise<void>;
+    /** refreshOnly=true=同文档内容刷新：relayout 不 fitView（保用户/定位视图；期4 P1 竞态修复）。
+     *  返回是否真跑（gfloat review P1-2）：true=持锁执行完（含组件内指纹短路——数据未变
+     *  也是正确终态）；false=GRAPH_LOCK 被占（ifAvailable 抢锁失败静默放弃），调用方勿提交指纹 */
+    changeDoc: (p: IProtyle, refreshOnly?: boolean) => Promise<boolean>;
     /** 期4：定位脉冲窗口内抑制自动刷新（expandTo 写属性→ws 回流→relayout 重建打断脉冲/打回 setCenter） */
     suppressAutoRefreshUntil?: number;
     /** graphbox 期1：Provider 内 useSvelteFlow 借道（relayout 末尾首屏视口适配） */

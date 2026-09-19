@@ -16,6 +16,7 @@
         mindWireWordWire,
         graphAddTopbarIcon,
         graphBoxCheckbox,
+        graph_float,
         graphDefaultExpandLevel,
         graphDefaultLayout,
         graphHideStructEdges,
@@ -182,6 +183,12 @@
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$graphAddTopbarIcon} />
             {tomatoI18n.添加顶栏图标}
+        </div>
+        <!-- graphfloat □3：悬浮图开关（球+浮窗；默认开，桌面端生效） -->
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$graph_float} />
+            {tomatoI18n.悬浮图}
+            <span class="ft__on-surface ft__small">{tomatoI18n.悬浮图说明}</span>
         </div>
         <div>
             <input class="b3-text-field" bind:value={$graphMaxPBlocks} />

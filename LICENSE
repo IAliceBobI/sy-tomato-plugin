@@ -1,21 +1,70 @@
-MIT License
+插件最终用户许可协议 / Plugin End-User License Agreement
 
-Copyright (c) 2023-2026 IAliceBobI
+版权所有 (c) 2023-2026 IAliceBobI。保留所有权利。
+Copyright (c) 2023-2026 IAliceBobI. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+本协议是版权持有人授予您（下称「您」）的有限许可，覆盖本插件及其源代码、构建产物与文档（合称「本软件」）。获取、安装或使用本软件，即表示您同意本协议全部条款。
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+一、许可（个人使用免费）
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+在遵守本协议的前提下，您可以为个人非商业目的：
+1. 通过官方渠道（思源集市、官方 GitHub 仓库及其 Releases）获取、安装、运行本软件；
+2. 为个人学习与自用目的在本机修改本软件，但修改副本不得以任何形式分发、发布或用于商业用途。
+
+二、限制
+
+未经版权持有人事先书面授权，您不得：
+1. 再分发本软件或其修改版——包括但不限于上架任何插件市场或分发渠道、上传网盘或代码仓库、捆绑进其他软件或安装包、有偿或无偿向第三方提供；
+2. 删除、屏蔽、绕过或试图绕过本软件的授权/激活机制（包括但不限于兑换码与许可校验）；
+3. 将本软件源代码的全部或部分用于开发其他软件、产品或服务；
+4. 将本软件用于商业用途——包括但不限于向使用者收费、基于本软件提供付费产品或服务、在企业或组织的经营活动中部署使用。
+
+「个人非商业用途」指个人为自身学习、笔记等日常目的的使用；凡与经营、收费相关，或发生在企业、组织内部的部署与使用，均属商业用途。
+
+三、商业授权
+
+商业用途、再分发或集成需求，请联系版权持有人获取书面授权（联系方式见项目 README）。
+
+四、一般条款
+
+1. 本软件按「现状」提供，不作任何明示或默示的担保。在任何情况下，版权持有人均不对因使用或无法使用本软件而产生的任何损失承担责任。
+2. 您违反本协议任一条款的，本协议授予的许可自动终止，您应立即停止使用并删除本软件。
+3. 本协议受中华人民共和国法律管辖。
+4. 在本协议生效前以 MIT License 发布的历史版本及对应源代码，仍适用其获取时的 MIT License；本协议仅适用于此后发布的版本与源代码。
+5. 本协议以中文文本为准，英文译文仅供参考。
+
+--------------------------------------------------------------------
+
+Plugin End-User License Agreement
+
+Copyright (c) 2023-2026 IAliceBobI. All rights reserved.
+
+This Agreement is a limited license granted to you by the copyright holder and covers this plugin together with its source code, built artifacts and documentation (the "Software"). By obtaining, installing or using the Software you agree to all terms below.
+
+1. Grant (free for personal use)
+
+Subject to this Agreement, you may, for personal non-commercial purposes:
+1.1 obtain, install and run the Software through official channels (the SiYuan marketplace, the official GitHub repository and its Releases);
+1.2 modify the Software locally for personal study and personal use, provided that modified copies are never distributed, published or used commercially in any form.
+
+2. Restrictions
+
+Without prior written permission from the copyright holder, you may not:
+2.1 redistribute the Software or modified versions thereof, including but not limited to publishing on any marketplace or distribution channel, uploading to file hosts or code repositories, bundling into other software or installers, or providing it to third parties for payment or for free;
+2.2 remove, disable, or circumvent (or attempt to circumvent) the Software's licensing/activation mechanisms, including but not limited to redemption codes and license verification;
+2.3 use all or part of the Software's source code to develop other software, products or services;
+2.4 use the Software commercially, including but not limited to charging users, offering paid products or services based on the Software, or deploying it in the business operations of a company or organization.
+
+"Personal non-commercial use" means use by an individual for personal study, note-taking and similar everyday purposes. Any use related to business or charging fees, or deployment and use inside a company or organization, is commercial use.
+
+3. Commercial licensing
+
+For commercial use, redistribution, or integration, contact the copyright holder for written permission (contact information is in the project README).
+
+4. General
+
+4.1 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY DAMAGES ARISING FROM, OUT OF, OR IN CONNECTION WITH THE USE OR, OR INABILITY TO USE, THE SOFTWARE.
+4.2 If you breach any term of this Agreement, the license granted herein terminates automatically, and you must stop using the Software and delete it immediately.
+4.3 This Agreement is governed by the laws of the People's Republic of China.
+4.4 Historical versions and corresponding source code released under the MIT License before this Agreement took effect remain governed by that MIT License; this Agreement applies only to versions and source code released thereafter.
+4.5 The Chinese text of this Agreement prevails; this English translation is provided for reference only.

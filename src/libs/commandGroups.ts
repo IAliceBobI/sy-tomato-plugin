@@ -64,9 +64,11 @@ import {
 } from "../ReadingPointBox";
 import {
     GraphBox定位到图中的节点,
+    GraphBox聚焦此块,
     GraphBox标记此块,
     GraphBox打开块关系图,
 } from "../GraphBox";
+import { GraphFloatToggle } from "../GraphFloatBox";
 import {
     MindWire启用或禁用思维导线,
     MindWire启用或禁用文档思维导线,
@@ -276,6 +278,9 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
             { langKey: GraphBox定位到图中的节点.langKey, label: () => GraphBox定位到图中的节点.langText(), hk: GraphBox定位到图中的节点 },
             { langKey: GraphBox打开块关系图.langKey, label: () => GraphBox打开块关系图.langText(), hk: GraphBox打开块关系图 },
             { langKey: GraphBox标记此块.langKey, label: () => GraphBox标记此块.langText(), hk: GraphBox标记此块 },
+            { langKey: GraphBox聚焦此块.langKey, label: () => GraphBox聚焦此块.langText(), hk: GraphBox聚焦此块 }, // graphmark 期4 遗漏补登（gfloat review P2-5③）
+            { langKey: GraphFloatToggle.langKey, label: () => GraphFloatToggle.langText(), hk: GraphFloatToggle }, // graphfloat □3
+            { langKey: "tomatoGraphFloatBallToggle", label: () => tomatoI18n.显示或隐藏悬浮图球 }, // graphfloat □3：无默认键，hk 缺省
             { langKey: MindWire启用或禁用思维导线.langKey, label: () => MindWire启用或禁用思维导线.langText(), hk: MindWire启用或禁用思维导线 },
             { langKey: MindWire启用或禁用文档思维导线.langKey, label: () => MindWire启用或禁用文档思维导线.langText(), hk: MindWire启用或禁用文档思维导线 },
             { langKey: MindWire划词连线.langKey, label: () => MindWire划词连线.langText(), hk: MindWire划词连线 },

@@ -1,6 +1,6 @@
 # Tomato Toolbox
 
-The all-in-one productivity toolbox for SiYuan — one plugin slot for a whole note-taking workflow, fully open source.
+The all-in-one productivity toolbox for SiYuan — one plugin slot for a whole note-taking workflow.
 
 ## Highlights
 
@@ -40,7 +40,7 @@ The all-in-one productivity toolbox for SiYuan — one plugin slot for a whole n
 - **Sync blocks** — edit once, sync everywhere
 - **Bidirectional links** — two blocks referencing each other, jump both ways
 - **Text to citation** — turn selected text into a reference block in place
-- **Bottom backlinks** — a persistent backlink panel at the bottom of the editor
+- **Floating backlinks** — a floating ball that summons the backlink panel anytime; can also stay docked at the bottom of the editor
 - **Database backlinks** — backlinks inside database views
 
 ### 🧭 Visualization
@@ -73,7 +73,7 @@ One rule of thumb: **everything you need to read, annotate, memorize and stay fo
 | 📖 Annotations | All mark styles, panel, all four panel skins, light AI chat under annotations; click an annotation in the panel to jump to its source | Invite AI roles into the discussion; compress a whole discussion into a note; collect annotations recursively incl. sub-documents — gather a whole book's highlights in one pass |
 | 🃏 Flashcards | Create, review, priorities, per-document tab review, image cloze, broken-card cleanup | When today's pile is too big, spread the remaining cards over the coming hours (intervals configurable); priority bars auto-hide during review |
 | ⚡ Capture | Photo notes, quick notes, reading points | Conflict guard for photo notes across synced devices; delete the source selection once the note is created; flip to a document's backside draft and back with one keystroke |
-| 🔗 References | Sync blocks, bidirectional links, text-to-citation, bottom & database backlinks; invalid-ref check & bulk cleanup; click a ref-count to open its backlinks; jump-to-bottom button on the backlink panel; list conversion that keeps refs | Turn what you type into a citation with a space; pinyin aliases so two or three letters cite the right doc; render refs as tags; embed bilinks inline; sync-block menu with origin links |
+| 🔗 References | Sync blocks, bidirectional links, text-to-citation, floating & database backlinks; invalid-ref check & bulk cleanup; click a ref-count to open its backlinks; summon backlinks anytime via the floating ball; jump-to-bottom button; list conversion that keeps refs | Turn what you type into a citation with a space; pinyin aliases so two or three letters cite the right doc; render refs as tags; embed bilinks inline; sync-block menu with origin links |
 | 🧭 Visualization | Block graph (incl. click-to-jump), block editor, mind guides | Mind-wire line styles & relation colors — even dense maps stay readable at a glance |
 | 🗂 Export | Prefix doc tree & Tags float window; workspace export on demand, DailyNote tools; always jump to bottom when opening today's note | Scheduled incremental export with automatic cleanup — backup takes care of itself; merge documents into one file |
 | 🎈 Floating ball | Jump to docs & keymaps from the ball; toggle the doc ball with Cmd/Ctrl+Shift+F8 | Extended list capacity — every doc you keep handy fits |
@@ -95,9 +95,18 @@ One rule of thumb: **everything you need to read, annotate, memorize and stay fo
 - 💬 [QQ Group](https://pd.qq.com/s/r3jz0g16) (Chinese) — feedback and feature requests
 - 💬 [Feishu Group](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=f08gff0c-d6b0-4a0d-8323-c8a0553e4fff&qr_code=true) (Chinese) — feedback and feature requests
 - 📱 Scan to join: ![Group QR codes (left: QQ Channel, right: Feishu)](group-qr.png)
-- 🔓 [Open-source repo](https://github.com/IAliceBobI/sy-tomato-plugin) — what you see is what's compiled: built by GitHub Actions
+- 📦 [Source repository](https://github.com/IAliceBobI/sy-tomato-plugin) — what you see is what's compiled: release packages are built remotely by GitHub Actions from source
 
 📊 SiYuan Marketplace: 141,000+ downloads
+
+## License
+
+All released versions up to v5.15.1 remain under the MIT License. **Starting with the next release, this plugin ships under a proprietary license** (see [LICENSE](LICENSE)):
+
+- **Personal use stays free** — nothing changes for individual users
+- Redistribution, re-packaging and distributing modified copies are not allowed
+- Removing or bypassing the activation check is not allowed
+- Commercial use (charging users, paid services, use inside a company) needs written permission — reach out via the [Feishu group](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=f08gff0c-d6b0-4a0d-8323-c8a0553e4fff&qr_code=true) or GitHub issues
 
 ## Support the Author
 

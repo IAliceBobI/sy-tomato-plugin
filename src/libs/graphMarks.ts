@@ -119,6 +119,23 @@ export function stripMarkSyntax(text: string): string {
     return text.replace(/==([^=\n]+)==/g, "$1");
 }
 
+/** 标记叶卡标题栏一行可读宽（CJK 字数估算：卡宽 200 − padding/图标 ≈ 15 字保守取整）。
+ *  graphfloat □1：v5.15.1 药丸塌陷——首行 14~30 字的单行内容正文区为空（旧阈值 30 才
+ *  回退全文），标题栏单行 nowrap 溢出省略把内容腰斩成截断药丸 */
+export const MARK_TITLE_CHARS_PER_LINE = 14;
+
+/** 标记叶卡标题/正文切分（graphfloat □1）：标题=首行 slice30 预览（单行省略不变）；
+ *  正文规则——单行超一行可读宽→回退全文；多行首行整读→余文（□4 标题去重规则）、
+ *  首行截断→全文。保证卡内 clamp 2 行可见全文开头，标题截断不再丢内容；
+ *  短单行维持无正文药丸形（紧凑即信息完整） */
+export function markCardTexts(text: string): { label: string; bodyText: string } {
+    const firstLine = text.split("\n")[0] ?? "";
+    const label = firstLine.slice(0, 30) || "…";
+    const nl = text.indexOf("\n");
+    if (nl < 0) return { label, bodyText: text.length > MARK_TITLE_CHARS_PER_LINE ? text : "" };
+    return { label, bodyText: firstLine.length > MARK_TITLE_CHARS_PER_LINE ? text : text.slice(nl + 1) };
+}
+
 // ── graphmark 期3（2026-09-19）：标记感知展开+只看标记档（纯函数） ──────────
 // 心智模型（设计共识）：三个视图=同一棵结构树的三种过滤/折叠态——structure 档默认
 // 折叠叠加「标记路径强制展开」（预算制）；marks 档=渲染层过滤只留标记路径。本组

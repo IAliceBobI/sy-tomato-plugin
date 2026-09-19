@@ -521,6 +521,9 @@ export const graph定位到图中的节点Menu = settingFactory("graphlocatetogr
 // 菜单项显隐开关（hiddenMenuItems 双通道之一）+正文左边条开关（cssStyle load 时读）
 export const graph标记此块Menu = settingFactory("graphblockmarkMenu", true, STORAGE_SETTINGS, null as TSK);
 export const graphBlockMarkBar = settingFactory("graphBlockMarkBar", true, STORAGE_SETTINGS, null as TSK);
+// graphfloat □3（2026-09-19）：悬浮图——悬浮球+悬浮面板看当前文档块关系图（dock 面板保留，
+// 浮窗=独立第二实例）；默认开跟随悬浮反链先例（back_link_float 默认 true）
+export const graph_float = settingFactory("graph_float", true, STORAGE_SETTINGS, null as TSK);
 export const tomatoClockCheckbox = settingFactory("tomatoClockCheckbox", true, STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_audio = settingFactory("tomato_clocks_audio", "", STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_notice = settingFactory("tomato_clocks_notice", true, STORAGE_SETTINGS, null as TSK);
