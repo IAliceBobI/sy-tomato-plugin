@@ -517,6 +517,10 @@ export const graphDefaultLayout = settingFactory("graphDefaultLayout", "lr", STO
 export const graphAddTopbarIcon = settingFactory("graphAddTopbarIcon", true, STORAGE_SETTINGS, null as TSK);
 export const graph打开块关系图Menu = settingFactory("graphopengraphMenu", true, STORAGE_SETTINGS, null as TSK);
 export const graph定位到图中的节点Menu = settingFactory("graphlocatetographMenu", true, STORAGE_SETTINGS, null as TSK);
+// graphmark 期2：块级标记（右键「标记此块」/⌘⌥⇧M toggle 写 custom-tomato-mark IAL）——
+// 菜单项显隐开关（hiddenMenuItems 双通道之一）+正文左边条开关（cssStyle load 时读）
+export const graph标记此块Menu = settingFactory("graphblockmarkMenu", true, STORAGE_SETTINGS, null as TSK);
+export const graphBlockMarkBar = settingFactory("graphBlockMarkBar", true, STORAGE_SETTINGS, null as TSK);
 export const tomatoClockCheckbox = settingFactory("tomatoClockCheckbox", true, STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_audio = settingFactory("tomato_clocks_audio", "", STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_notice = settingFactory("tomato_clocks_notice", true, STORAGE_SETTINGS, null as TSK);

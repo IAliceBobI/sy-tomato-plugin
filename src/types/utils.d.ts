@@ -205,6 +205,8 @@ type TomatoSettings = {
     //------------------
     graphHideStructEdges: boolean,
     graphShowNumbers: boolean,
+    graphblockmarkMenu: boolean,
+    graphBlockMarkBar: boolean,
     graphMaxAllBlocks: string,
     graphMaxPBlocks: string,
     // graphbox 期2：默认展开层级（按标题层级 h1=1；"all"=全部展开，段落链折叠独立于档位）
@@ -512,8 +514,10 @@ type AttrType = {
     "custom-graph-isVertical"?: string,
     "custom-graph-layout"?: string,
     "custom-graph-mode"?: string,
+    "custom-graph-struct-marks"?: string,
     "custom-graph-node-positions"?: string,
     "custom-graph-collapsed"?: string,
+    "custom-tomato-mark"?: string,
     "custom-super-list"?: string,
     "custom-tomato-reflink"?: string,
     "custom-sync-block-id"?: string,
@@ -634,6 +638,14 @@ interface GraphDockData<T> {
     layoutForm?: string;
     /** graphbox 期7：¶ 链中段定位重定向（目标块并进 ¶ 大节点 → 图上节点=链头） */
     paraRedirectOf?: (id: string) => string;
+    /** graphmark 期3：块级标记写后通知（标记写不碰 updated=指纹短路不含标记集，
+     *  GraphBox.ts toggleBlockMark 显式触发图组件 SWR 重拉标记——●N/只看标记过滤集跟进） */
+    marksChanged?: () => void;
+    /** graphmark 期4：图上聚焦（目标块一跳邻域高亮+其余淡化）。mode=toggle（默认，
+     *  同目标再进=退出全景——命令直连路径的「再按同块恢复」语义）；set（上爬兜底专用，
+     *  重定向目标撞上当前聚焦点=保持聚焦不 toggle，防「聚焦子块=静默关聚焦」错乱）。
+     *  false=图上无此块（调用方上爬图内祖先兜底）；treemap 档恒 false */
+    focusNode?: (id: string, mode?: "toggle" | "set") => Promise<boolean>;
     /** graphbox 期3：xyflow 内部 store 借道（官方更新通道；bind store 在 runes 组件不可靠） */
     graphStore?: { nodes: any; edges: any };
 }

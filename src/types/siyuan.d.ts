@@ -133,6 +133,9 @@ type Block = {
     children?: Block[];
     docName?: string;
     div?: HTMLElement;
+    /** luji0918 □2 P0：shortenList 重挂 i 时盖的 l 壳 id 戳——骨架通道 blockPos 按此
+     *  回查壳的 order 锚（l 壳行已滤出 rows，i 直挂 docID 爬链断源会落尾部挂错末章） */
+    listShellId?: string;
     // isInList?: boolean;
     data?: any;
     exists?: boolean;

@@ -24,6 +24,11 @@
         e.stopPropagation();
         (data as any).toggleBadge?.();
     }
+    // 期3 ●N 标记角标：点按=摊开/收起本容器标记叶卡
+    function onMarkToggle(e: MouseEvent) {
+        e.stopPropagation();
+        (data as any).onMarkToggle?.();
+    }
     function stopDrag(e: PointerEvent) {
         e.stopPropagation();
     }
@@ -50,6 +55,13 @@
     const typeIcon = $derived(blockType ? TYPE_ICON[blockType] ?? null : null);
     // □4 MarginNote 式内容卡片（结构态展开叶子）：两段式=标题栏（类型图标+首行）+多行正文
     const structLeaf = $derived(!!(data as any).structLeaf);
+    // luji0918 □2：标记叶（结构视图「只挂标记块」）——标题栏染标记色+左缘色条；
+    // structClamp=正文行数钳（标记叶一两行截断，普通展开叶维持 8）。graphmark 期3：
+    // markDot=子树标记角标（●N 量级不做色块——共识「视觉减噪」）{n 子树计数, color 首标记色}；
+    // 点击 onMarkToggle=摊开/收起该容器标记叶卡（无自身标记=展开本节点）
+    const structMark = $derived((data as any).structMark as string | undefined);
+    const structClamp = $derived((data as any).structClamp as number | undefined);
+    const markDot = $derived((data as any).markDot as { n: number; color: string } | undefined);
     // □4 章节编号独立字段（弱化浅灰前缀——双编号场景两段语义可分）
     const number = $derived((data as any).number as string | undefined);
     // □2 徽标：{leaves, chars, expanded}——文本「N 段 · X 字」本体即信息，aria 同源
@@ -69,9 +81,12 @@
 </script>
 
 {#if structLeaf}
-    <!-- □4 MarginNote 式内容卡片：主色标题栏（类型图标+首行）+白底多行正文（pre-wrap 按行/keep 拉丁词整/line-clamp 截断） -->
+    <!-- □4 MarginNote 式内容卡片：主色标题栏（类型图标+首行）+白底多行正文（pre-wrap 按行/keep 拉丁词整/line-clamp 截断）。
+         luji0918 □2：structMark=标记色变量（标题栏 color-mix 染色+左缘色条），structClamp=行数钳 -->
     <div
         class="gn-card"
+        class:gn-card--mark={!!structMark}
+        style={structMark ? `--gn-mark:${structMark}` : ""}
         role="group"
         ondblclick={onDblClick}
         aria-label={(data as any).fullText || (data as any).label}
@@ -82,7 +97,11 @@
             {#if typeIcon}<svg class="gn-card-icon"><use xlink:href="#{typeIcon}"></use></svg>{/if}
             <span class="gn-card-title">{(data as any).label}</span>
         </div>
-        <div class="gn-card-body">{(data as any).bodyText ?? (data as any).fullText}</div>
+        <!-- 期4 vision P2：单行标记叶无正文时不渲染空 body（蓝头下 12px 空白条收掉；
+             普通展开叶 bodyText 恒回退全文不受影响） -->
+        {#if (data as any).bodyText}
+            <div class="gn-card-body" style={structClamp ? `-webkit-line-clamp:${structClamp};line-clamp:${structClamp};` : ""}>{(data as any).bodyText}</div>
+        {/if}
     </div>
 {:else if (data as any).isParaMerged}
     <div
@@ -119,6 +138,17 @@
             <span class="gn-docname">《{docName}》</span>
         {/if}
         {#if number}<span class="gn-num">{number}</span>{/if}
+        {#if markDot}
+            <button
+                class="gn-markpill"
+                style="--gn-mark:{markDot.color}"
+                aria-label={tomatoI18n.处标记.replace("%1", `${markDot.n}`)}
+                title={tomatoI18n.处标记.replace("%1", `${markDot.n}`)}
+                onclick={onMarkToggle}
+                onpointerdown={stopDrag}
+                ondblclick={stopDbl}
+            ><span class="gn-markpill-dot"></span>{markDot.n}</button>
+        {/if}
         <span class="gn-label">{(data as any).label}</span>
         {#if badge}
             <button
@@ -316,6 +346,52 @@
         -webkit-line-clamp: 8;
         line-clamp: 8;
         overflow: hidden;
+    }
+    /* luji0918 □2 标记叶（结构视图「只挂标记块」）：标题栏染标记色（color-mix 浅衬——
+       原主色实心底换浅底保证任意标记色下标题文字可读，左缘 3px 色条保色相辨识） */
+    .gn-card--mark .gn-card-head {
+        background: color-mix(in srgb, var(--gn-mark, var(--b3-theme-primary)) 22%, var(--b3-theme-background));
+        color: var(--b3-theme-on-surface);
+        border-left: 3px solid var(--gn-mark, var(--b3-theme-primary));
+        padding-left: 4px;
+    }
+    /* graphmark 期3 ●N 标记角标：色点+计数小药丸（子树标记量；点按摊开标记叶卡）。
+     * 弱化轻量形制与徽标 pill 呼应，色点承载标记色相（共识「小色点+数字不做色块」） */
+    .gn-markpill {
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        height: 16px;
+        margin-inline-end: 4px;
+        padding: 0 5px;
+        border: 1px solid var(--b3-border-color);
+        border-radius: 8px;
+        background: var(--b3-theme-background);
+        color: var(--b3-theme-on-surface); /* 期4 vision P2：10px 数字亮色 3.0:1 不足提档（6.05:1）；暗色分支回 on-surface-light（8.6:1） */
+        font-size: 10px;
+        line-height: 14px;
+        cursor: pointer;
+        box-shadow: none;
+    }
+    .gn-markpill:hover {
+        border-color: transparent;
+        background: var(--b3-theme-primary-lightest);
+        color: var(--b3-theme-on-surface);
+    }
+    /* 期4 vision P2：数字亮色 3.0:1（10px 小字）不足——提 --b3-theme-on-surface（6.05:1）；
+       暗色 on-surface-light 本就 8.6:1，分支保持原值（暗色判据=html[data-theme-mode]，
+       3.8.3 无 .dark class）。基础 color 在上方 .gn-markpill 主块 */
+    :global(html[data-theme-mode="dark"]) .gn-markpill {
+        color: var(--b3-theme-on-surface-light);
+    }
+    .gn-markpill-dot {
+        flex: none;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--gn-mark, var(--b3-theme-primary));
+        box-shadow: 0 0 0 1px var(--b3-border-color);
     }
     /* □4 章节编号弱化前缀（浅灰常规字重——双编号场景自动编号段与标题自带序号段语义可分） */
     .gn-num {

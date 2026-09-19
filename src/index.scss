@@ -1280,6 +1280,28 @@ html[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="a"][data-href^="#
   }
 }
 
+// graphmark 期1：块关系图档位平铺按钮组——四钮常显（--show 官方修饰符，组容器只作用于
+// 自家钮不改全局 block__icon）+当前档 primary 高亮；「全部块」前细分隔线做主次分组
+// （大文档确认链的视觉弱化）。明暗两态走 theme 变量自适应。
+.tomato-graph-viewmodes {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  .block__icon.tomato-graph-viewmode-on {
+    color: var(--b3-theme-primary);
+    background-color: var(--b3-theme-primary-lightest);
+  }
+
+  &__sep {
+    flex-shrink: 0;
+    width: 1px;
+    height: 14px;
+    margin: 0 4px;
+    background-color: var(--b3-border-color);
+  }
+}
+
 // =====================================================================
 // 块编辑器收缩球（二期期1，libs/qeBall.ts 命令式挂 body——scoped 剪不到须全局；
 // □5 起常驻球）。36px 圆球 iconEdit，theme 变量明暗自适应（fball 同款底子）；

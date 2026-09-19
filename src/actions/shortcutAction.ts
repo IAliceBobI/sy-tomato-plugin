@@ -16,7 +16,10 @@ export const shortcutAction: BallAction = {
     async execute(ball: BallItem) {
         const a = ball.action ?? {};
         const code = keyCodeFor(a.key);
-        document.dispatchEvent(
+        // 宿主必须 document.body（3.8.4 起 windowKeyDown 对非 body 的 event.target 调
+        // .closest()——Document 节点没有该方法，dispatch 到 document 会 TypeError 炸断
+        // 插件命令派发链，所有快捷键球静默失效；body 走官方换锚分支与真实按键同构）
+        document.body.dispatchEvent(
             new KeyboardEvent("keydown", {
                 key: a.key?.toUpperCase() ?? "",
                 code: a.key?.toUpperCase() ?? "",

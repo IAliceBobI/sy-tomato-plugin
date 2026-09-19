@@ -682,6 +682,389 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
                 return "Go to node in graph";
         }
     }
+    // graphmark 期2：块级标记（右键/⌘⌥⇧M toggle + 正文左边条）
+    public get 标记此块() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "标记此块";
+            case "es_ES":
+                return "Marcar este bloque";
+            case "fr_FR":
+                return "Marquer ce bloc";
+            case "ja_JP":
+                return "このブロックをマーク";
+            case "zh_CHT":
+                return "標記此塊";
+            case "it_IT":
+                return "Contrassegna questo blocco";
+
+            default:
+                return "Mark this block";
+        }
+    }
+    public get 已标记此块() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "已标记此块";
+            case "es_ES":
+                return "Bloque marcado";
+            case "fr_FR":
+                return "Bloc marqué";
+            case "ja_JP":
+                return "ブロックをマークしました";
+            case "zh_CHT":
+                return "已標記此塊";
+            case "it_IT":
+                return "Blocco contrassegnato";
+
+            default:
+                return "Block marked";
+        }
+    }
+    public get 已取消标记此块() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "已取消标记";
+            case "es_ES":
+                return "Marca eliminada";
+            case "fr_FR":
+                return "Marque retirée";
+            case "ja_JP":
+                return "マークを解除しました";
+            case "zh_CHT":
+                return "已取消標記";
+            case "it_IT":
+                return "Contrassegno rimosso";
+
+            default:
+                return "Mark removed";
+        }
+    }
+    public get 标记此块失败() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "标记失败，请重试";
+            case "es_ES":
+                return "Error al marcar, reintenta";
+            case "fr_FR":
+                return "Échec du marquage, réessayez";
+            case "ja_JP":
+                return "マークに失敗しました。再試行してください";
+            case "zh_CHT":
+                return "標記失敗，請重試";
+            case "it_IT":
+                return "Contrassegnazione non riuscita, riprova";
+
+            default:
+                return "Failed to mark, please retry";
+        }
+    }
+    public get 标记左边条() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "标记块正文左边条";
+            case "es_ES":
+                return "Barra izquierda de bloques marcados";
+            case "fr_FR":
+                return "Barre gauche des blocs marqués";
+            case "ja_JP":
+                return "マークブロックの左バー";
+            case "zh_CHT":
+                return "標記塊正文左邊條";
+            case "it_IT":
+                return "Barra sinistra dei blocchi contrassegnati";
+
+            default:
+                return "Left bar on marked blocks";
+        }
+    }
+    // graphmark 期3：标记感知展开+只看标记档（●N 角标 aria/空态卡）
+    public get 处标记() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "%1 处标记，点击显示或收起";
+            case "es_ES":
+                return "%1 marcas, clic para mostrar u ocultar";
+            case "fr_FR":
+                return "%1 marques, cliquer pour afficher ou masquer";
+            case "ja_JP":
+                return "%1 件のマーク、クリックで表示切替";
+            case "zh_CHT":
+                return "%1 處標記，點擊顯示或收起";
+            case "it_IT":
+                return "%1 contrassegni, clic per mostrare o nascondere";
+
+            default:
+                return "%1 marks, click to show or hide";
+        }
+    }
+    public get 还没有标记() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "还没有标记";
+            case "es_ES":
+                return "Aún no hay marcas";
+            case "fr_FR":
+                return "Aucune marque pour le moment";
+            case "ja_JP":
+                return "まだマークがありません";
+            case "zh_CHT":
+                return "還沒有標記";
+            case "it_IT":
+                return "Nessun contrassegno ancora";
+
+            default:
+                return "No marks yet";
+        }
+    }
+    public get 知识地图空态正文() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "选中文字划线或加背景色后，这里会成为你的知识地图";
+            case "es_ES":
+                return "Resalta texto o añade color de fondo y esto se convertirá en tu mapa de conocimiento";
+            case "fr_FR":
+                return "Surlignez du texte ou ajoutez une couleur de fond, et ceci deviendra votre carte de connaissances";
+            case "ja_JP":
+                return "テキストをマークしたり背景色を付けたりすると、ここが知識マップになります";
+            case "zh_CHT":
+                return "選取文字劃線或加背景色後，這裡會成為你的知識地圖";
+            case "it_IT":
+                return "Evidenzia il testo o aggiungi un colore di sfondo e questo diventerà la tua mappa della conoscenza";
+
+            default:
+                return "Highlight text or add background color, and this becomes your knowledge map";
+        }
+    }
+    public get 回结构视图() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "回结构视图";
+            case "es_ES":
+                return "Volver a la vista de estructura";
+            case "fr_FR":
+                return "Retour à la vue structure";
+            case "ja_JP":
+                return "構造ビューに戻る";
+            case "zh_CHT":
+                return "回結構視圖";
+            case "it_IT":
+                return "Torna alla vista struttura";
+
+            default:
+                return "Back to structure view";
+        }
+    }
+    // graphmark 期4：聚焦模式（一跳邻域高亮+其余淡化）+ 无结构文档空态卡
+    public get 聚焦此块() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "聚焦此块";
+            case "es_ES":
+                return "Enfocar este bloque";
+            case "fr_FR":
+                return "Focaliser ce bloc";
+            case "ja_JP":
+                return "このブロックにフォーカス";
+            case "zh_CHT":
+                return "聚焦此塊";
+            case "it_IT":
+                return "Focalizza questo blocco";
+
+            default:
+                return "Focus this block";
+        }
+    }
+    public get 退出聚焦() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "退出聚焦";
+            case "es_ES":
+                return "Salir del enfoque";
+            case "fr_FR":
+                return "Quitter le focus";
+            case "ja_JP":
+                return "フォーカス解除";
+            case "zh_CHT":
+                return "退出聚焦";
+            case "it_IT":
+                return "Esci dalla messa a fuoco";
+
+            default:
+                return "Exit focus";
+        }
+    }
+    public get 聚焦光标块() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "聚焦光标块";
+            case "es_ES":
+                return "Enfocar el bloque del cursor";
+            case "fr_FR":
+                return "Focaliser le bloc du curseur";
+            case "ja_JP":
+                return "カーソルブロックにフォーカス";
+            case "zh_CHT":
+                return "聚焦游標塊";
+            case "it_IT":
+                return "Focalizza il blocco del cursore";
+
+            default:
+                return "Focus cursor block";
+        }
+    }
+    public get 方块档暂不支持聚焦() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "方块档暂不支持聚焦";
+            case "es_ES":
+                return "El modo de bloques aún no admite el enfoque";
+            case "fr_FR":
+                return "La vue blocs ne prend pas encore en charge le focus";
+            case "ja_JP":
+                return "ブロック概観ではフォーカス未対応";
+            case "zh_CHT":
+                return "方塊檔暫不支援聚焦";
+            case "it_IT":
+                return "La vista blocchi non supporta ancora la messa a fuoco";
+
+            default:
+                return "Treemap view does not support focus yet";
+        }
+    }
+    public get 已聚焦所在节点() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "已聚焦所在节点";
+            case "es_ES":
+                return "Se enfocó el nodo contenedor";
+            case "fr_FR":
+                return "Le nœud conteneur a été focalisé";
+            case "ja_JP":
+                return "含まれるノードにフォーカスしました";
+            case "zh_CHT":
+                return "已聚焦所在節點";
+            case "it_IT":
+                return "Focalizzato il nodo contenitore";
+
+            default:
+                return "Focused the containing node";
+        }
+    }
+    public get 聚焦未找到() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "聚焦未找到（图上无此块）";
+            case "es_ES":
+                return "No se encontró el objetivo de enfoque";
+            case "fr_FR":
+                return "Cible de focus introuvable";
+            case "ja_JP":
+                return "フォーカス対象が見つかりません";
+            case "zh_CHT":
+                return "聚焦未找到（圖上無此塊）";
+            case "it_IT":
+                return "Obiettivo della messa a fuoco non trovato";
+
+            default:
+                return "Focus target not found";
+        }
+    }
+    public get 无结构空态标题() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "没有标题结构";
+            case "es_ES":
+                return "Sin estructura de títulos";
+            case "fr_FR":
+                return "Pas de structure de titres";
+            case "ja_JP":
+                return "見出し構造がありません";
+            case "zh_CHT":
+                return "沒有標題結構";
+            case "it_IT":
+                return "Nessuna struttura di titoli";
+
+            default:
+                return "No heading structure";
+        }
+    }
+    public get 无结构空态正文() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "这个文档没有标题结构，挂不出章节树。加上标题后这里就是章节树，或先用其他视图浏览。";
+            case "es_ES":
+                return "Este documento no tiene títulos, así que no hay árbol de capítulos. Añade títulos o usa otra vista.";
+            case "fr_FR":
+                return "Ce document n'a pas de titres : aucun arbre de chapitres possible. Ajoutez des titres ou utilisez une autre vue.";
+            case "ja_JP":
+                return "この文書には見出しがなく、章ツリーを表示できません。見出しを追加するか、他のビューでご覧ください。";
+            case "zh_CHT":
+                return "這個文件沒有標題結構，掛不出章節樹。加上標題後這裡就是章節樹，或先用其他視圖瀏覽。";
+            case "it_IT":
+                return "Questo documento non ha titoli, quindi non c'è un albero di capitoli. Aggiungi titoli o usa un'altra vista.";
+
+            default:
+                return "This document has no headings, so there is no chapter tree. Add headings or browse with another view.";
+        }
+    }
+    public get 方块总览看段落分布() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "方块总览看段落分布";
+            case "es_ES":
+                return "Ver párrafos en el mapa de bloques";
+            case "fr_FR":
+                return "Voir les paragraphes dans la vue blocs";
+            case "ja_JP":
+                return "ブロック概観で段落を見る";
+            case "zh_CHT":
+                return "方塊總覽看段落分佈";
+            case "it_IT":
+                return "Vedi i paragrafi nella vista blocchi";
+
+            default:
+                return "See paragraphs in block overview";
+        }
+    }
+    public get 只看标记处数() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "只看标记（%1 处）";
+            case "es_ES":
+                return "Solo marcas (%1)";
+            case "fr_FR":
+                return "Marques uniquement (%1)";
+            case "ja_JP":
+                return "マークのみ（%1 件）";
+            case "zh_CHT":
+                return "只看標記（%1 處）";
+            case "it_IT":
+                return "Solo contrassegni (%1)";
+
+            default:
+                return "Marks only (%1)";
+        }
+    }
+    public get 知道了() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "知道了";
+            case "es_ES":
+                return "Entendido";
+            case "fr_FR":
+                return "Compris";
+            case "ja_JP":
+                return "わかりました";
+            case "zh_CHT":
+                return "知道了";
+            case "it_IT":
+                return "Capito";
+
+            default:
+                return "Got it";
+        }
+    }
     public get 关联两个块选择() {
         switch (this.lang) {
             case "zh_CN":

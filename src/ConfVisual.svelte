@@ -20,6 +20,8 @@
         graphDefaultLayout,
         graphHideStructEdges,
         graphShowNumbers,
+        graphBlockMarkBar,
+        graph标记此块Menu,
         graphMaxAllBlocks,
         graphMaxPBlocks,
         graph定位到图中的节点Menu,
@@ -28,7 +30,7 @@
     import { siyuan } from "./libs/siyuanApi";
     import { lastVerifyResult } from "./libs/user";
     import { MindWire启用或禁用思维导线, MindWire启用或禁用文档思维导线, MindWire划词连线 } from "./MindWire";
-    import { GraphBox定位到图中的节点, GraphBox打开块关系图 } from "./GraphBox";
+    import { GraphBox定位到图中的节点, GraphBox打开块关系图, GraphBox标记此块 } from "./GraphBox";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
@@ -167,6 +169,15 @@
             <input type="checkbox" class="b3-switch" bind:checked={$graph打开块关系图Menu} />
             {tomatoI18n.menu添加右键菜单}: {GraphBox打开块关系图.langText()}
             <HotkeyCap hk={GraphBox打开块关系图} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$graph标记此块Menu} />
+            {tomatoI18n.menu添加右键菜单}: {GraphBox标记此块.langText()}
+            <HotkeyCap hk={GraphBox标记此块} pluginName="sy-tomato-plugin"></HotkeyCap>
+        </div>
+        <div>
+            <input type="checkbox" class="b3-switch" bind:checked={$graphBlockMarkBar} />
+            {tomatoI18n.标记左边条}
         </div>
         <div>
             <input type="checkbox" class="b3-switch" bind:checked={$graphAddTopbarIcon} />

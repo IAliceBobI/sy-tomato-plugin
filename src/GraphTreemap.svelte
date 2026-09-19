@@ -12,22 +12,18 @@
   - 明暗走主题变量形态：CSS 自定义属性 + html[data-theme-mode=dark] 分支（3.8.3 判据）
 -->
 <script lang="ts">
-    import { computeTreemap, matchRefFocus, resolveHighlightId, weightOfLeaf, type RefLinkLike, type TreemapRect } from "./libs/graphTreemap";
+    import { computeTreemap, matchRefFocus, resolveHighlightId, type RefLinkLike, type TreemapRect } from "./libs/graphTreemap";
     import type { StructureInfo } from "./libs/graphStructure";
-    import type { DocMarks } from "./libs/graphMarks";
     import { formatCharsVolume } from "./libs/graphSkeleton";
     import { tomatoI18n } from "./tomatoI18n";
 
-    let { rows, info, docID, docName, refLinks = [], marks, onOpenDoc }: {
+    let { rows, info, docID, docName, refLinks = [], onOpenDoc }: {
         rows: Block[];
         info: StructureInfo;
         docID: string;
         docName: string;
         /** 引用边（重定向前原始端点=叶子粒度；isRef 已在数据源侧过滤） */
         refLinks?: RefLinkLike[];
-        /** □5 标记模式：标记块集合（父层 marks 档喂）——权重=标记块字数、无标记叶子
-         *  剪枝、一级空章 ε 薄框、叶子底色=标记色。undefined=普通方块档 */
-        marks?: DocMarks;
         /** 跳原文（OpenSyFile2 禁聚焦通道；peer 可为块 id） */
         onOpenDoc?: (id: string) => void;
     } = $props();
@@ -52,17 +48,8 @@
         return () => ro.disconnect();
     });
 
-    // □5 标记模式权重覆盖：标记叶子=字数口径（weightOfLeaf 同源）、无标记叶子=0 剪枝；
-    // 一级空章 ε 薄框（陆杰「无标记章节剩薄框」——取一行文字量，实测视觉可调）
-    const MARKS_EMPTY_CONTAINER_WEIGHT = 16;
-    const tmOpts = $derived.by(() => {
-        if (!marks) return {} as Record<string, never>;
-        return {
-            weightOf: (b: Block) => (marks.has(b.id) ? weightOfLeaf(b) : 0),
-            emptyContainerWeight: MARKS_EMPTY_CONTAINER_WEIGHT,
-        };
-    });
-
+    // graphmark 期3：marks 档迁回结构树渲染（标记路径过滤）——本组件 marks 权重覆盖/
+    // 标记色底消费退役（方块家族降纯手动档，bear 拍板「旧 marks 默认退役」）
     const rects = $derived.by(() => {
         if (!cw || !ch || !info) return [] as TreemapRect[];
         // review P3：下钻目标被编辑删除时死链自愈（面包屑滤掉块集外章节退全景）
@@ -70,7 +57,7 @@
         if (live.length !== drill.length) drill = live;
         const rootID = live.at(-1)?.id;
         try {
-            return computeTreemap(rows, info, cw, ch, { docID, rootID, ...tmOpts });
+            return computeTreemap(rows, info, cw, ch, { docID, rootID });
         } catch {
             return [] as TreemapRect[];
         }
@@ -142,12 +129,6 @@
         selectedId = selectedId === r.id ? undefined : r.id;
     }
 
-    /** □5 标记叶子底色：块内首个 background-color 值（色板 var()/自定义 hex 直用，
-     *  色板变量按主题自适应）；bare 无色 mark 与防御缺值退主题色 */
-    function markCssOf(mk?: { colors: string[] }): string {
-        return mk?.colors[0] || "var(--b3-theme-primary)";
-    }
-
     function onRectDblclick(e: Event, r: TreemapRect) {
         if (r.kind !== "container") return;
         e.stopPropagation();
@@ -174,18 +155,16 @@
             {/each}
         </div>
     {/if}
-    <!-- svelte a11y：canvas 容器 role=none（纯点击清选中，非交互控件语义）。
-         tm-marked=□5 标记模式（标记叶子着标记色、容器弱化衬底） -->
-    <div class="tm-canvas" role="none" class:tm-dimmed={focusActive} class:tm-marked={!!marks} bind:this={canvasBoxEl} onclick={() => (selectedId = undefined)}>
+    <!-- svelte a11y：canvas 容器 role=none（纯点击清选中，非交互控件语义）。 -->
+    <div class="tm-canvas" role="none" class:tm-dimmed={focusActive} bind:this={canvasBoxEl} onclick={() => (selectedId = undefined)}>
         {#each rects as r (r.id)}
             {@const hue = hueOfId.get(r.id) ?? 210}
-            {@const mk = marks?.get(r.id)}
             <!-- svelte-ignore a11y_no_noninteractive_tabindex -- 动态 role（container=button/leaf=img）静态分析推不出分支 -->
             <div class="tm-rect tm-rect--{r.kind} d{Math.min(r.depth, 3)}" data-block-id={r.id}
                 class:tm-rect--sel={selectedId === r.id}
                 class:tm-rect--fout={outPeers.has(r.id)}
                 class:tm-rect--fin={inPeers.has(r.id)}
-                style="left:{r.x}px;top:{r.y}px;width:{r.w}px;height:{r.h}px;--tm-h:{Math.round(hue)};--tm-mark:{markCssOf(mk)}"
+                style="left:{r.x}px;top:{r.y}px;width:{r.w}px;height:{r.h}px;--tm-h:{Math.round(hue)}"
                 role={r.kind === "container" ? "button" : "img"}
                 tabindex={r.kind === "container" ? 0 : undefined}
                 aria-label={r.kind === "container" ? labelOf(r.id) : undefined}
@@ -307,21 +286,6 @@
         cursor: pointer;
     }
     .tm-rect--leaf:hover { background: hsl(var(--tm-h) 62% 42% / 0.34); }
-    /* □5 标记模式：叶子底色=标记色混主题背景 65%（任意 hex 在明暗两态都保底可辨——
-       色板变量按主题自适应本就安全，自定义 hex 深色在暗主题纯实色会沉底）；容器弱化
-       半透明衬底（让标记叶子成为视觉主角） */
-    .tm-canvas.tm-marked .tm-rect--leaf {
-        background: color-mix(in srgb, var(--tm-mark, var(--b3-theme-primary)) 65%, var(--b3-theme-background));
-    }
-    .tm-canvas.tm-marked .tm-rect--leaf:hover {
-        background: color-mix(in srgb, var(--tm-mark, var(--b3-theme-primary)) 85%, var(--b3-theme-background));
-    }
-    .tm-canvas.tm-marked .tm-rect--container { background: hsl(var(--tm-h) 55% 46% / 0.05); border-color: hsl(var(--tm-h) 52% 44% / 0.25); }
-    .tm-canvas.tm-marked .tm-rect--container.d2 { background: hsl(var(--tm-h) 46% 46% / 0.06); border-color: hsl(var(--tm-h) 44% 44% / 0.28); }
-    .tm-canvas.tm-marked .tm-rect--container.d3 { background: hsl(var(--tm-h) 38% 46% / 0.07); border-color: hsl(var(--tm-h) 36% 44% / 0.30); }
-    :global(html[data-theme-mode="dark"]) .tm-canvas.tm-marked .tm-rect--container { background: hsl(var(--tm-h) 42% 52% / 0.08); }
-    :global(html[data-theme-mode="dark"]) .tm-canvas.tm-marked .tm-rect--container.d2 { background: hsl(var(--tm-h) 34% 52% / 0.09); }
-    :global(html[data-theme-mode="dark"]) .tm-canvas.tm-marked .tm-rect--container.d3 { background: hsl(var(--tm-h) 28% 52% / 0.10); }
     :global(html[data-theme-mode="dark"]) .tm-rect--container { background: hsl(var(--tm-h) 42% 52% / 0.15); border-color: hsl(var(--tm-h) 38% 56% / 0.38); }
     :global(html[data-theme-mode="dark"]) .tm-rect--container.d2 { background: hsl(var(--tm-h) 34% 52% / 0.18); border-color: hsl(var(--tm-h) 30% 56% / 0.40); }
     :global(html[data-theme-mode="dark"]) .tm-rect--container.d3 { background: hsl(var(--tm-h) 28% 52% / 0.20); border-color: hsl(var(--tm-h) 24% 56% / 0.42); }

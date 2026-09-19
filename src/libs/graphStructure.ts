@@ -7,7 +7,7 @@
 import type { GraphEdgeSpec } from "./graphCollapse";
 
 /** 容器块=结构承载者：文档根 d/标题 h/列表项 i（l 壳在全量通道已被 shortenList 剔除，
- *  SQL 轻通道在 structureRowsFromSql 剔）/超级块 s/引述 b */
+ *  骨架通道不进容器集）/超级块 s/引述 b */
 export function isStructureContainer(type: string | undefined): boolean {
     return type === "d" || type === "h" || type === "i" || type === "s" || type === "b";
 }
@@ -132,136 +132,6 @@ export interface LightBlockRow {
     length?: number;
 }
 
-/** SQL 轻行 → 容器子图产物（与全量 getData 同构 {rows, links} + 结构信息）：
- *  - 容器行（d/h/i/s/b）拼树；**l 壳剔除**（i 重挂 l 的父，语义对齐全量通道 shortenList——
- *    无 DOM 通道的 marker/勾选前缀，SQL content 纯文本直用）
- *  - 孤儿容器（父不在集内，索引延迟/脏数据）挂文档根不丢
- *  - 叶子行不进 rows 只作聚合（字数优先 length 列）；归属爬链在全块 parent 映射上
- *    （叶子 parent 可以是叶子/已剔除的 l——穿透到最近容器） */
-export function structureRowsFromSql(
-    lightRows: LightBlockRow[],
-    docID: string,
-    docName: string,
-    /** 文档序锚：块 id → 平铺序号（getChildBlocks 通道——批量创建的块 id 尾部随机且
-     *  hpath 永久停在文档级不回填，两者都非真序；标题恒为顶层块故编号全靠此锚。
-     *  缺失回退 id 序（真实文档渐进编辑时 id 序≈文档序） */
-    order?: Map<string, number>,
-): { rows: Block[]; links: Ref[]; info: StructureInfo } {
-    const ordered = order?.size
-        ? [...lightRows].sort((a, b) => (order.get(a.id) ?? 1e9) - (order.get(b.id) ?? 1e9) || (a.id < b.id ? -1 : 1))
-        : lightRows;
-    const parentOfAll = new Map<string, string>();
-    for (const r of lightRows) if (r.id !== docID) parentOfAll.set(r.id, r.parent_id);
-
-    const byId = new Map(lightRows.map(r => [r.id, r]));
-    // length 透传（treemap □1）：叶子行 content 通常空，字数权重走 blocks.length 列
-    const mk = (r: LightBlockRow, parentId: string): Block => ({
-        id: r.id, type: r.type, subtype: r.subtype, content: r.content,
-        root_id: docID, parent_id: parentId, docName: "", length: r.length,
-    });
-
-    // l 壳穿透：容器的挂载父=l 壳链向上最近的非 l 祖先
-    const mountParent = (id: string, seen: Set<string>): string => {
-        let cur = parentOfAll.get(id) ?? docID;
-        while (byId.get(cur)?.type === "l") {
-            if (seen.has(cur)) break;
-            seen.add(cur);
-            cur = parentOfAll.get(cur) ?? docID;
-        }
-        return cur;
-    };
-
-    const doc: Block = { id: docID, type: "d", content: docName, subtype: "", root_id: docID, parent_id: docID, docName: "" };
-    const rows: Block[] = [];
-    const links: Ref[] = [];
-    const containerById = new Map<string, Block>([[docID, doc]]);
-    // 章节领地（骨架 hpath 语义的 SQL 平铺版，id 时间戳序≈文档序——骨架通道同款容忍）：
-    // - 标题按 subtype 层级挂最近低级标题（h1→doc，h2→前面最近的 h1…），领地到下一标题止
-    // - 真父为文档根的容器（列表/超级块/引述）挂当前章节标题（章节内容的心智模型）
-    // - 真父为 s/b/i/l 的容器挂真父（l 壳穿透）
-    // 顶层判定：mountParent 链上无 s/b/i（纯 l 壳穿透到 doc）
-    const inContentContainer = (id: string, seen: Set<string>): boolean => {
-        let cur = parentOfAll.get(id);
-        while (cur && cur !== docID) {
-            const t = byId.get(cur)?.type;
-            if (t === "s" || t === "b" || t === "i" || t === "l") return true;
-            if (seen.has(cur)) return true;
-            seen.add(cur);
-            cur = parentOfAll.get(cur);
-        }
-        return false;
-    };
-    const headingStack: Block[] = []; // 各层级最近的章节标题（[h1, h2, ...] 按 subtype 深度）
-    let currentHeading: Block = doc;
-    const addContainer = (r: LightBlockRow, parent: Block) => {
-        const row = mk(r, parent.id);
-        (parent.children ??= []).push(row);
-        rows.push(row);
-        links.push({ block_id: parent.id, def_block_id: row.id, content: "" });
-        containerById.set(r.id, row);
-        return row;
-    };
-    for (const r of ordered) {
-        if (r.id === docID || !isStructureContainer(r.type) || r.type === "l") continue;
-        const top = !inContentContainer(r.id, new Set());
-        if (r.type === "h") {
-            const depth = parseInt(r.subtype?.[1] ?? "1", 10) || 1;
-            if (top) {
-                while (headingStack.length >= depth) headingStack.pop();
-                const parent = headingStack[headingStack.length - 1] ?? doc;
-                currentHeading = addContainer(r, parent);
-                headingStack.push(currentHeading);
-                continue;
-            }
-            addContainer(r, containerById.get(mountParent(r.id, new Set())) ?? doc); // 容器内标题挂容器
-            continue;
-        }
-        const pid = mountParent(r.id, new Set());
-        const parent = pid === docID && top ? currentHeading : (containerById.get(pid) ?? doc);
-        addContainer(r, parent);
-    }
-
-    // 叶子聚合（两遍合一，id 序推进）：顶层平铺叶子→当前章节锚 leafHeading
-    // （与容器遍历的章节领地同款语义）；容器内叶子爬真 parent 链到最近容器
-    const info: StructureInfo = { containers: new Set(containerById.keys()), containerOfLeaf: new Map(), directLeaves: new Map(), leafAgg: new Map() };
-    const climbMemo = new Map<string, string | undefined>();
-    const climb = (id: string, seen: Set<string>): string | undefined => {
-        if (climbMemo.has(id)) return climbMemo.get(id);
-        if (seen.has(id)) return undefined;
-        seen.add(id);
-        if (info.containers.has(id)) return id;
-        const p = parentOfAll.get(id);
-        const hit = p ? climb(p, seen) : undefined;
-        climbMemo.set(id, hit);
-        return hit;
-    };
-    const addLeaf = (r: LightBlockRow, owner: string) => {
-        info.containerOfLeaf.set(r.id, owner);
-        (info.directLeaves.get(owner) ?? info.directLeaves.set(owner, []).get(owner)!).push(mk(r, owner));
-        const agg = info.leafAgg.get(owner) ?? { leaves: 0, chars: 0 };
-        agg.leaves++;
-        agg.chars += r.length ?? (r.content ?? "").length;
-        info.leafAgg.set(owner, agg);
-    };
-    let leafHeading: Block = doc; // 顶层章节锚（文档序推进；h 挂 s/b/i 容器内的不推进）
-    for (const r of ordered) {
-        if (r.id === docID) continue;
-        const top = !inContentContainer(r.id, new Set());
-        if (r.type === "h") {
-            if (top) { const row = containerById.get(r.id); if (row) leafHeading = row; }
-            continue;
-        }
-        if (isStructureContainer(r.type) || r.type === "l") continue; // 容器不产叶子聚合
-        if (top && mountParent(r.id, new Set()) === docID) {
-            addLeaf(r, leafHeading.id); // 顶层平铺叶子→章节锚
-            continue;
-        }
-        const owner = climb(r.id, new Set());
-        if (owner) addLeaf(r, owner); // 容器内叶子（含 l 壳内项文本块）
-    }
-    return { rows: [doc, ...rows], links, info };
-}
-
 /** 章节自动编号（□3，2026-09-17，思绪大纲感）：标题链 DFS 序 1 / 1.1 / 1.1.1。
  *  只编文档根标题链（parallelHeanders/SQL 通道均已把标题层级化挂链）；s/b/i 容器
  *  内的标题与列表/超级块/引述本身不参与（图标语义自足+有序列表自带序号防双编号）。
@@ -289,7 +159,7 @@ export function numberHeadingChain(rows: Block[], rootID: string): Map<string, s
 }
 
 /** 顶层非标题容器的章节领地锚（□3 vision 方案 A 配套）：挂文档根的列表/超级块/引述
- *  → idx 序前驱最近章节标题（与 SQL 通道 structureRowsFromSql 的领地语义对齐——DOM 通道
+ *  → idx 序前驱最近章节标题（与骨架通道叶子的前驱章节锚语义对齐——DOM 通道
  *  shortenList 把 i 挂回 doc 顶层是领地概念之前的行为，导致「doc→sb→H2 与 doc→H1→H2
  *  等深」怪相+默认展开层级压不住列表项）。返回 容器 id → 锚标题 id */
 export function chapterAnchorMap(rows: Block[], rootID: string): Map<string, string> {
@@ -336,7 +206,7 @@ export function decodeHTMLEntities(s: string): string {
 }
 
 /**
- * outline 真值骨架：getDocOutline 标题树 + 全块轻行 → 与 structureRowsFromSql 同构产物
+ * outline 真值骨架：getDocOutline 标题树 + 全块轻行 → 与全量 getData 同构产物
  * {rows, links, info}。rows=纯标题层级树（doc→h→h…，挂链=outline 嵌套真值，不再
  * headingStack 推断）；info=叶子归属（全块按文档序前驱标题锚归挂，sb/引述/列表
  * 容器退化进锚的徽标）——rendering 层消费形态与旧通道零分叉。
@@ -348,7 +218,7 @@ export function structureRowsFromOutline(
     blocks: LightBlockRow[] | Block[],
     docID: string,
     docName: string,
-    /** 文档序锚（getChildBlocks 平铺序，同 structureRowsFromSql；缺省=传入序） */
+    /** 文档序锚（getChildBlocks 平铺序；缺省=传入序） */
     order?: Map<string, number>,
 ): { rows: Block[]; links: Ref[]; info: StructureInfo } {
     // 块物理位置=沿 parent 链爬到最近的锚集成员（getChildBlocks 顶层物理序——标题物理
@@ -357,11 +227,19 @@ export function structureRowsFromOutline(
     for (const r of blocks as LightBlockRow[]) {
         if (r.id !== docID && r.parent_id && r.id !== r.parent_id) parentOfAll.set(r.id, r.parent_id);
     }
+    const blockById = new Map((blocks as LightBlockRow[]).map(r => [r.id, r]));
+    // luji0918 □2 P0：DOM 通道 shortenList 把 i 重挂 l 的挂父且 l 壳行滤出 blocks——
+    // i 自身不在 order、爬链跳过 l 直达根 → blockPos=1e9 落尾部，主循环 anchor 已被
+    // 标题链推到末章=列表整族挂错章（vision 实锤「列表项二被标记丁」挂 1.2 章二）。
+    // 桥=shortenList 盖在 i 行上的 listShellId 戳：每跳先查 order 再按戳回查壳锚位
+    // （顶层 l 恒在 order；嵌套 l 的壳不在 order 时继续爬父链，外层 i 的壳戳接棒）
     const blockPos = (id: string): number => {
         let cur = id;
         const seen = new Set<string>();
         while (cur && !seen.has(cur)) {
             if (order?.has(cur)) return order.get(cur)!;
+            const shell = (blockById.get(cur) as { listShellId?: string } | undefined)?.listShellId;
+            if (shell && order?.has(shell)) return order.get(shell)!;
             seen.add(cur);
             cur = parentOfAll.get(cur) ?? "";
         }
@@ -377,7 +255,6 @@ export function structureRowsFromOutline(
     const ordered: LightBlockRow[] = order?.size
         ? [...(blocks as LightBlockRow[])].sort((a, b) => blockPos(a.id) - blockPos(b.id))
         : (blocks as LightBlockRow[]); // 无锚=传序（调用方排好；锚拉失败的兜底日志在接线层 catch——review P2-2 折衷）
-    const blockById = new Map((blocks as LightBlockRow[]).map(r => [r.id, r]));
 
     // outline 树 DFS 展开（=文档序标题序列）；blocks/children 双通道都走（真样本顶层用
     // blocks 次层用 children，防御性双收）；脏行（id 空/重复/块集外幽灵标题）跳过

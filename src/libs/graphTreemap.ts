@@ -1,7 +1,7 @@
 // src/libs/graphTreemap.ts
 // GraphBox 方块总览 treemap 纯函数（treemap 战役 □1，2026-09-17）：squarified treemap
 // （Bruls et al. 2000 经典版，手写不引 d3-hierarchy——bear 拍板）。输入=容器树 rows +
-// StructureInfo（buildStructureInfo 全量通道 / structureRowsFromSql 骨架通道产物），
+// StructureInfo（buildStructureInfo 全量通道 / structureRowsFromOutline 骨架通道产物），
 // 输出=矩形平铺列表（渲染层 GraphTreemap.svelte 消费）。纯同步零 IO，风格对齐 graphParaMerge。
 //
 // 设计约束（brainstorm 拍板，勿翻案）：

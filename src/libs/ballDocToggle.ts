@@ -161,8 +161,10 @@ export function bottomTimeoutOf(expectedTailId: string | undefined, base = 3000)
  *  （isDocBottomScrolled 不带期望——mode 4 后渲染末块即真尾），未收敛且距上次点击
  *  ≥600ms 再点（goEnd 幂等：尾窗已载时内核走 scrollTop 直接收底）。200ms 一拍超时
  *  放弃（不抛错）；容器 detach/用户容器外操作即停（whenReady 同款守卫——用户滚动
- *  所有权优先，goEnd 自身也有 wheel 中断守卫）。 */
-export function jumpDocBottomViaSlider(container: HTMLElement, timeoutMs = 15000): void {
+ *  所有权优先，goEnd 自身也有 wheel 中断守卫）。
+ *  luji0918 □1 修法①：加 onDone 终态回调（settled / TIMEOUT / abort 族全路径恰一次）——跳底期遮眼（visibility:hidden）由调用方挂此回调恢复显示，杜绝「头窗构造
+ *  →goEnd 落底」间两段式观感（陆杰 09-18 反馈「先顶部再跳底部」）。 */
+export function jumpDocBottomViaSlider(container: HTMLElement, timeoutMs = 15000, onDone?: (why: string) => void): void {
     const t0 = Date.now();
     debugLog("fball", `slider-jump start timeout=${timeoutMs}`, "fball");
     let userTouched = false;
@@ -175,6 +177,7 @@ export function jumpDocBottomViaSlider(container: HTMLElement, timeoutMs = 15000
         document.removeEventListener("pointerdown", markUser, true);
         document.removeEventListener("keydown", markUser, true);
         debugLog("fball", `slider-jump ${why} at ${Date.now() - t0}ms`, "fball");
+        onDone?.(why);
     };
     let lastClick = 0;
     let clicks = 0;
@@ -234,4 +237,54 @@ export async function scrollDocBottomForDoc(
         // 真尾未知→不传期望，按渲染末块落底（老行为）
     }
     scrollDocBottomWhenReady(container, bottomTimeoutOf(expected, timeoutMs), expected);
+}
+
+// ── luji0918 □1 修法②：记忆位置（重开回上次看到的地方）──────────────────────────────
+// 通道选型：长文档懒加载下重开是头窗构造，关闭时视口里的块多半不在新头窗 DOM 里——
+// scrollIntoView 够不到未渲染块；内核官方「重开恢复阅读位置」管线=getDocByScroll
+// （/api/filetree/getDoc 带 startID/endID 直载该窗口 + onGet scrollTop 直恢），构造期
+// action 含 cb-get-rootscroll 且 blockId=rootId 时自动走该分支（protyle/index.ts 构造器
+// 同步读 FILEPOSITION）。插件侧记录进 ball.action（petal 持久化），重开时种入内核存储
+// 供构造消费、构造返回即还原（零污染窗）——不长期占据内核 FILEPOSITION，主实例同名
+// 文档的官方阅读位置不受影响。
+
+/** 阅读位置存档（内核 saveScroll 同构字段）：startId/endId=当前渲染窗首尾块 id，
+ *  scrollTop=滚动容器偏移 */
+export interface DocReadPosition {
+    startId: string;
+    endId: string;
+    scrollTop: number;
+}
+
+/** 读当前渲染窗位置（须在容器仍挂载时调——detached 元素 scrollTop 恒 0）。渲染未就绪
+ *  （无首尾块）返回 undefined，调用方保持旧档不覆盖 */
+export function readDocPosition(container: HTMLElement): DocReadPosition | undefined {
+    const wys = container.querySelector(".protyle-wysiwyg");
+    const startId = wys?.firstElementChild?.getAttribute("data-node-id");
+    const endId = wys?.lastElementChild?.getAttribute("data-node-id");
+    if (!startId || !endId) return undefined;
+    const content = (container.querySelector(".protyle-content") ?? wys) as HTMLElement | null;
+    // data-scrolltop 属性兜底与内核 saveScroll 同口径（slider 索引跳转期 overflow:hidden，
+    // 真实偏移暂存属性）
+    const scrollTop = content?.scrollTop || parseInt(content?.getAttribute("data-scrolltop") || "") || 0;
+    return { startId, endId, scrollTop };
+}
+
+/** 内核阅读位置存储键（constants.ts LOCAL_FILEPOSITION 同值，前端只种内存镜像不落盘） */
+export const FILEPOSITION_KEY = "local-fileposition";
+
+/** 临时种入内核 FILEPOSITION 供 new Protyle 构造期 cb-get-rootscroll 分支消费，返回
+ *  还原函数：内核构造器内同步读值（scrollAttr 按引用捕获进 getDocByScroll 请求），
+ *  构造返回后即可还原——原值存在则恢复、不存在则删除。storage 不可用（异常环境）时
+ *  种入无效果，返回 noop（构造落回普通头窗，行为退化为老开关语义）。 */
+export function seedFilePosition(docID: string, pos: DocReadPosition): () => void {
+    const storage = (window as any).siyuan?.storage;
+    if (!storage) return () => { };
+    const fp = storage[FILEPOSITION_KEY] ?? (storage[FILEPOSITION_KEY] = {});
+    const orig = fp[docID];
+    fp[docID] = { rootId: docID, ...pos };
+    return () => {
+        if (orig === undefined) delete fp[docID];
+        else fp[docID] = orig;
+    };
 }

@@ -11,16 +11,19 @@
 // 三期 B' 语义（用户方向修正：列表要脑图式树形分叉而非容器装着）：容器只留给超级块 s
 // 与引述块 b；列表剔壳 l、i 升格分叉节点+吸收项内文本（见 shortenList 注释）。
 
-/** 串链：连续段落 p 串成 p→p 竖链（供 mergeParagraphChains 合并 ¶×N） */
+/** 串链：连续段落 p 串成 p→p 竖链（供 mergeParagraphChains 合并 ¶×N）。
+ *  吸收块（data='del'，shortenList 项内容）不接链——luji0918 □2 review P1-1：串链的
+ *  c.data='m' 会覆写 'del' 且尾随 delete 复活该块，复活行 parent 指向已滤出的链头
+ *  （悬空）→ 骨架通道爬链断源落尾挂错章+i 卡内容双计 */
 export function seriesAllNodes(root: Block) {
     const children = root?.children?.slice();
     const len = children?.length;
     if (!(len > 0)) return;
     for (let i = 1; i < children.length; i++) {
         const c = children[i];
-        if (c.type !== 'p') continue;
+        if (c.type !== 'p' || c.data === 'del') continue;
         const p = children[i - 1];
-        if (p.type !== 'p') continue;
+        if (p.type !== 'p' || p.data === 'del') continue;
         p.children.push(c);
         c.parent = p;
         c.parent_id = p.id;
@@ -52,7 +55,9 @@ export function parallelHeanders(root: Block, subtypeParent: string, subtypeChil
             p = null;
         }
         const c = children[i];
-        if (p && c.subtype === subtypeChild) {
+        // 吸收块（data='del'）不接链不收养——覆写 'm' 会被尾随 delete 复活+parent 悬空
+        // （同 seriesAllNodes 的 luji0918 □2 review P1-1 守卫）
+        if (p && c.subtype === subtypeChild && c.data !== 'del' && p.data !== 'del') {
             p.children.push(c);
             c.parent = p;
             c.parent_id = p.id;
@@ -78,7 +83,12 @@ export function shortenList(block: Block) {
     if (!block) return;
     block.children?.forEach(c => shortenList(c));
     if (block.type === 'l') {
-        block.children.forEach(c => c.parent_id = block.parent_id);
+        block.children.forEach(c => {
+            c.parent_id = block.parent_id;
+            // luji0918 □2 P0：壳行滤出 rows 后 i 爬链跳过 l 直达挂父——骨架通道文档序
+            // 断源（落尾部挂错末章）。盖壳 id 戳，blockPos 按戳回查壳的 order 锚
+            c.listShellId = block.id;
+        });
         block.data = 'del';
     } else if (block.type === 'i') {
         const parts: string[] = [];
@@ -101,6 +111,48 @@ function listItemPrefix(item: Block): string {
         if (marker && /\d/.test(marker)) return `${marker} `;
     }
     return '';
+}
+
+/** 长文档段落链裁切（graphMaxPBlocks）：超预算的连续段落在 run 中段打 'del'（首段改
+ *  「···」占位）。**吸收块（data='del'）不进 run 不当 pre**——luji0918 □2 review P1-2：
+ *  run 混进 shortenList 已吸收的项内 p（parent=i）时，裁切后幸存顶层 p 会被 reparent
+ *  到吸收块头上=偷挂进列表项（错挂另一变种）。
+ *  graphmark 期3 破案：run 续接只认**物理相邻**（¶ 链父子〔seriesAllNodes 已把兄弟
+ *  连续 p 串链〕或同父 idx 连续）——parallelHeanders 收养 h2 后隔章顶层 p 成平铺相邻，
+ *  平铺序单独当邻接证据会把「35 章 35 段」当一条 36 段链腰斩（标记随块全丢）。
+ *  自 GraphBox.ts 迁入（纯函数归位，供单测直触）。 */
+export function shortenParagraphLink(rows: Block[], maxPBlocks: number) {
+    if (maxPBlocks >= 2) {
+        const ps: Block[] = [];
+        const flush = () => {
+            const rest = ps.length - maxPBlocks;
+            if (rest > 0) {
+                const startIdx = ps.length / 2 - rest / 2
+                ps.slice(startIdx, startIdx + rest).forEach((r, idx) => {
+                    if (idx > 0) r.data = 'del'
+                    else r.content = "···"
+                });
+                ps.forEach((r, idx, arr) => {
+                    const pre = arr[idx - 1];
+                    if (pre?.data === 'del') r.parent_id = pre.parent_id;
+                });
+            }
+            ps.splice(0, ps.length);
+        };
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            if (row.type === 'p' && row.data !== 'del') {
+                const prev = ps[ps.length - 1];
+                const chainAdj = !!prev && row.parent_id === prev.id;
+                const sibAdj = !!prev && row.parent_id === prev.parent_id
+                    && Number.isFinite(row.idx) && row.idx === prev.idx + 1;
+                if (ps.length && !chainAdj && !sibAdj) flush();
+                ps.push(row)
+            }
+            if (row.type !== 'p' || i === rows.length - 1) flush();
+        }
+    }
+    return rows;
 }
 
 /** 递归预处理：l 走列表通道；其余串链+标题层级化。返回 DFS 序全块清单 */

@@ -3153,6 +3153,94 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Auto Make Card";
         }
     }
+    public get 重新阅读从头() {
+        switch (this.lang) {
+            case "zh_CN": return "重新阅读（从头）";
+            case "zh_CHT": return "重新閱讀（從頭）";
+            case "es_ES": return "Releer (desde el principio)";
+            case "fr_FR": return "Relire (dès le début)";
+            case "ja_JP": return "最初から読み直す";
+            case "en_US":
+            default: return "Re-read (from Start)";
+        }
+    }
+    public get 从这里开始学() {
+        switch (this.lang) {
+            case "zh_CN": return "从这里开始学";
+            case "zh_CHT": return "從這裡開始學";
+            case "es_ES": return "Aprender desde aquí";
+            case "fr_FR": return "Apprendre à partir d'ici";
+            case "ja_JP": return "ここから学習を始める";
+            case "en_US":
+            default: return "Start Learning from Here";
+        }
+    }
+    public get 重置到这个分片() {
+        switch (this.lang) {
+            case "zh_CN": return "重置到这个分片";
+            case "zh_CHT": return "重置到這個分片";
+            case "es_ES": return "Reiniciar en este fragmento";
+            case "fr_FR": return "Reprendre à ce fragment";
+            case "ja_JP": return "この断片から再開";
+            case "en_US":
+            default: return "Reset to This Piece";
+        }
+    }
+    public get 重置到此片() {
+        switch (this.lang) {
+            case "zh_CN": return "重置到此片";
+            case "zh_CHT": return "重置到此片";
+            case "es_ES": return "Reiniciar aquí";
+            case "fr_FR": return "Reprendre ici";
+            case "ja_JP": return "ここから再開";
+            case "en_US":
+            default: return "Reset Here";
+        }
+    }
+    public get tip重置到这个分片() {
+        switch (this.lang) {
+            case "zh_CN": return "把续读位置钉到当前分片——从文件树、搜索等翻到旧片时用（浮条「回看」钮自身就会移续读位置）；分片、摘抄与复习记录都不动";
+            case "zh_CHT": return "把續讀位置釘到當前分片——從檔案樹、搜尋等翻到舊片時用（浮條「回看」鈕自身就會移續讀位置）；分片、摘抄與複習記錄都不動";
+            case "es_ES": return "Fija la posición de lectura en este fragmento: úsalo al abrir un fragmento antiguo desde el árbol o la búsqueda (el botón «Atrás» de la barra ya mueve la posición); no toca fragmentos, extractos ni repaso";
+            case "fr_FR": return "Épingle la position de lecture sur ce fragment : à utiliser en ouvrant un ancien fragment via l'arborescence ou la recherche (le bouton « Précédent » de la barre déplace déjà la position) ; ne touche ni aux fragments, ni aux extraits, ni aux révisions";
+            case "ja_JP": return "続きの位置をこの断片に固定——ファイルツールや検索で古い断片を開いたときに使う（バーの「見返す」ボタン自体が位置を動かす）。断片・抜粋・復習の記録は変更されない";
+            case "en_US":
+            default: return "Pin the reading position to this piece — use when you opened an old piece via file tree or search (the bar's Back button already moves it); pieces, excerpts and review records stay untouched";
+        }
+    }
+    public get 已重置到这个分片() {
+        switch (this.lang) {
+            case "zh_CN": return "已重置到这个分片，续读从这里继续";
+            case "zh_CHT": return "已重置到這個分片，續讀從這裡繼續";
+            case "es_ES": return "Reiniciado en este fragmento: seguirá desde aquí";
+            case "fr_FR": return "Reprend à ce fragment : la suite continue d'ici";
+            case "ja_JP": return "この断片から再開しました";
+            case "en_US":
+            default: return "Reset to this piece: reading continues from here";
+        }
+    }
+    public get 本书已读完重新阅读吗() {
+        switch (this.lang) {
+            case "zh_CN": return "本书已读完。重新从头阅读吗？（分片、摘抄与复习记录都保留）";
+            case "zh_CHT": return "本書已讀完。重新從頭閱讀嗎？（分片、摘錄與複習記錄都保留）";
+            case "es_ES": return "Ya has terminado este libro. ¿Releerlo desde el principio? (Los fragmentos, extractos y repaso se conservan)";
+            case "fr_FR": return "Ce livre est terminé. Le relire depuis le début ? (Fragments, extraits et révisions conservés)";
+            case "ja_JP": return "この本は読み終えました。最初から読み直しますか？（断片・抜粋・復習の記録は保持されます）";
+            case "en_US":
+            default: return "This book is finished. Re-read from the beginning? (Pieces, excerpts and review records are kept)";
+        }
+    }
+    public get 写作书没有阅读进度() {
+        switch (this.lang) {
+            case "zh_CN": return "写作书没有阅读进度，无需重置";
+            case "zh_CHT": return "寫作書沒有閱讀進度，無需重置";
+            case "es_ES": return "Los libros de escritura no tienen progreso de lectura que reiniciar";
+            case "fr_FR": return "Les livres d'écriture n'ont pas de progression de lecture à réinitialiser";
+            case "ja_JP": return "執筆本には読書進捗がないため、リセットは不要です";
+            case "en_US":
+            default: return "Writing books have no reading progress to reset";
+        }
+    }
     public get 已经是最后一页了() {
         switch (this.lang) {
             case "zh_CN": return "已经是最后一页了";
@@ -10464,13 +10552,14 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Show all blocks";
         }
     }
-    public get 回到结构视图() {
+    // graphmark 期1：档位平铺按钮组容器 aria-label（四钮各自另有 tooltip）
+    public get 视图档位() {
         switch (this.lang) {
-            case "zh_CN": return "回到结构视图";
-            case "zh_CHT": return "回到結構視圖";
-            case "ja_JP": return "構造ビューに戻る";
+            case "zh_CN": return "视图档位";
+            case "zh_CHT": return "視圖檔位";
+            case "ja_JP": return "ビュー切り替え";
             case "en_US":
-            default: return "Back to structure view";
+            default: return "View modes";
         }
     }
     // treemap 战役 □3：三档下拉菜单文案（结构/方块/全量）+ 下钻面包屑
@@ -10492,7 +10581,8 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Block overview";
         }
     }
-    // □5 标记模式菜单项（陆杰「只看标记」——treemap 家族数据过滤变体）
+    // □5 标记模式菜单项（陆杰「只看标记」——treemap 家族数据过滤变体；graphmark 期3
+    // 重定义为结构图标记路径视图）
     public get 只看标记() {
         switch (this.lang) {
             case "zh_CN": return "只看标记";
@@ -10877,6 +10967,16 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "暫無可輪轉的閱讀書；寫作書的素材與槽位請點旁邊的寫作火苗（青色）";
             case "en_US":
             default: return "No reading books to serve; for writing materials and slots, click the writing flame (teal) beside";
+        }
+    }
+
+    // rollerquota □1 全满额对症提示（nextBook null 且达量集非空=不再误报空书架）
+    public get 今日轮转书已全部读满() {
+        switch (this.lang) {
+            case "zh_CN": return "今日的书都已读满档位，明天再来；想连读可点书卡续读";
+            case "zh_CHT": return "今日的書都已讀滿檔位，明天再來；想連讀可點書卡續讀";
+            case "en_US":
+            default: return "All books have hit today's piece limit — come back tomorrow, or tap a book card to keep reading";
         }
     }
 

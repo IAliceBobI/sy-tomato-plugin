@@ -64,6 +64,7 @@ import {
 } from "../ReadingPointBox";
 import {
     GraphBox定位到图中的节点,
+    GraphBox标记此块,
     GraphBox打开块关系图,
 } from "../GraphBox";
 import {
@@ -274,6 +275,7 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
         items: [
             { langKey: GraphBox定位到图中的节点.langKey, label: () => GraphBox定位到图中的节点.langText(), hk: GraphBox定位到图中的节点 },
             { langKey: GraphBox打开块关系图.langKey, label: () => GraphBox打开块关系图.langText(), hk: GraphBox打开块关系图 },
+            { langKey: GraphBox标记此块.langKey, label: () => GraphBox标记此块.langText(), hk: GraphBox标记此块 },
             { langKey: MindWire启用或禁用思维导线.langKey, label: () => MindWire启用或禁用思维导线.langText(), hk: MindWire启用或禁用思维导线 },
             { langKey: MindWire启用或禁用文档思维导线.langKey, label: () => MindWire启用或禁用文档思维导线.langText(), hk: MindWire启用或禁用文档思维导线 },
             { langKey: MindWire划词连线.langKey, label: () => MindWire划词连线.langText(), hk: MindWire划词连线 },

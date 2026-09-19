@@ -1,7 +1,8 @@
 import { DATA_NODE_ID, DocAttrShowKey, SPACE } from "./libs/gconst";
-import { cardPriBarPos, cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefEffect, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, showDocAttrs, uiCleanDocTreeBadge, uiCleanDocTreeCompact, uiCleanEmptyHelp, uiCleanTabBarBtns, uiCleanTabClose, uiCleanTopbarStatus } from "./libs/stores";
+import { cardPriBarPos, cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefEffect, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, graphBlockMarkBar, graphBoxCheckbox, showDocAttrs, uiCleanDocTreeBadge, uiCleanDocTreeCompact, uiCleanEmptyHelp, uiCleanTabBarBtns, uiCleanTabClose, uiCleanTopbarStatus } from "./libs/stores";
 import { verifyKeyTomato } from "./libs/user";
 import { getAttribute, Siyuan } from "./libs/utils";
+import { BLOCK_MARK_ATTR } from "./libs/graphMarks";
 
 let observer: MutationObserver;
 let _loaded = false;
@@ -56,7 +57,29 @@ function _loadCss() {
 
     load_cssRefAsTags();
 
+    load_blockMarkBar();
+
     load_uiClean();
+}
+
+// graphmark 期2：块级标记正文左边条——custom IAL 由内核渲染进块 DOM 属性（setBlockAttrs
+// 即刷），属性选择器规则零 DOM 注入。inset box-shadow 形态：零布局位移（border 会
+// 推字、padding 让位会缩进）且不与引述块 border-left 打架。色=主题主色：
+// - 暗色 55% 混透明（vision 实拍：清晰可辨不刺眼，通过）；
+// - 亮色 82%（vision P1：55% 混白后 ≈2.1:1 踩不过非文本 3:1 线，82%≈3.2:1 过线；
+//   「淡色」档与对比度线冲突已呈 bear——回落 55% 只改此一个数值）。
+// 与修订痕迹色条（渐进紫罗兰 #7c5bd6 家族）色相错开；随 --b3-theme-primary 自适应。
+function load_blockMarkBar() {
+    if (!graphBoxCheckbox.get()) return;
+    if (!graphBlockMarkBar.get()) return;
+    appendTomatoStyle(`
+        .protyle-wysiwyg div[data-node-id][${BLOCK_MARK_ATTR}] {
+            box-shadow: inset 3px 0 0 color-mix(in srgb, var(--b3-theme-primary) 55%, transparent);
+        }
+        html:not([data-theme-mode="dark"]) .protyle-wysiwyg div[data-node-id][${BLOCK_MARK_ATTR}] {
+            box-shadow: inset 3px 0 0 color-mix(in srgb, var(--b3-theme-primary) 82%, transparent);
+        }
+    `)
 }
 
 async function load_listBackground() {
