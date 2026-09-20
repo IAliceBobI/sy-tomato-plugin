@@ -10,6 +10,12 @@
   --tomato-agent-red: var(--b3-theme-on-primary, #fff);
 }
 
+// agentqa P2（tailbatch □7）：暗色下番茄红提亮一档——#e74c3c 对深底发闷（图形色不受
+// 4.5:1 正文对比线约束）；3.8.3 暗色判据=html[data-theme-mode]
+html[data-theme-mode="dark"] {
+  --tomato-agent-red: #f0604f;
+}
+
 .protyle-wysiwyg div[custom-staticlink],
 .protyle-wysiwyg div[custom-tomato-readingpoint] {
   opacity: 0.65;
@@ -1302,6 +1308,21 @@ html[data-theme-mode="dark"] .protyle-wysiwyg span[data-type~="a"][data-href^="#
   }
 }
 
+// graphmind □4：「显示到第几级」标题级数选择器（dock/浮窗头栏共用 HTML——命令式挂载，
+// scoped 剪不到须全局）。b3-select 紧凑规格嵌入 block__icons 头栏（官方默认 30px+ 高
+// 会撑破头栏行高）；档位按文档动态注入、无标题文档隐藏由 GraphBox.svelte 控制
+.tomato-graph-levelsel {
+  flex-shrink: 0;
+  min-width: 38px;
+  height: 22px;
+  margin: 0 2px;
+  padding: 0 2px 0 6px;
+  box-sizing: border-box;
+  font-size: 12px;
+  line-height: 20px;
+  background-color: var(--b3-theme-background);
+}
+
 // =====================================================================
 // 块编辑器收缩球（二期期1，libs/qeBall.ts 命令式挂 body——scoped 剪不到须全局；
 // □5 起常驻球）。36px 圆球 iconEdit，theme 变量明暗自适应（fball 同款底子）；
@@ -1694,6 +1715,13 @@ html[data-theme-mode="dark"] .tomato-annochat-card__m--user {
     font-size: 11px;
     color: var(--b3-theme-on-surface-light, #999);
     white-space: nowrap;
+    /* annonote P2①（tailbatch □7）：时间右对齐——与批注气泡的 meta 右对齐统一（原左聚
+       在长标题行会漂移，右缘锚定两形态一致） */
+    margin-left: auto;
+}
+/* 来源行文档名提深一档（annonote P2③）：定位主体正文灰档会沉底，on-surface 一档 */
+.tomato-annonote-card__source .tomato-card-src-doc {
+    color: var(--b3-theme-on-surface);
 }
 /* 来源行（仅复习宿主；现查回填，孤儿静默）：《文档》· 小节 · /路径 */
 .tomato-annonote-card__source {

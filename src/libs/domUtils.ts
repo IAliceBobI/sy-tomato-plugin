@@ -332,6 +332,13 @@ export function getBlockOwnEditableText(element: Element, join = "\n") {
     return cleanText(bodies.join(join));
 }
 
+/** 块数组版（tailbatch □6 第四消费面）：getAllText(elements) 的同签名替换——逐块
+ *  getBlockOwnEditableText 再拼，外来插件只读标注容器不混入（enhance 块时间等）；
+ *  单块判据失配自动回退老行为（宁混入不漏取，getBlockOwnEditableText 内建回退） */
+export function getBlocksOwnText(elements: Element[], join = "\n") {
+    return cleanText(elements.map(e => getBlockOwnEditableText(e, join)).filter(t => !!t).join(join));
+}
+
 export function getContenteditableElement(element: Element) {
     if (!element) return element;
     const ed = element.getAttribute(gconst.CONTENT_EDITABLE);

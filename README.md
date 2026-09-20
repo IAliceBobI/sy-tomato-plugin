@@ -61,6 +61,11 @@ The all-in-one productivity toolbox for SiYuan — one plugin slot for a whole n
 - **AI knowledge-base Q&A** — ask questions over your own notes, streaming answers with sources
 - **Knowledge-base sync** — sync chosen docs (subdocs included) to Zhipu BigModel: per-doc whitelist, subtree exclusion, on-tree status marks; AI tools connected via SiYuan MCP can search it too
 
+### 🎨 Appearance
+
+- **UI cleanup** — six toggles to sweep unused chrome away: tab close buttons, tab-bar new/switch buttons, top-bar inbox & help, empty-page guide, file-tree ref counts & doc icons, compact file tree. Hidden actions keep keyboard shortcuts (⌘W to close tabs, ⌘N to create docs); toggles live in the settings "Appearance" section
+- **Editor appearance** — fine-tune reference effects (double brackets, link icon, …), list background stripes, memo visibility and more, until the editor feels like yours
+
 > Plus a row of editor mini-tools: enhanced folding, multi-select, list tools, copy-as-image, document aliases… right in the context menu, no extra plugin slot needed.
 
 ## Free vs Pro

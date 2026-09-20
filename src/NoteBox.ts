@@ -4,8 +4,9 @@ import { add_ref, convertMinutesToTimeFormat, doubleSupRows, getContenteditableE
 import NoteBoxSvelte from "./NoteBox.svelte";
 import { TOMATO_IDEA_QUEUE } from "./libs/gconst";
 import { DestroyManager } from "./libs/destroyer";
-import { avoiding_cloud_synchronization_conflicts, flash_thoughts_2_top, flash_thoughts_target_file, noteBoxCheckbox, noteBoxMobileSync, storeNoteBox_fastnote, storeNoteBox_pin, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType } from "./libs/stores";
-import { shouldRepinDailyNote } from "./libs/dailyCollect";
+import { avoiding_cloud_synchronization_conflicts, flash_thoughts_2_top, flash_thoughts_target_file, flashStatTag, noteBoxCheckbox, noteBoxMobileSync, storeNoteBox_fastnote, storeNoteBox_pin, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType } from "./libs/stores";
+import { lifelogAttrs, shouldRepinDailyNote, ymdFromCreated } from "./libs/dailyCollect";
+import { debugLog } from "./libs/logUtils";
 import { isDailyNoteIal } from "./libs/dailyReview";
 import { isPinned, removeStatusBar } from "./libs/ui";
 import { createRefDoc, OpenSyFile2 } from "./libs/docUtils";
@@ -350,7 +351,7 @@ class NoteBox {
             return;
         }
         const ideaIDs = (await Promise.all(rows.map(row => siyuan.getChildBlocks(row.root_id)))).flat().map(c => c.id);
-        const ideas = await siyuan.getRows(ideaIDs, "created", false, [/*`box="${box}"`,*/ "markdown is not null", "LENGTH(markdown) > 0"]);
+        const ideas = await siyuan.getRows(ideaIDs, "created,markdown,type", false, [/*`box="${box}"`,*/ "markdown is not null", "LENGTH(markdown) > 0"]);
         if (ideas.length == 0) {
             await this.removeQueueDocs(box, rows);
             return;
@@ -379,6 +380,25 @@ class NoteBox {
         }
         if (ops.length > 0) {
             await siyuan.transactions(ops);
+            // □4 落点 C：开关开时给搬进日记的队列块补时间记录标记（与 □2/□3 同协议，移动端
+            // 闪念经队列合并进日记后才能被统计插件识别）。move 事务保块 id 故可直接回填；
+            // date/time 取块 created（记录时刻）非搬运时刻——跨天合并语义；「闪念」是块属性值
+            // 非 UI 文案，固定中文不 i18n。单条失败吞错留痕不阻断搬运主链
+            if (flashStatTag.get()) {
+                for (const i of ideas) {
+                    if (i.type !== "p") continue;
+                    try {
+                        await siyuan.setBlockAttrs(i.id, lifelogAttrs({
+                            content: (i.markdown ?? "").trim(),
+                            type: "闪念",
+                            time: i.created.slice(8, 10) + ":" + i.created.slice(10, 12),
+                            date: ymdFromCreated(i.created),
+                        }));
+                    } catch (e) {
+                        debugLog("flashlog", `queue tag fail ${i.id}: ${e}`, "dailynote");
+                    }
+                }
+            }
             // □4 即搬即清：事务 HTTP 恒 code 0（op 级失败只走 ws 回声）——删队列文档前
             // fresh 重扫 getChildBlocks 确认真的搬空，防事务竞态删到未搬空的
             await this.removeQueueDocs(box, rows);
@@ -507,13 +527,50 @@ async function getContent2insert(text: string, isPic: boolean, iconOverride?: st
 export async function insertIntoDailynote(text: string, isPic = false, iconOverride?: string): Promise<string | undefined> {
     const dayID = await getTargetDoc();
     const r = await getContent2insert(text, isPic, iconOverride, dayID);
-    if (!r.md) return r.id;
+    if (!r.md) {
+        // flashlog □2：DOM 支容器直插完成即回填（L1 预挂 id 事务通道保留）
+        tagLifelogAfterInsert(r.id, text, isPic, iconOverride);
+        return r.id;
+    }
     if (flash_thoughts_2_top.get()) {
         await siyuan.insertBlockAsChildOf(r.md, dayID);
     } else {
         await siyuan.appendBlock(r.md, dayID);
     }
+    // flashlog □2：md 支插完回填（r.id=doubleSupRows 预挂容器 id，markdown 通道显式 id 被认领）
+    tagLifelogAfterInsert(r.id, text, isPic, iconOverride);
     return r.id;
+}
+
+/** flashlog □2：开关开时给收集容器内首个段落块补时间记录标记（content=闪念全文、
+ *  type=所选类型、time=落块时刻）。fire-and-forget：标记失败不阻断落块主链（debugLog
+ *  留痕）；图片通道（无容器/无文本语义）与开关关时零行为 */
+function tagLifelogAfterInsert(containerID: string | undefined, text: string, isPic: boolean, iconOverride?: string) {
+    if (!flashStatTag.get() || !containerID || isPic) return;
+    const type = (iconOverride ?? storeNoteBox_selectedNoteType.get()).trim();
+    void (async () => {
+        try {
+            const pID = await firstParaBlock(containerID);
+            if (!pID) return;
+            await siyuan.setBlockAttrs(pID, lifelogAttrs({ content: text.trim(), type, time: getTime() }));
+        } catch (e) {
+            debugLog("flashlog", `tag fail container=${containerID}: ${e}`, "dailynote");
+        }
+    })();
+}
+
+/** 收集容器（可能双层 sb）内首个段落块 id：getChildBlocks 只返第一层，须递归下钻；
+ *  图/代码块等非段落跳过（首 p=闪念正文所在块） */
+async function firstParaBlock(id: string): Promise<string | undefined> {
+    const kids = await siyuan.getChildBlocks(id);
+    for (const k of kids) {
+        if (k.type === "p") return k.id;
+        if (k.type === "s") {
+            const inner = await firstParaBlock(k.id);
+            if (inner) return inner;
+        }
+    }
+    return undefined;
 }
 
 async function getTargetDoc() {

@@ -205,15 +205,18 @@ type TomatoSettings = {
     //------------------
     graphHideStructEdges: boolean,
     graphShowNumbers: boolean,
+    // graphmind □6：视图收敛——full/treemap 入口显隐开关（默认关=主界面两档）
+    graphShowAllViewModes: boolean,
     graphblockmarkMenu: boolean,
     graphBlockMarkBar: boolean,
     // graphfloat □3：悬浮图（球+浮窗看当前文档块关系图，dock 保留）
     graph_float: boolean,
+    // gfloatnav：图内导航后自动收起悬浮面板
+    graphFloatJumpClose: boolean,
     graphMaxAllBlocks: string,
     graphMaxPBlocks: string,
     // graphbox 期2：默认展开层级（按标题层级 h1=1；"all"=全部展开，段落链折叠独立于档位）
     graphDefaultExpandLevel: string,
-    graphDefaultLayout: string,
     graphBoxCheckbox: string,
     userToken: string,
     userID: string,
@@ -377,6 +380,7 @@ type TomatoSettings = {
     "flash-thoughts-2-top": boolean,
     "flash-thoughts-target-file": string,
     "shorthandRelayEnabled": boolean,
+    "flash-stat-tag": boolean,
     "flashThoughtsBlurClose": boolean,
     "quickNoteCheckbox": boolean,
     "quickNoteOpenMode": "external" | "focus",
@@ -517,7 +521,8 @@ type AttrType = {
     "custom-graph-layout"?: string,
     "custom-graph-mode"?: string,
     "custom-graph-struct-marks"?: string,
-    "custom-graph-node-positions"?: string,
+    // custom-graph-node-positions（拖拽位置存档）graphrelayout □6 惰性废弃：不再读不清，
+    // 遗留键读到也忽略
     "custom-graph-collapsed"?: string,
     "custom-tomato-mark"?: string,
     "custom-super-list"?: string,
@@ -626,8 +631,14 @@ interface GraphDockData<T> {
     /** 期4：定位脉冲窗口内抑制自动刷新（expandTo 写属性→ws 回流→relayout 重建打断脉冲/打回 setCenter） */
     suppressAutoRefreshUntil?: number;
     /** graphbox 期1：Provider 内 useSvelteFlow 借道（relayout 末尾首屏视口适配） */
-    /** minZoom=fitView 缩放下限（防孤儿列/宽树过缩成不可见小簇，□2 vision P1） */
-    fitView?: (opts?: { padding?: number; duration?: number; minZoom?: number }) => void;
+    /** minZoom/maxZoom=fitView 缩放上下限（graphmind □7fix 真 fit 显式传参；minZoom 下限
+     *  原防孤儿列/宽树过缩成不可见小簇——□2 vision P1，□7fix 取舍翻转为全树可见优先） */
+    fitView?: (opts?: { padding?: number; duration?: number; minZoom?: number; maxZoom?: number }) => void;
+    /** graphmind □2 P1 注册（fitReadable 根锚定分支消费）；□7fix 真 fit 后无图内消费方，
+     *  保留通道（GraphControl 仍注册，后续视口钉位需求复用） */
+    setViewport?: (vp: { x: number; y: number; zoom: number }, opts?: { duration?: number }) => void;
+    /** graphrelayout □1 注册：交互链视口钉（capturePin 交互前快照被点节点屏幕位置） */
+    getViewport?: () => { x: number; y: number; zoom: number };
     /** graphbox 期2：展开目标节点的折叠祖先链（定位不静默）；返回是否有折叠变更 */
     expandTo?: (id: string) => Promise<boolean>;
     /** graphbox 期4：图当前通道态/文档/块上限（locateNode 的 toast 分支文案依据）；
@@ -636,10 +647,8 @@ interface GraphDockData<T> {
     getGraphState?: () => { mode: "structure" | "full" | "treemap" | "marks"; docID: string; maxBlocks: number; blockCount?: number };
     /** graphbox 二期 □2：图内全块 id 集（locateNode 定位兜底上爬祖先的「图内」判定） */
     graphIDsOf?: () => Set<string>;
-    /** graphbox 期3：当前布局方向（横 LR=false 纵 TB=true）——zoom 过小提示切纵向的判定依据（期7 起随 isVertical 退役，改 layoutForm） */
-    isVertical?: boolean;
-    /** graphbox 期7：当前布局形态四态（lr/tb/vlr/vtb）——fitView toast 已竖排态不提示的判定依据 */
-    layoutForm?: string;
+    // graphrelayout □2：isVertical/layoutForm 两字段随四态退役删除（原服务「zoom 过小提示
+    // 切纵向」toast 的判定，恒 LR 后无处可切）
     /** graphbox 期7：¶ 链中段定位重定向（目标块并进 ¶ 大节点 → 图上节点=链头） */
     paraRedirectOf?: (id: string) => string;
     /** graphmark 期3：块级标记写后通知（标记写不碰 updated=指纹短路不含标记集，
@@ -688,6 +697,7 @@ interface DoOperation {
     action: string;
     data: string;
     id: string;
+    rootID: string; // graphrelayout □5：内核 Operation 恒带（model/blockial.go pushBlockAttrs）——updateAttrs op 的块属性判定键（op.id=块 id 无 parentID）
     parentID: string;
     previousID: string;
     nextID: string;

@@ -489,6 +489,51 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
         }
     }
 
+    public get 闪念时间记录兼容() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "闪念时间记录兼容：落块时为闪念/官方速记附加时间·类型·内容标记，时间记录统计类插件可直接识别";
+            case "es_ES":
+                return "Compatibilidad con el registro de tiempo: al insertar, añade etiquetas de hora/tipo/contenido a los destellos y a las notas rápidas oficiales, reconocibles por los plugins de estadísticas de registro de tiempo";
+            case "fr_FR":
+                return "Compatibilité journal temporel : à l'insertion, ajoute des balises heure/type/contenu aux pensées et aux notes rapides officielles, reconnaissables par les plugins de statistiques de temps";
+            case "ja_JP":
+                return "タイムログ互換：挿入時にアイデア／公式クイックメモへ時刻・タイプ・内容のタグを付与し、タイムログ統計系プラグインがそのまま認識できます";
+            case "zh_CHT":
+                return "閃念時間記錄相容：落塊時為閃念/官方速記附加時間·類型·內容標記，時間記錄統計類外掛可直接識別";
+            case "it_IT":
+                return "Compatibilità con la registrazione del tempo: all'inserimento aggiunge tag di ora/tipo/contenuto a pensieri e note rapide ufficiali, riconoscibili dai plugin di statistiche temporali";
+            case "de_DE":
+                return "Zeitprotokoll-Kompatibilität: fügt beim Einfügen Zeit-, Typ- und Inhalts-Markierungen zu Gedanken und offiziellen Schnellnotizen hinzu, erkennbar durch Zeitstatistik-Plugins";
+            case "he_IL":
+                return "תאימות ליומן זמן: בעת ההוספה מצרף תגי זמן/סוג/תוכן למחשבות ולרשימות מהירות רשמיות, המזוהים ישירות על ידי תוספי סטטיסטיקת זמן";
+            case "ru_RU":
+                return "Совместимость с журналом времени: при вставке добавляет к идеям и официальным быстрым заметкам метки времени, типа и содержимого, распознаваемые плагинами статистики времени";
+            case "pl_PL":
+                return "Zgodność z rejestrem czasu: przy wstawianiu dodaje znaczniki czasu/typu/treści do myśli i oficjalnych szybkich notatek, rozpoznawalne przez wtyczki statystyk czasu";
+            case "en_US":
+            default:
+                return "Time-log format compatibility: attach time/type/content tags to flash thoughts & official shorthands at insert, recognizable by time-log statistics plugins";
+        }
+    }
+
+    public get 官方速记搬运须在桌面端执行() {
+        switch (this.lang) {
+            case "zh_CN": return "官方速记搬运须在桌面端执行";
+            case "es_ES": return "La transferencia de notas rápidas oficiales debe ejecutarse en el escritorio";
+            case "fr_FR": return "Le transfert des notes rapides officielles doit être exécuté sur ordinateur";
+            case "ja_JP": return "公式クイックメモの転送はデスクトップで実行してください";
+            case "zh_CHT": return "官方速記搬運須在桌面端執行";
+            case "it_IT": return "Il trasferimento delle note rapide ufficiali deve essere eseguito sul desktop";
+            case "de_DE": return "Die Übertragung offizieller Schnellnotizen muss auf dem Desktop ausgeführt werden";
+            case "he_IL": return "העברת רשימות מהירות רשמיות חייבת לרוץ בשולחן העבודה";
+            case "ru_RU": return "Перенос официальных быстрых заметок должен выполняться на компьютере";
+            case "pl_PL": return "Przenoszenie oficjalnych szybkich notatek musi być wykonywane na komputerze";
+            case "en_US":
+            default: return "Official shorthand relay must run on desktop";
+        }
+    }
+
     public get 去除笔记颜色() {
         switch (this.lang) {
             case "zh_CN": return "去除笔记颜色";

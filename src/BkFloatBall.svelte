@@ -184,6 +184,8 @@
             window.removeEventListener("resize", onResize);
             window.removeEventListener("pointermove", onMove);
             window.removeEventListener("pointerup", onUp);
+            // 拖拽进行中卸载（onDown 挂的三件套之一）：同步摘 pointercancel 防监听残留
+            window.removeEventListener("pointercancel", onCancel);
         };
     });
 

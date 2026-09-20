@@ -278,9 +278,11 @@ export function loadFloatingBall() {
 export function getFloatingBallProtyleDialogDM(ball: BallItem): DestroyManager | undefined {
     return globalThis[FloatingBall.key(`protyle#2#${ball.action?.docID}`)] as DestroyManager | undefined;
 }
-export function getFloatingBallProtyleDialog(ball: BallItem, docID?: string) {
+export function getFloatingBallProtyleDialog(ball: BallItem, docID?: string, tail?: { id: string }[]) {
     // dm 键恒绑 item.docID（稳定性优先：$$dailynote 每天新 id 不进键，跨天 toggle
-    // 探测不漂移）；docID 参数=本次渲染用的解析值（$$dailynote 现建日记等场景）
+    // 探测不漂移）；docID 参数=本次渲染用的解析值（$$dailynote 现建日记等场景）；
+    // tail=尾窗预取结果（fballtail □1 跳底直载——窗已开时本参数被忽略走复用，正解：
+    // 开着的窗不受后续 execute 换档）
     const address = `protyle#2#${ball.action?.docID}`;
     const dm = getFloatingBallProtyleDialogDM(ball);
     if (dm) {
@@ -295,6 +297,7 @@ export function getFloatingBallProtyleDialog(ball: BallItem, docID?: string) {
                     key: FloatingBall.key(address),
                     ball,
                     docID: docID || ball.action?.docID,
+                    tail,
                 }
             });
         }, () => { /* 保留件沿用「树不卸载」现状 */ });

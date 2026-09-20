@@ -508,7 +508,9 @@
         let id = backLink.blockID;
         if (backLink.parentID) id = backLink.parentID;
         const div = (await getBlockDiv(id)).div;
-        const txt = getBlockOwnEditableText(div);
+        // P2-3（tailbatch □6）：别名含单引号会提前终止 ((id '…')) 语法→坏块引——折半角
+        // 引号为全角（视觉近同、零语法冲突；domLnk 通道是 HTML 文本不受单引号影响不须改）
+        const txt = getBlockOwnEditableText(div).replaceAll("'", "’");
         if (id && txt) {
             await siyuan.appendBlock(
                 `((${id} '${txt}'))\n${attrNewLine()}\n${attrNewLine()}`,

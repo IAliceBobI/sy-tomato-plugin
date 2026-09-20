@@ -557,7 +557,9 @@
         cursor: col-resize;
         touch-action: none;
         border-radius: 2px;
-        background: transparent;
+        /* blockside vision P2（tailbatch □7）：常显 1px 细线（居中于 4px 热区）——两栏
+           边界平时可见，hover 仍换成 4px 主色浅底热区提示可拖 */
+        background: linear-gradient(var(--b3-border-color), var(--b3-border-color)) center / 1px 100% no-repeat;
         transition: background-color 0.15s;
     }
     .sideDrag:hover,

@@ -35,6 +35,7 @@
     import { BlockNodeEnum, SPACE } from "./libs/gconst";
     import { ScheduleCopyID } from "./Schedule";
     import { addFoldCmd折叠, addFoldCmd展开 } from "./fold";
+    import { tomatoCommentSwitchHK } from "./libs/entryHotkeys";
     import { pushUniq } from "stonev5-utils";
     import { removeFromArr } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
@@ -186,6 +187,11 @@
     <div>
         <input type="checkbox" class="b3-switch" bind:checked={$foldCmdCheckbox} />
         {addFoldCmd展开.langText()}<HotkeyCap hk={addFoldCmd展开} pluginName="sy-tomato-plugin"></HotkeyCap>
+    </div>
+    <!-- 注释切换键帽（gfloatnav 盘点补漏 09-19：⇧⌥\ 命令 index.ts 裸注册一直有键无键帽——
+         编辑器选区动作与块折叠同族，配置跟功能走归位本卡） -->
+    <div>
+        {tomatoCommentSwitchHK.langText()}<HotkeyCap hk={tomatoCommentSwitchHK} pluginName="sy-tomato-plugin"></HotkeyCap>
     </div>
 </div>
 <!-- 多行选择（自 ConfEditor.svelte 迁入；二期两卡合一、两行开关；□4 补总开关=桌面/移动一键） -->

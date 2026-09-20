@@ -1,48 +1,24 @@
 // src/libs/graphLayout.ts
-// GraphBox 布局形态四态枚举纯函数（graphbox 期7，2026-09-04）：
-// 横排 LR（默认）/ 横排 TB / 竖排 LR（文字竖排+树向右，窄 dock 主推）/ 竖排 TB。
-// 纯同步零 IO——持久化（custom-graph-layout）与渲染在 GraphBox.svelte，不进本文件。
+// 布局形态恒 LR（graphrelayout □2，2026-09-20 bear 拍板：「不用给用户选横竖了，直接默认
+// 向右侧生长（LR 横排），最好不要碰撞在一起」）——原四态枚举（lr/tb/vlr/vtb）整族退役：
+// normalizeLayoutForm/rankdirOf/isTextVertical/migrateIsVertical/nextLayoutForm/layoutFormLabel
+// 全删（恒 LR 后无分支可言），树生长 rankdir 恒 "LR"、文字恒横排。
 //
-// 存量迁移拍板（handoff □7）：旧 custom-graph-isVertical 布尔 → true=横排 TB、false=横排 LR
-// （旧「纵向」=树向下生长的横排文字形态，四态里语义最近的是 tb）；无值走设置默认。
+// 本文件只剩旧档收敛纯函数：读旧写新（学 migrateIsVertical 迁移先例）——
+// custom-graph-layout 非 lr、或旧布尔 custom-graph-isVertical 非空的存量文档，
+// 打开图时一次性写回 lr（layout=lr + isVertical 置空），写后下轮读到已收敛零写入。
+// 持久化与渲染在 GraphBox.svelte，不进本文件。纯同步零 IO。
 
-export type LayoutForm = "lr" | "tb" | "vlr" | "vtb";
-
-export const LAYOUT_FORMS: readonly LayoutForm[] = ["lr", "tb", "vlr", "vtb"] as const;
-
-/** 任意输入（设置值/文档属性/e2e 注入）→ 合法形态；非法回退 fallback */
-export function normalizeLayoutForm(v: string | undefined | null, fallback: LayoutForm = "lr"): LayoutForm {
-    return (LAYOUT_FORMS as readonly string[]).includes(v ?? "") ? (v as LayoutForm) : fallback;
-}
-
-/** 树生长方向（dagre rankdir）：文字书写方向不影响树生长方向 */
-export function rankdirOf(form: LayoutForm): "LR" | "TB" {
-    return form === "lr" || form === "vlr" ? "LR" : "TB";
-}
-
-/** 文字是否竖排（writing-mode: vertical-rl） */
-export function isTextVertical(form: LayoutForm): boolean {
-    return form === "vlr" || form === "vtb";
-}
-
-/** 存量迁移：旧布尔形态属性 → 四态；无值/坏值 → null（调用方走设置默认） */
-export function migrateIsVertical(v: string | undefined): LayoutForm | null {
-    if (v === "true") return "tb";
-    if (v === "false") return "lr";
-    return null;
-}
-
-/** 循环切换（顶栏钮）：lr→tb→vlr→vtb→lr */
-export function nextLayoutForm(form: LayoutForm): LayoutForm {
-    return LAYOUT_FORMS[(LAYOUT_FORMS.indexOf(form) + 1) % LAYOUT_FORMS.length];
-}
-
-/** 形态短名（打点/调试；用户可见文案走 tomatoI18n） */
-export function layoutFormLabel(form: LayoutForm): string {
-    switch (form) {
-        case "tb": return "horizontal-TB";
-        case "vlr": return "vertical-LR";
-        case "vtb": return "vertical-TB";
-        default: return "horizontal-LR";
-    }
+/** 旧档收敛判据：attrs 含非 lr 的 custom-graph-layout 或非空 custom-graph-isVertical 时，
+ *  返回须写回的收敛属性；已收敛/无旧档/空 attrs（getBlockAttrs 空闪烁窗）返回 null 零写入 */
+export function legacyLayoutConvergence(
+    attrs: Record<string, string> | undefined | null,
+): Record<string, string> | null {
+    if (!attrs) return null;
+    const layout = attrs["custom-graph-layout"];
+    const isVertical = attrs["custom-graph-isVertical"];
+    const needLayout = !!layout && layout !== "lr";
+    const needClear = !!isVertical;
+    if (!needLayout && !needClear) return null;
+    return { "custom-graph-layout": "lr", "custom-graph-isVertical": "" };
 }

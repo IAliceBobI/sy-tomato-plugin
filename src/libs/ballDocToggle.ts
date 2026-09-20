@@ -51,28 +51,16 @@ export async function resolveFocusID(
     }
 }
 
-/** 对话框内文档滚到底（DOM 执行器）：new Protyle 构造不消费 action——定位类 action
- *  只在 openTab/openFileById 通道生效（思源源码消费点实证），悬浮窗/对话框内的
- *  protyle 须渲染后自己滚到底。**只滚不聚焦**（bear 09-15 拍板全插件禁聚焦：速记窗
- *  打开=即见最新内容，续写由用户点一下落光标——降摩擦让位于政策一致性）。
- *  容器未渲染好返回 false（轮询重试用） */
-export function scrollDocBottom(container: HTMLElement): boolean {
-    const wys = container.querySelector(".protyle-wysiwyg");
-    if (!wys) return false;
-    const blocks = wys.querySelectorAll(":scope > [data-node-id]");
-    const tail = blocks[blocks.length - 1] as HTMLElement | undefined;
-    if (!tail) return false;
-    tail.scrollIntoView({ block: "end" });
-    return true;
-}
-
-/** 尾块是否已滚进视口底（滚底完成判据——protyle 打开文档会异步恢复上次阅读位置，
- *  一次性的滚可能被它抢跑覆盖，故轮询以「尾块贴视口底」为收敛条件而非「执行过」；
- *  expectedTailId=真尾块 id 时还要求渲染末块就是它——懒加载下渲染窗口末块≠真尾块，
- *  按渲染快照自比对会假收敛（滚在中部却判定完成），不匹配则继续拉等懒加载续真尾）。
+/** 尾块是否已滚进视口底（滚底完成判据——jumpDocBottomViaSlider 轮询以「尾块贴视口
+ *  底」为收敛条件而非「执行过」：goEnd 在途时一次性的判可能抢跑；expectedTailId=
+ *  真尾块 id 时还要求渲染末块就是它——懒加载下渲染窗口末块≠真尾块，按渲染快照自
+ *  比对会假收敛（滚在中部却判定完成），不匹配则继续拉等懒加载续真尾）。
  *  到底判据=scrollTop 数学（fballfeedback □3 v2 实锤：原 rect 差判据有方向坑——尾块
  *  在视口下方外未滚动时 content.bottom-tail.bottom 为负恒 ≤8，slider-jump 首拍即
- *  假 settled 停在顶部；Loki 204ms settled + scrollTop=0 双证） */
+ *  假 settled 停在顶部；Loki 204ms settled + scrollTop=0 双证）。
+ *  fballtail □2：scrollDocBottom/scrollDocBottomWhenReady/bottomTimeoutOf/
+ *  scrollDocBottomForDoc（对话框「头窗+scrollIntoView 轮询滚底」族）已随 dialog 链
+ *  尾窗种档直载退役——本函数仍被 float 回退链（jumpDocBottomViaSlider）引用故保留 */
 export function isDocBottomScrolled(container: HTMLElement, expectedTailId?: string): boolean {
     const wys = container.querySelector(".protyle-wysiwyg");
     const blocks = wys ? wys.querySelectorAll(":scope > [data-node-id]") : [];
@@ -83,70 +71,6 @@ export function isDocBottomScrolled(container: HTMLElement, expectedTailId?: str
     const content = container.querySelector(".protyle-content") as HTMLElement | null
         ?? wys as HTMLElement;
     return content.scrollTop + content.clientHeight >= content.scrollHeight - 8;
-}
-
-/** 滚底轮询包装：new Protyle 异步取文档渲染，就绪前重试；protyle 恢复阅读位置的抢跑
- *  由「未收敛则再拉回」对抗，200ms 一拍，超时放弃（不抛错）。两道守卫：①container
- *  已 detach（autoclose 点外即关/手动关）即停；②轮询窗内用户在容器外
- *  pointerdown/keydown（点了主编辑器/别处开始打字）即停，不再打扰。
- *  fballfeedback □3（陆杰反馈跳底不生效，dev 200 段实测复现）：3s 超时扛不住懒加载长
- *  文档——expectedTailId 严格匹配下渲染尾永远落后真尾，3s 仅推进 36% 即 TIMEOUT 停半
- *  路；调用侧超时经 bottomTimeoutOf 放宽（真尾已知=15s 懒加载推进预算）。另加无进展看
- *  护：连续 10 拍（2s）滚动位置/渲染块数双信号零推进且未收敛→提前 stalled 停（网络
- *  死等不干耗满窗，正常懒加载节奏毫秒级 RTT 不会误伤）。 */
-export function scrollDocBottomWhenReady(container: HTMLElement, timeoutMs = 3000, expectedTailId?: string): void {
-    const t0 = Date.now();
-    debugLog("fball", `whenReady start timeout=${timeoutMs}`, "fball");
-    let userTouched = false;
-    const markUser = (e: Event) => {
-        if (!container.contains(e.target as Node)) userTouched = true;
-    };
-    document.addEventListener("pointerdown", markUser, true);
-    document.addEventListener("keydown", markUser, true);
-    const done = (why: string) => {
-        document.removeEventListener("pointerdown", markUser, true);
-        document.removeEventListener("keydown", markUser, true);
-        debugLog("fball", `whenReady ${why} at ${Date.now() - t0}ms`, "fball");
-    };
-    let lastProgress = "";
-    let stall = 0;
-    const tick = () => {
-        if (!container.isConnected) {
-            done("abort:detached");
-            return;
-        }
-        if (userTouched) {
-            done("abort:user");
-            return;
-        }
-        if (isDocBottomScrolled(container, expectedTailId)) {
-            done("settled");
-            return;
-        }
-        scrollDocBottom(container);
-        const wys = container.querySelector(".protyle-wysiwyg");
-        const content = (container.querySelector(".protyle-content") ?? wys) as HTMLElement | null;
-        const progress = `${content?.scrollTop ?? 0}/${wys?.querySelectorAll(":scope > [data-node-id]").length ?? 0}`;
-        stall = progress === lastProgress ? stall + 1 : 0;
-        lastProgress = progress;
-        if (stall >= 10) {
-            done("stalled");
-            return;
-        }
-        if (Date.now() - t0 > timeoutMs) {
-            done("TIMEOUT");
-            return;
-        }
-        setTimeout(tick, 200);
-    };
-    tick();
-}
-
-/** 超时档选择（fballfeedback □3）：真尾已知（getLast 成功）=懒加载推进预算 15s——3s 实测
- *  200 段长文档仅推进 36% 即超时停半路；真尾未知=按渲染末块落底的老语义维持 3s。stalled
- *  看护在 whenReady 内兜底，15s 窗不会干等。 */
-export function bottomTimeoutOf(expectedTailId: string | undefined, base = 3000): number {
-    return expectedTailId ? Math.max(base, 15000) : base;
 }
 
 /** 跳底正轨通道（fballfeedback □3 v2，bear 09-17 反馈「只见最后一个块」）：此前把真尾块
@@ -160,8 +84,8 @@ export function bottomTimeoutOf(expectedTailId: string | undefined, base = 3000)
  *  节奏：等头窗首块（点早了 goEnd 拿不到 rootID/尾元素=白点）→ 点钮 → 轮询落底收敛
  *  （isDocBottomScrolled 不带期望——mode 4 后渲染末块即真尾），未收敛且距上次点击
  *  ≥600ms 再点（goEnd 幂等：尾窗已载时内核走 scrollTop 直接收底）。200ms 一拍超时
- *  放弃（不抛错）；容器 detach/用户容器外操作即停（whenReady 同款守卫——用户滚动
- *  所有权优先，goEnd 自身也有 wheel 中断守卫）。
+ *  放弃（不抛错）；容器 detach/用户容器外操作即停（用户滚动所有权优先，goEnd 自身
+ *  也有 wheel 中断守卫）。
  *  luji0918 □1 修法①：加 onDone 终态回调（settled / TIMEOUT / abort 族全路径恰一次）——跳底期遮眼（visibility:hidden）由调用方挂此回调恢复显示，杜绝「头窗构造
  *  →goEnd 落底」间两段式观感（陆杰 09-18 反馈「先顶部再跳底部」）。 */
 export function jumpDocBottomViaSlider(container: HTMLElement, timeoutMs = 15000, onDone?: (why: string) => void): void {
@@ -223,22 +147,6 @@ export function jumpDocBottomViaSlider(container: HTMLElement, timeoutMs = 15000
     tick();
 }
 
-/** 组件侧一站式：先查真尾块 id 再轮询滚底（懒加载防错位——查询失败按渲染末块语义回退） */
-export async function scrollDocBottomForDoc(
-    container: HTMLElement,
-    docID: string,
-    getLast: (id: string) => Promise<string | undefined>,
-    timeoutMs = 3000,
-): Promise<void> {
-    let expected: string | undefined;
-    try {
-        expected = (await getLast(docID)) || undefined;
-    } catch {
-        // 真尾未知→不传期望，按渲染末块落底（老行为）
-    }
-    scrollDocBottomWhenReady(container, bottomTimeoutOf(expected, timeoutMs), expected);
-}
-
 // ── luji0918 □1 修法②：记忆位置（重开回上次看到的地方）──────────────────────────────
 // 通道选型：长文档懒加载下重开是头窗构造，关闭时视口里的块多半不在新头窗 DOM 里——
 // scrollIntoView 够不到未渲染块；内核官方「重开恢复阅读位置」管线=getDocByScroll
@@ -287,4 +195,72 @@ export function seedFilePosition(docID: string, pos: DocReadPosition): () => voi
         if (orig === undefined) delete fp[docID];
         else fp[docID] = orig;
     };
+}
+
+// ── fballtail □1：尾窗种档直载（陆杰 09-19「先空白→闪一下→才跳转到底部」根治）──────
+// 现行跳底=头窗构造→遮眼→合成点 slider「跳到底部」钮 goEnd 换尾窗再渲染→轮询收敛后
+// uncover——两段式只被藏没被消灭（空白=遮眼期、闪=uncover 瞬间、卡顿=两次完整渲染+
+// 轮询，长日记懒加载推进秒级）。根治=预取真树序尾部 N 块组装种档，构造期走内核官方
+// 「重开恢复阅读位置」管线（与修法② seedFilePosition 同通道同基建）：new Protyle 带
+// rootId+cb-get-rootscroll → getDocByScroll → /api/filetree/getDoc 带 startID/endID
+// 一次请求一次渲染直载尾窗（loadNodesByStartEnd 闭区间、真尾 next==nil→eof，往上滚
+// 动态加载前文=整篇可达）；scrollTop 大值内核直赋后浏览器 clamp 落底（onGet.ts:627
+// 直赋+observerLoad 随异步块撑高同值重申=持续钉底，均主会话内核源码实证）。无头窗、
+// 无 goEnd、无轮询、无遮眼。预取失败/空→调用方回退现行「遮眼+jumpDocBottomViaSlider」
+// 链（兜底保留勿删）。
+
+/** 尾窗滚动位置大值：内核 onGet 直赋 contentElement.scrollTop 不校验上界，浏览器
+ *  clamp 落底（observerLoad 同值重申——异步块撑高时仍钉底，用户滚动即放权） */
+export const TAIL_SCROLL_TOP = 1e9;
+
+/** 尾窗尺寸 N：与内核窗口上限同源（editor.dynamicLoadBlocks，内核缺省 192/下限 48），
+ *  读取不到（异常环境）64 兜底。N≤内核值时 loadNodesByStartEnd 必达 endID（真尾
+ *  next==nil→eof=true）；N 超内核值会被窗口上限截断、endID 不可达致 eof 缺失 */
+export function tailWindowN(): number {
+    return (window as any).siyuan?.config?.editor?.dynamicLoadBlocks || 64;
+}
+
+/** 预取尾窗（getTailChildBlocks=尾部 N 顶层子块，父=文档，与 loadNodesByStartEnd
+ *  的顶层扫描同层）：docID 空/查询失败/空文档/响应非数组→undefined（调用方回退现行
+ *  slider 链——空文档本无跳底意义，回退后幂等快收敛）；过滤出 [{id}] 供种档组装
+ *  （响应里 type 等字段用不上，缺 id 项剔除）。
+ *  ⚠内核响应=尾→头逆序（model/block.go getTailChildBlocksFromTree 从 LastChild 按
+ *  Previous 反向遍历，fballtail □3 e2e 实锤：原样透传致 tailReadPositionOf 组装出
+ *  startId=真尾/endId=尾窗首块 的反转档，loadNodesByStartEnd 从 startID 正向扫到
+ *  endID 只载出真尾 1 块、eof 缺失）——此处取反归一为头→尾正序，tailReadPositionOf
+ *  的 startId=tail[0]/endId=tail.at(-1) 语义才成立 */
+export async function fetchTailWindow(
+    docID: string,
+    getTail: (id: string, n: number) => Promise<{ id?: string }[] | undefined | null>,
+): Promise<{ id: string }[] | undefined> {
+    if (!docID) return undefined;
+    try {
+        const ret = await getTail(docID, tailWindowN());
+        const ids = (Array.isArray(ret) ? ret : []).filter((b) => !!b?.id).map((b) => ({ id: b.id! })).reverse();
+        return ids.length > 0 ? ids : undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+/** 尾窗→种档组装：startId=尾窗首块、endId=尾窗末块、scrollTop=大值落底；
+ *  空/全缺 id→undefined（调用方回退） */
+export function tailReadPositionOf(tail: { id?: string }[] | undefined | null): DocReadPosition | undefined {
+    const first = tail?.[0]?.id;
+    const last = tail?.[tail.length - 1]?.id;
+    if (!first || !last) return undefined;
+    return { startId: first, endId: last, scrollTop: TAIL_SCROLL_TOP };
+}
+
+/** 跳底直载预取判定：openBottom 开且无 restore 档可回才预取（restore 优先于跳底——
+ *  优先级在 docAction 预取侧与组件构造侧必须同判，错位=白跑请求或漏跳底）。
+ *  dailyNote（$$dailynote 现建日记，docID≠action.docID）restore 恒 miss，恒预取 */
+export function shouldPrefetchTail(
+    openBottom: boolean,
+    lastRead?: { startId?: string; endId?: string } | null,
+    dailyNote?: boolean,
+): boolean {
+    if (!openBottom) return false;
+    if (dailyNote) return true;
+    return !(!!lastRead?.startId && !!lastRead?.endId);
 }

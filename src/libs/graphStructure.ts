@@ -1,15 +1,21 @@
 // src/libs/graphStructure.ts
 // graphbox □2 结构优先视图纯函数（2026-09-17）：容器子图判定/叶子归属爬链/徽标聚合/
-// 引用边端点重定向/SQL 轻通道拼树。方案 A 拍板=默认只画容器块（文档根/标题/列表项/
-// 超级块/引述），段落等叶子聚到最近容器祖先成徽标（「N 段 · X 字」），点徽标展开。
-// 纯同步零 IO；通道无关——全量 DOM rows（小文档内存加工）与 SQL 轻行（大文档）两数据源
-// 在此汇成同构产物，渲染层零分叉。
+// 引用边端点重定向/SQL 轻通道拼树。方案 A 拍板=默认只画容器块，段落等叶子聚到最近
+// 容器祖先成徽标（「N 段 · X 字」），点徽标展开。容器集演化：□2=标题树（列表/超级块/
+// 引述退化进徽标）→ listfix=列表项 i 节点化 → graphrelayout □8（2026-09-20 bear 拍板
+// 「列表块和超级块都是容器，向下打开；任务列表同列表只多勾选」）=列表壳 l/超级块 s
+// 升格容器节点（默认收起 ●N，点击展开=列表项/sb 直接子块，递归适用）；引述 b=内容
+// 胶囊维持徽标退化。
+// 纯同步零 IO；通道无关——全量 DOM rows（小文档内存加工，壳行缺失按 listShellId 戳
+// 合成）与 SQL 轻行（大文档）两数据源在此汇成同构产物，渲染层零分叉。
 import type { GraphEdgeSpec } from "./graphCollapse";
 
-/** 容器块=结构承载者：文档根 d/标题 h/列表项 i（l 壳在全量通道已被 shortenList 剔除，
- *  骨架通道不进容器集）/超级块 s/引述 b */
+/** 容器块=结构承载者：文档根 d/标题 h/列表项 i/列表壳 l/超级块 s（graphrelayout □8
+ *  起 l 壳升格容器节点——全量通道仍被 shortenList 剔壳不入图，本判定供骨架通道与
+ *  空态卡判据）；引述 b=块级容器但 bear 09-20 拍板「内容胶囊非容器」，骨架档维持
+ *  徽标退化，□8 勿升格 */
 export function isStructureContainer(type: string | undefined): boolean {
-    return type === "d" || type === "h" || type === "i" || type === "s" || type === "b";
+    return type === "d" || type === "h" || type === "i" || type === "l" || type === "s" || type === "b";
 }
 
 /** 块的挂载根：沿 parent 链剥掉叶子层（p→p 串链等），返回最近的容器祖先 id。
@@ -25,8 +31,9 @@ export interface LeafAgg {
 export interface StructureInfo {
     containers: Set<string>;
     /** 叶子 id → 归属容器 id（容器内叶子=parent 链上爬；顶层平铺叶子=idx 序前驱章节标题）。
-     *  ⚠ treemap □2 起键 ⊄ 叶子：structureRowsFromOutline 骨架下退化容器（s/b/l 壳与
-     *  非 outline 标题）也记入（供引用边端点重定向，不进徽标聚合）——遍历勿按「键⊆叶子」假设 */
+     *  ⚠ treemap □2 起键 ⊄ 叶子：骨架下退化容器（b 引述与缺席 outline 的标题——□8 起
+     *  s/l 已升格容器节点不再记入，见 structureRowsFromOutline 主循环 b/h 分支）也记入
+     *  （供引用边端点重定向，不进徽标聚合）——遍历勿按「键⊆叶子」假设 */
     containerOfLeaf: Map<string, string>;
     /** 容器 id → 直属叶子（容器内=树序；顶层平铺=rows 序；SQL 通道叶子为无 content 桩，展开时按需取） */
     directLeaves: Map<string, Block[]>;
@@ -130,6 +137,12 @@ export interface LightBlockRow {
     parent_id: string;
     /** 可选：blocks.length 列（≈content 字符量）——有则徽标字数用它（叶子行 content 通常空取省流量） */
     length?: number;
+    /** graphrelayout □9 胶囊呈现补集透传（DOM 通道 fillChildren 直提）：表格行数/媒体
+     *  文件名/av 块 id——addLeaf 重建叶子 Block 时原样携带，防直提字段在中途丢失 */
+    tableRows?: number;
+    tableHead?: string;
+    media?: string;
+    avID?: string;
 }
 
 /** 章节自动编号（□3，2026-09-17，思绪大纲感）：标题链 DFS 序 1 / 1.1 / 1.1.1。
@@ -161,7 +174,8 @@ export function numberHeadingChain(rows: Block[], rootID: string): Map<string, s
 /** 顶层非标题容器的章节领地锚（□3 vision 方案 A 配套）：挂文档根的列表/超级块/引述
  *  → idx 序前驱最近章节标题（与骨架通道叶子的前驱章节锚语义对齐——DOM 通道
  *  shortenList 把 i 挂回 doc 顶层是领地概念之前的行为，导致「doc→sb→H2 与 doc→H1→H2
- *  等深」怪相+默认展开层级压不住列表项）。返回 容器 id → 锚标题 id */
+ *  等深」怪相+默认展开层级压不住列表项）。□8：列表壳 l 同列（合成壳 parent=doc 与
+ *  SQL 壳行同形，applyStructureView 领地重挂依赖本表）。返回 容器 id → 锚标题 id */
 export function chapterAnchorMap(rows: Block[], rootID: string): Map<string, string> {
     const out = new Map<string, string>();
     // 遍历序=rows 数组序（getData 产物=DFS 文档序）——data-node-index 是**层内局部序**
@@ -174,7 +188,7 @@ export function chapterAnchorMap(rows: Block[], rootID: string): Map<string, str
     for (const r of rows) {
         if (r.id === rootID) continue;
         if (r.type === "h" && topHeadingIds.has(r.id)) { anchor = r.id; continue; }
-        if ((r.type === "i" || r.type === "s" || r.type === "b") && r.parent_id === rootID && anchor) {
+        if ((r.type === "i" || r.type === "l" || r.type === "s" || r.type === "b") && r.parent_id === rootID && anchor) {
             out.set(r.id, anchor);
         }
     }
@@ -205,13 +219,54 @@ export function decodeHTMLEntities(s: string): string {
         .replace(/&gt;/g, ">").replace(/&quot;/g, "\"").replace(/&#39;/g, "'");
 }
 
+/** DOM 通道行（LightBlockRow + shortenList 的壳戳，鸭子兼容 Block） */
+export type ShellStampRow = LightBlockRow & { listShellId?: string };
+
+/**
+ * □8 DOM 通道 l 壳合成：shortenList 已剔壳行的行集（i 带 listShellId 戳、壳行不在场）
+ * 重建壳行并重挂成员（成员 parent→壳 id），与 SQL 通道（壳行在场）汇成同构输入。
+ * - 零合成直通：戳指壳已在块集（SQL 通道）原数组引用返回（零拷贝）
+ * - 不改传入对象：fullRowsCache 跨档复用（full 档依赖 i.parent=物理父），成员行浅拷贝
+ * - 合成壳插首成员前（无 order 时保传入序=壳先于项，y 布局 DFS 文档序）
+ * - 嵌套壳同样合成（嵌套 i 戳指嵌套壳、parent=外层 i）：sb 套列表逐级还原
+ */
+export function synthesizeListShells<T extends ShellStampRow>(blocks: T[]): T[] {
+    const ids = new Set(blocks.map(r => r.id));
+    const reattach = new Map<T, string>(); // 成员行 → 缺失壳 id
+    for (const r of blocks) {
+        const shell = r.listShellId;
+        if (!shell || shell === r.id || ids.has(shell)) continue;
+        reattach.set(r, shell);
+    }
+    if (!reattach.size) return blocks;
+    const synthed = new Set<string>();
+    const out: T[] = [];
+    for (const r of blocks) {
+        const shell = reattach.get(r);
+        if (shell === undefined) {
+            out.push(r);
+            continue;
+        }
+        if (!synthed.has(shell)) {
+            // 合成壳：id/壳 id、type=l、parent=首成员原 parent（shortenList 重挂语义：同壳
+            // 顶层项共父=l 的挂父）、subtype 随首成员（u/o/t 即列表种类）；壳自身无戳
+            synthed.add(shell);
+            out.push({ ...r, id: shell, type: "l", subtype: r.subtype, content: "", length: 0, listShellId: undefined });
+        }
+        out.push({ ...r, parent_id: shell });
+    }
+    return out;
+}
+
 /**
  * outline 真值骨架：getDocOutline 标题树 + 全块轻行 → 与全量 getData 同构产物
- * {rows, links, info}。rows=纯标题层级树（doc→h→h…，挂链=outline 嵌套真值，不再
- * headingStack 推断）；info=叶子归属（全块按文档序前驱标题锚归挂，sb/引述/列表
- * 容器退化进锚的徽标）——rendering 层消费形态与旧通道零分叉。
+ * {rows, links, info}。rows=标题层级树（doc→h→h…，挂链=outline 嵌套真值，不再
+ * headingStack 推断）+ 容器节点（listfix：列表项 i；□8：列表壳 l/超级块 s）；info=叶子
+ * 归属（全块按文档序前驱标题锚/宿主容器归挂；引述 b 维持徽标退化）——rendering 层
+ * 消费形态与旧通道零分叉。
  * blocks 两通道通用：SQL 轻行（length 列字数）或 DOM 全量 rows（content.length 字数，
- * 鸭子兼容 LightBlockRow；跨文档行 root_id≠docID 自动剔除）。
+ * 鸭子兼容 LightBlockRow；跨文档行 root_id≠docID 自动剔除；DOM 行先经
+ * synthesizeListShells 还原壳）。
  */
 export function structureRowsFromOutline(
     outline: OutlineNode[],
@@ -221,18 +276,21 @@ export function structureRowsFromOutline(
     /** 文档序锚（getChildBlocks 平铺序；缺省=传入序） */
     order?: Map<string, number>,
 ): { rows: Block[]; links: Ref[]; info: StructureInfo } {
+    // □8：DOM 通道壳行合成（SQL 通道直通）——此后 i.parent=l、壳行在场，两通道同构
+    const unified = synthesizeListShells(blocks as ShellStampRow[]);
     // 块物理位置=沿 parent 链爬到最近的锚集成员（getChildBlocks 顶层物理序——标题物理
     // 恒顶层；嵌套块〔sb/列表内〕无自身锚，跟宿主容器锚位走，防落尾部归末章）；环防御
     const parentOfAll = new Map<string, string>();
-    for (const r of blocks as LightBlockRow[]) {
+    for (const r of unified) {
         if (r.id !== docID && r.parent_id && r.id !== r.parent_id) parentOfAll.set(r.id, r.parent_id);
     }
-    const blockById = new Map((blocks as LightBlockRow[]).map(r => [r.id, r]));
+    const blockById = new Map(unified.map(r => [r.id, r]));
     // luji0918 □2 P0：DOM 通道 shortenList 把 i 重挂 l 的挂父且 l 壳行滤出 blocks——
     // i 自身不在 order、爬链跳过 l 直达根 → blockPos=1e9 落尾部，主循环 anchor 已被
     // 标题链推到末章=列表整族挂错章（vision 实锤「列表项二被标记丁」挂 1.2 章二）。
     // 桥=shortenList 盖在 i 行上的 listShellId 戳：每跳先查 order 再按戳回查壳锚位
-    // （顶层 l 恒在 order；嵌套 l 的壳不在 order 时继续爬父链，外层 i 的壳戳接棒）
+    // （顶层 l 恒在 order；嵌套 l 的壳不在 order 时继续爬父链，外层 i 的壳戳接棒；
+    // □8 起合成壳行已注入——顶层壳自身就在 order，嵌套壳爬父链到外层项的戳）
     const blockPos = (id: string): number => {
         let cur = id;
         const seen = new Set<string>();
@@ -253,8 +311,8 @@ export function structureRowsFromOutline(
     // 实锤深层项序不符文档序）。传入序=DOM DFS 物理序（真文档序）；SQL 通道传序=查询
     // 返回序（无锚时同现状容忍）
     const ordered: LightBlockRow[] = order?.size
-        ? [...(blocks as LightBlockRow[])].sort((a, b) => blockPos(a.id) - blockPos(b.id))
-        : (blocks as LightBlockRow[]); // 无锚=传序（调用方排好；锚拉失败的兜底日志在接线层 catch——review P2-2 折衷）
+        ? [...unified].sort((a, b) => blockPos(a.id) - blockPos(b.id))
+        : unified; // 无锚=传序（调用方排好；锚拉失败的兜底日志在接线层 catch——review P2-2 折衷）
 
     // outline 树 DFS 展开（=文档序标题序列）；blocks/children 双通道都走（真样本顶层用
     // blocks 次层用 children，防御性双收）；脏行（id 空/重复/块集外幽灵标题）跳过
@@ -302,7 +360,10 @@ export function structureRowsFromOutline(
         seenRows.add(r.id);
         const rid = (r as Block).root_id;
         if (rid && rid !== docID) continue;
-        if (r.type === "i") info.containers.add(r.id);
+        // 容器集=i/l/s（listfix：列表项；□8：列表壳/超级块升格；引述 b 不升格）。
+        // **i/l 集先全量预收集再挂链**：ordered 处理序无父子拓扑保证（嵌套壳/子项的
+        // blockPos 爬不到物理锚全落尾部）——预收集后挂链免疫处理序，父恒在集
+        if (r.type === "i" || r.type === "l" || r.type === "s") info.containers.add(r.id);
     }
     const mountOf = (id: string): string => {
         const seen = new Set<string>();
@@ -316,6 +377,11 @@ export function structureRowsFromOutline(
     };
     const addLeaf = (r: LightBlockRow, owner: string) => {
         const leaf: Block = { id: r.id, type: r.type, subtype: r.subtype, content: r.content ?? "", root_id: docID, parent_id: r.parent_id, docName: "", length: r.length };
+        // □9 胶囊呈现补集透传（DOM 通道直提字段；SQL 通道 undefined=渲染层按 markdown 列补）
+        if (r.tableRows !== undefined) leaf.tableRows = r.tableRows;
+        if (r.tableHead) leaf.tableHead = r.tableHead;
+        if (r.media) leaf.media = r.media;
+        if (r.avID) leaf.avID = r.avID;
         info.containerOfLeaf.set(r.id, owner);
         (info.directLeaves.get(owner) ?? info.directLeaves.set(owner, []).get(owner)!).push(leaf);
         const agg = info.leafAgg.get(owner) ?? { leaves: 0, chars: 0 };
@@ -336,26 +402,50 @@ export function structureRowsFromOutline(
     };
     let anchor = docID;
     const processed = new Set<string>();
+    // 物理文档序键（□8 评审 P2）：ordered 迭代号=真文档序（blockPos 锚序+稳定并列保传入
+    // 序）——标题行在 walk 已先推完、容器行主循环才推，直接以推送序出边会破文档序
+    const docSeq = new Map<string, number>();
+    let seq = 0;
     for (const r of ordered) {
         if (r.id === docID || processed.has(r.id)) continue;
         processed.add(r.id);
         const rid = (r as Block).root_id;
         if (rid && rid !== docID) continue; // DOM 通道跨文档端点行防御
+        docSeq.set(r.id, seq++);
         if (outlineIds.has(r.id)) { anchor = r.id; continue; }
-        if (r.type === "i") {
+        // 容器节点：i（listfix）/l、s（□8 升格）——挂宿主容器（嵌套：项挂壳、壳挂 sb、
+        // sb 套 sb），物理爬到 doc 者挂前驱章节锚（文档序，锚序坑见 chapterAnchorMap）
+        if (r.type === "i" || r.type === "l" || r.type === "s") {
             const owner = mountOf(r.id);
             const parent = owner === docID ? anchor : owner;
-            rows.push({ id: r.id, type: "i", subtype: r.subtype ?? "", content: r.content ?? "", root_id: docID, parent_id: parent, docName: "" });
+            rows.push({ id: r.id, type: r.type, subtype: r.subtype ?? "", content: r.content ?? "", root_id: docID, parent_id: parent, docName: "" });
             links.push({ block_id: parent, def_block_id: r.id, content: "" });
             continue;
         }
-        if (r.type === "h" || r.type === "l" || r.type === "s" || r.type === "b") {
+        // 引述 b 维持徽标退化（bear：内容胶囊非容器）——记 containerOfLeaf 供 ref 端点
+        // 重定向，不进徽标聚合不节点化（review P1-1 语义保留）
+        if (r.type === "b") {
             info.containerOfLeaf.set(r.id, anchor);
             continue;
         }
-        // 叶子归属：容器链命中（项内文本归 i；sb 内段落穿退化壳到 doc）退前驱章节锚
+        // 非 outline 标题（sb/引述/列表内标题）：退化为宿主容器直属叶子（□8——sb 内
+        // 标题进 sb 徽标可展开；此前纯记 containerOfLeaf=静默蒸发，sb 容器化后须可见）
+        if (r.type === "h") {
+            const owner = climb(r.id, new Set());
+            addLeaf(r, owner && owner !== docID ? owner : anchor);
+            continue;
+        }
+        // 叶子归属：容器链命中（项内文本归 i；sb 内段落归 sb）退前驱章节锚
         const owner = climb(r.id, new Set());
         addLeaf(r, owner && owner !== docID ? owner : anchor);
     }
+    // □8 评审 P2（实测：容器恒排同章小节标题后）：walk 先推完全部标题结构边、容器边在
+    // 主循环才推，而 y 接管的兄弟序纯按边数组序构建（GraphBox docOrderSiblings）→ 同章
+    // 内「标题、容器」渲染序≠物理文档序。按 docSeq 稳定重排：rows 全体（chapterAnchorMap
+    // 遍历序=文档序契约同享）+ links 同父兄弟段（跨父对 0 保序，父组相对位次不动）
+    rows.sort((a, b) => (docSeq.get(a.id) ?? Infinity) - (docSeq.get(b.id) ?? Infinity));
+    links.sort((a, b) => a.block_id === b.block_id
+        ? (docSeq.get(a.def_block_id) ?? Infinity) - (docSeq.get(b.def_block_id) ?? Infinity)
+        : 0);
     return { rows: [doc, ...rows], links, info };
 }

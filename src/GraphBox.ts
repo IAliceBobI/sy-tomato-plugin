@@ -1,6 +1,6 @@
 import { Dock, IEventBusMap, IProtyle } from "siyuan";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { graphAddTopbarIcon, graphBoxCheckbox, graph定位到图中的节点Menu, graph打开块关系图Menu, graph标记此块Menu } from "./libs/stores";
+import { graphAddTopbarIcon, graphBoxCheckbox, graphShowAllViewModes, graph定位到图中的节点Menu, graph打开块关系图Menu, graph标记此块Menu } from "./libs/stores";
 import { siyuan, getDoOperations, sleep } from "./libs/utils";
 import { events, EventType } from "./libs/Events";
 import GraphBoxSvelte from "./GraphBox.svelte";
@@ -14,8 +14,9 @@ import { newID } from "stonev5-utils";
 import { mount, unmount } from "svelte";
 import { debugLog } from "./libs/logUtils";
 import { filterCustomRows } from "./libs/graphContent";
+import { filterHrGraph, isHrRow } from "./libs/graphPill";
 import { structureRowsFromOutline, type LightBlockRow } from "./libs/graphStructure";
-import { BLOCK_MARK_ATTR } from "./libs/graphMarks";
+import { BLOCK_MARK_ATTR, findDocAttrsOp } from "./libs/graphMarks";
 import { graph_float } from "./libs/stores";
 import { graphFloatBox } from "./GraphFloatBox";
 
@@ -28,10 +29,18 @@ function gbLog(tag: string, msg: string) {
     debugLog(tag, msg, "graphbox");
 }
 
-/** dock 头栏与悬浮图面板头栏共用的控件组 HTML（graphfloat □3）：四档直切组+形态循环钮。
+/** dock 头栏与悬浮图面板头栏共用的控件组 HTML（graphfloat □3）：四档直切组
+ *  +「显示到第几级」级数选择器（graphmind □4，原形态循环钮位）。
  *  两 ID 由调用方各自生成（每实例独立——GraphBox.svelte 按钮绑定按 ID 找 DOM，
- *  dock 实例与浮窗实例同文档共存互不串台） */
-export function graphToolbarHTML(viewModeGroupID: string, landscapeSwitchBtnID: string): string {
+ *  dock 实例与浮窗实例同文档共存互不串台）；选择器档位按文档动态注入、无标题文档
+ *  隐藏（GraphBox.svelte syncShowLevelUI）。
+ *  graphmind □6（共识#1）视图收敛：full/treemap 两钮+主次分隔线随 graphShowAllViewModes
+ *  开关渲染（默认关=只出 structure/marks 两钮；代码不删档位）。渲染期即隐藏防四钮闪现；
+ *  运行期开关翻转（设置面板保存/旧档读档自动开）由 GraphBox.svelte 的 store 订阅接管显隐。
+ *  graphrelayout □2：布局形态循环钮（landscapeSwitchBtnID 形参+DOM）随四态退役整族删除
+ *  ——恒 LR 向右生长无形态可切 */
+export function graphToolbarHTML(viewModeGroupID: string, showLevelSelectID: string): string {
+    const extraBtnHidden = graphShowAllViewModes.get() ? "" : ` style="display:none"`;
     return `<span id="${viewModeGroupID}" class="tomato-graph-viewmodes" role="group" aria-label="${tomatoI18n.视图档位}">
                                 <span id="${viewModeGroupID}-structure" role="button" tabindex="0" data-graph-mode="structure"
                                       class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.结构视图}">
@@ -41,20 +50,18 @@ export function graphToolbarHTML(viewModeGroupID: string, landscapeSwitchBtnID: 
                                       class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.只看标记}">
                                     <svg><use xlink:href="#iconMark"></use></svg>
                                 </span>
-                                <span id="${viewModeGroupID}-treemap" role="button" tabindex="0" data-graph-mode="treemap"
+                                <span class="tomato-graph-viewmodes__sep" aria-hidden="true"${extraBtnHidden}></span>
+                                <span id="${viewModeGroupID}-treemap" role="button" tabindex="0" data-graph-mode="treemap"${extraBtnHidden}
                                       class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.方块总览}">
                                     <svg><use xlink:href="#iconLayoutGrid"></use></svg>
                                 </span>
-                                <span class="tomato-graph-viewmodes__sep" aria-hidden="true"></span>
-                                <span id="${viewModeGroupID}-full" role="button" tabindex="0" data-graph-mode="full"
+                                <span id="${viewModeGroupID}-full" role="button" tabindex="0" data-graph-mode="full"${extraBtnHidden}
                                       class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.显示全部块}">
                                     <svg><use xlink:href="#iconListTree"></use></svg>
                                 </span>
                             </span>
-                            <span id="${landscapeSwitchBtnID}" role="button" tabindex="0"
-                                  class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="${tomatoI18n.切换布局形态.replace("%1", tomatoI18n.形态横排向右)}">
-                                <svg><use id="${landscapeSwitchBtnID}-icon" xlink:href="#iconGraphLayoutLR"></use></svg>
-                            </span>`;
+                            <select id="${showLevelSelectID}" class="b3-select tomato-graph-levelsel b3-tooltips b3-tooltips__sw"
+                                  aria-label="${tomatoI18n.显示到第几级}"></select>`;
 }
 
 // 大文档「完整加载」后进入全量态：3s 轮询与 ws 自动刷新均降级手动（handoff □1 档 3）。
@@ -146,14 +153,31 @@ class GraphBox {
         events.addWsListener("tomato-graph-auto-refresh-2025", (wsData: WsMain) => {
             const ops = getDoOperations(wsData);
             if (ops.length === 0) return;
-            const currentDocID = events.docID;
+            // graphrelayout □5：?id= 直开/重载空窗 events.docID 恒空（switch-protyle 早于
+            // 插件订阅，GraphFloatBox.pollOnce 三级兜底同病）——入口早退曾让空窗期一切
+            // ws 自动刷新+标记感知全死（6809 A/B 实锤：直开态外部打标 15s 不进图，
+            // click 正文后 events.docID 落值即 0.5s 进图）。图自身 docID 兜底
+            // （mount_pull 已拉，与浮窗轮询同款语义）
+            const currentDocID = events.docID || this.getData()?.getGraphState?.()?.docID || "";
             if (!currentDocID) return;
 
             const related = ops.some(op =>
                 op.id === currentDocID ||
                 op.parentID === currentDocID
             );
-            if (!related) return;
+            if (!related) {
+                // graphrelayout □5：块属性写（setBlockAttrs 族，含块级标记 toggle）广播
+                // updateAttrs op——id=块 id 无 parentID、文档 updated 不动，上面 ws 域判定
+                // 与 updated 轮询两道全短路=命令外通道打标（e2e 造数/互操作插件）后 marks
+                // 档不整页重开不进图（6809 实锤 12s 仍空态卡）。rootID 判同文档走
+                // marksChanged 轻通道（SWR 重拉+退避过索引窗，指纹位移才渲染——比
+                // scheduleRefresh→updated 比对更早命中且必不被时间戳短路）；dock+浮窗同通知
+                if (findDocAttrsOp(ops, currentDocID)) {
+                    (this.getData() as { marksChanged?: () => void })?.marksChanged?.();
+                    graphFloatBox.notifyMarksChanged();
+                }
+                return;
+            }
 
             this.scheduleRefresh();
         });
@@ -204,9 +228,11 @@ class GraphBox {
                 return;
             }
 
-            // 时间戳有变化，执行刷新；refreshOnly=同文档内容刷新不 fitView（保用户/定位视图）
-            this.lastRefreshedUpdated = currentUpdated || "";
-            this.getData()?.changeDoc(events.protyle?.protyle, true);
+            // 时间戳有变化，执行刷新；refreshOnly=同文档内容刷新不 fitView（保用户/定位视图）。
+            // gfloat P2 对齐：指纹后置提交——changeDoc 抢 GRAPH_LOCK 失败返 false（静默放弃），
+            // 预提交会把该次刷新永久吞掉不自愈（浮窗侧 graphFloatBox 同款修法）
+            const ran = await this.getData()?.changeDoc(events.protyle?.protyle, true);
+            if (ran) this.lastRefreshedUpdated = currentUpdated || "";
         } catch (e) {
             console.warn("[GraphBox] checkAndRefresh error:", e);
         }
@@ -442,7 +468,8 @@ class GraphBox {
     }
 
     private addDock() {
-        const landscapeSwitchBtnID = newID();
+        // graphmind □4：「显示到第几级」级数选择器（原布局形态钮旁；档位=文档实际标题级）
+        const showLevelSelectID = newID();
         // graphmark 期1：档位平铺按钮组（结构/只看标记/方块/全部块四钮直切+当前档高亮，
         // bear 拍板 2026-09-18）——原单钮下拉菜单退役；--show=官方常显修饰符（block__icon
         // 基类 opacity:0 面板悬浮才亮）；「全部块」前细分隔线做主次分组（大文档确认链不撤）
@@ -486,7 +513,7 @@ class GraphBox {
                                 <svg class="block__logoicon"><use xlink:href="#iconGraphBox"></use></svg>${tomatoI18n.块关系图}
                             </div>
                             <span class="fn__flex-1 fn__space"></span>
-                            ${graphToolbarHTML(viewModeGroupID, landscapeSwitchBtnID)}
+                            ${graphToolbarHTML(viewModeGroupID, showLevelSelectID)}
                             <span data-type="min" class="block__icon block__icon--show b3-tooltips b3-tooltips__sw" aria-label="Min"><svg><use xlink:href="#iconMin"></use></svg></span>
                         </div>
                         <div id="${eleID}" class="fn__flex-1"></div>
@@ -499,8 +526,8 @@ class GraphBox {
                         props: {
                             dock: dock as any,
                             plugin: this.plugin,
-                            landscapeSwitchBtnID,
                             viewModeGroupID,
+                            showLevelSelectID,
                         }
                     }) as any;
                 } catch (e) {
@@ -585,7 +612,29 @@ function refsSqlFor(docID: string) {
     `;
 }
 
-export async function getData(docID: string, docName: string, maxPBlocks: number, blockLimit: number) {
+// gfloat P2⑤：dock+浮窗双实例共享全量拉取缓存——巨书 getBlockDOM 25~39s，双实例同屏
+// 各拉一遍纯属浪费；同 key（docID|updated|docName|限制参数）直取首拉 Promise（并发双
+// 拉也并一），编辑位移 updated 自然失效。单槽：双实例场景只关心当前文档，切文档覆写；
+// 失败即逐出防 reject 常驻。下游（mergeParagraphChains/dedupeLinks）非原地改，跨实例
+// 共享 {rows, links} 产物安全（实例内 fullRowsCache 本就按不可变源数据复用）
+const fullPullMemo = new Map<string, Promise<{ rows: Block[]; links: Ref[] }>>();
+export function getData(docID: string, docName: string, maxPBlocks: number, blockLimit: number, updated = ""): Promise<{ rows: Block[]; links: Ref[] }> {
+    const key = `${docID}|${updated}|${docName}|${maxPBlocks}|${blockLimit}`;
+    const hit = fullPullMemo.get(key);
+    if (hit) {
+        gbLog("graph.full_memo_hit", `doc=${docID.slice(0, 8)}`);
+        return hit;
+    }
+    const p = getDataUncached(docID, docName, maxPBlocks, blockLimit).catch((e) => {
+        fullPullMemo.delete(key);
+        throw e;
+    });
+    fullPullMemo.clear();
+    fullPullMemo.set(key, p);
+    return p;
+}
+
+async function getDataUncached(docID: string, docName: string, maxPBlocks: number, blockLimit: number) {
     const tRefs = performance.now();
     const taskRefs = siyuan.sqlRef(refsSqlFor(docID));
     taskRefs.then(rs => gbLog("graph.sql_ref", `refs=${rs.length} ${Math.round(performance.now() - tRefs)}ms`));
@@ -637,9 +686,13 @@ export async function getData(docID: string, docName: string, maxPBlocks: number
         }));
 
     // □1 custom 块过滤（bear 拍板）：本档 DOM 通道（NodeCustomBlock→'custom' 空卡）
-    // 与引用端点 SQL 补块（content=纯 JSON 乱码）在此统一剔除，端点连坐边丢弃
+    // 与引用端点 SQL 补块（content=纯 JSON 乱码）在此统一剔除，端点连坐边丢弃。
+    // □9 hr 过滤：分割线 tb 不进图（bear 拍板「分割线不显示」），端点连坐同款
     const filtered = filterCustomRows(rows, refs);
     refs = filtered.links;
+    const hrFree = filterHrGraph(filtered.rows, refs);
+    filtered.rows = hrFree.rows;
+    refs = hrFree.links;
 
     const docNameCache = new Map<string, string>();
     for (const row of filtered.rows) {
@@ -673,9 +726,10 @@ export async function precheckDocSize(docID: string): Promise<{ cnt: number; tot
 }
 
 // graphbox □2 结构通道（大文档数据源，2026-09-17；treemap 战役 □2 改 outline 真值骨架）：
-// SQL 全块轻字段 + getDocOutline 标题树 → 纯标题骨架+徽标聚合（前驱标题锚归属）+ 引用边
-// （叶子端点重定向到标题）。产物与全量 getData 同构 {rows, links} 外加 info（StructureInfo），
-// 渲染层零分叉。骨架跟左栏大纲面板永远一致（方案 A，bear 拍板）。
+// SQL 全块轻字段 + getDocOutline 标题树 → 标题骨架+容器节点（listfix i、□8 l/s）+徽标聚合
+// （前驱标题锚/宿主容器归属）+ 引用边（叶子端点重定向到容器）。产物与全量 getData 同构
+// {rows, links} 外加 info（StructureInfo），渲染层零分叉。骨架跟左栏大纲面板永远一致
+// （方案 A，bear 拍板）。
 export async function getGraphStructure(docID: string, docName: string) {
     const t0 = performance.now();
     // □3 文档序锚=getChildBlocks 平铺序（id 批量随机+hpath 不回填都非真序；标题恒顶层）
@@ -689,7 +743,11 @@ export async function getGraphStructure(docID: string, docName: string) {
         orderP,
     ]) as [LightBlockRow[], GetDocOutline[], Map<string, number>];
     gbLog("graph.structure_sql", `light=${light?.length ?? 0} outline=${outline?.length ?? 0} ${Math.round(performance.now() - t0)}ms`);
-    const { rows, links, info } = structureRowsFromOutline(outline ?? [], light ?? [], docID, docName, order);
+    // □9 hr 过滤（bear 拍板「分割线不显示」）：SQL 轻通道源头剔 tb——再不过滤会进
+    // directLeaves/徽标聚合，徽标展开时渲染 hr 节点（结构行全是 h/d/i/l/s 容器，叶子
+    // 只活在 info 里，必须在建 info 前滤）
+    const lightNoHr = (light ?? []).filter(r => !isHrRow(r));
+    const { rows, links, info } = structureRowsFromOutline(outline ?? [], lightNoHr, docID, docName, order);
     const rowIDs = new Set(rows.map(r => r.id));
     const refs = await siyuan.sqlRef(refsSqlFor(docID));
     const ids = refs

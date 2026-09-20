@@ -14,7 +14,7 @@
 <script lang="ts">
     import { computeTreemap, matchRefFocus, resolveHighlightId, type RefLinkLike, type TreemapRect } from "./libs/graphTreemap";
     import type { StructureInfo } from "./libs/graphStructure";
-    import { formatCharsVolume } from "./libs/graphSkeleton";
+    import { containerLabel, formatCharsVolume } from "./libs/graphSkeleton";
     import { tomatoI18n } from "./tomatoI18n";
 
     let { rows, info, docID, docName, refLinks = [], onOpenDoc }: {
@@ -121,7 +121,11 @@
 
     const labelOf = (id: string): string => {
         const r = rows.find(x => x.id === id);
-        return r?.content?.replace(/^#+\s*/, "") ?? id.slice(-6);
+        const text = r?.content?.replace(/^#+\s*/, "");
+        // □8 合成壳行 content=""（synthesizeListShells）——空串 replace 仍空串，
+        // 壳格标签条曾只剩裸字数（vision P1）；容器名走 containerLabel 共用兜底
+        if (text) return text;
+        return (r && containerLabel(r.type)) || id.slice(-6);
     };
 
     function onRectClick(e: MouseEvent, r: TreemapRect) {

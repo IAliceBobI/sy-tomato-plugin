@@ -10,6 +10,7 @@
         cssFlashThoughts,
         flash_thoughts_2_top,
         flash_thoughts_target_file,
+        flashStatTag,
         shorthandRelayEnabled,
         noteBoxAllKinds,
         noteBoxCheckbox,
@@ -86,6 +87,12 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$shorthandRelayEnabled} />
                 {tomatoI18n.官方速记搬运}
+            </div>
+
+            <!-- flashlog □6：闪念/官方速记落块附加时间·类型·内容标记，时间记录统计类插件可直接识别 -->
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$flashStatTag} />
+                {tomatoI18n.闪念时间记录兼容}
             </div>
 
             <div class:codeNotValid>

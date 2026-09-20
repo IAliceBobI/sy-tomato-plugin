@@ -101,6 +101,12 @@ export async function fillChildren(root: Block, div: HTMLElement, setContent: bo
                 } else if (child.type === 't') {
                     // graphbox □1：表格按单元格连接，防全单元格无缝粘连
                     child.content = tableCellText(e);
+                    // graphrelayout □9：表格胶囊「▦ 表 N 行」行数直取 DOM（tr 行数含表头，
+                    // 与 markdown 竖线行口径一致——分隔行本就不在 DOM）；表头行=首 tr
+                    // 单元格「 · 」连接（预览行，与 markdown 通道 tableHeaderLine 同形）
+                    child.tableRows = e.querySelectorAll("tr").length;
+                    const headCells = [...e.querySelectorAll("tr")][0]?.querySelectorAll("th, td") ?? [];
+                    child.tableHead = [...headCells].map((c) => (c.textContent ?? "").trim()).filter(Boolean).join(" · ");
                 } else if (child.type === 'c') {
                     // graphbox □1：语言行+代码正文换行分隔，防语言标记与代码粘连
                     child.content = codeBlockText(e);
@@ -108,9 +114,24 @@ export async function fillChildren(root: Block, div: HTMLElement, setContent: bo
                     // graphbox □1：保留引用锚点文本（剥锚点会把引用段挖成空洞），
                     // 段内不可见字符全量剥除（行内 code 标记边界 ZWSP 家族）
                     child.content = blockText(e);
+                    // graphrelayout □9：图片胶囊——仅含图片（无正文文本）的段落记首个
+                    // 图片文件名（媒体胶囊「▣ 文件名」标签；hover=文件名）。判定=剥
+                    // img span 后正文为空（alt 文本不算正文——有字的图文段落退 ¶ 胶囊）
+                    if (child.type === 'p' && e.querySelector('span[data-type="img"]')) {
+                        const probe = e.cloneNode(true) as HTMLElement;
+                        probe.querySelectorAll('span[data-type="img"]').forEach(n => n.remove());
+                        // 剥 img span 后剥不可见字符再判空（ZWSP 家族 trim 不剥——Loki 探针实锤）
+                        const rest = (probe.textContent ?? "").replace(/[\u200B-\u200D\u2060\uFEFF]/g, "").trim();
+                        if (!rest) {
+                            const src = e.querySelector('span[data-type="img"] img')?.getAttribute("src") ?? "";
+                            child.media = src.split(/[?#]/)[0].split("/").filter(Boolean).pop() ?? "";
+                        }
+                    }
                 }
                 if (!emptyContent) {
-                    if (!child.content) continue;
+                    // □9 仅含图片的段落 content 空但带 media（图片胶囊素材）——不入空内容
+                    // 丢弃闸，否则图片块在 DOM 通道整块蒸发（p/c/m/t/h 受此闸，媒体类型不受）
+                    if (!child.content && !child.media) continue;
                 }
             } else {
                 // 无正文块 label（graphbox □2）：GraphBox 是唯一 setContent=true 调用方，
@@ -121,6 +142,11 @@ export async function fillChildren(root: Block, div: HTMLElement, setContent: bo
         child.subtype = e.getAttribute(DATA_SUBTYPE);
         if (child.type === 's') {
             child.subtype = e.getAttribute('data-sb-layout');
+        }
+        // graphrelayout □9：av 胶囊「▦ 属性视图」hover 列名清单的取数锚（data-av-id）；
+        // SQL 轻通道无此字段=av 预览退化占位（两通道能力不对称，在档记录）
+        if (child.type === 'av') {
+            child.avID = e.getAttribute('data-av-id') ?? undefined;
         }
         child.idx = parseInt(e.getAttribute(DATA_NODE_INDEX));
         child.docName = root.content;

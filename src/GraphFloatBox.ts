@@ -21,6 +21,7 @@ import { events, EventType } from "./libs/Events";
 import { siyuan, sleep } from "./libs/utils";
 import { gatedAddCommand } from "./libs/cmdGate";
 import { winHotkey } from "./libs/winHotkey";
+import { graphFloatJumpClose } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { newID } from "stonev5-utils";
 import { debugLog } from "./libs/logUtils";
@@ -34,9 +35,11 @@ import type { IProtyle } from "siyuan";
  *  保留键族均为双修饰，三修饰组合不在保留族（⌘⌥⇧M/F 同档先例双平台实测通过） */
 export const GraphFloatToggle = winHotkey("⌘⌥⇧E", "tomatoGraphFloatToggle", "iconGraphBox", () => tomatoI18n.展开或收起悬浮图);
 
-/** 球显隐命令（无默认键，勿走 winHotkey——空串首参被其守卫 throw "null hotkey" 断
- *  onload 链，6810 实锤）：球藏了 ⌘⌥⇧E 仍可唤面板，恢复不依赖键位——命令面板可触发 */
-const GF_BALL_CMD_KEY = "tomatoGraphFloatBallToggle";
+/** 球显隐快捷键（gfloatnav 09-19 自无默认键命令升级——悬浮反链球 BKFloatBallToggle 有键
+ *  有键帽的对称补齐）：⌘⌥⇧Q=球（Qiú）助记。定键双通道扫描：官方 constants.ts 三修饰段
+ *  零条目；四插件 winHotkey 三修饰已占 B/E/F/G/M/O/R+F5/F9，Q 空闲。langKey 沿用原命令
+ *  字面量=命令开关态不丢；此前无默认键故无旧键迁移 */
+export const GraphFloatBallToggle = winHotkey("⌘⌥⇧Q", "tomatoGraphFloatBallToggle", "iconEyeoff", () => tomatoI18n.显示或隐藏悬浮图球);
 
 // ---- localStorage 键（记忆粒度全局一份；面板几何/球位在组件内自带） ----
 const LS_OPEN = "tomato-gfloat-open";
@@ -77,7 +80,9 @@ class GraphFloatBox {
     private panelBodyEl: HTMLElement | null = null;
     /** 浮窗实例专属控件 ID（与 dock 实例独立，GraphBoxSvelte 按 ID 绑定不串台） */
     private readonly viewModeGroupID = newID();
-    private readonly landscapeSwitchBtnID = newID();
+    // graphmind □4：级数选择器（与 dock 头栏同款控件组；graphrelayout □2 形态循环钮退役）
+
+    private readonly showLevelSelectID = newID();
 
     private pollTimer: ReturnType<typeof setInterval> | null = null;
     /** 同文档 updated 指针：空=重开后首轮必比对（组件内指纹短路兜底，白推零成本） */
@@ -109,9 +114,9 @@ class GraphFloatBox {
                     this.panelBodyEl = el;
                 },
                 onTools: (el: HTMLElement) => {
-                    // dock 头栏同款控件组（四档直切+形态循环钮）——ID 独立，绑定由
-                    // GraphBoxSvelte onMount 按 ID 完成（与 dock 通道同一套逻辑）
-                    el.innerHTML = graphToolbarHTML(this.viewModeGroupID, this.landscapeSwitchBtnID);
+                    // dock 头栏同款控件组（四档直切；graphrelayout □2 形态循环钮退役）——
+                    // ID 独立，绑定由 GraphBoxSvelte onMount 按 ID 完成（与 dock 通道同一套逻辑）
+                    el.innerHTML = graphToolbarHTML(this.viewModeGroupID, this.showLevelSelectID);
                 },
                 // 拖拽/resize 落定后：重测量画布+重算球让位
                 onGeoChange: () => this.onPanelGeoChange(),
@@ -139,8 +144,9 @@ class GraphFloatBox {
             hotkey: GraphFloatToggle.m,
             callback: () => this.togglePanel(),
         });
-        gatedAddCommand(this.plugin, GF_BALL_CMD_KEY, {
-            langText: tomatoI18n.显示或隐藏悬浮图球,
+        gatedAddCommand(this.plugin, GraphFloatBallToggle.langKey, {
+            langText: GraphFloatBallToggle.langText(),
+            hotkey: GraphFloatBallToggle.m,
             callback: () => this.toggleBallHidden(),
         });
 
@@ -173,6 +179,13 @@ class GraphFloatBox {
     togglePanel() {
         if (this.panelOpen) this.closePanel();
         else this.openPanel();
+    }
+
+    /** 图内导航收面板（gfloatnav）：跳转读原文场景用户已离开图，收起=大纲式闭环。
+     *  每次导航实时读开关（设置改动免重载即时生效）；面板重开零数据重拉成本 */
+    private onNavClose() {
+        if (!this.alive || !this.panelOpen) return;
+        if (graphFloatJumpClose.get()) this.closePanel();
     }
 
     openPanel() {
@@ -229,9 +242,12 @@ class GraphFloatBox {
                 props: {
                     plugin: this.plugin,
                     dock: this.pseudoDock,
-                    landscapeSwitchBtnID: this.landscapeSwitchBtnID,
                     viewModeGroupID: this.viewModeGroupID,
+                    showLevelSelectID: this.showLevelSelectID,
                     fit: "host",
+                    // 图内导航即收面板（gfloatnav）：双击/Alt点/右键跳转/树双击/标记叶单击——
+                    // 「悬浮图当大纲用」闭环（跳走=使命完成）。dock 实例不传=行为不变
+                    onNavigate: () => this.onNavClose(),
                 },
             }) as any;
             this.pseudoDock.data.svelte = this.graphSv;
@@ -269,6 +285,15 @@ class GraphFloatBox {
             clearInterval(this.pollTimer);
             this.pollTimer = null;
         }
+    }
+
+    /** graphrelayout □5：dock 侧 ws 监听转发——块属性写（updateAttrs，含块级标记 toggle）
+     *  的标记轻通道通知。浮窗不自挂 ws（Events.addWsListener 无 remove，GraphBox.ts 的
+     *  "tomato-graph-auto-refresh-2025" 已覆盖全实例），由 dock 监听判定命中时调这里；
+     *  面板未开/已卸载=静默 no-op（toggleBlockMark 只通知 dock 实例的既有形态在此补齐） */
+    notifyMarksChanged() {
+        if (!this.alive || !this.panelOpen) return;
+        this.pseudoDock?.data?.marksChanged?.();
     }
 
     private async pollOnce() {

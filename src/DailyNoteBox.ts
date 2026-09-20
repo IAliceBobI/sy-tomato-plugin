@@ -1,6 +1,6 @@
 import { getAllEditor, IProtyle } from "siyuan";
 import { events } from "./libs/Events";
-import { add_href, add_ref, cloneCleanDiv, closeTabByTitle, getAllText, getContextPath, getNotebookFirstOne, getOpenedEditors, getProtyleByDocID, Siyuan, siyuan, timeUtil, } from "./libs/utils";
+import { add_href, add_ref, cloneCleanDiv, closeTabByTitle, getContextPath, getBlocksOwnText, getNotebookFirstOne, getOpenedEditors, getProtyleByDocID, Siyuan, siyuan, timeUtil, } from "./libs/utils";
 import { DATA_NODE_ID } from "./libs/gconst";
 import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyFlashCard, dailyNoteCopyFragment, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveLeaveLnk, dailyNoteMoveToBottom, dailyNoteReviewTopbar, dailyNotetopbarleft, dailyNotetopbarright, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { openReviewDialog } from "./ReviewDialog";
@@ -309,7 +309,9 @@ class DailyNoteBox {
                 if (dailyNoteGoToBottom.get() === true) {
                     const id = await siyuan.getDocLastID(targetDocID)
                     if (id) {
-                        await OpenSyFile2(this.plugin, id);
+                        // bear 09-20：跳底=打开即续写——keepFocus 豁免禁聚焦（否则
+                        // noFocusAfterOpen 400/1100ms 双拍把落下的光标 blur 掉）
+                        await OpenSyFile2(this.plugin, id, null, null, null, null, true);
                     } else {
                         await OpenSyFile2(this.plugin, targetDocID);
                     }
@@ -450,7 +452,7 @@ class DailyNoteBox {
             } else {
                 const ops = []
                 if (dailyNoteMoveLeaveLnk.get()) {
-                    const lnk = domLnk("", ids.at(0), getAllText(selected, "").replaceAll("\n", "").slice(0, 30))
+                    const lnk = domLnk("", ids.at(0), getBlocksOwnText(selected, "").replaceAll("\n", "").slice(0, 30))
                     ops.push(...siyuan.transInsertBlocksAfter([lnk], ids.at(0)));
                 }
                 if (dailyNoteMoveToBottom.get()) {

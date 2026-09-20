@@ -10,10 +10,11 @@ import {
     getNotebookFirstOne,
 } from "../libs/utils";
 import { dialog2floating } from "../libs/DialogText";
+import { debugLog } from "../libs/logUtils";
 import { floatingballBallList, floatingballDocOpenBottom, storeNoteBox_selectedNotebook } from "../libs/stores";
 import { tomatoI18n } from "../tomatoI18n";
 import { getFloatingBall, ballOverLimit, FloatingBall, getFloatingBallProtyleDialog, getFloatingBallProtyleDialogDM } from "../FloatingBall";
-import { pickToggleBall, toggleDecision, isOpenDocTypeFloat, resolveFocusID } from "../libs/ballDocToggle";
+import { pickToggleBall, toggleDecision, isOpenDocTypeFloat, resolveFocusID, shouldPrefetchTail, fetchTailWindow } from "../libs/ballDocToggle";
 import {
     FloatingBallDocType_autoclose,
     FloatingBallDocType_dialog,
@@ -38,9 +39,11 @@ const LastDocBallKey = "TomatoFloatingLastDocBall";
 function rememberLastDocBall(ball: BallItem) {
     (globalThis as any)[LastDocBallKey] = ball.id;
 }
-/** 落底定位 id（仅 tab 通道——OpenSyFile2→openTab 默认 action=cb-get-hl 滚到尾块
- *  （bear 09-15 禁聚焦政策，navUtils 默认值已去 cb-get-focus）；对话框/悬浮窗内
- *  new Protyle 构造不消费 action，滚底走 ballDocToggle.scrollDocBottom） */
+/** 落底定位 id（仅 tab 通道——OpenSyFile2→openTab 按 keepFocus 分流 action：跳底开=
+ *  cb-get-focus+cb-get-outline 光标钉尾块块尾（bear 09-20 打开即续写豁免）；跳底关=
+ *  cb-get-hl 只滚动（bear 09-15 禁聚焦政策）。对话框/悬浮窗内 new Protyle 构造不
+ *  消费定位类 action——跳底走尾窗种档直载（fballtail □1/□2，docAction 预取+组件
+ *  构造期 cb-get-rootscroll） */
 const focusIDOf = (docID: string) =>
     resolveFocusID(docID, floatingballDocOpenBottom.get() === true, (id) => siyuan.getDocLastID(id));
 
@@ -90,13 +93,22 @@ export const docAction: BallAction = {
             const nb = storeNoteBox_selectedNotebook.get()
                 || getNotebookFirstOne()?.id
                 || events.boxID;
+            // fballtail □7：nb 三级兜底全空（全新空间未开笔记本）时 createDailyNote
+            // 返回 null，裸取 .id 抛 TypeError 断 execute——球点击零反馈静默失败
+            // （e2e pageerror 实锤）；判空提示后早退，等用户开了笔记本再用
+            if (!nb) {
+                await siyuan.pushMsg(tomatoI18n.无可用笔记本请先打开, 2500);
+                return;
+            }
             docID = (await siyuan.createDailyNote(nb)).id;
         }
         if (events.isMobile) {
             if (dialogs.get(ball) != null) {
                 dialogs.get(ball).destroy();
             } else {
-                openByDialog(ball);
+                // fballtail □2：补传 docID（桌面分支同款）——mobile 同链直载须拿到解析值
+                // 预取尾窗（$$dailynote 现建日记的 docID 也只在 execute 侧解析）
+                openByDialog(ball, false, docID);
             }
             return;
         }
@@ -113,7 +125,22 @@ export const docAction: BallAction = {
             // float 语义走谓词分支（非法/缺失 openDocType 兜底按 float——谓词与
             // toggleDecision 共用，两处判定错位会让兜底球的悬浮窗永远关不掉）
             if (isOpenDocTypeFloat(item.openDocType)) {
-                getFloatingBallProtyleDialog(ball, docID);
+                // fballtail □1：跳底直载预取——openBottom 开且无 restore 档（dailyNote
+                // 现建日记档恒 miss）才查尾窗（真树序尾部 N 块，N 与内核窗口上限同源），
+                // 经 props 传入悬浮窗组件构造期种档直载（内核官方重开恢复管线，一次
+                // 请求一次渲染落底）；预取失败/空→undefined→组件回退现行遮眼+slider
+                // 链。预取 await 在开窗前（一次 getTailChildBlocks 往返），换「窗开瞬间
+                // 即构造且直落底部」无中间画帧。窗已开（execute 幂等「确保开」路径）时
+                // tail 被复用忽略，直接跳过预取免白跑。dailyNote 判定与组件侧同口径
+                // （docID≠action.docID，勿只按 docName===$$dailynote——两处错位=档语义漂移）
+                const dailyNote = !!docID && docID !== item.docID;
+                const tail = getFloatingBallProtyleDialogDM(ball) == null && shouldPrefetchTail(
+                    floatingballDocOpenBottom.get() === true,
+                    dailyNote ? undefined : item.lastRead,
+                    dailyNote,
+                ) ? await fetchTailWindow(docID, (id, n) => siyuan.getTailChildBlocks(id, n))
+                  : undefined;
+                getFloatingBallProtyleDialog(ball, docID, tail);
                 item.openOnCreate = true;
                 floatingballBallList.write();
                 getFloatingBall(ball)?.destroyBy();
@@ -125,7 +152,11 @@ export const docAction: BallAction = {
                     if (item.docName === "$$dailynote" ? closeTabByDocID(docID) : closeTab(item.docName)) {
                         //
                     } else {
-                        await OpenSyFile2(getTomatoPluginInstance(), await focusIDOf(docID));
+                        // bear 09-20：跳底开=打开即续写——keepFocus 豁免禁聚焦（同日记
+                        // 跳底，光标钉尾块块尾）；跳底关=维持禁聚焦政策不动
+                        const atBottom = floatingballDocOpenBottom.get() === true;
+                        await OpenSyFile2(getTomatoPluginInstance(), await focusIDOf(docID),
+                            null, null, null, null, atBottom);
                     }
                     break;
                 case FloatingBallDocType_dialog.id:
@@ -179,13 +210,28 @@ export const docAction: BallAction = {
     },
 };
 
-function openByDialog(ball: BallItem, autoclose = false, docID = "") {
+async function openByDialog(ball: BallItem, autoclose = false, docID = "") {
     const item = ball.action ?? {};
     const dm = new DestroyManager();
+    // fballtail □2：跳底直载预取（同 □1 float 分支）——开关开才查尾窗（真树序尾部
+    // N 块，N 与内核窗口上限同源），经 props 传入 ProtyleSv4Dialog 构造期种档直载
+    // （内核官方重开恢复管线，一次请求一次渲染落底）；预取失败/空/docID 未解析→
+    // undefined→组件普通头窗构造（原 scrollDocBottomForDoc「头窗+轮询滚底」通道已
+    // 退役——统一通道胜过特殊化）。dialog 链无 restore 面（lastRead 记录/恢复是
+    // float 窗特性）——开关开恒预取，与现行「开恒滚底」语义一致。预取 await 在
+    // 开窗前（一次 getTailChildBlocks 往返），换「窗开瞬间即构造且直落底部」无
+    // 中间画帧；mobile 同链（execute isMobile 分支同传 docID）
+    const tail = shouldPrefetchTail(floatingballDocOpenBottom.get() === true, undefined, false)
+        ? await fetchTailWindow(docID, (bid, n) => siyuan.getTailChildBlocks(bid, n))
+        : undefined;
+    debugLog("fball", `dialog tail prefetch ${tail ? tail.length + " blocks" : "miss"} doc=${(docID || item.docID || "-").slice(-6)}`, "fball");
     const id = newID();
     const dialog = new Dialog({
         title: item.docName,
-        content: `<div id="${id}"></div>`,
+        // fballtail □4：content 根 div 须带高度（.b3-dialog__body 高 definite）——
+        // 裸 div 高度 auto 时组件 .protyleMount 的 100% 相对非 definite 高退化
+        // 不解析（在档坑：block 容器里子代 height:100% 不解析），protyle 又被内容撑全高
+        content: `<div id="${id}" style="height:100%"></div>`,
         width: events.isMobile ? "90vw" : "700px",
         height: events.isMobile ? "180svw" : "700px",
         destroyCallback: () => {
@@ -210,7 +256,9 @@ function openByDialog(ball: BallItem, autoclose = false, docID = "") {
             // docID 透传（$$dailynote 每次点击现建，解析值只作参数不写回 item——
             // 写回会让 float 的 dm 键随日期漂移，跨天 toggle 探测 miss 开双窗）
             docID: docID || item.docID,
-            openBottom: floatingballDocOpenBottom.get() === true,
+            // 跳底语义全在此 props（openBottom prop 已退役并入 tail 缺省——共享组件
+            // 不读悬浮球域设置，开关判定留在调用方）
+            tail,
         },
     });
     dm.add("dialog", () => {

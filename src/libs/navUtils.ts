@@ -64,6 +64,9 @@ export function noFocusAfterOpen(afterOpen?: () => void): (model?: any) => void 
  *               09-16 起另织入 noFocusAfterOpen 双拍 blur 善后——action 只管滚动定位，
  *               归还焦点由善后拍兜底）
  * @param position nop 0, front 1, back 2, right 3, bottom 4, move 5
+ * @param keepFocus 禁聚焦豁免（09-20 日记跳底）：true=action 落 cb-get-focus+cb-get-outline
+ *               （光标钉目标块块尾可续写）且跳过 blur 善后。仅「打开即写」场景用（日记
+ *               跳底），其余调用面维持禁聚焦政策
  * @returns
  */
 export async function OpenSyFile2(
@@ -73,6 +76,7 @@ export async function OpenSyFile2(
     action?: TProtyleAction[],
     afterOpen?: () => void,
     originID?: string,
+    keepFocus = false,
 ) {
     if (!docID) return
     if (position == "0" || position == "nop") {
@@ -80,8 +84,12 @@ export async function OpenSyFile2(
     } else if (events.isMobile) {
         openMobileFileById(plugin.app, docID);
     } else {
-        // bear 09-15 拍板全插件禁聚焦：打开文档只滚动定位（cb-get-hl），不落光标
-        if (action == null) action = ["cb-get-context", "cb-get-hl"];
+        // bear 09-15 拍板全插件禁聚焦：打开文档只滚动定位（cb-get-hl），不落光标；
+        // keepFocus 豁免：cb-get-focus 落光标 + cb-get-outline 令 focusBlock toStart=false
+        // 光标落块尾（内核 selection.ts focusBlock 双分支实测语义）
+        if (action == null) action = keepFocus
+            ? ["cb-get-context", "cb-get-focus", "cb-get-outline"]
+            : ["cb-get-context", "cb-get-hl"];
         let keepCursor = null;
         switch (position) {
             case "5":
@@ -136,7 +144,7 @@ export async function OpenSyFile2(
             doc: { id: docID, action, zoomIn: false },
             position: position as any,
             keepCursor,
-            afterOpen: noFocusAfterOpen(afterOpen),
+            afterOpen: keepFocus ? afterOpen : noFocusAfterOpen(afterOpen),
         });
     }
 }

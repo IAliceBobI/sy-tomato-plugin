@@ -2,10 +2,10 @@
     import { useSvelteFlow, useStore, type Node } from "@xyflow/svelte";
     import { Plugin } from "siyuan";
     import { onMount, onDestroy, tick } from "svelte";
-    import { siyuan } from "./libs/utils";
-    import { tomatoI18n } from "./tomatoI18n";
+    // graphrelayout □2：siyuan/tomatoI18n import 随「zoom 过小提示切纵向」toast 退役移除
 
-    const { setCenter, getNodes, fitView, getZoom } = useSvelteFlow();
+    // graphrelayout □2：getZoom 随「zoom 过小提示切纵向」toast 退役一并移除
+    const { setCenter, getNodes, fitView, setViewport, getViewport } = useSvelteFlow();
     const flowStore = useStore();
 
     interface Props {
@@ -22,6 +22,7 @@
         if (d) {
             d.graphStore = null;
             d.fitView = null;
+            d.setViewport = null;
             d.locateID = null;
         }
     });
@@ -32,23 +33,18 @@
         // （useSvelteFlow 的 updateNode 内部即 store.nodes=...；bind:nodes={$store} 对
         // writable 的 prop 同步在 runes 组件不可靠，dev 实锤 dagre 已跑而 DOM 停在初始位）
         getData().graphStore = flowStore;
+        // graphmind □2 P1：setViewport 借道（fitReadable 的根锚定分支——fitView 可读下限）
+        getData().setViewport = setViewport;
+        // graphrelayout □1：getViewport 借道（交互链视口钉——capturePin 交互前快照）
+        getData().getViewport = getViewport;
         // graphbox 期1：借道 Provider 内上下文把 fitView 递给顶层 relayout（首屏视口适配，vision P1）
-        // 期3 精修：fitView 完成后读 zoom——横向布局缩至 <0.25（大文档展开态钳 ~0.13）时
-        // toast 提示可换形态（期2 P2 留观），60s 节流防每次 relayout 刷屏；
-        // 期7 口径：已是竖排形态（vlr/vtb）不再提示
-        getData().fitView = async (opts?: { padding?: number; duration?: number }) => {
+        // graphmind □7fix：opts 放开 min/maxZoom 透传（原手写窄类型把 @xyflow/system
+        // FitViewOptionsBase 的两键挡在类型层——fitReadable 真 fit 需显式传参）
+        // graphrelayout □2：fitView 后的「zoom 过小建议切纵向」toast 整族退役（期3 精修引入，
+        // 期7 收窄为非竖排态提示）——四态退役恒 LR 后无形态可切，提示失去对象
+        getData().fitView = async (opts?: { padding?: number; duration?: number; minZoom?: number; maxZoom?: number }) => {
             (getData() as any)._fitAt = Date.now();
             await fitView(opts);
-            setTimeout(() => {
-                const zoom = getZoom();
-                const d = getData() as any;
-                const f = d.layoutForm;
-                if (zoom >= 0.25 || f === "vlr" || f === "vtb") return;
-                const now = Date.now();
-                if (now - (d._lastZoomTipAt ?? 0) < 60000) return;
-                d._lastZoomTipAt = now;
-                siyuan.pushMsg(tomatoI18n.图较大建议切换纵向.replace("%1", `${Math.round(zoom * 100)}`), 4000);
-            }, 400);
         };
         // 期4：expandTo(折叠祖先链)→绝对坐标 setCenter(zoom 1.2)→主色描边脉冲两轮；
         // 返回是否命中（locateNode 据此 toast 找不到的原因）。

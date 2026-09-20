@@ -10,3 +10,7 @@ export const tomatoSettingsOpenHK = winHotkey("ctrl+;", "tomato settings", "", (
 // ⇧⌘⌥R：R=Reload 语义；三修饰字母官方 keymap 不占（⌥⌘ 字母仅 H/O/V/Y 空闲且 Y 已被
 // ctrl+alt+y 占用、H 撞 macOS hide-others），全仓 winHotkey 清单无冲突
 export const tomatoBigReloadHK = winHotkey("ctrl+alt+shift+r", "big reload", "iconBigRefresh", () => tomatoI18n.大刷新)
+// 注释切换（puncttidy □3 seller 迁入；gfloatnav 09-19 自 index.ts 迁出=ConfEditorTools
+// 键帽行引用，同番茄设置/大刷新避 index↔Conf 循环先例）：默认 ⇧⌥\ 沿用 seller 键——
+// 官方 keymap（默认+用户自定义层）与全仓 winHotkey 清单实证无冲突（6810 活实例扫描 09-10）
+export const tomatoCommentSwitchHK = winHotkey("shift+alt+\\", "comment switch", "", () => tomatoI18n.注释切换)

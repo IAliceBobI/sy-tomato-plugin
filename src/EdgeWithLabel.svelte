@@ -33,13 +33,16 @@
             ? backEdgeDir === "down"
                 ? `M ${sourceX} ${sourceY} C ${midX} ${sourceY + arcOffset} ${midX} ${targetY + arcOffset} ${targetX} ${targetY}`
                 : `M ${sourceX} ${sourceY} C ${sourceX - arcOffset} ${midY} ${targetX - arcOffset} ${midY} ${targetX} ${targetY}`
-            : getBezierPath({
+            : // graphmind □2 柔和贝塞尔：curvature 0.4（库默认 0.25）——控制点外推更远，
+              // 曲线更圆融向官方 listMindmap 的中线控制点形态靠（学视觉不搬代码）
+              getBezierPath({
                   sourceX,
                   sourceY,
                   targetX,
                   targetY,
                   sourcePosition,
                   targetPosition,
+                  curvature: 0.4,
               })[0],
     );
 

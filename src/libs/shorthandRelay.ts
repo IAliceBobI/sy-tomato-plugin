@@ -4,10 +4,11 @@
 // 官方链路事实源：/opt/projects/siyuan/kernel/model/shortcuts.go（桌面内核不消费库外临时文件，
 // 同步到桌面的已是笔记库文档 → 插件接力无竞争窗口）。
 import { debugLog } from "./logUtils";
-import { collectBlockAttrs } from "./dailyCollect";
+import { events } from "./Events";
+import { collectBlockAttrs, lifelogAttrs, ymdFromCreated, LifeTag } from "./dailyCollect";
 import { DomSuperBlockBuilder } from "./sydom";
 import { siyuan, sleep } from "./utils";
-import { flash_thoughts_2_top, shorthandRelayEnabled, storeNoteBox_selectedNotebook } from "./stores";
+import { flash_thoughts_2_top, flashStatTag, shorthandRelayEnabled, storeNoteBox_selectedNotebook } from "./stores";
 import { tomatoI18n } from "../tomatoI18n";
 
 /** 日记落点解析（NoteBox.getTargetID 注入——本模块不 import NoteBox：其 .svelte 依赖会
@@ -38,11 +39,43 @@ export function groupShorthandEntries(blocks: { id: string; content?: string }[]
         .map(([stamp, ids]) => ({ stamp, ids }));
 }
 
+/** □3 落点 B：搬运条目的时间记录类型标记（落点 A 用面板所选类型，官方速记搬运恒「速记」） */
+const RELAY_TAG_TYPE = "速记";
+
+/** □3 落点 B：条目 → 时间记录标记入参（纯函数）。宿主=组内首个 type='p' 块（getChildBlocks
+ *  的 type 为 SQL 短型 'p'，同 NoteBox firstParaBlock 判型）；content=条内全块内容空格
+ *  join 后 trim；time/date 取记录时刻（stamp）——跨天搬运 date 须取记录日非搬运当天；
+ *  组内无段落块（纯列表/代码条目）返回 undefined 不标记 */
+export function relayEntryLifeTag(
+    e: { stamp: string; ids: string[] },
+    blocks: { id: string; type?: string; content?: string }[],
+): { pID: string; tag: LifeTag } | undefined {
+    const byId = new Map(blocks.map(b => [b.id, b]));
+    const pID = e.ids.find(id => byId.get(id)?.type === "p");
+    if (!pID) return undefined;
+    return {
+        pID,
+        tag: {
+            content: e.ids.map(id => byId.get(id)?.content ?? "").join(" ").trim(),
+            type: RELAY_TAG_TYPE,
+            time: hhmmFromCreated(e.stamp),
+            date: ymdFromCreated(e.stamp),
+        },
+    };
+}
+
 const RELAY_LOCK = "tomato-shorthand-relay-lock-2026-09-06";
 
 /** 搬运入口（手动命令 manual=true / sync_end 自动）：locks ifAvailable + 5s 冷却防抖；
  *  getTarget=日记落点解析（注入） */
 export async function relayShorthands(manual: boolean, getTarget: DailyTargetResolver): Promise<void> {
+    // □5 移动端守卫：官方速记搬运设计=移动端只写冷区中转文档、桌面端整理进日记；移动端
+    // sync_end 也搬运=两端并发改日记→云端同步冲突丢内容（飞书用户实锤报障）。自动通道
+    // 静默返回（移动端 sync_end 高频），手动通道给提示（守卫写法同 NoteBox moveFromQueue）
+    if (events.isMobile) {
+        if (manual) siyuan.pushMsg(tomatoI18n.官方速记搬运须在桌面端执行);
+        return;
+    }
     await navigator.locks.request(RELAY_LOCK, { ifAvailable: true }, async (lock) => {
         if (!lock) return;
         try {
@@ -97,6 +130,18 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver): Promi
         ops.push(...siyuan.transMoveBlocksAsChild(e.ids, builders[i].id));
     });
     await siyuan.transactions(ops);
+    // □3 落点 B：开关开时逐条补时间记录标记（与 □2 落点 A 同协议，生态四键识别面）。
+    // 单条失败吞错留痕不阻断（搬运主链已成功，标记属锦上添花）；无段落块条目跳过
+    if (flashStatTag.get()) {
+        for (const e of entries) {
+            try {
+                const hit = relayEntryLifeTag(e, children);
+                if (hit) await siyuan.setBlockAttrs(hit.pID, lifelogAttrs(hit.tag));
+            } catch (err) {
+                debugLog("flashlog", `relay tag fail stamp=${e.stamp}: ${err}`, "dailynote");
+            }
+        }
+    }
     debugLog("shorthand_relay", `done doc=${docID} entries=${entries.length} blocks=${children.length}`, "dailynote");
     siyuan.pushMsg(tomatoI18n.已搬运速记到日记.replace("{n}", String(entries.length)));
 }

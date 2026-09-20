@@ -69,7 +69,7 @@ export const storeNoteBox_selectedNoteType = (() => {
             }
             if (plugin && settingCfg && v) {
                 settingCfg["storeNoteBox_selectedNoteType"] = v;
-                plugin.saveData(STORAGE_SETTINGS, settingCfg);
+                return guardedFullSave(plugin, settingCfg, "storeNoteBox_selectedNoteType", v);
             }
         }
     };
@@ -82,7 +82,7 @@ export const storeNoteBox_keep = (() => {
     store.subscribe((v) => {
         if (plugin && settingCfg) {
             settingCfg["storeNoteBox_keep"] = v;
-            plugin.saveData(STORAGE_SETTINGS, settingCfg);
+            void guardedFullSave(plugin, settingCfg, "storeNoteBox_keep", v);
         }
     });
     return {
@@ -118,7 +118,7 @@ export const storeNoteBox_pin = (() => {
             store.set(v);
             if (plugin && settingCfg && settingCfg["storeNoteBox_pin"] !== v) {
                 settingCfg["storeNoteBox_pin"] = v;
-                plugin.saveData(STORAGE_SETTINGS, settingCfg);
+                return guardedFullSave(plugin, settingCfg, "storeNoteBox_pin", v);
             }
         }
     };
@@ -147,7 +147,7 @@ export const storeNoteBox_recentText = (() => {
     const write = () => {
         if (plugin && settingCfg) {
             settingCfg["storeNoteBox_recentText"] = get(store);
-            plugin.saveData(STORAGE_SETTINGS, settingCfg);
+            void guardedFullSave(plugin, settingCfg, "storeNoteBox_recentText", get(store));
         }
     }
     return {
@@ -196,11 +196,23 @@ export const storeNoteBox_noteAreaText = (() => {
         save: () => {
             if (plugin && settingCfg && get(store) != settingCfg["storeNoteBox_noteAreaText"]) {
                 settingCfg["storeNoteBox_noteAreaText"] = get(store);
-                return plugin.saveData(STORAGE_SETTINGS, settingCfg);
+                return guardedFullSave(plugin, settingCfg, "storeNoteBox_noteAreaText", get(store));
             }
         },
     };
 })();
+
+/** □5-④（tailbatch）：闭包单键写面统一守卫——annofeed0917 □2 只下沉到 notebookStoreFactory，
+ *  其余五个闭包 store（selectedNoteType/keep/pin/recentText/noteAreaText）仍裸整份 saveData，
+ *  装载曾失败的那代被它们任一写中=全默认覆盖盘上真值（与选择器同款放大器）；统一补降级
+ *  mergedSaveKey（成功合并后 settingCfg 原地对齐=闭包捕获引用同步复活） */
+function guardedFullSave(plugin: Plugin, settingCfg: TomatoSettings, key: string, value: unknown) {
+    const guarded = plugin as unknown as { settingsLoadedOk?: boolean };
+    if (guarded.settingsLoadedOk === false) {
+        return mergedSaveKey(plugin as unknown as Parameters<typeof mergedSaveKey>[0], STORAGE_SETTINGS, key, value);
+    }
+    return plugin.saveData(STORAGE_SETTINGS, settingCfg);
+}
 
 function notebookStoreFactory(k = "storeNoteBox_selectedNotebook") {
     const store = writableWithGet("");
@@ -509,11 +521,20 @@ export const graphMaxAllBlocks = settingFactory("graphMaxAllBlocks", 800, STORAG
 export const graphHideStructEdges = settingFactory("graphHideStructEdges", false, STORAGE_SETTINGS, null as TSK);
 // □3 章节自动编号开关（思绪大纲感 1/1.1 前缀；标题自带序号的文档可关防双编号）
 export const graphShowNumbers = settingFactory("graphShowNumbers", true, STORAGE_SETTINGS, null as TSK);
-// graphbox 期2（2026-09-04）：折叠机制默认展开层级（"1"|"2"|"3"|"all"，按标题层级 h1=1；段落链折叠独立于档位）
-export const graphDefaultExpandLevel = settingFactory("graphDefaultExpandLevel", "2", STORAGE_SETTINGS, null as TSK);
-// graphbox 期7（2026-09-04）：默认布局形态（"lr"|"tb"|"vlr"|"vtb"；文档无 custom-graph-layout 时用，
-// 顶栏循环钮写的 per-doc 持久化优先）
-export const graphDefaultLayout = settingFactory("graphDefaultLayout", "lr", STORAGE_SETTINGS, null as TSK);
+// graphmind □6（共识#1）：视图收敛——主界面恒 structure/marks 两档；full/treemap 代码保留、
+// 入口（工具栏按钮+无结构空态出口）收进设置默认关，开启后回显。档位语义不收：旧文档存档
+// custom-graph-mode ∈ {full,treemap} 尊重不重置，读档命中即视为已开设置（GraphBox.svelte
+// _changeDoc_ 自动 write(true)，hiddenMenuItems「显式用过」同款心智）。运行期动态读非结构类
+// （GraphBox.svelte store 订阅热更按钮组显隐），不进 STRUCTURAL_KEYS
+export const graphShowAllViewModes = settingFactory("graphShowAllViewModes", false, STORAGE_SETTINGS, null as TSK);
+// graphbox 期2（2026-09-04）：折叠机制默认展开层级（"1"|"2"|"3"|"all"，按标题层级 h1=1；段落链折叠独立于档位）。
+// graphmind □2（2026-09-19）：默认改 "headings"=展开到文档最深标题级（脑图默认=标题骨架全显、
+// 段落收徽章；列表容器仍默认折叠）。存量用户存过 1/2/3/all 的不受影响（settingFactory 语义）。
+// graphrelayout □7（2026-09-20 bear 拍板）：默认改 "auto"=自适应最高标题级（有 h1 显示到
+// h1、只有 h2 显示到 h2、无标题杂项照常）——headings 及 1..6/all 均为合法显式档，
+// 盘上有值的存量用户（settingFactory load 语义）一律尊重不迁移，唯从未落盘者落新默认。
+export const graphDefaultExpandLevel = settingFactory("graphDefaultExpandLevel", "auto", STORAGE_SETTINGS, null as TSK);
+// graphrelayout □2：graphDefaultLayout（默认布局形态四态）随四态退役删除——恒 LR 无默认可配
 export const graphAddTopbarIcon = settingFactory("graphAddTopbarIcon", true, STORAGE_SETTINGS, null as TSK);
 export const graph打开块关系图Menu = settingFactory("graphopengraphMenu", true, STORAGE_SETTINGS, null as TSK);
 export const graph定位到图中的节点Menu = settingFactory("graphlocatetographMenu", true, STORAGE_SETTINGS, null as TSK);
@@ -524,6 +545,9 @@ export const graphBlockMarkBar = settingFactory("graphBlockMarkBar", true, STORA
 // graphfloat □3（2026-09-19）：悬浮图——悬浮球+悬浮面板看当前文档块关系图（dock 面板保留，
 // 浮窗=独立第二实例）；默认开跟随悬浮反链先例（back_link_float 默认 true）
 export const graph_float = settingFactory("graph_float", true, STORAGE_SETTINGS, null as TSK);
+// gfloatnav（2026-09-19）：图内导航（双击/Alt点/右键跳转/树双击/标记叶单击）后自动收起
+// 悬浮面板——「悬浮图当大纲用」闭环；默认开（丝滑跳转诉求）。运行时逐次读，非结构类
+export const graphFloatJumpClose = settingFactory("graphFloatJumpClose", true, STORAGE_SETTINGS, null as TSK);
 export const tomatoClockCheckbox = settingFactory("tomatoClockCheckbox", true, STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_audio = settingFactory("tomato_clocks_audio", "", STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_notice = settingFactory("tomato_clocks_notice", true, STORAGE_SETTINGS, null as TSK);
@@ -750,6 +774,11 @@ export const flash_thoughts_target_file = settingFactory("flash-thoughts-target-
 // □2 官方闪念速记吸收（2026-09-06）：sync_end 自动把官方速记中转文档新块搬进日记管线
 // （libs/shorthandRelay.ts；仅支持官方 ShorthandSavePath 日期模板模式）；默认关=新功能不惊喜
 export const shorthandRelayEnabled = settingFactory("shorthandRelayEnabled", false, STORAGE_SETTINGS, null as TSK);
+// 闪念时间记录格式兼容（flashlog □1 2026-09-20）：开启后闪念/官方速记落块时给内容段落块
+// 附 custom-lifelog-* 六键标记（libs/dailyCollect lifelogAttrs），时间记录统计类插件可识别；
+// 默认关=新功能不惊喜。运行时落点判（insertIntoDailynote/shorthandRelay/moveFromQueue 三点），
+// 非 onload 注册读死类，不进 STRUCTURAL_KEYS
+export const flashStatTag = settingFactory("flash-stat-tag", false, STORAGE_SETTINGS, null as TSK);
 // □4 全局小窗失焦自动关（2026-09-06，小记 quick-notes 可移植增强）：子窗失焦即落盘草稿并关窗；
 // pin 住 / 选图对话框在途 / 上传在途时不关。默认开=对标杆品速记手感（草稿持久化不丢内容）
 export const flashThoughtsBlurClose = settingFactory("flashThoughtsBlurClose", true, STORAGE_SETTINGS, null as TSK);

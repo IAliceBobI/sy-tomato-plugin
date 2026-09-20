@@ -1,5 +1,5 @@
 import { confirm, Dialog, IEventBusMap } from "siyuan";
-import { getAllText, siyuan } from "./libs/utils";
+import { getBlocksOwnText, siyuan } from "./libs/utils";
 import { events } from "./libs/Events";
 import { aiBoxCheckbox, aiBoxMenuShow, } from "./libs/stores";
 import AIBoxMenu from "./AIBoxMenu.svelte";
@@ -30,7 +30,7 @@ class AIBox {
             editorCallback: async (protyle) => {
                 const { selected, ids } = await events.selectedDivs(protyle);
                 const id = ids.pop();
-                await this.ai(id, getAllText(selected));
+                await this.ai(id, getBlocksOwnText(selected));
             },
         });
 
@@ -57,7 +57,7 @@ class AIBox {
             click: async () => {
                 const { selected, ids } = await events.selectedDivs(detail.protyle);
                 const id = ids.pop();
-                await this.ai(id, getAllText(selected));
+                await this.ai(id, getBlocksOwnText(selected));
             },
         });
     }

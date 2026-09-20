@@ -5,10 +5,11 @@
     // 视觉数值=docs/graphbox-visual-spec.md §7（surface 壳+虚线 6px 圆角+标题栏 22px）。
     import { Handle, Position, type NodeProps } from "@xyflow/svelte";
     import { tomatoI18n } from "./tomatoI18n";
+    import { containerLabel } from "./libs/graphSkeleton";
 
     let { data, targetPosition, sourcePosition }: NodeProps = $props();
-    // data: { groupKind: "sb"|"bq", vMark?, collapsed, hiddenCount, hasChildren, toggle }
-    // vMark：容器内子块排布方向（随全局横纵切换更新）⇉/⇓，缺字形回退 →/↓
+    // data: { groupKind: "sb"|"bq", collapsed, hiddenCount, hasChildren, toggle }
+    // graphrelayout □2：vMark 随四态退役硬化为 ⇉（恒 LR 向右生长，容器内子块横排堆叠）
     // 三期 B'：list groupKind 退役（列表改脑图式树形分叉，容器壳只剩 sb/bq）
 
     const groupKind = $derived(((data as any).groupKind ?? "sb") as "sb" | "bq");
@@ -36,9 +37,9 @@
             {#if groupKind === "bq"}
                 <span class="gg-mark gg-mark-bq">│</span>
             {:else}
-                <span class="gg-mark">{(data as any).vMark ?? "⇉"}</span>
+                <span class="gg-mark">⇉</span>
             {/if}
-            <span class="gg-title">{groupKind === "bq" ? tomatoI18n.引述块 : tomatoI18n.超级块}</span>
+            <span class="gg-title">{containerLabel(groupKind) ?? ""}</span>
         </div>
     {/if}
     {#if (data as any).collapsed && (data as any).hiddenCount > 0}
@@ -78,7 +79,8 @@
         border-radius: var(--b3-border-radius);
         background: var(--b3-theme-surface);
     }
-    /* 折叠态容器＝子树折叠语义：蓝系（与 GraphNode .gn-collapsed 同规） */
+    /* 折叠态容器＝子树折叠语义：蓝系（与 GraphNode .gn-collapsed 同规）；
+       暗色分支同款提亮（二轮终审 P1：primary-lightest 暗色过暗） */
     .gg-collapsed {
         width: auto;
         height: auto;
@@ -87,6 +89,9 @@
         border-radius: var(--b3-border-radius);
         background: var(--b3-theme-primary-lightest);
         min-width: 64px;
+    }
+    :global(html[data-theme-mode="dark"]) .gg-collapsed {
+        background: color-mix(in srgb, var(--b3-theme-primary) 16%, var(--b3-theme-background));
     }
     .gg-head {
         position: absolute;

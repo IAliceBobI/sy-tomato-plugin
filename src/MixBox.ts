@@ -1,5 +1,5 @@
 import { confirm, IEventBusMap, IProtyle, Plugin } from "siyuan";
-import { addLineThrough, cleanText, get_siyuan_lnk_md, getAllText, getAttribute, getSyElement, NewNodeID, parseIAL, siyuan, timeUtil, } from "./libs/utils";
+import { addLineThrough, cleanText, get_siyuan_lnk_md, getAttribute, getBlockOwnEditableText, getBlocksOwnText, getSyElement, NewNodeID, parseIAL, siyuan, timeUtil, } from "./libs/utils";
 import { events, EventType } from "./libs/Events";
 import { BlockNodeEnum, CUSTOM_RIFF_DECKS, DATA_NODE_ID, DATA_TYPE, DocAttrShowKey, SPACE, VIRTUAL_BLOCK_REF } from "./libs/gconst";
 import { addTodoBookmark, rmTodoBookmark } from "./libs/bookmark";
@@ -73,7 +73,7 @@ class MixBox {
                 const { selected, ids } = await events.selectedDivs(protyle);
                 const id = ids?.pop()
                 if (id) {
-                    const tab = text2tab(getAllText(selected))
+                    const tab = text2tab(getBlocksOwnText(selected))
                     await siyuan.insertBlockAfter(tab, id);
                 }
             },
@@ -346,7 +346,7 @@ class MixBox {
                         newAttrs.push({ id, attrs: { "memo": "", "custom-tomato-readonly": "" } as AttrType })
                         ops.push(siyuan.safeUpdateBlock(id, memo))
                     } else if (dataType === BlockNodeEnum.NODE_PARAGRAPH) {
-                        const text = getAllText([selected[idx]])?.trim();
+                        const text = getBlockOwnEditableText(selected[idx]).trim();
                         if (text) {
                             newAttrs.push({ id, attrs: { "memo": text, "custom-tomato-readonly": "1" } as AttrType })
                             ops.push(siyuan.safeUpdateBlock(id, ""))

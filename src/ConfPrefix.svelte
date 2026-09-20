@@ -4,7 +4,7 @@
     // 域形态对齐 ConfKnowledge 先例（纯文字域名无图标、两卡以内精简）；导航占 ConfVault
     // 原位（尾部区，杂项之后），navActive 兼容映射 vault→prefix（aibox 同步改挂）。
     import { prefixArticlesEnable, prefixArticlesMenu, prefixArticlesSoftLimit } from "./libs/stores";
-    import { PrefixArticles前缀文档树 } from "./PrefixArticles";
+    import { PrefixArticles前缀文档树, PrefixArticlesDock } from "./PrefixArticles";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
@@ -24,6 +24,12 @@
                 <input type="checkbox" class="b3-switch" bind:checked={$prefixArticlesMenu} />
                 {tomatoI18n.menu添加右键菜单}: {PrefixArticles前缀文档树.langText()}
                 <HotkeyCap hk={PrefixArticles前缀文档树} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <!-- Dock 面板键帽（gfloatnav 盘点补漏 09-19：⇧⌥F5 打开面板命令一直有键无键帽；
+                 行名与 ⇧⌥G 选区命令区分——一个是打开面板一个是处理选区 -->
+            <div>
+                {tomatoI18n.打开前缀文档树面板}
+                <HotkeyCap hk={PrefixArticlesDock} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input class="b3-text-field" bind:value={$prefixArticlesSoftLimit} />

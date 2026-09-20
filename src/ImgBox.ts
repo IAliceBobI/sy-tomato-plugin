@@ -4,7 +4,7 @@ import { CUSTOM_RIFF_DECKS, PROTYLE_WYSIWYG_SELECT } from "./libs/gconst";
 import { imgBoxCheckbox, imgBoxShowMenu } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import html2canvas from 'html2canvas';
-import { getAllText, siyuan, } from "./libs/utils";
+import { getBlockOwnEditableText, siyuan, } from "./libs/utils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { winHotkey } from "./libs/winHotkey";
 import { gatedAddCommand } from "./libs/cmdGate";
@@ -168,7 +168,7 @@ class ImgBox {
 
         for (const element of divs) {
             element.classList.remove(PROTYLE_WYSIWYG_SELECT);
-            const txt = getAllText([element])
+            const txt = getBlockOwnEditableText(element)
             // 无文本但有可视内容的块（图片/音视频/iframe/分割线）不能按文本判空静默跳过
             const hasVisual = element.getAttribute("data-type") === "NodeThematicBreak"
                 || !!element.querySelector("img, video, audio, iframe, embed, object");

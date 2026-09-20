@@ -599,9 +599,17 @@ export function hostQuoteText(kramdown: string): string {
  *  是类型常量非兄弟序，6812 实测全顶层 sort=20，父链+sort 的 CTE 排序假绿实锤）。
  *  宿主锚定法：SQL 父链逐层上爬至文档根（每层一发 IN 查询），各层兄弟组用 getChildBlocks
  *  (父)取真序，排序键=父链逐层层内序；heading 容器化模型（SQL 父=所属标题）与
- *  getChildBlocks(标题)=标题节的官方语义同链成立。失败=原序降级（块序可能乱，内容不丢）。 */
-export async function orderHostIDs(docID: string, hostIDs: string[]): Promise<string[]> {
-    if (!docID || hostIDs.length < 2) return hostIDs;
+ *  getChildBlocks(标题)=标题节的官方语义同链成立。失败=原序降级（块序可能乱，内容不丢）。
+ *  □5-① 索引/排序拆分：一次收集的同文档多宿主条目共用一份索引（父链 SQL+getChildBlocks
+ *  从「每条目一遍」并成「每文档一遍」），排序消费 orderHostIDsBy。 */
+export interface HostOrderIndex {
+    parentOf: Map<string, string>;
+    rankOf: Map<string, number>; // `${parent}|${child}` → 层内真序
+    ok: boolean;
+}
+
+export async function buildHostOrderIndex(docID: string, hostIDs: string[]): Promise<HostOrderIndex> {
+    if (!docID || hostIDs.length < 2) return { parentOf: new Map(), rankOf: new Map(), ok: false };
     try {
         const parentOf = new Map<string, string>();
         let frontier = [...new Set(hostIDs)];
@@ -616,7 +624,7 @@ export async function orderHostIDs(docID: string, hostIDs: string[]): Promise<st
             }
             frontier = [...new Set(next)];
         }
-        const rankOf = new Map<string, number>(); // `${parent}|${child}` → 层内真序
+        const rankOf = new Map<string, number>();
         const childRanks = async (parent: string) => {
             const children = (await siyuan.getChildBlocks(parent)) ?? [];
             (children as { id?: string }[]).forEach((c, i) => {
@@ -625,31 +633,40 @@ export async function orderHostIDs(docID: string, hostIDs: string[]): Promise<st
         };
         await childRanks(docID);
         await mapLimit([...new Set([...parentOf.values()].filter((p) => p && p !== docID))], 4, childRanks);
-        const keyOf = (h: string): number[] => {
-            const chain: number[] = [];
-            let cur = h;
-            for (let d = 0; d < 12; d++) {
-                const p = parentOf.get(cur);
-                if (p == null) break;
-                chain.push(rankOf.get(`${p}|${cur}`) ?? Number.MAX_SAFE_INTEGER);
-                if (!p || p === docID) break;
-                cur = p;
-            }
-            return chain.reverse(); // 文档层在前（自底向上收集后倒序）——跨深度比较须先比外层
-        };
-        return [...hostIDs].sort((a, b) => {
-            const ka = keyOf(a);
-            const kb = keyOf(b);
-            for (let i = 0; i < Math.max(ka.length, kb.length); i++) {
-                const d = (ka[i] ?? -1) - (kb[i] ?? -1); // 短链=祖先是更外层块，先出
-                if (d !== 0) return d;
-            }
-            return 0;
-        });
+        return { parentOf, rankOf, ok: true };
     } catch (e) {
         console.warn("[tomato anno] order hosts failed:", e);
-        return hostIDs;
+        return { parentOf: new Map(), rankOf: new Map(), ok: false };
     }
+}
+
+export function orderHostIDsBy(idx: HostOrderIndex, docID: string, hostIDs: string[]): string[] {
+    if (!idx.ok || hostIDs.length < 2) return hostIDs;
+    const keyOf = (h: string): number[] => {
+        const chain: number[] = [];
+        let cur = h;
+        for (let d = 0; d < 12; d++) {
+            const p = idx.parentOf.get(cur);
+            if (p == null) break;
+            chain.push(idx.rankOf.get(`${p}|${cur}`) ?? Number.MAX_SAFE_INTEGER);
+            if (!p || p === docID) break;
+            cur = p;
+        }
+        return chain.reverse(); // 文档层在前（自底向上收集后倒序）——跨深度比较须先比外层
+    };
+    return [...hostIDs].sort((a, b) => {
+        const ka = keyOf(a);
+        const kb = keyOf(b);
+        for (let i = 0; i < Math.max(ka.length, kb.length); i++) {
+            const d = (ka[i] ?? -1) - (kb[i] ?? -1); // 短链=祖先是更外层块，先出
+            if (d !== 0) return d;
+        }
+        return 0;
+    });
+}
+
+export async function orderHostIDs(docID: string, hostIDs: string[]): Promise<string[]> {
+    return orderHostIDsBy(await buildHostOrderIndex(docID, hostIDs), docID, hostIDs);
 }
 
 /** 宿主反查（□3 A 案整块语义主通道+颜色）：按取数键去重拉 kramdown——
@@ -688,11 +705,24 @@ async function annotateHostInfo(groups: AnnoCollectGroup[], colorOn: boolean): P
         }
     });
     const info = new Map<string, { markVar?: string; quoteBlocks?: string[] }>();
+    // □5-① 跨条目缓存预扫：同文档全部多宿主条目的宿主并集一次建序索引（父链 SQL+
+    // getChildBlocks 从每条目一遍并成每文档一遍）；失败代 ok=false 排序原序降级同旧
+    const orderIdxOf = new Map<string, HostOrderIndex>();
+    {
+        const multiHostsByDoc = new Map<string, string[]>();
+        for (const g of groups) {
+            for (const it of g.items) {
+                const hs = hostsOfItem(it);
+                if (hs.length > 1) multiHostsByDoc.set(g.docID, [...(multiHostsByDoc.get(g.docID) ?? []), ...hs]);
+            }
+        }
+        for (const [docID, hs] of multiHostsByDoc) orderIdxOf.set(docID, await buildHostOrderIndex(docID, hs));
+    }
     for (const g of groups) {
         for (const it of g.items) {
             let hosts = [...hostsOfItem(it)];
             if (hosts.length > 1) {
-                hosts = await orderHostIDs(g.docID, hosts);
+                hosts = orderHostIDsBy(orderIdxOf.get(g.docID) ?? { parentOf: new Map(), rankOf: new Map(), ok: false }, g.docID, hosts);
                 it.hostID = hosts[0]; // 锚尾/纯划线行指向文档序首宿主（原=SQL 到达序任意块）
             }
             const rec: { markVar?: string; quoteBlocks?: string[] } = {};

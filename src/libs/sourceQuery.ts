@@ -3,7 +3,7 @@
 // 查空（孤儿卡）/失败=静默不显（调用方置 hidden 由本层翻转）。
 import { siyuan } from "./siyuanApi";
 import { debugLog } from "./logUtils";
-import { buildSourceText, splitHPath, unescapeBlockText, type RPCardSource } from "./readingPointCore";
+import { splitHPath, unescapeBlockText, type RPCardSource } from "./readingPointCore";
 
 /** origin/hostID 反查来源三件：行 join 文档 hpath → 父链爬最近标题块。
  *  块已删（孤儿卡）=行查不到 → null */
@@ -41,16 +41,31 @@ function collapseSpaces(s: string | null): string {
 }
 
 /** 来源行现查回填：查到才显（title=完整 hpath 兜底超长截断）；查空/异常=保持 hidden 静默降级。
- *  label=打点族标签（rp 卡传 "readpoint" 保观测连续，默认 "anno"） */
+ *  label=打点族标签（rp 卡传 "readpoint" 保观测连续，默认 "anno"）。
+ *  annonote P2③（tailbatch □7）：文档名独立 span（.tomato-card-src-doc，可提深一档——
+ *  整行 on-surface-light 灰档下《文档名》是定位主体；着色由各卡族 CSS 域挂钩，
+ *  未挂=继承整行色零视觉变化）。文本序与 buildSourceText 恒同（单测锁定） */
 export async function fillSourceRow(el: HTMLElement, origin: string, label = "anno"): Promise<void> {
     let s: RPCardSource | null = null;
     try {
         s = await fetchBlockSource(origin);
     } catch { /* SQL 链失败=来源行缺席，卡面其余照常 */ }
-    const text = s ? buildSourceText(s) : "";
-    debugLog("card_source", `ok=${!!s} len=${text.length}`, label);
-    if (!text) return;
-    el.textContent = text;
-    el.title = `${s!.parentPath}/${s!.docTitle}`;
+    if (!s) {
+        debugLog("card_source", "ok=false", label);
+        return;
+    }
+    const rest: string[] = [];
+    if (s.section) rest.push(s.section);
+    if (s.parentPath && s.parentPath !== "/") rest.push(s.parentPath);
+    el.textContent = "";
+    if (s.docTitle) {
+        const doc = document.createElement("span");
+        doc.className = "tomato-card-src-doc";
+        doc.textContent = `《${s.docTitle}》`;
+        el.append(doc);
+    }
+    if (rest.length) el.append(document.createTextNode(rest.join(" · ")));
+    el.title = `${s.parentPath}/${s.docTitle}`;
     el.hidden = false;
+    debugLog("card_source", "ok=true", label);
 }

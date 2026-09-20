@@ -130,7 +130,9 @@ export function clearCurrentThread() {
     panelSession.active = null;
     panelSession.canUndo = false;
     panelSession.pendingUndo = null;
-    panelSession.draft = "";
+    // agentqa P2（tailbatch □7）：清空会话保留输入框草稿——清「对话历史」不连坐半 typed
+    // 的问题（与设置项发送中改值次轮生效同哲学：清的是历史不是输入）；switchPanelThread
+    // 的空线程落盘条件含 draft 非空，草稿仍随线程走不丢
 }
 
 // 整页卸载兜底：pagehide 在 reload/关窗都触发，草稿不丢

@@ -134,8 +134,16 @@ type Block = {
     docName?: string;
     div?: HTMLElement;
     /** luji0918 □2 P0：shortenList 重挂 i 时盖的 l 壳 id 戳——骨架通道 blockPos 按此
-     *  回查壳的 order 锚（l 壳行已滤出 rows，i 直挂 docID 爬链断源会落尾部挂错末章） */
+     *  回查壳的 order 锚（l 壳行已滤出 rows，i 直挂 docID 爬链断源会落尾部挂错末章）。
+     *  graphrelayout □8：戳还喂 synthesizeListShells 合成壳行（l 升格容器节点，
+     *  合成壳 id=戳 id=真块 id，折叠存档两通道同键） */
     listShellId?: string;
+    /** graphrelayout □9 内容块胶囊：DOM 通道直提的呈现补集（SQL 通道以 markdown 列补）——
+     *  表格行数（tr 计数含表头）/表头行/媒体文件名（仅含图片段落）/av 块 id（data-av-id） */
+    tableRows?: number;
+    tableHead?: string;
+    media?: string;
+    avID?: string;
     // isInList?: boolean;
     data?: any;
     exists?: boolean;

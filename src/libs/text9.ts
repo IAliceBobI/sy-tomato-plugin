@@ -1141,7 +1141,8 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
                 return "Insert references mutually below - Create";
         }
     }
-    // 「切换横向与纵向」随期7 四态形态循环钮退役删除（新文案=切换布局形态，tomatoI18n）
+    // 「切换横向与纵向」随期7 四态形态循环钮退役删除；其后续文案「切换布局形态」
+    // 亦随 graphrelayout □2 恒 LR（2026-09-20）退役
     public get 删除所选段落() {
         switch (this.lang) {
             case "zh_CN":

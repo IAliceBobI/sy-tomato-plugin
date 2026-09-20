@@ -119,23 +119,6 @@ export function stripMarkSyntax(text: string): string {
     return text.replace(/==([^=\n]+)==/g, "$1");
 }
 
-/** 标记叶卡标题栏一行可读宽（CJK 字数估算：卡宽 200 − padding/图标 ≈ 15 字保守取整）。
- *  graphfloat □1：v5.15.1 药丸塌陷——首行 14~30 字的单行内容正文区为空（旧阈值 30 才
- *  回退全文），标题栏单行 nowrap 溢出省略把内容腰斩成截断药丸 */
-export const MARK_TITLE_CHARS_PER_LINE = 14;
-
-/** 标记叶卡标题/正文切分（graphfloat □1）：标题=首行 slice30 预览（单行省略不变）；
- *  正文规则——单行超一行可读宽→回退全文；多行首行整读→余文（□4 标题去重规则）、
- *  首行截断→全文。保证卡内 clamp 2 行可见全文开头，标题截断不再丢内容；
- *  短单行维持无正文药丸形（紧凑即信息完整） */
-export function markCardTexts(text: string): { label: string; bodyText: string } {
-    const firstLine = text.split("\n")[0] ?? "";
-    const label = firstLine.slice(0, 30) || "…";
-    const nl = text.indexOf("\n");
-    if (nl < 0) return { label, bodyText: text.length > MARK_TITLE_CHARS_PER_LINE ? text : "" };
-    return { label, bodyText: firstLine.length > MARK_TITLE_CHARS_PER_LINE ? text : text.slice(nl + 1) };
-}
-
 // ── graphmark 期3（2026-09-19）：标记感知展开+只看标记档（纯函数） ──────────
 // 心智模型（设计共识）：三个视图=同一棵结构树的三种过滤/折叠态——structure 档默认
 // 折叠叠加「标记路径强制展开」（预算制）；marks 档=渲染层过滤只留标记路径。本组
@@ -144,13 +127,14 @@ export function markCardTexts(text: string): { label: string; bodyText: string }
 
 import { buildTreeIndex, type TreeIndex } from "./graphCollapse";
 
-/** 标记叶摊开阈值：≤ 此值直接摊开标记叶卡（bear 拍板「标记多就少显示，让用户自己点」）；
- *  超出=种子容器收拢显 ●N，点击展开该容器标记叶 */
-export const MARK_LEAF_FLAT_LIMIT = 30;
+// □4（2026-09-20 bear 拍板翻转）：MARK_LEAF_FLAT_LIMIT=30 摊开阈值退役——旧「标记多就
+// 少显示 ≤30 摊开」被「标记的都得展开」推翻，默认摊开集=全部持有标记叶卡的容器
+// （flatMarkContainers）；●N 角标点击仍可逐个收起（会话态）。
 
-/** 标记感知展开的展开容器总数封顶（共识 50~80 取上限）：标记路径按文档序优先占预算
- *  （共享祖先只计一次增量），无标记分支被挤收=已拍板可接受 */
-export const MARK_CONTAINER_BUDGET = 80;
+/** 标记感知展开的展开容器总数极端兜底（□4 退役 80 常规预算后的巨文档保险）：正常文档
+ *  标记路径容器数远达不到；超出=标记路径按文档序优先占预算（共享祖先只计一次增量），
+ *  余下留收拢靠折叠祖先 ●N 两段可达——防病态巨量标记把 dagre 布局拖死 */
+export const MARK_CONTAINER_FALLBACK_BUDGET = 500;
 
 /** 标记树推导产物：结构树 × 标记集合 的挂载/计数/种子 */
 export interface MarkTreeInfo {
@@ -162,7 +146,7 @@ export interface MarkTreeInfo {
     subtreeColor: Map<string, string>;
     /** 容器 id → 标记叶卡列表（非树节点命中的挂载，directLeaves 序） */
     cards: Map<string, Block[]>;
-    /** 标记叶卡总量（≤MARK_LEAF_FLAT_LIMIT 判据） */
+    /** 标记叶卡总量（诊断/日志用途——□4 摊开阈值退役后不再做判据） */
     cardTotal: number;
     /** 有标记挂载的树节点（含自身命中行），rows 文档序——展开/过滤种子 */
     seeds: string[];
@@ -218,9 +202,9 @@ export function markTreeInfo(rows: Block[], info: StructureInfo, marks: DocMarks
 
 /** 标记感知默认折叠：defaults（initialCollapsedRows 产物）叠加标记路径强制展开——
  *  种子按文档序贪心移除祖先出折叠集（种子自身=「最小含标记容器」保持默认态）；
- *  展开容器总数（有子节点且不在折叠集）超预算即跳过该种子（其标记留在折叠祖先的
- *  ●N 里，点击展开仍可达）。返回新折叠集 */
-export function markAwareCollapsed(rows: Block[], defaults: Iterable<string>, mti: MarkTreeInfo, budget = MARK_CONTAINER_BUDGET): Set<string> {
+ *  展开容器总数（有子节点且不在折叠集）超极端兜底预算才跳过该种子（其标记留在折叠
+ *  祖先的 ●N 里，点击展开仍两段可达）。返回新折叠集 */
+export function markAwareCollapsed(rows: Block[], defaults: Iterable<string>, mti: MarkTreeInfo, budget = MARK_CONTAINER_FALLBACK_BUDGET): Set<string> {
     const out = new Set(defaults);
     const tree = buildTreeIndex(rows);
     const hasKids = (id: string) => (tree.childrenOf.get(id)?.length ?? 0) > 0;
@@ -255,4 +239,50 @@ export function marksKeepSet(rows: Block[], mti: MarkTreeInfo | null): Set<strin
         while (cur) { keep.add(cur); cur = tree.parentOf.get(cur); }
     }
     return keep;
+}
+
+/** □4 默认摊开集：全部持有标记叶卡的容器（bear 拍板「标记的都得展开」——总量截流
+ *  退役，>30 与 ≤30 同形全摊；卡片可达性上限由 MARK_CONTAINER_FALLBACK_BUDGET 的
+ *  路径展开兜底承担，不在卡量上截流）。无标记=空集 */
+export function flatMarkContainers(mti: MarkTreeInfo | null): Set<string> {
+    return new Set(mti?.cards.keys() ?? []);
+}
+
+// ── graphrelayout □5（2026-09-20）：块属性写的 ws 感知（纯函数判定） ──────────
+// 病灶（6809 实锤）：外部 setBlockAttrs 打块标后 marks 档 12s 仍空态卡（0 节点），
+// 不整页重开不进图；切档往返/重开即恢复——数据链/渲染链全通，唯缺触发器：
+// ① updateAttrs op 的 id=块 id 且无 parentID——图 ws 刷新域判定（op.id/parentID===
+// docID）恒不命中；② setBlockAttrs 不碰文档 updated——updated 轮询道也短路；
+// ③ marksChanged 钩子只由 toggleBlockMark（命令/右键）显式调，命令外通道
+// （e2e 造数/互操作插件/未来写该 IAL 的任何入口）零通知。
+// 修：ws 监听加本判定——op.rootID（内核 model/blockial.go pushBlockAttrs 恒带，
+// 09-20 transaction.go Operation json tag 实锤）指文档根，命中走 marksChanged 轻通道
+// （SWR 重拉+退避过索引窗，键集指纹位移才渲染）。
+
+/** ws 事务 ops 里找「当前文档的块属性写」（setBlockAttrs 族广播的 updateAttrs op）。
+ *  文档根自身被写时 op.id===docID 兜底。他文档的属性写/非属性 op 返回 null。
+ *  graphrelayout □2 review：纯布局键写（custom-graph-layout/isVertical——旧档收敛
+ *  自触发）不命中——收敛写必然不动标记集，命中只会白跑 marksChanged 四发退避重拉；
+ *  判据=op.Data.{old,new} 差动键集（内核 blockial.go pushBlockAttrs 两张全量 IAL）
+ *  ⊆ 布局键。Data 缺 old/new（异构 op）保守放行不滤 */
+export function findDocAttrsOp(
+    ops: Array<{ action?: string; id?: string; parentID?: string; rootID?: string; data?: unknown }>,
+    docID: string,
+): { action?: string; id?: string; parentID?: string; rootID?: string; data?: unknown } | null {
+    return ops.find(op => op?.action === "updateAttrs"
+        && (op.rootID === docID || op.id === docID)
+        && !isPureLayoutAttrsOp(op)) ?? null;
+}
+
+const LAYOUT_CONVERGE_KEYS = new Set(["custom-graph-layout", "custom-graph-isVertical"]);
+
+function isPureLayoutAttrsOp(op: { data?: unknown }): boolean {
+    const d = op?.data as { old?: Record<string, unknown>; new?: Record<string, unknown> } | undefined;
+    if (!d || typeof d !== "object" || !d.old || !d.new) return false;
+    const keys = new Set([...Object.keys(d.old), ...Object.keys(d.new)]);
+    for (const k of keys) {
+        if (LAYOUT_CONVERGE_KEYS.has(k)) continue;
+        if ((d.old[k] ?? "") !== (d.new[k] ?? "")) return false;
+    }
+    return true;
 }

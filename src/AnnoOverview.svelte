@@ -563,8 +563,11 @@
         flex: none;
         display: flex;
         align-items: flex-start;
-        padding: 2px 5px 5px 2px;
-        margin: -2px 0 -5px -2px; /* 热区外扩到 24px 档不顶卡内边距（vision 终审 P2-1 修） */
+        /* annofix-0918 □7 P2-2（tailbatch □5）：四边 5px+等量负 margin——热区 21→24px 档，
+           padding/margin 同侧等值相消=复选框视觉位置与卡内文字间距零变化（右侧 margin
+           保 0：与正文的 5px 视觉间隙不动） */
+        padding: 5px;
+        margin: -5px 0 -5px -5px;
         cursor: pointer;
         /* 选择模式常显（annofix-0918 □1 方案 A 取代 anno-fix □4 hover 显隐）：
            纯浏览态整块不渲染=无占位无痕迹，框只在选择模式内出现 */
