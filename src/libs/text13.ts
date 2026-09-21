@@ -177,20 +177,23 @@ export abstract class TomatoI18nABC13 extends TomatoI18nABC14 {
             default: return "Mobile";
         }
     }
-    public get 特殊绑定当天日志() {
+    // fballfb □5：「特殊：绑定当天日志」（借道文档表单的预填按钮）重做为一键
+    // 「添加绑定当天日记」——旧键随形态退役删除；添加排按钮复用基类「当天日记」
+    // 键（tomatoI18n.ts，Daily note 通行叫法，值同语境）
+    public get 添加绑定当天日记() {
         switch (this.lang) {
-            case "zh_CN": return "特殊：绑定当天日志";
-            case "es_ES": return "Especial: vincular el registro del día";
-            case "fr_FR": return "Spécial : lier le journal du jour";
-            case "ja_JP": return "特別：当日のログをバインド";
-            case "zh_CHT": return "特殊：綁定當天日誌";
-            case "it_IT": return "Speciale: associa il registro del giorno";
-            case "de_DE": return "Speziell: Tagesprotokoll binden";
-            case "he_IL": return "מיוחד: קישור יומן היום";
-            case "ru_RU": return "Особое: привязать журнал за день";
-            case "pl_PL": return "Specjalne: powiąż dziennik dnia";
+            case "zh_CN": return "添加绑定当天日记";
+            case "es_ES": return "Añadir el diario de hoy";
+            case "fr_FR": return "Ajouter le journal du jour";
+            case "ja_JP": return "今日の日記を追加";
+            case "zh_CHT": return "新增綁定當天日記";
+            case "it_IT": return "Aggiungi il diario di oggi";
+            case "de_DE": return "Heutiges Tagebuch hinzufügen";
+            case "he_IL": return "הוסף את יומן היום";
+            case "ru_RU": return "Добавить дневник за сегодня";
+            case "pl_PL": return "Dodaj dziennik na dziś";
             case "en_US":
-            default: return "Special: bind today's log";
+            default: return "Add today's diary";
         }
     }
     public 非VIP上限为x个(x: number, unit: string) {

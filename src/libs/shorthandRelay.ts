@@ -7,8 +7,9 @@ import { debugLog } from "./logUtils";
 import { events } from "./Events";
 import { collectBlockAttrs, lifelogAttrs, ymdFromCreated, LifeTag } from "./dailyCollect";
 import { DomSuperBlockBuilder } from "./sydom";
+import { coerceFlashBlockForm, relayBareEligible } from "./flashBlockForm";
 import { siyuan, sleep } from "./utils";
-import { flash_thoughts_2_top, flashStatTag, shorthandRelayEnabled, storeNoteBox_selectedNotebook } from "./stores";
+import { flash_thoughts_2_top, flashBlockForm, flashStatTag, shorthandRelayEnabled, storeNoteBox_selectedNotebook } from "./stores";
 import { tomatoI18n } from "../tomatoI18n";
 
 /** 日记落点解析（NoteBox.getTargetID 注入——本模块不 import NoteBox：其 .svelte 依赖会
@@ -106,8 +107,17 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver): Promi
     const dayID = await getTarget(box);
     if (!dayID) return;
 
-    // 条级容器（□1 协议 v1：idea-time=条输入时刻；ref-hpath 无源省略）
-    const builders = entries.map(e => {
+    // 条级容器（□1 协议 v1：idea-time=条输入时刻；ref-hpath 无源省略）。□4 落块形态跟随
+    // 开关（fballfb 2026-09-21）：para/list 形态下「恰一块且为段落」的条目免壳直搬（块自身
+    // 挂收集属性）；多块/非 p 条目维持 sb 收纳（裸形态装不下多块，壳对收纳必要——
+    // relayBareEligible 纯函数，单测覆盖）。混合期（开关切换后旧 sb 条目与新裸条目并存）
+    // 两组各自保序，组间按 wrapped→bare 分层
+    const form = coerceFlashBlockForm(flashBlockForm.get());
+    const typeOf = (id: string) => children.find(b => b.id === id)?.type;
+    const bareEntries = entries.filter(e => relayBareEligible(form, e.ids, typeOf));
+    const wrappedEntries = entries.filter(e => !bareEntries.includes(e));
+
+    const builders = wrappedEntries.map(e => {
         const b = new DomSuperBlockBuilder();
         b.setAttrs(collectBlockAttrs(hhmmFromCreated(e.stamp)));
         return b;
@@ -126,10 +136,35 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver): Promi
     // 调用方传什么序落什么序，直接传 e.ids 正序；此前「容器目标走 InsertAfter 需传前
     // reverse」系误断（双重反转=容器内块序倒置，多块条目可复现）；容器 id 由前端生成
     // 随 insert DOM 落库保留（cardID 同款）
-    entries.forEach((e, i) => {
+    wrappedEntries.forEach((e, i) => {
         ops.push(...siyuan.transMoveBlocksAsChild(e.ids, builders[i].id));
     });
+    // □4 bare 条目直搬（无 sb 壳）：头插=整组一次 AsChild（净契约同上正序）；尾插=滚动
+    // 锚逐条 After（锚=前一条末块，跟在 wrapped 末容器/文档尾块之后）
+    if (bareEntries.length > 0) {
+        if (flash_thoughts_2_top.get()) {
+            ops.push(...siyuan.transMoveBlocksAsChild(bareEntries.flatMap(e => e.ids), dayID));
+        } else {
+            let anchor = builders.length > 0
+                ? builders[builders.length - 1].id
+                : await siyuan.getDocLastID(dayID);
+            for (const e of bareEntries) {
+                if (!anchor) break;
+                ops.push(...siyuan.transMoveBlocksAfter(e.ids, anchor));
+                anchor = e.ids[e.ids.length - 1] ?? anchor;
+            }
+            if (!anchor) ops.push(...siyuan.transMoveBlocksAsChild(bareEntries.flatMap(e => e.ids), dayID));
+        }
+    }
     await siyuan.transactions(ops);
+    // □4 bare 条目属性挂块自身（事务后 setBlockAttrs，单条失败吞错留痕不阻断搬运主链）
+    for (const e of bareEntries) {
+        try {
+            await siyuan.setBlockAttrs(e.ids[0], collectBlockAttrs(hhmmFromCreated(e.stamp)));
+        } catch (err) {
+            debugLog("shorthand_relay", `bare attrs fail stamp=${e.stamp}: ${err}`, "dailynote");
+        }
+    }
     // □3 落点 B：开关开时逐条补时间记录标记（与 □2 落点 A 同协议，生态四键识别面）。
     // 单条失败吞错留痕不阻断（搬运主链已成功，标记属锦上添花）；无段落块条目跳过
     if (flashStatTag.get()) {

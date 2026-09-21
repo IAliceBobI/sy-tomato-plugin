@@ -87,22 +87,8 @@ export class DialogText {
     }
 }
 
-export function dialog2floating(dialog: Dialog, _position: { x: string, y: string }) {
-    const b3Dialog = dialog?.element?.querySelector(".b3-dialog") as HTMLElement
-    if (b3Dialog) {
-        b3Dialog.style.width = "auto"
-        b3Dialog.style.height = "auto"
-        // b3Dialog.style.left = "10px"
-        // b3Dialog.style.top = (document.body.clientHeight / 2 - b3Dialog.clientHeight / 2) + "px"
-        // b3Dialog.style.pointerEvents = "none";
-
-        const scrim = b3Dialog.querySelector(".b3-dialog__scrim") as HTMLElement
-        scrim?.parentElement?.removeChild(scrim);
-
-        // const container = b3Dialog.querySelector(".b3-dialog__container") as HTMLElement
-        // if (container) container.style.pointerEvents = "initial";
-    }
-}
+// fballfb □5：dialog2floating（dialog 型拖动常驻的视觉处理：去 scrim+auto 尺寸）随
+// dialog 型退役删除——悬浮窗常驻形态统一走 float 型（FloatingBallProtyleDialog）
 
 export function showDialog(mount: (target: HTMLElement, dm: DestroyManager) => any, opt: Partial<ConstructorParameters<typeof Dialog>[0]>) {
     if (!opt.width) opt.width = events.isMobile ? "90vw" : "700px";

@@ -8,11 +8,11 @@
         floatingballDocMenu,
         floatingballDocTabMenu,
         floatingballDocOpenBottom,
+        floatingballKeepBall,
         floatingballEnable,
     } from "./libs/stores";
     import {
         FloatingBallDocType_autoclose,
-        FloatingBallDocType_dialog,
         FloatingBallDocType_float,
         FloatingBallDocType_tab,
         FloatingBallNotVIPLimit,
@@ -43,10 +43,18 @@
     let addDoc_keyboardShift = $state(false);
     let addDoc_keyboardCtrl = $state(false);
     let addDoc_useDialog = $state(FloatingBallDocType_float.id);
+    // fballfb □5：一键添加当天日记球（bear「特殊：绑定当天日志」重做——不再借道文档
+    // 表单预填 $$dailynote，独立入口选好打开方式直接创建；选择只存会话态不落盘，
+    // 默认 float=推荐形态）
+    let addDailySettings: HTMLElement = $state();
+    let addDaily_useDialog = $state(FloatingBallDocType_float.id);
 
     onMount(() => {
         if (addDocSettings?.style?.display) {
             addDocSettings.style.display = "none";
+        }
+        if (addDailySettings?.style?.display) {
+            addDailySettings.style.display = "none";
         }
         if (addShortcutSettings?.style?.display) {
             addShortcutSettings.style.display = "none";
@@ -77,11 +85,9 @@
             case FloatingBallDocType_tab.id:
                 docTypeStr = FloatingBallDocType_tab.txt;
                 break;
-            case FloatingBallDocType_dialog.id:
-                docTypeStr = FloatingBallDocType_dialog.txt;
-                break;
             case FloatingBallDocType_autoclose.id:
-                docTypeStr = FloatingBallDocType_autoclose.txt;
+                // □11 P1：列表后缀只用短模式名（txt 完整说明留 radio 文案），免三层括号
+                docTypeStr = FloatingBallDocType_autoclose.short;
                 break;
             case FloatingBallDocType_float.id:
                 docTypeStr = FloatingBallDocType_float.txt;
@@ -216,6 +222,12 @@
         addDoc_results = [];
     }
     let addDoc_selectedID = $state("");
+
+    // fballfb □5：一键创建当天日记球（$$dailynote 特殊名=execute 每次点击现建当天日记；
+    // icon 沿用旧「特殊：绑定当天日志」预填值 🗓️📒，行为等价迁移）
+    function bindDailyBall() {
+        linkDoc2floatBall("$$dailynote", "🗓️📒", addDaily_useDialog);
+    }
 
     function addKeyboardBall() {
         if (!addDoc_keyboardKeyCode) return;
@@ -399,6 +411,11 @@
                 <input type="checkbox" class="b3-switch" bind:checked={$floatingballDocOpenBottom} />
                 {tomatoI18n.悬浮文档打开时跳到底部}
             </div>
+            <!-- fballfb □3：悬浮窗形态球驻留——开=点球开窗球常驻、再点球关窗；关=现状开窗即消失让位 -->
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$floatingballKeepBall} />
+                {tomatoI18n.悬浮文档打开后保留悬浮球}
+            </div>
             <!-- 列出球绑定（期1 统一列表：文档/快捷键两堆合一）；□7：超限 ⚠️ 挂 .alert 行内块，
                  外层整体条件渲染避免空行占位 -->
             {#if (docBallCount > FloatingBallNotVIPLimit || kbBallCount > FloatingBallNotVIPLimit) && !lastVerifyResult()}
@@ -476,6 +493,15 @@
                         toggleDiv(addDocSettings);
                     }}
                     >{@html icon("Add", 13)}{tomatoI18n.文档}
+                </button>
+                <!-- fballfb □5：一键日记球独立入口（原「特殊：绑定当天日志」藏在文档表单里的
+                     预填按钮，bear 拍板重做为一键添加） -->
+                <button
+                    class="b3-button b3-button--outline"
+                    onclick={() => {
+                        toggleDiv(addDailySettings);
+                    }}
+                    >{@html icon("Add", 13)}{tomatoI18n.当天日记}
                 </button>
                 <button
                     class="b3-button b3-button--outline"
@@ -621,6 +647,9 @@
                         </div>
                     {/if}
                 </div>
+                <!-- fballfb □5（bear 拍板）：radio 组加「打开方式」标题（原四个无标题 radio
+                     靠猜）；dialog 型砍除后三选 -->
+                <div class="spacetop ft__on-surface">{tomatoI18n.打开方式}</div>
                 <div class="spacetop">
                     <label class="space">
                         <input
@@ -630,15 +659,6 @@
                             bind:group={addDoc_useDialog}
                         />
                         {FloatingBallDocType_tab.txt}
-                    </label>
-                    <label class="space">
-                        <input
-                            type="radio"
-                            name="addDoc_openType"
-                            value={FloatingBallDocType_dialog.id}
-                            bind:group={addDoc_useDialog}
-                        />
-                        {FloatingBallDocType_dialog.txt}
                     </label>
                     <label class="space">
                         <input
@@ -666,13 +686,46 @@
                     }}
                     >{tomatoI18n.绑定文档到悬浮按钮}
                 </button>
+            </div>
+            <!-- 当天日记球配置（fballfb □5 一键重做：不过图标/搜索表单，选打开方式直接创建；
+                 $$dailynote 每次点击现建当天日记，图标固定 🗓️📒，事后可在球列表编辑） -->
+            <div class="fball-add-panel" bind:this={addDailySettings} style="display: none;">
+                <div class="spacetop ft__on-surface">{tomatoI18n.打开方式}</div>
+                <div class="spacetop">
+                    <label class="space">
+                        <input
+                            type="radio"
+                            name="addDaily_openType"
+                            value={FloatingBallDocType_tab.id}
+                            bind:group={addDaily_useDialog}
+                        />
+                        {FloatingBallDocType_tab.txt}
+                    </label>
+                    <label class="space">
+                        <input
+                            type="radio"
+                            name="addDaily_openType"
+                            value={FloatingBallDocType_autoclose.id}
+                            bind:group={addDaily_useDialog}
+                        />
+                        {FloatingBallDocType_autoclose.txt}
+                    </label>
+                    <label class="space">
+                        <input
+                            type="radio"
+                            name="addDaily_openType"
+                            value={FloatingBallDocType_float.id}
+                            bind:group={addDaily_useDialog}
+                        />
+                        {FloatingBallDocType_float.txt}
+                    </label>
+                </div>
                 <button
                     class="b3-button b3-button--outline spacetop"
                     onclick={() => {
-                        addDoc_docName = "$$dailynote";
-                        addDoc_docIcon = "🗓️📒";
+                        bindDailyBall();
                     }}
-                    >{tomatoI18n.特殊绑定当天日志}
+                    >{tomatoI18n.添加绑定当天日记}
                 </button>
             </div>
             <!-- 绑定快捷键配置 -->

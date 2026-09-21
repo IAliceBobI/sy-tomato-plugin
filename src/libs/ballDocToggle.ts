@@ -1,6 +1,5 @@
 import {
     FloatingBallDocType_autoclose,
-    FloatingBallDocType_dialog,
     FloatingBallDocType_float,
     FloatingBallDocType_tab,
 } from "./gconst";
@@ -8,8 +7,8 @@ import { debugLog } from "./logUtils";
 
 // 文档球开关命令（fbfeat □1，2026-09-15 陆杰速记场景）：「显示/隐藏悬浮文档」⌘⇧F8。
 // 纯函数供 docAction 组装——目标选择（最近 doc 球优先）、toggle 决策（float 型
-// 悬浮窗活着才显式 destroyBy 关；dialog/autoclose/tab 型 execute 本就是 toggle 语义
-// ——dialog 系=dialogs 存在则 destroy、tab=closeTab 命中则关）、落底解析（atBottom
+// 悬浮窗活着才显式 destroyBy 关；autoclose/tab 型 execute 本就是 toggle 语义
+// ——autoclose=dialogs 存在则 destroy、tab=closeTab 命中则关）、落底解析（atBottom
 // 时 blockId 传文档尾块 id——openTab 通道 cb-get-hl 滚到尾块=打开即见最新内容）。
 // 「最近」是会话级状态（globalThis 记球 id，petal 写→前端整重载也不丢），重启后
 // 落「第一个启用的 doc 球」兜底。
@@ -23,18 +22,49 @@ export function pickToggleBall(list: BallItem[], lastId: string | undefined, isM
     return docs.find((b) => b.id === lastId) ?? docs[0];
 }
 
-/** openDocType 的 float 语义判定（非法/缺失值兜底按 float——execute 的 switch default
- *  同此语义）。toggle 决策与 execute 必须共用本谓词：两处判定错位会让兜底球的悬浮窗
- *  开着时 toggle 恒判 execute（幂等「确保开」），永远关不掉 */
+/** openDocType 的 float 语义判定（非法/缺失/退役 dialog 值兜底按 float——execute 的
+ *  switch default 同此语义）。toggle 决策与 execute 必须共用本谓词：两处判定错位会让
+ *  兜底球的悬浮窗开着时 toggle 恒判 execute（幂等「确保开」），永远关不掉。
+ *  fballfb □5：dialog 型（id=2）退役后，合法值=1/3/4——存量 2 由 migrateDialogDocBalls
+ *  显式迁移落盘，本谓词对 2 的兜底只救「迁移未跑的异常态」（如手改 petal），不承担
+ *  日常语义 */
 export function isOpenDocTypeFloat(t?: number): boolean {
     return t === FloatingBallDocType_float.id
-        || (t !== FloatingBallDocType_tab.id && t !== FloatingBallDocType_dialog.id && t !== FloatingBallDocType_autoclose.id);
+        || (t !== FloatingBallDocType_tab.id && t !== FloatingBallDocType_autoclose.id);
+}
+
+/** fballfb □5 砍 dialog 型存量迁移（一次性+幂等，migrateKmLabelBalls 同款模式）：
+ *  openDocType=2（对话框dialog，拖动常驻）→ 3（悬浮窗float）——dialog 功能被 float
+ *  完全覆盖（float 多 lastRead 记忆/⌘⇧F8 toggle/跳底直载）。显式数据迁移不靠
+ *  isOpenDocTypeFloat 兜底：兜底只救异常态，合法存量必须改值落盘——否则设置列表
+ *  showName 无型可显、execute 走 float 谓词但存储值仍是 2，后续任何按值比较的
+ *  链路（重绑去重 findIndex by openDocType）语义漂移。返回是否有改动（调用方落盘） */
+export function migrateDialogDocBalls(list: BallItem[]): boolean {
+    const legacyDialogId = 2; // FloatingBallDocType_dialog 退役值（gconst 已摘，值契约留此）
+    let n = 0;
+    for (const b of list ?? []) {
+        if (b?.type === "doc" && b.action?.openDocType === legacyDialogId) {
+            b.action.openDocType = FloatingBallDocType_float.id;
+            n++;
+        }
+    }
+    if (n > 0) debugLog("fball", `migrate dialog->float balls=${n}`, "fball");
+    return n > 0;
 }
 
 /** toggle 动作决策：float 型且悬浮窗活着→"close"（destroyBy）；其余一律 "execute" */
 export function toggleDecision(ball: BallItem, floatOpen: boolean): "close" | "execute" {
     if (isOpenDocTypeFloat(ball.action?.openDocType) && floatOpen) return "close";
     return "execute";
+}
+
+/** fballfb □3「打开后保留悬浮球」点球即开合分流：keep 开→点球走 toggle 语义（float 型
+ *  窗活着→close 关窗——决策与 ⌘⇧F8 同一 toggleDecision）；keep 关→恒 execute 维持现状
+ *  （开窗即杀球后无球可点，keep 关时窗活着的点击本就不存在；tab/dialog/autoclose 型
+ *  execute 内建 toggle，不经此分流恒 execute） */
+export function keepBallClickDecision(keepBall: boolean, ball: BallItem, floatOpen: boolean): "close" | "execute" {
+    if (!keepBall) return "execute";
+    return toggleDecision(ball, floatOpen);
 }
 
 /** 落底 blockId：atBottom 且尾块在→尾块 id；不落底/空 docID/空文档/查询异常→docID 回退 */
@@ -147,6 +177,95 @@ export function jumpDocBottomViaSlider(container: HTMLElement, timeoutMs = 15000
     tick();
 }
 
+/** fballfb □14（bear 09-21「跳底后随时可打字」）：跳底落光标——光标钉尾块块尾的
+ *  「打开即续写」语义，与 tab 通道 focusIDOf 的 cb-get-focus 豁免（bear 09-20）对齐，
+ *  不加新开关（跟 openBottom 走：开关开=跳底+落光标，关=现状不动 selection）。悬浮窗/
+ *  dialog 内 new Protyle 构造不消费定位 action（在档坑），只能渲染后 DOM 自实现：
+ *  轮询至尾块在场（expectedTailId 有值时须渲染末块=真尾，懒加载窗口教训同
+ *  isDocBottomScrolled）→ 尾块最后一个 contenteditable 元素 focus({preventScroll})+
+ *  Range 落其内容末尾（超级块/列表尾块取内层最后一个编辑落点=续写位；focus 才能把
+ *  activeElement 从主窗拽进来——只放 selection 不聚焦，键盘输入仍落主窗）。
+ *  收敛判据=「光标真在尾块」连续 3 拍（600ms）稳定，而非「setRange 执行过」——异步
+ *  渲染重画可能清打回光标，打回即重放（fbfeat □1 抢跑对抗同款）。用户接管即停：
+ *  窗外 pointerdown/keydown（主窗打字不被劫持——窗可能是 openOnCreate 自动开的）、
+ *  光标已被放进窗内其他块（点击了文档中部）。取舍：拖窗标题栏（container 外
+ *  pointerdown）也判接管放弃自动光标——第一动作非打字，点内容区原生落光标。
+ *  超时/detached 安静放弃（优雅降级=滚动已到底，点尾块即可打字）。 */
+export function focusTailForTyping(
+    container: HTMLElement,
+    expectedTailId?: string,
+    timeoutMs = 8000,
+    onDone?: (why: string) => void,
+): void {
+    const t0 = Date.now();
+    debugLog("fball", `tail-focus start expect=${expectedTailId ? expectedTailId.slice(-6) : "-"} timeout=${timeoutMs}`, "fball");
+    let stable = 0;
+    let userTouched = false;
+    const markUser = (e: Event) => {
+        if (!container.contains(e.target as Node)) userTouched = true;
+    };
+    document.addEventListener("pointerdown", markUser, true);
+    document.addEventListener("keydown", markUser, true);
+    const done = (why: string) => {
+        document.removeEventListener("pointerdown", markUser, true);
+        document.removeEventListener("keydown", markUser, true);
+        debugLog("fball", `tail-focus ${why} at ${Date.now() - t0}ms`, "fball");
+        onDone?.(why);
+    };
+    const tick = () => {
+        if (!container.isConnected) {
+            done("abort:detached");
+            return;
+        }
+        if (userTouched) {
+            done("abort:user");
+            return;
+        }
+        const sel = document.getSelection();
+        const anchorNode = sel?.rangeCount ? sel.getRangeAt(0).startContainer : null;
+        const anchorEl = anchorNode
+            ? (anchorNode.nodeType === Node.ELEMENT_NODE ? (anchorNode as Element) : anchorNode.parentElement)
+            : null;
+        const wys = container.querySelector(".protyle-wysiwyg");
+        const blocks = wys ? wys.querySelectorAll(":scope > [data-node-id]") : [];
+        const tail = blocks[blocks.length - 1] as HTMLElement | undefined;
+        if (anchorEl && container.contains(anchorEl)) {
+            if (tail && (anchorEl === tail || tail.contains(anchorEl))) {
+                // 光标在尾块（我们放的或用户点的）——目标态，连续稳定才放手防重画打回
+                if (++stable >= 3) {
+                    done("settled");
+                    return;
+                }
+            } else {
+                done("user:focus-elsewhere");
+                return;
+            }
+        } else {
+            stable = 0;
+            const tailId = tail?.getAttribute("data-node-id");
+            if (tail && (!expectedTailId || tailId === expectedTailId)) {
+                const editables = tail.querySelectorAll('[contenteditable="true"]');
+                const host = (editables[editables.length - 1] as HTMLElement | undefined)
+                    ?? (tail.isContentEditable ? tail : undefined);
+                if (host) {
+                    host.focus({ preventScroll: true });
+                    const range = document.createRange();
+                    range.selectNodeContents(host);
+                    range.collapse(false);
+                    sel?.removeAllRanges();
+                    sel?.addRange(range);
+                }
+            }
+        }
+        if (Date.now() - t0 > timeoutMs) {
+            done("TIMEOUT");
+            return;
+        }
+        setTimeout(tick, 200);
+    };
+    tick();
+}
+
 // ── luji0918 □1 修法②：记忆位置（重开回上次看到的地方）──────────────────────────────
 // 通道选型：长文档懒加载下重开是头窗构造，关闭时视口里的块多半不在新头窗 DOM 里——
 // scrollIntoView 够不到未渲染块；内核官方「重开恢复阅读位置」管线=getDocByScroll
@@ -252,15 +371,33 @@ export function tailReadPositionOf(tail: { id?: string }[] | undefined | null): 
     return { startId: first, endId: last, scrollTop: TAIL_SCROLL_TOP };
 }
 
-/** 跳底直载预取判定：openBottom 开且无 restore 档可回才预取（restore 优先于跳底——
- *  优先级在 docAction 预取侧与组件构造侧必须同判，错位=白跑请求或漏跳底）。
- *  dailyNote（$$dailynote 现建日记，docID≠action.docID）restore 恒 miss，恒预取 */
-export function shouldPrefetchTail(
-    openBottom: boolean,
-    lastRead?: { startId?: string; endId?: string } | null,
-    dailyNote?: boolean,
-): boolean {
-    if (!openBottom) return false;
-    if (dailyNote) return true;
-    return !(!!lastRead?.startId && !!lastRead?.endId);
+/** 跳底直载预取判定：openBottom 开恒预取（fballfb □2，bear 09-21 拍板「开关开=必跳底」
+ *  ——此前 restore 档优先于跳底：球存过 lastRead 就恢复、开关开了也不跳，与 tab 链
+ *  （focusIDOf 不看 lastRead）行为分裂，陆杰 08:15 反馈+bear 实锤）。忽略 lastRead/
+ *  dailyNote（旧参数已退役——dailyNote 恒预取本就是新语义子集）；开关关=不预取，
+ *  组件侧维持现行 restore 优先语义。判定与组件构造侧必须同口径，错位=白跑请求或漏跳底 */
+export function shouldPrefetchTail(openBottom: boolean): boolean {
+    return openBottom;
+}
+
+/** fballfb □2 落底留白标记类：挂 .protyle-wysiwyg 上，压制的 !important CSS 留在
+ *  组件 scoped style（悬浮窗/dialog 各自的量级随组件走） */
+export const FBALL_TAIL_PAD_CLASS = "fball-tail-pad";
+
+/** fballfb □2 落底留白：跳底落位后编辑器底部留一段空白（尾行/光标不贴视口底边，
+ *  bear 09-21 拍板「跳底了就留白」不加新开关）。借内核打字机模式思路不改内核
+ *  （initUI getPadding：typewriterMode→bottom=element.clientHeight/2 写 wysiwyg
+ *  padding）——「量级=容器高一半」与「padding 挂滚动容器内容元素=可滚入的滚动区
+ *  非死区」两点照搬；实现不同：内核 afterOnGet 会跑 resize→setPadding（index.ts:573）
+ *  以内联 style.padding 覆写插件内联值（e2e 实测留白被 16px 顶掉）——内联打不过
+ *  内联，改挂标记类+组件 !important CSS（样式表 !important 恒胜内联非 !important，
+ *  无时序竞态）。构造返回后同步挂（内核构造器同步 initUI：wysiwyg DOM 已在而
+ *  getDoc 异步在后）——onGet 的 scrollTop 直赋（onGet.ts:627）与 observerLoad
+ *  同值重申（:671）按含留白的 scrollHeight clamp 收底=尾行一次渲染落位悬在底边
+ *  上方，无二段观感。返回还原函数（摘类，卸窗/复用容器时防样式泄漏） */
+export function applyBottomPad(container: HTMLElement): () => void {
+    const wys = container.querySelector(".protyle-wysiwyg") as HTMLElement | null;
+    if (!wys) return () => { };
+    wys.classList.add(FBALL_TAIL_PAD_CLASS);
+    return () => { wys.classList.remove(FBALL_TAIL_PAD_CLASS); };
 }

@@ -101,10 +101,15 @@ export const BlockTypeNoContent: readonly string[] = [
 // }
 
 export const FloatingBallNotVIPLimit = 3;
-export const FloatingBallDocType_tab = { txt: "页签tab", id: 1 };
-export const FloatingBallDocType_dialog = { txt: "对话框dialog", id: 2 };
-export const FloatingBallDocType_float = { txt: "悬浮窗float", id: 3 };
-export const FloatingBallDocType_autoclose = { txt: "对话框2dialog2", id: 4 };
+// fballfb □5（bear 拍板砍型）：dialog 型（id=2，拖动常驻对话框）退役——功能被 float 完全
+// 覆盖（float 多 lastRead 记忆/⌘⇧F8 toggle/跳底直载），代码差异仅 openByDialog 一个布尔。
+// 存量 openDocType=2 由 migrateDialogDocBalls 显式迁移→float（ballDocToggle.ts），值 2 从
+// 类型表摘除；txt 同步正名（radio 有「打开方式」标题后不再带英文后缀）
+export const FloatingBallDocType_tab = { txt: "新页签", id: 1 };
+export const FloatingBallDocType_float = { txt: "悬浮窗", id: 3 };
+// □11 P1（vision 终审 09-21）：txt 完整说明只用于 radio 文案；绑定列表行后缀走 short
+// 短名——否则 showName 拼出 `名称(对话框（点外自动关）)` 半角套全角三层括号
+export const FloatingBallDocType_autoclose = { txt: "对话框（点外自动关）", short: "对话框", id: 4 };
 
 export enum BlockNodeEnum {
     DATA_HREF = "data-href",

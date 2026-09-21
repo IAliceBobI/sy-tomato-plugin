@@ -13,22 +13,31 @@ import { Siyuan, NewNodeID } from "./globals";
 import { timeUtil } from "./timeUtil";
 import { extractIDs } from "./strUtils";
 import { sleep } from "./miscUtils";
+import { debugLog } from "./logUtils";
 import { getAllFilesAsBigText } from "./fileScanUtils";
 import { cleanDivOnly } from "./blockUtils";
 import { IUILayoutTabSearchConfigTypes } from "./types";
 
 // □6（0954 档）p5 告警节流：轮询环族（渐进分片调度等）在书不可达/索引重建期会以
 // 500ms~1s 间隔反复命中同码错误——同 code+msg 签名 10s 窗内只 warn 一次，保可诊断
-// 性防刷屏（09-14 关笔记本控制台被刷穿实报）。签名按 msg 计（msg 含书 id 时各书
+// 性防刷屏（09-14 关笔记本控制台被刷穿实报）。签名按 msg 计（msg 含书 id/块 id 时
 // 各自节流，条目有限；失控兜底清空）。
+// □1（0921 fball 批）诊断增强：签名并入 url（同 msg 不同端点各自提示，code|msg
+// 语义不变）；文案补 url+调用栈前 5 帧——new Error().stack 在 await 恢复段捕获，
+// V8 异步栈会带出挂起点链路，bundle 后行号可反查产物定位调用方（陆杰报错帖排查
+// 烧多轮难定位的根因之一=旧打点只有 code/msg/reqData）。同步走 debugLog 进 Loki
+// （isMe/dev 端口门控，普通用户零副作用），远程用户日志可直接排查。
 const p5WarnAt = new Map<string, number>();
-function warnP5Throttled(code: unknown, msg: string, reqData: any) {
-    const sig = `${String(code)}|${msg}`;
+function warnP5Throttled(code: unknown, msg: string, reqData: any, url: string) {
+    const sig = `${String(code)}|${url}|${msg}`;
     const now = Date.now();
     if (now - (p5WarnAt.get(sig) ?? 0) < 10_000) return;
     if (p5WarnAt.size > 500) p5WarnAt.clear();
     p5WarnAt.set(sig, now);
-    console.warn(`p5: ${code} ${msg} ${JSON.stringify(reqData)}`);
+    // stack 首行=「Error」本体，其后一行一帧；slice(0,6)=前 5 帧
+    const frames = (new Error().stack ?? "").split("\n").slice(0, 6);
+    console.warn(`p5: ${code} ${msg} ${url} ${JSON.stringify(reqData)}\n${frames.join("\n")}`);
+    debugLog("p5", `code=${code} msg=${msg} url=${url} req=${JSON.stringify(reqData)} stack=${frames.join(" | ")}`, "p5");
 }
 
 export const siyuan = {
@@ -161,7 +170,7 @@ export const siyuan = {
             });
             const json = await data.json();
             if (json?.code && json?.code != 0) {
-                warnP5Throttled(json?.code, json?.msg, reqData);
+                warnP5Throttled(json?.code, json?.msg, reqData, url);
                 return null;
             }
             if (json?.data === undefined)

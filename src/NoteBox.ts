@@ -1,10 +1,10 @@
 import { adaptHotkey, Custom, Dialog, IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { add_ref, convertMinutesToTimeFormat, doubleSupRows, getContenteditableElement, intervalMinutesBetween, isMainWin, NewNodeID, parseIDTimestamp, setTimeouts, siyuan, sleep, sqlQuoteStr, timeUtil, } from "./libs/utils";
+import { add_ref, convertMinutesToTimeFormat, getContenteditableElement, intervalMinutesBetween, isMainWin, NewNodeID, parseIDTimestamp, setTimeouts, siyuan, sleep, sqlQuoteStr, timeUtil, } from "./libs/utils";
 import NoteBoxSvelte from "./NoteBox.svelte";
-import { TOMATO_IDEA_QUEUE } from "./libs/gconst";
+import { DATA_NODE_ID, TOMATO_IDEA_QUEUE } from "./libs/gconst";
 import { DestroyManager } from "./libs/destroyer";
-import { avoiding_cloud_synchronization_conflicts, flash_thoughts_2_top, flash_thoughts_target_file, flashStatTag, noteBoxCheckbox, noteBoxMobileSync, storeNoteBox_fastnote, storeNoteBox_pin, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType } from "./libs/stores";
+import { avoiding_cloud_synchronization_conflicts, flash_thoughts_2_top, flash_thoughts_target_file, flashBlockForm, flashStatTag, noteBoxCheckbox, noteBoxMobileSync, storeNoteBox_fastnote, storeNoteBox_pin, storeNoteBox_selectedNotebook, storeNoteBox_selectedNoteType } from "./libs/stores";
 import { lifelogAttrs, shouldRepinDailyNote, ymdFromCreated } from "./libs/dailyCollect";
 import { debugLog } from "./libs/logUtils";
 import { isDailyNoteIal } from "./libs/dailyReview";
@@ -12,7 +12,8 @@ import { isPinned, removeStatusBar } from "./libs/ui";
 import { createRefDoc, OpenSyFile2 } from "./libs/docUtils";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
-import { DomSuperBlockBuilder, domNewLine, md2Divs } from "./libs/sydom";
+import { domNewLine, md2Divs } from "./libs/sydom";
+import { coerceFlashBlockForm, flashAttrs, flashMD, wrapFlashBlocksDOM } from "./libs/flashBlockForm";
 import { newID } from "stonev5-utils";
 import { mount, unmount } from "svelte";
 
@@ -440,6 +441,14 @@ export async function getTargetID(box: string) {
         siyuan.pushMsg(`${tomatoI18n.拍照闪念}：${tomatoI18n.找不到您配置的文件}："${targetFile}"`)
     }
     const note = await siyuan.createDailyNote(box);
+    // fballfb □13：selectedNotebook 指向不存在笔记本（克隆 petal 场景）时内核 code -1
+    // 被 siyuan.call 吞成 null，裸取 .id 抛 TypeError（pageerror）=面板静默不落块——
+    // 判空提示后返回 undefined（getTargetID 本就允许 undefined，docAction execute 同款
+    // 兜底先例 fballtail □7）
+    if (!note?.id) {
+        await siyuan.pushMsg(tomatoI18n.无可用笔记本请先打开, 2500);
+        return;
+    }
     if (events.isMobile) {
         const { y, M, d } = timeUtil.nowYMDStrPad();
         if (shouldRepinDailyNote(noteBox.mobilePinnedYMD, y + M + d)) {
@@ -459,35 +468,28 @@ export function getTime() {
     return time.split(":").slice(0, 2).join(":");
 }
 
-export function getAttr(t?: string): { ial: string; id: string } {
-    const id = NewNodeID();
-    if (t) {
-        return { ial: `{: id="${id}" custom-tomato-idea-time="${getTime()}" alias="${t}"}`, id };
-    } else {
-        return { ial: `{: id="${id}" custom-tomato-idea-time="${getTime()}"}`, id };
-    }
-}
-
 /** 产出待插 markdown 与容器块 id（id 供近期列表点击跳日记定位；Dom 通道自插无 md）。
  *  iconOverride：外部通道（速记器）固定类型落块用，不传=面板当前选择；
- *  dayID：调用方已解析的落点文档（insertIntoDailynote 必传，省一次 getTargetDoc 往返） */
-async function getContent2insert(text: string, isPic: boolean, iconOverride?: string, dayID?: string): Promise<{ md?: string; id?: string }> {
+ *  dayID：调用方已解析的落点文档（insertIntoDailynote 必传，省一次 getTargetDoc 往返）。
+ *  □4 落块形态三态（flashBlockForm store，libs/flashBlockForm）：super=双层 sb/para=裸段落
+ *  （默认，bear 09-21 拍板）/list=裸列表项——裸形态无壳直落（解「删内容留壳→删壳报错」）。md 通道
+ *  twoStep 形态（列表/任务双层结构 IAL 挂容器，实测坑 09-21）只产裸 md，属性由
+ *  insertIntoDailynote 插完解析 item 本体两步回填 */
+async function getContent2insert(text: string, isPic: boolean, iconOverride?: string, dayID?: string): Promise<{ md?: string; id?: string; twoStep?: boolean; lifelogHost?: string }> {
     const boxID = storeNoteBox_selectedNotebook.getOr();
     text = text.trim();
     const icon = (iconOverride ?? storeNoteBox_selectedNoteType.get()).trim();
+    const form = coerceFlashBlockForm(flashBlockForm.get());
     if (isPic) {
         return { md: text };
     } else if (["💡", "🏞️", "💪", "💬", "🍴", "📚", "💼"].includes(icon)) {
-        const attr = getAttr(icon);
-        return { md: doubleSupRows(text, attr.ial), id: attr.id };
+        const r = flashMD(text, getTime(), form, icon);
+        return { md: r.md, id: r.id, twoStep: r.twoStep };
     } else if (icon === "📌") {
-        text = "* [ ] " + text.replaceAll(/\n+/g, "; ");
-        const attr = getAttr(icon);
-        return { md: doubleSupRows(text, attr.ial), id: attr.id };
+        const r = flashMD(text, getTime(), form, icon, true);
+        return { md: r.md, id: r.id, twoStep: r.twoStep };
     } else {
         const id = await createRefDoc(boxID, icon);
-        const L1 = new DomSuperBlockBuilder();
-        const L2 = new DomSuperBlockBuilder();
         // □4 图片 compose：混合内容（含 ![](…)）走 md2Divs（Lute Md2BlockDOM，行内旗标
         // 已配）真渲染图片块——domNewLine 的文本节点通道会把图片语法落成字面文本；
         // 纯文本维持 domNewLine 原样（原文以字面文本入库，不走 markdown 解析）
@@ -503,64 +505,103 @@ async function getContent2insert(text: string, isPic: boolean, iconOverride?: st
             textDiv = domNewLine();
             blocks.unshift(textDiv);
         }
-        for (const b of blocks) L2.append(b);
-        L1.append(L2.build());
         add_ref(textDiv, id, icon, false, false);
-        L1.setAttr("custom-tomato-idea-time", getTime());
         const targetDoc = dayID ?? await getTargetDoc();
-        const html = L1.build().outerHTML;
+        // □4 三态包装：para=多块平铺属性挂内容锚/list=单 li 收块属性挂 li/super=双层 sb（原状）
+        const w = wrapFlashBlocksDOM(blocks, textDiv, form, getTime());
         if (flash_thoughts_2_top.get()) {
             // 只能放到这里，不能放到insertIntoDailynote，只能插入到编辑器，刷新消失。
             //
             // 未解之谜！！！
-            await siyuan.insertBlocksAsChildOf([html], targetDoc);
+            await siyuan.insertBlocksAsChildOf(w.htmls, targetDoc);
         } else {
             const lastID = await siyuan.getDocLastID(targetDoc);
-            await siyuan.insertBlocksAfter([html], lastID);
+            await siyuan.insertBlocksAfter(w.htmls, lastID);
         }
-        return { id: L1.id };
+        return { id: w.blockID, lifelogHost: w.bare ? textDiv.getAttribute(DATA_NODE_ID) ?? undefined : undefined };
     }
 }
 
-// save to dailynote（返回值=收集容器块 id，近期列表点击跳转用；图片兜底通道无容器）。
+// save to dailynote（返回值=收集容器/条目块 id，近期列表点击跳转用；图片兜底通道无容器）。
 // iconOverride：速记器等外部通道固定类型（不走面板当前选择），落块与其完全同构
 export async function insertIntoDailynote(text: string, isPic = false, iconOverride?: string): Promise<string | undefined> {
     const dayID = await getTargetDoc();
     const r = await getContent2insert(text, isPic, iconOverride, dayID);
     if (!r.md) {
-        // flashlog □2：DOM 支容器直插完成即回填（L1 预挂 id 事务通道保留）
-        tagLifelogAfterInsert(r.id, text, isPic, iconOverride);
+        // flashlog □2：DOM 支容器直插完成即回填（预挂 id 事务通道保留）；□4 bare 形态宿主=内容锚
+        tagLifelogAfterInsert(r.lifelogHost, r.lifelogHost ? undefined : r.id, text, isPic, iconOverride);
         return r.id;
     }
-    if (flash_thoughts_2_top.get()) {
-        await siyuan.insertBlockAsChildOf(r.md, dayID);
+    let blockID = r.id;
+    let lifelogHost = r.id;
+    if (r.twoStep) {
+        // □4 两步形态：列表/任务双层结构 IAL 内嵌挂容器（实测坑 09-21）——插裸块后解析
+        // item 本体补属性。响应首 id=外层容器；getChildBlocks=blocktree 直读 insert 响应
+        // 后零等待（在档契约）
+        const resp = flash_thoughts_2_top.get()
+            ? await siyuan.insertBlockAsChildOf(r.md, dayID)
+            : await siyuan.appendBlock(r.md, dayID);
+        const cID = firstOpID(resp);
+        const itemID = cID ? await firstTypedChild(cID, "i") : undefined;
+        if (itemID) {
+            const icon = (iconOverride ?? storeNoteBox_selectedNoteType.get()).trim();
+            await siyuan.setBlockAttrs(itemID, flashAttrs(getTime(), icon));
+            // lifelog 宿主=内层 p（生态四键识别面 type='p' 契约），无 p（纯子列表等）退化 item 自身
+            lifelogHost = (await firstTypedChild(itemID, "p")) ?? itemID;
+            blockID = itemID;
+        } else if (cID) {
+            // 解析失败兜底：属性挂容器保识别（近期列表定位容器仍有效），留痕不阻断
+            await siyuan.setBlockAttrs(cID, flashAttrs(getTime()));
+            blockID = cID;
+            lifelogHost = cID;
+            debugLog("flashlog", `two-step item resolve fail, attrs fallback to container ${cID}`, "dailynote");
+        }
     } else {
-        await siyuan.appendBlock(r.md, dayID);
+        if (flash_thoughts_2_top.get()) {
+            await siyuan.insertBlockAsChildOf(r.md, dayID);
+        } else {
+            await siyuan.appendBlock(r.md, dayID);
+        }
     }
-    // flashlog □2：md 支插完回填（r.id=doubleSupRows 预挂容器 id，markdown 通道显式 id 被认领）
-    tagLifelogAfterInsert(r.id, text, isPic, iconOverride);
-    return r.id;
+    // flashlog □2：md 支插完回填（预挂 id markdown 通道被认领）；super 形态下钻首个 p
+    tagLifelogAfterInsert(lifelogHost, lifelogHost ? undefined : blockID, text, isPic, iconOverride);
+    return blockID;
 }
 
-/** flashlog □2：开关开时给收集容器内首个段落块补时间记录标记（content=闪念全文、
- *  type=所选类型、time=落块时刻）。fire-and-forget：标记失败不阻断落块主链（debugLog
- *  留痕）；图片通道（无容器/无文本语义）与开关关时零行为 */
-function tagLifelogAfterInsert(containerID: string | undefined, text: string, isPic: boolean, iconOverride?: string) {
-    if (!flashStatTag.get() || !containerID || isPic) return;
+/** 插入响应首 op 块 id（appendBlock/insertBlock data=[{doOperations:[{id}]}]，siyuan.call
+ *  已解包；形态不符返 undefined 走兜底） */
+function firstOpID(resp: unknown): string | undefined {
+    const ops = (resp as { doOperations?: { id?: string }[] }[] | null)?.[0]?.doOperations;
+    return Array.isArray(ops) ? ops[0]?.id : undefined;
+}
+
+/** 首个指定短型 type 子块 id（getChildBlocks 词表=SQL 短型 'p'/'i'/'l'/'s'） */
+async function firstTypedChild(id: string, type: string): Promise<string | undefined> {
+    const kids = await siyuan.getChildBlocks(id);
+    return (kids ?? []).find(k => k.type === type)?.id;
+}
+
+/** flashlog □2+□4：开关开时给闪念内容段落块补时间记录标记（content=闪念全文、
+ *  type=所选类型、time=落块时刻）。host=已知宿主块 id（□4 bare 形态=落块时已定：裸段落/
+ *  列表项自身或内层 p）；host 空而 drillFrom 给出=super 形态从收集容器下钻。fire-and-forget：
+ *  标记失败不阻断落块主链（debugLog 留痕）；图片通道（无容器/无文本语义）与开关关时零行为 */
+function tagLifelogAfterInsert(host: string | undefined, drillFrom: string | undefined, text: string, isPic: boolean, iconOverride?: string) {
+    if (!flashStatTag.get() || (!host && !drillFrom) || isPic) return;
     const type = (iconOverride ?? storeNoteBox_selectedNoteType.get()).trim();
     void (async () => {
         try {
-            const pID = await firstParaBlock(containerID);
+            const pID = host ?? await firstParaBlock(drillFrom as string);
             if (!pID) return;
             await siyuan.setBlockAttrs(pID, lifelogAttrs({ content: text.trim(), type, time: getTime() }));
         } catch (e) {
-            debugLog("flashlog", `tag fail container=${containerID}: ${e}`, "dailynote");
+            debugLog("flashlog", `tag fail host=${host} drill=${drillFrom}: ${e}`, "dailynote");
         }
     })();
 }
 
 /** 收集容器（可能双层 sb）内首个段落块 id：getChildBlocks 只返第一层，须递归下钻；
- *  图/代码块等非段落跳过（首 p=闪念正文所在块） */
+ *  图/代码块等非段落跳过（首 p=闪念正文所在块）。□4 起 super 形态专用（bare 形态宿主
+ *  落块时已定） */
 async function firstParaBlock(id: string): Promise<string | undefined> {
     const kids = await siyuan.getChildBlocks(id);
     for (const k of kids) {

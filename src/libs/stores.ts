@@ -779,6 +779,12 @@ export const shorthandRelayEnabled = settingFactory("shorthandRelayEnabled", fal
 // 默认关=新功能不惊喜。运行时落点判（insertIntoDailynote/shorthandRelay/moveFromQueue 三点），
 // 非 onload 注册读死类，不进 STRUCTURAL_KEYS
 export const flashStatTag = settingFactory("flash-stat-tag", false, STORAGE_SETTINGS, null as TSK);
+// □4 速记落块形态（fballfb 2026-09-21）：super=超级块/para=段落块（默认，bear 09-21 拍板：
+// 简单不裹容器）/list=列表项块——后两者无壳直落（解「删内容留壳→删壳报错」）；构造与搬运
+// 判定收拢 libs/flashBlockForm.ts。存量不迁移（旧 sb 块原样、显式存过 super 的照旧 super）；
+// 勿让开关切换重写已有块（updateBlock 不迁移 custom-* 属性，在档坑）。运行时落点判
+// （insertIntoDailynote/shorthandRelay），非 onload 注册读死类，不进 STRUCTURAL_KEYS
+export const flashBlockForm = settingFactory("flash-block-form", "para", STORAGE_SETTINGS, null as TSK);
 // □4 全局小窗失焦自动关（2026-09-06，小记 quick-notes 可移植增强）：子窗失焦即落盘草稿并关窗；
 // pin 住 / 选图对话框在途 / 上传在途时不关。默认开=对标杆品速记手感（草稿持久化不丢内容）
 export const flashThoughtsBlurClose = settingFactory("flashThoughtsBlurClose", true, STORAGE_SETTINGS, null as TSK);
@@ -839,6 +845,10 @@ export const floatingballKeyboardList = settingFactory("floatingballKeyboardList
 export const floatingballBallList = settingFactory("floatingballBallList", [] as BallItem[], STORAGE_SETTINGS, null as TSK);
 // fbfeat □1：文档球打开落底（速记「接着写」场景；默认关与 dailyNoteGoToBottom 先例一致）
 export const floatingballDocOpenBottom = settingFactory("floatingballDocOpenBottom", false, STORAGE_SETTINGS, null as TSK);
+// fballfb □3：「打开后保留悬浮球」——开=悬浮窗形态球常驻（点一下开窗、再点一下关窗，
+// execute float 分支不再反杀球本体/不写 openOnCreate）；关=维持现状「开窗即消失让位」
+// （老用户行为不突变，默认关）
+export const floatingballKeepBall = settingFactory("floatingballKeepBall", false, STORAGE_SETTINGS, null as TSK);
 export const markdownExportPics = settingFactory("markdownExportPics", false, STORAGE_SETTINGS, null as TSK);
 export const mindWireCheckbox = settingFactory("mindWireCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const mindWireEnable = settingFactory("mindWireEnable", true, STORAGE_SETTINGS, null as TSK);

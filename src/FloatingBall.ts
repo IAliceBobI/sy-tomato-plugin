@@ -23,6 +23,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { actionRegistry } from "./actions";
 import { migrateLegacyBalls } from "./libs/ballMigration";
 import { migrateKmLabelBalls } from "./libs/ballKeymap";
+import { migrateDialogDocBalls } from "./libs/ballDocToggle";
 import { cascadeOffset } from "./libs/ballGeometry";
 import { debugLog } from "./libs/logUtils";
 
@@ -194,6 +195,11 @@ export function loadFloatingBall() {
     // □8 存量迁移（独立于上面那次：那边 ballList 非空即早退）：官方快捷键球 label
     // 原始键 → action.km。只读 keymap config（boot 早期就绪），不碰 languages。
     if (migrateKmLabelBalls(floatingballBallList.get() ?? [], (window as any).siyuan?.config?.keymap)) {
+        floatingballBallList.write();
+    }
+    // fballfb □5 存量迁移：砍 dialog 型——openDocType=2 → float(3)（显式数据迁移，
+    // 语义见 migrateDialogDocBalls 注释）
+    if (migrateDialogDocBalls(floatingballBallList.get() ?? [])) {
         floatingballBallList.write();
     }
     if (floatingballEnable.get()) {

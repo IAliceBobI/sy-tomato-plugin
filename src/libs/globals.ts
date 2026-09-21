@@ -26,6 +26,13 @@ export function NewConfiguredLute(): Lute {
     // sb 超级块解析（官方 setLute 共享单例同款）：不开则 Md2BlockDOM 把 {{{row 落成
     // 字面段落——收集 sb 卡/围栏全平铺（09-16 anno-round2 □2 实弹 vision 实锤）
     lute.SetSuperBlock(true);
+    // 关闭 YAML front matter 解析（09-21 recitesimplify 实锤）：Lute 对 `---` 一族输入
+    // 默认按 front matter 开栏解析——单块 hr 的 markdown 恰是 `---`，Md2BlockDOM 产出
+    // yaml-front-matter 非内容块（且吞掉其后的全部内容），插件任何通道（仿写抽取/对比
+    // 建卷、批注收集）把它塞进 insert 事务=内核校验拒「is not a content block」→
+    // TxErrCodeReloadUI=前端整页大刷新。插件场景喂的都是正文块流，front matter 只会
+    // 误触发；关掉后 `---` 正确产出 NodeThematicBreak（hr 照抄进卷）
+    lute.SetYamlFrontMatter(false);
     return lute as Lute;
 }
 

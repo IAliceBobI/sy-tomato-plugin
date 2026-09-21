@@ -325,7 +325,10 @@ function load_cssFlashThoughts() {
     if (!cssFlashThoughts.get()) return;
     appendTomatoStyle(`
         /* □3 时间戳胶囊化：11px 等宽+1px 边框圆角胶囊（极淡主色底，与主面板 chips 同语言）、去浮雕阴影 */
-        .protyle-wysiwyg div[custom-tomato-idea-time]::before {
+        .protyle-wysiwyg div[custom-tomato-idea-time]::before,
+        /* □4 列表项形态（fballfb 2026-09-21）：内核 .li::before 标记位规则特异性更高会盖掉
+           attr 胶囊（content 显示 "" 实测）——并列 .li 变体抬一档特异性对齐段落/超块形态 */
+        .protyle-wysiwyg div.li[custom-tomato-idea-time]::before {
             content: attr(custom-tomato-idea-time);
             font-size: 11px;
             font-weight: 500;
@@ -340,7 +343,9 @@ function load_cssFlashThoughts() {
         }
         /* 间隔值：行尾 12px 淡灰字常显（无色块；09-07 用户反馈 10px 看不清调大，opacity 同步提一档）；
            垂直居中防悬空（vision P1）、左距 8px 防贴正文——flex row 下 ::after 为 flex 项不会被顶换行，最坏挤压内容盒 */
-        .protyle-wysiwyg div[custom-tomato-idea-interval]::after {
+        .protyle-wysiwyg div[custom-tomato-idea-interval]::after,
+        /* □4 列表项形态：与 ::before 同款 .li 特异性变体（内核 li 伪元素规则防御） */
+        .protyle-wysiwyg div.li[custom-tomato-idea-interval]::after {
             content: attr(custom-tomato-idea-interval);
             font-size: 12px;
             color: var(--b3-theme-on-surface);

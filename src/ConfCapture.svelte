@@ -10,6 +10,7 @@
         cssFlashThoughts,
         flash_thoughts_2_top,
         flash_thoughts_target_file,
+        flashBlockForm,
         flashStatTag,
         shorthandRelayEnabled,
         noteBoxAllKinds,
@@ -87,6 +88,18 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$shorthandRelayEnabled} />
                 {tomatoI18n.官方速记搬运}
+            </div>
+
+            <!-- □4（fballfb 2026-09-21）：速记/闪念落块形态三态——super=双层超级块/para=裸
+                 段落块（默认，bear 09-21 拍板）/list=裸列表项块（解「删内容留壳→删壳报错」）；
+                 存量不迁移、改设置只影响此后新落块（含官方速记搬运产块） -->
+            <div>
+                {tomatoI18n.速记落块形态}
+                <select class="b3-select" bind:value={$flashBlockForm}>
+                    <option value="super">{tomatoI18n.速记落块形态超级块}</option>
+                    <option value="para">{tomatoI18n.速记落块形态段落块}</option>
+                    <option value="list">{tomatoI18n.速记落块形态列表项块}</option>
+                </select>
             </div>
 
             <!-- flashlog □6：闪念/官方速记落块附加时间·类型·内容标记，时间记录统计类插件可直接识别 -->

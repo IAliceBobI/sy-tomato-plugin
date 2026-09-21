@@ -4,7 +4,7 @@
     import { DestroyManager } from "./destroyer";
     import { Protyle } from "siyuan";
     import { getTomatoPluginInstance, siyuan } from "./utils";
-    import { seedFilePosition, tailReadPositionOf } from "./ballDocToggle";
+    import { applyBottomPad, focusTailForTyping, seedFilePosition, tailReadPositionOf } from "./ballDocToggle";
     import { debugLog } from "./logUtils";
 
     interface Props {
@@ -65,11 +65,20 @@
                 protyleOptions,
             );
             unseed?.();
+            // fballfb □2 落底留白：跳底落位后尾行不贴视口底边（「跳底了就留白」，不加
+            // 新开关）——dialog 链跳底=tailSeed 在场才发生（无回退链），同点挂标记类
+            // （压制的 !important CSS 在本组件 style 段：内核 afterOnGet setPadding 会以
+            // 内联覆写插件内联值）。机制见 applyBottomPad 注释
+            if (tailSeed) applyBottomPad(protyleTarget);
             dm.add("protyle", () => protyle.destroy());
             if (tailSeed) {
                 // 直载生效打点（□3 e2e 判据=「tail-seed direct load」行在场且无
                 // slider-jump/whenReady 行=直载生效）；不遮眼、不轮询——加载指示保留
                 debugLog("fball", `tail-seed direct load (dialog) startId=${tailSeed.startId.slice(-6)} endId=${tailSeed.endId.slice(-6)} scrollTop=${tailSeed.scrollTop}`, "fball");
+                // fballfb □14 跳底落光标（bear 09-21「随时可打字」）：同 float 窗——
+                // 打开即续写语义，autoclose 型跳底体验与其一致；移动端程序 focus 不弹
+                // 虚拟键盘（浏览器只对用户手势弹），静默落位无惊扰
+                focusTailForTyping(protyleTarget, tailSeed.endId);
             }
         }
     });
@@ -85,5 +94,14 @@
 <style>
     .protyleMount {
         height: 100%;
+    }
+    /* fballfb □2 落底留白（跳底时 onMount 挂 fball-tail-pad，见 applyBottomPad）：
+       量级≈容器高一半（内核打字机 getPadding 同源语义）——dialog 高固定 700px
+       （body≈650px）无纯 CSS 同构式，取 min(40vh, 325px) 落 30~40vh 档；!important
+       压内核 afterOnGet resize→setPadding 的内联 style.padding 覆写（悬浮窗侧 e2e
+       实测内联 16px 顶掉插件内联值）。padding 挂滚动容器内容元素=可滚入的滚动区
+       非死区；:global=内核运行时挂载 DOM（在档坑） */
+    .protyleMount :global(.protyle-wysiwyg.fball-tail-pad) {
+        padding-bottom: min(40vh, 325px) !important;
     }
 </style>

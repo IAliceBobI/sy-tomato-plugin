@@ -9,15 +9,13 @@ import {
     getTomatoPluginInstance,
     getNotebookFirstOne,
 } from "../libs/utils";
-import { dialog2floating } from "../libs/DialogText";
 import { debugLog } from "../libs/logUtils";
-import { floatingballBallList, floatingballDocOpenBottom, storeNoteBox_selectedNotebook } from "../libs/stores";
+import { floatingballBallList, floatingballDocOpenBottom, floatingballKeepBall, storeNoteBox_selectedNotebook } from "../libs/stores";
 import { tomatoI18n } from "../tomatoI18n";
 import { getFloatingBall, ballOverLimit, FloatingBall, getFloatingBallProtyleDialog, getFloatingBallProtyleDialogDM } from "../FloatingBall";
-import { pickToggleBall, toggleDecision, isOpenDocTypeFloat, resolveFocusID, shouldPrefetchTail, fetchTailWindow } from "../libs/ballDocToggle";
+import { pickToggleBall, toggleDecision, isOpenDocTypeFloat, keepBallClickDecision, resolveFocusID, shouldPrefetchTail, fetchTailWindow } from "../libs/ballDocToggle";
 import {
     FloatingBallDocType_autoclose,
-    FloatingBallDocType_dialog,
     FloatingBallDocType_tab,
 } from "../libs/gconst";
 import ProtyleSv4Dialog from "../libs/ProtyleSv4Dialog.svelte";
@@ -25,7 +23,8 @@ import { mount, unmount } from "svelte";
 import { DestroyManager } from "../libs/destroyer";
 import type { BallAction } from "./index";
 
-// 文档球：四种打开方式（tab/dialog/float/autoclose）+ $$dailynote 当天日志（每次点击现建）。
+// 文档球：三种打开方式（tab/float/autoclose，fballfb □5 砍 dialog 型）+ $$dailynote
+// 当天日志（每次点击现建）。
 // 期1 两大修复之一在此生效：绑定时落 docID（execute 优先走 docID；缺 docID 才按名搜，
 // 搜到自愈写回），治重名开错/改名断链。
 // 期3 起修饰键删除暗手势退役——删除唯一入口收敛到右键/长按菜单（libs/ballMenu.ts）。
@@ -88,6 +87,21 @@ export const docAction: BallAction = {
     async execute(ball: BallItem, _ctx?: { event?: MouseEvent; element?: HTMLElement }) {
         rememberLastDocBall(ball);
         const item = (ball.action ??= {});
+        // fballfb □3：「打开后保留悬浮球」开→点球即开合（float 型窗活着→关，与 ⌘⇧F8
+        // toggle 同一决策，keepBallClickDecision=keep 开关×toggleDecision 组合）。判定
+        // 放在 docID 解析前——$$dailynote 的关窗点击不该顺带触发当日日记现建
+        // （createDailyNote 有建文档副作用）。keep 模式球从不自毁（下方 float 分支跳过
+        // 反杀），关窗无需复球链；openOnCreate 只在遗留 true（开关关期开窗后切开关的
+        // 历史态）时清+写盘，免无谓 petal 写。mobile 的 float 窗走 dialogs 通道不经
+        // protyle#2# dm 键，此探测恒 miss 不受影响
+        if (keepBallClickDecision(floatingballKeepBall.get() === true, ball, getFloatingBallProtyleDialogDM(ball) != null) === "close") {
+            if (item.openOnCreate) {
+                item.openOnCreate = false;
+                floatingballBallList.write();
+            }
+            getFloatingBallProtyleDialogDM(ball)?.destroyBy();
+            return;
+        }
         let docID = item.docID || "";
         if (item.docName === "$$dailynote") {
             const nb = storeNoteBox_selectedNotebook.get()
@@ -108,7 +122,7 @@ export const docAction: BallAction = {
             } else {
                 // fballtail □2：补传 docID（桌面分支同款）——mobile 同链直载须拿到解析值
                 // 预取尾窗（$$dailynote 现建日记的 docID 也只在 execute 侧解析）
-                openByDialog(ball, false, docID);
+                openByDialog(ball, docID);
             }
             return;
         }
@@ -125,25 +139,34 @@ export const docAction: BallAction = {
             // float 语义走谓词分支（非法/缺失 openDocType 兜底按 float——谓词与
             // toggleDecision 共用，两处判定错位会让兜底球的悬浮窗永远关不掉）
             if (isOpenDocTypeFloat(item.openDocType)) {
-                // fballtail □1：跳底直载预取——openBottom 开且无 restore 档（dailyNote
-                // 现建日记档恒 miss）才查尾窗（真树序尾部 N 块，N 与内核窗口上限同源），
-                // 经 props 传入悬浮窗组件构造期种档直载（内核官方重开恢复管线，一次
-                // 请求一次渲染落底）；预取失败/空→undefined→组件回退现行遮眼+slider
-                // 链。预取 await 在开窗前（一次 getTailChildBlocks 往返），换「窗开瞬间
-                // 即构造且直落底部」无中间画帧。窗已开（execute 幂等「确保开」路径）时
-                // tail 被复用忽略，直接跳过预取免白跑。dailyNote 判定与组件侧同口径
-                // （docID≠action.docID，勿只按 docName===$$dailynote——两处错位=档语义漂移）
-                const dailyNote = !!docID && docID !== item.docID;
+                // fballtail □1：跳底直载预取——openBottom 开恒查尾窗（fballfb □2 bear
+                // 09-21 拍板「开关开=必跳底」：此前 restore 档优先于跳底，球存过
+                // lastRead 就恢复、开关开了也不跳，与 tab 链行为分裂——陆杰 08:15 反馈
+                // +bear 实锤；旧 restore/dailyNote 参与判定的语义已退役）。尾窗=真树序
+                // 尾部 N 块（N 与内核窗口上限同源），经 props 传入悬浮窗组件构造期种档
+                // 直载（内核官方重开恢复管线，一次请求一次渲染落底）；预取失败/空→
+                // undefined→组件回退现行遮眼+slider 链。预取 await 在开窗前（一次
+                // getTailChildBlocks 往返），换「窗开瞬间即构造且直落底部」无中间画帧。
+                // 窗已开（execute 幂等「确保开」路径）时直接跳过预取免白跑。开关判定与
+                // 组件侧同口径（两处错位=白跑请求或漏跳底，fballtail 注释原话）
                 const tail = getFloatingBallProtyleDialogDM(ball) == null && shouldPrefetchTail(
                     floatingballDocOpenBottom.get() === true,
-                    dailyNote ? undefined : item.lastRead,
-                    dailyNote,
                 ) ? await fetchTailWindow(docID, (id, n) => siyuan.getTailChildBlocks(id, n))
                   : undefined;
                 getFloatingBallProtyleDialog(ball, docID, tail);
-                item.openOnCreate = true;
-                floatingballBallList.write();
-                getFloatingBall(ball)?.destroyBy();
+                // fballfb □3：「打开后保留悬浮球」开→不反杀球本体+不写 openOnCreate
+                // （球一直在，无需「重载后复活+自动开窗」链——窗不再跨重载存活）；
+                // 关→维持现状二选一（开窗即杀球+openOnCreate 写盘，重载后球复活自动
+                // 开窗再自毁）。else-if=遗留迁移：开关关期写盘的 true 在 keep 模式已无
+                // 意义，开窗时顺手清掉收敛语义（不清则每次重载都自动开窗直到首次关窗）
+                if (floatingballKeepBall.get() !== true) {
+                    item.openOnCreate = true;
+                    floatingballBallList.write();
+                    getFloatingBall(ball)?.destroyBy();
+                } else if (item.openOnCreate) {
+                    item.openOnCreate = false;
+                    floatingballBallList.write();
+                }
                 return;
             }
             switch (item.openDocType) {
@@ -159,18 +182,13 @@ export const docAction: BallAction = {
                             null, null, null, null, atBottom);
                     }
                     break;
-                case FloatingBallDocType_dialog.id:
-                    if (dialogs.get(ball) != null) {
-                        dialogs.get(ball).destroy();
-                    } else {
-                        openByDialog(ball, false, docID);
-                    }
-                    break;
+                // fballfb □5：dialog 型（id=2）退役——存量已 migrateDialogDocBalls 迁 float，
+                // 谓词分支在前兜底（2 判 float），switch 不再有 2 的合法入口
                 case FloatingBallDocType_autoclose.id:
                     if (dialogs.get(ball) != null) {
                         dialogs.get(ball).destroy();
                     } else {
-                        openByDialog(ball, true, docID);
+                        openByDialog(ball, docID);
                     }
                     break;
             }
@@ -185,7 +203,7 @@ export const docAction: BallAction = {
         return ball.label || ball.action?.docName || "";
     },
     // fbfeat □1：⌘⇧F8「显示/隐藏悬浮文档」——目标=最近使用的 doc 球（无记录/被删/禁用
-    // →当前平台第一个启用的 doc 球兜底）。dialog/autoclose/tab 型 execute 内建 toggle；
+    // →当前平台第一个启用的 doc 球兜底）。autoclose/tab 型 execute 内建 toggle；
     // float 型开着时 execute 是幂等「确保开」，须显式走退场链（exitProtyle 同款：
     // openOnCreate 清+复球+关窗——直杀 dm 会绕过球复活，recipe-floatball 实锤）
     async toggle() {
@@ -210,18 +228,21 @@ export const docAction: BallAction = {
     },
 };
 
-async function openByDialog(ball: BallItem, autoclose = false, docID = "") {
+async function openByDialog(ball: BallItem, docID = "") {
     const item = ball.action ?? {};
     const dm = new DestroyManager();
     // fballtail □2：跳底直载预取（同 □1 float 分支）——开关开才查尾窗（真树序尾部
     // N 块，N 与内核窗口上限同源），经 props 传入 ProtyleSv4Dialog 构造期种档直载
     // （内核官方重开恢复管线，一次请求一次渲染落底）；预取失败/空/docID 未解析→
     // undefined→组件普通头窗构造（原 scrollDocBottomForDoc「头窗+轮询滚底」通道已
-    // 退役——统一通道胜过特殊化）。dialog 链无 restore 面（lastRead 记录/恢复是
-    // float 窗特性）——开关开恒预取，与现行「开恒滚底」语义一致。预取 await 在
-    // 开窗前（一次 getTailChildBlocks 往返），换「窗开瞬间即构造且直落底部」无
-    // 中间画帧；mobile 同链（execute isMobile 分支同传 docID）
-    const tail = shouldPrefetchTail(floatingballDocOpenBottom.get() === true, undefined, false)
+    // 退役——统一通道胜过特殊化）。本链无 restore 面（lastRead 记录/恢复是 float
+    // 窗特性）——开关开恒预取，与现行「开恒滚底」语义一致。预取 await 在开窗前
+    // （一次 getTailChildBlocks 往返），换「窗开瞬间即构造且直落底部」无中间画帧；
+    // mobile 同链（execute isMobile 分支同传 docID）。
+    // fballfb □5：dialog 型（拖动常驻+disableClose）退役后本通道只剩 autoclose（桌面）
+    // 与 mobile 两形态，都是「点外即关」——disableClose 恒 false、dialog2floating
+    // 拖动常驻分支随参数删除（原 autoclose 布尔已无行为差异）
+    const tail = shouldPrefetchTail(floatingballDocOpenBottom.get() === true)
         ? await fetchTailWindow(docID, (bid, n) => siyuan.getTailChildBlocks(bid, n))
         : undefined;
     debugLog("fball", `dialog tail prefetch ${tail ? tail.length + " blocks" : "miss"} doc=${(docID || item.docID || "-").slice(-6)}`, "fball");
@@ -239,14 +260,10 @@ async function openByDialog(ball: BallItem, autoclose = false, docID = "") {
             if (dialogs.get(ball) === dialog) dialogs.delete(ball);
         },
         transparent: true,
-        disableClose: events.isMobile || autoclose ? false : true,
+        disableClose: false,
         hideCloseIcon: false,
     });
     dialogs.set(ball, dialog);
-    if (!events.isMobile && !autoclose) {
-        dialog2floating(dialog, { x: "", y: "" });
-        dialog.element.style.zIndex = "10";
-    }
 
     const sv = mount(ProtyleSv4Dialog, {
         target: dialog.element.querySelector("#" + id),

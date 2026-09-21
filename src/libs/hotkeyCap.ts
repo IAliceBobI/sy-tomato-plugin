@@ -97,7 +97,7 @@ export function findConflicts(combo: string, selfPlugin: string, selfLangKey: st
         for (const [k, v] of Object.entries(obj)) {
             if (isLeaf(v)) {
                 // 官方 keymap 键名是英文标识符，内核 languages 里有现成本地化名
-                if (v.custom === combo) hits.push((Siyuan as any)?.languages?.[k] || k);
+                if (comboKey(v.custom) === comboKey(combo)) hits.push((Siyuan as any)?.languages?.[k] || k);
             } else {
                 walk(v);
             }
@@ -111,7 +111,7 @@ export function findConflicts(combo: string, selfPlugin: string, selfLangKey: st
         for (const [lk, entry] of Object.entries<any>(cmds)) {
             if (!isLeaf(entry)) continue;
             if (pname === selfPlugin && lk === selfLangKey) continue;
-            if (entry.custom === combo) hits.push(commandLabel(pname, lk));
+            if (comboKey(entry.custom) === comboKey(combo)) hits.push(commandLabel(pname, lk));
         }
     }
     return hits;
@@ -121,6 +121,19 @@ function splitCombo(combo: string): { mods: string; main: string } {
     let i = 0;
     while (i < combo.length && MODIFIER_KEYS.includes(combo[i])) i++;
     return { mods: combo.slice(0, i), main: combo.slice(i) };
+}
+
+/** 组合键物理等价归一（2026-09-20 ammoentry □3）：修饰键集合按 ⌃⌥⇧⌘ 规范序重排+主键大写。
+ *  背景：内核 matchHotKey（app/src/protyle/util/hotKey.ts）分支写死符号序，⌘⌥⇧A 与 ⌥⇧⌘A
+ *  物理同键；存量 keymap 里符号序各写各的（e11a9cbb 两轮查重互漏实锤）——精确串比对漏报
+ *  同键冲突，本归一是防撞比对的唯一正确口径 */
+function comboKey(combo: string): string {
+    const { mods, main } = splitCombo(combo);
+    let s = "";
+    for (const m of ["⌃", "⌥", "⇧", "⌘"]) {
+        if (mods.includes(m)) s += m;
+    }
+    return s + main.toUpperCase();
 }
 
 /**
