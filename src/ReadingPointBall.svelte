@@ -5,7 +5,7 @@
     import { ReadingBallHelper } from "./libs/ReadingBallHelper";
     import { OpenSyFile2 } from "./libs/docUtils";
     import { listReadingPoints } from "./libs/bookmark";
-    import { toBarItems, relativeTime, type RPBarItem } from "./libs/readingPointCore";
+    import { toBarItems, relativeTime, rpTailStats, type RPBarItem } from "./libs/readingPointCore";
     import { tomatoI18n } from "./tomatoI18n";
 
     // 阅读点悬浮球（rpfloatbar 战役，spec：docs/tomato-reading-point-floatball-spec.md）：
@@ -46,6 +46,8 @@
     let docCur = $state<{ blockID: string; ts: string } | null>(null);
     let items = $state<RPBarItem[]>([]);
     let loadingItems = $state(false);
+    /** 尾巴钮计数（全量≠截断后 items）：total=全部点数、legacy=旧版点数 */
+    let stats = $state<{ total: number; legacy: number }>({ total: 0, legacy: 0 });
     /** 球在屏幕左半时条左对齐展开（右对齐会出屏） */
     let alignLeft = $state(false);
     /** 球贴近屏顶时条翻到球下方（默认在上方，会出上边） */
@@ -65,7 +67,9 @@
     async function loadItems() {
         loadingItems = true;
         try {
-            items = toBarItems(await listReadingPoints(), RECENT_LIMIT);
+            const all = await listReadingPoints();
+            items = toBarItems(all, RECENT_LIMIT);
+            stats = rpTailStats(all);
         } finally {
             loadingItems = false;
         }
@@ -143,6 +147,13 @@
                             {#if timeText(it.ts)}<span class="rpfbar__time">{timeText(it.ts)}</span>{/if}
                         </button>
                     {/each}
+                    <!-- 尾巴钮=横滚区末尾的显性全量入口（纯图标钮可发现性差，群反馈）；点击行为与第四动作钮一致 -->
+                    <button
+                        class="rpfbar__tail"
+                        title={tomatoI18n.查看全部阅读点}
+                        aria-label={tomatoI18n.查看全部阅读点}
+                        onclick={() => { expanded = false; actions.panel(); }}
+                    >{tomatoI18n.全部N个(stats.total)}{#if stats.legacy > 0} · {tomatoI18n.X旧版(stats.legacy)}{/if}</button>
                 {/if}
             </div>
         </div>
@@ -299,5 +310,21 @@
         font-size: 11px;
         color: var(--b3-theme-on-surface);
         opacity: 0.55;
+    }
+    /* 尾巴钮：半透明灰弱化为提示语（不与条目抢焦点），hover 才亮出可点性 */
+    .rpfbar__tail {
+        flex: none;
+        padding: 2px 4px;
+        border: none;
+        border-radius: var(--b3-border-radius, 4px);
+        background-color: transparent;
+        font-size: 12px;
+        color: var(--b3-theme-on-surface);
+        opacity: 0.6;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .rpfbar__tail:hover {
+        background-color: var(--b3-list-hover);
     }
 </style>

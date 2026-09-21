@@ -112,6 +112,14 @@ export function toBarItems(entries: RPEntry[], limit: number): RPBarItem[] {
     }));
 }
 
+/** 尾巴钮计数：total=全量条数、legacy=其中旧版点数——条上截 RECENT_LIMIT 条，全量入口
+ *  只有第四图标钮可发现性差，横滚区末尾「全部 N 个（· X 旧版）」钮补显性入口 */
+export function rpTailStats(entries: RPEntry[]): { total: number; legacy: number } {
+    let legacy = 0;
+    for (const e of entries) if (e.legacy) legacy++;
+    return { total: entries.length, legacy };
+}
+
 /** "YYYYMMDDHHmmss" → Date；格式坏返回 null */
 export function parseRPTime(ts: string): Date | null {
     if (!/^\d{14}$/.test(ts)) return null;

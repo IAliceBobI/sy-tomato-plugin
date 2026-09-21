@@ -305,6 +305,113 @@ export class DomParaBuilder extends DomBuilder {
 }
 
 /**
+ * 思源 markdown 方言的行内 HTML 标签族 → configured Lute 认识的 span data-type 形态。
+ * 思源自己的 markdown 通道（SQL blocks.markdown 列 / createDocWithMd / updateBlock）把
+ * 下划线序列化为 <u>、上下标 <sub>/<sup>、键盘 <kbd>、带色高亮 <mark style>——这套
+ * HTML 方言标签在 NewConfiguredLute 的 ProtyleWYSIWYG 旗标下被 Lute 当纯文本转义输出
+ * （&lt;u&gt; 字面），下游 innerHTML/事务 HTML 通道照字面落盘=文档里裸显 HTML 标签
+ * （09-21 recite □A：对比文档左栏原文下划线裸显 <u>，bear 实报）。实测 span data-type
+ * 形态 Lute 正确保留（嵌套还合并复合词表 data-type="strong u"），故 md→DOM 解析前
+ * 把方言标签转成 span 形态（属性原样透传，语义等价）。裸 Lute（旗标全关）走标签透传
+ * 不炸，但插件统一走 configured——预处理对本函数全部消费方纯改进。
+ */
+export function siyuanMdInlineHtmlToSpan(md: string): string {
+    return md
+        .replace(/<(u|sub|sup|kbd|mark)((?:\s[^>]*)?)>/g, '<span data-type="$1"$2>')
+        .replace(/<\/(u|sub|sup|kbd|mark)>/g, "</span>");
+}
+
+/** 行内 IAL 体（{: k="v" …}，==x== 紧贴闭合定界的携带形态）保守属性形态——形态不符
+ *  （未引值/含尖括号/非 k=v 列表）整处不转保持字面（宁字面勿坏——防把任意文本注入
+ *  span 属性位）。Lute 对合法体（含 id）逐属性原样透传，此处同款。 */
+const MARK_IAL_ATTRS = /^[A-Za-z_][\w-]*(?:="[^"<>]*"|='[^'<>]*')?(?:\s+[A-Za-z_][\w-]*(?:="[^"<>]*"|='[^'<>]*')?)*$/;
+/** ==x== 配对 → span data-type="mark"（仿 Lute SetMark(true) 实测判定，6809 探针取证）：
+ *  开/闭定界符必须恰两连等号（lookbehind/lookahead 挡 === 家族与 setext 标题）；开定界
+ *  后非空白+闭定界前非空白（flanking——空格隔断不转）；内容可含单 = 不可含 ==（`a=b`
+ *  转而 `a===b` 不转）；内容可为任意非 = 字符（含换行/嵌套 **粗**——嵌套由 Md2BlockDOM
+ *  二次解析成复合词表 span，与旗标输出一致）；紧贴闭合定界的行内 IAL {: …} 一并吞并。 */
+const MARK_PAIR = /(?<!=)==(?=\S)((?:[^=]|=(?!=))+?)(?<=[^\s=])==(?!=)(\{:[^}]*\})?/g;
+
+function replaceMarkPairs(seg: string): string {
+    return seg.replace(MARK_PAIR, (whole: string, content: string, ial?: string) => {
+        if (ial) {
+            const body = ial.slice(2, -1).trim();
+            if (!MARK_IAL_ATTRS.test(body)) return whole;
+            return `<span data-type="mark" ${body}>${content}</span>`;
+        }
+        return `<span data-type="mark">${content}</span>`;
+    });
+}
+
+/**
+ * 思源 ==高亮== 行内语法 → configured Lute 认识的 span data-type="mark" 形态
+ * （□F，2026-09-21 recite）。内核把高亮序列化为 ==文本==（纯）/==文本=={: style="…"}
+ * （带色，行内 IAL 形态）——NewConfiguredLute 未开 SetMark 旗标（官方 setLute 有；
+ * anno 家族共享面不动旗标，45169bf5 同判例），Md2BlockDOM 把 ==x== 落字面文本 →
+ * 出卷照抄块/对比左栏/NoteBox 混排通道裸显 ==x==（与 <u> 同族但通道不同：语法旗标
+ * 缺席 vs HTML 方言转义）。产物形态仿 SetMark(true) 实测输出：span data-type="mark"
+ * +IAL 属性透传。码区守卫：围栏代码块（```/~~~ 行对，未闭合吞到底）与行内码段
+ * （等长反引号串配对）内的 == 是字面不转（Lute 同判）；跨码段的 ==配对保守不转。
+ * 输入已是 span 形态无 == 配对，幂等。
+ */
+export function siyuanMdMarkSyntaxToSpan(md: string): string {
+    if (!md || !md.includes("==")) return md;
+    const n = md.length;
+    const inCode = new Uint8Array(n); // 1=码区（围栏/行内码段），== 字面不动
+    // ① 围栏代码块：开栏行（行首 ≤3 空格 + ```/~~~ 串）到同字符等长闭合行（独占行）；
+    // 未闭合=吞到串尾（Lute 同判）
+    let fence: { ch: string; len: number; start: number } | null = null;
+    for (let pos = 0, lineStart = 0; pos <= n; pos++) {
+        if (pos < n && md[pos] !== "\n") continue;
+        const line = md.slice(lineStart, pos);
+        const open = line.match(/^\s{0,3}(`{3,}|~{3,})/);
+        if (!fence) {
+            if (open) fence = { ch: open[1][0], len: open[1].length, start: lineStart };
+        } else {
+            const close = line.match(/^\s{0,3}(`{3,}|~{3,})\s*$/);
+            if (close && close[1][0] === fence.ch && close[1].length >= fence.len) {
+                for (let k = fence.start; k < pos; k++) inCode[k] = 1;
+                fence = null;
+            }
+        }
+        lineStart = pos + 1;
+    }
+    if (fence) for (let k = fence.start; k < n; k++) inCode[k] = 1;
+    // ② 行内码段（围栏外）：反引号串只与等长反引号串闭合（CommonMark 同款），无闭合=字面
+    for (let p = 0; p < n; p++) {
+        if (inCode[p] || md[p] !== "`") continue;
+        let openLen = 0;
+        while (p + openLen < n && md[p + openLen] === "`") openLen++;
+        let q = p + openLen, closeAt = -1;
+        while (q < n) {
+            if (md[q] === "`") {
+                let run = 0;
+                while (q + run < n && md[q + run] === "`") run++;
+                if (run === openLen) { closeAt = q; break; }
+                q += run;
+            } else q++;
+        }
+        if (closeAt >= 0) {
+            for (let k = p; k < closeAt + openLen; k++) inCode[k] = 1;
+            p = closeAt + openLen - 1; // for 自增到闭合串后
+        } else p += openLen - 1;
+    }
+    // ③ 非码区逐段做 ==配对→span 转换，码区字符原样直通
+    let out = "";
+    let segStart = -1;
+    for (let p = 0; p < n; p++) {
+        if (!inCode[p]) {
+            if (segStart < 0) segStart = p;
+        } else {
+            if (segStart >= 0) { out += replaceMarkPairs(md.slice(segStart, p)); segStart = -1; }
+            out += md[p];
+        }
+    }
+    if (segStart >= 0) out += replaceMarkPairs(md.slice(segStart, n));
+    return out;
+}
+
+/**
  * markdown → protyle 块 DOM 数组（Md2BlockDOM 是 protyle 粘贴同款官方转换通道）。
  * 产物统一换新 data-node-id（Md2BlockDOM 生成的 id 不保证唯一语义，显式换掉防撞号）；
  * attrs 挂首块（custom-* 属性直接作为 DOM 属性，内核落库时转为 IAL）。
@@ -314,7 +421,9 @@ export function md2Divs(md: string, attrs?: AttrType, lute?: Lute): HTMLElement[
     if (!md?.trim()) return [];
     if (!lute) lute = NewConfiguredLute();
     const host = document.createElement("div");
-    host.innerHTML = lute.Md2BlockDOM(md);
+    // 预处理族两步（□A HTML 方言标签 + □F ==高亮== 语法）：进 Lute 前把思源 markdown
+    // 通道的行内方言归一到 configured 旗标认识的 span data-type 形态，一处修全家
+    host.innerHTML = lute.Md2BlockDOM(siyuanMdInlineHtmlToSpan(siyuanMdMarkSyntaxToSpan(md)));
     const divs = [...host.children].filter((el): el is HTMLElement => el instanceof HTMLElement);
     divs.forEach((d, i) => {
         d.setAttribute(DATA_NODE_ID, NewNodeID());
