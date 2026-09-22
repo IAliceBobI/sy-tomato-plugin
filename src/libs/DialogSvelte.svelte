@@ -32,6 +32,9 @@
         // 块编辑器二期期1：收起钮（▾，标题栏关闭钮左侧）——只折叠回球，不销毁；不传不渲染
         onCollapse?: () => void;
         collapseLabel?: string;
+        // 内容区附加类（fballfb0922）：默认空零迁移——悬浮文档窗传 flex 列类让 protyle
+        // 填满窗体（窗体 resize 后 dialog-content 需变 flex 容器，子元素才能按窗高分配）
+        contentClass?: string;
         // 初始位置覆盖（球位展开联动）：仅无存档时兜底用之（面板位置独立记忆优先，usertest2 □6），
         // 尺寸照常从存档恢复
         posOverride?: { x: number; y: number };
@@ -61,6 +64,7 @@
         onCollapse = undefined,
         collapseLabel = undefined,
         posOverride = undefined,
+        contentClass = undefined,
     }: PropsType = $props();
 
     let dialogElement: HTMLElement | null = $state(null);
@@ -688,8 +692,8 @@
                 ></div>
             {/if}
 
-            <!-- 内容区域 -->
-            <div class:dialog-content={!hideScrollbar} class:dialog-content-hide-scrollbar={hideScrollbar}>
+            <!-- 内容区域（class 拼接替代 class: 指令：contentClass 附加类需与之共存） -->
+            <div class={`${hideScrollbar ? "dialog-content-hide-scrollbar" : "dialog-content"}${contentClass ? " " + contentClass : ""}`}>
                 {@render dialogInner()}
             </div>
         </div>

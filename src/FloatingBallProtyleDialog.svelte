@@ -174,6 +174,9 @@
         bind:show
         title={ball.action.docName}
         savePositionKey={`${key}#floatingDialog`}
+        contentClass="fball-content"
+        height="max(calc(100vh - 116px), calc(40vh + 104px))"
+        minWidth={420}
     >
         {#snippet dialogInner()}
             <!-- fballfeedback □4a：按钮行钉窗顶——原先在滚动流内，往下读长文档时跟着内容
@@ -248,15 +251,27 @@
     .win-btn:hover {
         background-color: var(--b3-list-hover, rgba(0, 0, 0, 0.075));
     }
-    /* fbfeat □1：长文档悬浮窗高度约束——无约束时 .protyleClass 被内容撑到全高，protyle
-       内部滚动层（.protyle-content）不出滚动条，超出视口部分不可达（落底也滚不动）；
-       约束后内部滚动生效，窗高随视口（220px≈标题栏+按钮行+留白）；max 下限防小视口
-       （<220px 时 calc 为负=声明无效，静默退回撑全高存量行为） */
+    /* fbfeat □1 → fballfb0922：protyle 高度从「视口公式硬约束」改为「填满窗体」——窗体可
+       resize 后旧公式恒 100vh-220px 不跟窗：调大窗底部留白、调小窗内容被裁（陆杰 09-21
+       「调整弹窗大小关闭后恢复原样」+「输入被底部遮挡回车才显示」双症同根：被裁区里的
+       光标行在 dialog-content 可视区外，打字滚动跟随只滚 protyle 内滚层、外层不滚=遮挡；
+       回车走 scrollIntoView 连外层一起滚才显形）。链路=窗体定高（height prop，等高近似
+       零迁移：104px≈标题栏48+按钮行38+padding16+边框2）→ dialog-content（fball-content
+       flex 列，DialogSvelte contentClass 通道）→ protyle-wrap flex:1 → 本类 height:100%。
+       窗体被用户 resize 后存档回放像素值，本链依然成立（每层取窗实高） */
     .protyleClass {
-        height: max(calc(100vh - 220px), 40vh);
+        height: 100%;
     }
     .protyle-wrap {
         position: relative;
+        flex: 1;
+        /* flex 子项默认 min-height:auto 会被内容撑破=溢出窗体，锁 0 才真正收缩 */
+        min-height: 0;
+    }
+    /* DialogSvelte 内部容器类，:global 单选择器穿透（scoped 混裸类=Svelte 剪枝） */
+    :global(.fball-content) {
+        display: flex;
+        flex-direction: column;
     }
     /* fballfb □6 空窗期占位：absolute 盖的是「本来为空」的 protyle 区，透明底+不收
        指针=fail-safe（谓词漏撤最坏一枚小环浮于内容，不挡读写不挡滚）；主题变量带
@@ -290,6 +305,6 @@
        的内联 style.padding 覆写（e2e 实测内联 16px 顶掉插件内联值）。padding 挂滚动
        容器内容元素=可滚入的滚动区非死区；:global=内核运行时挂载 DOM（在档坑） */
     .protyleClass :global(.protyle-wysiwyg.fball-tail-pad) {
-        padding-bottom: max(calc((100vh - 220px) / 2), 20vh) !important;
+        padding-bottom: max(calc(50vh - 58px), 20vh) !important;
     }
 </style>
