@@ -162,6 +162,8 @@ type TomatoSettings = {
     pieceTailCard: boolean,
     /** 阅读曲线接管（1530 期1，实验默认关）：分片卡 due=滚筒节奏投影进官方复习界面 */
     readCurveTakeover: boolean,
+    /** □5 progfix0922：分片自动制卡独立开关（默认开）——分片自动加入背诵闪卡，与阅读曲线接管解耦 */
+    pieceAutoCard: boolean,
     /** 巡查频率档（分钟）：0=关/30/60/360，默认 30 */
     readCurveSweepMins: number,
     /** 阅读点卡块接管类开关（1141 期3，默认开）：关=新阅读点不再挂键接管 */

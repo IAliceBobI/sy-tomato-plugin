@@ -1630,6 +1630,22 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "When on: today's next piece appears in the official flashcard review; rating = confirm read (card removed once read); pre-built piece docs appear in the doc tree. Turning off cleans up";
         }
     }
+    public get 分片自动加入背诵闪卡() {
+        switch (this.lang) {
+            case "zh_CN": return "分片自动加入背诵闪卡";
+            case "zh_CHT": return "分片自動加入背誦閃卡";
+            case "en_US":
+            default: return "Auto-add pieces to flashcards";
+        }
+    }
+    public get tip设置分片自动制卡() {
+        switch (this.lang) {
+            case "zh_CN": return "分片自动制卡（含写作书槽片/素材首推）：与「阅读曲线接管」独立——接管关着也生效，分片自动建卡进官方闪卡复习；关=不再建新分片卡，存量走完自然毕业（接管开着也同此口径）。其余卡型（摘抄/阅读点/文档卡）仍归接管开关管";
+            case "zh_CHT": return "分片自動製卡（含寫作書槽片/素材首推）：與「閱讀曲線接管」獨立——接管關著也生效，分片自動建卡進官方閃卡複習；關=不再建新分片卡，存量走完自然畢業（接管開著也同此口徑）。其餘卡型（摘抄/閱讀點/文檔卡）仍歸接管開關管";
+            case "en_US":
+            default: return "Auto-card pieces (incl. writing slots/material first-push): independent of reading-curve takeover — pieces enter official flashcard review even with takeover off; off = stop building piece cards (existing ones finish naturally, same under takeover). Other card types (digest/reading-point/doc cards) remain governed by the takeover switch";
+        }
+    }
     public get 巡查频率() {
         switch (this.lang) {
             case "zh_CN": return "巡查频率";
@@ -4148,6 +4164,16 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "刪除本片並換下一本書？";
             case "en_US":
             default: return "Delete this piece and swap to the next book?";
+        }
+    }
+    // progfix0922 □2 删片子文档守卫：片下挂了子文档（child 档误锚存量/用户手拖）时
+    // removeDocByID 一发删整棵子树=连坐删摘抄，守卫拦删提示走文档树先处理
+    public get 片下有子文档不可删() {
+        switch (this.lang) {
+            case "zh_CN": return "该片下有子文档，已阻止删除（防连坐）——请先在文档树处理子文档";
+            case "zh_CHT": return "該片下有子文檔，已阻止刪除（防連坐）——請先在文檔樹處理子文檔";
+            case "en_US":
+            default: return "This piece has child docs; deletion blocked to protect them. Handle them in the doc tree first.";
         }
     }
     public get 不再推送() {
@@ -8081,13 +8107,14 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return `Today ${read}/${quota}`;
         }
     }
-    // progpush □1 出片硬闸统一拦截提示（书卡/滚筒/「下一个分片」全入口；档位=每书日限）
-    public 今日已读满N篇(name: string, quota: number) {
+    // 出片硬闸统一拦截提示（progpush □1；progfix0922 □7 口径翻新：N=明天续读起点
+    // 片号——断点被「下一片」读完宣告推过后按新断点报，未宣告=报当前片。档位=每书日限）
+    public 今日已满明天从第N片继续(name: string, quota: number, n: number) {
         switch (this.lang) {
-            case "zh_CN": return `《${name}》今日已读满 ${quota} 篇，明天再来。想连读可直接打开原书`;
-            case "zh_CHT": return `《${name}》今日已讀滿 ${quota} 篇，明天再來。想連讀可直接打開原書`;
+            case "zh_CN": return `《${name}》今日已读满 ${quota} 片，明天从第 ${n} 片继续。想连读可直接打开原书`;
+            case "zh_CHT": return `《${name}》今日已讀滿 ${quota} 片，明天從第 ${n} 片繼續。想連讀可直接打開原書`;
             case "en_US":
-            default: return `"${name}": today's ${quota}-piece limit reached, come back tomorrow. To keep reading, open the source doc directly`;
+            default: return `"${name}": today's ${quota}-piece limit reached, resume from piece ${n} tomorrow. To keep reading, open the source doc directly`;
         }
     }
     // □2 片尾收束卡总开关（基础设置域）

@@ -1017,6 +1017,12 @@ export const openCardsOnOpenPiece = settingFactory("openCardsOnOpenPiece", false
 // 阅读曲线接管（1530 期1，实验默认关）：分片卡 due=滚筒节奏投影进官方复习界面，
 // 官方评分回流滚筒状态（双入口一账）。关=末次清场（readCurve.clearReadCurve）
 export const readCurveTakeover = settingFactory("readCurveTakeover", false, STORAGE_Prog_SETTINGS, null as TSK);
+// □5 progfix0922（bear 09-22 拍板「拆出来、默认开」，刘璐④/650189：分片不进闪卡就
+// 进不了复习）：分片自动制卡独立开关——分片（含写作书槽片/素材首推）自动加入背诵
+// 闪卡。与阅读曲线接管解耦：接管关着它也开=巡查仍跑分片族面（sweepRegime）；
+// 它关=分片族建卡环整体停（接管开着也停，存量走完自然毕业）；接管仍只管其余卡型
+// （摘抄/阅读点/文档卡复习曲线，默认关）
+export const pieceAutoCard = settingFactory("pieceAutoCard", true, STORAGE_Prog_SETTINGS, null as TSK);
 // 巡查频率档（分钟）：0=关/30/60/360；事件触发（推片/翻卡/设置变更）不受此档影响
 export const readCurveSweepMins = settingFactory("readCurveSweepMins", 30, STORAGE_Prog_SETTINGS, null as TSK);
 // 阅读点接管类开关（1141 期3，默认开）：关=新阅读点卡块不再挂键接管（存量已接管走完曲线）
