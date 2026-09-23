@@ -28,8 +28,11 @@ export class SingleTab {
 
 export async function focusSiyuan() {
     if (events.boxID) {
-        const { id: dayID } = await siyuan.createDailyNote(events.boxID);
-        if (dayID) window.location.href = `siyuan://blocks/${dayID}`;
+        // fballshort □9：同 docAction □6 缺口——boxID 非空但指向不存在笔记本（复刻/
+        // 迁移空间）时内核 code 1 not found、siyuan.call 返 null，裸解构抛 TypeError。
+        // 本函数全仓零调用（经 docUtils 桶 export 留作公共面），null 静默跳过即可
+        const dailyNote = await siyuan.createDailyNote(events.boxID);
+        if (dailyNote?.id) window.location.href = `siyuan://blocks/${dailyNote.id}`;
     }
 }
 

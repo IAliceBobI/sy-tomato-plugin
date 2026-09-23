@@ -38,6 +38,10 @@
         // 初始位置覆盖（球位展开联动）：仅无存档时兜底用之（面板位置独立记忆优先，usertest2 □6），
         // 尺寸照常从存档恢复
         posOverride?: { x: number; y: number };
+        // 点外自动关（fballshort □2 autoclose 对话框）：overlay 从纯视觉层（pointer-events:
+        // none 点击穿底）变捕获层，按压起点与落点都在 overlay 本体才触发关闭（与 × 钮同
+        // 语义：onClose 优先于 dm）。默认 false=既有消费者零迁移
+        clickOutsideClose?: boolean;
     }
 
     let {
@@ -65,11 +69,17 @@
         collapseLabel = undefined,
         posOverride = undefined,
         contentClass = undefined,
+        clickOutsideClose = false,
     }: PropsType = $props();
 
     let dialogElement: HTMLElement | null = $state(null);
     let isDragging = $state(false);
     let isResizing = $state(false);
+    // 点外关按压起点记账（fballshort □2）：非响应式——只在事件对内读，无需触发渲染。
+    // 守卫语义=「起点 target 是 overlay 本体」才记账：窗内任意起点（grabber 拖拽/resizer/
+    // 内容点击）一律不记账，click 阶段双条件（flag+target 复核）让「拖拽把窗拖到位后松手
+    // 在 overlay 上」的 click（target=共同祖先 overlay）也关不掉窗
+    let pressOnOverlay = false;
     let offsetX = $state(0);
     let offsetY = $state(0);
     let resizeDirection = $state("");
@@ -565,10 +575,22 @@
 </script>
 
 {#if show}
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
     <div
         class="prefix-dialog-overlay"
         class:prefix-dialog-overlay-up={zIndexPlus}
+        class:prefix-dialog-overlay-capture={clickOutsideClose}
+        onpointerdown={(e) => {
+            pressOnOverlay = clickOutsideClose && e.target === e.currentTarget;
+        }}
+        onclick={(e) => {
+            if (clickOutsideClose && pressOnOverlay && e.target === e.currentTarget) {
+                pressOnOverlay = false;
+                // 与 × 钮同语义：onClose 优先于 dm（都不传=no-op）
+                if (onClose) onClose();
+                else dm?.destroyBy();
+            }
+        }}
         onmousedown={(e) => e.stopPropagation()}
         ontouchstart={(e) => e.stopPropagation()}
         style="z-index: {zIndexPlus ? 998 : baseZIndex - 1}"
@@ -711,6 +733,13 @@
         align-items: center;
         justify-content: center;
         pointer-events: none;
+    }
+
+    /* 点外自动关形态（fballshort □2）：overlay 从纯视觉层（pointer-events:none 点击穿底
+       不挡底层 UI）变捕获层——点 overlay 本体=关窗（承接旧内核 Dialog 透明遮罩语义）；
+       窗体 .prefix-dialog 自带 pointer-events:all 不受影响 */
+    .prefix-dialog-overlay-capture {
+        pointer-events: all;
     }
 
     .prefix-dialog-overlay-up {

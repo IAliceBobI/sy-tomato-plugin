@@ -1,5 +1,3 @@
-import { Dialog } from "siyuan";
-import { newID } from "stonev5-utils";
 import { events } from "../libs/Events";
 import { OpenSyFile2 } from "../libs/docUtils";
 import {
@@ -13,7 +11,7 @@ import { debugLog } from "../libs/logUtils";
 import { floatingballBallList, floatingballDocOpenBottom, floatingballKeepBall, storeNoteBox_selectedNotebook } from "../libs/stores";
 import { tomatoI18n } from "../tomatoI18n";
 import { getFloatingBall, ballOverLimit, FloatingBall, getFloatingBallProtyleDialog, getFloatingBallProtyleDialogDM } from "../FloatingBall";
-import { pickToggleBall, toggleDecision, isOpenDocTypeFloat, keepBallClickDecision, resolveFocusID, shouldPrefetchTail, fetchTailWindow } from "../libs/ballDocToggle";
+import { pickToggleBall, toggleDecision, isOpenDocTypeFloat, keepBallClickDecision, resolveFocusID, shouldPrefetchTail, fetchTailWindow, floatingDialogPositionKey } from "../libs/ballDocToggle";
 import {
     FloatingBallDocType_autoclose,
     FloatingBallDocType_tab,
@@ -29,8 +27,11 @@ import type { BallAction } from "./index";
 // 搜到自愈写回），治重名开错/改名断链。
 // 期3 起修饰键删除暗手势退役——删除唯一入口收敛到右键/长按菜单（libs/ballMenu.ts）。
 
-// dialog 打开方式的会话态（每球至多一个 Dialog；不落 settings 故不入 BallItem）
-const dialogs = new WeakMap<BallItem, Dialog>();
+// dialog 打开方式的会话态（每球至多一个窗；不落 settings 故不入 BallItem）。fballshort
+// □2：裸内核 Dialog 换自绘 DialogSvelte 壳（ProtyleSv4Dialog 内 host）——句柄只剩
+// destroy 一个面（dm.destroyBy 薄包），execute/unbindBall 的 toggle 探测语义不变
+type DialogHandle = { destroy: () => void };
+const dialogs = new WeakMap<BallItem, DialogHandle>();
 
 // fbfeat □1：最近使用的 doc 球 id（⌘⇧F8 toggle 的目标）。挂 globalThis——petal 写会触发
 // 前端插件整重载把模块级内存态归零，跨代存活只有全局对象（ws 事务监听配对坑同款）
@@ -114,7 +115,16 @@ export const docAction: BallAction = {
                 await siyuan.pushMsg(tomatoI18n.无可用笔记本请先打开, 2500);
                 return;
             }
-            docID = (await siyuan.createDailyNote(nb)).id;
+            // fballshort □6：nb 非空≠内核侧真有此本——复刻空间 petal 带主实例笔记本 id
+            // 时内核 code 1 notebook not found，siyuan.call 对 code≠0 恒返 null（不
+            // throw），裸取 .id 抛 TypeError 断 execute（run1 □3 e2e pageerror 实锤；
+            // □7 判空只盖三级兜底全空、未盖这层）。同款 pushMsg 早退，球点击有反馈
+            const dailyNote = await siyuan.createDailyNote(nb);
+            if (!dailyNote?.id) {
+                await siyuan.pushMsg(tomatoI18n.无可用笔记本请先打开, 2500);
+                return;
+            }
+            docID = dailyNote.id;
         }
         if (events.isMobile) {
             if (dialogs.get(ball) != null) {
@@ -228,60 +238,69 @@ export const docAction: BallAction = {
     },
 };
 
-async function openByDialog(ball: BallItem, docID = "") {
-    const item = ball.action ?? {};
-    const dm = new DestroyManager();
-    // fballtail □2：跳底直载预取（同 □1 float 分支）——开关开才查尾窗（真树序尾部
-    // N 块，N 与内核窗口上限同源），经 props 传入 ProtyleSv4Dialog 构造期种档直载
-    // （内核官方重开恢复管线，一次请求一次渲染落底）；预取失败/空/docID 未解析→
-    // undefined→组件普通头窗构造（原 scrollDocBottomForDoc「头窗+轮询滚底」通道已
-    // 退役——统一通道胜过特殊化）。本链无 restore 面（lastRead 记录/恢复是 float
-    // 窗特性）——开关开恒预取，与现行「开恒滚底」语义一致。预取 await 在开窗前
-    // （一次 getTailChildBlocks 往返），换「窗开瞬间即构造且直落底部」无中间画帧；
-    // mobile 同链（execute isMobile 分支同传 docID）。
-    // fballfb □5：dialog 型（拖动常驻+disableClose）退役后本通道只剩 autoclose（桌面）
-    // 与 mobile 两形态，都是「点外即关」——disableClose 恒 false、dialog2floating
-    // 拖动常驻分支随参数删除（原 autoclose 布尔已无行为差异）
-    const tail = shouldPrefetchTail(floatingballDocOpenBottom.get() === true)
-        ? await fetchTailWindow(docID, (bid, n) => siyuan.getTailChildBlocks(bid, n))
-        : undefined;
-    debugLog("fball", `dialog tail prefetch ${tail ? tail.length + " blocks" : "miss"} doc=${(docID || item.docID || "-").slice(-6)}`, "fball");
-    const id = newID();
-    const dialog = new Dialog({
-        title: item.docName,
-        // fballtail □4：content 根 div 须带高度（.b3-dialog__body 高 definite）——
-        // 裸 div 高度 auto 时组件 .protyleMount 的 100% 相对非 definite 高退化
-        // 不解析（在档坑：block 容器里子代 height:100% 不解析），protyle 又被内容撑全高
-        content: `<div id="${id}" style="height:100%"></div>`,
-        width: events.isMobile ? "90vw" : "700px",
-        height: events.isMobile ? "180svw" : "700px",
-        destroyCallback: () => {
-            dm.destroyBy();
-            if (dialogs.get(ball) === dialog) dialogs.delete(ball);
-        },
-        transparent: true,
-        disableClose: false,
-        hideCloseIcon: false,
-    });
-    dialogs.set(ball, dialog);
+// fballshort □8（bear 拍板 B=顺手修）：openByDialog 的尾窗预取 await 在 dialogs.set 前，
+// 极速二连点第二击会再走开窗分支——内核卡顿把预取拉宽过双击间隔时理论双开窗（轻载实测
+// <30ms 不可达、后果轻非数据损坏，但守卫只要 5 行）。第二击在第一窗 set 前到达=用户
+// 意图就是开窗，忽略即可；set 后到达不受影响（execute 的 toggle 探测照常关窗）
+const openingDialogBalls = new Set<BallItem>();
 
-    const sv = mount(ProtyleSv4Dialog, {
-        target: dialog.element.querySelector("#" + id),
-        props: {
-            dm,
-            docName: item.docName,
-            // docID 透传（$$dailynote 每次点击现建，解析值只作参数不写回 item——
-            // 写回会让 float 的 dm 键随日期漂移，跨天 toggle 探测 miss 开双窗）
-            docID: docID || item.docID,
-            // 跳底语义全在此 props（openBottom prop 已退役并入 tail 缺省——共享组件
-            // 不读悬浮球域设置，开关判定留在调用方）
-            tail,
-        },
-    });
-    dm.add("dialog", () => {
-        dialog?.destroy();
-    });
-    dm.add("svelte", () => {
-        unmount(sv);
-    });
+async function openByDialog(ball: BallItem, docID = "") {
+    if (openingDialogBalls.has(ball)) return;
+    openingDialogBalls.add(ball);
+    try {
+        const item = ball.action ?? {};
+        const dm = new DestroyManager();
+        // fballtail □2：跳底直载预取（同 □1 float 分支）——开关开才查尾窗（真树序尾部
+        // N 块，N 与内核窗口上限同源），经 props 传入 ProtyleSv4Dialog 构造期种档直载
+        // （内核官方重开恢复管线，一次请求一次渲染落底）；预取失败/空/docID 未解析→
+        // undefined→组件普通头窗构造（原 scrollDocBottomForDoc「头窗+轮询滚底」通道已
+        // 退役——统一通道胜过特殊化）。本链无 restore 面（lastRead 记录/恢复是 float
+        // 窗特性）——开关开恒预取，与现行「开恒滚底」语义一致。预取 await 在开窗前
+        // （一次 getTailChildBlocks 往返），换「窗开瞬间即构造且直落底部」无中间画帧；
+        // mobile 同链（execute isMobile 分支同传 docID）。
+        // fballfb □5：dialog 型（拖动常驻+disableClose）退役后本通道只剩 autoclose（桌面）
+        // 与 mobile 两形态，都是「点外即关」——disableClose 恒 false、dialog2floating
+        // 拖动常驻分支随参数删除（原 autoclose 布尔已无行为差异）
+        const tail = shouldPrefetchTail(floatingballDocOpenBottom.get() === true)
+            ? await fetchTailWindow(docID, (bid, n) => siyuan.getTailChildBlocks(bid, n))
+            : undefined;
+        debugLog("fball", `dialog tail prefetch ${tail ? tail.length + " blocks" : "miss"} doc=${(docID || item.docID || "-").slice(-6)}`, "fball");
+        // fballshort □2 换壳（陆杰「对话框不记忆位置大小」，bear 拍板①~④）：裸内核 Dialog
+        // （固定 700×700 无存档无 resize）→ ProtyleSv4Dialog 内 host 的 DialogSvelte 自绘
+        // 壳（拍板①存档键与 float 悬浮窗共用——键绑 item.docID 稳定值〔$$dailynote 现建
+        // 日记的解析 docID 不进键，与 float dm 键同哲学〕，同一文档换打开方式位置习惯延续；
+        // 拍板②默认尺寸在组件内 autocloseDialogShellProps；拍板③ dialogs 句柄=dm 薄包，
+        // toggle 探测「在则 destroy」语义不变——destroyBy 链 registry→svelte→div 顺抄
+        // FloatingBall 构造序〔unmount 先于 DOM 摘除〕；拍板④点外关=壳层 clickOutsideClose）。
+        // 预取 await 期间 dialogs 尚未 set（与旧壳同时序）：极速二连点双开窗由上方
+        // openingDialogBalls 守卫封死（□8，旧壳遗留理论窗随换壳一并根治）
+        const target = document.body.appendChild(document.createElement("div"));
+        const handle: DialogHandle = { destroy: () => dm.destroyBy() };
+        dm.add("registry", () => {
+            if (dialogs.get(ball) === handle) dialogs.delete(ball);
+        });
+        const sv = mount(ProtyleSv4Dialog, {
+            target,
+            props: {
+                dm,
+                docName: item.docName,
+                // docID 透传（$$dailynote 每次点击现建，解析值只作参数不写回 item——
+                // 写回会让 float 的 dm 键随日期漂移，跨天 toggle 探测 miss 开双窗）
+                docID: docID || item.docID,
+                // 跳底语义全在此 props（openBottom prop 已退役并入 tail 缺省——共享组件
+                // 不读悬浮球域设置，开关判定留在调用方）
+                tail,
+                savePositionKey: floatingDialogPositionKey(item.docID),
+            },
+        });
+        dm.add("svelte", () => {
+            unmount(sv);
+        });
+        dm.add("div", () => {
+            target.remove();
+        });
+        dialogs.set(ball, handle);
+    } finally {
+        openingDialogBalls.delete(ball);
+    }
 }

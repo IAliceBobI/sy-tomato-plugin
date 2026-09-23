@@ -384,6 +384,26 @@ export function shouldPrefetchTail(openBottom: boolean): boolean {
  *  组件 scoped style（悬浮窗/dialog 各自的量级随组件走） */
 export const FBALL_TAIL_PAD_CLASS = "fball-tail-pad";
 
+/** fballshort □1 留白值 CSS 变量名：挂 wysiwyg 内联 custom property，组件 CSS
+ *  `padding-bottom: var(--fball-tail-pad, 旧视口公式) !important` 消费。内联 custom
+ *  property 不在 padding shorthand 内——内核 afterOnGet resize→setPadding 的内联
+ *  style.padding 覆写打不到它；!important 仍在组件样式表层压制内核内联（fballfb □2
+ *  在案坑的内联打不过内联，本变量通道与类通道同框架不新增冲突面） */
+export const FBALL_TAIL_PAD_VAR = "--fball-tail-pad";
+
+/** fballshort □1 留白值计算（纯函数）：窗内容区实际高 → 一半（内核打字机 getPadding
+ *  本义 bottom=element.clientHeight/2，initUI.ts:440）。旧公式 max(calc(50vh-58px),
+ *  20vh)/min(40vh,325px) 全主视口单位——用户 resize 窗后窗高与视口脱钩，留白 ≥ 窗
+ *  内容区高 ⇒ 跳底 scrollTop clamp 的「底」含留白=视口整个落进留白区=全空白、末块与
+ *  光标（钉尾块）都在视口上方（陆杰/bear 09-22 同症，矮窗 260 复现 padB=258.5>cH=165
+ *  精确到底）。跟窗走后留白=窗内容区一半恒小于窗高=任何窗高末块必可见。非有限/非正
+ *  读数（布局未就绪 clientHeight=0、jsdom 等异常形态）→undefined，调用方不写变量=
+ *  组件 CSS fallback（旧视口公式）接管 */
+export function tailPadPx(contentHeight: number): number | undefined {
+    if (!Number.isFinite(contentHeight) || contentHeight <= 0) return undefined;
+    return Math.round(contentHeight / 2);
+}
+
 /** fballfb □2 落底留白：跳底落位后编辑器底部留一段空白（尾行/光标不贴视口底边，
  *  bear 09-21 拍板「跳底了就留白」不加新开关）。借内核打字机模式思路不改内核
  *  （initUI getPadding：typewriterMode→bottom=element.clientHeight/2 写 wysiwyg
@@ -394,10 +414,71 @@ export const FBALL_TAIL_PAD_CLASS = "fball-tail-pad";
  *  无时序竞态）。构造返回后同步挂（内核构造器同步 initUI：wysiwyg DOM 已在而
  *  getDoc 异步在后）——onGet 的 scrollTop 直赋（onGet.ts:627）与 observerLoad
  *  同值重申（:671）按含留白的 scrollHeight clamp 收底=尾行一次渲染落位悬在底边
- *  上方，无二段观感。返回还原函数（摘类，卸窗/复用容器时防样式泄漏） */
+ *  上方，无二段观感。
+ *  fballshort □1 量级跟窗体实际高走（bear 09-22 拍板）：挂类同时写 FBALL_TAIL_PAD_VAR
+ *  （值=tailPadPx(滚动区可视高)——.protyle-content=scrollTop 数学所在滚动容器，与
+ *  诊断/断言同口径，缺省兜底容器自身）；窗被 resize 后经 ResizeObserver 更新变量
+ *  （DialogSvelte resizer 拖拽/存档回放改窗高都表现为内容区尺寸变化，observe 即报
+ *  初始尺寸=首拍布局未就绪时 0 高不写、布局完成自动补写）。无 RO 环境（jsdom）静默
+ *  跳过。返回还原函数（摘类+删变量+断 RO——组件层接 dm 即「卸载即断」，复用容器时
+ *  防样式/变量/observer 泄漏） */
 export function applyBottomPad(container: HTMLElement): () => void {
     const wys = container.querySelector(".protyle-wysiwyg") as HTMLElement | null;
     if (!wys) return () => { };
     wys.classList.add(FBALL_TAIL_PAD_CLASS);
-    return () => { wys.classList.remove(FBALL_TAIL_PAD_CLASS); };
+    const content = (container.querySelector(".protyle-content") ?? container) as HTMLElement;
+    const setVar = () => {
+        const px = tailPadPx(content.clientHeight);
+        if (px === undefined) wys.style.removeProperty(FBALL_TAIL_PAD_VAR);
+        else wys.style.setProperty(FBALL_TAIL_PAD_VAR, `${px}px`);
+    };
+    setVar();
+    let ro: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== "undefined") {
+        ro = new ResizeObserver(setVar);
+        ro.observe(content);
+    }
+    return () => {
+        ro?.disconnect();
+        wys.classList.remove(FBALL_TAIL_PAD_CLASS);
+        wys.style.removeProperty(FBALL_TAIL_PAD_VAR);
+    };
+}
+
+// ---- fballshort □2：autoclose 对话框换 DialogSvelte 壳（拍板①②的纯函数面） ----
+
+/** 窗体存档键前缀钉值：单一事实源=FloatingBall.DMKey（FloatingBall.ts）。此处不 import
+ *  FloatingBall（ballDocToggle 保持轻 import 面，且 FloatingBall.ts 反向 import 本文件
+ *  〔migrateDialogDocBalls〕成环）——字面形态由 ballDocToggle.test 钉住：两侧任一改动
+ *  测试即红（e2e 造数配方同字面，recipe-floatball 在档） */
+const FLOATING_BTN_DM_KEY_PREFIX = "TomatoFloatingBtnDMKey";
+
+/** 悬浮文档窗体存档键（fballshort □2 拍板①）：float 悬浮窗与 autoclose 对话框**共用**
+ *  ——同一文档换打开方式（ConfFloatBall radio 切 openDocType），位置/尺寸习惯延续。
+ *  与 float 链字节级同式：getFloatingBallProtyleDialog 的 address=`protyle#2#<docID>`
+ *  → FloatingBallProtyleDialog 的 savePositionKey=`${FloatingBall.key(address)}#floatingDialog`。
+ *  docID 绑 item.docID 稳定值（bindDoc 恒写串：缺省 ""）——$$dailynote 每天现建的解析
+ *  docID 不进键（日漂移会让存档键天天换新=永不回放，float dm 键同哲学）；DialogSvelte
+ *  再拼 `_${isMobile}_offsetX/offsetY/width/height` 四键落 petal cfg */
+export function floatingDialogPositionKey(docID: string | undefined): string {
+    return `${FLOATING_BTN_DM_KEY_PREFIX}_protyle#2#${docID}#floatingDialog`;
+}
+
+/** autoclose 壳默认尺寸 props（fballshort □2 拍板②：对齐 float 悬浮窗）——桌面=悬浮窗
+ *  同款（FloatingBallProtyleDialog：无显式宽靠 minWidth 420 撑底 + 定高公式 104px≈
+ *  标题栏48+内容padding16+边框2 的「填满窗体」链起点）；mobile 保留旧 Dialog 的
+ *  90vw/180svw 档（小屏 420 定宽会糊脸）。用户 resize 后存档像素值回放覆盖这些缺省 */
+export function autocloseDialogShellProps(isMobile: boolean): {
+    width?: string;
+    height?: string;
+    minWidth?: number;
+} {
+    if (isMobile) {
+        return { width: "90vw", height: "180svw", minWidth: undefined };
+    }
+    return {
+        width: undefined,
+        height: "max(calc(100vh - 116px), calc(40vh + 104px))",
+        minWidth: 420,
+    };
 }

@@ -510,7 +510,9 @@ export const siyuan = {
     async transferBlockRef(fromID: string, toID: string, reloadUI = true): Promise<any> {
         return siyuan.call("/api/block/transferBlockRef", { fromID, toID, reloadUI });
     },
-    async createDailyNote(notebook: string): Promise<{ id: string }> {
+    // notebook 内核侧不存在时 code 1 → siyuan.call 返 null（fballshort □6：调用方
+    // 须判空——petal 指向已不存在笔记本的复刻/迁移空间会踩）
+    async createDailyNote(notebook: string): Promise<{ id: string } | null> {
         return siyuan.call("/api/filetree/createDailyNote", { notebook });
     },
     async checkBlockExist(id: string): Promise<boolean> {

@@ -4338,6 +4338,63 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    /** 胶囊 hover 来源提示的失败态（getBlockInfo null=源在关闭笔记本/已删；revsrcguard 批） */
+    public get 来源不可达() {
+        switch (this.lang) {
+            case "zh_CN": return "来源不可达（可能在已关闭的笔记本中）";
+            case "zh_CHT": return "來源不可達（可能在已關閉的筆記本中）";
+            case "en_US":
+            default: return "Source unreachable (notebook may be closed)";
+        }
+    }
+
+    /** 复习界面源不可达提示条主文案（revsrcguard，650189 09-23 帖） */
+    public get 背诵卡源不可达() {
+        switch (this.lang) {
+            case "zh_CN": return "这张背诵卡的来源在已关闭的笔记本中";
+            case "zh_CHT": return "這張背誦卡的來源在已關閉的筆記本中";
+            case "en_US":
+            default: return "This card's source is in a closed notebook";
+        }
+    }
+
+    public get 跳过这张() {
+        switch (this.lang) {
+            case "zh_CN": return "跳过这张";
+            case "zh_CHT": return "跳過這張";
+            case "en_US":
+            default: return "Skip";
+        }
+    }
+
+    public get 移除背诵卡() {
+        switch (this.lang) {
+            case "zh_CN": return "移除背诵卡";
+            case "zh_CHT": return "移除背誦卡";
+            case "en_US":
+            default: return "Remove card";
+        }
+    }
+
+    public get 已移除背诵卡() {
+        switch (this.lang) {
+            case "zh_CN": return "已移除这张背诵卡";
+            case "zh_CHT": return "已移除這張背誦卡";
+            case "en_US":
+            default: return "Recitation card removed";
+        }
+    }
+
+    /** 火苗 tooltip 尾行（revsrcguard 同批 650189 09-23 帖）：今日待轮转书数 */
+    public 今日待轮转N本(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `今日待轮转 ${n} 本`;
+            case "zh_CHT": return `今日待輪轉 ${n} 本`;
+            case "en_US":
+            default: return `${n} book${n === 1 ? "" : "s"} in rotation`;
+        }
+    }
+
     /** 多摘列表头部计数（可见性期1 □1 B）：N=去重后的摘抄文档数 */
     public 摘抄列表共(n: number) {
         switch (this.lang) {

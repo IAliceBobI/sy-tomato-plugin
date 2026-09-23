@@ -89,8 +89,10 @@
         // fballfb □2 落底留白：跳底落位后尾行不贴视口底边（「跳底了就留白」，不加新
         // 开关）——直载与回退 slider 链都跳底，故 openBottom 开即挂标记类（压制的
         // !important CSS 在本组件 style 段：内核 afterOnGet setPadding 会以内联覆写
-        // 插件内联值，挂类+样式表 !important 才压得住）。机制见 applyBottomPad 注释
-        if (openBottom) applyBottomPad(protyleTarget);
+        // 插件内联值，挂类+样式表 !important 才压得住）。fballshort □1 起量级跟窗体
+        // 实际高走：挂类同时写 --fball-tail-pad 变量+ResizeObserver 跟窗 resize，
+        // 还原函数接 dm=卸载即断。机制见 applyBottomPad 注释
+        if (openBottom) dm.add("tailPad", applyBottomPad(protyleTarget));
         // fballfb □6 白屏一闪修法：protyle 空窗期占位（非遮眼）。根因=Dialog 上屏→
         // protyle 首块渲染之间的间隙无任何占用者——内核自家 loading 要 300ms 才上
         // （快机渲染 60ms 完成则永不出现；回退遮眼链更把已渲染内容藏到 jump 收敛），
@@ -300,11 +302,14 @@
         }
     }
     /* fballfb □2 落底留白（跳底时 onMount 挂 fball-tail-pad，见 applyBottomPad）：
-       量级=容器高一半（内核打字机 getPadding 同源语义），公式与上方 .protyleClass
-       高度式同构（max 两支各取半）；!important 压内核 afterOnGet resize→setPadding
-       的内联 style.padding 覆写（e2e 实测内联 16px 顶掉插件内联值）。padding 挂滚动
-       容器内容元素=可滚入的滚动区非死区；:global=内核运行时挂载 DOM（在档坑） */
+       !important 压内核 afterOnGet resize→setPadding 的内联 style.padding 覆写
+       （e2e 实测内联 16px 顶掉插件内联值）。fballshort □1 量级跟窗体实际高走：
+       主值=--fball-tail-pad（applyBottomPad 写入，值=窗内容区高一半，窗 resize 经
+       ResizeObserver 更新——旧公式全主视口单位，用户 resize 后窗高与视口脱钩、
+       留白≥窗内容区高=跳底后视口整落留白区全空白）；fallback 保留旧公式=变量未
+       写上（异常路径）时行为退现状。padding 挂滚动容器内容元素=可滚入的滚动区
+       非死区；:global=内核运行时挂载 DOM（在档坑） */
     .protyleClass :global(.protyle-wysiwyg.fball-tail-pad) {
-        padding-bottom: max(calc(50vh - 58px), 20vh) !important;
+        padding-bottom: var(--fball-tail-pad, max(calc(50vh - 58px), 20vh)) !important;
     }
 </style>
