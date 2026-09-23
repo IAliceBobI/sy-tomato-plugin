@@ -99,7 +99,13 @@ async function addOriginPointCard(blockID: string, ts: string) {
 async function reuseRPCard(cardID: string, oldOrigin: string, originID: string, ts: string): Promise<boolean> {
     try {
         const excerpt = (await siyuan.sqlOne(`select content from blocks where id="${originID}"`))?.content ?? "";
-        // ① 就地改 content（updateBlock md 围栏通道，内核不重生成块 id——契约已钉）
+        // ① 就地改 content（updateBlock md 围栏通道，内核不重生成块 id——契约已钉）。
+        // ⚠️内核坑（annofeed0917 □6 同族，needs0923 换点实锤 2026-09-23）：updateBlock 重写
+        // 内容不迁移既有 custom-* 属性——卡块的 custom-riff-decks（闪卡成员籍）会被剥掉=
+        // 黄条消失/官方判「可快速制卡」，而 storage 卡仍活（复习次数照涨的假象）。两步制：
+        // 改前快照、改后回写+读回验证（挂链同款读回验证制；持续失败返 false 回落全新建卡，
+        // 宁弃进度不产僵尸卡）
+        const prevDecks = ((await siyuan.getBlockAttrs(cardID))?.["custom-riff-decks"]) ?? "";
         const up = await siyuan.updateBlock(
             cardID, buildRPCardBlockMD(buildRPCardContent({ v: 1, origin: originID, ts, excerpt })), "markdown");
         if (!up) {
@@ -112,6 +118,23 @@ async function reuseRPCard(cardID: string, oldOrigin: string, originID: string, 
         if (upID && upID !== cardID) {
             debugLog("rp_card_fail", `reuse ${cardID} id regen ${upID}`, "readpoint");
             return false;
+        }
+        // 恢复/自愈：prevDecks 非空=原样恢复；空=老版换点已剥 IAL 的存量僵尸卡（storage 活、
+        // IAL 无），查 storage 活卡按插件自管口径恢复 QUICK 成员籍；确无 storage 卡（真死块）
+        // 返 false 回落全新建卡——复用一张不存在的卡=新点无卡的换点 bug 原形态
+        let decks = prevDecks;
+        if (!decks) {
+            const live = (await siyuan.getRiffCardsByBlockIDs([cardID]))?.get(cardID) ?? [];
+            decks = live.some(s => !!s.riffCardID) ? Constants.QUICK_DECK_ID : "";
+        }
+        if (!decks) return false;
+        await siyuan.setBlockAttrs(cardID, { "custom-riff-decks": decks } as AttrType);
+        if (((await siyuan.getBlockAttrs(cardID))?.["custom-riff-decks"] ?? "") !== decks) {
+            await siyuan.setBlockAttrs(cardID, { "custom-riff-decks": decks } as AttrType);
+            if (((await siyuan.getBlockAttrs(cardID))?.["custom-riff-decks"] ?? "") !== decks) {
+                debugLog("rp_card_fail", `reuse ${cardID} riff-decks restore miss`, "readpoint");
+                return false;
+            }
         }
         // ② 挪位：卡块跟点走（老版 transMoveBlocksAfter 同语义；写类端点返 null 非失败信号）
         await siyuan.moveBlocksAfter([cardID], originID);

@@ -10592,16 +10592,9 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Daily card folder";
         }
     }
-    // 摘抄落点五档（liulfb □1：再摘抄目录树连续两档，2026-09-21）——以发起文档为锚，
-    // 书/非书通用；再摘抄场景（发起=摘抄文档）即「多次摘抄聚一层 / SM 式知识树」
-    public get 落点同级文档() {
-        switch (this.lang) {
-            case "zh_CN": return "当前文档同级";
-            case "zh_CHT": return "當前文檔同級";
-            case "en_US":
-            default: return "Sibling of current doc";
-        }
-    }
+    // 摘抄落点 child 档（liulfb □1：再摘抄目录树连续，2026-09-21）——以发起文档为锚，
+    // 书/非书通用；再摘抄场景（发起=摘抄文档）即「SM 式知识树」。
+    // needs0923-01 砍 sibling 档：getter 已删（存量设置值 loadStore 迁移 source）
     public get 落点子文档() {
         switch (this.lang) {
             case "zh_CN": return "当前文档子文档";
@@ -10645,10 +10638,10 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get tip摘抄落点() {
         switch (this.lang) {
-            case "zh_CN": return "摘抄文档的保存位置：\n集中归档=书/非书统一进 prog-data/摘抄/digest-来源名（书=digest-书名、非书=digest-源文档名，集中统一管理）\n源文档下方=挂在来源书/文档之下（老版行为）\nDaily card 目录=落进发起文档所在笔记本的 daily card/年/月 目录（按月归档，不看制卡侧的闪卡笔记本设置）\n当前文档同级=挂在发起文档旁边（不建夹，多次摘抄聚一层）\n当前文档子文档=直接挂在发起文档之下（不建夹，SM 式知识树）";
-            case "zh_CHT": return "摘抄文檔的保存位置：\n集中歸檔=書/非書統一進 prog-data/摘抄/digest-來源名（書=digest-書名、非書=digest-源文檔名，集中統一管理）\n源文檔下方=掛在來源書/文檔之下（老版行為）\nDaily card 目錄=落進發起文檔所在筆記本的 daily card/年/月 目錄（按月歸檔，不看製卡側的閃卡筆記本設置）\n當前文檔同級=掛在發起文檔旁邊（不建夾，多次摘抄聚一層）\n當前文檔子文檔=直接掛在發起文檔之下（不建夾，SM 式知識樹）";
+            case "zh_CN": return "摘抄文档的保存位置：\n集中归档=书/非书统一进 prog-data/摘抄/digest-来源名（书=digest-书名、非书=digest-源文档名，集中统一管理）\n源文档下方=挂在来源书/文档之下（老版行为）\nDaily card 目录=落进发起文档所在笔记本的 daily card/年/月 目录（按月归档，不看制卡侧的闪卡笔记本设置）\n当前文档子文档=直接挂在发起文档之下（不建夹，SM 式知识树）";
+            case "zh_CHT": return "摘抄文檔的保存位置：\n集中歸檔=書/非書統一進 prog-data/摘抄/digest-來源名（書=digest-書名、非書=digest-源文檔名，集中統一管理）\n源文檔下方=掛在來源書/文檔之下（老版行為）\nDaily card 目錄=落進發起文檔所在筆記本的 daily card/年/月 目錄（按月歸檔，不看製卡側的閃卡筆記本設置）\n當前文檔子文檔=直接掛在發起文檔之下（不建夾，SM 式知識樹）";
             case "en_US":
-            default: return "Where digest docs are stored:\nCentralized = book and non-book alike into prog-data/摘抄/digest-<source> (digest-<book> for books, digest-<source doc> for the rest, unified management)\nUnder source doc = under the source book/doc (legacy behavior)\nDaily card folder = into daily card/<year>/<month> under the source doc's notebook (ignores the card side's flashcard notebook setting)\nSibling of current doc = next to the doc you digest from (no folder, re-digests stay on one level)\nChild of current doc = directly under the doc you digest from (no folder, SM-style knowledge tree)";
+            default: return "Where digest docs are stored:\nCentralized = book and non-book alike into prog-data/摘抄/digest-<source> (digest-<book> for books, digest-<source doc> for the rest, unified management)\nUnder source doc = under the source book/doc (legacy behavior)\nDaily card folder = into daily card/<year>/<month> under the source doc's notebook (ignores the card side's flashcard notebook setting)\nChild of current doc = directly under the doc you digest from (no folder, SM-style knowledge tree)";
         }
     }
     // graphbox 期1 大文档三档（2026-09-03）：骨架提示/完整加载确认/轮询降级/加载态
