@@ -11,14 +11,14 @@ const STEP4_ZH: Record<McpPluginKind, string> = {
     tomato: "番茄插件工具的用法不确定时，先调用 skills 工具读取说明再干活；",
     progressive: "渐进学习插件工具（progressive）可查书单进度、到期队列与排期，替我推迟重访；",
     recite: "仿写练习插件工具（recite）可通读原文、查询练习与判卷，替我装配练习现场（build_drill 是 Pro 能力，未激活时按返回的引导文案转述我）；",
-    project: "项目容器插件工具（project/task/calendar/line）可替我管理项目与任务、同步飞书日历提醒（line 工具勿对项目外文档使用）；",
+    project: "主线插件工具（project/task/calendar/line）可替我管理项目与任务、同步飞书日历提醒（line 工具勿对项目外文档使用）；",
 };
 
 const STEP4_EN: Record<McpPluginKind, string> = {
     tomato: "when unsure how to use the Tomato Toolbox tools, read the skills tool first before acting;",
     progressive: "the Progressive Learning tool (progressive) can check my reading queue and schedule, and defer reviews for me;",
     recite: "the Recite Practice tool (recite) can read source texts, query practice and grading, and assemble practice drills for me (build_drill is a Pro capability — if not activated, relay the guidance text it returns to me);",
-    project: "the Project Container tools (project/task/calendar/line) can manage my projects and tasks, and sync Feishu calendar reminders (never use the line tool on documents outside a project);",
+    project: "the Mainline tools (project/task/calendar/line) can manage my projects and tasks, and sync Feishu calendar reminders (never use the line tool on documents outside a project);",
 };
 
 function promptZh(plugin: McpPluginKind): string {

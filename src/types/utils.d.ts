@@ -153,6 +153,9 @@ type TomatoSettings = {
     card2dailycard: boolean,
     cardLanding: string,
     mobileTopBar: boolean,
+    /** need-0924-03 浮条入槽入口（直接入槽/摘抄态入槽）按需出现的手动总开关（默认开：
+     *  开=有在写的注册书才显示；关=恒不显示） */
+    floatbarSlotEntryShow: boolean,
     cardAppendTime: boolean,
     /** 卡片顶部来源层级路径（custom-ref/origin-hpath ::before）显示开关，默认关（09-17 群反馈） */
     flashcardShowPath: boolean,

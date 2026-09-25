@@ -3857,6 +3857,79 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    // need-0924-01 到期复访「它来找你」：状态栏 ✧ 角标 + 单张卡片流（鸟 09-24 拍板）
+    public get 到期复访() {
+        switch (this.lang) {
+            case "zh_CN": return "到期复访";
+            case "zh_CHT": return "到期複訪";
+            case "en_US":
+            default: return "Due revisits";
+        }
+    }
+
+    public 到期复访N条(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `到期复访 ${n} 条，点击逐张处理`;
+            case "zh_CHT": return `到期複訪 ${n} 條，點擊逐張處理`;
+            case "en_US":
+            default: return `${n} revisit(s) due — click to process`;
+        }
+    }
+
+    public 剩N张(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `剩 ${n} 张`;
+            case "zh_CHT": return `剩 ${n} 張`;
+            case "en_US":
+            default: return `${n} left`;
+        }
+    }
+
+    public 逾期N天(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `逾期 ${n} 天`;
+            case "zh_CHT": return `逾期 ${n} 天`;
+            case "en_US":
+            default: return `${n} day(s) overdue`;
+        }
+    }
+
+    public get 今天到期() {
+        switch (this.lang) {
+            case "zh_CN": return "今天到期";
+            case "zh_CHT": return "今天到期";
+            case "en_US":
+            default: return "Due today";
+        }
+    }
+
+    public get 复访已清空() {
+        switch (this.lang) {
+            case "zh_CN": return "复访已清空";
+            case "zh_CHT": return "複訪已清空";
+            case "en_US":
+            default: return "All revisits cleared";
+        }
+    }
+
+    public get 看原文() {
+        switch (this.lang) {
+            case "zh_CN": return "看原文";
+            case "zh_CHT": return "看原文";
+            case "en_US":
+            default: return "View source";
+        }
+    }
+
+    public get 无到期复访() {
+        switch (this.lang) {
+            case "zh_CN": return "无到期复访";
+            case "zh_CHT": return "無到期複訪";
+            case "en_US":
+            default: return "No due revisits";
+        }
+    }
+
     public get 不再推送复访确认() {
         switch (this.lang) {
             case "zh_CN": return "移除该文档所有摘抄的复访调度？";
@@ -4348,40 +4421,13 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
-    /** 复习界面源不可达提示条主文案（revsrcguard，650189 09-23 帖） */
-    public get 背诵卡源不可达() {
+    /** 来源胶囊 hover 小字提示：源在已关闭的笔记本（need-0925-02，revsrcguard 长条撤除后承接） */
+    public get 来源在关闭的笔记本() {
         switch (this.lang) {
-            case "zh_CN": return "这张背诵卡的来源在已关闭的笔记本中";
-            case "zh_CHT": return "這張背誦卡的來源在已關閉的筆記本中";
+            case "zh_CN": return "来源在关闭的笔记本";
+            case "zh_CHT": return "來源在關閉的筆記本";
             case "en_US":
-            default: return "This card's source is in a closed notebook";
-        }
-    }
-
-    public get 跳过这张() {
-        switch (this.lang) {
-            case "zh_CN": return "跳过这张";
-            case "zh_CHT": return "跳過這張";
-            case "en_US":
-            default: return "Skip";
-        }
-    }
-
-    public get 移除背诵卡() {
-        switch (this.lang) {
-            case "zh_CN": return "移除背诵卡";
-            case "zh_CHT": return "移除背誦卡";
-            case "en_US":
-            default: return "Remove card";
-        }
-    }
-
-    public get 已移除背诵卡() {
-        switch (this.lang) {
-            case "zh_CN": return "已移除这张背诵卡";
-            case "zh_CHT": return "已移除這張背誦卡";
-            case "en_US":
-            default: return "Recitation card removed";
+            default: return "Source is in a closed notebook";
         }
     }
 
@@ -6497,12 +6543,12 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
-    public get 归拢老数据() {
+    public get 归拢摘抄() {
         switch (this.lang) {
-            case "zh_CN": return "归拢老数据";
-            case "zh_CHT": return "歸攏老數據";
+            case "zh_CN": return "归拢摘抄";
+            case "zh_CHT": return "歸攏摘抄";
             case "en_US":
-            default: return "Consolidate legacy data";
+            default: return "Consolidate excerpts";
         }
     }
 
@@ -6556,6 +6602,60 @@ export class TomatoI18n extends TomatoI18nABC {
                     (failed ? ` (${failed} failed)` : "") +
                     `, cleaned ${cleaned} empty piece dirs` +
                     (skipped ? `, ${skipped} diary excerpts untouched` : "");
+        }
+    }
+
+    // ===== need-0924-02 归拢后悔药：反向「放回源文档下」+ 落点联动搬迁确认 =====
+    public get 放回源文档下() {
+        switch (this.lang) {
+            case "zh_CN": return "放回源文档下";
+            case "zh_CHT": return "放回源文檔下";
+            case "en_US":
+            default: return "Restore to sources";
+        }
+    }
+    public get 放回中() {
+        switch (this.lang) {
+            case "zh_CN": return "放回中…";
+            case "zh_CHT": return "放回中…";
+            case "en_US":
+            default: return "Restoring…";
+        }
+    }
+    public 放回结果(moved: number, names: string[]) {
+        switch (this.lang) {
+            case "zh_CN":
+            case "zh_CHT":
+                return `放回 ${moved} 个摘抄夹` +
+                    (names.length ? `，未动 ${names.length} 个（无锚定或来源已删）：${names.join("、")}` : "");
+            case "en_US":
+            default:
+                return `Restored ${moved} excerpt folders` +
+                    (names.length ? `, ${names.length} untouched (no anchor or source gone): ${names.join(", ")}` : "");
+        }
+    }
+    public get tip设置放回() {
+        switch (this.lang) {
+            case "zh_CN": return "把摘抄总夹里的摘抄夹按锚定的来源搬回各书/源文档正下方（与「归拢摘抄」反向）；无锚定或来源已删的夹不动";
+            case "zh_CHT": return "把摘抄總夾裡的摘抄夾按錨定的來源搬回各書/源文檔正下方（與「歸攏摘抄」反向）；無錨定或來源已刪的夾不動";
+            case "en_US":
+            default: return "Move excerpt folders in the digest hub back under their anchored source books/docs (reverse of Consolidate); folders without an anchor or with a deleted source stay";
+        }
+    }
+    public get 落点搬总夹确认() {
+        switch (this.lang) {
+            case "zh_CN": return "摘抄落点已改为集中归档。要把现有的摘抄夹一起搬进摘抄总夹吗？（不搬也可以，落点只管新摘抄的保存位置）";
+            case "zh_CHT": return "摘抄落點已改為集中歸檔。要把現有的摘抄夾一起搬進摘抄總夾嗎？（不搬也可以，落點只管新摘抄的保存位置）";
+            case "en_US":
+            default: return "Digest landing changed to centralized. Move existing excerpt folders into the digest hub too? (Skipping is fine — landing only affects new excerpts)";
+        }
+    }
+    public get 落点放回确认() {
+        switch (this.lang) {
+            case "zh_CN": return "摘抄落点已改为源文档下方。要把摘抄总夹里现有的摘抄夹一起放回各来源书/文档正下方吗？（不搬也可以，落点只管新摘抄的保存位置）";
+            case "zh_CHT": return "摘抄落點已改為源文檔下方。要把摘抄總夾裡現有的摘抄夾一起放回各來源書/文檔正下方嗎？（不搬也可以，落點只管新摘抄的保存位置）";
+            case "en_US":
+            default: return "Digest landing changed to under source doc. Restore existing excerpt folders from the digest hub back under their sources too? (Skipping is fine — landing only affects new excerpts)";
         }
     }
 
@@ -8024,6 +8124,47 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "下一個分片：翻頁不刪，片留作草稿，同樣計數";
             case "en_US":
             default: return "Page on: keep this piece as draft, also counts";
+        }
+    }
+    // need-0925-01 片尾「建下一片」（读满档位闸拦停的绕行）按钮族：label+tip+两 toast
+    public get 建下一片() {
+        switch (this.lang) {
+            case "zh_CN": return "建下一片";
+            case "zh_CHT": return "建下一片";
+            case "en_US":
+            default: return "Pre-build next";
+        }
+    }
+    public get 路线片建下一片() {
+        switch (this.lang) {
+            case "zh_CN": return "建下一片：只建文档不打开不计读，读满被拦时可从文档树手动直达；明天轮转自动接上这篇";
+            case "zh_CHT": return "建下一片：只建文檔不打開不計讀，讀滿被攔時可從文檔樹手動直達；明天輪轉自動接上這篇";
+            case "en_US":
+            default: return "Pre-build next piece: create only, no open, no count — reach it from the doc tree when gated; rotation picks it up tomorrow";
+        }
+    }
+    public get 已建好下一片() {
+        switch (this.lang) {
+            case "zh_CN": return "已建好下一片，可从文档树打开";
+            case "zh_CHT": return "已建好下一片，可從文檔樹打開";
+            case "en_US":
+            default: return "Next piece created — open it from the doc tree";
+        }
+    }
+    public get 已是最后一片() {
+        switch (this.lang) {
+            case "zh_CN": return "已是最后一片";
+            case "zh_CHT": return "已是最後一片";
+            case "en_US":
+            default: return "Already the last piece";
+        }
+    }
+    public get 下一片暂未就绪() {
+        switch (this.lang) {
+            case "zh_CN": return "下一片暂未就绪，稍后再点";
+            case "zh_CHT": return "下一片暫未就緒，稍後再點";
+            case "en_US":
+            default: return "Next piece not ready yet, try again later";
         }
     }
     public get 路线组留点什么() {
@@ -12374,6 +12515,35 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    /** need-0924-03 □3：单篇删除且该素材为最后线索（同源无存活胶囊）——出处兜记忆 */
+    public 已删除素材最后线索(name: string) {
+        switch (this.lang) {
+            case "zh_CN": return `已删除素材；这是《${name}》的最后一条线索`;
+            case "zh_CHT": return `已刪除素材；這是《${name}》的最後一條線索`;
+            case "ja_JP": return `素材を削除しました。『${name}』の最後の手がかりでした`;
+            case "es_ES": return `Material eliminado; era la última pista de «${name}»`;
+            case "fr_FR": return `Matériau supprimé ; c'était le dernier indice de « ${name} »`;
+            case "it_IT": return `Materiale eliminato; era l'ultimo indizio di «${name}»`;
+            case "en_US":
+            default: return `Material deleted; this was the last trace of "${name}"`;
+        }
+    }
+
+    /** □3 批量版：names=批内最后线索素材的出处名（书名/文档名） */
+    public 已删除N篇素材M篇最后线索(n: number, names: string[]) {
+        const m = names.length;
+        switch (this.lang) {
+            case "zh_CN": return `已删除 ${n} 篇素材；其中 ${m} 篇是最后线索：${names.map(s => `《${s}》`).join("、")}`;
+            case "zh_CHT": return `已刪除 ${n} 篇素材；其中 ${m} 篇是最後線索：${names.map(s => `《${s}》`).join("、")}`;
+            case "ja_JP": return `${n} 件の素材を削除しました。うち ${m} 件が最後の手がかりでした：${names.map(s => `『${s}』`).join("・")}`;
+            case "es_ES": return `${n} materiales eliminados; ${m} eran la última pista: ${names.map(s => `«${s}»`).join(", ")}`;
+            case "fr_FR": return `${n} matériaux supprimés ; ${m} étaient le dernier indice : ${names.map(s => `« ${s} »`).join(", ")}`;
+            case "it_IT": return `${n} materiali eliminati; ${m} erano l'ultimo indizio: ${names.map(s => `«${s}»`).join(", ")}`;
+            case "en_US":
+            default: return `${n} materials deleted; ${m} were the last trace: ${names.map(s => `"${s}"`).join(", ")}`;
+        }
+    }
+
     /** 护卡断句（0914 □5 分片放开）：挂闪卡段落被拦的两种收场 */
     public 断句完成N块M句跳K段(blocks: number, sentences: number, skipped: number) {
         switch (this.lang) {
@@ -13063,6 +13233,32 @@ export class TomatoI18n extends TomatoI18nABC {
             case "it_IT": return "Invia la selezione direttamente in uno slot del libro di scrittura — senza passare dagli estratti né creare schede; il materiale è testo semplice e il badge torna all'origine";
             case "en_US":
             default: return "Send the selection straight into a writing-book slot — no excerpt pool, no review cards; material is plain text and the badge jumps back to the source";
+        }
+    }
+
+    public get 浮条入槽按钮() {
+        switch (this.lang) {
+            case "zh_CN": return "浮条入槽按钮";
+            case "zh_CHT": return "浮條入槽按鈕";
+            case "ja_JP": return "フロートバーのスロット送りボタン";
+            case "es_ES": return "Botones de ranura en la barra flotante";
+            case "fr_FR": return "Boutons d'emplacement de la barre flottante";
+            case "it_IT": return "Pulsanti slot della barra flottante";
+            case "en_US":
+            default: return "Float-bar slot buttons";
+        }
+    }
+
+    public get tip浮条入槽按钮() {
+        switch (this.lang) {
+            case "zh_CN": return "开启后，建过在写的书时浮条才显示「直接入槽」和摘抄态「入槽」按钮（没建过不显示）\n关闭后恒不显示";
+            case "zh_CHT": return "開啟後，建過在寫的書時浮條才顯示「直接入槽」和摘抄態「入槽」按鈕（沒建過不顯示）\n關閉後恆不顯示";
+            case "ja_JP": return "オンの場合、執筆中の本があるときのみフロートバーに「スロットへ直送」と摘抄状態の「スロットへ」ボタンが表示されます\nオフなら常に非表示";
+            case "es_ES": return "Activado: la barra flotante muestra «Directo a la ranura» y «A la ranura» (modo extracto) solo si existe un libro en escritura\nDesactivado: nunca se muestran";
+            case "fr_FR": return "Activé : la barre flottante affiche « Direct dans l'emplacement » et « A l'emplacement » (mode extrait) seulement s'il existe un livre en écriture\nDésactivé : jamais affichés";
+            case "it_IT": return "Attivo: la barra flottante mostra «Diretto nello slot» e «Nello slot» (modo estratto) solo se esiste un libro in scrittura\nDisattivo: mai mostrati";
+            case "en_US":
+            default: return "On: the float bar shows \"Straight to slot\" and the digest-mode \"To slot\" buttons only when a writing book exists\nOff: never shown";
         }
     }
 

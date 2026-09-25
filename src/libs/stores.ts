@@ -1054,6 +1054,9 @@ export const cardAppendTime = settingFactory("cardAppendTime", false, STORAGE_Pr
 // + body.prog-card-path-on 总闸（渐进 index.ts 订阅挂摘并驱动 JS 逐块写变量）
 export const flashcardShowPath = settingFactory("flashcardShowPath", "off", STORAGE_Prog_SETTINGS, null as TSK);
 export const mobileTopBar = settingFactory("mobileTopBar", true, STORAGE_Prog_SETTINGS, null as TSK);
+// need-0924-03 入槽入口按需出现手动开关（鸟三轮收敛拍板）：默认开=探测到在写的注册书
+// 才显示「直接入槽」/摘抄态「入槽」钮；关=恒不显示（无写作书用户两侧都看不到钮）
+export const floatbarSlotEntryShow = settingFactory("floatbarSlotEntryShow", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const initProgFloatBtnsDisable = settingFactory("initProgFloatBtnsDisable", false, STORAGE_Prog_SETTINGS, null as TSK);
 // 片态浮条首行勾选集（设置面板「浮条」区 checkbox 清单，□10 方案 B：勾=站首行大钮，
 // 未勾=落平铺区小格）；默认 = v5 编排（□18 增 addBook——已落盘的旧六项存储不回填，

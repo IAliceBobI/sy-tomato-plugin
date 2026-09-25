@@ -1482,6 +1482,11 @@
         /* 卡内 .bk-hint--float 与 sticky 工具栏同 z 档时按树序穿透（vision P1-A）：
            整卡自沉一档，hint 仍压得过卡内渐隐 ::after */
         z-index: 0;
+        /* grid item 默认 min-width:auto：卡内表格/代码块/长链接 min-content 超 1fr 列宽
+           时卡片被撑出屏（need-0925-05 移动端横向溢出根因）。归零下限让卡收缩到列宽
+           ——截断态 .bk-body-inner overflow:hidden 裁切、展开/编辑态卡内横向滚动收口。
+           不加 overflow：卡头 b3-tooltips 气泡需溢出卡渲染 */
+        min-width: 0;
         padding: 5px 8px;
         border: 1px solid var(--b3-border-color);
         border-radius: var(--b3-border-radius);
