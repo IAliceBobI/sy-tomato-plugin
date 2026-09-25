@@ -7,6 +7,7 @@ import { schedule } from "./Schedule";
 import { newID } from "stonev5-utils";
 import { openChangelogDialog } from "./libs/changelogDialog";
 import { reloadSelfPlugin } from "./libs/pluginReload";
+import { startClaimHeartbeat } from "./libs/claimLease";
 import { syncSettingsFromDisk } from "./libs/storageHotReload";
 import { rebindTomatoConfigRefs } from "./libs/stores";
 import { debugLog } from "./libs/logUtils";
@@ -680,6 +681,9 @@ export default class ThePlugin extends BaseTomatoPlugin {
         addFoldCmd(this);
         addFoldingAttrBarBtns()
         this.uninitNav = initDocNavigator();
+        // 订单号信任制租约心跳（2026-09-25）：30min 续短码/转正换终身码；本地终身码与
+        // 无申报（404）自动停，终态（rejected/banned）不再重启（新申报经 markClaimPending）
+        startClaimHeartbeat("tomato");
     }
 
     private uninitNav: Func;

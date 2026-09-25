@@ -10,6 +10,8 @@
     import { resetKey, verifyFnByProduct, FREE_KEY } from "./libs/user";
     import type { Product } from "./libs/user";
     import { backfillCloudOnce, extractActivationCode, extractRedeemCode, fingerprintOf, isRedeemCodeShape, recoverFromCloud, redeemCode, redeemErrMsg } from "./libs/redeem";
+    import { claimByOrderNo, claimErrMsg, getClaimStatus, isOrderNoShape, markClaimPending, setClaimStatus } from "./libs/claimLease";
+    import type { ClaimStatus } from "./libs/claimLease";
     import { siyuan } from "./libs/utils";
     import { icon } from "./libs/domUtils";
     import { productPrices } from "./BuyTomato.svelte";
@@ -37,10 +39,22 @@
     let verifying = $state(false); // 防重复激活
     let neighborCode = $state("");
     let showGeneric = $state(true); // 邻居格在场时默认折叠通用区，点「改用激活码或购买」展开
+    // 订单申报状态行（内存态读心跳；弹框打开时取当前值，申报/申报失败路径就地更新）
+    let claimStatusText = $state<ClaimStatus | null>(null);
+
+    // 状态 → 状态行文案（none/approved 不显示——无申报 / 已转正终身码整块语境不成立）
+    function claimStatusI18n(s: ClaimStatus | null): string | null {
+        if (s === "pending") return tomatoI18n.订单号核验中请保持联网;
+        if (s === "rejected") return tomatoI18n.该订单号核对未通过;
+        if (s === "cancelled") return tomatoI18n.订单号已取消可重新填写;
+        if (s === "banned") return tomatoI18n.已失去订单号激活方式;
+        return null;
+    }
 
     const hasNeighbor = $derived(!!neighborCode);
 
     onMount(() => {
+        claimStatusText = getClaimStatus();
         if (neighbor) {
             neighborCode = progressiveCodeFromApp(getApp?.());
             if (neighborCode) showGeneric = false;
@@ -79,11 +93,13 @@
     async function activate() {
         if (verifying) return;
         verifying = true;
-        // 兑换码优先（整串形状 or 全文提取），激活码次之，都无则提示不触网
+        // 兑换码优先（整串形状 or 全文提取），订单号次之（纯数字 15~20 位），激活码第三，
+        // 都无则提示不触网
         const text = $userToken;
         const redeem = isRedeemCodeShape(text)
             ? text.trim().toUpperCase()
             : extractRedeemCode(text);
+        let fromClaim = false; // 订单号申报路（激活尾部不走 backfillCloudOnce——云端已落槽位）
         if (redeem) {
             if (!$userID) {
                 await siyuan.pushMsg(tomatoI18n.如果要激活插件请先登录思源本体的账户);
@@ -107,6 +123,38 @@
             // 兑换码兑换出的码云端 issue() 已落 license，写指纹让下次找回走分支 1 短路
             licenseCloudSynced.set(fingerprintOf(userToken.get()));
             await siyuan.pushMsg(tomatoI18n.兑换成功正在激活);
+        } else if (isOrderNoShape(text)) {
+            // 订单号信任制申报（在线租约）：200 返回 exp=明天的租约码，激活链与兑换码同路；
+            // 同时置核验中状态并启动 30min 心跳（转正后心跳自动换终身码）
+            if (!$userID) {
+                await siyuan.pushMsg(tomatoI18n.如果要激活插件请先登录思源本体的账户);
+                verifying = false;
+                return;
+            }
+            let r: { ec: number; em?: string; code?: string };
+            try {
+                r = await claimByOrderNo(text.trim(), $userID, product);
+            } catch {
+                await siyuan.pushMsg(tomatoI18n.兑换失败请检查网络后重试);
+                verifying = false;
+                return;
+            }
+            if (r.ec !== 200 || !r.code) {
+                // 申报被拒也置状态行（banned/rejected 语义与心跳侧一致；400 不动——多半是
+                // 形状问题，弹框内 toast 已足够）
+                if (r.em === "banned") setClaimStatus("banned");
+                else if (r.em === "rejected") setClaimStatus("rejected");
+                claimStatusText = getClaimStatus();
+                await siyuan.pushMsg(claimErrMsg(r.em));
+                verifying = false;
+                return;
+            }
+            fromClaim = true;
+            userToken.set(r.code);
+            licenseCloudSynced.set(fingerprintOf(userToken.get()));
+            markClaimPending(product);
+            claimStatusText = getClaimStatus();
+            await siyuan.pushMsg(tomatoI18n.提交成功已临时解锁);
         } else {
             const activation = extractActivationCode(text);
             if (activation) {
@@ -125,9 +173,9 @@
         await userToken.write();
         await onActivated?.();
         if (v) {
-            // 本地粘贴激活码路径顺手回填一次云端（spec 批次 B2；兑换码路径云端 issue
-            // 已落 license 不走）——必须 await 完才 reload，reload 会掐断在途请求
-            if (!redeem) await backfillCloudOnce(product);
+            // 本地粘贴激活码路径顺手回填一次云端（spec 批次 B2；兑换码/订单号路径云端已落
+            // license 不走）——必须 await 完才 reload，reload 会掐断在途请求
+            if (!redeem && !fromClaim) await backfillCloudOnce(product);
             // 按激活的 product 重载对应插件（本组件跨插件打包，勿默认 tomato）
             await reloadSelfPlugin(PACKAGE_BY_PRODUCT[product]);
         }
@@ -173,7 +221,7 @@
                 class="b3-text-field ud-code"
                 bind:value={$userToken}
                 onfocus={(e) => e.currentTarget.select()}
-                placeholder={tomatoI18n.粘贴兑换码或激活码}
+                placeholder={tomatoI18n.粘贴订单号兑换码或激活码}
                 spellcheck="false"
             />
             <button
@@ -184,6 +232,14 @@
                 {@html icon("Eye", 16)}
             </button>
         </div>
+        {#if claimStatusI18n(claimStatusText)}
+            <div
+                class="ud-claim-status"
+                class:ud-claim-status--bad={claimStatusText === "rejected" || claimStatusText === "banned"}
+            >
+                {claimStatusI18n(claimStatusText)}
+            </div>
+        {/if}
         <div class="ud-actions">
             <button class="b3-button" onclick={activate} disabled={verifying}>
                 {tomatoI18n.激活}
@@ -195,6 +251,7 @@
                 {tomatoI18n.找回激活码}
             </button>
         </div>
+        <div class="ud-claim-note">{tomatoI18n.订单号激活说明}</div>
     {/if}
 </div>
 
@@ -203,7 +260,7 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
-        padding: 4px 0 8px;
+        padding: 4px 0 12px;
     }
     /* 邻居格：success tint 底 + 勾图标 + 半粗文案，视觉压过下方价格区 */
     .ud-neighbor {
@@ -303,5 +360,27 @@
         display: flex;
         gap: 8px;
         align-items: center;
+    }
+    /* 订单申报状态行：pending 中性底；rejected/banned 警示=浅红 tint 底 + 深红棕字
+    （--b3-card-warning-color 本体是深色值，当底色用对比崩——vision P0 实锤，只当文字色） */
+    .ud-claim-status {
+        padding: 6px 10px;
+        border-radius: var(--b3-border-radius);
+        background-color: var(--b3-theme-surface-lighter);
+        color: var(--b3-theme-on-surface);
+        font-size: 12px;
+        line-height: 1.5;
+        text-wrap: balance;
+    }
+    .ud-claim-status--bad {
+        background-color: rgba(217, 72, 47, 0.08);
+        color: var(--b3-card-warning-color, #d9482f);
+    }
+    /* 订单号激活说明块：信息平铺（不藏 hover），font-color2 次级可读（color3 偏蓝灰太跳） */
+    .ud-claim-note {
+        padding: 2px 2px 0;
+        color: var(--b3-theme-font-color2, var(--b3-font-color2));
+        font-size: 12px;
+        line-height: 1.6;
     }
 </style>
