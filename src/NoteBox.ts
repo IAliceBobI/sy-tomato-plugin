@@ -741,10 +741,22 @@ export async function insertIntoDailynote(text: string, isPic = false, iconOverr
             debugLog("flashlog", `two-step item resolve fail, attrs fallback to container ${cID}`, "dailynote");
         }
     } else {
-        if (flash_thoughts_2_top.get()) {
-            await siyuan.insertBlockAsChildOf(r.md, dayID);
-        } else {
-            await siyuan.appendBlock(r.md, dayID);
+        const resp = flash_thoughts_2_top.get()
+            ? await siyuan.insertBlockAsChildOf(r.md, dayID)
+            : await siyuan.appendBlock(r.md, dayID);
+        // □16：isPic 兜底通道（失焦关窗在途图直落，唯一 isPic=true 调用点）补挂
+        // idea-time——对齐 DOM 通道含图内容形态（主链纯图照挂，仅此兜底链曾漏），近期
+        // 列表（recentDerived 按该键派生）与搬运归位照认；普通 md 通道自带 IAL 不经过
+        // 此补挂。挂失败不阻断落块（列表缺该条而已，debugLog 留痕）
+        if (isPic) {
+            const picID = firstOpID(resp);
+            if (picID) {
+                try {
+                    await siyuan.setBlockAttrs(picID, flashAttrs(getTime()));
+                } catch (e) {
+                    debugLog("flashlog", `pic attrs fail ${picID}: ${e}`, "dailynote");
+                }
+            }
         }
     }
     // flashlog □2：md 支插完回填（预挂 id markdown 通道被认领）；super 形态下钻首个 p

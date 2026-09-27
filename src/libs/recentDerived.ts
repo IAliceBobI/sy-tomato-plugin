@@ -52,8 +52,8 @@ export interface RecentBlockRow {
 
 /** 纯函数：attributes 行 + 全文档块行 → 近期条目（created 倒序=最新在前，截 max）。
  *  正文=宿主链（自身+树序后代）首个「无子且 content 非空」的叶子块——sb/l/i 容器行
- *  content 列是拼合子文本且带缩进前缀空格（实测），叶子 p 最干净；全树无文本叶子
- *  （纯图条目/文本已删）跳过该条不显示。
+ *  content 列是拼合子文本且带缩进前缀空格（实测），叶子 p 最干净；全树无文本叶子时
+ *  子树有图=纯图条目（alt 优先、「图片」占位，□16），无图（文本已删）跳过该条不显示。
  *  类型=宿主 alias 列（emoji 分支/队列搬运 IAL 直落）→ 宿主链上 idea-type/lifelog-type
  *  属性（老收集块/速记标记）→ 正文块 markdown 首部引用锚（DOM 通道分类锚，
  *  flashTypeFromQueueBlock 同款还原链）→「闪念」兜底。
@@ -119,7 +119,17 @@ export function deriveRecentEntries(attrRows: RecentAttrRow[], blockRows: Recent
                 break;
             }
         }
-        if (!textRow) continue; // 子树无文本（纯图/文本已删）：列表无可示内容，跳过
+        if (!textRow) {
+            // □16 纯图条目（bear 09-27 拍板④「列表见图」）：无文本叶子但子树有图片块
+            // （markdown 含 ![…](…)）=纯图闪念——主链 DOM 通道含图内容照挂 idea-time，
+            // 此前只被本守卫拦在列表外。展示=图片 alt 优先、「图片」占位兜底（固定中文
+            // 同「闪念」口径不 i18n）。识别键仍是 idea-time：手动贴日记的图无此属性不进
+            // timeOf，天然不误收；真无文本也无图（文本已删）照旧跳过
+            const img = chain.find(b => /!\[[^\]]*\]\([^)]+\)/.test(b.markdown ?? ""));
+            if (!img) continue;
+            text = (img.markdown ?? "").match(/!\[([^\]]*)\]/)?.[1]?.trim() || "图片";
+            textRow = img;
+        }
 
         const alias = (host.alias ?? "").trim() || aliasAttr.get(host.id) || "";
         const attrType = chain.map(b => typeAttr.get(b.id)).find(v => !!v) ?? "";
