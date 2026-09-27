@@ -29,7 +29,11 @@
     import { isPinned } from "./libs/ui";
     import { DestroyManager } from "./libs/destroyer";
     import { OpenSyFile2 } from "./libs/docUtils";
+    // need-0926-15：近期列表=今日日记实时派生（跨端同源），查询失败/空退回 recentText
+    import { prependRecentItem, recentView, refreshRecentFromDiary, showFallbackRecent } from "./libs/recentDerived";
     import { tomatoI18n } from "./tomatoI18n";
+    // need-0926-10：chips 恒附加纯文本内置类型（与速记小窗 chipsKinds 同源）+显示层 i18n 映射
+    import { chipsKinds, PLAIN_KIND } from "./libs/quicknoteCore";
     import NotebookSelect from "./NotebookSelect.svelte";
 
     export let sm: DestroyManager = null;
@@ -67,14 +71,41 @@
         pickerActive = false;
     }
 
+    // need-0926-16：移动端 Dialog 全屏切换（默认 90vw×150vw 面板太矮、近期列表受限）——
+    // width/height 是 Dialog 构造参数内联在 .b3-dialog__container 上的（内核
+    // dialog/index.ts 构造器），运行时直改容器 style 即时生效，免重开（草稿/列表滚动零
+    // 丢失）；进入前快照原尺寸、退出原样写回=与 NoteBox.ts 构造参数永同源，不在本组件
+    // 复制 90vw/150vw 字面量。全屏取 100vw/100%：被内核移动端 CSS 帽
+    // （max-width: calc(100vw - safe-area)、max-height: 100%）钳到安全区内全屏；
+    // 圆角贴边置 0、退出还原类默认。组件内临时态=每次打开回普通态（不持久化），
+    // 桌面端不走 Dialog 形态（showInDialog 仅移动端入口）恒不渲染本钮
+    let isFullscreen = false;
+    let savedDialogSize: { w: string; h: string } | null = null;
+    function toggleFullscreen() {
+        const host = document
+            .getElementById(NoteBoxID)
+            ?.closest(".b3-dialog__container") as HTMLElement | null;
+        if (!host) return;
+        if (isFullscreen) {
+            isFullscreen = false;
+            if (savedDialogSize) {
+                host.style.width = savedDialogSize.w;
+                host.style.height = savedDialogSize.h;
+            }
+            host.style.borderRadius = "";
+        } else {
+            isFullscreen = true;
+            savedDialogSize = { w: host.style.width, h: host.style.height };
+            host.style.width = "100vw";
+            host.style.height = "100%";
+            host.style.borderRadius = "0";
+        }
+    }
+
     onMount(async () => {
-        NoteTypes = noteBoxAllKinds
-            .get()
-            .replaceAll("，", ",")
-            .split(",")
-            .map((i) => i.trim())
-            .filter((i) => !!i);
-        if (NoteTypes.length == 0) NoteTypes = ["💡"];
+        // need-0926-10：chips 数据源收拢 chipsKinds（解析+空兜底与速记小窗同源，
+        // 尾项恒附加纯文本内置类型——原内联解析逻辑与其等价除附加项外零变化）
+        NoteTypes = chipsKinds(noteBoxAllKinds.get());
         storeNoteBox_selectedNoteType.init(NoteTypes);
         if (sm) {
             window.addEventListener("keydown", handleEscapePress);
@@ -86,7 +117,18 @@
             window.addEventListener("blur", handleWindowBlur);
             window.addEventListener("focus", handleWindowFocus);
         }
+        // need-0926-15：面板挂载先落兜底视图（recentText 快照，防闪空），再查今日日记
+        // 派生（查询失败/空——含 attributes 索引窗——refresh 内部自回落兜底）
+        showFallbackRecent();
+        void refreshRecent();
     });
+
+    /** need-0926-15：派生查询入口（挂载时/手动同步后）。dayID 解析走 getTargetID 与
+     *  「打开日记」同源（按日新日记 / flash_thoughts_target_file 固定文件覆盖） */
+    async function refreshRecent() {
+        const dayID = await getTargetID(storeNoteBox_selectedNotebook.getOr());
+        await refreshRecentFromDiary(dayID);
+    }
 
     onDestroy(() => {
         destroyed = true;
@@ -132,7 +174,10 @@
             return;
         }
         const id = await insertIntoDailynote(text);
-        saveText(text, id); // save to history（容器块 id 随行存入，点击跳日记定位）
+        saveText(text, id); // save to history（容器块 id 随行存入，点击跳日记定位；离线兜底持续积累）
+        // need-0926-15：派生列表乐观 unshift（刚插的块 attributes 1~4s 才进索引，等重查
+        // 会有「记完列表没动静」空窗；下次面板挂载重查自然对齐日记真相）
+        prependRecentItem({ id, type: $storeNoteBox_selectedNoteType.trim(), text });
         await clearText();
         if (!$storeNoteBox_keep) sm?.destroyBy();
     }
@@ -310,9 +355,26 @@ https://learn.svelte.dev/tutorial/if-blocks
         <button
             class="nb-ico b3-tooltips b3-tooltips__n"
             aria-label={tomatoI18n.同步数据}
-            on:click={() => {
-                siyuan.performSync(true);
+            on:click={async () => {
+                await siyuan.performSync(true);
+                // need-0926-15：跨端条目随同步落账——延迟重查派生列表等 attributes
+                // 索引窗（刚同步完查询可能空，在档坑；对齐 requestIdeaIntervalCalc 延迟）
+                setTimeout(() => { void refreshRecent(); }, 3000);
             }}><svg><use xlink:href="#iconCloud"></use></svg></button>
+        <!-- need-0926-16：全屏切换（仅移动端 Dialog 形态渲染——桌面端 dock/子窗形态
+             不经 showInDialog 恒不出现）；图标两态静态条件渲染（内核 iconFullscreen/
+             iconFullscreenExit），aria-label 两态同源切换 -->
+        {#if events.isMobile && isDialog}
+            <button
+                class="nb-ico b3-tooltips b3-tooltips__n"
+                aria-label={isFullscreen ? tomatoI18n.退出全屏 : tomatoI18n.进入全屏}
+                on:click={toggleFullscreen}
+            >{#if isFullscreen}
+                <svg><use xlink:href="#iconFullscreenExit"></use></svg>
+            {:else}
+                <svg><use xlink:href="#iconFullscreen"></use></svg>
+            {/if}</button>
+        {/if}
         <label
             class="nb-keep b3-tooltips b3-tooltips__n"
             aria-label={tomatoI18n.连续输入说明}
@@ -333,20 +395,13 @@ https://learn.svelte.dev/tutorial/if-blocks
                 class:nb-chip--on={$storeNoteBox_selectedNoteType == t}
                 on:click={() => {
                     storeNoteBox_selectedNoteType.save(t);
-                }}>{t}</button
+                }}>{t === PLAIN_KIND ? tomatoI18n.纯文本 : t}</button
             >
         {/each}
     </div>
 
-    {#if events.isMobile && isDialog}
-        <div class="margin">
-            <button
-                class="b3-button b3-button--primary nb-save"
-                on:click={() => saveExit(true)}>{tomatoI18n.保存}</button
-            >
-        </div>
-    {/if}
-
+    <!-- need-0926-14：移动端保存钮只留 textarea 下方一颗（下方主操作位）——原上位
+         同构重复段（古早 commit 并存）删除，双钮同 handler 恒同效无行为差异 -->
     <textarea
         bind:this={inputArea}
         bind:value={$storeNoteBox_noteAreaText}
@@ -369,6 +424,20 @@ https://learn.svelte.dev/tutorial/if-blocks
                 }
             }
         }}
+        on:keydown={(event) => {
+            // need-0926-09：Tab/⇧Tab 循环切类型（与速记小窗同构；textarea 内 Tab
+            // 默认移焦须拦截，裸方向键留给光标）。选中走 chips 同一条链 selectedNoteType.save
+            if (event.key === "Tab") {
+                event.preventDefault();
+                const n = NoteTypes.length;
+                if (n > 1) {
+                    const cur = NoteTypes.indexOf($storeNoteBox_selectedNoteType);
+                    storeNoteBox_selectedNoteType.save(
+                        NoteTypes[(cur + (event.shiftKey ? n - 1 : 1)) % n],
+                    );
+                }
+            }
+        }}
     ></textarea>
 
     {#if events.isMobile && isDialog}
@@ -380,8 +449,10 @@ https://learn.svelte.dev/tutorial/if-blocks
         </div>
     {/if}
 
+    <!-- need-0926-15：近期列表=今日日记实时派生（$recentView：派生条目/兜底 recentText
+         快照，跳转链与条目结构原样复用；编号基数派生=条数、兜底=noteCount） -->
     <div class="tomatoflexCol selectable nb-recent">
-        {#each $storeNoteBox_recentText as item, i}
+        {#each $recentView.items as item, i}
             {#if typeof item === "object" && item.id}
                 <div
                     class="nb-recent__row nb-recent__row--link"
@@ -391,19 +462,19 @@ https://learn.svelte.dev/tutorial/if-blocks
                     on:click={() => { OpenSyFile2(noteBox.plugin, item.id); }}
                     on:keydown={(e) => { if (e.key === "Enter") OpenSyFile2(noteBox.plugin, item.id); }}
                 >
-                    <span class="nb-recent__n">[{$storeNoteBox_noteCount - i}]</span>
+                    <span class="nb-recent__n">[{$recentView.total - i}]</span>
                     <span class="nb-recent__type">{item.type}</span>
                     <span class="nb-recent__text">{item.text}</span>
                 </div>
             {:else if typeof item === "object"}
                 <div class="nb-recent__row">
-                    <span class="nb-recent__n">[{$storeNoteBox_noteCount - i}]</span>
+                    <span class="nb-recent__n">[{$recentView.total - i}]</span>
                     <span class="nb-recent__type">{item.type}</span>
                     <span class="nb-recent__text">{item.text}</span>
                 </div>
             {:else}
                 <div class="nb-recent__row">
-                    <span class="nb-recent__n">[{$storeNoteBox_noteCount - i}]</span>
+                    <span class="nb-recent__n">[{$recentView.total - i}]</span>
                     <span class="nb-recent__text">{item}</span>
                 </div>
             {/if}

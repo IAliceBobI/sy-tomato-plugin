@@ -45,7 +45,7 @@ const STRUCTURAL_KEYS = new Set([
     "noteBoxMobileSync", // 番茄移动端顶栏同步钮（featgate □2：NoteBox onload 注册读死）
     // cssStyle.ts load_* 一次性注入族（无 subscribe，热更不重应用）
     "cardPriBarPos", "cardPriorityBoxAutoHide",
-    "cssRefEffect", "cssSuperBlockBorder", "cssFlashThoughts", "cssShowMemo",
+    "cssRefEffect", "cssSuperBlockBorder", "cssFlashThoughts", "cssFlashThoughtsTask", "cssShowMemo",
     "cssShowFlashCardBlank", "cssShowHomeEndIcon", "cssHomeEndIconLeft",
     "dailyNoteCopyShowPath", "showDocAttrs", "cssNattyList", "cssListBackgound", "cssRefAsTags",
     "graphBlockMarkBar", // 块级标记左边条（graphmark 期2 review P1-2：Bar 结尾不中 checkbox 族，漏登=单独切换保存后不重载不生效）

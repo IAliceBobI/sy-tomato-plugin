@@ -835,11 +835,14 @@ export const siyuan = {
     async insertBlockAsChildOf(data: string, parentID: string, dataType: "markdown" | "dom" = "markdown") {
         return siyuan.call("/api/block/insertBlock", { data, dataType, parentID });
     },
-    // 三兄弟均 reverse：内核 insert op 锚固定——nextID/previousID 插锚点前/后、parentID 落容器
-    // 为头插 PrependChild（kernel/model/transaction.go doInsert0，2026-08-24 源码+实测确认），
-    // 同锚顺序发 op 落库倒序，reverse 后落库=传入序。调用方按期望文档序传入即可，勿预补偿。
+    // After/AsChildOf 两兄弟 reverse：锚固定（previousID 插锚后/parentID 头插 PrependChild，
+    // kernel/model/transaction.go doInsert0，2026-08-24 源码+实测确认），同锚顺序发 op 落库
+    // 倒序，reverse 后落库=传入序。调用方按期望文档序传入即可，勿预补偿。
+    // Before 例外不 reverse：nextID 前插多块内核整组正序落库（2026-09-26 6809 双块实测
+    // [甲,乙]传入→[甲,乙]落库；need-0926-01 □4 e2e 揪出 reverse=倒序 bug，Tag2RefBox 的
+    // 调用侧手动预补偿同批移除）
     transInsertBlocksBefore(domStrs: string[], nextID: string) {
-        return domStrs.slice().reverse().map(data => {
+        return domStrs.map(data => {
             const op = {} as IOperation;
             op.action = "insert";
             op.data = data;

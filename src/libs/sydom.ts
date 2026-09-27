@@ -568,3 +568,28 @@ export function text2divs(text: string, lute?: Lute) {
         .filter(i => !!i)
         .map(i => dom2div(lute.Md2BlockDOM(i)))
 }
+
+/** 裸列表项包壳（need-0926-04）：fine 拖蓝部分覆盖列表会收出裸 NodeListItem（用户
+ *  真选块，脱离 List 容器），裸 li 直接进超级块卡/摘抄容器=内核结构校验拒
+ *  （NodeList cannot contain NodeParagraph 家族 → TxErrCodeReloadUI 整页刷新，0926
+ *  陆杰「段落+无序列表拖蓝混选制卡」三入口必现闪退，6807 实测拒因行在档）。连续
+ *  li 段包一个 NodeList 壳（单 li 同包）；非 li 块原样透传，流序不变。 */
+export function wrapOrphanListItems(divs: HTMLElement[]): HTMLElement[] {
+    const out: HTMLElement[] = [];
+    let buf: HTMLElement[] = [];
+    const flush = () => {
+        if (buf.length === 0) return;
+        const list = new DomListBuilder();
+        // 现成 li 走 container 原生挂载（noteAssembly appendMessageItem 同款先例）——
+        // DomListBuilder.append 语义=「内容块自动包新 li」，现成 li 再走它=双层 li
+        buf.forEach(li => list.container.appendChild(li));
+        out.push(list.build());
+        buf = [];
+    };
+    for (const d of divs) {
+        if (d?.getAttribute?.(DATA_TYPE) === BlockNodeEnum.NODE_LIST_ITEM) buf.push(d);
+        else { flush(); out.push(d); }
+    }
+    flush();
+    return out;
+}

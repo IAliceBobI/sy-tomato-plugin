@@ -29,6 +29,8 @@
     import { syncSettingsFromDisk } from "./libs/storageHotReload";
     import { rebindTomatoConfigRefs } from "./libs/stores";
     import { reloadSelfPlugin } from "./libs/pluginReload";
+    // need-0926-18：间隔计算模式切换落盘后重算当日（save() 挂点）
+    import { recalcIntervalForCurrentDoc } from "./NoteBox";
     import UpgradeBar from "./UpgradeBar.svelte";
     import { lastVerifyResult } from "./libs/user";
     import { searchSettings } from "./libs/ui";
@@ -297,6 +299,10 @@
         const r = await syncSettingsFromDisk(plugin, undefined, diskBefore);
         if (r.changed.length) rebindTomatoConfigRefs(plugin);
         if (r.structural.length) await reloadSelfPlugin();
+        // need-0926-18：间隔计算模式切换落盘后重算当日日记（免等下次打开/点击触发）——
+        // 当前开着日记=旧位置残留立即清+新位置落位；非日记/无编辑器=静默跳过（下次
+        // 打开日记事件链自然按新模式算）。fire-and-forget 不拖面板关闭
+        if (r.changed.includes("idea-interval-mode")) void recalcIntervalForCurrentDoc(false);
     }
 </script>
 

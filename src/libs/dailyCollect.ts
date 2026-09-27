@@ -4,10 +4,16 @@
 // （可选，源文档路径）+ alias（可选，类型/图标）。复制块另保留 custom-super-list="1"
 // 作视觉标记（CSS 下边框），老块零迁移、读侧零兼容层。
 
-/** 收集块容器属性构造：无源（闪念）不落空 ref-hpath 键——省略即「无源可溯」语义 */
-export function collectBlockAttrs(time: string, refHpath?: string): AttrType {
+/** 收集块容器属性构造：无源（闪念）不落空 ref-hpath 键——省略即「无源可溯」语义；
+ *  alias（need-0926-17 可选第三参）：命中内置 emoji 分类时类型直写（面板 emoji 分支
+ *  IAL 同款，读侧近期列表 alias 列优先通道），自定义分类走引用锚不落此键；
+ *  ideaType（need-0926-13 可选第四参）：别名型文字分类的 custom-tomato-idea-type 标记
+ *  （与 alias 同值双写——need-15 派生链第二还原键，历史块 alias 被改时兜底） */
+export function collectBlockAttrs(time: string, refHpath?: string, alias?: string, ideaType?: string): AttrType {
     const attrs: AttrType = { "custom-tomato-idea-time": time };
     if (refHpath) attrs["custom-tomato-ref-hpath"] = refHpath;
+    if (alias) attrs["alias"] = alias;
+    if (ideaType) attrs["custom-tomato-idea-type"] = ideaType;
     return attrs;
 }
 
@@ -33,11 +39,20 @@ export interface LifeTag {
     date?: string;
 }
 
+/** created/updated 时间戳（"YYYY-MM-DD HH:MM:SS"）——lifelogAttrs 与编辑同步回写共用
+ *  （need-0926-03），格式单一事实源防漂移 */
+export function lifelogStamp(day?: string): string {
+    const p2 = (n: number) => String(n).padStart(2, "0");
+    const now = new Date();
+    const d = day ?? `${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())}`;
+    return `${d} ${p2(now.getHours())}:${p2(now.getMinutes())}:${p2(now.getSeconds())}`;
+}
+
 export function lifelogAttrs(tag: LifeTag): AttrType {
     const p2 = (n: number) => String(n).padStart(2, "0");
     const now = new Date();
     const day = tag.date ?? `${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())}`;
-    const stamp = `${day} ${p2(now.getHours())}:${p2(now.getMinutes())}:${p2(now.getSeconds())}`;
+    const stamp = lifelogStamp(day);
     const key = (k: string) => `custom-${LIFELOG_ATTR_PREFIX}-${k}`;
     return {
         [key("content")]: tag.content,

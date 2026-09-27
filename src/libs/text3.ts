@@ -918,6 +918,25 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "Excerpt without backlink";
         }
     }
+    // need-0926-01 □2 提取全部回链开关（与摘抄/分片两键同族第三枚，差异=默认 false
+    // 带链接=现状行为，兄弟两键默认 true 不带）
+    public get 提取全部不加入回溯链接() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "提取全部不加入回溯链接";
+            case "es_ES":
+                return "Extraer todo sin enlace retrospectivo";
+            case "fr_FR":
+                return "Extraire tout sans lien rétrospectif";
+            case "ja_JP":
+                return "すべて抽出にリンクを含めない";
+            case "zh_CHT":
+                return "提取全部不加入回溯鏈接";
+
+            default:
+                return "Extract-all without backlinks";
+        }
+    }
     public get 分片不加入回溯链接() {
         switch (this.lang) {
             case "zh_CN":

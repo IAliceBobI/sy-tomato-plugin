@@ -62,13 +62,16 @@
             padding: 10px 16px 10px;
         }
 
-        /* □4 类型 chips 行：横向滚动防挤爆，chip=紧凑胶囊 */
+        /* □4 类型 chips 行：chip=紧凑胶囊。need-0926-03：小窗变窄时换行（原 nowrap+
+        滚动条双隐=溢出图标视觉直接消失）；行数封顶保输入区活空间，超出兜底滚动 */
         #chips {
             display: flex;
+            flex-wrap: wrap;
             gap: 6px;
-            overflow-x: auto;
+            overflow: auto;
             scrollbar-width: none;
             flex-shrink: 0;
+            max-height: 88px;
             margin-bottom: 8px;
             /* □2 拖动条：整行 drag（frameless 标准方案）——手起窗走；胶囊显式 no-drag 保点击 */
             -webkit-app-region: drag;
@@ -279,12 +282,17 @@
         let icon = "💡";
         let keep = false;
 
+        // need-0926-10：纯文本内置类型（插件侧 PLAIN_KIND 常量同值字面量——静态页无模块
+        // 系统）。值恒「纯文本」（属性口径固定中文，不随 UI 语言漂移），仅显示层随语言映射
+        const PLAIN_KIND = "纯文本";
+        const chipLabel = (t) => (t === PLAIN_KIND ? (zh ? "纯文本" : "Plain text") : t);
+
         function renderChips() {
             chips.innerHTML = "";
             for (const t of icons) {
                 const s = document.createElement("span");
                 s.className = "chip" + (t === icon ? " on" : "");
-                s.textContent = t;
+                s.textContent = chipLabel(t);
                 s.addEventListener("click", () => setIcon(t));
                 chips.appendChild(s);
             }
@@ -414,6 +422,15 @@
             } else if (e.key === "Escape") {
                 e.preventDefault();
                 hide();
+            } else if (e.key === "Tab") {
+                // need-0926-09：Tab/⇧Tab 循环切类型（textarea 内 Tab 默认移焦，须拦截；
+                // 裸方向键留给光标移动不走此分支）。选中走 setIcon=与 click 同一条选中链
+                e.preventDefault();
+                const n = icons.length;
+                if (n > 1) {
+                    const cur = icons.indexOf(icon); // -1 兜底：现值不在类型集也能落合法下标
+                    setIcon(icons[(cur + (e.shiftKey ? n - 1 : 1)) % n]);
+                }
             }
         });
         // 点击提示行/按钮等非输入区不夺焦（review P2：丢了 textarea 焦点=输入死且无自愈；

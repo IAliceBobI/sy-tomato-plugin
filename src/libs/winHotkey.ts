@@ -1,5 +1,6 @@
 import { events } from "./Events";
 import { lastVerifyResult } from "./user";
+import { debugLog } from "./logUtils";
 import { Siyuan } from "./utils";
 
 
@@ -76,8 +77,10 @@ export function winHotkey(m: string, langKey: string, icon?: string, langText?: 
     const hotkeySet: Map<string, string> = globalThis.wieyqstvaPUaBkyoBGpsBztqoIZPplSyMWEETBcF
     // 同条目重注册静默：思源 window.eval 执行插件无模块缓存，重载插件/新前端加载会整轮重跑顶层声明，
     // (m, langKey) 完全一致的重复注册是常态（历史误报刷屏根因）；仅键被不同命令抢占时才告警
-    if (hotkeySet.has(m) && hotkeySet.get(m) !== langKey) console.warn("发现重复的hotkey：", m, langKey, "--------", hotkeySet.get(m))
-    if (hotkeySet.has(langKey) && hotkeySet.get(langKey) !== m) console.warn("发现重复的langKey：", m, langKey, "--------", hotkeySet.get(langKey))
+    // 2026-09-25 console.warn→debugLog（bear 拍板：撞键容忍不扰用户控制台——如 seller 快捷菜单×
+    // tomato delAllchecked 的 ⌥⇧⌘H 双绑即已知共存；检测仅留本机 Loki 打点）
+    if (hotkeySet.has(m) && hotkeySet.get(m) !== langKey) debugLog("winHotkey", `发现重复的hotkey：${m} ${langKey} -------- ${hotkeySet.get(m)}`)
+    if (hotkeySet.has(langKey) && hotkeySet.get(langKey) !== m) debugLog("winHotkey", `发现重复的langKey：${langKey} ${m} -------- ${hotkeySet.get(langKey)}`)
     // if (officalHotkeys.has(m)) console.warn("发现与官方重复的langKey：", m, langKey, "--------", officalHotkeys.get(m))
     hotkeySet.set(m, langKey);
     hotkeySet.set(langKey, m);

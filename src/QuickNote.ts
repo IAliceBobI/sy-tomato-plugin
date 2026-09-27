@@ -11,15 +11,15 @@
 // 再按即关）、二次起零等待草稿保留。池对象挂 globalThis——插件经 window.eval 重载无
 // 模块缓存，挂 globalThis 后新实例可复用旧窗。
 //
-// 触发形态（□4）：external=外部轻窗（默认）；focus=带出思源主窗前台+打开拍照闪念
-// 面板（Tab 形态，可拖出成浮窗——图片粘贴等全能力留思源内）。
-import { openTab } from "siyuan";
+// 触发形态（□4）：external=外部轻窗（默认）；focus=带出思源主窗前台+唤起拍照闪念
+// Dock 面板（need-0926-08：原 Tab 形态撞 NoteBox 2024-06 主窗守卫恒空壳页签，
+// 主窗入口改走 Dock 通道避双挂载——图片粘贴等全能力留思源内）。
 import { events } from "./libs/Events";
 import { debugLog } from "./libs/logUtils";
 import { isMainWin, siyuan } from "./libs/utils";
 import { OpenSyFile2 } from "./libs/navUtils";
 import { get } from "svelte/store";
-import { getTargetID, insertIntoDailynote, TAB_TYPE } from "./NoteBox";
+import { getTargetID, insertIntoDailynote, noteBox } from "./NoteBox";
 import {
     noteBoxAllKinds,
     quickNoteCheckbox,
@@ -30,7 +30,7 @@ import {
     storeNoteBox_selectedNotebook,
     storeNoteBox_selectedNoteType,
 } from "./libs/stores";
-import { parseNoteKinds, QN_CHANNEL, QN_ICON, qnCloseStale, qnFitRect, qnParseMsg, qnWindowRect } from "./libs/quicknoteCore";
+import { chipsKinds, QN_CHANNEL, QN_ICON, qnCloseStale, qnFitRect, qnParseMsg, qnWindowRect } from "./libs/quicknoteCore";
 import { winHotkey } from "./libs/winHotkey";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
@@ -139,9 +139,9 @@ class QuickNote {
         debugLog("quicknote_hotkey", "", "quicknote");
         // 全局热键理应路由主窗；守卫防分离窗进程各建小窗
         if (!isMainWin()) return;
-        // □4 形态分支：focus=带出思源主窗+打开拍照闪念面板（无外部窗参与）
+        // □4 形态分支：focus=带出思源主窗+唤起拍照闪念 Dock 面板（无外部窗参与）
         if (quickNoteOpenMode.get() === "focus") {
-            await this.openInMainWin();
+            this.openInMainWin();
             return;
         }
         let win = this.win;
@@ -183,8 +183,10 @@ class QuickNote {
         }
     }
 
-    /** focus 形态：思源主窗前台 + 打开拍照闪念 Tab 面板（原 ⌥7 的 openTab 段收编） */
-    private async openInMainWin() {
+    /** focus 形态：思源主窗前台 + 唤起拍照闪念 Dock 面板。need-0926-08：原 openTab custom
+     *  tab 撞 NoteBox.addTab 的 2024-06 主窗守卫（!isMainWin() 才挂载 Svelte）=主窗恒空壳
+     *  页签；主窗入口改走 Dock 通道（ensureDockVisible，幂等），custom tab 仅存分离窗 */
+    private openInMainWin() {
         try {
             const remote = window.require("@electron/remote");
             const main = remote.getCurrentWindow();
@@ -192,15 +194,7 @@ class QuickNote {
             main.show();
             main.focus();
         } catch { /* remote 不可用时仍照常开面板（面板在主窗内） */ }
-        await openTab({
-            app: this.plugin.app,
-            custom: {
-                icon: "iconCamera",
-                title: tomatoI18n.拍照闪念,
-                data: {},
-                id: this.plugin.name + TAB_TYPE,
-            },
-        });
+        noteBox.ensureDockVisible();
     }
 
     /** 首建窗口：按鼠标屏定位 → loadURL（端口随实例变，从插件运行环境推导勿写死） */
@@ -244,11 +238,12 @@ class QuickNote {
         }
     }
 
-    /** 小窗初始态推送：类型集/当前类型/连续输入/透明度（与 NoteBox 面板共享同一组存储） */
+    /** 小窗初始态推送：类型集/当前类型/连续输入/透明度（与 NoteBox 面板共享同一组存储）。
+     *  need-0926-10：类型集走 chipsKinds（与面板同源，尾项恒附加纯文本内置类型） */
     private pushState() {
         this.ch?.postMessage({
             type: "state",
-            icons: parseNoteKinds(noteBoxAllKinds.get()),
+            icons: chipsKinds(noteBoxAllKinds.get()),
             icon: storeNoteBox_selectedNoteType.get() || QN_ICON,
             keep: get(storeNoteBox_keep),
             opacity: this.curOpacity,

@@ -48,10 +48,10 @@
         "https://item.taobao.com/item.htm?ft=t&id=914732195167&skuId=" + TAOBAO_SKU[product],
     );
 
-    // 价格指引文案（2026-08-25）：扫二维码/点链接虽已直达档位，仍明示「买这个价的码、
-    // 收码回设置页粘贴」——买家从店铺别的入口进店时保底不拍错档
+    // 价格指引文案：扫二维码/点链接虽已直达档位，仍明示「买这个价、拍完粘订单号即解锁」
+    // （订单号免等发码先行，兑换码兜底）——买家从店铺别的入口进店时保底不拍错档
     const buyGuide = $derived(
-        tomatoI18n.拍下价格档兑换码收码后回设置页粘贴激活.replaceAll("{price}", String(price)),
+        tomatoI18n.拍下价格档无需等发码.replaceAll("{price}", String(price)),
     );
 
     // 远未来日期（终身码）按「终身」显示，与 ActivationCard badge 口径一致
@@ -99,7 +99,7 @@
             <strong> {tomatoI18n.淘宝店二维码}</strong>
         </div>
         {#if !activated}
-            <div class="center kbd">{buyGuide}</div>
+            <div class="center kbd kbd--guide">{buyGuide}</div>
             <div class="center kbd">{tomatoI18n.可联系客服获取7天试用激活码}</div>
         {/if}
     </div>
@@ -215,6 +215,12 @@
         border: solid 1px var(--b3-theme-surface-lighter);
         border-radius: var(--b3-border-radius);
         box-shadow: inset 0 -1px 0 var(--b3-theme-surface-lighter);
+    }
+    /* 指引行专属：两行长文案（订单号口径），给呼吸感防顶格（vision P2 打磨） */
+    .kbd--guide {
+        padding: 4px 10px;
+        max-width: 94%;
+        line-height: 1.5;
     }
     img[alt="taobao"] {
         margin: 12px 0;

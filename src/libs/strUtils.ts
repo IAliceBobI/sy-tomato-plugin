@@ -346,6 +346,56 @@ export function intervalMinutesBetween(a: { created?: string; time: string }, b:
     return Math.ceil(Math.abs(atime - btime) / (1000 * 60));
 }
 
+// ── 速记间隔归属（need-0926-18）──────────────────────────────────────────────
+// 「间隔计算模式」两档（对齐用户参照插件的「时间计算模式」）：
+//   start=开始模式（默认=存量语义）：间隔算「本条到下一条」、写在较早条身上；
+//   end=结束模式：间隔算「上一条到当前」、写在较晚条身上。
+// 存量属性不迁移；模式只决定「归属写入位置」，间隔分钟数与先后判定逻辑零改动。
+export type IdeaIntervalMode = "start" | "end";
+
+/** 模式值收拢（存量/手改坏值退回默认 start；strUtils 落点=calcTimeInterval 单测同文件域） */
+export function coerceIdeaIntervalMode(v: unknown): IdeaIntervalMode {
+    return v === "end" ? "end" : "start";
+}
+
+/** 间隔归属条目形态（ID_Time 结构子集；interval=盘上现值，仅 calc diff 用，规划本身不读） */
+export interface IdeaIntervalEntry {
+    id: string;
+    time: string;
+    created?: string;
+}
+
+/** a 是否早于 b——**红线：照搬 NoteBox.updateTimeInterval 原比较逻辑（created 全时间戳
+ *  优先，跨天搬运块正确性依赖它；缺/畸形任一侧退回 "2020-01-01 "+HH:MM 平面），只搬不改** */
+export function isEarlierIdea(a: IdeaIntervalEntry, b: IdeaIntervalEntry): boolean {
+    const at = parseIDTimestamp(a.created ?? "");
+    const bt = parseIDTimestamp(b.created ?? "");
+    return (!isNaN(at) && !isNaN(bt))
+        ? at < bt
+        : (new Date("2020-01-01 " + a.time)).getTime() < (new Date("2020-01-01 " + b.time)).getTime();
+}
+
+/** 间隔归属规划（need-0926-18 纯函数，单测覆盖）：输入按文档序排好的速记条，输出
+ *  「每条应有的间隔值」map——在 map 里=应写该值，不在 map 里=应清除（模式切换后旧
+ *  位置的残留靠全量 diff 清掉，空串清值由 cssStyle :not([=""]) 兜底零渲染）。
+ *  start=写在较早条（升序文档序下=最新一条恒无间隔，存量语义）；end=写在较晚条
+ *  （=最早一条无间隔，「距上一条」直觉语义）。相邻对时间相等=早退不写维持原值
+ *  （intervalMinutesBetween null 语义原样）。 */
+export function planIdeaIntervals(times: IdeaIntervalEntry[], mode: IdeaIntervalMode): Map<string, string> {
+    const desired = new Map<string, string>();
+    for (let i = 1; i < times.length; i++) {
+        const a = times[i - 1], b = times[i];
+        const minutes = intervalMinutesBetween(a, b);
+        if (minutes == null) continue;
+        const interval = convertMinutesToTimeFormat(minutes);
+        const aEarlier = isEarlierIdea(a, b);
+        // start=较早者身上（现状 aEarlier 分支）；end=较晚者身上
+        const target = (mode === "start") === aEarlier ? a : b;
+        desired.set(target.id, interval);
+    }
+    return desired;
+}
+
 export class TabBuilder {
     private md: string[];
     private colSize: number;

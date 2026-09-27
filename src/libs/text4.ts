@@ -37,6 +37,24 @@ export abstract class TomatoI18nABC4 extends TomatoI18nABC5 {
                 return "Display the time and type of the flash.";
         }
     }
+    // need-0926-12 ⑤：cssFlashThoughts 子开关行文案（任务项=速记 📌 落的任务列表项）
+    public get 任务项显示时间胶囊() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "任务项显示时间胶囊";
+            case "es_ES":
+                return "Mostrar la cápsula de tiempo en los elementos de tarea";
+            case "fr_FR":
+                return "Afficher la capsule horaire sur les tâches";
+            case "ja_JP":
+                return "タスク項目に時間カプセルを表示";
+            case "zh_CHT":
+                return "任務項顯示時間膠囊";
+
+            default:
+                return "Show time capsule on task items";
+        }
+    }
 
     public get 闪念插入到文件() {
         switch (this.lang) {

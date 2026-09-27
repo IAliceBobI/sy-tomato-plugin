@@ -8,11 +8,16 @@
     import {
         avoiding_cloud_synchronization_conflicts,
         cssFlashThoughts,
+        cssFlashThoughtsTask,
         flash_thoughts_2_top,
         flash_thoughts_target_file,
         flashBlockForm,
+        flashRelayByTime,
         flashStatTag,
+        ideaIntervalMode,
         shorthandRelayEnabled,
+        shorthandRelayMobileHinted,
+        shorthandRelayPathTpl,
         noteBoxAllKinds,
         noteBoxCheckbox,
         noteBoxMobileSync,
@@ -28,11 +33,27 @@
     import { QuickNote速记器全局 } from "./QuickNote";
     import { FastNoteBox创建快速笔记, FastNoteBox打开最后一个笔记, FastNoteBox草稿切换 } from "./FastNoteBox";
     import { tomatoI18n } from "./tomatoI18n";
+    import { events } from "./libs/Events";
+    import { siyuan } from "./libs/utils";
+    import { shouldShowMobileRelayHint } from "./libs/shorthandRelay";
     import HotkeyCap from "./HotkeyCap.svelte";
     import ConfHelpIcon from "./ConfHelpIcon.svelte";
 
     let { codeValid }: { codeValid: boolean } = $props();
     let codeNotValid = $derived(!codeValid);
+
+    // need-0926-07：移动端开启「官方速记搬运」开关瞬间一次性提示（移动端不自动搬运、整理在
+    // 桌面端进行）；防重弹标记 shorthandRelayMobileHinted 走 petal 设置。决策逻辑纯函数
+    // shouldShowMobileRelayHint（单测覆盖）。注意标记只 .set 进内存、随面板保存链落盘——不保存
+    // 则开关本就未生效，标记与开关同生共死；勿在开关回调里 .write()（整份落盘会夹带面板上
+    // 其他未保存的改动）。组件级回调不依赖 NoteBox 面板状态（09-26 ③ 教训：跨面板功能不挂
+    // 可早退链）
+    function onShorthandRelayToggle() {
+        if (shouldShowMobileRelayHint($shorthandRelayEnabled, events.isMobile, shorthandRelayMobileHinted.get())) {
+            shorthandRelayMobileHinted.set(true);
+            siyuan.pushMsg(tomatoI18n.官方速记搬运移动端提示);
+        }
+    }
 </script>
 
     <!-- 拍照闪念（□4 设置域归并 2026-09-06：入口→落点→行为三区；落点区与 ConfDocs
@@ -73,6 +94,9 @@
             <div>
                 <textarea spellcheck="false" class="b3-text-field" bind:value={$noteBoxAllKinds}></textarea>
                 {tomatoI18n.自定义图标}
+                <!-- need-0926-13：声明语法说明行（helpText 弱化，随行参与搜索过滤）——
+                     「@别名」后缀不可见则功能不可发现 -->
+                <div class="helpText">{tomatoI18n.图标别名后缀说明}</div>
             </div>
 
             <div>
@@ -86,8 +110,37 @@
             </div>
 
             <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$shorthandRelayEnabled} />
+                <input
+                    type="checkbox"
+                    class="b3-switch"
+                    bind:checked={$shorthandRelayEnabled}
+                    onchange={onShorthandRelayToggle}
+                />
                 {tomatoI18n.官方速记搬运}
+                <!-- need-0926-07：开关行说明文案（helpText 行内弱化样式，随行参与搜索过滤）——
+                     治「开同步后不生效」移动端静默守卫无说明 -->
+                <div class="helpText">{tomatoI18n.官方速记搬运说明}</div>
+            </div>
+
+            <!-- need-0926-19：官方速记中转路径模板——官方「闪念速记-保存位置」仅移动端有
+                 设置入口且写各设备本机 conf（不进同步）→ 桌面端恒空=搬运死路；插件自存同款
+                 go 日期模板优先定位中转文档（渲染=libs/shorthandRelay.renderShorthandTemplate
+                 受控子集），本机 conf 只作兜底。默认=官方推荐形态日粒度模板。
+                 label 上/输入框全宽下行（ConfKnowledge APIKey 行同款）——默认模板 34 字符，
+                 行内布局必截断（vision P1 09-26） -->
+            <div>
+                {tomatoI18n.官方速记中转路径模板}
+                <input class="b3-text-field" style="width: 100%" bind:value={$shorthandRelayPathTpl} />
+                <div class="helpText">{tomatoI18n.中转路径模板说明}</div>
+            </div>
+
+            <!-- need-0926-11：搬运速记按记录时间归位（官方速记搬运+队列闪念合并两链共用）
+                 ——搬进日记时按记录时刻锚定首个更晚速记块前，非速记块透明穿越、无更晚锚尾插
+                 兜底、不重排存量；默认关=存量恒尾插/头插语义零改动 -->
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$flashRelayByTime} />
+                {tomatoI18n.搬运速记按记录时间归位}
+                <div class="helpText">{tomatoI18n.按记录时间归位说明}</div>
             </div>
 
             <!-- □4（fballfb 2026-09-21）：速记/闪念落块形态三态——super=双层超级块/para=裸
@@ -128,6 +181,26 @@
                 <input type="checkbox" class="b3-switch" bind:checked={$cssFlashThoughts} />
                 {tomatoI18n.显示闪念的时间与类型}
             </div>
+            <!-- need-0926-18：速记间隔计算模式两档（对齐用户参照插件的「时间计算模式」）：
+                 start=间隔算「本条到下一条」写在较早条（默认=存量语义）/end=算「上一条到
+                 当前」写在较晚条；存量属性不迁移，切换保存后自动重算当天日记（IndexConf
+                 save() 挂点）。不挂 cssFlashThoughts 的 if——calc 属性计算与显示开关解耦 -->
+            <div>
+                {tomatoI18n.速记间隔计算模式}
+                <select class="b3-select" bind:value={$ideaIntervalMode}>
+                    <option value="start">{tomatoI18n.间隔模式开始}</option>
+                    <option value="end">{tomatoI18n.间隔模式结束}</option>
+                </select>
+                <div class="helpText">{tomatoI18n.间隔模式说明}</div>
+            </div>
+            <!-- need-0926-12 ⑤：任务项（📌→l/i subtype=t）单独可关时间标识——全局开时才
+                 有意义（全局关=零注入本就不显示），故 if 挂在全局开关下 -->
+            {#if $cssFlashThoughts}
+                <div>
+                    <input type="checkbox" class="b3-switch" bind:checked={$cssFlashThoughtsTask} />
+                    {tomatoI18n.任务项显示时间胶囊}
+                </div>
+            {/if}
         {/if}
     </div>
     <!-- 快速笔记 -->

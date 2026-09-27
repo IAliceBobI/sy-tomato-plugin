@@ -765,6 +765,10 @@ export const noteBoxAllKinds = settingFactory("noteBoxAllKinds", `📌,💡, �
 export const avoiding_cloud_synchronization_conflicts = settingFactory("avoiding-cloud-synchronization-conflicts", false, STORAGE_SETTINGS, null as TSK);
 export const flash_thoughts_2_top = settingFactory("flash-thoughts-2-top", false, STORAGE_SETTINGS, null as TSK);
 export const cssFlashThoughts = settingFactory("cssFlashThoughts", false, STORAGE_SETTINGS, null as TSK);
+// need-0926-12 ⑤：闪念时间标识的「任务项不显示」子开关——cssFlashThoughts 全局开时，任务
+// 项（📌→l/i subtype=t 的 .li）单独可关时间胶囊+间隔角标（成对）；默认 true=存量行为零迁移
+// （任务项照旧显示）。cssStyle 一次性注入族（STRUCTURAL_KEYS 已登记）
+export const cssFlashThoughtsTask = settingFactory("cssFlashThoughtsTask", true, STORAGE_SETTINGS, null as TSK);
 export const cssSuperBlockBorder = settingFactory("cssSuperBlockBorder", false, STORAGE_SETTINGS, null as TSK);
 export const flashThoughtUseDialog = settingFactory("flashThoughtUseDialog", false, STORAGE_SETTINGS, null as TSK);
 // 日记落点的文件级覆盖（□1 语义坐实）：空=每天按内核路径模板创建新日记（内核 v3.4.2+ 自动写
@@ -774,6 +778,18 @@ export const flash_thoughts_target_file = settingFactory("flash-thoughts-target-
 // □2 官方闪念速记吸收（2026-09-06）：sync_end 自动把官方速记中转文档新块搬进日记管线
 // （libs/shorthandRelay.ts；仅支持官方 ShorthandSavePath 日期模板模式）；默认关=新功能不惊喜
 export const shorthandRelayEnabled = settingFactory("shorthandRelayEnabled", false, STORAGE_SETTINGS, null as TSK);
+// need-0926-07：移动端开启「官方速记搬运」开关的一次性提示已弹标记（防重弹）——只在移动端
+// 开启瞬间弹一次（ConfCapture.onShorthandRelayToggle），随面板保存链落盘；非 onload 注册读死类，
+// 不进 STRUCTURAL_KEYS
+export const shorthandRelayMobileHinted = settingFactory("shorthandRelayMobileHinted", false, STORAGE_SETTINGS, null as TSK);
+// need-0926-19 官方速记中转路径模板：官方「闪念速记-保存位置/路径模板」仅移动端设置 UI 有
+// 入口且写各设备本机 conf.json（conf 不进同步）→ 桌面端 ShorthandSaveBox/Path 恒空=搬运
+// 死路；插件自存同款 go 日期模板（libs/shorthandRelay.renderShorthandTemplate 受控子集
+// 渲染）优先定位中转文档，本机 conf 只作兜底。默认值=官方推荐形态（app fileTree27 示例
+// 前缀）+日粒度布局（搬运=合并模式 B：同日速记进同一文档）；空串=自存通道关闭纯走官方
+// 通道现状。运行时搬运时读，非 onload 注册读死类，不进 STRUCTURAL_KEYS
+export const SHORTHAND_RELAY_TPL_DEFAULT = '/闪念速记/{{now | date "2006-01-02"}}';
+export const shorthandRelayPathTpl = settingFactory("shorthandRelayPathTpl", SHORTHAND_RELAY_TPL_DEFAULT, STORAGE_SETTINGS, null as TSK);
 // 闪念时间记录格式兼容（flashlog □1 2026-09-20）：开启后闪念/官方速记落块时给内容段落块
 // 附 custom-lifelog-* 六键标记（libs/dailyCollect lifelogAttrs），时间记录统计类插件可识别；
 // 默认关=新功能不惊喜。运行时落点判（insertIntoDailynote/shorthandRelay/moveFromQueue 三点），
@@ -785,6 +801,17 @@ export const flashStatTag = settingFactory("flash-stat-tag", false, STORAGE_SETT
 // 勿让开关切换重写已有块（updateBlock 不迁移 custom-* 属性，在档坑）。运行时落点判
 // （insertIntoDailynote/shorthandRelay），非 onload 注册读死类，不进 STRUCTURAL_KEYS
 export const flashBlockForm = settingFactory("flash-block-form", "para", STORAGE_SETTINGS, null as TSK);
+// need-0926-18 速记间隔计算模式（对齐用户参照插件的「时间计算模式」）：start=开始模式
+// （默认=存量语义，间隔算「本条到下一条」写在较早条身上）/end=结束模式（算「上一条到
+// 当前」写在较晚条身上）。存量属性不迁移；calcTimeInterval 运行时读+全量 diff 自清旧
+// 位置残留，非 onload 注册读死类，不进 STRUCTURAL_KEYS
+export const ideaIntervalMode = settingFactory("idea-interval-mode", "start", STORAGE_SETTINGS, null as TSK);
+// need-0926-11 搬运速记按记录时间归位：官方速记搬运（shorthandRelay）与队列闪念合并
+// （NoteBox.moveFromQueue）插进日记时按记录时刻锚定「首个更晚时刻」速记块前归位，非
+// 速记块透明穿越、无更晚锚尾插兜底、不重排存量日记（bear 口径）；默认关=存量恒尾插/
+// 头插语义零改动。运行时落点判（两条搬运链构造 ops 时读），非 onload 注册读死类，
+// 不进 STRUCTURAL_KEYS
+export const flashRelayByTime = settingFactory("flash-relay-by-time", false, STORAGE_SETTINGS, null as TSK);
 // □4 全局小窗失焦自动关（2026-09-06，小记 quick-notes 可移植增强）：子窗失焦即落盘草稿并关窗；
 // pin 住 / 选图对话框在途 / 上传在途时不关。默认开=对标杆品速记手感（草稿持久化不丢内容）
 export const flashThoughtsBlurClose = settingFactory("flashThoughtsBlurClose", true, STORAGE_SETTINGS, null as TSK);
@@ -974,6 +1001,9 @@ export const flashcardAddOriginRef = settingFactory("flashcardAddOriginRef", tru
 export const flashcardMultipleLnks = settingFactory("flashcardMultipleLnks", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const digestNoBacktraceLink = settingFactory("digestNoBacktraceLink", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const pieceNoBacktraceLink = settingFactory("pieceNoBacktraceLink", true, STORAGE_Prog_SETTINGS, null as TSK);
+// need-0926-01 □2 提取全部回链开关：同族第三枚但默认 false=带链接（现状 addHref=true
+// 行为零迁移）；□3 接线 extractAllNotes 读它门控装配 withHref
+export const extractAllNoBacktraceLink = settingFactory("extractAllNoBacktraceLink", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveStart2learn = settingFactory("ProgressiveStart2learn", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveJumpMenu = settingFactory("ProgressiveJumpMenu", false, STORAGE_Prog_SETTINGS, null as TSK);
 // □8期4 移动端选块三钮开关（2026-09-09 发版前 P1 拍板补）：默认开；关=Progressive.ts
@@ -993,6 +1023,10 @@ export const materialCapsuleBorder = settingFactory("materialCapsuleBorder", tru
 // 管理界面的搬迁钮方向——已有夹按 IAL 原位认回（位置无关），改档不自动搬（显式搬走
 // DigestAllDialog 搬迁钮）；阅读书摘抄落点仍由 digestLanding 三档管，两设置互不干涉
 export const writingPoolUnderBook = settingFactory("writingPoolUnderBook", true, STORAGE_Prog_SETTINGS, null as TSK);
+// need-0926-06 槽树折叠记忆（按书，鸟四答拍板②）：bookID → 展开槽 docID 列表；缺省 {}
+// =默认只开第一层；一键收回=删该书键。三处槽菜单（本书槽/批量入槽/入槽）共用一份
+export const slotTreeExpanded = settingFactory(
+    "slotTreeExpanded", {} as Record<string, string[]>, STORAGE_Prog_SETTINGS, null as TSK);
 // 修订痕迹（revtrace □4）：块级「按编辑时间着色」回看视图总开关——纯视图零档案（revTrace.ts：
 // 色层=f(块 updated 距今天数)+enrollment 基线，关掉即无痕）；默认关（□6 呈 bear 拍板，荐默认关），
 // 命令 toggle 与设置面板同此状态（浮条系统开关 toggleFloatBarSystem 同款 .set() 不落盘，

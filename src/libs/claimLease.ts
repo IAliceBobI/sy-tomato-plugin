@@ -85,6 +85,13 @@ export function stopClaimHeartbeat(): void {
 export async function renewOnce(product: Product): Promise<ClaimStatus | null> {
     const uid = userID.get();
     if (!uid) return currentStatus;
+    // 本地无码=未激活/已取消激活（取消激活清码后 onload 重建心跳会走到这）：云端租约
+    // 不自动恢复本地激活——恢复只走显式「找回激活码」（activateFromCloud 覆盖格取租约
+    // 码）。停跳退出：每次 reload 首跳自停，无轮询残留
+    if (!userToken.get()) {
+        stopClaimHeartbeat();
+        return currentStatus;
+    }
     let r: { ec: number; em?: string; code?: string };
     try {
         const res = await fetch(`${FC_BASE_URL}/claim-renew`, {
@@ -98,7 +105,9 @@ export async function renewOnce(product: Product): Promise<ClaimStatus | null> {
     }
     const status = claimStatusFromRenew(r.ec, r.em);
     currentStatus = status;
-    if (r.ec === 200 && r.code && r.code !== userToken.get()) {
+    // 写回前提=本地仍有码：fetch 在途期间被取消激活（清码）的写回即失效（与函数头
+    // 守卫同语义——本地无码不自动恢复）
+    if (r.ec === 200 && r.code && userToken.get() && r.code !== userToken.get()) {
         await userToken.write(r.code);
         // 云端槽位码天然已备份（license/{plugin}/{userID} 即其来源），写指纹挡后续回填
         await licenseCloudSynced.write(fingerprintOf(r.code));
@@ -114,9 +123,11 @@ export async function renewOnce(product: Product): Promise<ClaimStatus | null> {
 }
 
 // 心跳启动（onload 调；申报成功后也调）：30min interval + 即发一次。
-// 不启动的三种情况：本地终身码 / 已在跳 / 内存终态（rejected/banned——新申报会经
-// markClaimPending 重置后再启动）。
+// 不启动的四种情况：本地无码（未激活/已取消激活——申报链 markClaimPending 前已落码，
+// 走到这的本地无码都是真未激活态）/ 本地终身码 / 已在跳 / 内存终态（rejected/banned
+// ——新申报会经 markClaimPending 重置后再启动）。
 export function startClaimHeartbeat(product: Product): void {
+    if (!userToken.get()) return;
     if (isLifetimeToken(userToken.get())) return;
     if (heartbeatTimer != null) return;
     if (currentStatus === "rejected" || currentStatus === "banned") return;

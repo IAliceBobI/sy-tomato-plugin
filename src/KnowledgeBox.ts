@@ -185,8 +185,20 @@ export function knowledgeBoxOnunload() {
 }
 
 function toggleDock() {
-    // dock 已开时命令=聚焦（内核无公开 toggle API，原型先走 open——重复调用内核自去重）
-    (getTomatoPluginInstance() as any).openDock?.(DOCK_TYPE) ?? dm;
+    // need-0926-15：原 openDock?.() 桌面端恒 no-op（Plugin 类无此方法，仅移动端 mobile/dock
+    // util；e2e 演员源码实测）→ 命令点了没反应。改 NoteBox.ensureDockVisible 同款通道（本
+    // 面板在 rightDock）：键=plugin.name+DOCK_TYPE 完整键；已激活且面板区可见不重调（3.8.5
+    // toggleModel 幂等展示，不担收起）。面板未注册/插件未就绪=静默无操作
+    const plugin = getTomatoPluginInstance();
+    const layoutDock = (window.siyuan as any).layout?.rightDock;
+    if (!plugin || !layoutDock) return;
+    const fullType = plugin.name + DOCK_TYPE;
+    const item = document.querySelector(`.dock__item[data-type="${fullType}"]`);
+    if (!item) return;
+    const active = item.classList.contains("dock__item--active");
+    if (!active || layoutDock.panelVisible === false) {
+        layoutDock.toggleModel(fullType, true);
+    }
 }
 
 function addDock() {

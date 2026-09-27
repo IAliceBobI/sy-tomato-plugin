@@ -1,8 +1,10 @@
 import { DATA_NODE_ID, DocAttrShowKey, SPACE } from "./libs/gconst";
-import { cardPriBarPos, cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefEffect, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, graphBlockMarkBar, graphBoxCheckbox, showDocAttrs, uiCleanDocTreeBadge, uiCleanDocTreeCompact, uiCleanEmptyHelp, uiCleanTabBarBtns, uiCleanTabClose, uiCleanTopbarStatus } from "./libs/stores";
+import { cardPriBarPos, cardPriorityBoxAutoHide, cardPriorityBoxCheckbox, cssFlashThoughts, cssFlashThoughtsTask, cssHomeEndIconLeft, cssListBackgound, cssNattyList, cssRefAsTags, cssRefEffect, cssShowFlashCardBlank, cssShowHomeEndIcon, cssShowMemo, cssSuperBlockBorder, dailyNoteCopyShowPath, graphBlockMarkBar, graphBoxCheckbox, showDocAttrs, uiCleanDocTreeBadge, uiCleanDocTreeCompact, uiCleanEmptyHelp, uiCleanTabBarBtns, uiCleanTabClose, uiCleanTopbarStatus } from "./libs/stores";
 import { verifyKeyTomato } from "./libs/user";
 import { getAttribute, Siyuan } from "./libs/utils";
 import { BLOCK_MARK_ATTR } from "./libs/graphMarks";
+// need-0926-10：纯文本类型排除规则的属性值单一事实源（与落块侧同源防漂移）
+import { PLAIN_KIND } from "./libs/quicknoteCore";
 
 let observer: MutationObserver;
 let _loaded = false;
@@ -323,7 +325,30 @@ function load_superblock_border() {
 
 function load_cssFlashThoughts() {
     if (!cssFlashThoughts.get()) return;
-    appendTomatoStyle(`
+    appendTomatoStyle(flashThoughtsCSS(cssFlashThoughtsTask.get()));
+}
+
+/** need-0926-12 ⑤⑦：闪念时间胶囊/间隔角标 CSS 产物纯函数（单测注入产物断言源）。
+ *  taskTime=false 时追加任务项（📌→l/i subtype=t）排除规则：时间胶囊+间隔角标成对关。
+ *  全局开关 cssFlashThoughts 语义不动（false=本函数不被调用，零注入）。
+ *
+ *  ⑦ 定位归一（行尾锚定）内核依据（siyuan _wysiwyg.scss，3.8.4 源码实测）：
+ *  - `.protyle-wysiwyg [data-node-id].li::before`（≈:171）带 position:absolute + left:17px +
+ *    top:calc(1.625em+12px)（列表竖线标记位）——本插件显示规则 (0,3,2) 只赢 content 系属性，
+ *    未声明的 position/left/top 由内核 (0,3,1) 规则供值穿透 → **.li 形态（list/任务两步挂属性
+ *    到 item，flashBlockForm.ts）时间胶囊被 absolute 拉离行首流位**（单行 .li 高≈34px，胶囊
+ *    top≈38px 悬到内容行下方；li 内多块横排时落入第二行区域），而间隔 ::after 仍在流内行尾
+ *    ——两伪元素锚点体系分裂（一 absolute 一流内），特定内容宽度/换行形态下几何交叉重叠
+ *    （「1m 压 13:11 左上角」）。para（p 无内核伪元素 absolute 规则）/super（sb 同）形态不漂。
+ *  - 归一=全部回行内流：::before 显式 position:static 拉回流内行首（.li 变体补 margin-left:34px
+ *    让位勾选框——内核 `.li>[data-node-id]{margin-left:34px}` 只作用真实子块，伪元素须自带），
+ *    ::after 显式 position:static + flex-shrink:0 + nowrap 钉死流内完整尾项（行尾锚定，防挤压
+ *    换行/截断）；内容块 margin-left 归零防与 ::before 双重 34px 空档。
+ *  特异性账（覆盖链逐条核对）：显示变体 (0,3,2) > 内核 .li::before (0,3,1)；归零规则
+ *  (0,4,1) > 内核 `.li>[data-node-id]` (0,4,0)；排除规则 (0,4,2)（[data-subtype] 加档）压
+ *  显示变体与内核 fold 变体 (0,4,1)；排除配套恢复 (0,5,1) 压归零规则（见下）。 */
+export function flashThoughtsCSS(taskTime: boolean): string {
+    const css = `
         /* □3 时间戳胶囊化：11px 等宽+1px 边框圆角胶囊（极淡主色底，与主面板 chips 同语言）、去浮雕阴影 */
         .protyle-wysiwyg div[custom-tomato-idea-time]::before,
         /* □4 列表项形态（fballfb 2026-09-21）：内核 .li::before 标记位规则特异性更高会盖掉
@@ -340,25 +365,82 @@ function load_cssFlashThoughts() {
             margin-right: 6px;
             margin-top: 2px;
             align-self: flex-start;
+            /* ⑦ 归一：显式压内核 .li::before 的 absolute 拉扯（p/sb 无害=默认值） */
+            position: static;
+        }
+        /* ⑦ .li 形态 ::before 回流内后让位勾选框（内核 .protyle-action absolute 占 0~34px；
+           伪元素不沾内核 [data-node-id] 子选择器让位规则，须自带同款 34px） */
+        .protyle-wysiwyg div.li[custom-tomato-idea-time]::before {
+            margin-left: 34px;
+        }
+        /* ⑦ .li 形态内容块让位归零（元素限定符抬一档压内核 .li>[data-node-id]{margin-left:34px}，
+           防与 ::before 的 34px 让位叠加出双重空档；普通 .li 无速记属性不受影响） */
+        .protyle-wysiwyg div.li[custom-tomato-idea-time] > [data-node-id] {
+            margin-left: 0;
         }
         /* 间隔值：行尾 12px 淡灰字常显（无色块；09-07 用户反馈 10px 看不清调大，opacity 同步提一档）；
-           垂直居中防悬空（vision P1）、左距 8px 防贴正文——flex row 下 ::after 为 flex 项不会被顶换行，最坏挤压内容盒 */
-        .protyle-wysiwyg div[custom-tomato-idea-interval]::after,
+           垂直居中防悬空（vision P1）、左距 8px 防贴正文——flex row 下 ::after 为 flex 项不会被顶换行，最坏挤压内容盒；
+           ⑦ 归一：显式 position:static（防任何内核/形态 absolute 伪元素规则）+ flex-shrink:0
+           + nowrap（不收缩不折行=恒完整钉在行尾）。
+           need-0926-18：:not([=""]) 兜底=模式切换/清残留时空串值（setBlockAttrs 清值后属性仍在）
+           零渲染零 8px 占位 */
+        .protyle-wysiwyg div[custom-tomato-idea-interval]:not([custom-tomato-idea-interval=""])::after,
         /* □4 列表项形态：与 ::before 同款 .li 特异性变体（内核 li 伪元素规则防御） */
-        .protyle-wysiwyg div.li[custom-tomato-idea-interval]::after {
+        .protyle-wysiwyg div.li[custom-tomato-idea-interval]:not([custom-tomato-idea-interval=""])::after {
             content: attr(custom-tomato-idea-interval);
             font-size: 12px;
             color: var(--b3-theme-on-surface);
             opacity: 0.65;
             margin-left: 8px;
             align-self: center;
+            position: static;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
         /* 容器恢复默认字色，flex row 保留（图片 compose 多行块横排） */
         .protyle-wysiwyg div[custom-tomato-idea-time] {
             display: flex !important;
             flex-direction: row !important;
         }
-    `)
+        /* need-0926-10：纯文本类型（custom-tomato-idea-type=PLAIN_KIND，陆杰 09-26 拍板方案 A
+           「保留属性仅免显示」）不显示时间胶囊+间隔角标——机制同 need-12 任务项排除变体
+           （[idea-type] 加一档特异性）：base 排除 (0,3,2)/(0,4,2) 压 base 显示变体
+           (0,2,2)/(0,3,2)（para/super 形态属性挂 p/sb 本体）；.li 变体 (0,4,2)/(0,5,2) 压
+           .li 显示变体 (0,3,2)/(0,4,2)（list 形态挂 item）。恒追加（类型固有语义，
+           与 cssFlashThoughtsTask 开关正交）；cssFlashThoughts 全局关=本函数不被调用零注入 */
+        .protyle-wysiwyg div[custom-tomato-idea-type="${PLAIN_KIND}"][custom-tomato-idea-time]::before,
+        .protyle-wysiwyg div.li[custom-tomato-idea-type="${PLAIN_KIND}"][custom-tomato-idea-time]::before {
+            content: none;
+        }
+        .protyle-wysiwyg div[custom-tomato-idea-type="${PLAIN_KIND}"][custom-tomato-idea-interval]:not([custom-tomato-idea-interval=""])::after,
+        .protyle-wysiwyg div.li[custom-tomato-idea-type="${PLAIN_KIND}"][custom-tomato-idea-interval]:not([custom-tomato-idea-interval=""])::after {
+            content: none;
+        }
+        /* need-0926-10 排除配套：.li 形态 ::before 无盒不占位后内容块回 34px 让位（普通列表
+           圆点/勾选框 protyle-action absolute 占 0~34px，不恢复则内容贴左缘重叠）；恢复
+           (0,5,1) 严格压归零规则 (0,4,1)（[idea-type] 加档，同 need-12 excludeRestore 手法） */
+        .protyle-wysiwyg div.li[custom-tomato-idea-type="${PLAIN_KIND}"][custom-tomato-idea-time] > [data-node-id] {
+            margin-left: 34px;
+        }
+    `;
+    if (taskTime) return css;
+    return css + `
+        /* ⑤ 任务项（📌→l/i subtype=t）不显示时间标识：时间胶囊+间隔角标成对关。
+           排除规则 (0,4,2)/(0,5,2) 压显示变体 (0,3,2)/(0,4,2，need-0926-18 加 :not 空串
+           兜底后) 与内核 .li::before (0,3,1)/fold 变体 (0,4,1)——间隔排除侧同步带 :not
+           保「严格高于」不落源序平级；单行任务项内核竖线 height 负值本就不显，content:none
+           无可见副作用 */
+        .protyle-wysiwyg div.li[data-subtype="t"][custom-tomato-idea-time]::before,
+        .protyle-wysiwyg div.li[data-subtype="t"][custom-tomato-idea-interval]:not([custom-tomato-idea-interval=""])::after {
+            content: none;
+        }
+        /* ⑤ 排除配套：::before 不占位后内容块让位恢复内核 34px（勾选框 absolute 占 0~34px，
+           不恢复则内容贴左缘与勾选框重叠）；特异性 (0,5,1) 压上方归零规则 (0,4,1)。
+           普通列表项（subtype=u）不命中——其时间胶囊仍在流内占位、归零规则自洽 */
+        .protyle-wysiwyg div.li[data-subtype="t"][custom-tomato-idea-time] > [data-node-id] {
+            margin-left: 34px;
+        }
+    `;
 }
 
 // 外观域·界面净化 6 开关（uiclean 2026-09-12，自 seller index.scss 写死规则迁移改造）。

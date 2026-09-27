@@ -104,22 +104,23 @@ export abstract class TomatoI18nABC extends TomatoI18nABC2 {
         }
     }
 
-    // 购买弹窗价格指引（2026-08-25 SKU 直达后配套）：{price} 由 BuyTomato 按产品价格表
-    // 插值（tomato/progressive 72、recite 10），各语种语序自由
-    public get 拍下价格档兑换码收码后回设置页粘贴激活() {
+    // 购买弹窗价格指引（2026-08-25 SKU 直达配套；09-26 改订单号口径）：{price} 由 BuyTomato
+    // 按产品价格表插值（tomato/progressive 72、recite 10），各语种语序自由。订单号先行——
+    // 拍下即粘单解锁免等发码，兑换码旧路保留兜底
+    public get 拍下价格档无需等发码() {
         switch (this.lang) {
-            case "zh_CN": return "拍下 ￥{price} 档兑换码，客服发码后回到设置页粘贴到激活框即可";
-            case "es_ES": return "Compre el código de canje de ￥{price}; tras recibirlo del atención al cliente, péguelo en el cuadro de activación de la página de ajustes";
-            case "fr_FR": return "Achetez le code d'échange à ￥{price} ; après réception du service client, collez-le dans le champ d'activation de la page des paramètres";
-            case "ja_JP": return "￥{price} の引き換えコードをご注文ください。コードが届いたら、設定ページのアクティベート入力欄に貼り付けてください";
-            case "zh_CHT": return "拍下 ￥{price} 檔兌換碼，客服發碼後回到設定頁貼到激活框即可";
-            case "it_IT": return "Acquisti il codice di riscatto da ￥{price}; ricevuto dal servizio clienti, lo incolli nel campo di attivazione della pagina delle impostazioni";
-            case "de_DE": return "Bestellen Sie den ￥{price}-Einlösungscode; nach Erhalt vom Kundendienst fügen Sie ihn im Aktivierungsfeld der Einstellungsseite ein";
-            case "he_IL": return "הזמינו את קוד המימוש ב-￥{price}; לאחר שתקבלו אותו משירות הלקוחות, הדביקו אותו בשדה ההפעלה בעמוד ההגדרות";
-            case "ru_RU": return "Закажите код активации за ￥{price}; получив его от службы поддержки, вставьте в поле активации на странице настроек";
-            case "pl_PL": return "Zamów kod wymiany za ￥{price}; po otrzymaniu od obsługi klienta wklej go w pole aktywacji na stronie ustawień";
+            case "zh_CN": return "拍下 ￥{price} 档无需等发码：复制淘宝订单号回解锁框粘贴即解锁，人工核对转永久授权；也可等客服发兑换码";
+            case "es_ES": return "Pida el nivel de ￥{price}; sin esperar el código: pegue su número de pedido de Taobao en el cuadro de desbloqueo para activarlo al instante (se vuelve permanente tras la revisión manual), o espere el código de canje";
+            case "fr_FR": return "Commandez le palier à ￥{price} sans attendre de code : collez votre numéro de commande Taobao dans le cadre de déverrouillage pour activer immédiatement (devient permanent après vérification manuelle), ou attendez le code d'échange";
+            case "ja_JP": return "￥{price} 档をご注文後、コードを待つ必要はありません：淘宝（Taobao）の注文番号をコピーして解除ボックスに貼り付ければすぐ解放されます（人工確認後に永久ライセンス化）。引き換えコードを待つこともできます";
+            case "zh_CHT": return "拍下 ￥{price} 檔無需等發碼：複製淘寶訂單號回解鎖框貼上即解鎖，人工核對轉永久授權；也可等客服發兌換碼";
+            case "it_IT": return "Ordini il livello da ￥{price} senza aspettare il codice: incolli il numero d'ordine Taobao nella casella di sblocco per attivarlo subito (diventa permanente dopo la verifica manuale), oppure attenda il codice di riscatto";
+            case "de_DE": return "Bestellen Sie die ￥{price}-Stufe, ohne auf einen Code zu warten: Fügen Sie Ihre Taobao-Bestellnummer im Entsperrfeld ein, um sofort zu aktivieren (wird nach manueller Prüfung dauerhaft), oder warten Sie auf den Einlösungscode";
+            case "he_IL": return "הזמינו את מסלול ￥{price} בלי לחכות לקוד: הדביקו את מספר ההזמנה שלכם בטאובאו בתיבת הפתיחה כדי להפעיל מיד (הופך לקבוע לאחר בדיקה ידנית), או המתינו לקוד המימוש";
+            case "ru_RU": return "Закажите тариф за ￥{price} — ждать код не нужно: вставьте номер заказа Taobao в поле разблокировки для мгновенной активации (станет постоянной после ручной проверки) или дождитесь кода активации";
+            case "pl_PL": return "Zamów poziom za ￥{price} bez czekania na kod: wklej numer zamówienia Taobao w pole odblokowania, aby aktywować natychmiast (staje się trwałe po ręcznej weryfikacji), albo poczekaj na kod wymiany";
             case "en_US":
-            default: return "Order the ￥{price} redemption code; once customer service sends it, paste it into the activation box on the settings page";
+            default: return "Order the ￥{price} tier — no need to wait for a code: paste your Taobao order no. into the unlock box to activate instantly (permanent after manual review), or wait for a redeem code";
         }
     }
 

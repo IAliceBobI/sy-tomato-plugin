@@ -6972,6 +6972,34 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    // need-0926-06 槽树面板（本书槽/入槽选槽三处同构）：搜索占位/收回钮/收回 tip
+    public get 搜索槽名占位() {
+        switch (this.lang) {
+            case "zh_CN": return "搜索槽名…";
+            case "zh_CHT": return "搜索槽名…";
+            case "en_US":
+            default: return "Search slots…";
+        }
+    }
+
+    public get 槽树收回钮() {
+        switch (this.lang) {
+            case "zh_CN": return "收回";
+            case "zh_CHT": return "收回";
+            case "en_US":
+            default: return "Reset";
+        }
+    }
+
+    public get tip槽树收回() {
+        switch (this.lang) {
+            case "zh_CN": return "一键收回：折叠记忆清零，恢复只展开第一层";
+            case "zh_CHT": return "一鍵收回：折疊記憶清零，恢復只展開第一層";
+            case "en_US":
+            default: return "Collapse all back to the first level (clears fold memory)";
+        }
+    }
+
     public get 写作槽不支持删除类操作() {
         switch (this.lang) {
             case "zh_CN": return "写作槽是定稿文档，不支持删除/重插类操作";
@@ -9473,6 +9501,14 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "開啟後摘抄卡不再附「摘自哪裡」的回溯引用行";
             case "en_US":
             default: return "Digest cards no longer get a \"digested from\" backtrace ref line";
+        }
+    }
+    public get tip设置提取回溯() {
+        switch (this.lang) {
+            case "zh_CN": return "开启后「提取所有分片的笔记」产物不再附跳转原文的星号链接";
+            case "zh_CHT": return "開啟後「提取所有分片的筆記」產物不再附跳轉原文的星號鏈接";
+            case "en_US":
+            default: return "Extract-all results no longer get the asterisk links jumping back to source blocks";
         }
     }
     public get tip设置dailycard() {
@@ -13906,13 +13942,36 @@ export class TomatoI18n extends TomatoI18nABC {
     }
     public get 官方速记未配置合并路径() {
         switch (this.lang) {
-            case "zh_CN": return "官方速记未配置合并保存路径（设置-闪念速记-保存位置），配置日期模板后可自动搬运";
-            case "zh_CHT": return "官方速記未配置合併保存路徑（設定-速記-保存位置），配置日期模板後可自動搬運";
-            case "es_ES": return "Las notas rápidas oficiales no tienen ruta de guardado combinada (Ajustes-Notas rápidas), configúrela con plantilla de fecha";
-            case "fr_FR": return "Les notes rapides officielles n'ont pas de chemin d'enregistrement combiné (Paramètres-Notes rapides), configurez un modèle de date";
-            case "ja_JP": return "公式速記に統合保存パスが未設定です（設定-速記-保存場所）、日付テンプレートを設定すると自動移動できます";
+            case "zh_CN": return "官方速记未定位到中转文档——官方保存位置仅移动端可配，请核对移动端（思源设置-闪念速记-保存位置）的路径模板，并在本插件设置的「官方速记中转路径模板」填入同款模板";
+            case "zh_CHT": return "官方速記未定位到中轉文檔——官方保存位置僅移動端可配，請核對移動端（思源設定-速記-保存位置）的路徑模板，並在本插件設定的「官方速記中轉路徑模板」填入同款模板";
+            case "es_ES": return "No se localizó el documento de tránsito: la ubicación oficial solo se configura en móvil; revise la plantilla móvil (Ajustes-Notas rápidas) y ponga la misma en «Plantilla de ruta de tránsito» de este plugin";
+            case "fr_FR": return "Document de transit introuvable : l'emplacement officiel ne se règle que sur mobile ; vérifiez le modèle mobile (Paramètres-Notes rapides) et reportez-le dans « Modèle de route de transit » du plugin";
+            case "ja_JP": return "中継ドキュメントを特定できません——公式の保存場所はモバイルでのみ設定できます。モバイル側（設定-速記-保存場所）のパスを確認し、同じものを本プラグインの「中継パステンプレート」に入力してください";
             case "en_US":
-            default: return "Official quick notes have no merged save path (Settings-Quick notes); set a date template to enable auto-move";
+            default: return "Transit doc not located: the official save location is mobile-only; check the mobile template (Settings-Quick notes) and put the same one into this plugin's \"Transit path template\"";
+        }
+    }
+    // need-0926-19 官方速记中转路径模板：设置行标题+说明（桌面端无官方入口的自存兜底通道）
+    public get 官方速记中转路径模板() {
+        switch (this.lang) {
+            case "zh_CN": return "官方速记中转路径模板";
+            case "zh_CHT": return "官方速記中轉路徑模板";
+            case "es_ES": return "Plantilla de ruta de tránsito";
+            case "fr_FR": return "Modèle de route de transit";
+            case "ja_JP": return "中継パステンプレート";
+            case "en_US":
+            default: return "Transit path template";
+        }
+    }
+    public get 中转路径模板说明() {
+        switch (this.lang) {
+            case "zh_CN": return "官方「闪念速记-保存位置」仅移动端可设置且不随同步分发，桌面端插件用本模板定位中转文档：填入与移动端一致的路径模板（如 /闪念速记/{{now | date \"2006-01-02\"}}，支持日期模板变量），留空则仅用本机官方配置";
+            case "zh_CHT": return "官方「閃念速記-保存位置」僅移動端可設置且不隨同步分發，桌面端插件用本模板定位中轉文檔：填入與移動端一致的路徑模板（如 /閃念速記/{{now | date \"2006-01-02\"}}，支持日期模板變量），留空則僅用本機官方配置";
+            case "es_ES": return "La ubicación oficial de notas rápidas solo se configura en móvil y no se sincroniza: el plugin de escritorio usa esta plantilla para localizar el documento de tránsito; ponga la misma ruta que en móvil (p. ej. /闪念速记/{{now | date \"2006-01-02\"}}, admite variables de fecha); vacío = solo configuración oficial local";
+            case "fr_FR": return "L'emplacement officiel des notes rapides se règle uniquement sur mobile et ne se synchronise pas : le plugin desktop utilise ce modèle pour localiser le document de transit ; mettez la même route que sur mobile (ex. /闪念速记/{{now | date \"2006-01-02\"}}, variables de date admises) ; vide = configuration officielle locale seule";
+            case "ja_JP": return "公式の速記保存場所はモバイル専用で同期されないため、デスクトップのプラグインはこのテンプレートで中継ドキュメントを特定します。モバイルと同じパスを入力してください（例 /闪念速记/{{now | date \"2006-01-02\"}}、日付テンプレート変数対応）。空欄なら端末ローカルの公式設定のみ使用";
+            case "en_US":
+            default: return "The official quick-note save location is mobile-only and not synced: the desktop plugin uses this template to locate the transit doc; put the same path as on mobile (e.g. /闪念速记/{{now | date \"2006-01-02\"}}, date template vars supported); empty = local official config only";
         }
     }
     public get 已搬运速记到日记() {
@@ -13924,6 +13983,97 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "速記{n}件を日記へ移動しました";
             case "en_US":
             default: return "Moved {n} quick notes to diary";
+        }
+    }
+    // need-0926-07「开同步后不生效」提示批：开关行说明+移动端一次性提示+手动三分支诊断
+    public get 官方速记搬运说明() {
+        switch (this.lang) {
+            case "zh_CN": return "自动搬运在桌面端同步结束后触发；移动端只把速记写进中转文档、不自动搬运，整理请在桌面端进行";
+            case "zh_CHT": return "自動搬運在桌面端同步結束後觸發；移動端只把速記寫進中轉文檔、不自動搬運，整理請在桌面端進行";
+            case "es_ES": return "El movimiento automático se dispara al terminar la sincronización en el escritorio; en móvil solo se escribe en el documento de tránsito, no se mueve";
+            case "fr_FR": return "Le déplacement automatique se déclenche à la fin de la synchronisation sur desktop ; sur mobile, seule l'écriture dans le document de transit, pas de déplacement";
+            case "ja_JP": return "自動移動はデスクトップ側の同期完了後に発火します。モバイルは中継ドキュメントに書き込むだけで移動せず、整理はデスクトップで行います";
+            case "en_US":
+            default: return "Auto-move triggers after sync finishes on desktop; mobile only writes to the transit doc and never auto-moves";
+        }
+    }
+    public get 官方速记搬运移动端提示() {
+        switch (this.lang) {
+            case "zh_CN": return "移动端不自动搬运官方速记：速记先写进中转文档，回到桌面端同步后自动整理进日记";
+            case "zh_CHT": return "移動端不自動搬運官方速記：速記先寫進中轉文檔，回到桌面端同步後自動整理進日記";
+            case "es_ES": return "El móvil no mueve automáticamente las notas rápidas: se escriben en el documento de tránsito y el escritorio las pasa al diario tras sincronizar";
+            case "fr_FR": return "Le mobile ne déplace pas automatiquement les notes rapides : elles vont dans le document de transit, puis le desktop les intègre au journal après synchronisation";
+            case "ja_JP": return "モバイルは公式速記を自動移動しません：速記は中継ドキュメントに書き込まれ、デスクトップ同期後に日記へ整理されます";
+            case "en_US":
+            default: return "Mobile does not auto-move quick notes: they go to the transit doc first, then desktop moves them into the diary after sync";
+        }
+    }
+    // need-0926-11 搬运速记按记录时间归位：开关行+说明（官方速记搬运与队列闪念合并两链共用）
+    public get 搬运速记按记录时间归位() {
+        switch (this.lang) {
+            case "zh_CN": return "搬运速记按记录时间归位";
+            case "zh_CHT": return "搬運速記按記錄時間歸位";
+            case "es_ES": return "Mover notas rápidas a su hora registrada";
+            case "fr_FR": return "Placer les notes rapides selon l'heure d'enregistrement";
+            case "ja_JP": return "速記を記録時刻の位置へ移動";
+            case "en_US":
+            default: return "Move quick notes to their recorded time position";
+        }
+    }
+    public get 按记录时间归位说明() {
+        switch (this.lang) {
+            case "zh_CN": return "开启后搬进日记的速记插到记录时刻对应的位置（找同日更晚的速记块插其前面，而非日记末尾）；不重排已有内容，找不到更晚位置时仍追加到末尾";
+            case "zh_CHT": return "開啟後搬進日記的速記插到記錄時刻對應的位置（找同日更晚的速記塊插其前面，而非日記末尾）；不重排已有內容，找不到更晚位置時仍追加到末尾";
+            case "es_ES": return "Al activarlo, las notas rápidas movidas se insertan en la posición de su hora registrada (delante de la primera nota más tardía del día, no al final del diario); no reordena el contenido existente y, sin posición posterior, se añade al final";
+            case "fr_FR": return "Activé, une note rapide déplacée s'insère à la position de son heure d'enregistrement (avant la première note plus tardive du jour, pas en fin de journal) ; rien n'est réordonné, et sans position ultérieure l'ajout se fait en fin";
+            case "ja_JP": return "有効にすると、日記へ移動した速記は記録時刻の位置（同じ日のより遅い速記ブロックの前）に挿入され、日記の末尾には行きません。既存の内容は並べ替えず、より遅い位置が無い場合は末尾に追加します";
+            case "en_US":
+            default: return "When on, moved quick notes insert at their recorded time position (before the first later note of the day) instead of the diary end; existing content is never reordered, and with no later anchor the note still appends at the end";
+        }
+    }
+    // need-0926-13 自定义图标「别名型」声明语法：设置项说明行（@别名 后缀=不建引用文档）
+    public get 图标别名后缀说明() {
+        switch (this.lang) {
+            case "zh_CN": return "词尾加 @别名 声明为别名型图标：不建引用文档，文字型正文开头留「名称：」前缀，emoji 型正文零标记；不带后缀照旧建引用";
+            case "zh_CHT": return "詞尾加 @別名 聲明為別名型圖標：不建引用文檔，文字型正文開頭留「名稱：」前綴，emoji 型正文零標記；不帶後綴照舊建引用";
+            case "es_ES": return "Añade @别名 al final de una palabra para declararla tipo alias: no crea documento de referencia; los tipos de texto anteponen «nombre:» al cuerpo, los emoji lo dejan limpio; sin sufijo se sigue creando la referencia";
+            case "fr_FR": return "Ajoutez @别名 en fin de mot pour le déclarer type alias : aucun document de référence créé ; les types texte préfixent le corps avec « nom : », les emoji le laissent tel quel ; sans suffixe, la référence est créée comme avant";
+            case "ja_JP": return "語尾に @别名 を付けると別名型アイコン：参照文書を作成せず、テキスト型は本文の先頭に「名称：」接頭辞、emoji 型は本文ゼロマーク。接尾辞なしは従来どおり参照を作成";
+            case "en_US":
+            default: return "Suffix @别名 declares an alias kind: no ref doc created; text kinds prefix the body with \"name:\", emoji kinds keep the body clean; without the suffix a reference is created as before";
+        }
+    }
+    public get 官方速记今日无中转文档() {
+        switch (this.lang) {
+            case "zh_CN": return "今日中转文档尚未创建：今天还没有速记记录，或尚未同步到本机——记一条速记并完成同步后再搬运";
+            case "zh_CHT": return "今日中轉文檔尚未創建：今天還沒有速記記錄，或尚未同步到本機——記一條速記並完成同步後再搬運";
+            case "es_ES": return "El documento de tránsito de hoy no existe todavía: no hay notas rápidas hoy o aún no se han sincronizado a este dispositivo";
+            case "fr_FR": return "Le document de transit du jour n'existe pas encore : aucune note rapide aujourd'hui, ou pas encore synchronisée avec cet appareil";
+            case "ja_JP": return "今日の中継ドキュメントはまだ作成されていません：今日の速記がないか、この端末にまだ同期されていません";
+            case "en_US":
+            default: return "Today's transit doc does not exist yet: no quick notes today, or not yet synced to this device";
+        }
+    }
+    public get 官方速记路径不在解析笔记本() {
+        switch (this.lang) {
+            case "zh_CN": return "中转文档 {path} 位于「{box}」笔记本下、不在日记落点笔记本解析范围——请把官方速记保存位置指定为同一笔记本";
+            case "zh_CHT": return "中轉文檔 {path} 位於「{box}」筆記本下、不在日記落點筆記本解析範圍——請把官方速記保存位置指定為同一筆記本";
+            case "es_ES": return "El documento de tránsito {path} está en el cuaderno «{box}», fuera del cuaderno de destino del diario — fije la ubicación de guardado oficial en el mismo cuaderno";
+            case "fr_FR": return "Le document de transit {path} est dans le carnet « {box} », hors du carnet cible du journal — réglez l'emplacement officiel sur le même carnet";
+            case "ja_JP": return "中継ドキュメント {path} はノートブック「{box}」にあり、日記フォール先ノートブックの解析範囲外です——公式速記の保存場所を同じノートブックに指定してください";
+            case "en_US":
+            default: return "Transit doc {path} lives in notebook \"{box}\", outside the diary notebook resolution — set the official save location to that same notebook";
+        }
+    }
+    public get 官方速记无待搬运() {
+        switch (this.lang) {
+            case "zh_CN": return "今日没有待搬运的速记（可能已全部搬运完成）";
+            case "zh_CHT": return "今日沒有待搬運的速記（可能已全部搬運完成）";
+            case "es_ES": return "No hay notas rápidas pendientes de mover hoy (posiblemente ya se movieron todas)";
+            case "fr_FR": return "Aucune note rapide à déplacer aujourd'hui (probablement déjà toutes déplacées)";
+            case "ja_JP": return "今日、移動待ちの速記はありません（すでに全部移動済みの可能性）";
+            case "en_US":
+            default: return "No quick notes waiting to be moved today (probably all already moved)";
         }
     }
     // □4 拍照闪念输入体验翻新（dailynote-pipeline 2026-09-06）：设置行+小窗 placeholder+上传提示

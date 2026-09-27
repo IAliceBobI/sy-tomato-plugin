@@ -134,6 +134,8 @@ class Tag2RefBox {
                     .join(" and ");
                 let rows = await siyuan.sql(`${select} and ${cons} limit 10000000`);
                 if (rows.length > 0) {
+                    // need-0926-01：transInsertBlocksBefore 修正为不 reverse（内核 nextID 前插
+                    // 整组正序），此处历史手动预补偿同批移除——净行为不变（仍按 content 序落库）
                     const doms = rows
                         .sort((a, b) => a.content.localeCompare(b.content))
                         .map(i => {
@@ -142,8 +144,7 @@ class Tag2RefBox {
                             } else {
                                 return domLnk(null, i.id, i.content)
                             }
-                        })
-                        .reverse();
+                        });
                     await siyuan.transactions(siyuan.transInsertBlocksBefore(doms, id))
                 }
             }

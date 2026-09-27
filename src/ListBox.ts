@@ -10,7 +10,7 @@ import { winHotkey } from "./libs/winHotkey";
 import { gatedAddCommand } from "./libs/cmdGate";
 
 export const ListBox取消勾选当前文档所有已完成的todo任务 = winHotkey("alt+shift+ctrl+G", "uncheckall", "", () => tomatoI18n.取消勾选当前文档所有已完成的todo任务)
-export const ListBox删除当前文档所有已完成的todo任务 = winHotkey("alt+shift+ctrl+H", "delAllchecked", "", () => tomatoI18n.删除当前文档所有已完成的todo任务)
+export const ListBox删除当前文档所有已完成的todo任务 = winHotkey("alt+shift+ctrl+H", "delAllchecked", "", () => tomatoI18n.删除当前文档所有已完成的todo任务) // 与 seller 快捷菜单（⌥⇧⌘H 物理等价）双绑，bear 2026-09-25 拍板容忍共存（seller 私有自用不影响公开用户）
 
 class ListBox {
     private plugin: BaseTomatoPlugin;
