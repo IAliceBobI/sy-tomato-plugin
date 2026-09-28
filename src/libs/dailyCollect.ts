@@ -8,9 +8,13 @@
  *  alias（need-0926-17 可选第三参）：命中内置 emoji 分类时类型直写（面板 emoji 分支
  *  IAL 同款，读侧近期列表 alias 列优先通道），自定义分类走引用锚不落此键；
  *  ideaType（need-0926-13 可选第四参）：别名型文字分类的 custom-tomato-idea-type 标记
- *  （与 alias 同值双写——need-15 派生链第二还原键，历史块 alias 被改时兜底） */
-export function collectBlockAttrs(time: string, refHpath?: string, alias?: string, ideaType?: string): AttrType {
-    const attrs: AttrType = { "custom-tomato-idea-time": time };
+ *  （与 alias 同值双写——need-15 派生链第二还原键，历史块 alias 被改时兜底）；
+ *  notTimed（need-0928-01 可选第五参）：尾 @ 不计时声明——idea-time 首键不落
+ *  （calcTimeInterval 拉链键缺失=不隔断相邻记录间隔），alias/idea-type 分类标记照落
+ *  （可统计次数）；全缺=空对象（ref 型不计时，分类标记=引用锚非属性），调用方跳过写 */
+export function collectBlockAttrs(time: string, refHpath?: string, alias?: string, ideaType?: string, notTimed?: boolean): AttrType {
+    const attrs: AttrType = {};
+    if (!notTimed) attrs["custom-tomato-idea-time"] = time;
     if (refHpath) attrs["custom-tomato-ref-hpath"] = refHpath;
     if (alias) attrs["alias"] = alias;
     if (ideaType) attrs["custom-tomato-idea-type"] = ideaType;

@@ -396,6 +396,31 @@ export function planIdeaIntervals(times: IdeaIntervalEntry[], mode: IdeaInterval
     return desired;
 }
 
+/** need-0928-01：存量不计时摘除规划（纯函数，单测覆盖）——calcTimeInterval 拉链时对
+ *  挂 custom-tomato-idea-time 且类型标记（idea-type/alias 属性值）命中不计时声明名单
+ *  的存量块摘 time+interval（陆杰飞书 om_x100b64940882dcacb2631b2f714bb32：喝水类高频
+ *  分类记录隔断真正要统计间隔的时间记录链；摘后分类标记保留=可统计次数）。
+ *  入参：ids=拉链候选（挂 idea-time 的块）、attrOf=各块类型标记查表（调用方从
+ *  attributes 表快照构造）、notTimedNames=设置串声明的不计时显示名集
+ *  （parseNoteKindDecls 预展开，kindNotTimedDeclared 的批量版）。返回=命中摘除 id 列表
+ *  （调用方从拉链剔除+盘上摘两键，摘属性前 getBlockAttrs IAL 直读复核——读写竞态
+ *  家族纪律）。引用型存量块（分类标记=引用锚非属性）天然不命中；类型标记在但不在
+ *  名单=正常计时不动；值空白不算（trim 口径对齐属性读取链） */
+export function planNotTimedStrips(
+    ids: string[],
+    attrOf: (id: string) => { ideaType?: string; alias?: string },
+    notTimedNames: Set<string>,
+): string[] {
+    const hit = (v?: string) => {
+        const t = (v ?? "").trim();
+        return !!t && notTimedNames.has(t);
+    };
+    return ids.filter(id => {
+        const { ideaType, alias } = attrOf(id);
+        return hit(ideaType) || hit(alias);
+    });
+}
+
 export class TabBuilder {
     private md: string[];
     private colSize: number;

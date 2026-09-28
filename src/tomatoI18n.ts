@@ -9511,6 +9511,18 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Extract-all results no longer get the asterisk links jumping back to source blocks";
         }
     }
+    // need-0927 □6（姊妹队列观察项）：提取全部定位失败可读提示（原静默 return 无产物无提示）
+    public get 提取产物定位失败() {
+        switch (this.lang) {
+            case "zh_CN": return "提取产物定位失败，请重试一次；持续失败请反馈";
+            case "zh_CHT": return "提取產物定位失敗，請重試一次；持續失敗請反饋";
+            case "es_ES": return "No se pudo localizar el destino de extracción: reintente; si persiste, repórtelo";
+            case "fr_FR": return "Impossible de localiser la cible d'extraction : réessayez ; si cela persiste, signalez-le";
+            case "ja_JP": return "抽出先の特定に失敗しました。もう一度お試しください。続く場合はご報告ください";
+            case "en_US":
+            default: return "Could not locate the extraction target; please retry once, and report if it persists";
+        }
+    }
     // need-0927-04 楼20 拍板①：提取到底（⇧⌥R）/提取笔记（⌘F5）的星号回链开关 tip
     public get tip设置笔记回溯() {
         switch (this.lang) {
@@ -14049,16 +14061,18 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "When on, moved quick notes insert at their recorded time position (before the first later note of the day) instead of the diary end; existing content is never reordered, and with no later anchor the note still appends at the end";
         }
     }
-    // need-0926-13 自定义图标「别名型」声明语法：设置项说明行（@别名 后缀=不建引用文档）
+    // need-0926-13 自定义图标「别名型」声明语法：设置项说明行（@别名 后缀=不建引用文档）；
+    // need-0928-01 补尾 @ 不计时声明（再叠一个 @=该类不落时间记录属性、不隔断相邻记录
+    // 的间隔统计，分类标记保留——陆杰飞书 om_x100b64940882dcacb2631b2f714bb32）
     public get 图标别名后缀说明() {
         switch (this.lang) {
-            case "zh_CN": return "词尾加 @别名 声明为别名型图标：不建引用文档，文字型正文开头留「名称：」前缀，emoji 型正文零标记；不带后缀照旧建引用";
-            case "zh_CHT": return "詞尾加 @別名 聲明為別名型圖標：不建引用文檔，文字型正文開頭留「名稱：」前綴，emoji 型正文零標記；不帶後綴照舊建引用";
-            case "es_ES": return "Añade @别名 al final de una palabra para declararla tipo alias: no crea documento de referencia; los tipos de texto anteponen «nombre:» al cuerpo, los emoji lo dejan limpio; sin sufijo se sigue creando la referencia";
-            case "fr_FR": return "Ajoutez @别名 en fin de mot pour le déclarer type alias : aucun document de référence créé ; les types texte préfixent le corps avec « nom : », les emoji le laissent tel quel ; sans suffixe, la référence est créée comme avant";
-            case "ja_JP": return "語尾に @别名 を付けると別名型アイコン：参照文書を作成せず、テキスト型は本文の先頭に「名称：」接頭辞、emoji 型は本文ゼロマーク。接尾辞なしは従来どおり参照を作成";
+            case "zh_CN": return "词尾加 @别名 声明为别名型图标：不建引用文档，文字型正文开头留「名称：」前缀，emoji 型正文零标记；词尾再叠 @（如「喝水@」「喝水@别名@」）=该类不计时：不落时间记录属性、不隔断相邻记录的间隔统计，分类标记保留；不带后缀照旧建引用";
+            case "zh_CHT": return "詞尾加 @別名 聲明為別名型圖標：不建引用文檔，文字型正文開頭留「名稱：」前綴，emoji 型正文零標記；詞尾再疊 @（如「喝水@」「喝水@別名@」）=該類不計時：不落時間記錄屬性、不隔斷相鄰記錄的間隔統計，分類標記保留；不帶後綴照舊建引用";
+            case "es_ES": return "Añade @别名 al final de una palabra para declararla tipo alias: no crea documento de referencia; los tipos de texto anteponen «nombre:» al cuerpo, los emoji lo dejan limpio. Una @ final adicional (p. ej. «agua@», «agua@别名@») declara la categoría sin cronometraje: sin atributos de hora, sin cortar el cálculo de intervalos entre registros vecinos, y la etiqueta de categoría se conserva; sin sufijo se sigue creando la referencia";
+            case "fr_FR": return "Ajoutez @别名 en fin de mot pour le déclarer type alias : aucun document de référence créé ; les types texte préfixent le corps avec « nom : », les emoji le laissent tel quel. Un @ final supplémentaire (ex. « eau@ », « eau@别名@ ») déclare la catégorie non chronométrée : pas d'attribut horaire, pas de coupure dans le calcul des intervalles entre enregistrements voisins, l'étiquette de catégorie est conservée ; sans suffixe, la référence est créée comme avant";
+            case "ja_JP": return "語尾に @别名 を付けると別名型アイコン：参照文書を作成せず、テキスト型は本文の先頭に「名称：」接頭辞、emoji 型は本文ゼロマーク。さらに語尾に @ を重ねる（例「水@」「水@别名@」）と非計時カテゴリ：時刻記録属性を持たせず、隣接記録の間隔計算も遮断せず、分類マークは保持。接尾辞なしは従来どおり参照を作成";
             case "en_US":
-            default: return "Suffix @别名 declares an alias kind: no ref doc created; text kinds prefix the body with \"name:\", emoji kinds keep the body clean; without the suffix a reference is created as before";
+            default: return "Suffix @别名 declares an alias kind: no ref doc created; text kinds prefix the body with \"name:\", emoji kinds keep the body clean. An extra trailing @ (e.g. \"water@\", \"water@别名@\") marks the kind untimed: no time attrs, no breaking interval stats between neighboring records, while the category label stays; without suffixes a reference is created as before";
         }
     }
     public get 官方速记今日无中转文档() {

@@ -70,10 +70,12 @@ export function relayEntryKind(content: string, kinds: string[]): string | undef
     });
 }
 
-/** need-0926-13 搬运命中词分流产物：icon=剥「@别名」后缀显示名，action 三态 */
+/** need-0926-13 搬运命中词分流产物：icon=剥「@别名」后缀显示名，action 三态；
+ *  need-0928-01 增 notTimed（尾 @ 不计时声明透传——落块摘 idea-time 但分类标记照挂） */
 export interface RelayKindAction {
     icon: string;
     action: "aliasEmoji" | "aliasText" | "ref";
+    notTimed: boolean;
 }
 
 /** need-0926-13：搬运侧命中词 → 动作分流（纯函数，单测锚点）。入参=relayEntryKind 命中
@@ -82,13 +84,14 @@ export interface RelayKindAction {
  *  或声明别名的自定义 emoji=aliasEmoji（alias 直写+正文零标记）/声明别名的文字词=
  *  aliasText（不建引用+正文「名称：」前缀，陆杰 09-26 拍板）/其余=ref（createRefDoc+
  *  块首引用锚现状，引用文档生态保留）。注：用户显式把「纯文本」写进设置串时 kindChannel
- *  返 plain，此处收 ref——need-17 现状即引用型处理，语义不变 */
+ *  返 plain，此处收 ref——need-17 现状即引用型处理，语义不变。need-0928-01：notTimed
+ *  随 parseKindDecl 一体解析透传（「喝水@别名@」/「学习@」命中词全形态支持） */
 export function relayKindAction(kind: string | undefined): RelayKindAction | undefined {
     if (!kind) return undefined;
     const d = parseKindDecl(kind);
     if (!d.icon) return undefined;
     const c = kindChannel(d.icon, d.aliasDeclared);
-    return { icon: d.icon, action: c === "plain" ? "ref" : c };
+    return { icon: d.icon, action: c === "plain" ? "ref" : c, notTimed: d.notTimed };
 }
 
 // ── need-0926-11 搬运速记按记录时间归位 ─────────────────────────────────────
@@ -627,11 +630,15 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver, afterR
         return a && a.action === "aliasText" ? a.icon : undefined;
     };
     /** need-0927-03：条目收集属性——命中分类照旧（idea-time+alias/idea-type 按分流）；
-     *  未命中=纯文本形态返 undefined 整体不落（collectBlockAttrs 首键恒 idea-time，
-     *  挂上即进 calcTimeInterval 拉链隔断相邻记录间隔，须在此源头不落） */
+     *  未命中=纯文本形态返 undefined 整体不落（挂 idea-time 即进 calcTimeInterval 拉链
+     *  隔断相邻记录间隔，须在此源头不落）。need-0928-01：命中词带尾 @ 不计时声明→
+     *  notTimed 透传 collectBlockAttrs（time 摘、alias/idea-type 分类标记照落可统计
+     *  次数）；ref 型不计时全缺（分类标记=引用锚非属性）=空对象返 undefined 跳过写 */
     const relayAttrsOf = (e: { ids: string[]; stamp: string }): AttrType | undefined => {
-        if (!actOf(e)) return undefined;
-        return collectBlockAttrs(hhmmFromCreated(e.stamp), undefined, aliasOf(e), ideaTypeOf(e));
+        const a = actOf(e);
+        if (!a) return undefined;
+        const attrs = collectBlockAttrs(hhmmFromCreated(e.stamp), undefined, aliasOf(e), ideaTypeOf(e), a.notTimed);
+        return Object.keys(attrs).length > 0 ? attrs : undefined;
     };
 
     // 条级容器（□1 协议 v1：idea-time=条输入时刻；ref-hpath 无源省略）。□4 落块形态跟随

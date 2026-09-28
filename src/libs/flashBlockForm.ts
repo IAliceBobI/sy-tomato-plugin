@@ -108,12 +108,21 @@ export function flashSingleLine(text: string, joiner: string): string {
  *  need-0927-03 楼9 修订：纯文本形态（ideaType=PLAIN_KIND）不挂 custom-tomato-idea-time /
  *  custom-tomato-idea-type 两属性——idea-time 是间隔统计 calcTimeInterval 的拉链键，挂着即
  *  进链隔断相邻记录间隔（源头不落，cssStyle 排除规则留作存量兼容）；IAL 行保留 id=一步
- *  形态预挂 id 被内核认领的通道（返回 id 定位依赖），其余属性（alias）照落 */
-export function flashIAL(id: string, time: string, alias?: string, ideaType?: string): string {
+ *  形态预挂 id 被内核认领的通道（返回 id 定位依赖），其余属性（alias）照落。
+ *  notTimed（need-0928-01）：尾 @ 声明的「不计时」形态——零 time（拉链链外）但留
+ *  alias/idea-type（分类可统计次数）；与 PLAIN_KIND 分支语义分立（纯文本=零 time 零
+ *  type，不计时=零 time 留 type/alias），PLAIN_KIND 优先级更高（纯文本对 notTimed 无
+ *  增量语义） */
+export function flashIAL(id: string, time: string, alias?: string, ideaType?: string, notTimed?: boolean): string {
     if (ideaType === PLAIN_KIND) {
         return alias ? `{: id="${id}" alias="${alias}"}` : `{: id="${id}"}`;
     }
     const typeAttr = ideaType ? ` custom-tomato-idea-type="${ideaType}"` : "";
+    if (notTimed) {
+        return alias
+            ? `{: id="${id}" alias="${alias}"${typeAttr}}`
+            : `{: id="${id}"${typeAttr}}`;
+    }
     return alias
         ? `{: id="${id}" custom-tomato-idea-time="${time}" alias="${alias}"${typeAttr}}`
         : `{: id="${id}" custom-tomato-idea-time="${time}"${typeAttr}}`;
@@ -121,12 +130,15 @@ export function flashIAL(id: string, time: string, alias?: string, ideaType?: st
 
 /** 两步形态插完后补挂的条目属性对象（挂 item 本体）。ideaType 语义同 flashIAL；
  *  need-0927-03：纯文本形态（ideaType=PLAIN_KIND）零 time/type（alias 等其余属性照落
- *  ——纯文本通道不传 alias，此处仅为口径对称），调用方对空对象跳过写属性 */
-export function flashAttrs(time: string, alias?: string, ideaType?: string): { [k: string]: string } {
+ *  ——纯文本通道不传 alias，此处仅为口径对称），调用方对空对象跳过写属性。
+ *  notTimed（need-0928-01）：time 键不落、alias/idea-type 照落（不计时分类可统计）；
+ *  全缺=空对象（ref 型不计时走 DOM 通道不经此函数，防御兜底） */
+export function flashAttrs(time: string, alias?: string, ideaType?: string, notTimed?: boolean): { [k: string]: string } {
     if (ideaType === PLAIN_KIND) {
         return alias ? { "alias": alias } : {};
     }
-    const a: { [k: string]: string } = { "custom-tomato-idea-time": time };
+    const a: { [k: string]: string } = {};
+    if (!notTimed) a["custom-tomato-idea-time"] = time;
     if (alias) a["alias"] = alias;
     if (ideaType) a["custom-tomato-idea-type"] = ideaType;
     return a;
@@ -145,20 +157,22 @@ export interface FlashMD {
  *  task（📌）：勾选语义不降级——任何形态恒任务列表项（super=现状 sb 包任务；para/list=裸任务项）。
  *  ideaType（need-0926-10）：纯文本类型可追溯标记，随 IAL/两步属性同挂（两步形态由调用方
  *  插完以 flashAttrs(time, undefined, ideaType) 补挂）；need-0927-03 楼9 修订起纯文本形态
- *  只产 id 占位 IAL（time/type 两属性源头不落，见 flashIAL） */
-export function flashMD(text: string, time: string, form: FlashBlockForm, alias?: string, task = false, ideaType?: string): FlashMD {
+ *  只产 id 占位 IAL（time/type 两属性源头不落，见 flashIAL）。
+ *  notTimed（need-0928-01）：不计时声明透传 flashIAL（零 time 留分类标记；两步形态由
+ *  调用方插完以 flashAttrs(time, alias, ideaType, notTimed) 对齐补挂） */
+export function flashMD(text: string, time: string, form: FlashBlockForm, alias?: string, task = false, ideaType?: string, notTimed?: boolean): FlashMD {
     const id = NewNodeID();
     if (form === "super") {
         // 历史行为原样：任务合并单行；非任务多行原样进 sb（sb 内多块）
         const t = task ? `* [ ] ${flashSingleLine(text, "; ")}` : text;
-        return { md: doubleSupRows(t, flashIAL(id, time, alias, ideaType)), id };
+        return { md: doubleSupRows(t, flashIAL(id, time, alias, ideaType, notTimed)), id };
     }
     if (task) {
         // 任务双层结构同列表坑：两步挂属性（实测②）
         return { md: `* [ ] ${flashSingleLine(text, "; ")}`, twoStep: true };
     }
     if (form === "para") {
-        return { md: `${flashSingleLine(text, " ")}\n${flashIAL(id, time, alias, ideaType)}`, id };
+        return { md: `${flashSingleLine(text, " ")}\n${flashIAL(id, time, alias, ideaType, notTimed)}`, id };
     }
     return { md: `- ${flashSingleLine(text, "; ")}`, twoStep: true };
 }
@@ -176,15 +190,18 @@ export interface FlashDOM {
  *  均预挂 data-node-id）；textDiv=内容锚块（首含 contenteditable，add_ref 已由调用方挂）。
  *  para：多块平铺直落，条目属性（idea-time）挂 textDiv（内容锚=lifelog p 宿主）；
  *  list：DomListBuilder 单 li 收全部块，属性挂 li（textDiv 在 li 内仍是 lifelog p 宿主）；
- *  super：现状双层 sb（L1 收 L2 收 blocks），属性挂 L1。 */
+ *  super：现状双层 sb（L1 收 L2 收 blocks），属性挂 L1。
+ *  notTimed（need-0928-01）：不计时声明——三态 idea-time 挂载全跳过（拉链链外；引用锚/
+ *  lifelog 标记由调用方另行照挂，分类可统计）。 */
 export function wrapFlashBlocksDOM(
     blocks: HTMLElement[],
     textDiv: HTMLElement,
     form: FlashBlockForm,
     time: string,
+    notTimed = false,
 ): FlashDOM {
     if (form === "para") {
-        textDiv.setAttribute("custom-tomato-idea-time", time);
+        if (!notTimed) textDiv.setAttribute("custom-tomato-idea-time", time);
         return { htmls: blocks.map(b => b.outerHTML), blockID: textDiv.getAttribute(DATA_NODE_ID) ?? "", bare: true };
     }
     if (form === "list") {
@@ -193,16 +210,16 @@ export function wrapFlashBlocksDOM(
         const li = lb.container.firstElementChild as HTMLElement | null;
         if (!li) {
             // 防御：append 至少产一个 li，此分支理论不可达——退化 sb 保落块不断链
-            return wrapFlashBlocksDOM(blocks, textDiv, "super", time);
+            return wrapFlashBlocksDOM(blocks, textDiv, "super", time, notTimed);
         }
-        li.setAttribute("custom-tomato-idea-time", time);
+        if (!notTimed) li.setAttribute("custom-tomato-idea-time", time);
         return { htmls: [lb.build().outerHTML], blockID: li.getAttribute(DATA_NODE_ID) ?? lb.id, bare: true };
     }
     const L1 = new DomSuperBlockBuilder();
     const L2 = new DomSuperBlockBuilder();
     for (const b of blocks) L2.append(b);
     L1.append(L2.build());
-    L1.setAttr("custom-tomato-idea-time", time);
+    if (!notTimed) L1.setAttr("custom-tomato-idea-time", time);
     return { htmls: [L1.build().outerHTML], blockID: L1.id, bare: false };
 }
 

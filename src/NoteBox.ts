@@ -1,6 +1,6 @@
 import { adaptHotkey, Custom, Dialog, IProtyle } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { add_ref, coerceIdeaIntervalMode, getContenteditableElement, isMainWin, NewNodeID, planIdeaIntervals, setTimeouts, siyuan, sleep, sqlQuoteStr, timeUtil, } from "./libs/utils";
+import { add_ref, coerceIdeaIntervalMode, getContenteditableElement, isMainWin, NewNodeID, planIdeaIntervals, planNotTimedStrips, setTimeouts, siyuan, sleep, sqlQuoteStr, timeUtil, } from "./libs/utils";
 import NoteBoxSvelte from "./NoteBox.svelte";
 import { DATA_NODE_ID, TOMATO_IDEA_QUEUE } from "./libs/gconst";
 import { DestroyManager } from "./libs/destroyer";
@@ -15,7 +15,7 @@ import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { domNewLine, md2Divs } from "./libs/sydom";
 import { aliasNoteBody, coerceFlashBlockForm, flashAttrs, flashMD, kindChannel, queueLifelogSource, wrapFlashBlocksDOM } from "./libs/flashBlockForm";
-import { PLAIN_KIND, kindAliasDeclared } from "./libs/quicknoteCore";
+import { PLAIN_KIND, kindAliasDeclared, kindNotTimedDeclared, parseNoteKindDecls } from "./libs/quicknoteCore";
 import { newID } from "stonev5-utils";
 import { mount, unmount } from "svelte";
 
@@ -87,6 +87,14 @@ async function syncLifelogBatch(ids: string[]) {
             const dom = await siyuan.getBlockDOM(id);
             const div = document.createElement("div");
             div.innerHTML = dom?.dom ?? "";
+            // need-0928-01 □2 实测发现的存量缺陷：getBlockDOM 的 dom 含 .protyle-attr
+            // 属性徽标行（alias/书签等渲染成可见文本，如 alias=喝水 的「喝水」徽标）——
+            // 裸 textContent 会把徽标文本拼进 content 尾部（搬运链 aliasText 型实测
+            // 「喝水：400ml」首挂干净、sync 800ms 防抖后变「喝水：400ml喝水」；既有
+            // 形态「锻炼@别名」不带尾@ 同复现=need-0926-03 sync × need-0926-13 aliasText
+            // 组合缺陷，非本批引入）。修=剥 .protyle-attr 子树再取文本（属性徽标专用类
+            // 不进正文；零宽空格清洗口径不变）
+            div.querySelectorAll(".protyle-attr").forEach(e => e.remove());
             const text = (div.textContent ?? "").replace(/​/g, "").trim();
             if (!text || text === old) continue;
             await siyuan.setBlockAttrs(id, {
@@ -261,20 +269,63 @@ class NoteBox {
      *  兜底=cssStyle :not([custom-tomato-idea-interval=""])）。返回写入条数 */
     async calcTimeInterval(docID: string): Promise<number> {
         if (!docID) return 0;
-        const [timeMap, intervalMap] = await siyuan
-            .sqlAttr(`select name,block_id,value from attributes 
-                where (name="custom-tomato-idea-time" or name="custom-tomato-idea-interval") 
+        // need-0928-01：扩查 idea-type/alias 两键——存量不计时摘除的类型标记通道
+        // （emoji 型仅 alias、文字别名型双写；引用型存量=引用锚非属性天然不识别不动）
+        const [timeMap, intervalMap, typeMap, aliasMap] = await siyuan
+            .sqlAttr(`select name,block_id,value from attributes
+                where (name="custom-tomato-idea-time" or name="custom-tomato-idea-interval"
+                    or name="custom-tomato-idea-type" or name="alias")
                 and root_id = "${docID}"`
             )
             .then(rows => {
-                const t = new Map(rows.filter(i => i.name == "custom-tomato-idea-time").map(row => [row.block_id, row.value]))
-                const i = new Map(rows.filter(i => i.name == "custom-tomato-idea-interval").map(row => [row.block_id, row.value]))
-                return [t, i]
+                const by = (n: string) => new Map(rows.filter(i => i.name == n).map(row => [row.block_id, row.value]))
+                return [
+                    by("custom-tomato-idea-time"),
+                    by("custom-tomato-idea-interval"),
+                    by("custom-tomato-idea-type"),
+                    by("alias"),
+                ]
             });
 
         if (timeMap.size == 0) return 0
-        const ids = await siyuan.getBlocksIndexes([...timeMap.keys()])
+        let ids = await siyuan.getBlocksIndexes([...timeMap.keys()])
             .then(obj => Object.entries(obj).sort((a, b) => a[1] - b[1]).map(entr => entr[0]))
+        // need-0928-01：存量不计时顺手清——拉链候选里类型标记命中不计时声明名单的
+        // 存量块摘 time+interval（陆杰飞书 om_x100b64940882dcacb2631b2f714bb32：喝水类
+        // 高频分类记录隔断真正要统计间隔的时间记录链；摘后分类标记保留=可统计次数），
+        // 从拉链剔除=相邻间隔即时接通。名单=设置串 parseNoteKindDecls 预展开 Set
+        // （kindNotTimedDeclared 批量版提性能）；空名单零摘除=未声明用户存量零迁移。
+        // 破坏性摘属性前 getBlockAttrs IAL 直读复核（读写竞态家族纪律：attributes 快照
+        // 与盘上真态可能脱节——盘上已无 time 或标记已不命中〔用户改分类/改设置〕则
+        // 跳过该块留链上下轮处理）；单块失败吞错留痕不阻断拉链
+        const notTimedNames = new Set(parseNoteKindDecls(noteBoxAllKinds.get()).filter(d => d.notTimed).map(d => d.icon))
+        let changed = 0
+        if (notTimedNames.size > 0) {
+            const stripIDs = planNotTimedStrips(ids, id => ({
+                ideaType: typeMap.get(id),
+                alias: aliasMap.get(id),
+            }), notTimedNames)
+            const stripSet = new Set(stripIDs)
+            for (const id of stripIDs) {
+                try {
+                    const ial = await siyuan.getBlockAttrs(id)
+                    const t = (ial?.["custom-tomato-idea-time"] ?? "").trim()
+                    if (!t) { stripSet.delete(id); continue }
+                    const type = (ial?.["custom-tomato-idea-type"] ?? "").trim()
+                    const alias = (ial?.["alias"] ?? "").trim()
+                    if (!notTimedNames.has(type) && !notTimedNames.has(alias)) { stripSet.delete(id); continue }
+                    await siyuan.setBlockAttrs(id, {
+                        "custom-tomato-idea-time": "",
+                        "custom-tomato-idea-interval": "",
+                    })
+                    changed++
+                } catch (e) {
+                    stripSet.delete(id)
+                    debugLog("flashlog", `not-timed strip fail ${id}: ${e}`, "dailynote")
+                }
+            }
+            if (stripSet.size > 0) ids = ids.filter(id => !stripSet.has(id))
+        }
         const createdMap = new Map((await siyuan.getRows(ids, "created")).map(r => [r.id, r.created]))
         const times = ids
             .map(id => {
@@ -285,7 +336,6 @@ class NoteBox {
             })
             .filter(i => !!i)
         const desired = planIdeaIntervals(times, coerceIdeaIntervalMode(ideaIntervalMode.get()))
-        let changed = 0
         for (const { id } of times) {
             const want = desired.get(id) ?? ""
             if (want !== (intervalMap.get(id) ?? "")) {
@@ -639,29 +689,37 @@ async function getContent2insert(text: string, isPic: boolean, iconOverride?: st
         return { md: text };
     }
     // need-0926-13：四值分流（kindChannel）——声明反查 kindAliasDeclared 用 chips 同一
-    // 设置串（chips 显示名=剥「@别名」后缀名，选中态与分流同名源）
+    // 设置串（chips 显示名=剥「@别名」后缀名，选中态与分流同名源）。
+    // need-0928-01：尾 @ 不计时声明独立反查（kindNotTimedDeclared 与别名声明正交，
+    // 双后缀「喝水@别名@」两声明并存）——命中则落块零 idea-time（间隔拉链链外）
+    // 但分类标记照落（alias/idea-type/引用锚，可统计次数；陆杰飞书
+    // om_x100b64940882dcacb2631b2f714bb32）
     const channel = kindChannel(icon, kindAliasDeclared(icon, noteBoxAllKinds.get()));
+    const notTimed = kindNotTimedDeclared(icon, noteBoxAllKinds.get());
     if (channel === "plain") {
         // need-0926-10：纯文本类型——不建引用不落 alias 的裸内容块，形态随 flashBlockForm
         // 三态与 emoji 分支同构；need-0927-03 楼9 修订：不挂 custom-tomato-idea-time /
         // custom-tomato-idea-type 两属性（idea-time 是间隔统计 calcTimeInterval 拉链键，
         // 挂着即隔断相邻记录间隔；纯文本=「非闪念记录」，近期列表自然不进）——flashIAL
-        // 对 PLAIN_KIND 只产 id 占位行；cssStyle PLAIN_KIND 排除规则留作存量块兼容
+        // 对 PLAIN_KIND 只产 id 占位行；cssStyle PLAIN_KIND 排除规则留作存量块兼容。
+        // notTimed 对纯文本无增量语义（本来就不挂 time），不透传
         const r = flashMD(text, getTime(), form, undefined, false, PLAIN_KIND);
         return { md: r.md, id: r.id, twoStep: r.twoStep };
     } else if (channel === "aliasEmoji") {
         // need-0926-17：内置 8 emoji 集合提取共享常量（原 7 元素数组+📌 单判两分支合一，
         // 行为等价——📌 走 task=true 同旧）；need-0926-13 起用户声明的自定义 emoji（如
-        // 「🎯@别名」）同入本通道——正文零标记维持现状口径（陆杰拍板）
-        const r = flashMD(text, getTime(), form, icon, icon === "📌");
+        // 「🎯@别名」）同入本通道——正文零标记维持现状口径（陆杰拍板）；need-0928-01
+        // 起 notTimed 透传（「💧@」=emoji 分类+不计时，alias 照落零 time）
+        const r = flashMD(text, getTime(), form, icon, icon === "📌", undefined, notTimed);
         return { md: r.md, id: r.id, twoStep: r.twoStep };
     } else if (channel === "aliasText") {
         // need-0926-13 文字别名（「@别名」声明，陆杰 09-26 17:01 拍板）：不建引用文档，
         // 正文「别名名称：内容」前缀（名称按设置字数完整展示不截断）+alias/idea-type
         // 双写——alias=属性行类型标记（emoji 通道同款，近期列表 alias 列优先直读）、
         // idea-type=need-15 派生链第二还原键（历史块 alias 被改时兜底）；md 通道与
-        // emoji 分支同构（形态随 flashBlockForm 三态）
-        const r = flashMD(aliasNoteBody(icon, text), getTime(), form, icon, false, icon);
+        // emoji 分支同构（形态随 flashBlockForm 三态）；need-0928-01 起 notTimed 透传
+        // （双后缀「喝水@别名@」=alias+idea-type 双写照落、time 摘）
+        const r = flashMD(aliasNoteBody(icon, text), getTime(), form, icon, false, icon, notTimed);
         return { md: r.md, id: r.id, twoStep: r.twoStep };
     } else {
         const id = await createRefDoc(boxID, icon);
@@ -682,8 +740,10 @@ async function getContent2insert(text: string, isPic: boolean, iconOverride?: st
         }
         add_ref(textDiv, id, icon, false, false);
         const targetDoc = dayID ?? await getTargetDoc();
-        // □4 三态包装：para=多块平铺属性挂内容锚/list=单 li 收块属性挂 li/super=双层 sb（原状）
-        const w = wrapFlashBlocksDOM(blocks, textDiv, form, getTime());
+        // □4 三态包装：para=多块平铺属性挂内容锚/list=单 li 收块属性挂 li/super=双层 sb（原状）；
+        // need-0928-01：notTimed（「学习@」引用型+不计时）三态 idea-time 挂载全跳过——
+        // 引用锚分类标记照挂（add_ref 上行），lifelog 由 tagLifelogAfterInsert 照挂
+        const w = wrapFlashBlocksDOM(blocks, textDiv, form, getTime(), notTimed);
         if (flash_thoughts_2_top.get()) {
             // 只能放到这里，不能放到insertIntoDailynote，只能插入到编辑器，刷新消失。
             //
@@ -725,12 +785,14 @@ export async function insertIntoDailynote(text: string, isPic = false, iconOverr
             // need-0926-10：纯文本类型不落 alias（零类型痕迹）；need-0927-03 楼9 修订：
             // 纯文本形态零属性（idea-time/idea-type 源头不落，间隔拉链链外）——跳过属性
             // 回填；need-0926-13：文字别名=alias+idea-type 双写（面板 aliasText 分支同构）；
-            // emoji 分支 alias 直写照旧
+            // emoji 分支 alias 直写照旧；need-0928-01：notTimed 反查对齐——time 摘但
+            // alias/idea-type 照落（flashAttrs notTimed 参，与一步形态同口径）
             const ch = kindChannel(icon, kindAliasDeclared(icon, noteBoxAllKinds.get()));
+            const notTimed = kindNotTimedDeclared(icon, noteBoxAllKinds.get());
             if (ch !== "plain") {
                 await siyuan.setBlockAttrs(itemID, ch === "aliasText"
-                    ? flashAttrs(getTime(), icon, icon)
-                    : flashAttrs(getTime(), icon));
+                    ? flashAttrs(getTime(), icon, icon, notTimed)
+                    : flashAttrs(getTime(), icon, undefined, notTimed));
             }
             // lifelog 宿主=内层 p（生态四键识别面 type='p' 契约），无 p（纯子列表等）退化 item 自身
             lifelogHost = (await firstTypedChild(itemID, "p")) ?? itemID;
