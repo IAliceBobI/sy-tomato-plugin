@@ -206,6 +206,10 @@ type TomatoSettings = {
     pieceNoBacktraceLink: boolean,
     digestNoBacktraceLink: boolean,
     extractAllNoBacktraceLink: boolean,
+    /** need-0927-04 楼20 拍板①：提取到底/keys 星号回链开关（默认 false=带链接） */
+    extractNoteNoBacktraceLink: boolean,
+    /** need-0927-04 楼20 拍板②：提取产物条间空行开关（默认 false=加空行） */
+    extractNoteNoBlankLine: boolean,
     flashcardNotebook: string,
     windowOpenStyle: string,
     flashcardMultipleLnks: boolean,

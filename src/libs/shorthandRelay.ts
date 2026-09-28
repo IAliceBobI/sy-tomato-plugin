@@ -1,6 +1,8 @@
 // □2 官方闪念速记吸收（dailynote-pipeline 战役 2026-09-06）：官方移动端速记（闪念速记）
-// 经手机内核消费后落进笔记库中转文档（模式 B：ShorthandSavePath 日期模板=合并追加），
-// 桌面端插件在 sync_end 把中转文档新块搬进日记管线（套 □1 收集块协议 v1）。
+// 经手机内核消费后落进笔记库中转文档，桌面端插件在 sync_end 把中转文档新块搬进日记管线
+// （套 □1 收集块协议 v1）。两种中转形态：模式 B=ShorthandSavePath 日级模板合并追加（共写
+// 同一文档，云端同步冲突高发——现状保留）；模式 A=模板含秒级时变段、一条速记一独立文档
+// （need-0927-02：桌面端搬完即删，两端不共写，冲突结构性根治，见下方模式 A 节注释）。
 // 官方链路事实源：/opt/projects/siyuan/kernel/model/shortcuts.go（桌面内核不消费库外临时文件，
 // 同步到桌面的已是笔记库文档 → 插件接力无竞争窗口）。
 import { debugLog } from "./logUtils";
@@ -43,9 +45,11 @@ export function groupShorthandEntries(blocks: { id: string; content?: string }[]
         .map(([stamp, ids]) => ({ stamp, ids }));
 }
 
-/** □3 落点 B：搬运条目的时间记录类型标记（落点 A 用面板所选类型；need-0926-17 起命中
- *  分类用命中词，未命中/无图标默认「速记」——bear 拍板口径） */
-const RELAY_TAG_TYPE = "速记";
+// ── need-0926-17 搬运分类增强：条目首图标 → noteBoxAllKinds 分类 ─────────────
+// bear 口径：图标=条目首字符；命中分类复用面板同款锚机制（内置 8 emoji→alias 属性直写；
+// 自定义词→createRefDoc+块首动态引用锚）+lifelog type=命中词；未命中=纯文本形态
+// （need-0927-03 楼9 修订：不落收集属性与时间记录标记，见 relayEntryLifeTag/relayAttrsOf）。
+// noteBoxAllKinds 为唯一类型源（不新建图标映射设置）。
 
 // ── need-0926-17 搬运分类增强：条目首图标 → noteBoxAllKinds 分类 ─────────────
 // bear 口径：图标=条目首字符；命中分类复用面板同款锚机制（内置 8 emoji→alias 属性直写；
@@ -163,12 +167,15 @@ export async function relayAnchorBlocks(dayID: string): Promise<RelayAnchorBlock
  *  的 type 为 SQL 短型 'p'，同 NoteBox firstParaBlock 判型）；content=条内全块内容空格
  *  join 后 trim；time/date 取记录时刻（stamp）——跨天搬运 date 须取记录日非搬运当天；
  *  组内无段落块（纯列表/代码条目）返回 undefined 不标记。need-0926-17：kind=命中分类词
- *  （relayEntryKind 产物），type 用命中词；缺省（未命中/无图标）默认「速记」（现状口径） */
+ *  （relayEntryKind 产物），type 用命中词。need-0927-03 楼9 修订：kind 空（未命中/无图标）
+ *  返回 undefined 整体不标记——未命中条目落「纯文本」形态=「非闪念记录」（纯文本无时间
+ *  属性），不进时间记录生态（lifelog 四键须齐，缺型缺时半套标记只会产脏属性） */
 export function relayEntryLifeTag(
     e: { stamp: string; ids: string[] },
     blocks: { id: string; type?: string; content?: string }[],
     kind?: string,
 ): { pID: string; tag: LifeTag } | undefined {
+    if (!kind) return undefined;
     const byId = new Map(blocks.map(b => [b.id, b]));
     const pID = e.ids.find(id => byId.get(id)?.type === "p");
     if (!pID) return undefined;
@@ -176,7 +183,7 @@ export function relayEntryLifeTag(
         pID,
         tag: {
             content: e.ids.map(id => byId.get(id)?.content ?? "").join(" ").trim(),
-            type: kind || RELAY_TAG_TYPE,
+            type: kind,
             time: hhmmFromCreated(e.stamp),
             date: ymdFromCreated(e.stamp),
         },
@@ -300,6 +307,143 @@ export function relayPathPlan(tpl: string, confPath: string, now: Date = new Dat
     return { kind: "none" };
 }
 
+// ── need-0927-02 模式 A（一笔记一文档）扫描层 ────────────────────────────────
+// 模板尾段含时变段（时分秒/十二小时制/AM-PM）= 每条速记一独立文档（官方 ShorthandSavePath
+// 空形态同构：内核 shortcuts.go 每条建 /{2006-01-02 15:04:05} 文档，块 id=输入时刻）。
+// 单点渲染定位（渲染一次取 own[0]）只对日级模板成立——秒级模板渲染在搬运时刻=查无此文档，
+// 扫描层扩展为「父目录列举 + 标题模式匹配」。手机端每条速记独立文档只写一次即关闭、桌面端
+// 搬进日记后即删：两端不再共写同一文档，云端同步冲突结构性消失（冲突还原导致的「中转内容
+// 删不干净、引用锚逐轮叠加」随之根治，不单独打补丁）；模式 B（日级合并中转）零改动。
+
+/** 模板按最后一个模板段外的 / 切父目录段与尾段（尾段=文档名模式）。布局串内的 /（如
+ *  date "2006/01/02"）不算切点——{{}} 深度计数排除 */
+export function splitTemplateTail(tpl: string): { parent: string; tail: string } {
+    let depth = 0;
+    let cut = -1;
+    for (let i = 0; i < tpl.length; i++) {
+        const ch = tpl[i];
+        if (ch === "{" && tpl[i + 1] === "{") { depth++; i++; continue; }
+        if (ch === "}" && tpl[i + 1] === "}") { depth--; i++; continue; }
+        if (depth === 0 && ch === "/") cut = i;
+    }
+    return { parent: cut >= 0 ? tpl.slice(0, cut + 1) : "", tail: cut >= 0 ? tpl.slice(cut + 1) : tpl };
+}
+
+/** 时变参考段集：同一日内随条目输入时刻变化 → 每条一文档（模式 A 判据） */
+const TIME_VARYING_SEGS = new Set(["15", "03", "3", "04", "4", "05", "5", "PM", "pm"]);
+
+/** 尾段遍历：字面量与模板段参考段逐枚举（贪心最长匹配，GO_LAYOUT_SEGS 序=长度降序与
+ *  renderGoLayout 同规则）；{{...}} 段非 SELF_TPL_SEG 子集=整体按字面量（模式 A 只在
+ *  plan.kind==="self" 即全段合法时触发，此分支防御性兜底） */
+function walkTailSegs(tail: string, onSeg: (seg: string) => void, onLit: (ch: string) => void): void {
+    let i = 0;
+    while (i < tail.length) {
+        const m = tail.slice(i).match(/^\{\{([^{}]*)\}\}/);
+        const layout = m?.[1] !== undefined ? m[1].match(SELF_TPL_SEG)?.[1] : undefined;
+        if (layout !== undefined) {
+            let j = 0;
+            outer: while (j < layout.length) {
+                for (const [seg] of GO_LAYOUT_SEGS) {
+                    if (layout.startsWith(seg, j)) { onSeg(seg); j += seg.length; continue outer; }
+                }
+                onLit(layout[j]);
+                j++;
+            }
+            i += m![0].length;
+            continue;
+        }
+        onLit(tail[i]);
+        i++;
+    }
+}
+
+/** 模式 A 判定（纯函数，单测锚点）：模板尾段含任一时变段=true。时变段只在中间目录段
+ *  （如 /日记/{{…15…}}/速记——条目各占一目录）不属模式 A 扫描范围=退现状单文档链 */
+export function templateIsPerEntryDoc(tpl: string): boolean {
+    const { tail } = splitTemplateTail(tpl ?? "");
+    let has = false;
+    walkTailSegs(tail, seg => { if (TIME_VARYING_SEGS.has(seg)) has = true; }, () => {});
+    return has;
+}
+
+/** 时变段 → 标题匹配宽片段（数字段位数放宽，内核渲染零填充/一位形态都命中） */
+const TIME_SEG_FRAGS: Record<string, string> = {
+    "15": "\\d{2}", "03": "\\d{1,2}", "3": "\\d{1,2}",
+    "04": "\\d{2}", "4": "\\d{1,2}",
+    "05": "\\d{2}", "5": "\\d{1,2}",
+    "PM": "(?:AM|PM)", "pm": "(?:am|pm)",
+};
+
+/** 尾段 → 文档标题匹配 RegExp（^…$ 全匹配，单测锚点）：时变段=宽片段；日期段=钉 now
+ *  字面值（扫描界=当日——历史文档不误伤不误删，对齐模式 B「今日中转文档」口径；跨天
+ *  残留文档与模式 B 同病，属既有边界）；其余字面量转义 */
+export function perEntryTitleRegex(tail: string, now: Date): RegExp {
+    let out = "";
+    const lit = (ch: string) => { out += ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); };
+    walkTailSegs(tail, seg => {
+        if (TIME_VARYING_SEGS.has(seg)) out += TIME_SEG_FRAGS[seg];
+        else lit(renderGoLayout(seg, now));
+    }, lit);
+    return new RegExp(`^${out}$`);
+}
+
+/** need-0927-02：模式 A 条目文档扫描——父目录（模板切尾段后按 now 渲染）下列举文档
+ *  （listDocsByPath 文件树直查免 SQL 索引窗；path=id 路径非 hpath，父目录 id 经
+ *  getIDsByHPath 解析；根目录=官方模式 A 同构形态 "/{{…}}" 直接列根），标题按尾段
+ *  正则全匹配。先解析箱后全库扫（locateTransitDoc 同序同因）。目录缺失/零命中返
+ *  undefined（调用方给 miss 分诊）；内部失败吞错留痕返 undefined */
+async function locatePerEntryDocs(tpl: string, boxArg: string): Promise<{ box: string; docs: { id: string; title: string }[] } | undefined> {
+    try {
+        const { parent, tail } = splitTemplateTail(tpl);
+        const parentPath = renderShorthandTemplate(parent) || "/";
+        // 内核 getIDsByHPath 尾斜杠形态恒不命中（6811 实测："/闪念速记/" 空、"/闪念速记" 命中）
+        // ——非根路径剥尾斜杠再解析；根 "/" 走直列分支
+        const parentQuery = parentPath.length > 1 ? parentPath.replace(/\/+$/, "") : "/";
+        const titleRe = perEntryTitleRegex(tail, new Date());
+        const books = [boxArg, ...(((await siyuan.lsNotebooks(false)) ?? []).map(b => b.id).filter(id => id !== boxArg))];
+        for (const box of books) {
+            let dirIdPath: string | undefined;
+            if (parentQuery === "/") dirIdPath = "/";
+            else {
+                const ids = await siyuan.getIDsByHPath(parentQuery, box);
+                dirIdPath = ids?.length ? `/${ids[0]}/` : undefined;
+            }
+            if (!dirIdPath) continue;
+            const listing = await siyuan.listDocsByPath(box, dirIdPath);
+            const docs = (listing?.files ?? [])
+                .filter(f => titleRe.test(f.name ?? ""))
+                .map(f => ({ id: f.id, title: f.name }));
+            if (docs.length > 0) return { box, docs };
+        }
+    } catch (err) {
+        debugLog("shorthand_relay", `locate per-entry fail tpl=${tpl}: ${err}`, "dailynote");
+    }
+    return undefined;
+}
+
+/** need-0927-02 模式 A 即搬即清（NoteBox.removeQueueDocs 同款守卫形态，对照拍照闪念队列
+ *  处置=搬完即删非清空留空壳）：逐文档 fresh 重扫 getChildBlocks 确认真的搬空（事务 HTTP
+ *  恒 code 0，op 级失败只走 ws 回声——非空=漏搬，留待下次搬运，绝不删）；空文档=已搬空
+ *  残骸/内核占位段。removeDocByID 无 confirm 一发即删：删除闸共两道——扫描层标题模式
+ *  匹配（结构性：文档必须长在模板渲染父目录下且标题全匹配）+ 此层搬空复核读（内容性）；
+ *  文档级通道删除（误删恢复=workspace 根 history/ 拷回）；删失败吞错留痕留待下次重试 */
+async function removeRelayedDocs(docs: { id: string }[]): Promise<void> {
+    for (const d of docs) {
+        try {
+            const kids = await siyuan.getChildBlocks(d.id);
+            const nonEmpty = (kids ?? []).filter(k => ((k as any).content ?? "").trim() !== "");
+            if (nonEmpty.length > 0) {
+                debugLog("shorthand_relay", `per-entry skip non-empty doc=${d.id}`, "dailynote");
+                continue;
+            }
+            await siyuan.removeDocByID(d.id);
+            debugLog("shorthand_relay", `per-entry doc removed doc=${d.id}`, "dailynote");
+        } catch (err) {
+            debugLog("shorthand_relay", `per-entry doc remove fail doc=${d.id}: ${err}`, "dailynote");
+        }
+    }
+}
+
 /** need-0926-19②：自存模板通道的中转文档定位——先解析箱后全库扫（官方保存位置未指定
  *  笔记本时内核兜底=第一个可用笔记本〔shortcuts.go selectShorthandSaveBox〕≠解析箱，
  *  need-0926-07 已证）；探测失败吞错留痕（miss=退本机 conf 通道，不抢戏） */
@@ -374,7 +518,12 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver, afterR
     debugLog("shorthand_relay", `savePath box=${box} path=${path} manual=${manual}`, "dailynote");
     let docID: string | undefined;
     let fromSelf = false;
-    const plan = relayPathPlan(shorthandRelayPathTpl.get(), path);
+    let relayDocs: { id: string; title: string }[] = [];
+    let perEntry = false;
+    let children: { id: string; content?: string; type?: string }[] = [];
+    let entries: { stamp: string; ids: string[] }[] = [];
+    const tplRaw = shorthandRelayPathTpl.get();
+    const plan = relayPathPlan(tplRaw, path);
     if (plan.kind === "none") {
         // 官方模式 A（每条一独立文档）+自存模板未命中不属搬运范围：手动触发给引导（need-19
         // 改口径=移动端配置+插件自存模板兜底，不再引导桌面端不存在的设置项），自动触发静默
@@ -382,15 +531,47 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver, afterR
         return;
     }
     if (plan.kind === "self") {
-        const hit = await locateTransitDoc(plan.path, boxArg);
-        if (hit) {
+        perEntry = templateIsPerEntryDoc(tplRaw);
+        if (perEntry) {
+            // need-0927-02 模式 A：父目录列举+标题模式匹配定位当日条目文档族（单点渲染
+            // 定位只对日级模板成立）；模式 B（日级合并）不走此支维持现状
+            const hit = await locatePerEntryDocs(tplRaw, boxArg);
+            if (!hit) {
+                // 目录缺失/零命中=今日无速记：手动给可读提示，自动静默（sync_end 高频防刷屏）
+                if (manual) siyuan.pushMsg(relayManualMissHint("noDoc"));
+                return;
+            }
             box = hit.box;
-            path = plan.path;
-            docID = hit.docID;
             fromSelf = true;
-            debugLog("shorthand_relay", `self tpl path=${path} box=${box} manual=${manual}`, "dailynote");
+            relayDocs = hit.docs;
+            // 跨文档分条合并（逐文档各自分组防同秒跨文档并组；stamp=id 前 14 位=记录
+            // 时刻，跨文档按刻重排复原输入序）
+            for (const d of relayDocs) {
+                const kids = await siyuan.getChildBlocks(d.id);
+                children.push(...(kids ?? []));
+                entries.push(...groupShorthandEntries(kids ?? []));
+            }
+            entries.sort((a, b) => a.stamp.localeCompare(b.stamp));
+            debugLog("shorthand_relay", `per-entry scan box=${box} docs=${relayDocs.length} entries=${entries.length} manual=${manual}`, "dailynote");
+            if (entries.length === 0) {
+                // 文档在而条目空（已搬空残骸/内核占位段）——即搬即清顺手收走空文档
+                // （removeRelayedDocs 内 fresh 重扫守卫），手动通道照旧给「已全部搬完」
+                await removeRelayedDocs(relayDocs);
+                if (manual) siyuan.pushMsg(relayManualMissHint("empty"));
+                return;
+            }
+            docID = relayDocs.map(d => d.id).join(",");
+        } else {
+            const hit = await locateTransitDoc(plan.path, boxArg);
+            if (hit) {
+                box = hit.box;
+                path = plan.path;
+                docID = hit.docID;
+                fromSelf = true;
+                debugLog("shorthand_relay", `self tpl path=${path} box=${box} manual=${manual}`, "dailynote");
+            }
+            // miss（模板与移动端不一致/今日无速记）→ box/path 保持官方返回继续走 conf 定位
         }
-        // miss（模板与移动端不一致/今日无速记）→ box/path 保持官方返回继续走 conf 定位
     }
     if (!docID) {
         const docIDs = await siyuan.getIDsByHPath(path, box);
@@ -403,13 +584,15 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver, afterR
         }
     }
 
-    const children = await siyuan.getChildBlocks(docID);
-    const entries = groupShorthandEntries(children);
-    if (entries.length === 0) {
-        // need-0926-07：中转文档在而条目空（常见=已全部搬完，内核给搬空文档补占位空段被
-        // groupShorthandEntries 过滤）——手动通道补一句可读提示，自动通道维持静默
-        if (manual) siyuan.pushMsg(relayManualMissHint("empty"));
-        return;
+    if (!perEntry) {
+        children = await siyuan.getChildBlocks(docID);
+        entries = groupShorthandEntries(children);
+        if (entries.length === 0) {
+            // need-0926-07：中转文档在而条目空（常见=已全部搬完，内核给搬空文档补占位空段被
+            // groupShorthandEntries 过滤）——手动通道补一句可读提示，自动通道维持静默
+            if (manual) siyuan.pushMsg(relayManualMissHint("empty"));
+            return;
+        }
     }
 
     // need-19：自存通道命中箱可能是全库扫到的箱（官方保存位置未指定箱时内核兜底=第一个
@@ -420,9 +603,11 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver, afterR
     // need-0926-17 分类增强：条目首图标 → noteBoxAllKinds 分类（面板同源唯一配置）。
     // need-0926-13：命中后按「@别名」声明分流（relayKindAction）——内置/声明 emoji →
     // alias 直写（正文零标记）；声明文字词 → aliasText 不建引用+正文「名称：」前缀
-    // （下方锚循环）；未声明自定义词 → createRefDoc+块首引用锚（现状）；未命中/无图标
-    // → undefined，全链路退「速记」现状口径。内容源=条内全块 content join
-    // （relayEntryLifeTag 同款），首字符判定纯函数 relayEntryKind
+    // （下方锚循环）；未声明自定义词 → createRefDoc+块首引用锚（现状）。need-0927-03
+    // 楼9 修订：未命中/无图标 → 纯文本形态「非闪念记录」——不落收集属性（壳/裸块零
+    // idea-time/idea-type，间隔拉链链外）+不落时间记录标记（relayEntryLifeTag 返
+    // undefined）。内容源=条内全块 content join（relayEntryLifeTag 同款），首字符判定
+    // 纯函数 relayEntryKind
     const relayKinds = parseNoteKinds(noteBoxAllKinds.get());
     const kindOf = new Map<{ ids: string[] }, string | undefined>(entries.map(e => [e, relayEntryKind(
         e.ids.map(id => children.find(b => b.id === id)?.content ?? "").join(" ").trim(),
@@ -441,6 +626,13 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver, afterR
         const a = actOf(e);
         return a && a.action === "aliasText" ? a.icon : undefined;
     };
+    /** need-0927-03：条目收集属性——命中分类照旧（idea-time+alias/idea-type 按分流）；
+     *  未命中=纯文本形态返 undefined 整体不落（collectBlockAttrs 首键恒 idea-time，
+     *  挂上即进 calcTimeInterval 拉链隔断相邻记录间隔，须在此源头不落） */
+    const relayAttrsOf = (e: { ids: string[]; stamp: string }): AttrType | undefined => {
+        if (!actOf(e)) return undefined;
+        return collectBlockAttrs(hhmmFromCreated(e.stamp), undefined, aliasOf(e), ideaTypeOf(e));
+    };
 
     // 条级容器（□1 协议 v1：idea-time=条输入时刻；ref-hpath 无源省略）。□4 落块形态跟随
     // 开关（fballfb 2026-09-21）：para/list 形态下「恰一块且为段落」的条目免壳直搬（块自身
@@ -455,8 +647,10 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver, afterR
     const builders = wrappedEntries.map(e => {
         const b = new DomSuperBlockBuilder();
         // need-0926-17：内置 emoji 命中分类 alias 直写（面板 emoji 分支 IAL 同款通道）；
-        // need-0926-13：声明别名同入（文字别名另挂 idea-type 第二还原键）
-        b.setAttrs(collectBlockAttrs(hhmmFromCreated(e.stamp), undefined, aliasOf(e), ideaTypeOf(e)));
+        // need-0926-13：声明别名同入（文字别名另挂 idea-type 第二还原键）；
+        // need-0927-03：未命中=纯文本形态零收集属性（relayAttrsOf 返 undefined 不设）
+        const attrs = relayAttrsOf(e);
+        if (attrs) b.setAttrs(attrs);
         return b;
     });
     let ops: any[] = [];
@@ -576,18 +770,21 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver, afterR
     }
     // □4 bare 条目属性挂块自身（事务后 setBlockAttrs，单条失败吞错留痕不阻断搬运主链）；
     // need-0926-17：内置 emoji 命中分类 alias 同挂（与 idea-time 同层）；need-0926-13：
-    // 别名型命中同入（文字别名另挂 idea-type 第二还原键）
+    // 别名型命中同入（文字别名另挂 idea-type 第二还原键）；need-0927-03：未命中=纯文本
+    // 形态零收集属性（relayAttrsOf 返 undefined 跳过写）
     for (const e of bareEntries) {
         try {
-            await siyuan.setBlockAttrs(e.ids[0], collectBlockAttrs(hhmmFromCreated(e.stamp), undefined, aliasOf(e), ideaTypeOf(e)));
+            const attrs = relayAttrsOf(e);
+            if (attrs) await siyuan.setBlockAttrs(e.ids[0], attrs);
         } catch (err) {
             debugLog("shorthand_relay", `bare attrs fail stamp=${e.stamp}: ${err}`, "dailynote");
         }
     }
     // □3 落点 B：开关开时逐条补时间记录标记（与 □2 落点 A 同协议，生态四键识别面）。
     // 单条失败吞错留痕不阻断（搬运主链已成功，标记属锦上添花）；无段落块条目跳过；
-    // need-0926-17：type=命中分类词（未命中/无图标默认「速记」）；need-0926-13：文字
-    // 别名条目 content 对齐前缀改写后的正文（剥命中痕迹+「名称：」前缀，与盘上块同文）
+    // need-0926-17：type=命中分类词；need-0927-03：未命中=纯文本形态不标记
+    // （relayEntryLifeTag 返 undefined）；need-0926-13：文字别名条目 content 对齐前缀
+    // 改写后的正文（剥命中痕迹+「名称：」前缀，与盘上块同文）
     if (flashStatTag.get()) {
         for (const e of entries) {
             try {
@@ -604,6 +801,10 @@ async function relayOnce(manual: boolean, getTarget: DailyTargetResolver, afterR
             }
         }
     }
+    // need-0927-02 模式 A 即搬即清：条目文档搬空即删（手机端对已落盘条目文档只写一次即
+    // 关闭，删除不构成并发写冲突面——模式 B 的共写冲突不适用）。位置在 ref 锚/属性/标记
+    // 全链之后=所有块级写入已完成；守卫与失败语义见 removeRelayedDocs 注释
+    if (relayDocs.length > 0) await removeRelayedDocs(relayDocs);
     debugLog("shorthand_relay", `done doc=${docID} entries=${entries.length} blocks=${children.length}`, "dailynote");
     siyuan.pushMsg(tomatoI18n.已搬运速记到日记.replace("{n}", String(entries.length)));
     // need-0926-18：真搬运成功才回调（间隔重算等下游挂点；上方各早退路径不触发）

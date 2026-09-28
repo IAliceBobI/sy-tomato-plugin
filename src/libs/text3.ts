@@ -954,6 +954,43 @@ export abstract class TomatoI18nABC3 extends TomatoI18nABC4 {
                 return "Fragment not included in backtrace links";
         }
     }
+    // need-0927-04 楼20 拍板①：提取到底/keys 星号回链开关化（默认不带勾=星号在，
+    // 陆杰 keys 点名恒带的现状零迁移；提取全部沿用「提取全部不加入回溯链接」）
+    public get 提取笔记不加入回溯链接() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "提取笔记不加入回溯链接";
+            case "es_ES":
+                return "Notas extraídas sin enlace retrospectivo";
+            case "fr_FR":
+                return "Notes extraites sans lien rétrospectif";
+            case "ja_JP":
+                return "抽出ノートにリンクを含めない";
+            case "zh_CHT":
+                return "提取筆記不加入回溯鏈接";
+
+            default:
+                return "Extracted notes without backlinks";
+        }
+    }
+    // need-0927-04 楼20 拍板②：条间空行开关（默认不带勾=条间加空行）
+    public get 提取笔记条间不空行() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "提取笔记条间不空行";
+            case "es_ES":
+                return "Sin línea en blanco entre notas extraídas";
+            case "fr_FR":
+                return "Pas de ligne vide entre les notes extraites";
+            case "ja_JP":
+                return "抽出ノート間に空行を入れない";
+            case "zh_CHT":
+                return "提取筆記條間不空行";
+
+            default:
+                return "No blank line between extracted notes";
+        }
+    }
     public get 合并所有分片到新文件() {
         switch (this.lang) {
             case "zh_CN":

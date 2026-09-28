@@ -346,7 +346,15 @@ function load_cssFlashThoughts() {
  *    换行/截断）；内容块 margin-left 归零防与 ::before 双重 34px 空档。
  *  特异性账（覆盖链逐条核对）：显示变体 (0,3,2) > 内核 .li::before (0,3,1)；归零规则
  *  (0,4,1) > 内核 `.li>[data-node-id]` (0,4,0)；排除规则 (0,4,2)（[data-subtype] 加档）压
- *  显示变体与内核 fold 变体 (0,4,1)；排除配套恢复 (0,5,1) 压归零规则（见下）。 */
+ *  显示变体与内核 fold 变体 (0,4,1)；排除配套恢复 (0,5,1) 压归零规则（见下）。
+ *
+ *  need-0927-01 态稳收编：内核 --hl/--select/--select-mode::after 高亮框规则 (0,1,1) 的
+ *  width:100%/height:100%/background-color 会穿透本函数的间隔角标 ::after（选择器只压
+ *  content/position 系）——hover gutter（块挂 --hl）/框选（--select）时角标变 100% 宽
+ *  不可收缩 flex 项，内容被挤成一字一行竖列（陆杰 09-27 反馈，6811 实锤）。修=间隔角标
+ *  规则显式收编三值（width:auto/height:auto/background-color:transparent），横排对内核
+ *  注入物恒稳；.protyle-attr 实测 absolute 钉角（块自带 position:relative）不参与 flex
+ *  排布，无需收编。 */
 export function flashThoughtsCSS(taskTime: boolean): string {
     const css = `
         /* □3 时间戳胶囊化：11px 等宽+1px 边框圆角胶囊（极淡主色底，与主面板 chips 同语言）、去浮雕阴影 */
@@ -383,7 +391,14 @@ export function flashThoughtsCSS(taskTime: boolean): string {
            ⑦ 归一：显式 position:static（防任何内核/形态 absolute 伪元素规则）+ flex-shrink:0
            + nowrap（不收缩不折行=恒完整钉在行尾）。
            need-0926-18：:not([=""]) 兜底=模式切换/清残留时空串值（setBlockAttrs 清值后属性仍在）
-           零渲染零 8px 占位 */
+           零渲染零 8px 占位。
+           need-0927-01 态稳收编：内核选中/悬停态高亮框 .protyle-wysiwyg--hl/--select/--select-mode::after
+           （_wysiwyg.scss ~762，(0,1,1)）声明 width:100%/height:100%/background-color——本规则
+           (0,3,2) 只赢 content/position 系，未声明三值在 hover gutter（块挂 --hl）或框选
+           （--select）时穿透：角标变 100% 宽 flex-shrink:0 的巨型 flex 项，同容器内容块被挤到
+           min-content（一字一行竖列，专属实例 6811 实锤复现+修复验证）。显式收编三值=任意态下
+           角标恒为行尾小字、容器 flex row 恒稳；代价=速记块上内核选中高亮框不可见（现状该高亮
+           本就被角标独占 ::after 破坏成 570px 色条，收编后仅不再炸布局，非新增破坏面） */
         .protyle-wysiwyg div[custom-tomato-idea-interval]:not([custom-tomato-idea-interval=""])::after,
         /* □4 列表项形态：与 ::before 同款 .li 特异性变体（内核 li 伪元素规则防御） */
         .protyle-wysiwyg div.li[custom-tomato-idea-interval]:not([custom-tomato-idea-interval=""])::after {
@@ -396,6 +411,9 @@ export function flashThoughtsCSS(taskTime: boolean): string {
             position: static;
             flex-shrink: 0;
             white-space: nowrap;
+            width: auto;
+            height: auto;
+            background-color: transparent;
         }
         /* 容器恢复默认字色，flex row 保留（图片 compose 多行块横排） */
         .protyle-wysiwyg div[custom-tomato-idea-time] {

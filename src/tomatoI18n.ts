@@ -9511,6 +9511,24 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Extract-all results no longer get the asterisk links jumping back to source blocks";
         }
     }
+    // need-0927-04 楼20 拍板①：提取到底（⇧⌥R）/提取笔记（⌘F5）的星号回链开关 tip
+    public get tip设置笔记回溯() {
+        switch (this.lang) {
+            case "zh_CN": return "开启后「提取笔记到底部」「提取笔记」产物不再附跳转原文的星号链接（提取全部另受上一开关控制）";
+            case "zh_CHT": return "開啟後「提取筆記到底部」「提取筆記」產物不再附跳轉原文的星號鏈接（提取全部另受上一開關控制）";
+            case "en_US":
+            default: return "Extract-to-bottom and Extract-notes results no longer get the asterisk backlinks (extract-all has its own switch above)";
+        }
+    }
+    // need-0927-04 楼20 拍板②：条间空行开关 tip
+    public get tip设置条间空行() {
+        switch (this.lang) {
+            case "zh_CN": return "开启后提取产物条与条之间不再插空行（默认空行分隔，更易阅读）";
+            case "zh_CHT": return "開啟後提取產物條與條之間不再插空行（默認空行分隔，更易閱讀）";
+            case "en_US":
+            default: return "Extracted entries are stacked without blank lines between them (blank-line separation is the default)";
+        }
+    }
     public get tip设置dailycard() {
         switch (this.lang) {
             case "zh_CN": return "摘抄落进当天日记的 dailycard 目录，默认落 prog-data 书摘抄夹";

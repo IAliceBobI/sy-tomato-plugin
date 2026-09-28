@@ -1004,6 +1004,13 @@ export const pieceNoBacktraceLink = settingFactory("pieceNoBacktraceLink", true,
 // need-0926-01 □2 提取全部回链开关：同族第三枚但默认 false=带链接（现状 addHref=true
 // 行为零迁移）；□3 接线 extractAllNotes 读它门控装配 withHref
 export const extractAllNoBacktraceLink = settingFactory("extractAllNoBacktraceLink", false, STORAGE_Prog_SETTINGS, null as TSK);
+// need-0927-04 楼20 拍板①星号回链开关化：提取到底/keys 两链路此前硬编码恒带（withHref:
+// true），现读本键自由选择；同族命名（No 前缀=勾选即不带），默认 false=星号在（现状
+// 零迁移，陆杰 keys 点名恒带）。提取全部不读它（沿用上方 extractAllNoBacktraceLink）
+export const extractNoteNoBacktraceLink = settingFactory("extractNoteNoBacktraceLink", false, STORAGE_Prog_SETTINGS, null as TSK);
+// need-0927-04 楼20 拍板②条间空行开关：默认 false=条间加空行（现状形态零迁移）；
+// 开=产物条间紧凑无空段（buildNoteUnits blankLine 门控，四链路同读）
+export const extractNoteNoBlankLine = settingFactory("extractNoteNoBlankLine", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveStart2learn = settingFactory("ProgressiveStart2learn", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveJumpMenu = settingFactory("ProgressiveJumpMenu", false, STORAGE_Prog_SETTINGS, null as TSK);
 // □8期4 移动端选块三钮开关（2026-09-09 发版前 P1 拍板补）：默认开；关=Progressive.ts

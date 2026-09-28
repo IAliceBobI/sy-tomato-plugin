@@ -104,16 +104,28 @@ export function flashSingleLine(text: string, joiner: string): string {
 
 /** 一步形态的 IAL 串（独立成行挂段落块，预挂 id 被内核认领）。
  *  ideaType（need-0926-10）：纯文本类型的可追溯标记 custom-tomato-idea-type——与
- *  alias 互斥使用（纯文本不落 alias），emoji/引用两通道不传=零行为变化 */
+ *  alias 互斥使用（纯文本不落 alias），emoji/引用两通道不传=零行为变化。
+ *  need-0927-03 楼9 修订：纯文本形态（ideaType=PLAIN_KIND）不挂 custom-tomato-idea-time /
+ *  custom-tomato-idea-type 两属性——idea-time 是间隔统计 calcTimeInterval 的拉链键，挂着即
+ *  进链隔断相邻记录间隔（源头不落，cssStyle 排除规则留作存量兼容）；IAL 行保留 id=一步
+ *  形态预挂 id 被内核认领的通道（返回 id 定位依赖），其余属性（alias）照落 */
 export function flashIAL(id: string, time: string, alias?: string, ideaType?: string): string {
+    if (ideaType === PLAIN_KIND) {
+        return alias ? `{: id="${id}" alias="${alias}"}` : `{: id="${id}"}`;
+    }
     const typeAttr = ideaType ? ` custom-tomato-idea-type="${ideaType}"` : "";
     return alias
         ? `{: id="${id}" custom-tomato-idea-time="${time}" alias="${alias}"${typeAttr}}`
         : `{: id="${id}" custom-tomato-idea-time="${time}"${typeAttr}}`;
 }
 
-/** 两步形态插完后补挂的条目属性对象（挂 item 本体）。ideaType 语义同 flashIAL */
+/** 两步形态插完后补挂的条目属性对象（挂 item 本体）。ideaType 语义同 flashIAL；
+ *  need-0927-03：纯文本形态（ideaType=PLAIN_KIND）零 time/type（alias 等其余属性照落
+ *  ——纯文本通道不传 alias，此处仅为口径对称），调用方对空对象跳过写属性 */
 export function flashAttrs(time: string, alias?: string, ideaType?: string): { [k: string]: string } {
+    if (ideaType === PLAIN_KIND) {
+        return alias ? { "alias": alias } : {};
+    }
     const a: { [k: string]: string } = { "custom-tomato-idea-time": time };
     if (alias) a["alias"] = alias;
     if (ideaType) a["custom-tomato-idea-type"] = ideaType;
@@ -132,7 +144,8 @@ export interface FlashMD {
 /** md 通道产物（一条速记 → 待插 markdown+属性挂载方案）。
  *  task（📌）：勾选语义不降级——任何形态恒任务列表项（super=现状 sb 包任务；para/list=裸任务项）。
  *  ideaType（need-0926-10）：纯文本类型可追溯标记，随 IAL/两步属性同挂（两步形态由调用方
- *  插完以 flashAttrs(time, undefined, ideaType) 补挂） */
+ *  插完以 flashAttrs(time, undefined, ideaType) 补挂）；need-0927-03 楼9 修订起纯文本形态
+ *  只产 id 占位 IAL（time/type 两属性源头不落，见 flashIAL） */
 export function flashMD(text: string, time: string, form: FlashBlockForm, alias?: string, task = false, ideaType?: string): FlashMD {
     const id = NewNodeID();
     if (form === "super") {

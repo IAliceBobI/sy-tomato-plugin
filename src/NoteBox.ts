@@ -642,10 +642,11 @@ async function getContent2insert(text: string, isPic: boolean, iconOverride?: st
     // 设置串（chips 显示名=剥「@别名」后缀名，选中态与分流同名源）
     const channel = kindChannel(icon, kindAliasDeclared(icon, noteBoxAllKinds.get()));
     if (channel === "plain") {
-        // need-0926-10：纯文本类型（陆杰 09-26 拍板方案 A）——不建引用不落 alias 的裸
-        // 内容块（日记里零类型痕迹），形态随 flashBlockForm 三态与 emoji 分支同构；
-        // idea-type 标记+idea-time 照写=近期列表（need-15 第二还原键）/统计/搬运归位
-        // 照进照认；显示层免时间胶囊/间隔角标在 cssStyle（flashThoughtsCSS 排除规则）
+        // need-0926-10：纯文本类型——不建引用不落 alias 的裸内容块，形态随 flashBlockForm
+        // 三态与 emoji 分支同构；need-0927-03 楼9 修订：不挂 custom-tomato-idea-time /
+        // custom-tomato-idea-type 两属性（idea-time 是间隔统计 calcTimeInterval 拉链键，
+        // 挂着即隔断相邻记录间隔；纯文本=「非闪念记录」，近期列表自然不进）——flashIAL
+        // 对 PLAIN_KIND 只产 id 占位行；cssStyle PLAIN_KIND 排除规则留作存量块兼容
         const r = flashMD(text, getTime(), form, undefined, false, PLAIN_KIND);
         return { md: r.md, id: r.id, twoStep: r.twoStep };
     } else if (channel === "aliasEmoji") {
@@ -721,15 +722,16 @@ export async function insertIntoDailynote(text: string, isPic = false, iconOverr
         const itemID = cID ? await firstTypedChild(cID, "i") : undefined;
         if (itemID) {
             const icon = (iconOverride ?? storeNoteBox_selectedNoteType.get()).trim();
-            // need-0926-10：纯文本类型不落 alias（零类型痕迹）改挂 idea-type 标记
-            // （kindChannel 同款口径）；need-0926-13：文字别名=alias+idea-type 双写
-            // （面板 aliasText 分支同构）；emoji 分支 alias 直写照旧
+            // need-0926-10：纯文本类型不落 alias（零类型痕迹）；need-0927-03 楼9 修订：
+            // 纯文本形态零属性（idea-time/idea-type 源头不落，间隔拉链链外）——跳过属性
+            // 回填；need-0926-13：文字别名=alias+idea-type 双写（面板 aliasText 分支同构）；
+            // emoji 分支 alias 直写照旧
             const ch = kindChannel(icon, kindAliasDeclared(icon, noteBoxAllKinds.get()));
-            await siyuan.setBlockAttrs(itemID, ch === "plain"
-                ? flashAttrs(getTime(), undefined, PLAIN_KIND)
-                : ch === "aliasText"
+            if (ch !== "plain") {
+                await siyuan.setBlockAttrs(itemID, ch === "aliasText"
                     ? flashAttrs(getTime(), icon, icon)
                     : flashAttrs(getTime(), icon));
+            }
             // lifelog 宿主=内层 p（生态四键识别面 type='p' 契约），无 p（纯子列表等）退化 item 自身
             lifelogHost = (await firstTypedChild(itemID, "p")) ?? itemID;
             blockID = itemID;
