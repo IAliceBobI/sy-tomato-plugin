@@ -1012,6 +1012,10 @@ export const extractNoteNoBacktraceLink = settingFactory("extractNoteNoBacktrace
 // 开=产物条间紧凑无空段（buildNoteUnits blankLine 门控，四链路同读）
 export const extractNoteNoBlankLine = settingFactory("extractNoteNoBlankLine", false, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveStart2learn = settingFactory("ProgressiveStart2learn", true, STORAGE_Prog_SETTINGS, null as TSK);
+// need-1001-02 移动端复访入口：渐进菜单「到期复访」项开关（桌面入口=状态栏 ✧ 角标，
+// 移动端无状态栏两入口皆不可达——菜单加项补入口；bear 2026-10-01 追加约束默认开可关）。
+// 开菜单时动态读（addMenu 内 get），非 onload 注册读死——不进 STRUCTURAL_KEYS（Start2learn 同款）
+export const ProgressiveDueMenu = settingFactory("ProgressiveDueMenu", true, STORAGE_Prog_SETTINGS, null as TSK);
 export const ProgressiveJumpMenu = settingFactory("ProgressiveJumpMenu", false, STORAGE_Prog_SETTINGS, null as TSK);
 // □8期4 移动端选块三钮开关（2026-09-09 发版前 P1 拍板补）：默认开；关=Progressive.ts
 // 事件回调不再挂（已挂钮随切文档/reload 退场，与 tomato「多行选择」同口径——勿 subscribe

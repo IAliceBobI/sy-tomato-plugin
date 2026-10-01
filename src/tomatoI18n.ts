@@ -7457,6 +7457,26 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    // ===== need-0930-01 摘抄/素材导航首尾循环：边界环绕 toast（650189 拍板直接跳） =====
+
+    public get 已到最新一条转入最早一条摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "已到最新一条，转入最早一条摘抄";
+            case "zh_CHT": return "已到最新一條，轉入最早一條摘抄";
+            case "en_US":
+            default: return "Newest digest reached, jumping to the earliest";
+        }
+    }
+
+    public get 已到最早一条转入最新一条摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "已到最早一条，转入最新一条摘抄";
+            case "zh_CHT": return "已到最早一條，轉入最新一條摘抄";
+            case "en_US":
+            default: return "Earliest digest reached, jumping to the newest";
+        }
+    }
+
     public get 未找到本条摘抄() {
         switch (this.lang) {
             case "zh_CN": return "未找到本条摘抄";
@@ -7540,6 +7560,24 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "已是最新一條素材";
             case "en_US":
             default: return "Already the newest material";
+        }
+    }
+
+    public get 已到最新一条转入最早一条素材() {
+        switch (this.lang) {
+            case "zh_CN": return "已到最新一条，转入最早一条素材";
+            case "zh_CHT": return "已到最新一條，轉入最早一條素材";
+            case "en_US":
+            default: return "Newest material reached, jumping to the earliest";
+        }
+    }
+
+    public get 已到最早一条转入最新一条素材() {
+        switch (this.lang) {
+            case "zh_CN": return "已到最早一条，转入最新一条素材";
+            case "zh_CHT": return "已到最早一條，轉入最新一條素材";
+            case "en_US":
+            default: return "Earliest material reached, jumping to the newest";
         }
     }
 
@@ -7967,6 +8005,15 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
     public get 移动端菜单显示开始学习() {
+        switch (this.lang) {
+            case "zh_CN": return "移动端菜单显示";
+            case "zh_CHT": return "行動端選單顯示";
+            case "en_US":
+            default: return "Mobile menu shows";
+        }
+    }
+    // need-1001-02 移动端复访入口：渐进菜单「到期复访」项开关行（照上条开始学习形式）
+    public get 移动端菜单显示到期复访() {
         switch (this.lang) {
             case "zh_CN": return "移动端菜单显示";
             case "zh_CHT": return "行動端選單顯示";

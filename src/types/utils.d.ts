@@ -105,6 +105,7 @@ type TomatoSettings = {
     piecesmenu: boolean,
     blockIconMenu: boolean,
     ProgressiveStart2learn: boolean,
+    ProgressiveDueMenu: boolean,
     mobileSelectBtns: boolean,
     digestmenu: boolean,
     wholeDigestMenu: boolean,

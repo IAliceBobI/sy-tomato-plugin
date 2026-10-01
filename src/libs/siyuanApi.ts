@@ -764,8 +764,35 @@ export const siyuan = {
     async getHeadingChildrenDOM(id: string) {
         return siyuan.call("/api/block/getHeadingChildrenDOM", { id });
     },
-    async listDocsByPath(notebookID: string, notReadablePath: string, sort = 15): Promise<RetListDocsByPath> {
-        return siyuan.call("/api/filetree/listDocsByPath", { notebook: notebookID, path: notReadablePath, sort });
+    async listDocsByPath(notebookID: string, notReadablePath: string, sort = 15): Promise<RetListDocsByPath | null> {
+        // need-1001-01：速记空壳容器（有 .sy、无同名子目录）内核返 code=-1+data=null——
+        // 「无子文档」的常态语义而非错误（陆杰 09-30 报障：秒级模板+速记搬运开时每次
+        // sync-end 触发 relayShorthands → locatePerEntryDocs 打到这里，透传 call 会在
+        // call 内部 warnP5Throttled 打 p5 警告两路径交替刷屏）。故不走 siyuan.call 单独
+        // fetch：-1 静默语义化返 null；其余非零码仍走 warnP5Throttled 告警+返 null 保底
+        // （同 call 形态）；网络错照 call 形态 catch 吞错归一返 null。容错语义=progressive
+        // kernel/api.ts listDocsByPath（那边 call throw 后正则 /code=-1(?!\d)/；本侧 call
+        // 不 throw，直接判 code，语义等价）。code=0 但缺 data 时返 null（call 原返 Response
+        // 兜底，本端点恒有 data；调用方均 ?.files ?? [] 防护，等价）。
+        const url = "/api/filetree/listDocsByPath";
+        const reqData = { notebook: notebookID, path: notReadablePath, sort };
+        try {
+            const data = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(reqData),
+            });
+            const json = await data.json();
+            if (json?.code === -1) return null;
+            if (json?.code && json?.code != 0) {
+                warnP5Throttled(json?.code, json?.msg, reqData, url);
+                return null;
+            }
+            return json?.data ?? null;
+        } catch (e) {
+            console.warn(e, url, reqData);
+            return null;
+        }
     },
     async getHPathByID(id: string, notebook: string): Promise<string> {
         // 按块 id 直查可读路径（文件树通道实时，无 SQL 索引延迟——刚改名的文档也拿新路径）
