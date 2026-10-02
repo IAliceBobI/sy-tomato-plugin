@@ -45,9 +45,11 @@ export function claimStatusFromRenew(ec: number, em?: string): ClaimStatus {
     return "pending"; // 未知业务码：保持核验中，别把状态行打回初始态
 }
 
-// 本地 token 是否终身码（exp=99991231）——终身在場心跳无意义
+// 本地 token 是否终身码——距今 ≥100 年即按终身；99991231 是历史口径一并兼容
+// （与 AdminCodes.svelte 卖家面板同款口径）。终身在場心跳无意义
 export function isLifetimeToken(token: string): boolean {
-    return token?.split("_")[1] === "99991231";
+    const exp = token?.split("_")[1];
+    return exp === "99991231" || Number(exp?.slice(0, 4)) >= new Date().getFullYear() + 100;
 }
 
 // /claim 申报：{ec:200, code}（exp=明天的租约码）| 400/403。网络层失败抛异常由调用方 catch
