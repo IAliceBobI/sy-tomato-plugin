@@ -125,7 +125,7 @@
             await siyuan.pushMsg(tomatoI18n.兑换成功正在激活);
         } else if (isOrderNoShape(text)) {
             // 订单号信任制申报（在线租约）：200 返回 exp=明天的租约码，激活链与兑换码同路；
-            // 同时置核验中状态并启动 30min 心跳（转正后心跳自动换终身码）
+            // 同时置核验中状态并启动心跳（本地一天一查，到期才联网；转正后自动换终身码停跳）
             if (!$userID) {
                 await siyuan.pushMsg(tomatoI18n.如果要激活插件请先登录思源本体的账户);
                 verifying = false;

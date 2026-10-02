@@ -236,6 +236,9 @@ type TomatoSettings = {
     userID: string,
     // md5 指纹（批次 B1）；升级前老用户盘上是布尔，load 原样读入、指纹比对处理
     licenseCloudSynced: string | boolean,
+    // 订单申报态三态（FC 降本 2026-10-02，心跳守卫源）：null=升级存量待探明/true=申报
+    // 租约态/false=已探明无租约（404/终态/转正）；不出设置面板——是状态不是偏好
+    claimActive: boolean | null,
     cssListBackgound: boolean,
     cssNattyList: boolean,
     cssRefStyle: string,

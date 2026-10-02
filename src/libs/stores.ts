@@ -449,6 +449,10 @@ export const userID = settingFactory("userID", "", STORAGE_SETTINGS, null as TSK
 // 语义 = 已回填激活码的 md5 指纹（libs/redeem.ts fingerprintOf，spec admin-codes 批次 B1）；
 // 升级前老值为布尔——读到的代码走指纹比对自然处理（布尔必然不等 → 触发一次幂等回填）
 export const licenseCloudSynced = settingFactory("licenseCloudSynced", "", STORAGE_SETTINGS, null as TSK);
+// 订单申报态三态（FC 降本 2026-10-02，libs/claimLease 心跳守卫源）：null=未知（升级存量，
+// 首跳探明落定）/ true=申报租约态（心跳可重建）/ false=已探明无租约（404/终态/转正后
+// 落定）——启动白跳清零的判定依据，详见 claimLease.ts「心跳降频」注释块
+export const claimActive = settingFactory<boolean | null>("claimActive", null, STORAGE_SETTINGS, null as TSK);
 /** 批注收集使用记忆（2026-09-02，不出设置面板行——是记忆不是偏好）：范围/去向/指定文件目标 */
 export const annoCollectScope = settingFactory("annoCollectScope", "doc", STORAGE_SETTINGS, null as TSK);
 export const annoCollectDest = settingFactory("annoCollectDest", "daily", STORAGE_SETTINGS, null as TSK);
