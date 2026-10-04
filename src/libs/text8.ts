@@ -544,6 +544,23 @@ export abstract class TomatoI18nABC8 extends TomatoI18nABC9 {
                 return "Copy to new file";
         }
     }
+    public get 复制到dailynote闪卡() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "复制到 dailynote 并加入闪卡";
+            case "es_ES":
+                return "Copiar a dailynote y crear tarjeta";
+            case "fr_FR":
+                return "Copier dans dailynote et créer une carte";
+            case "ja_JP":
+                return "dailynote にコピーしてフラッシュカード化";
+            case "zh_CHT":
+                return "複製到 dailynote 並加入閃卡";
+
+            default:
+                return "Copy to dailynote as flashcard";
+        }
+    }
     public get 请先打开阅读点功能() {
         switch (this.lang) {
             case "zh_CN":

@@ -2,7 +2,7 @@ import { getAllEditor, IProtyle } from "siyuan";
 import { events } from "./libs/Events";
 import { add_href, add_ref, cloneCleanDiv, closeTabByTitle, getContextPath, getBlocksOwnText, getNotebookFirstOne, getOpenedEditors, getProtyleByDocID, Siyuan, siyuan, timeUtil, } from "./libs/utils";
 import { DATA_NODE_ID } from "./libs/gconst";
-import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyFlashCard, dailyNoteCopyFragment, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveLeaveLnk, dailyNoteMoveToBottom, dailyNoteReviewTopbar, dailyNotetopbarleft, dailyNotetopbarright, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
+import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyFlashMenu, dailyNoteCopyFragment, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveLeaveLnk, dailyNoteMoveToBottom, dailyNoteReviewTopbar, dailyNotetopbarleft, dailyNotetopbarright, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { openReviewDialog } from "./ReviewDialog";
 import { tomatoI18n } from "./tomatoI18n";
 import { readingPointBox } from "./ReadingPointBox";
@@ -24,6 +24,11 @@ export const DailyNoteBox移动内容到dailynote = winHotkey("shift+alt+6", "mo
 
 export const DailyNoteBox复制到dailynote = winHotkey("⌘⇧6", "DailyNoteBox复制到dailynote", "iconCopy", () => tomatoI18n.复制到dailynote)
 export const DailyNoteBox复制到dailynoteNewFile = winHotkey("⌥⇧C", "DailyNoteBox复制到dailynoteNewFile", "iconFile", () => tomatoI18n.复制到dailynoteNewFile)
+// 默认键 ⌥⇧⌘V（2026-10-04 复审改键，两轮实测选定）：原定 ⌥⇧V 撞接力浮条 PairBar触发
+// （其注释载明 alt+shift 系已无空位）且官方 keymap 亦占；中选 ⌘⇧V 又被思源保留键
+// RESERVED_KEYMAPS(⇧⌘V=粘贴) 拒发、⌘⇧F/⌘⇧B 归一化后撞官方；⌥⇧⌘V 为四插件 winHotkey
+// 全量+官方 265 默认键+保留键黑名单三重排除后的空位（V=变体字母；seller ⌥⇧⌘H 先例）
+export const DailyNoteBox复制到dailynote闪卡 = winHotkey("⌥⇧⌘V", "DailyNoteBox复制到dailynote闪卡", "iconRiffCard", () => tomatoI18n.复制到dailynote闪卡)
 
 class DailyNoteBox {
     private plugin: BaseTomatoPlugin;
@@ -76,6 +81,18 @@ class DailyNoteBox {
                     this.findDivs(detail.protyle, true, true);
                 },
             });
+            // 闪卡变体（2026-10-04 双菜单）：恒制卡入口，块级/划词片段双通道；
+            // 简单复制模式整体隐藏（无收集容器不制卡，镜像 NewFile）
+            if (!dailyNoteCopySimple.get() && dailyNoteCopyFlashMenu.get()) {
+                addIfVisible(detail.menu, DailyNoteBox复制到dailynote闪卡.langKey, {
+                    icon: DailyNoteBox复制到dailynote闪卡.icon,
+                    accelerator: DailyNoteBox复制到dailynote闪卡.m,
+                    label: tomatoI18n.复制到dailynote闪卡,
+                    click: () => {
+                        this.findDivs(protyle, true, false, true);
+                    },
+                });
+            }
         }
     }
     /** □4 时序统一：index.async onload 已 await taskCfg（框架保序），双路竞态消化退役；
@@ -175,6 +192,19 @@ class DailyNoteBox {
             });
         }
 
+        // 闪卡变体命令（2026-10-04 双菜单，默认键 ⌥⇧⌘V）：恒制卡；菜单显隐由
+        // dailyNoteCopyFlashMenu 门控，命令+快捷键恒注册（简单复制模式下不注册，镜像 NewFile）
+        if (!dailyNoteCopySimple.get()) {
+            gatedAddCommand(this.plugin, DailyNoteBox复制到dailynote闪卡.langKey, {
+                langText: tomatoI18n.复制到dailynote闪卡,
+                hotkey: DailyNoteBox复制到dailynote闪卡.m,
+                callback: () => {
+                    const protyle = events.currentProtyle();
+                    if (protyle) this.findDivs(protyle, true, false, true);
+                },
+            });
+        }
+
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
             const menu = detail.menu;
             if (dailyNoteGoToBottomMenu.get()) {
@@ -204,6 +234,17 @@ class DailyNoteBox {
                         this.findDivs(detail.protyle, true, true);
                     },
                 });
+                // 闪卡变体（2026-10-04 双菜单）：恒制卡入口；简单复制模式整体隐藏（镜像 NewFile）
+                if (!dailyNoteCopySimple.get() && dailyNoteCopyFlashMenu.get()) {
+                    addIfVisible(menu, DailyNoteBox复制到dailynote闪卡.langKey, {
+                        icon: DailyNoteBox复制到dailynote闪卡.icon,
+                        accelerator: DailyNoteBox复制到dailynote闪卡.m,
+                        label: tomatoI18n.复制到dailynote闪卡,
+                        click: () => {
+                            this.findDivs(detail.protyle, true, false, true);
+                        },
+                    });
+                }
             }
         });
     }
@@ -323,24 +364,25 @@ class DailyNoteBox {
         }
     }
 
-    private async findDivs(protyle: IProtyle, copy: boolean, newFile: boolean) {
+    private async findDivs(protyle: IProtyle, copy: boolean, newFile: boolean, card = false) {
         // □3 片段级前置：块内有效划词且非 newFile → 只复制选中片段（选区优先于块级链；
         // 工具条/菜单点击顶掉选区时回退 protyle.toolbar.range，mindWire 同款）
         if (copy && !newFile && dailyNoteCopyFragment.get()) {
             const range = (protyle as any).toolbar?.range ?? document.getSelection()?.getRangeAt(0);
             const frag = fragmentFromRange(range, protyle?.wysiwyg?.element);
             if (frag) {
-                await this.insertFragment(protyle, frag);
+                await this.insertFragment(protyle, frag, card);
                 return;
             }
         }
         const { ids, selected } = await events.selectedDivs(protyle);
         const ro = await isReadonly(protyle)
-        this.doFindDivs(protyle, ids, selected, ro, copy, newFile);
+        this.doFindDivs(protyle, ids, selected, ro, copy, newFile, card);
     }
 
-    /** □3 片段落账：协议 v1 容器（片段文本+源锚 ref）进当日日记，落位两分支照抄块级链 */
-    private async insertFragment(_protyle: IProtyle, frag: { text: string; sourceID: string }) {
+    /** □3 片段落账：协议 v1 容器（片段文本+源锚 ref）进当日日记，落位两分支照抄块级链；
+     *  card=true（闪卡变体 2026-10-04）=片段容器直接制卡——划词制卡的唯一通道 */
+    private async insertFragment(_protyle: IProtyle, frag: { text: string; sourceID: string }, card = false) {
         let boxID = storeNoteBox_selectedNotebook.getOr();
         if (!boxID) boxID = events.boxID;
         try {
@@ -358,6 +400,9 @@ class DailyNoteBox {
                 ops = siyuan.transInsertBlocksAsChildOf([html], docID);
             }
             await siyuan.transactions(ops);
+            if (card) {
+                siyuan.addRiffCards([builder.id]);
+            }
             siyuan.pushMsg(tomatoI18n.已复制选中片段.replace("{n}", String(frag.text.length)));
             debugLog("daily_fragment", `copied src=${frag.sourceID} len=${frag.text.length}`, "dailynote");
         } catch (_e) {
@@ -365,7 +410,7 @@ class DailyNoteBox {
         }
     }
 
-    private async doFindDivs(protyle: IProtyle, ids: string[], selected: HTMLElement[], ro: string, copy = false, newFile: boolean) {
+    private async doFindDivs(protyle: IProtyle, ids: string[], selected: HTMLElement[], ro: string, copy = false, newFile: boolean, card = false) {
         let boxID = storeNoteBox_selectedNotebook.getOr();
         if (!boxID) boxID = events.boxID;
         try {
@@ -446,7 +491,7 @@ class DailyNoteBox {
                     }
                 }
                 await siyuan.transactions(ops);
-                if (dailyNoteCopyFlashCard.get()) {
+                if (card) {
                     siyuan.addRiffCards([cardID])
                 }
             } else {

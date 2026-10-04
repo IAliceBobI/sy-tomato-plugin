@@ -305,6 +305,7 @@ type TomatoSettings = {
     dailyNoteCopyInsertPR: boolean,
     dailyNoteCopyShowPath: boolean,
     dailyNoteCopyFlashCard: boolean,
+    dailyNoteCopyFlashMenu: boolean,
     dbBkBoxCheckbox: boolean,
     dbBkBoxMaxBacklinkSize: number,
     dbBkBoxHideDatetime: boolean,

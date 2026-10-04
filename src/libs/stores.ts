@@ -700,7 +700,12 @@ export const dailyNoteCopyUseRef = settingFactory("dailyNoteCopyUseRef", true, S
 export const dailyNoteCopyUpdateBG = settingFactory("dailyNoteCopyUpdateBG", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyInsertPR = settingFactory("dailyNoteCopyInsertPR", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyShowPath = settingFactory("dailyNoteCopyShowPath", true, STORAGE_SETTINGS, null as TSK);
+// 退役（2026-10-04 双菜单改造）：本键不再被消费，仅作迁移源——loadStore 见 true 即开
+// 新键 dailyNoteCopyFlashMenu 并回写 false（不回写=用户日后关菜单项会被残留旧值顶回）
 export const dailyNoteCopyFlashCard = settingFactory("dailyNoteCopyFlashCard", false, STORAGE_SETTINGS, null as TSK);
+// 闪卡变体菜单显隐开关（2026-10-04 双菜单）：控「复制到 dailynote 并加入闪卡」右键菜单项；
+// 命令+快捷键恒注册（菜单运行时门控非结构性，不进 storageHotReload STRUCTURAL_KEYS）
+export const dailyNoteCopyFlashMenu = settingFactory("dailyNoteCopyFlashMenu", false, STORAGE_SETTINGS, null as TSK);
 export const imgOverlayCheckbox = settingFactory("imgOverlayCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const backLinkBottomBoxCheckbox = settingFactory("backLinkBottomBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);
 export const bk启用禁用文档的底部反链menu = settingFactory("bkenableAndDisablemenu", true, STORAGE_SETTINGS, null as TSK);

@@ -6,7 +6,7 @@
     import {
         dailyNoteBoxCheckbox,
         dailyNoteCopyAnchorText,
-        dailyNoteCopyFlashCard,
+        dailyNoteCopyFlashMenu,
         dailyNoteCopyFragment,
         dailyNoteCopyInsertPR,
         dailyNoteCopyMenu,
@@ -27,6 +27,7 @@
         DailyNoteBox下一个日志,
         DailyNoteBox复制到dailynote,
         DailyNoteBox复制到dailynoteNewFile,
+        DailyNoteBox复制到dailynote闪卡,
         DailyNoteBox移动内容到dailynote,
     } from "./DailyNoteBox";
     import { tomatoI18n } from "./tomatoI18n";
@@ -141,9 +142,11 @@
                 {tomatoI18n.复制的内容显示原文的路径}
             </div>
 
+            <!-- 2026-10-04 双菜单：老「加入闪卡」行为开关退役——恒定制卡变体自带菜单开关 -->
             <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteCopyFlashCard} />
-                {tomatoI18n.加入闪卡}
+                <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteCopyFlashMenu} />
+                {tomatoI18n.menu添加右键菜单}: {DailyNoteBox复制到dailynote闪卡.langText()}
+                <HotkeyCap hk={DailyNoteBox复制到dailynote闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
         {/if}
     {/if}

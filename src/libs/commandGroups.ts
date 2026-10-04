@@ -54,6 +54,7 @@ import {
     DailyNoteBox移动内容到dailynote,
     DailyNoteBox复制到dailynote,
     DailyNoteBox复制到dailynoteNewFile,
+    DailyNoteBox复制到dailynote闪卡,
 } from "../DailyNoteBox";
 import {
     ReadingPointBox设置阅读点,
@@ -244,8 +245,8 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
             { langKey: "resume doc cards", label: () => tomatoI18n.恢复文档暂停闪卡 },
         ],
     },
-    // 日记组（featgate □4）：6 条；复制到新文件保留 !dailyNoteCopySimple 条件叠加
-    // （两道 gate 并存：族内开关+既有形态开关）；dailyNoteReview 无默认键
+    // 日记组（featgate □4）：7 条；复制到新文件/复制到 dailynote 并加入闪卡均保留
+    // !dailyNoteCopySimple 条件叠加（两道 gate 并存：族内开关+既有形态开关）；dailyNoteReview 无默认键
     {
         id: "dailynote",
         label: () => tomatoI18n.日记,
@@ -256,6 +257,7 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
             { langKey: DailyNoteBox移动内容到dailynote.langKey, label: () => DailyNoteBox移动内容到dailynote.langText(), hk: DailyNoteBox移动内容到dailynote },
             { langKey: DailyNoteBox复制到dailynote.langKey, label: () => DailyNoteBox复制到dailynote.langText(), hk: DailyNoteBox复制到dailynote },
             { langKey: DailyNoteBox复制到dailynoteNewFile.langKey, label: () => DailyNoteBox复制到dailynoteNewFile.langText(), hk: DailyNoteBox复制到dailynoteNewFile },
+            { langKey: DailyNoteBox复制到dailynote闪卡.langKey, label: () => DailyNoteBox复制到dailynote闪卡.langText(), hk: DailyNoteBox复制到dailynote闪卡 },
         ],
     },
     // 阅读点组（featgate □5）：5 条
