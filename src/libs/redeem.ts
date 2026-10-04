@@ -63,7 +63,7 @@ export function isLicenseSynced(stored: unknown, token: string): boolean {
 }
 
 // 云函数基地址，/redeem（兑换）与 /activate（找回激活码）同域共用
-export const FC_BASE_URL = "https://sy-license-waekiptpru.cn-hangzhou.fcapp.run";
+export const FC_BASE_URL = "https://sy-license-b-qyekiepbvu.cn-hangzhou.fcapp.run";
 
 const REDEEM_URL = `${FC_BASE_URL}/redeem`;
 
