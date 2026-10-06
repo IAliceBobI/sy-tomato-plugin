@@ -531,7 +531,8 @@ export default class ThePlugin extends BaseTomatoPlugin {
             // 订单号信任制租约心跳（2026-09-25；2026-10-02 降频一天一查）：必须在 loadStore
             // 之后——userToken/claimActive 未灌值时启动会被「本地无码」守卫误拦（onload 同步段
             // 启动的旧位就是此竞态，首跳从未真正发出过）。到期续短码/转正换终身码；本地终身码、
-            // claimActive=false（已探明无租约）与终态（rejected/banned）不启动
+            // claimActive !== true（严格门 2026-10-06：false=已探明无租约、null=历史残留用户
+            // 零心跳——FC 探测流量费用主体清零）与终态（rejected/banned）不启动
             startClaimHeartbeat("tomato");
             setGlobal(TomatoPluginConfig, this.settingCfg)
             return this.settingCfg;

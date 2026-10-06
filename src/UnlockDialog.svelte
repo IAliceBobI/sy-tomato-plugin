@@ -10,7 +10,7 @@
     import { resetKey, verifyFnByProduct, FREE_KEY } from "./libs/user";
     import type { Product } from "./libs/user";
     import { backfillCloudOnce, extractActivationCode, extractRedeemCode, fingerprintOf, isRedeemCodeShape, recoverFromCloud, redeemCode, redeemErrMsg } from "./libs/redeem";
-    import { claimByOrderNo, claimErrMsg, getClaimStatus, isOrderNoShape, markClaimPending, setClaimStatus } from "./libs/claimLease";
+    import { claimByOrderNo, claimErrMsg, getClaimStatus, isLifetimeToken, isOrderNoShape, markClaimPending, markClaimPendingIfLease, setClaimStatus } from "./libs/claimLease";
     import type { ClaimStatus } from "./libs/claimLease";
     import { siyuan } from "./libs/utils";
     import { icon } from "./libs/domUtils";
@@ -122,6 +122,10 @@
             userToken.set(r.code);
             // 兑换码兑换出的码云端 issue() 已落 license，写指纹让下次找回走分支 1 短路
             licenseCloudSynced.set(fingerprintOf(userToken.get()));
+            // 兑换拿回非终身码（试用码/槽位让位回的短码）：落 true 进心跳体系（严格门
+            // 2026-10-06——true 是心跳唯一入场券，从兑换起算；码未到期本地守卫兜住零联网，
+            // 到期后每天一查槽位直到转正终身码停跳）。兑换出终身码不落——终身用户连一次后永不连
+            if (!isLifetimeToken(r.code)) markClaimPending(product);
             await siyuan.pushMsg(tomatoI18n.兑换成功正在激活);
         } else if (isOrderNoShape(text)) {
             // 订单号信任制申报（在线租约）：200 返回 exp=明天的租约码，激活链与兑换码同路；
@@ -246,7 +250,7 @@
             </button>
             <button
                 class="b3-button b3-button--text"
-                onclick={() => recoverFromCloud(product)}
+                onclick={() => recoverFromCloud(product, (code) => markClaimPendingIfLease(product, code))}
             >
                 {tomatoI18n.找回激活码}
             </button>

@@ -1,4 +1,4 @@
-import { siyuan, } from "./libs/utils";
+import { siyuan, sanitizeName } from "./libs/utils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { deleteBlocksMenu, pairBarEnabled } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
@@ -115,7 +115,10 @@ class CpBox {
         const info = events.getInfo(protyle);
         const row = siyuan.getRowByID(info.docID);
         const { div, root } = await getDocBlocks(info.docID, "", false, true, 1)
-        const title = div.textContent.slice(0, 15);
+        // 先截断后净化：「前 15 字」以原文为基准的展示语义；sanitizeName 恒 1:1 映射长度
+        // 不变不扰动截断——内嵌 / 若不预净化，出口 sanitizePathTail 只切末段，前半仍会被
+        // 内核当中间层静默分层建两层文档
+        const title = sanitizeName(div.textContent.slice(0, 15));
         const path = `${(await row).hpath}/${title}`
         const subDocID = await siyuan.createDocWithMd(info.notebookId, path, "")
         const ids = root.children.map(b => b.id)

@@ -3,7 +3,7 @@ import { OpenSyFile2, isReadonly } from "./docUtils";
 import { events } from "./Events";
 import { storeNoteBox_fastnote, fastNoteBoxDelAfterCreating, fastNoteBoxAdd2Flashcard, fastNoteBoxDocPrefix } from "./stores";
 import { verifyKeyTomato } from "./user";
-import { siyuan, getContextPath, cloneCleanDiv, NewLute, NewNodeID, timeUtil } from "./utils";
+import { siyuan, getContextPath, cloneCleanDiv, NewLute, NewNodeID, sanitizeName, timeUtil } from "./utils";
 import { DATA_NODE_ID } from "./gconst";
 import { getNotebookByID } from "./notebookUtils";
 import { tomatoI18n } from "../tomatoI18n";
@@ -90,7 +90,9 @@ export async function createAndOpenFastNote(protyle: IProtyle | undefined, boxID
     if (!title) title = `f${y}-${M}-${d} ${h}:${m}:${s}`;
     if (fastNoteBoxDocPrefix.get()) {
         const { name } = events.getInfo(protyle)
-        if (name) title = `${name} | ${title}` // 空 protyle（冷启动）getInfo 回 {}——name 缺失不加前缀防 "undefined | f..."
+        // 用户文档名调用点预净化（出口 sanitizePathTail 只切末段堵不住内嵌 / 的静默分层）；
+        // 默认日期 title 分支是插件自拼格式串不含用户输入，不动
+        if (name) title = `${sanitizeName(name)} | ${title}` // 空 protyle（冷启动）getInfo 回 {}——name 缺失不加前缀防 "undefined | f..."
     }
     const hpath = `/fast note/f${y}/f${y}-${M}/${title}`;
     const id = await siyuan.createDocWithMdIfNotExists(boxID, hpath, md, { ...attrs, "custom-fastnote": y + M + d + h + m + s });

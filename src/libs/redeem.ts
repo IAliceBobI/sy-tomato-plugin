@@ -96,6 +96,7 @@ export function redeemErrMsg(em?: string): string {
 // resetKey → verify → reload）。2026-08-22 从 BuyTomato.svelte 迁入共用。
 export async function activateFromCloud(
     msg404: string, msgNet: string, plugin: Product,
+    onActivated?: (code: string) => void,
 ) {
     if (!userID.get()) {
         await siyuan.pushMsg(tomatoI18n.如果要激活插件请先登录思源本体的账户);
@@ -125,6 +126,8 @@ export async function activateFromCloud(
     await siyuan.pushMsg(tomatoI18n.已完成购买正在激活);
     // await 落盘再 reload（write 返回落盘 Promise，抢跑会被重载掐断——stores.ts write 注释同款教训）
     await userToken.write(r.code);
+    // 云端拿回短码同兑换分支进心跳体系（严格门 2026-10-06）：判型逻辑在调用方回调里
+    onActivated?.(r.code);
     // 云端取回的码天然已备份（license/{plugin}/{userID} 即其来源），写指纹挡后续查询
     await licenseCloudSynced.write(fingerprintOf(r.code));
     resetKey();
@@ -140,7 +143,7 @@ export async function activateFromCloud(
 // 3 云端找回：本地无码/无效/name 型 → activateFromCloud（200 时其内部已写指纹）。
 // 短路必须双条件：本地无码时哪怕指纹存在也走分支 3——挡死「清掉本地 token 点找回
 // 拿回码」的真实场景（清 token 不清指纹时）
-export async function recoverFromCloud(plugin: Product) {
+export async function recoverFromCloud(plugin: Product, onActivated?: (code: string) => void) {
     const v = await verifyLocalCode(plugin);
     if (v.valid && v.ldID) {
         if (isLicenseSynced(licenseCloudSynced.get(), userToken.get())) {
@@ -177,6 +180,7 @@ export async function recoverFromCloud(plugin: Product) {
         tomatoI18n.未查询到该账号的激活记录,
         tomatoI18n.找回激活码失败请检查网络后重试,
         plugin,
+        onActivated,
     );
 }
 

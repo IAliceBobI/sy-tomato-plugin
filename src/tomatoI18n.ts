@@ -8550,6 +8550,17 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Split a long doc into child docs by headings for easier browsing and storage. The original doc stays as the folder shell; its content moves into volumes";
         }
     }
+    /** □1 卷落点校验失配中止提示（飞书 2026-10 数据丢失事故防线）：建卷后逐卷验落点，
+     *  失配立即中止不动原文——此文案=用户看到的行动指引（Dialog 依 VOL_LANDING_MISMATCH
+     *  前缀识别推 toast，非通用失败文案） */
+    public get 卷落点异常已中止() {
+        switch (this.lang) {
+            case "zh_CN": return "卷落点异常已中止，原文未动。已创建的卷可能在笔记本根部同名文档下，可手动移回；建议将书重命名后再试";
+            case "zh_CHT": return "卷落點異常已中止，原文未動。已創建的卷可能在筆記本根部同名文檔下，可手動移回；建議將書重命名後再試";
+            case "en_US":
+            default: return "Volume landing mismatch, aborted — the original doc is untouched. Created volumes may sit under a same-named doc at the notebook root and can be moved back manually; renaming the book and retrying is recommended";
+        }
+    }
     public get 每卷字数上限() {
         switch (this.lang) {
             case "zh_CN": return "每卷字数上限";

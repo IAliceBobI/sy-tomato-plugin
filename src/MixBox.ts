@@ -1,5 +1,5 @@
 import { confirm, IEventBusMap, IProtyle, Plugin } from "siyuan";
-import { addLineThrough, cleanText, get_siyuan_lnk_md, getAttribute, getBlockOwnEditableText, getBlocksOwnText, getSyElement, NewNodeID, parseIAL, siyuan, timeUtil, } from "./libs/utils";
+import { addLineThrough, cleanText, get_siyuan_lnk_md, getAttribute, getBlockOwnEditableText, getBlocksOwnText, getSyElement, NewNodeID, parseIAL, sanitizeName, siyuan, timeUtil, } from "./libs/utils";
 import { events, EventType } from "./libs/Events";
 import { BlockNodeEnum, CUSTOM_RIFF_DECKS, DATA_NODE_ID, DATA_TYPE, DocAttrShowKey, SPACE, VIRTUAL_BLOCK_REF } from "./libs/gconst";
 import { addTodoBookmark, rmTodoBookmark } from "./libs/bookmark";
@@ -662,7 +662,9 @@ async function addNoRefPage(plugin: BaseTomatoPlugin, protyle: IProtyle) {
         "# 无引用，有内容",
         ...mdContent,
     ]
-    const id = await siyuan.createDocWithMdIfNotExists(protyle.notebookId, `${docRow.hpath}/refs-${docRow.content}`, "", { "custom-off-tomatobacklink": "1" })
+    // docRow.content（文档标题）为用户可控字符串：调用点先 sanitizeName 再拼（出口末段
+    // 净化堵不住内嵌 / 静默分层）；?? "" 防 getDocRowByBlockID 查不中回 {} 时 undefined 炸 replace
+    const id = await siyuan.createDocWithMdIfNotExists(protyle.notebookId, `${docRow.hpath}/refs-${sanitizeName(docRow.content ?? "")}`, "", { "custom-off-tomatobacklink": "1" })
     await siyuan.clearAll(id);
     await siyuan.insertBlockAsChildOf(md.join("\n"), id)
     await OpenSyFile2(plugin, id)
@@ -681,7 +683,8 @@ async function addTaskPage(plugin: Plugin, protyle: IProtyle) {
     const docID = protyle.block.rootID
     const docRow = await siyuan.getDocRowByBlockID(docID)
     const sql = `{{select * from blocks where hpath like "${docRow.hpath}%" and type="l" and subtype="t" and (markdown like "* [ ] %" or markdown like "- [ ] %")}}`;
-    const id = await siyuan.createDocWithMdIfNotExists(protyle.notebookId, `${docRow.hpath}/tasks-${docRow.content}`, sql, { "custom-off-tomatobacklink": "1" })
+    // 同 addNoRefPage：content 调用点预净化（内嵌 / 静默分层）+ ?? "" 防空行兜底
+    const id = await siyuan.createDocWithMdIfNotExists(protyle.notebookId, `${docRow.hpath}/tasks-${sanitizeName(docRow.content ?? "")}`, sql, { "custom-off-tomatobacklink": "1" })
     await OpenSyFile2(plugin, id)
 }
 

@@ -5,6 +5,9 @@
 // 心跳降频（FC 降本 2026-10-02）：claimActive 申报态落盘（stores）+ 本地一天一查——
 // 码未到期不联网（today<exp 串比较直接跳过），到期日/过期日才 renew，稳态一天一跳；
 // interval 30min→24h（每 tick 先过本地到期守卫）。代价=转正感知延迟 ≤1 天（bear 拍板）。
+// 严格门（FC 降本 2026-10-06）：claimActive !== true 一律不连——历史残留用户（null，
+// 从未申报过）零心跳零探测（探测流量即 FC 费用主体）；进心跳体系的唯一入场券=
+// markClaimPending 落 true（订单申报/兑换短码两路）。
 // 心跳只读云端不写 petal（petal 写=内核 dataChanges 广播整插件重载）；状态存模块
 // 内存，重载后由 onload 首跳重建。三插件跨包 import 本模块，各 bundle 一份互不共享。
 // 形状正则与云函数 services.ts 的 ORDER_NO_RE 同款，两端一致性由
@@ -92,8 +95,9 @@ export function stopClaimHeartbeat(): void {
     }
 }
 
-// 单次续期（2026-10-02 降频后每 tick 必过两道本地守卫，多数 tick 零联网）：
-// ① claimActive=false=已探明无租约（404/终态/转正），连探测都不必——试用码用户启动白跳清零；
+// 单次续期（2026-10-02 降频后每 tick 必过本地守卫，多数 tick 零联网）：
+// ① claimActive !== true=不在心跳体系（严格门 2026-10-06）——false=已探明无租约、
+//   null=历史残留用户（从未申报），连探测都不必：FC 探测流量费用主体即 null 用户；
 // ② 码未到期（today<exp）不联网——到期日/过期日才 renew，稳态一天一跳。
 // 联网后：200 且码有变 → 落盘+指纹+重验+reload（租约中同日同码零动作；跨天续发与
 // 转正终身各 reload 一次，天级频次）；终态（rejected/cancelled/banned/404）→ 记状态停跳
@@ -109,8 +113,10 @@ export async function renewOnce(product: Product): Promise<ClaimStatus | null> {
         stopClaimHeartbeat();
         return currentStatus;
     }
-    // 申报态守卫：null=升级存量放行（首跳探明后落定），false=已探明无租约
-    if (claimActive.get() === false) {
+    // 申报态守卫（严格门 2026-10-06）：仅 true 放行——false=已探明无租约；null=历史残留
+    // 用户（从未申报）。「null=升级存量放行」语义已废止：null 一律停跳零联网，想进体系
+    // 只能走 markClaimPending（申报/兑换短码）显式落 true
+    if (claimActive.get() !== true) {
         stopClaimHeartbeat();
         return currentStatus;
     }
@@ -144,8 +150,8 @@ export async function renewOnce(product: Product): Promise<ClaimStatus | null> {
         if (isLifetimeToken(r.code)) stopClaimHeartbeat();
     }
     // 申报态写回：终态/404 落 false（此后启动零请求——启动白跳清零的落定动作）；
-    // 200 固化 true（null 存量首跳探明）/ 终身码租约结束落 false。写丢失自愈=
-    // 下次申报 markClaimPending 重写 true
+    // 200 固化 true（防御性写回：严格门下入场即 true，仅 fetch 在途被并发改写时拉回）/
+    // 终身码租约结束落 false。写丢失自愈=下次申报/兑换 markClaimPending 重写 true
     if (status === "none" || status === "rejected" || status === "cancelled" || status === "banned") {
         await claimActive.write(false);
     } else if (r.ec === 200) {
@@ -156,15 +162,16 @@ export async function renewOnce(product: Product): Promise<ClaimStatus | null> {
     return status;
 }
 
-// 心跳启动（onload 调；申报成功后也调）：24h interval + 即发一次（每 tick 先过本地
-// 到期守卫，多数零联网）。不启动的五种情况：本地无码（未激活/已取消激活——申报链
+// 心跳启动（onload 调；申报/兑换短码成功后也调）：24h interval + 即发一次（每 tick 先过
+// 本地到期守卫，多数零联网）。不启动的五种情况：本地无码（未激活/已取消激活——申报链
 // markClaimPending 前已落码，走到这的本地无码都是真未激活态）/ 本地终身码 /
-// claimActive=false（已探明无租约，FC 降本 2026-10-02）/ 已在跳 / 内存终态
-// （rejected/banned——新申报会经 markClaimPending 重置后再启动）
+// claimActive !== true（严格门 2026-10-06：false=已探明无租约；null=历史残留用户
+// 零心跳——FC 探测流量费用主体清零）/ 已在跳 / 内存终态（rejected/banned——新申报会经
+// markClaimPending 重置后再启动）
 export function startClaimHeartbeat(product: Product): void {
     if (!userToken.get()) return;
     if (isLifetimeToken(userToken.get())) return;
-    if (claimActive.get() === false) return;
+    if (claimActive.get() !== true) return;
     if (heartbeatTimer != null) return;
     if (currentStatus === "rejected" || currentStatus === "banned") return;
     heartbeatTimer = setInterval(() => {
@@ -181,4 +188,13 @@ export function markClaimPending(product: Product): void {
     void claimActive.write(true);
     stopClaimHeartbeat(); // 清掉可能已停的终态计时器再重启
     startClaimHeartbeat(product);
+}
+
+// 云端找回回调用（严格门配套 2026-10-06）：仅 ldID 型短租约码落 true 进心跳体系；
+// 终身码无租约、name 型免费码无 userID 绑定，均不落——两者白跳零。
+// 放本模块而非 redeem（claimLease→redeem 已单向 import，反向会建环）。
+export function markClaimPendingIfLease(product: Product, code: string): void {
+    if (code.split("_")[2] !== "ldID") return;
+    if (isLifetimeToken(code)) return;
+    markClaimPending(product);
 }

@@ -40,6 +40,37 @@ function warnP5Throttled(code: unknown, msg: string, reqData: any, url: string) 
     debugLog("p5", `code=${code} msg=${msg} url=${url} req=${JSON.stringify(reqData)} stack=${frames.join(" | ")}`, "p5");
 }
 
+/** 建档 hpath 末段（文档名）元字符 sanitize：内核 createDocWithMd API 层先 path.Base/Dir
+ *  按 / 劈段、再 regexp 剥 \t\r\n\u2028\u2029、再 Join 重组（kernel/api/filetree.go）——
+ *  名含 / 静默劈两层文档、含控制符静默剥除，全程无报错（渐进侧 volslash □1 同款根因，
+ *  splitCore.sanitizeVolName 在调用点已修）。tomato 用户可控字符串拼进末段的调用点散布
+ *  （CpBox 正文前 15 字标题段 / switchDraft fast note 文档名前缀 / MixBox refs·tasks
+ *  行内容），封装出口统一兜底：只净化最后一段——前缀段是调用方故意拼的层级，合法不动。
+ *  末段语义照抄 sanitizeVolName：/ → 全角／（末段经 lastIndexOf 切净后结构上已无 /，
+ *  留作裸名分支与语义同源的防御）、\t\r\n\u2028\u2029 → 空格、反斜杠 \ 原样不动
+ *  （内核 Go path 只认 /，不过度处理）。幂等（全角／与空格不再命中），重复净化安全。 */
+export function sanitizePathTail(path_readable: string): string {
+    const idx = path_readable.lastIndexOf("/");
+    const head = idx < 0 ? "" : path_readable.slice(0, idx + 1);
+    const tail = (idx < 0 ? path_readable : path_readable.slice(idx + 1))
+        .replace(/[\t\r\n\u2028\u2029]/g, " ").replace(/\//g, "／");
+    return head + tail;
+}
+
+/** 用户字符串级（非路径）元字符 sanitize：调用点把用户可控字符串拼进 hpath 前先过此函数。
+ *  与 sanitizePathTail 的分工：Tail 出口兜底只净化最后一段，堵不住用户字符串**内嵌** /
+ *  ——「设置/关于」拼进 hpath 后 lastIndexOf 切出的末段只剩「关于」，前半「设置」仍被
+ *  内核当中间层静默分层建两层文档；封装层无法区分「调用方故意的前缀 /」与「用户名内嵌
+ *  的 /」，故正解=调用点对用户字符串本身先净化再拼（渐进侧 splitCore.sanitizeVolName
+ *  同款做法）。⚠️ 裸字符串勿复用 sanitizePathTail——裸名含 / 会被它当路径切末段、
+ *  前半漏网。语义同源：/ → 全角／、\t\r\n\u2028\u2029 → 空格、反斜杠 \ 原样不动
+ *  （内核 Go path 只认 /）。恒 1:1 字符映射（每命中字符恰替换单字符）长度不变——
+ *  调用点「先截断后净化」（如 CpBox 正文前 15 字）展示语义不扰动，两序可证等价。
+ *  幂等（全角／与空格不再命中），与出口末段净化两级叠加安全。 */
+export function sanitizeName(name: string): string {
+    return name.replace(/[\t\r\n\u2028\u2029]/g, " ").replace(/\//g, "／");
+}
+
 export const siyuan = {
     async pushMsg(msg: string, timeoutMs = 7000) {
         const url = "/api/notification/pushMsg";
@@ -409,18 +440,22 @@ export const siyuan = {
         return await siyuan.call("/api/sqlite/flushTransaction", {});
     },
     async createDocWithMdIfNotExists(notebookID: string, path_readable: string, markdown: string, attr?: AttrType): Promise<string> {
+        // 末段净化须发生在查库之前：内核落盘会剥名内控制符（含 / 分层），查建同用净化后
+        // path 才能保 NotExists 语义自洽——原始 path 查不中剥过的落盘名→重复建档
+        const path = sanitizePathTail(path_readable);
         return navigator.locks.request("tomato.siyuan.createDocWithMdIfNotExists", { mode: "exclusive" }, async (_lock) => {
-            const row = await siyuan.sqlOne(`select id from blocks where box="${notebookID}" and hpath="${path_readable}" and type='d' limit 1`);
+            const row = await siyuan.sqlOne(`select id from blocks where box="${notebookID}" and hpath="${path}" and type='d' limit 1`);
             const docID = row?.id ?? "";
             if (!docID) {
-                return siyuan.createDocWithMd(notebookID, path_readable, markdown, "", attr);
+                return siyuan.createDocWithMd(notebookID, path, markdown, "", attr);
             }
             return docID;
         });
     },
     async createDocWithMd(notebookID: string, path_readable: string, markdown: string, id = "", attr?: any) {
         const notebook = notebookID;
-        const path = path_readable;
+        // 出口末段净化（幂等）：建档与 getIDsByHPath 兜底回查两路同用净化后 path
+        const path = sanitizePathTail(path_readable);
         let params: any;
         if (id) {
             params = { notebook, path, markdown, id };
