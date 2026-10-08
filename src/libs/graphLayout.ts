@@ -9,6 +9,8 @@
 // 打开图时一次性写回 lr（layout=lr + isVertical 置空），写后下轮读到已收敛零写入。
 // 持久化与渲染在 GraphBox.svelte，不进本文件。纯同步零 IO。
 
+import { attrOf } from "./utils";
+
 /** 旧档收敛判据：attrs 含非 lr 的 custom-graph-layout 或非空 custom-graph-isVertical 时，
  *  返回须写回的收敛属性；已收敛/无旧档/空 attrs（getBlockAttrs 空闪烁窗）返回 null 零写入 */
 export function legacyLayoutConvergence(
@@ -16,7 +18,9 @@ export function legacyLayoutConvergence(
 ): Record<string, string> | null {
     if (!attrs) return null;
     const layout = attrs["custom-graph-layout"];
-    const isVertical = attrs["custom-graph-isVertical"];
+    // isVertical 读取走 attrOf 大小写不敏感：内核 2025-12 起（siyuan#16604）属性名写入即
+    // 小写化——新写数据 getBlockAttrs 只回小写键，老内核存量仍是原 camelCase，两种都认
+    const isVertical = attrOf(attrs, "custom-graph-isVertical");
     const needLayout = !!layout && layout !== "lr";
     const needClear = !!isVertical;
     if (!needLayout && !needClear) return null;

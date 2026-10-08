@@ -230,7 +230,10 @@ class MixBox {
                                 delete ial["custom-riff-decks"];
                                 // delete ial["custom-off-tomatobacklink"];
                                 delete ial["custom-tomatoUpdated"];
+                                // 小写孪生：内核 2025-12 起属性名写入即小写化（siyuan#16604）
+                                delete ial["custom-tomatoupdated"];
                                 delete ial["custom-bkDisabledIDs"];
+                                delete ial["custom-bkdisabledids"];
                                 // delete ial["custom-sy-readonly"];
                                 delete ial["custom-progmark"];
                                 // delete ial["custom-fastnote"];

@@ -274,7 +274,10 @@ export function findDocAttrsOp(
         && !isPureLayoutAttrsOp(op)) ?? null;
 }
 
-const LAYOUT_CONVERGE_KEYS = new Set(["custom-graph-layout", "custom-graph-isVertical"]);
+// 小写孪生键：内核 2025-12 起（siyuan#16604）属性名写入即小写化——收敛写回广播的 op
+// Data.old/new 键是小写形态，只有 camelCase 一条时 isPureLayoutAttrsOp 恒 false，
+// 收敛写回会被当属性写放行，白跑 marksChanged 四发退避重拉（老内核 op 仍是 camelCase，两条都收）
+const LAYOUT_CONVERGE_KEYS = new Set(["custom-graph-layout", "custom-graph-isVertical", "custom-graph-isvertical"]);
 
 function isPureLayoutAttrsOp(op: { data?: unknown }): boolean {
     const d = op?.data as { old?: Record<string, unknown>; new?: Record<string, unknown> } | undefined;

@@ -1218,6 +1218,41 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
                 return "Collapse";
         }
     }
+    /** 工具栏全展开/全收缩钮（10-08 用户反馈：逐卡点「展开全文」太痛苦） */
+    public get 展开全部() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "全部展开";
+            case "zh_CHT":
+                return "全部展開";
+            case "ja_JP":
+                return "すべて展開";
+            case "es_ES":
+                return "Expandir todo";
+            case "fr_FR":
+                return "Tout déplier";
+
+            default:
+                return "Expand all";
+        }
+    }
+    public get 收起全部() {
+        switch (this.lang) {
+            case "zh_CN":
+                return "全部收起";
+            case "zh_CHT":
+                return "全部收起";
+            case "ja_JP":
+                return "すべて折りたたむ";
+            case "es_ES":
+                return "Contraer todo";
+            case "fr_FR":
+                return "Tout replier";
+
+            default:
+                return "Collapse all";
+        }
+    }
     public get 偏好设置() {
         switch (this.lang) {
             case "zh_CN":

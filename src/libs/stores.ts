@@ -1,7 +1,7 @@
 import { writable, get } from "svelte/store";
 import { Plugin } from "siyuan";
 import { STORAGE_Prog_SETTINGS, STORAGE_SETTINGS } from "../constants";
-import { siyuan } from "./utils";
+import { siyuan, attrOf } from "./utils";
 import { HISTORY_MSGS_DEFAULT, DOC_SNAPSHOT_DEFAULT } from "./agentContext";
 import { zipNways } from "./functional";
 import { events } from "./Events";
@@ -318,15 +318,17 @@ export const storeAttrManager = () => {
             const attr = await siyuan.getBlockAttrs(blockID);
             store.set(attr);
             set.clear();
-            store.get()[key] = store.get()[key] ?? "";
-            store.get()[key].split(sep).filter(i => !!i).forEach(i => set.add(i.trim()))
+            // 内核 2025-12 起属性名小写化（siyuan#16604）：键大小写不敏感取值，老内核
+            // 遗留的原大小写数据也认（否则置底列表等 per-doc 值重挂载即静默重置）
+            (attrOf(attr, String(key)) ?? "")
+                .split(sep).filter(i => !!i).forEach(i => set.add(i.trim()))
         },
         save: async () => {
             store.get()[key] = join();
             await siyuan.setBlockAttrs(blockID, newObj(key, store.get()[key]));
         },
         syIDClean: async () => {
-            const updated = Number(store.get()[cleanTimeKey]) || 0
+            const updated = Number(attrOf(store.get(), String(cleanTimeKey))) || 0
             const now = new Date().getTime();
             if (now - updated > 1000 * 60 * 60) {
                 const ids = [...set.values()];

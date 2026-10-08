@@ -525,6 +525,13 @@ type AttrType = {
     "custom-bkColCount"?: string,
     "custom-bkSortBy"?: string,
     "custom-bkSavedQueries"?: string,
+    // 内核 2025-12 起属性名写入即小写化（siyuan#16604）——实际回读形态，读取走 attrOf
+    "custom-tomatoupdated"?: string,
+    "custom-bkdisabledids"?: string,
+    "custom-bkcolcount"?: string,
+    "custom-bksavedqueries"?: string,
+    "custom-bkrefdoccount"?: string,
+    "custom-bkmendoccount"?: string,
     "custom-database-backlink"?: string,
     "custom-database-backlink-avID"?: string,
     "custom-database-backlink-PKID"?: string,

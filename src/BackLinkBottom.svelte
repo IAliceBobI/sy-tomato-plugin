@@ -9,6 +9,7 @@
         NewNodeID,
         add_href,
         attrNewLine,
+        attrOf,
         cleanDivOnly,
         getBlockDiv,
         getBlockOwnEditableText,
@@ -150,14 +151,17 @@
     onMount(() => {
         paddingBottom();
 
-        colCount = attrs["custom-bkColCount"] ?? "";
-        sortBy = attrs["custom-bkSortBy"] as SortType;
+        // 属性读取一律 attrOf 大小写不敏感：内核 2025-12 起（siyuan#16604）属性名写入即
+        // 小写化，camelCase 键直查恒 miss（列数/文件数/提及数/保存查询/置底列表全中招，
+        // 用户升级思源后「列数不记忆」根因）；老内核遗留数据仍是原大小写，两种形态都认
+        colCount = attrOf(attrs, "custom-bkColCount") ?? "";
+        sortBy = attrOf(attrs, "custom-bkSortBy") as SortType;
         if (!isSortType(sortBy)) sortBy = SortType.UpdatedDESC;
 
-        refDocCount = Number(attrs["custom-bkRefDocCount"]);
+        refDocCount = Number(attrOf(attrs, "custom-bkRefDocCount"));
         if (!isValidNumber(refDocCount)) refDocCount = $back_link_max_size;
 
-        menDocCount = Number(attrs["custom-bkMenDocCount"]);
+        menDocCount = Number(attrOf(attrs, "custom-bkMenDocCount"));
         if (!isValidNumber(menDocCount)) menDocCount = $back_link_mention_count;
 
         queryableElementAttr[QUERYABLE_ELEMENT] = "1";
@@ -178,9 +182,10 @@
             }
             paddingBottom(false);
 
-            if (attrs["custom-bkSavedQueries"]) {
+            const savedQ = attrOf(attrs, "custom-bkSavedQueries");
+            if (savedQ) {
                 try {
-                    searchList = JSON.parse(attrs["custom-bkSavedQueries"]);
+                    searchList = JSON.parse(savedQ);
                 } catch (e) {}
             }
         })();
@@ -617,6 +622,21 @@
     function expand() {
         expandStatus = !expandStatus;
     }
+
+    /** 全展开/全收缩：批量翻每卡 expanded 展示态（刷新经 carryExpanded/moveProtyle
+     *  携带不回弹）；收缩顺带退出编辑态并销毁其 protyle（closeProtyle 自摘 element） */
+    function expandAllCards() {
+        for (const b of backLinks) {
+            b.expanded = true;
+        }
+    }
+    function collapseAllCards() {
+        closeProtyle(...backLinks.filter((b) => b.edit === true));
+        for (const b of backLinks) {
+            b.edit = false;
+            b.expanded = false;
+        }
+    }
     function isBottom(backLink: BacklinkSv) {
         return idsFilter.getListString().has(backLink.blockID);
     }
@@ -1034,6 +1054,16 @@
                     {tomatoI18n.修改时间降序}
                 </option>
             </select>
+            <button
+                class="bk-icon-btn b3-tooltips b3-tooltips__s"
+                aria-label={tomatoI18n.展开全部}
+                onclick={() => expandAllCards()}>{@html icon("Expand", 14)}</button
+            >
+            <button
+                class="bk-icon-btn b3-tooltips b3-tooltips__s"
+                aria-label={tomatoI18n.收起全部}
+                onclick={() => collapseAllCards()}>{@html icon("Contract", 14)}</button
+            >
             {#if !events.isMobile}
                 <button
                     class="bk-icon-btn b3-tooltips b3-tooltips__s"

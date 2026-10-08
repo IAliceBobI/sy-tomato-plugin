@@ -172,6 +172,19 @@ export function isValidNumber(num: number) {
     return typeof num === "number" && !isNaN(num);
 }
 
+/** 块属性大小写不敏感读取：内核 2025-12 起（siyuan#16604）属性名写入即小写化，
+ *  camelCase 键查 getBlockAttrs 恒 miss；老内核时期写入的原大小写数据仍在 IAL。
+ *  先精确命中再小写比对，两种形态都认。 */
+export function attrOf(attrs: AttrType | null | undefined, key: string): string | undefined {
+    if (attrs == null) return undefined;
+    if (attrs[key] != null) return attrs[key];
+    const lower = key.toLowerCase();
+    for (const k of Object.keys(attrs)) {
+        if (k.toLowerCase() === lower) return attrs[k];
+    }
+    return undefined;
+}
+
 export function isStringNumber(str: string): boolean {
     return !isNaN(+str);
 }
