@@ -1,5 +1,5 @@
 <script lang="ts">
-    // 设置对话框主壳：付费状态条、搜索栏、左侧 24 域导航、sticky footer 保存条 + 24 个域组件
+    // 设置对话框主壳：付费状态条、搜索栏、左侧 25 域导航、sticky footer 保存条 + 25 个域组件
     // （Conf*.svelte，右侧单域渲染）。共享样式在 ./IndexConf.css（.tomato-settings-dialog 作用域）。
     // 2026-08 重构：原 2628 行大文件按功能域拆出 8 个分区子组件；2026-09-03 设置页重划：
     // □1 双栏壳（左导航+右长滚动）→ □2 域组件拆并——旧 10 个 Conf 退役，域组件
@@ -65,6 +65,10 @@
     import ConfCommands from "./ConfCommands.svelte";
     // AI 接入（MCP）引导卡（mcpcopy 2026-09-11；09-12 二期迁入导航「AI 接入」独立域渲染）
     import McpPromo from "./McpPromo.svelte";
+    // navcompass（2026-10-11）：十字罗盘导航独立成域（第四悬浮球——分端开关/方向流派/键帽）；
+    // navActive 持久化键单一事实源在 libs/settingsDomain.ts（手机长按罗盘球直达域预选同源）
+    import ConfNavCompass from "./ConfNavCompass.svelte";
+    import { TOMATO_SETTINGS_NAV_KEY } from "./libs/settingsDomain";
     interface Props {
         dm: DestroyManager;
         plugin: BaseTomatoPlugin;
@@ -84,10 +88,11 @@
     });
     let searchKey = $state("");
     const SearchKeyItemKey = "tomato_settings_SearchKeyItemKey_RfrUm9VLS4GehTzg5ygRrNT";
-    // 导航 24 域（二期 2026-09-05 起；featgate □1 +16 命令开关、punctcfg +打字标点域、
+    // 导航 25 域（二期 2026-09-05 起；featgate □1 +16 命令开关、punctcfg +打字标点域、
     // agentrev 2026-09-10 +AI 助手域、uiclean 2026-09-12 +外观域、knowledgebox □9 2026-09-15
     // +知识库域、confgather 2026-09-15 +顶栏工具/日记/块配对工具三域、prefixui □3 2026-09-15
-    // 功能仓库退役+前缀文档树独立域〔confgather 24 域中 vault 换 prefix，总数不变〕）：
+    // 功能仓库退役+前缀文档树独立域〔confgather 24 域中 vault 换 prefix，总数不变〕、
+    // navcompass 2026-10-11 +十字罗盘域〔25 域〕）：
     // 上半=已翻新大牌（番茄钟/批注/反链与引用/可视化/阅读点/块编辑/块配对工具/悬浮球/顶栏工具/
     // 导出工作空间/AI 助手/知识库），下半=待翻新按受欢迎排（闪卡/日记/文档管理/编辑器工具/
     // 速记/通用/杂项/前缀文档树）；label 为惰性取值（tomatoI18n 依 window 语言动态切，
@@ -107,6 +112,9 @@
         // 命令开关域「互链与引用」+「长内容工具」两族同期合并为「块配对工具」族
         { id: "pairtools", label: () => tomatoI18n.块配对工具 },
         { id: "floatball", label: () => tomatoI18n.悬浮球 },
+        // navcompass（2026-10-11）：十字罗盘导航域——第四悬浮球紧跟悬浮球域（球族聚拢）；
+        // 命令开关域「十字罗盘」族对上家（commandGroups.ts）
+        { id: "navcompass", label: () => tomatoI18n.十字罗盘 },
         // confgather（2026-09-15）：顶栏工具独立成域——顶栏钮六行自通用域裁出，
         // 命令开关域「顶栏工具」族对上家（界面元素相邻，紧跟悬浮球）
         { id: "toolbar", label: () => tomatoI18n.顶栏工具 },
@@ -140,7 +148,7 @@
         { id: "mcp", label: () => tomatoI18n.AI接入 },
     ];
     let navActive = $state("pomodoro");
-    const NavKeyItemKey = "tomato_settings_NavKeyItemKey_LE2WBlXRG9LGVH2AA3VwzehW1";
+    const NavKeyItemKey = TOMATO_SETTINGS_NAV_KEY;
     // 二期存量兼容：一期 9 域 id 与新 id 不同名的三枚映射（其余 6 个旧 id 不变名免映射；
     // 未命中 some 校验落默认番茄钟的既有兜底保留）；三期 aibox→vault（AI 问答域退役）；
     // prefixui □3：功能仓库域退役，vault（含前代 aibox 链）改挂 prefix（域总数不变）
@@ -158,7 +166,7 @@
     let searching = false;
     let navListEl: HTMLElement = $state();
     // 激活项滚入视野，但只在出视野的轴上滚（2026-09-16 用户反馈：点击可见项不得重定位
-    // ——原版无差别把激活项顶到列首，点完想连点上面的项还得回滚）。纵向（24 域矮弹窗
+    // ——原版无差别把激活项顶到列首，点完想连点上面的项还得回滚）。纵向（25 域矮弹窗
     // 自滚）最小量贴边滚入：上出顶对齐、下出底对齐（各 8px 余量；下出贴底=上方项全保持
     // 可见，连点上面的项不再被打飞）；横向（窄屏 480 断点 tab 条横滚形态，vision R1
     // P1-1）保持居中入视野。只滚 tab 条/导航列自身，不用 scrollIntoView——它会连带滚
@@ -371,6 +379,8 @@
                     <ConfPairTools {codeValid}></ConfPairTools>
                 {:else if id === "floatball"}
                     <ConfFloatBall></ConfFloatBall>
+                {:else if id === "navcompass"}
+                    <ConfNavCompass></ConfNavCompass>
                 {:else if id === "toolbar"}
                     <ConfToolbar></ConfToolbar>
                 {:else if id === "export"}
@@ -406,7 +416,7 @@
                 {/if}
             {/snippet}
             {#if searchKey}
-                <!-- 聚合视图（□3）：全 24 域同屏+域标题行做域界标，data-domain 供 updateNavHits
+                <!-- 聚合视图（□3）：全 25 域同屏+域标题行做域界标，data-domain 供 updateNavHits
                      回读命中态；searchSettings 深收按域过滤、空域整节隐藏 -->
                 {#each NAV_DOMAINS as d (d.id)}
                     <section class="conf-group" data-domain={d.id}>

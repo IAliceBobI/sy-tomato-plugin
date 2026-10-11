@@ -799,7 +799,9 @@ export const siyuan = {
     async getHeadingChildrenDOM(id: string) {
         return siyuan.call("/api/block/getHeadingChildrenDOM", { id });
     },
-    async listDocsByPath(notebookID: string, notReadablePath: string, sort = 15): Promise<RetListDocsByPath | null> {
+    // maxListCount（nav 罗盘 navTree 起）：可选，传 0=内核取 MaxInt 全量（防 Conf.FileTree.
+    // MaxListCount 默认 512 对兄弟列表静默截尾——exportNaming defaultNamingFetchers 同款参数）
+    async listDocsByPath(notebookID: string, notReadablePath: string, sort = 15, maxListCount?: number): Promise<RetListDocsByPath | null> {
         // need-1001-01：速记空壳容器（有 .sy、无同名子目录）内核返 code=-1+data=null——
         // 「无子文档」的常态语义而非错误（陆杰 09-30 报障：秒级模板+速记搬运开时每次
         // sync-end 触发 relayShorthands → locatePerEntryDocs 打到这里，透传 call 会在
@@ -810,7 +812,8 @@ export const siyuan = {
         // 不 throw，直接判 code，语义等价）。code=0 但缺 data 时返 null（call 原返 Response
         // 兜底，本端点恒有 data；调用方均 ?.files ?? [] 防护，等价）。
         const url = "/api/filetree/listDocsByPath";
-        const reqData = { notebook: notebookID, path: notReadablePath, sort };
+        const reqData: any = { notebook: notebookID, path: notReadablePath, sort };
+        if (maxListCount !== undefined) reqData.maxListCount = maxListCount;
         try {
             const data = await fetch(url, {
                 method: "POST",

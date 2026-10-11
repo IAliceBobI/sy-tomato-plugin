@@ -555,6 +555,13 @@ export const graph_float = settingFactory("graph_float", true, STORAGE_SETTINGS,
 // gfloatnav（2026-09-19）：图内导航（双击/Alt点/右键跳转/树双击/标记叶单击）后自动收起
 // 悬浮面板——「悬浮图当大纲用」闭环；默认开（丝滑跳转诉求）。运行时逐次读，非结构类
 export const graphFloatJumpClose = settingFactory("graphFloatJumpClose", true, STORAGE_SETTINGS, null as TSK);
+// navcompass（2026-10-11）：十字罗盘导航=第四悬浮球（点球变身 D-pad，方向导航文档树）。
+// 分端启用（独立开关、默认都开）——结构性键（storageHotReload 已登记：NavFloat 挂载
+// 决策 onload 读死，改动须整插件重载）；方向流派（运行时逐次读非结构类）：默认 "tree"
+//（↑父 ↓首子 ←前兄 →后兄），可切 "hegemon" 霸主流派（←→父子 ↑↓前后篇）
+export const nav_compass_desktop = settingFactory("nav_compass_desktop", true, STORAGE_SETTINGS, null as TSK);
+export const nav_compass_mobile = settingFactory("nav_compass_mobile", true, STORAGE_SETTINGS, null as TSK);
+export const nav_compass_scheme = settingFactory("nav_compass_scheme", "tree", STORAGE_SETTINGS, null as TSK);
 export const tomatoClockCheckbox = settingFactory("tomatoClockCheckbox", true, STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_audio = settingFactory("tomato_clocks_audio", "", STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_notice = settingFactory("tomato_clocks_notice", true, STORAGE_SETTINGS, null as TSK);

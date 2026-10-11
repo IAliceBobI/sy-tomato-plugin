@@ -227,6 +227,11 @@ type TomatoSettings = {
     graph_float: boolean,
     // gfloatnav：图内导航后自动收起悬浮面板
     graphFloatJumpClose: boolean,
+    // navcompass：十字罗盘导航（第四悬浮球）——分端启用（独立默认开）+方向流派
+    //（"tree"=↑父↓首子←前兄→后兄 默认；"hegemon"=←→父子 ↑↓前后篇）
+    nav_compass_desktop: boolean,
+    nav_compass_mobile: boolean,
+    nav_compass_scheme: string,
     graphMaxAllBlocks: string,
     graphMaxPBlocks: string,
     // graphbox 期2：默认展开层级（按标题层级 h1=1；"all"=全部展开，段落链折叠独立于档位）

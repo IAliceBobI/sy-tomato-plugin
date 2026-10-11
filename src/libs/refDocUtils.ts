@@ -1,13 +1,28 @@
 // 引用文档创建（item2ref/createRefDoc）与拼音标注。从原 docUtils.ts 拆出（2026-08 重构），
 // docUtils.ts 现为 re-export 桶。
 import { IProtyle } from "siyuan";
-import { siyuan, siyuanCache, cleanText, getContenteditableElement, sqlQuoteStr } from "./utils";
+import { siyuan, siyuanCache, cleanText, getContenteditableElement, sanitizeName, sqlQuoteStr } from "./utils";
 import { BLOCK_REF, DATA_ID, DATA_NODE_ID, DATA_SUBTYPE, DATA_TYPE } from "./gconst";
 import { pinyin } from "pinyin-pro";
 import { storeAttrManager, tag_to_ref_add_card, tag_to_ref_add_pinyin } from "./stores";
 import { verifyKeyTomato } from "./user";
 
+/** 引用文档建档 hpath 拼装（纯函数）：保存目录前缀 path（getRefCreateSavePath 返回，
+ *  是调用方故意拼的层级，原样不动）+ 名字。name 是用户可控字符串——item2ref 选中文本/
+ *  空格分词（「设置/关于」整词含 /）、NoteBox·shorthandRelay 设置串自定义词、Tag2Ref·
+ *  SpaceRef 命中词，五族 caller 共用 createRefDoc 入口。名字裸拼进 path 时内嵌 / 会被
+ *  内核按层级静默劈两层文档（全程无报错），出口 sanitizePathTail 的 lastIndexOf 切点
+ *  落在名字内部、只护得住末段——故名字先过 sanitizeName（/ → 全角／、控制符 → 空格，
+ *  恒 1:1 幂等，与出口末段净化两级叠加安全）再拼。 */
+export function buildRefDocPath(path: string, name: string): string {
+    return path + sanitizeName(name);
+}
+
 export async function createRefDoc(notebookId: string, name: string, category?: string) {
+    // 入口先净化 name（拼装约束见 buildRefDocPath 头注释），查库（content=）、建档 path、
+    // 拼音 alias 三路同用净化后名字——内核落盘名即净化名，裸名查库查不中会让复用分支
+    // 失效、退化为冗余建档往返；幂等，与 buildRefDocPath 内的再净化叠加安全
+    name = sanitizeName(name);
     const updateAttr = async (id: string) => {
         if (!id) return;
         const attr = {} as AttrType;
@@ -29,7 +44,7 @@ export async function createRefDoc(notebookId: string, name: string, category?: 
     }
 
     const { path } = await siyuan.getRefCreateSavePath(notebookId);
-    const id = await siyuanCache.createDocWithMdIfNotExists(5000, notebookId, path + name, "");
+    const id = await siyuanCache.createDocWithMdIfNotExists(5000, notebookId, buildRefDocPath(path, name), "");
     if (tag_to_ref_add_card.get()) {
         await siyuan.addRiffCards([id]);
     }

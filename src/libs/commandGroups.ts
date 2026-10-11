@@ -136,6 +136,7 @@ import {
     FastNoteBox打开最后一个笔记,
     FastNoteBox草稿切换,
 } from "../FastNoteBox";
+import { NavCompassUpHK, NavCompassDownHK, NavCompassLeftHK, NavCompassRightHK } from "../NavFloat";
 
 /** HotkeyCap 的最小契约（winHotkey 返回超集，结构兼容） */
 export interface GatedHK {
@@ -406,6 +407,18 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
             { langKey: FloatingBall添加文档.langKey, label: () => FloatingBall添加文档.langText(), hk: FloatingBall添加文档 },
             { langKey: FloatingBallTab添加文档.langKey, label: () => FloatingBallTab添加文档.langText(), hk: FloatingBallTab添加文档 },
             { langKey: FloatingBall显示或隐藏悬浮文档.langKey, label: () => FloatingBall显示或隐藏悬浮文档.langText(), hk: FloatingBall显示或隐藏悬浮文档 },
+        ],
+    },
+    // navcompass（2026-10-11）：十字罗盘四方向导航命令——设置域同名对上家（IndexConf
+    // navcompass 域）；命令注册在桌面端 NavFloat.onload（gatedAddCommand）
+    {
+        id: "navcompass",
+        label: () => tomatoI18n.十字罗盘,
+        items: [
+            { langKey: NavCompassUpHK.langKey, label: () => NavCompassUpHK.langText(), hk: NavCompassUpHK },
+            { langKey: NavCompassDownHK.langKey, label: () => NavCompassDownHK.langText(), hk: NavCompassDownHK },
+            { langKey: NavCompassLeftHK.langKey, label: () => NavCompassLeftHK.langText(), hk: NavCompassLeftHK },
+            { langKey: NavCompassRightHK.langKey, label: () => NavCompassRightHK.langText(), hk: NavCompassRightHK },
         ],
     },
     // 快速笔记组：前两条两参常量 label 直写 i18n（与注册点一致）

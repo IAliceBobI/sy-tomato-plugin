@@ -3180,6 +3180,30 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Re-read (from Start)";
         }
     }
+    /** manualfin 件2：手动书右键「标记已读完」（存储位 finishedManual，标后退出轮转） */
+    public get 标记已读完() {
+        switch (this.lang) {
+            case "zh_CN": return "标记已读完";
+            case "zh_CHT": return "標記已讀完";
+            case "es_ES": return "Marcar como leído";
+            case "fr_FR": return "Marquer comme lu";
+            case "ja_JP": return "読み終えたとマーク";
+            case "en_US":
+            default: return "Mark as Finished";
+        }
+    }
+    /** manualfin 件2：标记成功 toast（退出轮转=滚筒 finishedIDs 收编，撤销走「重新阅读（从头）」） */
+    public get 已标记读完退出轮转() {
+        switch (this.lang) {
+            case "zh_CN": return "已标记读完，退出轮转";
+            case "zh_CHT": return "已標記讀完，退出輪轉";
+            case "es_ES": return "Marcado como leído, fuera de la rotación";
+            case "fr_FR": return "Marqué comme lu, hors rotation";
+            case "ja_JP": return "読了としてマークし、ローテーションから外れました";
+            case "en_US":
+            default: return "Marked as finished, removed from rotation";
+        }
+    }
     public get 从这里开始学() {
         switch (this.lang) {
             case "zh_CN": return "从这里开始学";
@@ -16595,6 +16619,184 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "打開前綴文檔樹面板";
             case "en_US":
             default: return "Open prefix tree panel";
+        }
+    }
+
+    // ---- navcompass（2026-10-11）：十字罗盘导航=第四悬浮球（设置域/罗盘 UI/四方向命令文案） ----
+    public get 十字罗盘() {
+        switch (this.lang) {
+            case "zh_CN": return "十字罗盘";
+            case "zh_CHT": return "十字羅盤";
+            case "en_US":
+            default: return "Nav compass";
+        }
+    }
+    public get 十字罗盘说明() {
+        switch (this.lang) {
+            case "zh_CN": return "第四颗悬浮球：点球变身十字 D-pad，在文档树上方向导航（默认 ↑父文档 ↓第一个子文档 ←前一个兄弟 →后一个兄弟），边界方向键置灰不回绕；罗盘可整体拖动，点外部/Esc/点中心收起回球。";
+            case "zh_CHT": return "第四顆懸浮球：點球變身十字 D-pad，在文檔樹上方向導航（默認 ↑父文檔 ↓第一個子文檔 ←前一個兄弟 →後一個兄弟），邊界方向鍵置灰不回繞；羅盤可整體拖動，點外部/Esc/點中心收起回球。";
+            case "en_US":
+            default: return "The 4th floating ball: tap to morph into a D-pad compass for tree navigation (default: ↑ parent, ↓ first child, ← prev sibling, → next sibling). Boundary keys are greyed out without wrapping; drag the whole compass; tap outside / Esc / tap center to collapse back to the ball.";
+        }
+    }
+    public get 桌面端启用十字罗盘() {
+        switch (this.lang) {
+            case "zh_CN": return "桌面端启用十字罗盘";
+            case "zh_CHT": return "桌面端啟用十字羅盤";
+            case "en_US":
+            default: return "Enable nav compass on desktop";
+        }
+    }
+    public get 手机端启用十字罗盘() {
+        switch (this.lang) {
+            case "zh_CN": return "手机端启用十字罗盘";
+            case "zh_CHT": return "手機端啟用十字羅盤";
+            case "en_US":
+            default: return "Enable nav compass on mobile";
+        }
+    }
+    public get 方向流派() {
+        switch (this.lang) {
+            case "zh_CN": return "方向流派";
+            case "zh_CHT": return "方向流派";
+            case "en_US":
+            default: return "Direction scheme";
+        }
+    }
+    public get 树形流派() {
+        switch (this.lang) {
+            case "zh_CN": return "树形流派（↑父 ↓首子 ←前兄 →后兄）";
+            case "zh_CHT": return "樹形流派（↑父 ↓首子 ←前兄 →後兄）";
+            case "en_US":
+            default: return "Tree scheme (↑ parent ↓ first child ← prev → next sibling)";
+        }
+    }
+    public get 霸主流派() {
+        switch (this.lang) {
+            case "zh_CN": return "霸主流派（←→父子 ↑↓前后篇）";
+            case "zh_CHT": return "霸主流派（←→父子 ↑↓前後篇）";
+            case "en_US":
+            default: return "Hierarchy scheme (←→ parent/child ↑↓ prev/next doc)";
+        }
+    }
+    public get 展开或收起十字罗盘() {
+        switch (this.lang) {
+            case "zh_CN": return "展开或收起十字罗盘";
+            case "zh_CHT": return "展開或收起十字羅盤";
+            case "en_US":
+            default: return "Toggle nav compass";
+        }
+    }
+    public get 罗盘向上导航() {
+        switch (this.lang) {
+            case "zh_CN": return "十字罗盘 · 向上导航";
+            case "zh_CHT": return "十字羅盤 · 向上導航";
+            case "en_US":
+            default: return "Nav compass · up";
+        }
+    }
+    public get 罗盘向下导航() {
+        switch (this.lang) {
+            case "zh_CN": return "十字罗盘 · 向下导航";
+            case "zh_CHT": return "十字羅盤 · 向下導航";
+            case "en_US":
+            default: return "Nav compass · down";
+        }
+    }
+    public get 罗盘向左导航() {
+        switch (this.lang) {
+            case "zh_CN": return "十字罗盘 · 向左导航";
+            case "zh_CHT": return "十字羅盤 · 向左導航";
+            case "en_US":
+            default: return "Nav compass · left";
+        }
+    }
+    public get 罗盘向右导航() {
+        switch (this.lang) {
+            case "zh_CN": return "十字罗盘 · 向右导航";
+            case "zh_CHT": return "十字羅盤 · 向右導航";
+            case "en_US":
+            default: return "Nav compass · right";
+        }
+    }
+    public get 罗盘导航到父文档() {
+        switch (this.lang) {
+            case "zh_CN": return "父文档";
+            case "zh_CHT": return "父文檔";
+            case "en_US":
+            default: return "Parent";
+        }
+    }
+    public get 罗盘导航到首子文档() {
+        switch (this.lang) {
+            case "zh_CN": return "首子文档";
+            case "zh_CHT": return "首子文檔";
+            case "en_US":
+            default: return "First child";
+        }
+    }
+    public get 罗盘导航到前一篇() {
+        switch (this.lang) {
+            case "zh_CN": return "前一篇";
+            case "zh_CHT": return "前一篇";
+            case "en_US":
+            default: return "Previous doc";
+        }
+    }
+    public get 罗盘导航到后一篇() {
+        switch (this.lang) {
+            case "zh_CN": return "后一篇";
+            case "zh_CHT": return "後一篇";
+            case "en_US":
+            default: return "Next doc";
+        }
+    }
+    public get 罗盘加载中() {
+        switch (this.lang) {
+            case "zh_CN": return "加载中…";
+            case "zh_CHT": return "載入中…";
+            case "en_US":
+            default: return "Loading…";
+        }
+    }
+    public get 罗盘加载失败点击重试() {
+        switch (this.lang) {
+            case "zh_CN": return "加载失败，点击方向键重试";
+            case "zh_CHT": return "載入失敗，點擊方向鍵重試";
+            case "en_US":
+            default: return "Failed to load; tap a direction key to retry";
+        }
+    }
+    public get 罗盘当前文档() {
+        switch (this.lang) {
+            case "zh_CN": return "当前文档";
+            case "zh_CHT": return "當前文檔";
+            case "en_US":
+            default: return "Current doc";
+        }
+    }
+    public get 罗盘目标已失效() {
+        switch (this.lang) {
+            case "zh_CN": return "目标文档已不存在，已刷新罗盘";
+            case "zh_CHT": return "目標文檔已不存在，已刷新羅盤";
+            case "en_US":
+            default: return "Target doc no longer exists; compass refreshed";
+        }
+    }
+    public get 长按球打开十字罗盘设置() {
+        switch (this.lang) {
+            case "zh_CN": return "长按 0.5 秒打开十字罗盘设置";
+            case "zh_CHT": return "長按 0.5 秒打開十字羅盤設置";
+            case "en_US":
+            default: return "Long-press 0.5s to open nav compass settings";
+        }
+    }
+    public get 无方向可导航() {
+        switch (this.lang) {
+            case "zh_CN": return "无";
+            case "zh_CHT": return "無";
+            case "en_US":
+            default: return "None";
         }
     }
 }
