@@ -2,7 +2,7 @@ import { getAllEditor, IProtyle } from "siyuan";
 import { events } from "./libs/Events";
 import { add_href, add_ref, cloneCleanDiv, closeTabByTitle, getContextPath, getBlocksOwnText, getNotebookFirstOne, getOpenedEditors, getProtyleByDocID, Siyuan, siyuan, timeUtil, } from "./libs/utils";
 import { DATA_NODE_ID } from "./libs/gconst";
-import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorText, dailyNoteCopyFlashMenu, dailyNoteCopyFragment, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyUpdateBG, dailyNoteCopyUseRef, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveLeaveLnk, dailyNoteMoveToBottom, dailyNoteReviewTopbar, dailyNotetopbarleft, dailyNotetopbarright, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
+import { dailyNoteBoxCheckbox, dailyNoteCopyAnchorMode, dailyNoteCopyAnchorText, dailyNoteCopyFlashMenu, dailyNoteCopyFragment, dailyNoteCopyFragmentPlain, dailyNoteCopyInsertPR, dailyNoteCopyMenu, dailyNoteCopySimple, dailyNoteCopyTarget, dailyNoteCopyTargetDoc, dailyNoteCopyUpdateBG, dailyNoteGoToBottom, dailyNoteGoToBottomMenu, dailyNoteMoveLeaveLnk, dailyNoteMoveToBottom, dailyNoteReviewTopbar, dailyNotetopbarleft, dailyNotetopbarright, coerceAnchorMode, readingPointBoxCheckbox, storeNoteBox_selectedNotebook } from "./libs/stores";
 import { openReviewDialog } from "./ReviewDialog";
 import { tomatoI18n } from "./tomatoI18n";
 import { readingPointBox } from "./ReadingPointBox";
@@ -10,8 +10,9 @@ import { domLnk, domNewLine, DomSuperBlockBuilder } from "./libs/sydom";
 import { isReadonly, OpenSyFile2 } from "./libs/docUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { createAndOpenFastNote } from "./libs/switchDraft";
-import { collectBlockAttrs } from "./libs/dailyCollect";
-import { buildFragmentContainer, fragmentFromRange } from "./libs/dailyFragment";
+import { collectBlockAttrs, coerceCopyTarget, collectChildDocName } from "./libs/dailyCollect";
+import { buildFragmentContainer, buildPlainFragmentBlocks, fragmentFromRange } from "./libs/dailyFragment";
+import { childDirOfPath } from "./libs/navTree";
 import { getTime } from "./NoteBox";
 import { winHotkey } from "./libs/winHotkey";
 import { gatedAddCommand } from "./libs/cmdGate";
@@ -44,7 +45,7 @@ class DailyNoteBox {
                 if (!dailyNoteCopyMenu.get() || !dailyNoteCopyFragment.get()) return;
                 const inner = protyle?.protyle ?? protyle;
                 const range = inner?.toolbar?.range ?? document.getSelection()?.getRangeAt(0);
-                const frag = fragmentFromRange(range, inner?.wysiwyg?.element);
+                const frag = fragmentFromRange(range, inner?.wysiwyg?.element, dailyNoteCopyFragmentPlain.get());
                 if (frag) void this.insertFragment(inner, frag);
             },
         });
@@ -369,7 +370,7 @@ class DailyNoteBox {
         // 工具条/菜单点击顶掉选区时回退 protyle.toolbar.range，mindWire 同款）
         if (copy && !newFile && dailyNoteCopyFragment.get()) {
             const range = (protyle as any).toolbar?.range ?? document.getSelection()?.getRangeAt(0);
-            const frag = fragmentFromRange(range, protyle?.wysiwyg?.element);
+            const frag = fragmentFromRange(range, protyle?.wysiwyg?.element, dailyNoteCopyFragmentPlain.get());
             if (frag) {
                 await this.insertFragment(protyle, frag, card);
                 return;
@@ -380,28 +381,74 @@ class DailyNoteBox {
         this.doFindDivs(protyle, ids, selected, ro, copy, newFile, card);
     }
 
-    /** □3 片段落账：协议 v1 容器（片段文本+源锚 ref）进当日日记，落位两分支照抄块级链；
-     *  card=true（闪卡变体 2026-10-04）=片段容器直接制卡——划词制卡的唯一通道 */
-    private async insertFragment(_protyle: IProtyle, frag: { text: string; sourceID: string }, card = false) {
+    /** A1 复制收集落点解析（陆杰 2026-10-11）：daily=当日日记（现状）/fixed=固定文档
+     *  （失效即清 store+提示重选并返 null，annoCollectTargetDoc 同款）/source=来源文档
+     *  下按日建子文档「收集 YYYYMMDD」——listDocsByPath 磁盘真相先查（无索引延迟，秒级
+     *  连发不重复建档），未命中才 createDocWithMd 建档（尾段插件自拼名，出口内建
+     *  sanitizePathTail）；仅复制链消费，移动/快记链不经过本方法 */
+    private async resolveCopyTargetDoc(boxID: string, sourceID: string): Promise<string | null> {
+        const target = coerceCopyTarget(dailyNoteCopyTarget.get());
+        if (target === "fixed") {
+            const docID = dailyNoteCopyTargetDoc.get();
+            if (!docID || !(await siyuan.checkBlockExist(docID))) {
+                dailyNoteCopyTargetDoc.set("");
+                void dailyNoteCopyTargetDoc.write();
+                siyuan.pushMsg(tomatoI18n.收集目标已失效请重选);
+                return null;
+            }
+            return docID;
+        }
+        if (target === "source") {
+            const row = await siyuan.getDocRowByBlockID(sourceID);
+            if (row?.box && row?.path && row?.hpath) {
+                const { y, M, d } = timeUtil.nowYMDStrPad();
+                const name = collectChildDocName(y + M + d);
+                // maxListCount=0 免默认 512 静默截尾（navTree.ts:151 同款）——超截时 find
+                // 未命中会重复建档同日子文档
+                const files = (await siyuan.listDocsByPath(row.box, childDirOfPath(row.path), undefined, 0))?.files ?? [];
+                const hit = files.find(f => f?.name === name);
+                if (hit?.id) return hit.id;
+                return await siyuan.createDocWithMd(row.box, `${row.hpath}/${name}`, "");
+            }
+            // 源文档行缺失（未索引/已删）：退当日日记，行为不断链
+        }
+        return (await siyuan.createDailyNote(boxID)).id;
+    }
+
+    /** □3 片段落账：协议 v1 容器（片段文本+源锚）进落点文档，落位两分支照抄块级链；
+     *  card=true（闪卡变体 2026-10-04）=片段容器直接制卡——划词制卡的唯一通道；
+     *  A1 落点走 resolveCopyTargetDoc 三档；A2 纯净档=片段段落+空段两块直落（无壳无
+     *  属性无锚，制卡用首段 id）；A3 锚按 anchorMode 三态 */
+    private async insertFragment(_protyle: IProtyle, frag: { text: string; sourceID: string; nodes?: Node[] }, card = false) {
         let boxID = storeNoteBox_selectedNotebook.getOr();
         if (!boxID) boxID = events.boxID;
         try {
-            const { id: docID } = await siyuan.createDailyNote(boxID);
-            const rpath = (await getContextPath(frag.sourceID)).getPathStr();
-            let anchorText = dailyNoteCopyAnchorText.get()?.trim();
-            if (!anchorText) anchorText = "  *  ";
-            const builder = buildFragmentContainer(frag.text, frag.sourceID, anchorText, getTime(), rpath);
-            const html = builder.html();
+            const docID = await this.resolveCopyTargetDoc(boxID, frag.sourceID);
+            if (!docID) return;
+            let htmls: string[];
+            let cardID = "";
+            if (dailyNoteCopyFragmentPlain.get()) {
+                const blocks = buildPlainFragmentBlocks({ text: frag.text, nodes: frag.nodes });
+                htmls = blocks.map(b => b.outerHTML);
+                cardID = blocks[0].getAttribute(DATA_NODE_ID) ?? "";
+            } else {
+                const rpath = (await getContextPath(frag.sourceID)).getPathStr();
+                let anchorText = dailyNoteCopyAnchorText.get()?.trim();
+                if (!anchorText) anchorText = "  *  ";
+                const builder = buildFragmentContainer(frag.text, frag.sourceID, anchorText, getTime(), rpath, coerceAnchorMode(dailyNoteCopyAnchorMode.get()));
+                htmls = [builder.html()];
+                cardID = builder.id;
+            }
             let ops;
             if (dailyNoteMoveToBottom.get()) {
                 const tail = await siyuan.getTailChildBlocks(docID, 1);
-                ops = siyuan.transInsertBlocksAfter([html], tail[0].id);
+                ops = siyuan.transInsertBlocksAfter(htmls, tail[0].id);
             } else {
-                ops = siyuan.transInsertBlocksAsChildOf([html], docID);
+                ops = siyuan.transInsertBlocksAsChildOf(htmls, docID);
             }
             await siyuan.transactions(ops);
-            if (card) {
-                siyuan.addRiffCards([builder.id]);
+            if (card && cardID) {
+                siyuan.addRiffCards([cardID]);
             }
             siyuan.pushMsg(tomatoI18n.已复制选中片段.replace("{n}", String(frag.text.length)));
             debugLog("daily_fragment", `copied src=${frag.sourceID} len=${frag.text.length}`, "dailynote");
@@ -414,8 +461,18 @@ class DailyNoteBox {
         let boxID = storeNoteBox_selectedNotebook.getOr();
         if (!boxID) boxID = events.boxID;
         try {
-            const { id: docID } = await siyuan.createDailyNote(boxID);
             if (!selected || selected.length == 0) return;
+            // A1 落点三档：复制链（非快记）按档分流；移动链维持当日日记。newFile 快记链
+            // 不吃 docID——仅 simple+newFile 落 simple 分支仍消费当日日记（现状，NewFile
+            // 菜单项未按 simple 门控），协议 newFile 分支消掉白建当日日记的既有副作用
+            // （行为面收窄不扩大）
+            let docID = "";
+            if (copy && !newFile) {
+                docID = await this.resolveCopyTargetDoc(boxID, ids[0]);
+                if (!docID) return;
+            } else if (!newFile || dailyNoteCopySimple.get()) {
+                docID = (await siyuan.createDailyNote(boxID)).id;
+            }
             if (copy && dailyNoteCopySimple.get()) {
                 const htmls = selected.map(div => cloneCleanDiv(div).div.outerHTML)
                 if (dailyNoteMoveToBottom.get()) {
@@ -428,12 +485,14 @@ class DailyNoteBox {
                 const rpath = (await getContextPath(ids[0])).getPathStr();
                 let anchorText = dailyNoteCopyAnchorText.get()?.trim()
                 if (!anchorText) anchorText = "  *  "
+                // A3 锚三态（ref/href/none，旧布尔已迁移，none=不挂锚）
+                const anchorMode = coerceAnchorMode(dailyNoteCopyAnchorMode.get());
                 const newDivs = selected.map(div => cloneCleanDiv(div))
                     .map((div, idx) => {
                         if (idx == 0 && !newFile) {
-                            if (dailyNoteCopyUseRef.get()) {
+                            if (anchorMode === "ref") {
                                 add_ref(div.div, div.id, anchorText)
-                            } else {
+                            } else if (anchorMode === "href") {
                                 add_href(div.div, div.id, anchorText)
                             }
                         }
@@ -463,11 +522,12 @@ class DailyNoteBox {
                     const fileID = await createAndOpenFastNote(protyle, boxID, this.plugin)
                     cardID = fileID;
                     const ref = domNewLine();
-                    if (dailyNoteCopyUseRef.get()) {
+                    if (anchorMode === "ref") {
                         add_ref(ref, ids[0], rpath);
-                    } else {
+                    } else if (anchorMode === "href") {
                         add_href(ref, ids[0], rpath);
                     }
+                    // anchorMode=none：跳过锚行挂载，仅保留 domNewLine 空行结构
                     newDivs.splice(0, 0, ref, domNewLine())
                     ops.push(...siyuan.transInsertBlocksAsChildOf(newDivs.map(i => i.outerHTML), fileID))
                 } else {

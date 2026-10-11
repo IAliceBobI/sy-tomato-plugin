@@ -492,6 +492,18 @@ export const cssRefEffect = settingFactory("cssRefEffect", "none", STORAGE_SETTI
 export function refEffectFromLegacy(styleOn: boolean, bracketsOn: boolean): string {
     return styleOn ? "shadow" : bracketsOn ? "brackets" : "none";
 }
+
+/** A3 旧布尔 dailyNoteCopyUseRef → 复制锚三态迁移映射：true→ref、false→href（旧
+ *  布尔无「无」档，false 的实际行为=超链接，故不落 none） */
+export function anchorModeFromLegacy(useRef: boolean): "ref" | "href" {
+    return useRef ? "ref" : "href";
+}
+
+/** A3 复制锚三态收拢：合法值透传、坏值退 "ref"（coerceIdeaIntervalMode 同款纪律，
+ *  防手改 storage 坏值打进复制链） */
+export function coerceAnchorMode(v: unknown): "ref" | "href" | "none" {
+    return v === "href" || v === "none" ? v : "ref";
+}
 export const exportWL4All = settingFactory("exportWL4All", false, STORAGE_SETTINGS, null as TSK);
 export const exportWhiteList = settingFactory("exportWhiteList", [], STORAGE_SETTINGS, null as TSK);
 export const exportBlackList = settingFactory("exportBlackList", [], STORAGE_SETTINGS, null as TSK);
@@ -562,6 +574,10 @@ export const graphFloatJumpClose = settingFactory("graphFloatJumpClose", true, S
 export const nav_compass_desktop = settingFactory("nav_compass_desktop", true, STORAGE_SETTINGS, null as TSK);
 export const nav_compass_mobile = settingFactory("nav_compass_mobile", true, STORAGE_SETTINGS, null as TSK);
 export const nav_compass_scheme = settingFactory("nav_compass_scheme", "tree", STORAGE_SETTINGS, null as TSK);
+// 翻页模式（navflip 2026-10-11）：翻页轴（hegemon ↑↓ / tree ←→）行为——"sibling"=文件夹序
+// 前后篇（默认，现状）；"history"=浏览历史回退/前进+最新处续读下一篇（数据层 libs/navHistory.ts，
+// localStorage 持久化轨迹）。运行时逐次读非结构键（保存即热切，同 scheme）
+export const nav_compass_flip = settingFactory("nav_compass_flip", "sibling", STORAGE_SETTINGS, null as TSK);
 export const tomatoClockCheckbox = settingFactory("tomatoClockCheckbox", true, STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_audio = settingFactory("tomato_clocks_audio", "", STORAGE_SETTINGS, null as TSK);
 export const tomato_clocks_notice = settingFactory("tomato_clocks_notice", true, STORAGE_SETTINGS, null as TSK);
@@ -706,7 +722,23 @@ export const dailyNoteCopySimple = settingFactory("dailyNoteCopySimple", false, 
 export const dailyNoteCopyFragment = settingFactory("dailyNoteCopyFragment", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyMenu = settingFactory("dailyNoteCopyMenu", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyAnchorText = settingFactory("dailyNoteCopyAnchorText", "  *  ", STORAGE_SETTINGS, null as TSK);
+// A3（陆杰 2026-10-11）起退役为迁移读源（cssRefEffect 同款）：面板不再展示、存储不删，
+// loadStore 见 anchorModeFromLegacy 一次性推导
 export const dailyNoteCopyUseRef = settingFactory("dailyNoteCopyUseRef", true, STORAGE_SETTINGS, null as TSK);
+// A3 复制锚三态：ref=引用锚（默认）/href=超链接/none=不挂；片段级非纯净档同三态。
+// 运行时动作读（复制/落块分流），非 onload 注册读死类，不进 STRUCTURAL_KEYS
+export const dailyNoteCopyAnchorMode = settingFactory("dailyNoteCopyAnchorMode", "ref", STORAGE_SETTINGS, null as TSK);
+// A1 复制收集落点三档：daily=当日日记（默认=存量零迁移）/fixed=固定文档/source=按
+// 来源文档建子文档「收集 YYYYMMDD」（多端同步冲突面收窄，同速记「一笔记一文档」
+// 思路）；仅复制链生效——移动内容/快记 NewFile 语义本就是日记/快记不接三档。
+// 运行时动作读，不进 STRUCTURAL_KEYS
+export const dailyNoteCopyTarget = settingFactory("dailyNoteCopyTarget", "daily", STORAGE_SETTINGS, null as TSK);
+// A1 fixed 档目标文档 id（DocPathSelect 选择）；用前 checkBlockExist 校验、失效即清+提示重选
+export const dailyNoteCopyTargetDoc = settingFactory("dailyNoteCopyTargetDoc", "", STORAGE_SETTINGS, null as TSK);
+// A2 片段级纯净档：不套 superblock 壳/不挂 custom 属性/不挂锚/直落段落+条间空行/
+// 保留行内样式；不挂 idea-time=不进时间间隔统计链与近期列表（与速记纯文本同口径，
+// 属预期）。勿与块级 dailyNoteCopySimple（整块结构纯净）混淆。运行时动作读，不进 STRUCTURAL_KEYS
+export const dailyNoteCopyFragmentPlain = settingFactory("dailyNoteCopyFragmentPlain", false, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyUpdateBG = settingFactory("dailyNoteCopyUpdateBG", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyInsertPR = settingFactory("dailyNoteCopyInsertPR", true, STORAGE_SETTINGS, null as TSK);
 export const dailyNoteCopyShowPath = settingFactory("dailyNoteCopyShowPath", true, STORAGE_SETTINGS, null as TSK);

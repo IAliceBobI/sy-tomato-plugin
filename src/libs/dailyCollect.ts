@@ -73,3 +73,15 @@ export function ymdFromCreated(created: string): string {
     if (!created || created.length < 8) return "";
     return `${created.slice(0, 4)}-${created.slice(4, 6)}-${created.slice(6, 8)}`;
 }
+
+/** 复制收集落点三档收拢（陆杰 2026-10-11）：合法值透传、null/坏值退 "daily"（=当日日记
+ *  存量语义）——防手改 storage 坏值打进复制链，coerceIdeaIntervalMode 同款纪律 */
+export function coerceCopyTarget(v: unknown): "daily" | "fixed" | "source" {
+    return v === "fixed" || v === "source" ? v : "daily";
+}
+
+/** source 档子文档名「收集 YYYYMMDD」（ymd=8 位数字串）——全仓唯一字面量点，勿散落：
+ *  find-or-create 两侧（listDocsByPath 查名 / createDocWithMd 建名）同用保同日归同一子文档 */
+export function collectChildDocName(ymd: string): string {
+    return `收集 ${ymd}`;
+}

@@ -380,11 +380,18 @@ export function isEarlierIdea(a: IdeaIntervalEntry, b: IdeaIntervalEntry): boole
  *  位置的残留靠全量 diff 清掉，空串清值由 cssStyle :not([=""]) 兜底零渲染）。
  *  start=写在较早条（升序文档序下=最新一条恒无间隔，存量语义）；end=写在较晚条
  *  （=最早一条无间隔，「距上一条」直觉语义）。相邻对时间相等=早退不写维持原值
- *  （intervalMinutesBetween null 语义原样）。 */
-export function planIdeaIntervals(times: IdeaIntervalEntry[], mode: IdeaIntervalMode): Map<string, string> {
+ *  （intervalMinutesBetween null 语义原样）。
+ *  need-1011-01 增可选 breakIDs（时间链断点 id 集，calcTimeInterval 从类型标记名集
+ *  查出）：相邻对中较晚者（时间序，isEarlierIdea 判定）∈断点集 → 该对不算——断点条
+ *  =新链起点，它与上一条之间的间隔归空白；断点条与下一条之间的间隔照算（新链内部，
+ *  较早者命中不跳）。start/end 两模式同规则；end 模式下断点条自身 interval 缺项=被
+ *  全量 diff 清掉（用户场景：上午末条与下午首条〔断点〕之间的午休空白不再误算）。
+ *  breakIDs 缺省/空集=现状零变化 */
+export function planIdeaIntervals(times: IdeaIntervalEntry[], mode: IdeaIntervalMode, breakIDs?: Set<string>): Map<string, string> {
     const desired = new Map<string, string>();
     for (let i = 1; i < times.length; i++) {
         const a = times[i - 1], b = times[i];
+        if (breakIDs != null && breakIDs.has((isEarlierIdea(a, b) ? b : a).id)) continue;
         const minutes = intervalMinutesBetween(a, b);
         if (minutes == null) continue;
         const interval = convertMinutesToTimeFormat(minutes);

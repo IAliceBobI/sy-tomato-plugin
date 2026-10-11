@@ -326,6 +326,18 @@ class NoteBox {
             }
             if (stripSet.size > 0) ids = ids.filter(id => !stripSet.has(id))
         }
+        // need-1011-01：时间链断点（尾 ! 声明，陆杰 10-01 分割线提案窄化版——结束模式
+        // 下上午末条与下午首条〔断点〕之间的午休空白不再误算）。断点名集 → 拉链内断点
+        // 条 id 集：planNotTimedStrips 复用为成员查询器（本就是泛化的「id 集中类型标记
+        // 命中名单」纯函数，此处只查 id 不摘属性）。断点记录 idea-time 照落=正常时间
+        // 记录、进近期列表（与 notTimed 摘 time 不进列表相反的有意差异）；跳对非破坏性
+        // 写，不吃 notTimed 那种破坏前 IAL 复核——快照误判最坏=间隔多算、下次重算自愈；
+        // 引用型分类（分类标记=引用锚非属性）不命中=notTimed 同款已文档化限制
+        const breakNames = new Set(parseNoteKindDecls(noteBoxAllKinds.get()).filter(d => d.breakpoint).map(d => d.icon))
+        const breakIDs = breakNames.size > 0 ? new Set(planNotTimedStrips(ids, id => ({
+            ideaType: typeMap.get(id),
+            alias: aliasMap.get(id),
+        }), breakNames)) : undefined
         const createdMap = new Map((await siyuan.getRows(ids, "created")).map(r => [r.id, r.created]))
         const times = ids
             .map(id => {
@@ -335,7 +347,7 @@ class NoteBox {
                 return { id, time, interval, created: createdMap.get(id) } as ID_Time
             })
             .filter(i => !!i)
-        const desired = planIdeaIntervals(times, coerceIdeaIntervalMode(ideaIntervalMode.get()))
+        const desired = planIdeaIntervals(times, coerceIdeaIntervalMode(ideaIntervalMode.get()), breakIDs)
         for (const { id } of times) {
             const want = desired.get(id) ?? ""
             if (want !== (intervalMap.get(id) ?? "")) {

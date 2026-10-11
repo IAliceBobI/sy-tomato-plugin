@@ -799,9 +799,14 @@ export const siyuan = {
     async getHeadingChildrenDOM(id: string) {
         return siyuan.call("/api/block/getHeadingChildrenDOM", { id });
     },
-    // maxListCount（nav 罗盘 navTree 起）：可选，传 0=内核取 MaxInt 全量（防 Conf.FileTree.
-    // MaxListCount 默认 512 对兄弟列表静默截尾——exportNaming defaultNamingFetchers 同款参数）
-    async listDocsByPath(notebookID: string, notReadablePath: string, sort = 15, maxListCount?: number): Promise<RetListDocsByPath | null> {
+    // sort（nav 罗盘 navTree 起）：可选，**不传=跟随文件树当前排序**——内核按「父文档 IAL 声明
+    // →笔记本 conf.sortMode→全局 FileTree.Sort」实时解析（kernel/model/file.go
+    // ResolveDocTreeSortMode，官方文件树前端 #8156 起同款不传 sort）。⚠勿再用 15 表达「树序」：
+    // 15=SortModeFileTree 在 fileTreeSortLess 无比较分支，落「按创建序 tie-break」——同秒批量
+    // 导入的文件夹按 ID 倒排，与自然升序的树显示序正好相反（2026-10-11 罗盘反序实证）。
+    // maxListCount：可选，传 0=内核取 MaxInt 全量（防 Conf.FileTree.MaxListCount 默认 512 对
+    // 兄弟列表静默截尾——exportNaming defaultNamingFetchers 同款参数）
+    async listDocsByPath(notebookID: string, notReadablePath: string, sort?: number, maxListCount?: number): Promise<RetListDocsByPath | null> {
         // need-1001-01：速记空壳容器（有 .sy、无同名子目录）内核返 code=-1+data=null——
         // 「无子文档」的常态语义而非错误（陆杰 09-30 报障：秒级模板+速记搬运开时每次
         // sync-end 触发 relayShorthands → locatePerEntryDocs 打到这里，透传 call 会在
@@ -812,7 +817,8 @@ export const siyuan = {
         // 不 throw，直接判 code，语义等价）。code=0 但缺 data 时返 null（call 原返 Response
         // 兜底，本端点恒有 data；调用方均 ?.files ?? [] 防护，等价）。
         const url = "/api/filetree/listDocsByPath";
-        const reqData: any = { notebook: notebookID, path: notReadablePath, sort };
+        const reqData: any = { notebook: notebookID, path: notReadablePath };
+        if (sort !== undefined) reqData.sort = sort;
         if (maxListCount !== undefined) reqData.maxListCount = maxListCount;
         try {
             const data = await fetch(url, {

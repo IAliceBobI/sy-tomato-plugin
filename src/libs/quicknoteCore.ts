@@ -97,27 +97,57 @@ export const KIND_ALIAS_SUFFIX = "@别名";
  *  字面量「@」固定不 i18n（数据面语法标记，对齐 KIND_ALIAS_SUFFIX 口径） */
 export const KIND_NOT_TIMED_SUFFIX = "@";
 
+/** need-1011-01：自定义图标「时间链断点」声明后缀——词尾带此后缀（如「午休!」/
+ *  「喝水!@」）=该类记录视为新时间链起点：它与上一条之间的间隔不算（归空白，
+ *  calcTimeInterval 跳过该相邻对），该条自身照常计时（idea-time/分类标记照落、
+ *  进近期列表——与尾 @「不计时」〔该条链外零 time〕语义并列不混淆）。用户场景
+ *  （陆杰 10-01 分割线提案窄化版）：结束模式下上午最后一条与下午第一条之间的
+ *  午休空白被误算进上一段——下午首条挂断点即断链。写侧零改动（断点记录是正常
+ *  时间记录），读侧检测=类型名集匹配（alias/idea-type 属性值 ∈ 断点声明名集，
+ *  notTimed 同款通道）；字面量「!」固定不 i18n（数据面语法标记，对齐 @ 口径） */
+export const KIND_BREAK_SUFFIX = "!";
+
 /** need-0926-13：词级声明结构（icon=剥后缀显示名，chips 显示与落块分流同名源）；
- *  need-0928-01 增 notTimed（尾 @ 不计时声明，与 aliasDeclared 独立并存） */
+ *  need-0928-01 增 notTimed（尾 @ 不计时声明，与 aliasDeclared 独立并存）；
+ *  need-1011-01 增 breakpoint（尾 ! 时间链断点声明，与两声明独立并存） */
 export interface NoteKindDecl {
     icon: string;
     aliasDeclared: boolean;
     notTimed: boolean;
+    breakpoint: boolean;
 }
 
-/** 词 → 声明结构（先剥尾 @ 不计时再剥「@别名」别名声明——「喝水@别名@」双后缀两级
- *  全剥；尾 @ 必须最末（病态形态「喝水@@别名」以「名」结尾不剥尾 @，别名后缀照剥）；
- *  前后空白 trim 防御） */
+/** 词 → 声明结构（三个声明后缀逐个剥：尾 ! / 尾 @ / 尾「@别名」，各至多一次、剥间
+ *  trim、书写序无关——「喝水!@」与「喝水@!」同解（! 与 @ 可换序，故循环剥到无可
+ *  剥为止）。唯一顺序约束：剥过「@别名」后不再剥单 @（病态形态
+ *  「喝水@@别名」=icon「喝水@」+别名标记，既有语义锁定勿吞；「喝水@别名@」双后缀
+ *  先剥外层 @ 不受影响）；前后空白 trim 防御 */
 export function parseKindDecl(kind: string): NoteKindDecl {
-    const k = (kind ?? "").trim();
-    const notTimed = k.endsWith(KIND_NOT_TIMED_SUFFIX);
-    const afterNotTimed = notTimed ? k.slice(0, -KIND_NOT_TIMED_SUFFIX.length).trim() : k;
-    const aliasDeclared = afterNotTimed.endsWith(KIND_ALIAS_SUFFIX);
-    return {
-        icon: aliasDeclared ? afterNotTimed.slice(0, -KIND_ALIAS_SUFFIX.length).trim() : afterNotTimed,
-        aliasDeclared,
-        notTimed,
-    };
+    let k = (kind ?? "").trim();
+    let aliasDeclared = false;
+    let notTimed = false;
+    let breakpoint = false;
+    for (let stripped = true; stripped;) {
+        stripped = false;
+        if (!breakpoint && k.endsWith(KIND_BREAK_SUFFIX)) {
+            k = k.slice(0, -KIND_BREAK_SUFFIX.length).trim();
+            breakpoint = true;
+            stripped = true;
+            continue;
+        }
+        if (!aliasDeclared && k.endsWith(KIND_ALIAS_SUFFIX)) {
+            k = k.slice(0, -KIND_ALIAS_SUFFIX.length).trim();
+            aliasDeclared = true;
+            stripped = true;
+            continue;
+        }
+        if (!notTimed && !aliasDeclared && k.endsWith(KIND_NOT_TIMED_SUFFIX)) {
+            k = k.slice(0, -KIND_NOT_TIMED_SUFFIX.length).trim();
+            notTimed = true;
+            stripped = true;
+        }
+    }
+    return { icon: k, aliasDeclared, notTimed, breakpoint };
 }
 
 /** 设置串 → 声明数组（parseNoteKinds 同规则切词再剥后缀；剥后缀空词丢弃——纯「@别名」
@@ -148,12 +178,26 @@ export function kindNotTimedDeclared(icon: string, kinds: string): boolean {
     return parseNoteKindDecls(kinds).some(d => d.icon === target && d.notTimed);
 }
 
+/** need-1011-01：显示名反查时间链断点声明（kindNotTimedDeclared 逐行镜像——chips
+ *  选中态存剥后缀显示名，声明信息只在设置串，反查时重建）。匹配=任一剥后缀同名词
+ *  声明即断点（「午休」与「午休!」并存=配置冗余，宽容取声明侧）；与别名/不计时
+ *  声明独立并存互不影响；空名/空串恒 false。calcTimeInterval 批量场景用
+ *  parseNoteKindDecls 预展开成 Set 提性能（notTimed 同款纪律）；写侧零消费——
+ *  断点记录照落 idea-time 是正常时间记录，语义只在读侧跳对 */
+export function kindBreakpointDeclared(icon: string, kinds: string): boolean {
+    const target = (icon ?? "").trim();
+    if (!target) return false;
+    return parseNoteKindDecls(kinds).some(d => d.icon === target && d.breakpoint);
+}
+
 /** need-0926-10：chips 数据源（面板/小窗共用）+need-0926-13 声明后缀剥除：显示名=剥
  *  「@别名」后的词（选中态与落块分流同名源）+剥后缀同名去重（「锻炼」与「锻炼@别名」
  *  并存防 chips 重复项）+ 恒附加纯文本内置类型（尾项；已含则不重复）。need-0928-01 起
  *  尾 @ 不计时后缀同剥（parseKindDecl 两级全剥，显示名不含任何声明后缀；「喝水@别名@」
  *  显示名=「喝水」与「喝水」声明词去重合一）。纯文本是内置 UI
- *  类型不进 noteBoxAllKinds 设置串（用户自定义串零迁移）；shorthandRelay 首字符分类命中
+ *  类型不进 noteBoxAllKinds 设置串（用户自定义串零迁移）；need-1011-01 起尾 ! 断点
+ *  后缀同剥（parseKindDecl 三后缀全剥，显示名不含任何声明后缀，面板/小窗零改动）；
+ *  shorthandRelay 首字符分类命中
  *  用裸 parseNoteKinds（后缀在词尾不影响首码点匹配；纯文本非文本分类不参与命中——两侧
  *  口径由此分流，防「纯」字正文误挂引用锚） */
 export function chipsKinds(kinds: string): string[] {

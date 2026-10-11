@@ -291,16 +291,22 @@ export class DomSuperBlockBuilder extends DomBuilder {
     }
 }
 
-/** 段落块 builder：text 纯文本落块（不解析 markdown，要解析用 md2Divs）；无参 = 空段块占位 */
+/** 段落块 builder：text 纯文本落块（不解析 markdown，要解析用 md2Divs）；无参 = 空段块占位。
+ *  nodes（A2 纯净档）：给行内节点数组时逐个 appendChild 代替 textContent 赋值——
+ *  Range.cloneContents 克隆的行内 span 直落事务 HTML 通道（行内样式保留，块级复制同款） */
 export class DomParaBuilder extends DomBuilder {
-    constructor(text = "") {
+    constructor(text = "", nodes?: Node[]) {
         super()
         this.container.classList.add("p")
         this.container.setAttribute(DATA_TYPE, BlockNodeEnum.NODE_PARAGRAPH)
         const div = this.container.appendChild(document.createElement("div"))
         div.setAttribute(CONTENT_EDITABLE, "true")
         div.setAttribute("spellcheck", "false")
-        div.textContent = text
+        if (nodes?.length) {
+            nodes.forEach(n => div.appendChild(n))
+        } else {
+            div.textContent = text
+        }
     }
 }
 

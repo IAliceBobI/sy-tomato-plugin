@@ -13,8 +13,9 @@
     import { onMount } from "svelte";
     import type { Writable } from "svelte/store";
     import { icon } from "./libs/utils";
-    import { nav_compass_scheme } from "./libs/stores";
-    import { getNavTree, navTargetOf, type NavDocTarget, type NavTree } from "./libs/navTree";
+    import { nav_compass_scheme, nav_compass_flip } from "./libs/stores";
+    import { getNavTree, navDirTargets, type NavDocTarget, type NavTree } from "./libs/navTree";
+    import { childViews, navHistoryTargets } from "./libs/navHistory";
     import { tomatoI18n } from "./tomatoI18n";
 
     interface Props {
@@ -206,36 +207,63 @@
         if (gen !== fetchGen) return; // 后到结果弃（期间又触发了新拉取）
         tree = t;
         phase = t ? "ready" : "error";
+        histTick++;
     }
 
-    /** 流派映射：映射本体=navTree.ts navTargetOf 纯函数（单测锁死）；此处按流派批量取四向 */
-    const dirTargets = $derived.by(() => {
-        if (!tree) return null;
-        const scheme = $nav_compass_scheme;
-        return {
-            up: navTargetOf(tree, scheme, "up"),
-            down: navTargetOf(tree, scheme, "down"),
-            left: navTargetOf(tree, scheme, "left"),
-            right: navTargetOf(tree, scheme, "right"),
-        } satisfies Record<DirKey, NavDocTarget | null>;
+    /** refresh 轮次：浏览轨迹在 localStorage（非响应式源，游标随导航/外部访问移动），
+     *  hist 缓存若只依赖 flip store 则导航后不失效（2026-10-11 e2e 实证：罗盘开着连点
+     *  ↑↓ 预览停在旧游标视角、↑ 显示自指文档名）——随每轮 refresh 翻新 */
+    let histTick = $state(0);
+
+    /** 翻页模式的历史目标（navflip：仅 history 模式取用。导航成功后 refresh 换新 tree，
+     *  游标已由宿主 navigate 内 steppedTo 先行同步，histTick 令本快照随之翻新） */
+    const hist = $derived.by(() => {
+        histTick;
+        return $nav_compass_flip === "history" ? navHistoryTargets() : null;
     });
 
-    /** 各方向的语义标签（随流派翻转；aria-label/键内兜底文案共用） */
-    const dirLabel = $derived.by(() => {
-        if ($nav_compass_scheme === "hegemon") {
+    /** 流派+翻页映射：映射本体=navTree.ts navDirTargets 纯函数（单测锁死）；批量取四向。
+     *  lastChildViews=进入子文件夹位置记忆（navflip-r2，与 hist 同源 localStorage 非响应式，
+     *  在本 derived 内现读=随 tree/histTick 翻新） */
+    const dirTargets: Record<DirKey, NavDocTarget | null> | null = $derived.by(() => {
+        if (!tree) return null;
+        return navDirTargets(tree, $nav_compass_scheme, $nav_compass_flip, hist, childViews());
+    });
+
+    /** 进入子文档键的标签：位置记忆命中（目标≠首子）显示「上次浏览」，否则「首子文档」 */
+    const entryLabel = $derived.by(() => {
+        if (!tree?.firstChild || !dirTargets) return tomatoI18n.罗盘导航到首子文档;
+        const key: DirKey = $nav_compass_scheme === "hegemon" ? "right" : "down";
+        return dirTargets[key]?.id !== tree.firstChild.id
+            ? tomatoI18n.罗盘导航到上次浏览
+            : tomatoI18n.罗盘导航到首子文档;
+    });
+
+    /** 各方向的语义标签（随流派/翻页模式翻转；aria-label/键内兜底文案共用）。history 模式：
+     *  后向=历史前进，无前进目标（已在最新处）=兜底续读下一篇，沿用「后一篇」标签 */
+    const dirLabel: Record<DirKey, string> = $derived.by(() => {
+        const scheme = $nav_compass_scheme;
+        const back = tomatoI18n.罗盘导航到上一个浏览;
+        const fwd = hist?.forward ? tomatoI18n.罗盘导航到下一个浏览 : tomatoI18n.罗盘导航到后一篇;
+        if ($nav_compass_flip === "history") {
+            return scheme === "hegemon"
+                ? { up: back, down: fwd, left: tomatoI18n.罗盘导航到父文档, right: entryLabel }
+                : { up: tomatoI18n.罗盘导航到父文档, down: entryLabel, left: back, right: fwd };
+        }
+        if (scheme === "hegemon") {
             return {
                 up: tomatoI18n.罗盘导航到前一篇,
                 down: tomatoI18n.罗盘导航到后一篇,
                 left: tomatoI18n.罗盘导航到父文档,
-                right: tomatoI18n.罗盘导航到首子文档,
-            } satisfies Record<DirKey, string>;
+                right: entryLabel,
+            };
         }
         return {
             up: tomatoI18n.罗盘导航到父文档,
-            down: tomatoI18n.罗盘导航到首子文档,
+            down: entryLabel,
             left: tomatoI18n.罗盘导航到前一篇,
             right: tomatoI18n.罗盘导航到后一篇,
-        } satisfies Record<DirKey, string>;
+        };
     });
 
     async function tapDir(dir: DirKey) {
@@ -439,6 +467,13 @@
     .nv-up,
     .nv-down {
         justify-self: center;
+    }
+    /* 横臂解放拉伸（视觉终审 P1）：中排行高由 center min-height 撑起，grid 默认 stretch
+       把 ←→ 拉到与 center 齐高而 ↑↓ 保持内容高=四臂不齐 D-pad 形变；center 对齐=高度
+       回内容高，四臂同构同高，且在 center 行内垂直居中不贴顶 */
+    .nv-left,
+    .nv-right {
+        align-self: center;
     }
 
     .nv-key,

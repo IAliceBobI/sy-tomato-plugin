@@ -4,8 +4,10 @@
 // Events）解析 ↑父/↓首子/←前兄/→后兄 四方向目标与兄弟位次：
 //   ① blocks SQL 拿 box+path（物理 .sy 路径、box 相对——exportNaming syPath 同口径；
 //     SQL 形态沿 siyuanApi renameDocByID/removeDocByID 先例，id 为内核生成串无引号注入面）
-//   ② listDocsByPath(父目录) 一次 → 全部兄弟+自己位次+左右邻居（sort=15 文档自定义序，
-//     与文件树显示序同源；maxListCount=0 防 512 截尾）
+//   ② listDocsByPath(父目录) 一次 → 全部兄弟+自己位次+左右邻居（**不传 sort=跟随文件树当前
+//     排序**：内核按「父文档 IAL 声明→笔记本 conf→全局」实时解析，官方树前端同款——用户在
+//     树里调排序罗盘即时感应。旧写死 15 落「创建序 tie-break」与树序相反，2026-10-11 实证修正；
+//     maxListCount=0 防 512 截尾）
 //   ③ listDocsByPath(当前目录) 一次 → 子文档列表（→首子）
 // 父文档 id 无需再查（执行期已查证，spec 所留「按 path 求父 id」悬案落地）：盘上目录段即
 // 文档 id——kernel model/box.go Ls 直接 os.ReadDir(data/<box>/<path>)，exportNaming 的
@@ -38,6 +40,8 @@ export interface NavTree {
     parent: NavDocTarget | null;
     /** ↓ 无子文档为 null */
     firstChild: NavDocTarget | null;
+    /** 子文档全列（位置记忆的校验+取名同源：记忆目标不在列=已删/移走回落首子） */
+    children: NavDocTarget[];
     /** ← 首兄为 null */
     prevSibling: NavDocTarget | null;
     /** → 尾兄为 null */
@@ -47,18 +51,54 @@ export interface NavTree {
 /** 方向键 id（罗盘组件/快捷键/流派映射共用） */
 export type NavDir = "up" | "down" | "left" | "right";
 
+/** 翻页轴历史目标注入形（navHistory.navHistoryTargets 产物；path 恒空——跳转按 id） */
+export interface NavFlipHistory {
+    back: NavDocTarget | null;
+    forward: NavDocTarget | null;
+}
+
+/** 四方向完整映射（navTargetOf 的批量形态，罗盘 UI 与快捷键通道单一事实源）。
+ *  flip="history"（navflip 2026-10-11，bear 拍板「历史回退+尽头续读」）：流派的前后篇轴
+ *  改为浏览历史——前向=回退（back，无则置灰），后向=前进（forward），已到最新处兜底落到
+ *  下一篇兄弟（续读新篇）；父子轴不动。flip 缺省/其他值=纯兄弟序（现状）。 */
+export function navDirTargets(
+    tree: Pick<NavTree, "docID" | "parent" | "firstChild" | "children" | "prevSibling" | "nextSibling">,
+    scheme: string,
+    flip?: string,
+    hist?: NavFlipHistory | null,
+    lastChildViews?: Record<string, string>,
+): Record<NavDir, NavDocTarget | null> {
+    // 进入子文档键的位置记忆（navflip-r2）：当前文档记有最后浏览的子文档且仍在子列内
+    // → 落它，否则回落第一个子文档（记忆失效自然回落，无死循环）；两流派进入键不同
+    // （tree=down / hegemon=right）但目标同源
+    const viewed = lastChildViews?.[tree.docID];
+    const remembered = viewed && tree.children.length > 0
+        ? tree.children.find((k) => k.id === viewed) ?? tree.firstChild
+        : tree.firstChild;
+    const map: Record<NavDir, NavDocTarget | null> = scheme === "hegemon"
+        ? { up: tree.prevSibling, down: tree.nextSibling, left: tree.parent, right: remembered }
+        : { up: tree.parent, down: remembered, left: tree.prevSibling, right: tree.nextSibling };
+    if (flip === "history" && hist) {
+        if (scheme === "hegemon") {
+            map.up = hist.back;
+            map.down = hist.forward ?? tree.nextSibling;
+        } else {
+            map.left = hist.back;
+            map.right = hist.forward ?? tree.nextSibling;
+        }
+    }
+    return map;
+}
+
 /** 方向流派映射（navcompass 2026-10-11，spec 拍板 5 纯函数锚点）：默认 tree=
  *  ↑父 ↓首子 ←前兄 →后兄；hegemon=霸主流派 ←→父子 ↑↓前后篇（hierarchyNavigate
  *  习惯）。目标 null（边界）透传=调用方置灰，不回绕（拍板 6） */
 export function navTargetOf(
-    tree: Pick<NavTree, "parent" | "firstChild" | "prevSibling" | "nextSibling">,
+    tree: Pick<NavTree, "docID" | "parent" | "firstChild" | "children" | "prevSibling" | "nextSibling">,
     scheme: string,
     dir: NavDir,
 ): NavDocTarget | null {
-    const map: Record<NavDir, NavDocTarget | null> = scheme === "hegemon"
-        ? { up: tree.prevSibling, down: tree.nextSibling, left: tree.parent, right: tree.firstChild }
-        : { up: tree.parent, down: tree.firstChild, left: tree.prevSibling, right: tree.nextSibling };
-    return map[dir];
+    return navDirTargets(tree, scheme)[dir];
 }
 
 /** blocks.path（"/pid/cid.sy"，box 相对）→ 父目录路径（顶层="/"）。
@@ -118,7 +158,7 @@ export function defaultNavFetchers(): NavFetchers {
             const row = await siyuan.sqlOne(`select box,path from blocks where type='d' and id="${docID}"`);
             return row?.box && row?.path ? { box: row.box as string, path: row.path as string } : null;
         },
-        listDocs: (box, dirPath) => siyuan.listDocsByPath(box, dirPath, 15, 0),
+        listDocs: (box, dirPath) => siyuan.listDocsByPath(box, dirPath, undefined, 0),
         docName: async (docID) => {
             // 父 id 即文档根块，直接取 content（getDocNameByBlockID 的两跳在此可一步到位）
             const row = await siyuan.sqlOne(`select content from blocks where id="${docID}"`);
@@ -191,6 +231,7 @@ async function buildNavTree(docID: string, fetchers: NavFetchers): Promise<NavTr
             ? { id: parentID, name: parentName ?? "", path: `${parentDir}.sy` }
             : null,
         firstChild: kids.length > 0 ? toTarget(kids[0]) : null,
+        children: kids.map(toTarget),
         prevSibling: sib.prev ? toTarget(sib.prev) : null,
         nextSibling: sib.next ? toTarget(sib.next) : null,
     };

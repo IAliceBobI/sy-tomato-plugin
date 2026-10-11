@@ -3,17 +3,21 @@
     // 「文档管理」域域首裁出独立成域——命令开关域「日记」族自此对上家；卡内一行不动
     // （受欢迎待翻新）。共享样式见 IndexConf.css。
     import NotebookSelect from "./NotebookSelect.svelte";
+    import DocPathSelect from "./DocPathSelect.svelte";
     import {
         dailyNoteBoxCheckbox,
+        dailyNoteCopyAnchorMode,
         dailyNoteCopyAnchorText,
         dailyNoteCopyFlashMenu,
         dailyNoteCopyFragment,
+        dailyNoteCopyFragmentPlain,
         dailyNoteCopyInsertPR,
         dailyNoteCopyMenu,
         dailyNoteCopyShowPath,
         dailyNoteCopySimple,
+        dailyNoteCopyTarget,
+        dailyNoteCopyTargetDoc,
         dailyNoteCopyUpdateBG,
-        dailyNoteCopyUseRef,
         dailyNoteGoToBottom,
         dailyNoteGoToBottomMenu,
         dailyNoteMoveLeaveLnk,
@@ -91,6 +95,20 @@
             <NotebookSelect bare></NotebookSelect>
         </div>
 
+        <!-- A1 复制收集落点三档（陆杰 2026-10-11）：仅「复制到 dailynote」链生效，移动
+             内容/快记 NewFile 本就是日记/快记语义不接三档；fixed 档目标失效即清+提示重选 -->
+        <div>
+            {tomatoI18n.复制收集落点}
+            <select class="b3-select" bind:value={$dailyNoteCopyTarget}>
+                <option value="daily">{tomatoI18n.落点当日日记}</option>
+                <option value="fixed">{tomatoI18n.落点固定文档}</option>
+                <option value="source">{tomatoI18n.落点来源子文档}</option>
+            </select>
+            {#if $dailyNoteCopyTarget === "fixed"}
+                <DocPathSelect onPick={(id) => dailyNoteCopyTargetDoc.set(id)} />
+            {/if}
+        </div>
+
         <div>
             {DailyNoteBox复制到dailynote.langText()}
             <HotkeyCap hk={DailyNoteBox复制到dailynote} pluginName="sy-tomato-plugin"></HotkeyCap>
@@ -116,15 +134,29 @@
             {tomatoI18n.划词复制选中片段}
         </div>
 
+        <!-- A2 划词片段纯净档：片段级（勿与块级「简单复制」混淆），挂划词开关下 -->
+        {#if $dailyNoteCopyFragment}
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteCopyFragmentPlain} />
+                {tomatoI18n.划词片段纯净落块}
+                <div class="helpText">{tomatoI18n.划词片段纯净落块说明}</div>
+            </div>
+        {/if}
+
         {#if !$dailyNoteCopySimple}
             <div>
                 <input class="b3-text-field" bind:value={$dailyNoteCopyAnchorText} />
                 {tomatoI18n.复制到dailynote使用的锚文本}
             </div>
 
+            <!-- A3 锚三态：旧布尔「使用引用来回溯」迁移而来（true→ref/false→href），旧键留盘不再展示 -->
             <div>
-                <input type="checkbox" class="b3-switch" bind:checked={$dailyNoteCopyUseRef} />
-                {tomatoI18n.使用引用来回溯}
+                {tomatoI18n.复制锚形态}
+                <select class="b3-select" bind:value={$dailyNoteCopyAnchorMode}>
+                    <option value="ref">{tomatoI18n.锚形态引用}</option>
+                    <option value="href">{tomatoI18n.锚形态超链接}</option>
+                    <option value="none">{tomatoI18n.锚形态不挂锚}</option>
+                </select>
             </div>
 
             <div>

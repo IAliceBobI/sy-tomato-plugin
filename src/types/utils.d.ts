@@ -228,10 +228,12 @@ type TomatoSettings = {
     // gfloatnav：图内导航后自动收起悬浮面板
     graphFloatJumpClose: boolean,
     // navcompass：十字罗盘导航（第四悬浮球）——分端启用（独立默认开）+方向流派
-    //（"tree"=↑父↓首子←前兄→后兄 默认；"hegemon"=←→父子 ↑↓前后篇）
+    //（"tree"=↑父↓首子←前兄→后兄 默认；"hegemon"=←→父子 ↑↓前后篇）+翻页模式
+    //（"sibling"=前后篇兄弟序 默认；"history"=浏览历史回退/前进+最新处续读下一篇）
     nav_compass_desktop: boolean,
     nav_compass_mobile: boolean,
     nav_compass_scheme: string,
+    nav_compass_flip: string,
     graphMaxAllBlocks: string,
     graphMaxPBlocks: string,
     // graphbox 期2：默认展开层级（按标题层级 h1=1；"all"=全部展开，段落链折叠独立于档位）
@@ -311,6 +313,15 @@ type TomatoSettings = {
     dailyNoteCopyShowPath: boolean,
     dailyNoteCopyFlashCard: boolean,
     dailyNoteCopyFlashMenu: boolean,
+    /** A1 复制收集落点三档（陆杰 2026-10-11）：daily=当日日记（默认=存量零迁移）/fixed=
+     *  固定文档/source=按来源文档建子文档「收集 YYYYMMDD」；仅复制链生效（移动/快记不动） */
+    dailyNoteCopyTarget: "daily" | "fixed" | "source",
+    /** A1 fixed 档目标文档 id；失效即清+提示重选（annoCollectTargetDoc 同款） */
+    dailyNoteCopyTargetDoc: string,
+    /** A2 片段级纯净档：不套壳/不挂 custom 属性/不挂锚/直落段落+条间空行/保留行内样式 */
+    dailyNoteCopyFragmentPlain: boolean,
+    /** A3 复制锚三态：ref/href/none；旧布尔 dailyNoteCopyUseRef 迁移读源（面板不再展示） */
+    dailyNoteCopyAnchorMode: "ref" | "href" | "none",
     dbBkBoxCheckbox: boolean,
     dbBkBoxMaxBacklinkSize: number,
     dbBkBoxHideDatetime: boolean,

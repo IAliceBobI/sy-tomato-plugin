@@ -16,12 +16,13 @@ import BkFloatBall from "./BkFloatBall.svelte";
 import NavCompass from "./NavCompass.svelte";
 import { getActiveEditor, getActiveTab, openMobileFileById, openTab, type Tab, type TProtyleAction } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { nav_compass_desktop, nav_compass_mobile, nav_compass_scheme } from "./libs/stores";
+import { nav_compass_desktop, nav_compass_mobile, nav_compass_scheme, nav_compass_flip } from "./libs/stores";
 import { siyuan } from "./libs/utils";
 import { gatedAddCommand } from "./libs/cmdGate";
 import { winHotkey } from "./libs/winHotkey";
 import { noFocusAfterOpen } from "./libs/navUtils";
-import { getNavTree, invalidateNavCache, navTargetOf, type NavDir, type NavDocTarget, type NavTree } from "./libs/navTree";
+import { getNavTree, invalidateNavCache, navDirTargets, parentDirOfPath, parentIDOfDir, type NavDir, type NavDocTarget, type NavTree } from "./libs/navTree";
+import { navHistoryStepTo, navHistoryTargets, recordVisit } from "./libs/navHistory";
 import { tomatoI18n } from "./tomatoI18n";
 import { debugLog } from "./libs/logUtils";
 import type { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
@@ -143,6 +144,18 @@ export class NavFloatBox {
             const docID = detail?.protyle?.block?.rootID;
             if (!docID) return;
             this.curDocID = docID;
+            // 浏览轨迹记录（navflip）：一切入口的文档访问都入栈（罗盘历史跳转已在 navigate
+            // 成功时先行 steppedTo 移游标，此处 id===游标项幂等收敛只刷名）；标题元素随事件
+            // 现取（Events.ts:280 先例），缺省时 visitAppend 自动回填轨迹内旧名。parentID
+            // 由 protyle.path（文档 .sy 路径）解析——block.parentID 不可用：zoomIn 聚焦时
+            // 语义漂成「聚焦块父块」、顶层亦出现过自身值（2026-10-11 dev 实测脏数据），
+            // path 解析恒为文档树语义且顶层自然为 null（navflip-r2 进子文件夹位置记忆）
+            const parentID = parentIDOfDir(parentDirOfPath(detail?.protyle?.path || "")) || undefined;
+            recordVisit(
+                docID,
+                detail?.protyle?.title?.editElement?.textContent?.trim() ?? "",
+                parentID,
+            );
             if (this.compassOpen && docID !== this.compassDocID) {
                 this.compassDocID = docID;
                 void this.compassSv?.refresh?.(docID);
@@ -233,6 +246,9 @@ export class NavFloatBox {
             unmount(this.compassSv as object);
             this.compassSv = null;
         }
+        // 关罗盘即失效轻缓存：下次打开现拉——用户在文档树里调过排序（每文件夹可声明）/
+        // 增删文档，重开的罗盘即时感应（2026-10-11 反序反馈：缓存只在单次罗盘会话内有效）
+        invalidateNavCache();
         // 重挂=重读共享 lsKey（罗盘拖动后的新位置即球的新位置）+让位重算
         this.mountBall();
         debugLog("navcompass", "compass close", "nav");
@@ -387,10 +403,15 @@ export class NavFloatBox {
 
     // ---- 导航（spec 拍板 7/13：替换当前页签/手机 openMobileFileById） ----
 
-    /** 流派解析（运行时逐次读 nav_compass_scheme=设置热切即时生效；映射本体=纯函数
-     *  navTargetOf 单测锁死） */
+    /** 流派解析（运行时逐次读 nav_compass_scheme/nav_compass_flip=设置热切即时生效；
+     *  映射本体=纯函数 navDirTargets 单测锁死；history 翻页模式注入浏览历史目标） */
     private targetOf(tree: NavTree, dir: NavDir): NavDocTarget | null {
-        return navTargetOf(tree, nav_compass_scheme.get(), dir);
+        return navDirTargets(
+            tree,
+            nav_compass_scheme.get(),
+            nav_compass_flip.get(),
+            navHistoryTargets(),
+        )[dir];
     }
 
     /** 快捷键通道（罗盘未开也可用）：现拉（有轻缓存）+流派解析+跳转；罗盘开着则追平刷新。
@@ -410,13 +431,14 @@ export class NavFloatBox {
         }
     }
 
-    /** 分端打开；成功=失效轻缓存（spec 数据层节）。返回 false=打开失败（调用方 toast+重拉） */
+    /** 分端打开；成功=失效轻缓存+历史游标同步（spec 数据层节）。返回 false=打开失败（调用方 toast+重拉） */
     private async navigate(target: NavDocTarget): Promise<boolean> {
         debugLog("navcompass", `navigate → ${target.id} "${target.name}"`, "nav");
         if (this.isMobile) {
             try {
                 openMobileFileById(this.plugin.app, target.id, ["cb-get-context"] as TProtyleAction[]);
                 invalidateNavCache();
+                navHistoryStepTo(target.id); // 相邻才移游标（普通新访问不误吞）；随后事件幂等收敛
                 return true; // mobile 通道无失败回执
             } catch (e) {
                 debugLog("navcompass", `openMobileFileById failed: ${e}`, "nav");
@@ -457,6 +479,7 @@ export class NavFloatBox {
                 }
             }
             invalidateNavCache();
+            navHistoryStepTo(target.id); // 相邻才移游标（普通新访问不误吞）；随后事件幂等收敛
             return true;
         } catch (e) {
             debugLog("navcompass", `openTab failed ${target.id}: ${e}`, "nav");
