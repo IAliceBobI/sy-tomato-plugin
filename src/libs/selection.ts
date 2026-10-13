@@ -110,3 +110,106 @@ export function resolveSeedRange(wysiwyg: HTMLElement, live?: Range, toolbarRang
     if (live && wysiwyg.contains(live.startContainer)) return live;
     return toolbarRange ?? live;
 }
+
+// ---- 摘抄智能默认（2026-10-12）：拖蓝覆盖分类纯函数 ----
+// 「完整圈住 vs 部分圈住」按 range 边界与块内容边界关系算：整盖=整块摘（摘抄现行为），
+// 部分盖=截选中文字进摘抄（截取 HTML 过 Lute 保行内样式）。消费方=progressive 摘抄
+// 管线（initDi→digestUtils.getDigestMd covers 通道），输入即 fine 档返回的块集
+// （fineBlocksUnderRange 递归后的叶子/整盖容器），本函数只做边界判定不动选区。
+
+/** 单块覆盖项：full=完整圈住（整块摘现行为）；部分圈住时 clip=range 与块内容的
+ *  交集 range（cloneContents 取保样式 HTML），full=true 时缺省 */
+export interface RangeCoverItem {
+    /** 被考察的块（与入参 blocks 同引用，getDigestMd 按引用对位） */
+    block: HTMLElement;
+    full: boolean;
+    clip?: Range;
+}
+
+/** 装饰边界节点判据（review 2026-10-12 #3）：真实思源块 DOM 的非正文边界——块尾
+ *  .protyle-attr（IAL 渲染容器，contenteditable=false 内含 ZWSP，DOM 全序上恒位于
+ *  可见文本末位之后）、块首 .protyle-action（列表柄/折叠箭头，恒在正文之前）、自家
+ *  摘抄痕迹 span.prog-digest-mark（块首注入，contenteditable=false）。裸最深规范化
+ *  会走进它们：「拖到块末字后松手」的端点落在正文末位，恒够不着尾装饰深处 → 整盖
+ *  被误判部分盖（6807 实测：正文 div+.protyle-attr 含 \u200b，单块整拖 full:false，
+ *  免费用户整段拖蓝被 Pro 门禁误拦）。整盖/截取锚点一律跳过装饰取正文边界。 */
+const isEdgeDecor = (n: Node): boolean =>
+    n instanceof HTMLElement
+    && (n.classList.contains("protyle-attr") || n.classList.contains("protyle-action") || n.classList.contains("prog-digest-mark"));
+
+/** 块内容边界锚点：最深规范化（DOM 全序里 (容器, 子节点数) 恒严格大于「块内末文本
+ *  末位」，拖蓝终点几乎总落在后者，裸 selectNodeContents 比较会把「拖到块内容末尾」
+ *  误判为未整盖），下钻途中跳过装饰边界节点（isEdgeDecor）——锚点恒落在可编辑正文
+ *  的首/末位置 */
+const deepestContent = (n: Node, last: boolean): Node => {
+    let c = n;
+    while (true) {
+        let next = last ? c.lastChild : c.firstChild;
+        while (next && isEdgeDecor(next)) next = last ? next.previousSibling : next.nextSibling;
+        if (!next) break;
+        c = next;
+    }
+    return c;
+};
+
+/** 块内容全序边界（跳装饰，deepestContent 锚点）——整盖判定与截取块边界共用 */
+function contentBoundsRange(block: Element): Range {
+    const r = document.createRange();
+    r.selectNodeContents(block);
+    if (block.firstChild) {
+        const first = deepestContent(block, false);
+        const last = deepestContent(block, true);
+        r.setStart(first, 0);
+        r.setEnd(last, last.nodeType === 3 ? (last as Text).length : last.childNodes.length);
+    }
+    return r;
+}
+
+/** range 是否完整圈住块内容（锚点=正文边界，装饰不计入——「拖到块末」即整盖） */
+function rangeFullyCovers(range: Range, block: Element): boolean {
+    const r = contentBoundsRange(block);
+    return range.compareBoundaryPoints(Range.START_TO_START, r) <= 0
+        && range.compareBoundaryPoints(Range.END_TO_END, r) >= 0;
+}
+
+/** range 与块内容的交集 range：两端各取较晚/较早边界点（intersectsNode 已保证相交，
+ *  交集非空故 setStart 先于 setEnd 不越序）。块边界端点同走 contentBoundsRange——
+ *  截取片段不携装饰节点（.protyle-attr/ZWSP 不进 clip 产物）。构造失败返 null
+ *  （防御位，调用方跳过）。 */
+function intersectRange(range: Range, block: Element): Range | null {
+    const br = contentBoundsRange(block);
+    let sNode: Node = br.startContainer, sOff = br.startOffset;
+    let eNode: Node = br.endContainer, eOff = br.endOffset;
+    if (range.compareBoundaryPoints(Range.START_TO_START, br) >= 0) {
+        sNode = range.startContainer; sOff = range.startOffset;
+    }
+    if (range.compareBoundaryPoints(Range.END_TO_END, br) <= 0) {
+        eNode = range.endContainer; eOff = range.endOffset;
+    }
+    try {
+        const out = document.createRange();
+        out.setStart(sNode, sOff);
+        out.setEnd(eNode, eOff);
+        return out;
+    } catch {
+        return null;
+    }
+}
+
+/** 拖蓝 range 对块集的整盖/部分盖分类（文档序随入参；TDD 见 tests/unit/selectionCover.test.ts）。
+ *  range 缺失/collapsed（块选/光标态 collectInfo 不透传 range）→ 空结果，消费方恒走
+ *  整块摘现行为；不相交块（陈旧引用防御位）跳过不产出条目。 */
+export function coverItemsUnderRange(range: Range | undefined | null, blocks: HTMLElement[]): RangeCoverItem[] {
+    if (!range || range.collapsed || blocks.length === 0) return [];
+    const out: RangeCoverItem[] = [];
+    for (const b of blocks) {
+        if (!range.intersectsNode(b)) continue;
+        if (rangeFullyCovers(range, b)) {
+            out.push({ block: b, full: true });
+            continue;
+        }
+        const clip = intersectRange(range, b);
+        if (clip) out.push({ block: b, full: false, clip });
+    }
+    return out;
+}

@@ -2,10 +2,14 @@
     import { onMount } from "svelte";
     import type { Snippet } from "svelte";
     import { icon } from "./utils";
+    import { loadFloatBarPos, saveFloatBarPos } from "./floatBarPos";
     import { tomatoI18n } from "../tomatoI18n";
 
     // 轻量工具条容器（spec: 2026-08-24 prog-floatbar-design）：纯 position:fixed div +
-    // 原生事件拖拽 + localStorage 存位置（设备属性，不走插件配置跨设备同步）。
+    // 原生事件拖拽。位置记忆走 floatBarPos store 字典档（lsfix 2026-10-13：原 localStorage
+    // 在桌面 Electron 随机端口 origin 下跨重启必丢；「设备属性不走插件配置跨设备同步」的
+    // 旧设计随本战役退役，qeBallPos/readingFloatBallPos 先例——位置记忆进工作空间档，
+    // localStorage 降级为旧档一次性收编源，读写收拢 libs/floatBarPos.ts）。
     // 样板 sy-recite-plugin/src/FloatBar.svelte，泛化为共享组件。
     interface PropsType {
         posKey: string;
@@ -29,19 +33,18 @@
 
     let bar: HTMLElement = $state();
     // □14 双浮条撞位：消费方只有渐进两浮条（v5 未发布无存量），默认位挪左下象限与
-    // recite 浮条 (200,200) 左上错开；拖过一次后 localStorage 位置记忆接管
+    // recite 浮条 (200,200) 左上错开；拖过一次后位置记忆接管（floatBarPos 字典[posKey]）
     let x = $state(200);
     let y = $state(Math.max(0, window.innerHeight - 200));
 
     // svelte-ignore state_referenced_locally
-    // 位置键挂载时读一次即可（实例生命周期内不变，显隐变化走外层 {#if} 重挂载）
-    try {
-        const pos = JSON.parse(localStorage.getItem(posKey) ?? "null");
-        if (pos?.x != null && pos?.y != null) {
-            x = pos.x;
-            y = pos.y;
-        }
-    } catch { /* 坏数据回默认位置 */ }
+    // 位置键挂载时读一次即可（实例生命周期内不变，显隐变化走外层 {#if} 重挂载）；
+    // store 字典[posKey] 档优先，无档时收编 localStorage 旧档并落盘，均无/坏档回默认位
+    const pos = loadFloatBarPos(posKey);
+    if (pos) {
+        x = pos.x;
+        y = pos.y;
+    }
 
     function clamp() {
         if (!bar) return;
@@ -51,9 +54,8 @@
     }
 
     function save() {
-        try {
-            localStorage.setItem(posKey, JSON.stringify({ x, y }));
-        } catch { /* 私有模式等存储不可用时静默 */ }
+        // set 后紧跟 write 确定性落盘（libs/floatBarPos.ts；私有模式存储坑随 localStorage 退役不复存在）
+        saveFloatBarPos(posKey, { x, y });
     }
 
     function startDrag(e: MouseEvent) {

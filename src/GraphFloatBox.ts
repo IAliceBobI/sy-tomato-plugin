@@ -9,8 +9,9 @@
 // （测量归零→stop 误置→changeDoc 早退锁死），重开时重测量+跟进当前文档。
 // 刷新链：面板 open 才活（3s updated 指纹轮询+switch/loaded 事件跟随，藏起=零开销）；
 // 不自挂 ws（Events.addWsListener 无 remove 且 dock 侧 "tomato-graph-auto-refresh-2025"
-// 已占名——轮询指纹兜底覆盖 ws 场景）。记忆粒度全局一份（球位/面板几何由组件自带
-// localStorage；开合+球显隐本类记），全 localStorage。
+// 已占名——轮询指纹兜底覆盖 ws 场景）。记忆粒度全局一份（球位/面板几何由组件经
+// store 档记；开合+球显隐本类经 libs/graphFloatMem 记——lsfix 2026-10-13 起 localStorage
+// 因桌面端随机端口跨重启必丢，全族改工作空间档）。
 import { mount, unmount } from "svelte";
 import { writable } from "svelte/store";
 import BkFloatBall from "./BkFloatBall.svelte";
@@ -22,6 +23,7 @@ import { siyuan, sleep } from "./libs/utils";
 import { gatedAddCommand } from "./libs/cmdGate";
 import { winHotkey } from "./libs/winHotkey";
 import { graphFloatJumpClose } from "./libs/stores";
+import { loadGraphFloatBallHidden, loadGraphFloatPanelOpen, saveGraphFloatBallHidden, saveGraphFloatPanelOpen } from "./libs/graphFloatMem";
 import { tomatoI18n } from "./tomatoI18n";
 import { newID } from "stonev5-utils";
 import { debugLog } from "./libs/logUtils";
@@ -41,9 +43,8 @@ export const GraphFloatToggle = winHotkey("⌘⌥⇧E", "tomatoGraphFloatToggle"
  *  字面量=命令开关态不丢；此前无默认键故无旧键迁移 */
 export const GraphFloatBallToggle = winHotkey("⌘⌥⇧Q", "tomatoGraphFloatBallToggle", "iconEyeoff", () => tomatoI18n.显示或隐藏悬浮图球);
 
-// ---- localStorage 键（记忆粒度全局一份；面板几何/球位在组件内自带） ----
-const LS_OPEN = "tomato-gfloat-open";
-const LS_BALL_HIDDEN = "tomato-gfloat-ball-hidden";
+// ---- 记忆档（lsfix 2026-10-13：开合/球显隐走 graphFloatMem 工作空间档，localStorage
+// 旧键由读侧一次性收编；面板几何/球位在组件内自带档） ----
 
 function gfLog(tag: string, msg: string) {
     debugLog(tag, msg, "graphbox");
@@ -93,8 +94,8 @@ class GraphFloatBox {
     async onload(plugin: BaseTomatoPlugin) {
         this.plugin = plugin;
         this.alive = true;
-        this.userHidden = localStorage.getItem(LS_BALL_HIDDEN) === "1";
-        this.pendingOpen = localStorage.getItem(LS_OPEN) === "1";
+        this.userHidden = loadGraphFloatBallHidden();
+        this.pendingOpen = loadGraphFloatPanelOpen();
         this.ballHiddenStore.set(this.userHidden);
 
         // 挂载序即绘制序：面板先挂、球后挂（同 z-index 10 下后者在上=面板不压球，BkFloat 同款）
@@ -192,9 +193,7 @@ class GraphFloatBox {
         if (!this.alive || this.panelOpen) return;
         this.panelOpen = true;
         this.panelOpenStore.set(true);
-        try {
-            localStorage.setItem(LS_OPEN, "1");
-        } catch { /* 会话内生效 */ }
+        saveGraphFloatPanelOpen(true);
         this.applyBallNudge();
         if (!this.graphSv) {
             void this.mountGraph();
@@ -218,11 +217,7 @@ class GraphFloatBox {
         this.panelOpenStore.set(false);
         this.setShift(null);
         this.stopPolling();
-        if (persist) {
-            try {
-                localStorage.setItem(LS_OPEN, "0");
-            } catch { /* 会话内生效 */ }
-        }
+        if (persist) saveGraphFloatPanelOpen(false);
         gfLog("gfloat.panel_close", "");
     }
 
@@ -379,9 +374,7 @@ class GraphFloatBox {
     private toggleBallHidden() {
         this.userHidden = !this.userHidden;
         this.ballHiddenStore.set(this.userHidden);
-        try {
-            localStorage.setItem(LS_BALL_HIDDEN, this.userHidden ? "1" : "0");
-        } catch { /* 会话内生效 */ }
+        saveGraphFloatBallHidden(this.userHidden);
         // 恢复显示补让位（隐藏期间面板可能已挪到球记忆位上）；隐藏方向无需（display:none 测全零）
         if (!this.userHidden) this.applyBallNudge();
         gfLog("gfloat.ball_hidden", `${this.userHidden}`);

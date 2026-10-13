@@ -2,15 +2,20 @@
 // 收缩态 = 36px 悬浮球（iconEdit，与右键菜单项同 icon 视觉同族）。点击=展开、拖拽=移动
 // （位移平方和阈值判定）；钉住态挂 iconPin 迷你角标；hover 气泡 = aria-label + b3-tooltips
 // （钉住态「📌 文档名 › 节标题」与面板面包屑同构，跟随态=当前文档名）；z-index=10 常驻
-// 浮层安全档。位置模型=纯像素 x/y，clamp 屏内（复用 ballGeometry）、localStorage 持久化。
+// 浮层安全档。位置模型=纯像素 x/y，clamp 屏内（复用 ballGeometry）、qeBallPos
+// settingFactory 持久化（qeballfix 2026-10-13：思源桌面 Electron 每次启动给内核随机
+// 端口，origin 含端口变=localStorage 换格子清空，跨重启必丢——群实报；localStorage
+// 降级为旧档一次性收编源）。
 // □5 起常驻（onload 即挂），拖拽通道=pointer 事件 + setPointerCapture（抄 ReadingBallHelper
 // □4 骨架：旧 mouse 通道的 document mousemove 挂载正常却从不被 trusted 事件触发——真机
 // 拖不动的同款怪癖；捕获期 pointermove/up 定向派发到本元素绕开。tap/拖拽全 pointer 层
 // 单源，球本体合成 click 由 clickGuard 吞防双触发）。
 import { clampBallPos } from "./ballGeometry";
 import { icon } from "./domUtils";
+import { qeBallPos } from "./stores";
 
 export const QE_BALL_SIZE = 36;
+// 旧档收编源（qeballfix 前的主档，仅 loadQEBallPos 读）
 const LS_X = "块编辑器收缩球_x";
 const LS_Y = "块编辑器收缩球_y";
 const CLICK_THRESHOLD = 4; // px，分量平方和比对（FloatingBallHelper 同源）
@@ -36,8 +41,21 @@ export function isQEBallClick(dx: number, dy: number, threshold = CLICK_THRESHOL
     return dx * dx + dy * dy <= threshold * threshold;
 }
 
+/** 球位存档读取：qeBallPos 档优先；无档时收编 localStorage 旧档（固定端口环境有真值，
+ *  桌面端随机端口 origin 下恒空）并落新档。均无→null（调用方回默认 16,16） */
 export function loadQEBallPos(): { x: number; y: number } | null {
-    return parseQEBallPos(localStorage.getItem(LS_X), localStorage.getItem(LS_Y));
+    const p = qeBallPos.get();
+    if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) return p;
+    const legacy = parseQEBallPos(localStorage.getItem(LS_X), localStorage.getItem(LS_Y));
+    if (legacy) saveQEBallPos(legacy);
+    return legacy;
+}
+
+/** 球位落盘（拖拽松手/旧档收编共用）：set 后紧跟 write 确定性落盘
+ *  （settingFactory.set 只写内存不落盘，搭车不可靠——stores.ts 注释） */
+export function saveQEBallPos(p: { x: number; y: number }) {
+    qeBallPos.set(p);
+    void qeBallPos.write();
 }
 
 // ---------- 球元素（命令式挂 body，样式在 index.scss .qe-ball 系） ----------
@@ -142,9 +160,7 @@ export class QEBall {
         if (this.isDragging) {
             this.isDragging = false;
             this.el.classList.remove("qe-ball--dragging");
-            const p = this.pos();
-            localStorage.setItem(LS_X, String(p.x));
-            localStorage.setItem(LS_Y, String(p.y));
+            saveQEBallPos(this.pos());
             return;
         }
         this.opts.onClick();

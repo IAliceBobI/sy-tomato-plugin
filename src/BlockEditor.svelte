@@ -9,6 +9,7 @@
     import { secsFromChildRows } from "./libs/qeSecs";
     import { currentBockEditorDocID, currentProtyle, events } from "./libs/Events";
     import { navSourceBlock } from "./libs/stores";
+    import { loadSideLayout, loadSideRatio, saveSideLayout, saveSideRatio } from "./libs/blockEditorSide";
 
     interface Props {
         dm: DestroyManager;
@@ -41,19 +42,14 @@
     let secCollapsed = $state(false);
     let secTouched = false;
     // 侧边布局（blockside □2）：左目录右内容两栏独立滚动。移动端恒上下（钮不渲染）；
-    // 记忆走 localStorage 不进设置面板（brainstorm 定稿）；与 secCollapsed 正交——收起语义
-    // 只属上下布局，侧边布局下节列表=侧栏主体恒展开（钉单块不自动收侧栏同此守卫）
-    const SIDE_LAYOUT_KEY = "块编辑器布局_side";
-    let sideLayout = $state(!events.isMobile && localStorage.getItem(SIDE_LAYOUT_KEY) === "1");
+    // 记忆走 blockEditorSideLayout 工作空间档不进设置面板（brainstorm 定稿；lsfix 2026-10-13：
+    // 原 localStorage 桌面端随机端口换 origin 跨重启必丢，旧档由 loadSideLayout 一次性收编）；
+    // 与 secCollapsed 正交——收起语义只属上下布局，侧边布局下节列表=侧栏主体恒展开
+    // （钉单块不自动收侧栏同此守卫）
+    let sideLayout = $state(loadSideLayout(events.isMobile));
     // 侧栏比例（blockside □3）：15%~50% clamp；拖动事件驱动直写 $state（勿 $effect 回放——依赖集
-    // 含被写状态会被旧值打回，复习界面拖不动+振荡同根因）；pointerup 落 localStorage
-    const SIDE_RATIO_KEY = "块编辑器侧栏比例";
+    // 含被写状态会被旧值打回，复习界面拖不动+振荡同根因）；pointerup 落 blockEditorSideRatio 档
     let sideRatio = $state(loadSideRatio());
-
-    function loadSideRatio(): number {
-        const v = parseFloat(localStorage.getItem(SIDE_RATIO_KEY) || "");
-        return isNaN(v) ? 0.32 : Math.min(0.5, Math.max(0.15, v));
-    }
 
     function startSideDrag(e: PointerEvent & { currentTarget: HTMLElement }) {
         e.preventDefault();
@@ -71,7 +67,8 @@
             handle.releasePointerCapture?.(ev.pointerId);
             handle.removeEventListener("pointermove", move);
             handle.removeEventListener("pointerup", up);
-            localStorage.setItem(SIDE_RATIO_KEY, String(sideRatio));
+            // set 后紧跟 write 确定性落盘（saveSideRatio 薄壳，旧 localStorage 已退役）
+            saveSideRatio(sideRatio);
         };
         handle.addEventListener("pointermove", move);
         handle.addEventListener("pointerup", up);
@@ -84,7 +81,8 @@
 
     function toggleLayout() {
         sideLayout = !sideLayout;
-        if (!events.isMobile) localStorage.setItem(SIDE_LAYOUT_KEY, sideLayout ? "1" : "0");
+        // 移动端恒上下不落盘（既有守卫；saveSideLayout=set+write 确定性落盘薄壳）
+        if (!events.isMobile) saveSideLayout(sideLayout);
         if (sideLayout) secCollapsed = false;
         // 布局分支切换=editor 容器换新节点，protyle 须重挂（与点击节的实例重建同款成本）
         const cur = selectedBlockID;
@@ -304,7 +302,7 @@
                     onclick={toggleSecs}>{@html icon(secCollapsed ? "iconRight" : "iconDown", 14)}</button
                 >
                 <!-- 布局切换（blockside □2）：上下↔侧边，态显操作方向（与折叠钮同约定）；
-                     记忆 localStorage；移动端恒上下无此钮 -->
+                     记忆走工作空间档（saveSideLayout）；移动端恒上下无此钮 -->
                 {#if !events.isMobile}
                     <button
                         aria-label={sideLayout ? tomatoI18n.切换为上下布局 : tomatoI18n.切换为侧边布局}

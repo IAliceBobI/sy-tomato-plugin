@@ -2,9 +2,10 @@
 <!-- 速记器小窗静态页（quicknote □1 2026-09-07；□4 窗口统一化升级）：零思源前端、
      零插件加载、无框架。经内核静态服务加载（…/plugins/sy-tomato-plugin/quicknote/quicknote.html）。
      回传通道=BroadcastChannel "quicknote"（与思源主窗同 origin，渲染进程间直通）：
-     页面→插件 {type:'hello'|'submit'|'close'|'icon'|'keep'|'openDaily'|'sync'}
-       （submit 带 icon=chips 现值 / keep=连续输入现值；hello=就绪请求初始态）
-     插件→页面 {type:'state'|'done'|'failed'}（state=类型集/当前类型/连续输入）。
+     页面→插件 {type:'hello'|'submit'|'close'|'icon'|'keep'|'openDaily'|'sync'|'draft'}
+       （submit 带 icon=chips 现值 / keep=连续输入现值；hello=就绪请求初始态；
+        draft 带 text=草稿防抖现值，lsfix 起草稿经插件侧落工作空间档）
+     插件→页面 {type:'state'|'done'|'failed'}（state=类型集/当前类型/连续输入/草稿）。
      深浅色跟随系统 prefers-color-scheme（不经思源前端，b3 变量不可用）。 -->
 <html lang="zh-CN">
 
@@ -341,19 +342,21 @@
         // 就绪即请求初始态（插件侧唤起 show 时也会推，覆盖面板侧的改动）
         ch.postMessage({ type: "hello" });
 
-        // 草稿持久化（qn-robust）：池化窗收起不丢草稿，但思源重启窗即销毁——localStorage
-        // 兜底（同 origin 持久、各实例端口自然隔离）：加载恢复、输入防抖落盘、保存成功
-        // 清除；Esc/失焦收起不清（草稿保留语义不变）。隐私模式等存取失败=退化为纯内存草稿
-        const DRAFT_KEY = "quicknote-draft";
+        // 草稿持久化（qn-robust → lsfix 2026-10-13）：池化窗收起不丢草稿，但思源重启窗即
+        // 销毁——原 localStorage 兜底在桌面端随机端口下每次重启换 origin 格子清空（qeBall
+        // 同病根），改经 BroadcastChannel 交插件侧落工作空间档（quickNoteDraft store）：
+        // 输入防抖 300ms post draft→插件写档；恢复走 state.draft（hello/每次 show 均推）；
+        // 保存成功插件清档+done 清输入。Esc/失焦收起不清（草稿保留语义不变）。
+        // draftDirty=本地在途标记（input 起置位、防抖发出清零）：state.draft 只在无在途
+        // 输入且输入框为空时应用——页面是草稿唯一生产者，框内非空恒比档上新鲜，重推不回灌
         let draftTimer = 0;
-        try {
-            const savedDraft = localStorage.getItem(DRAFT_KEY);
-            if (savedDraft) input.value = savedDraft;
-        } catch { /* localStorage 不可用 */ }
+        let draftDirty = false;
         input.addEventListener("input", () => {
+            draftDirty = true;
             clearTimeout(draftTimer);
             draftTimer = setTimeout(() => {
-                try { localStorage.setItem(DRAFT_KEY, input.value); } catch { /* 同上 */ }
+                draftDirty = false;
+                ch.postMessage({ type: "draft", text: input.value });
             }, 300);
         });
 
@@ -395,6 +398,11 @@
                 if (typeof m.icon === "string" && m.icon) icon = m.icon;
                 if (typeof m.keep === "boolean") keep = m.keep;
                 if (typeof m.opacity === "number" && m.opacity > 0 && m.opacity <= 1) setOpacityUI(m.opacity);
+                // 草稿恢复（lsfix）：无在途输入且框为空才应用（防抖在途的现打文本/池化窗
+                // 旧文优先于档上稿，空稿不写无意义）——编程赋值不触发 input 事件，无回环
+                if (!draftDirty && input.value === "" && typeof m.draft === "string" && m.draft) {
+                    input.value = m.draft;
+                }
                 renderChips();
                 btnKeep.classList.toggle("on", keep);
                 return;
@@ -402,7 +410,9 @@
             if (m.type === "done") {
                 clearTimeout(ackTimer);
                 input.value = "";
-                try { localStorage.removeItem(DRAFT_KEY); } catch { /* 同上 */ }
+                // 保存成功=插件侧已清草稿档；作废在途防抖（发出也只会 post 空稿冗余）
+                clearTimeout(draftTimer);
+                draftDirty = false;
                 input.focus();
                 sending = false;
             } else if (m.type === "failed") {

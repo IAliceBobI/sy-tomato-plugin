@@ -6,7 +6,9 @@
      window 监听+pointercancel 兜底——pointer capture 刻意延迟到「越阈确非点击」才上
      （svelte.md 坑：pointerdown 即捕获会把后续 pointerup/click 重定向到捕获元素，
      内嵌方向键的 onclick 全灭）；越阈后另以根节点 capture 期 click 守卫兜底吞误点。
-     位置与球共享同一 lsKey（变身语义：同屏只一个）；手机端 touchmove 拦截=阻断滚动链
+     位置与球共享同一 lsKey（变身语义：同屏只一个，落 floatBallPos 字典档——lsfix
+     2026-10-13：桌面 Electron 随机端口 origin 下 localStorage 跨重启必丢，旧档读侧
+     一次性收编，见 libs/navCompassPos.ts）；手机端 touchmove 拦截=阻断滚动链
      与思源左右滑切页签手势（touchstart 只 stopPropagation 不 preventDefault——
      preventDefault 会吞合成 click，方向键点不动）。 -->
 <script lang="ts">
@@ -14,6 +16,7 @@
     import type { Writable } from "svelte/store";
     import { icon } from "./libs/utils";
     import { nav_compass_scheme, nav_compass_flip } from "./libs/stores";
+    import { loadNavCompassPos, saveNavCompassPos } from "./libs/navCompassPos";
     import { getNavTree, navDirTargets, type NavDocTarget, type NavTree } from "./libs/navTree";
     import { childViews, navHistoryTargets } from "./libs/navHistory";
     import { tomatoI18n } from "./tomatoI18n";
@@ -79,33 +82,17 @@
     }
 
     function loadPos() {
-        const fallback = () => {
-            const p = defPos();
-            x = p.x;
-            y = p.y;
-        };
-        try {
-            const raw = localStorage.getItem(lsKey);
-            if (raw) {
-                const p = JSON.parse(raw);
-                x = Number(p?.x);
-                y = Number(p?.y);
-                if (!Number.isFinite(x) || !Number.isFinite(y)) fallback();
-            } else {
-                fallback();
-            }
-        } catch {
-            fallback();
-        }
+        // floatBallPos 字典档优先（lsKey 与球共享同一键），无档回 defPos 兜底位
+        // （lsfix 2026-10-13：localStorage 旧档由 loadNavCompassPos 读侧一次性收编）
+        const p = loadNavCompassPos(lsKey) ?? defPos();
+        x = p.x;
+        y = p.y;
         applyPos();
     }
 
     function savePos() {
-        try {
-            localStorage.setItem(lsKey, JSON.stringify({ x, y }));
-        } catch {
-            /* 存储满/隐私模式：位置仅会话内生效 */
-        }
+        // set 后紧跟 write 确定性落盘（settingFactory.set 只写内存，搭车不可靠）
+        saveNavCompassPos(lsKey, { x, y });
     }
 
     function onDown(e: PointerEvent) {

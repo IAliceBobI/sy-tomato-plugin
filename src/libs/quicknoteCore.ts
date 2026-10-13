@@ -16,7 +16,7 @@ export const PLAIN_KIND = "纯文本";
 export const QN_CHANNEL = "quicknote";
 
 /** 小窗 → 插件 的合法消息形态（□4 窗口统一化扩协议：hello/openDaily/sync/icon/keep/submit 带类型；
- *  qn-actions □2 扩 opacity 透明度档位）。
+ *  qn-actions □2 扩 opacity 透明度档位；lsfix 扩 draft 草稿防抖上报——写工作空间档跨重启兜底）。
  *  close 带可选 at=blur 因果时刻（迟到守卫见 qnCloseStale） */
 export type QnMsg =
     | { type: "hello" }
@@ -26,6 +26,7 @@ export type QnMsg =
     | { type: "opacity"; v: number }
     | { type: "icon"; icon: string }
     | { type: "keep"; keep: boolean }
+    | { type: "draft"; text: string }
     | { type: "submit"; text: string; icon?: string; keep?: boolean };
 
 /** IPC 消息解析与防御：文本/图标 trim、空值拒绝、可选字段非法即剔除；非法负载一律 null（调用方静默丢弃） */
@@ -56,6 +57,13 @@ export function qnParseMsg(data: unknown): QnMsg | null {
         const { keep } = data as Record<string, unknown>;
         if (typeof keep !== "boolean") return null;
         return { type: "keep", keep };
+    }
+    if (type === "draft") {
+        // lsfix 草稿防抖上报：text 原样收下不 trim（草稿=框内逐字现值，trim 破坏恢复
+        // 保真，与 submit 的 trim 语义分流），空串=清稿合法态（全删也是一次草稿变更）
+        const { text } = data as Record<string, unknown>;
+        if (typeof text !== "string") return null;
+        return { type: "draft", text };
     }
     if (type !== "submit") return null;
     const { text, icon, keep } = data as Record<string, unknown>;

@@ -1,12 +1,19 @@
 <!-- 悬浮反链面板外壳（bkfloat □4）：position:fixed 单例挂 body；头栏=文档标题+透明度
      滑杆（0.40~1.00 step 0.05 默认 1.0）+收起钮；正文容器由宿主 BkFloat.ts mount
-     BackLinkBottom（BKMaker 同款 props）；右下 SE 角 resize 手柄。拖拽/resize/几何/
-     透明度 localStorage 记忆（DialogSvelte pointer 实现+key 模式，简化为 SE 单向）。
+     BackLinkBottom（BKMaker 同款 props）；右下 SE 角 resize 手柄。拖拽/resize/几何/透明度
+     bkFloatPanelGeo 工作空间档记忆（lsfix 2026-10-13：原 localStorage 桌面端随机端口下
+     跨重启必丢，读写收拢 libs/bkFloatPanelGeo.ts 并一次性收编旧档）（DialogSvelte
+     pointer 实现+key 模式，简化为 SE 单向）。
      显隐走 hidden class 而非 {#if}：bodyEl 恒在，正文组件生命周期完全由宿主管
      （收起=宿主先 unmount 正文停其刷新，再翻 open），容器测量类副作用不重烧。 -->
 <script lang="ts">
     import { onMount } from "svelte";
     import type { Writable } from "svelte/store";
+    import {
+        BK_FLOAT_PANEL_MIN_OPACITY as MIN_OPACITY,
+        loadBkFloatPanelGeo,
+        saveBkFloatPanelGeo,
+    } from "./libs/bkFloatPanelGeo";
     import { icon } from "./libs/utils";
     import { tomatoI18n } from "./tomatoI18n";
 
@@ -31,7 +38,6 @@
     }
     let { open, title, onCollapse, onBody, panelKeyHint, onGeoChange, onTools, fallbackTitle = "", bare = false }: Props = $props();
 
-    const LS_KEY = "tomato-bkfloat-panel";
     const MIN_W = 320;
     const MIN_H = 260;
     /** 默认宽高（spec：~520×420）与落位：右下角、离底 60px 让开状态栏 */
@@ -39,8 +45,6 @@
     const DEF_H = 420;
     const BOTTOM_CLEAR = 60;
     const EDGE = 24;
-    /** 透明度下限即滑杆 min（0.40），上限 1.00 */
-    const MIN_OPACITY = 0.4;
 
     let root: HTMLElement = $state();
     let bodyEl: HTMLElement = $state();
@@ -49,14 +53,6 @@
     let y = 0;
     let w = DEF_W;
     let h = DEF_H;
-
-    interface Geo {
-        x: number;
-        y: number;
-        w: number;
-        h: number;
-        o: number;
-    }
 
     function clampV(v: number, min: number, max: number) {
         return Math.max(min, Math.min(max, v));
@@ -77,40 +73,28 @@
     }
 
     function loadGeo() {
-        const fallback = () => {
+        // 读档收拢 libs/bkFloatPanelGeo（store 档优先，旧 localStorage 档一次性收编）；
+        // 无档/坏档回默认：右下角、离底 60px 让开状态栏（容错守卫在收编侧，此处拿到即有效）
+        const p = loadBkFloatPanelGeo();
+        if (p) {
+            x = p.x;
+            y = p.y;
+            w = p.w;
+            h = p.h;
+            opacity = p.o;
+        } else {
             w = DEF_W;
             h = DEF_H;
             opacity = 1;
             x = Math.max(0, window.innerWidth - DEF_W - EDGE);
             y = Math.max(0, window.innerHeight - DEF_H - BOTTOM_CLEAR);
-        };
-        try {
-            const raw = localStorage.getItem(LS_KEY);
-            if (raw) {
-                const p = JSON.parse(raw) as Partial<Geo>;
-                w = Number(p?.w);
-                h = Number(p?.h);
-                x = Number(p?.x);
-                y = Number(p?.y);
-                const o = Number(p?.o);
-                opacity = Number.isFinite(o) ? clampV(o, MIN_OPACITY, 1) : 1;
-                if (![w, h, x, y].every(Number.isFinite)) fallback();
-            } else {
-                fallback();
-            }
-        } catch {
-            fallback();
         }
         applyGeo();
     }
 
     function saveGeo() {
-        try {
-            const p: Geo = { x, y, w, h, o: opacity };
-            localStorage.setItem(LS_KEY, JSON.stringify(p));
-        } catch {
-            /* 存储满/隐私模式：几何仅会话内生效 */
-        }
+        // 落盘收拢 libs/bkFloatPanelGeo（store.set 后紧跟 write 确定性落盘）
+        saveBkFloatPanelGeo({ x, y, w, h, o: opacity });
     }
 
     // ---- 头栏拖动（DialogSvelte pointer 实现同族） ----

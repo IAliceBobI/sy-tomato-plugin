@@ -3,10 +3,16 @@
 // （回到上一个浏览过的文档，跨文件夹），「后向」=历史前进；已在最新处再翻后向=兜底落到下一篇
 // 兄弟文档（续读新篇）——旧轨迹回看与顺序阅读两不误。浏览器式分叉：中途回退后打开新文档=
 // 截断其后前向分支再追加。
-// 存储：localStorage（浏览轨迹是本机行为，不进设置文件防 settings 落盘搭车、不进插件数据防
-// 云同步扰动）；封顶 200 条丢最旧。事件记录名缺省回填：先在轨迹里找同 id 旧名。
+// 存储：navHistory settingFactory 档（lsfix 2026-10-13 家族战役）——原走 localStorage
+// （不进设置文件防落盘搭车、不进插件数据防云同步扰动），但思源桌面 Electron 壳每次启动
+// 给内核随机端口，origin 含端口变=localStorage 换格子清空，跨重启必丢（qeBallPos 同病根），
+// 该拍板前提失效，bear 知情后迁工作空间档；localStorage 旧档由 loadState 无档时一次性
+// 收编。两个代价：轨迹将随工作空间云同步=多端互相覆盖（行为变化，发版 notes 知会）；
+// recordVisit 写频高（每次切文档），saveState 防抖攒批落盘防设置文件写放大。
+// 封顶 200 条丢最旧。事件记录名缺省回填：先在轨迹里找同 id 旧名。
 // 纯函数（visitAppend/steppedTo/back·forwardTargetOf）为单测锚点；IO 薄壳 loadState/save。
 
+import { navHistory } from "./stores";
 import type { NavDocTarget } from "./navTree";
 
 export interface NavHistoryEntry {
@@ -78,28 +84,53 @@ export function markChildView(s: NavHistoryState, parentID: string, childID: str
     return { ...s, p: { ...(s.p ?? {}), [parentID]: childID } };
 }
 
-// ---- IO 薄壳（localStorage；损坏/隐私模式静默归零，浏览历史非关键数据） ----
+// ---- IO 薄壳（navHistory store；损坏/隐私模式静默归零，浏览历史非关键数据） ----
 
+// 旧档收编源（lsfix 前的主档，仅 loadState 无 store 档时读一次）
 const LS_KEY = "sy-tomato-plugin__nav-history-v1";
+// 防抖落盘窗口：recordVisit 每次切文档都写（写频高），攒批落盘防设置文件写放大
+const WRITE_DEBOUNCE_MS = 500;
 
 let state: NavHistoryState | null = null;
+let writeTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** 档案结构校验（v===1 语义保留）：坏档返回 null（调用方归零）；条目逐个滤非字符串 id */
+function parseState(p: any): NavHistoryState | null {
+    if (p?.v === 1 && Array.isArray(p.t)
+        && Number.isInteger(p.c) && p.c >= -1 && p.c < p.t.length) {
+        return {
+            v: 1,
+            t: p.t.filter((entry: NavHistoryEntry) => typeof entry?.i === "string"),
+            c: p.c,
+            ...(p.p && typeof p.p === "object" ? { p: p.p as Record<string, string> } : {}),
+        };
+    }
+    return null;
+}
+
+/** 有真值判定：轨迹或位置记忆任一非空（空档=从未写过，才去探测收编旧档） */
+function hasPayload(s: NavHistoryState): boolean {
+    return s.t.length > 0 || (s.p != null && Object.keys(s.p).length > 0);
+}
 
 function loadState(): NavHistoryState {
     if (state) return state;
+    // store 档优先（工作空间档，桌面端随机端口下也稳）
+    const stored = parseState(navHistory.get());
+    if (stored && hasPayload(stored)) {
+        state = stored;
+        return state;
+    }
+    // store 空档：收编 localStorage 旧档一次并落新档（固定端口环境有真值，桌面端随机
+    // 端口 origin 下恒空）；坏档/隐私模式静默归零
     try {
         const raw = localStorage.getItem(LS_KEY);
-        if (raw) {
-            const p = JSON.parse(raw);
-            if (p?.v === 1 && Array.isArray(p.t)
-                && Number.isInteger(p.c) && p.c >= -1 && p.c < p.t.length) {
-                state = {
-                    v: 1,
-                    t: p.t.filter((e: NavHistoryEntry) => typeof e?.i === "string"),
-                    c: p.c,
-                    ...(p.p && typeof p.p === "object" ? { p: p.p as Record<string, string> } : {}),
-                };
-                return state;
-            }
+        const legacy = raw ? parseState(JSON.parse(raw)) : null;
+        if (legacy && hasPayload(legacy)) {
+            state = legacy;
+            navHistory.set(legacy);
+            void navHistory.write(); // 收编是一次性事件，即时落盘不走防抖
+            return state;
         }
     } catch { /* 损坏归零 */ }
     state = emptyNavHistory();
@@ -108,9 +139,14 @@ function loadState(): NavHistoryState {
 
 function saveState(next: NavHistoryState) {
     state = next;
-    try {
-        localStorage.setItem(LS_KEY, JSON.stringify(next));
-    } catch { /* 存储满/隐私模式：轨迹仅会话内生效 */ }
+    navHistory.set(next); // 内存层即时一致（清缓存重读/store 订阅者立刻可见）
+    // 落盘防抖攒批：set 只写内存不落盘、搭车不可靠（saveQEBallPos 教训）须紧跟 write，
+    // 但 recordVisit 写频高（每次切文档）不能逐写——数百 ms 窗口合并，落盘恒为窗口终态
+    if (writeTimer != null) clearTimeout(writeTimer);
+    writeTimer = setTimeout(() => {
+        writeTimer = null;
+        void navHistory.write();
+    }, WRITE_DEBOUNCE_MS);
 }
 
 /** 浏览事件记录（switch/loaded protyle 时调；name 可空——取自事件标题元素，缺省回填旧名；
@@ -138,7 +174,7 @@ export function navHistoryTargets(): { back: NavDocTarget | null; forward: NavDo
     return { back: backTargetOf(s), forward: forwardTargetOf(s) };
 }
 
-/** 单测/调试通道：替换底层状态（传 null=清缓存，下次访问从 localStorage 重读） */
+/** 单测/调试通道：替换底层状态（传 null=清缓存，下次访问从 store 重读） */
 export function __setNavHistoryForTest(s: NavHistoryState | null) {
     state = s;
 }

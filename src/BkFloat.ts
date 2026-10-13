@@ -3,7 +3,9 @@
 // 计数（复用入口条同款 getBacklink2 containChildren=true + cachedEntryCount/applyEntryCount
 // revision 缓存）；面板正文=mount(BackLinkBottom, BKMaker 同款 props)（BKMaker 仅作
 // 接口壳不 doTheWork：container 指面板正文容器当查询根，刷新轮询由本类接管）。
-// 记忆粒度全局一份：球位/面板几何+透明度/面板开合/球显隐，全 localStorage。
+// 记忆粒度全局一份：球位/面板几何+透明度/面板开合/球显隐——lsfix 2026-10-13 前全走
+// localStorage（桌面端随机端口跨重启必丢，qeBallPos 同病根），现全落工作空间档
+// （开合/球显隐=libs/bkFloatMem，面板几何=libs/bkFloatPanelGeo，球位=floatBallPos 字典）。
 // float OFF/移动端路径零改动：本类只在 BackLinkBottomBox.onload（主开关 ON 后）实例化。
 import { mount, unmount } from "svelte";
 import { writable } from "svelte/store";
@@ -15,6 +17,7 @@ import type { BackLinkBottomBox } from "./BackLinkBottomBox";
 import type { Protyle } from "siyuan";
 import { events } from "./libs/Events";
 import { back_link_float, back_link_float_ball_stay, bk_refresh_interval_sec, bk_visible_only } from "./libs/stores";
+import { loadBkFloatBallHidden, loadBkFloatPanelOpen, saveBkFloatBallHidden, saveBkFloatPanelOpen } from "./libs/bkFloatMem";
 import { icon, isProtyleVisible, siyuan } from "./libs/utils";
 import { cachedEntryCount, applyEntryCount } from "./libs/bkRevision";
 import { gatedAddCommand } from "./libs/cmdGate";
@@ -48,9 +51,8 @@ export const BKFloatToggle = winHotkey("ctrl+alt+b", "tomatoBkFloatToggle", "ico
  * Chromium 实测通过不可外推 Chrome 应用），唯 X 双平台干净故取之 */
 export const BKFloatBallToggle = winHotkey("ctrl+shift+x", "tomatoBkFloatBallToggle", "iconEyeoff", () => tomatoI18n.显示或隐藏悬浮反链球);
 
-// ---- localStorage 键（记忆粒度全局一份，DialogSvelte useBrowserStorage 同哲学） ----
-const LS_OPEN = "tomato-bkfloat-open";
-const LS_BALL_HIDDEN = "tomato-bkfloat-ball-hidden";
+// ---- 开合/球显隐记忆：libs/bkFloatMem 工作空间档（lsfix 2026-10-13 迁出 localStorage，
+// ---- 旧键 tomato-bkfloat-open/tomato-bkfloat-ball-hidden 由其读侧一次性收编） ----
 
 const refreshIntervalMs = () => Math.max(2, Number(bk_refresh_interval_sec.get()) || 15) * 1000;
 
@@ -105,8 +107,8 @@ export class FloatBacklinkBox {
     async onload(plugin: BaseTomatoPlugin) {
         this.plugin = plugin;
         this.alive = true;
-        this.userHidden = localStorage.getItem(LS_BALL_HIDDEN) === "1";
-        this.pendingOpen = localStorage.getItem(LS_OPEN) === "1";
+        this.userHidden = loadBkFloatBallHidden();
+        this.pendingOpen = loadBkFloatPanelOpen();
         this.syncBallVisibility();
         // 球驻留模式热生效：非结构性键不整重载，store 值变（面板 bind/他端 dataChange）即重算。
         // subscribe 首拍即回调一次，与上方 syncBallVisibility 幂等无副作用
@@ -193,7 +195,7 @@ export class FloatBacklinkBox {
 
     /** 共存模式防遮挡让位（vision P1）：面板开启期间球的记忆位若与面板矩形相交，会浮在
      *  面板上压住头栏控件——临时让位到面板上方（空间不足依次左/右/下方），只下发视觉
-     *  偏移不写球的 localStorage 记忆位，收起面板/拖球即回原位。旧互斥模式球本就藏、
+     *  偏移不写球的记忆位（floatBallPos 档），收起面板/拖球即回原位。旧互斥模式球本就藏、
      *  无此问题（恒清空偏移）。rAF 等 Svelte store→class 刷新后测量（hidden 翻转前
      *  rect 全零），幂等可重入；相交判定与偏移目标都对记忆基准位求（复评 P1-1） */
     private applyBallNudge() {
@@ -284,9 +286,7 @@ export class FloatBacklinkBox {
         this.panelOpenStore.set(true);
         this.syncBallVisibility();
         this.applyBallNudge();
-        try {
-            localStorage.setItem(LS_OPEN, "1");
-        } catch { /* 会话内生效 */ }
+        saveBkFloatPanelOpen(true);
         this.remountContent();
         debugLog("bkfloat", `panel open doc=${this.curDocID}`, "bk");
     }
@@ -302,11 +302,9 @@ export class FloatBacklinkBox {
         this.syncBallVisibility();
         // 让位偏移随面板收起解除（球回记忆原位；rAF 内 null 与 syncBallVisibility 顺序无耦合）
         this.setShift(null);
-        if (persist) {
-            try {
-                localStorage.setItem(LS_OPEN, "0");
-            } catch { /* 会话内生效 */ }
-        }
+        // persist=false：插件 unload/reload 的非用户动作收尾不落盘（重载不重置用户
+        // 开合记忆，评审 P2-11 既有语义）
+        if (persist) saveBkFloatPanelOpen(false);
         // 面板开着期间徽标轮询照跑（userHidden 才跳过），收起即见最新值；仍补一次校准
         if (this.curDocID) this.updateBadge();
         debugLog("bkfloat", "panel close", "bk");
@@ -440,9 +438,7 @@ export class FloatBacklinkBox {
     private toggleBallHidden() {
         this.userHidden = !this.userHidden;
         this.syncBallVisibility();
-        try {
-            localStorage.setItem(LS_BALL_HIDDEN, this.userHidden ? "1" : "0");
-        } catch { /* 会话内生效 */ }
+        saveBkFloatBallHidden(this.userHidden);
         if (this.statusEl) this.renderStatusBtn(this.statusEl);
         // 恢复显示入口补让位（复评 P1-2）：隐藏期间面板可能已挪到球记忆位上，直接恢复=
         // 球压面板头栏；rAF 等 unhide class 刷新后再量。隐藏方向无需（display:none 量全零）

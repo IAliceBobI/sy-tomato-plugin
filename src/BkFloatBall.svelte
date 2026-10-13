@@ -1,12 +1,15 @@
 <!-- 悬浮反链球（bkfloat □4）：36px 圆+当前文档反链数徽标（0 条隐藏徽标、99+ 封顶）。
      拖拽=pointer events+5px 位移阈值区分点击/拖动（DialogSvelte 同族），位置视口夹取+
-     localStorage 记忆；点击（未越阈值）回宿主 toggle 面板。外观对齐思源悬浮球家族
+     floatBallPos 字典档记忆（lsfix 2026-10-13：原 localStorage 桌面端随机端口 origin 下
+     跨重启必丢，旧档由 loadFloatBallPos 一次性收编）；点击（未越阈值）回宿主 toggle 面板。
+     外观对齐思源悬浮球家族
      （FloatingBall.svelte 同语汇：b3 主题变量明暗自适应、z-index 10 常驻浮层安全档）。
      计数/显隐由宿主 BkFloat.ts 经 writable store 下发（mount() 外部响应式更新正轨）。 -->
 <script lang="ts">
     import { onMount } from "svelte";
     import type { Writable } from "svelte/store";
     import { icon } from "./libs/utils";
+    import { loadFloatBallPos, saveFloatBallPos } from "./libs/floatBallPos";
     import { tomatoI18n } from "./tomatoI18n";
 
     interface Props {
@@ -21,11 +24,12 @@
         shift: Writable<{ x: number; y: number } | null>;
         onShiftAbsorbed: () => void;
         /** 复用参数化（graphfloat □3）：位置记忆键/图标名/tooltip 主文案——悬浮图球传
-         *  独立值，默认=悬浮反链原值（BkFloat.ts 零改动） */
+         *  独立值，默认=悬浮反链原值（BkFloat.ts 零改动）。位置记忆键=floatBallPos
+         *  字典键（沿用原 localStorage 键名，三球各自寻址不串键） */
         lsKey?: string;
         ballIcon?: string;
         tip?: string;
-        /** 默认位（无 localStorage 记忆时的落点；函数形态窗口尺寸现求）。悬浮图球传
+        /** 默认位（无位置记忆档时的落点；函数形态窗口尺寸现求）。悬浮图球传
          *  错开位——两球默认位完全重叠时图球后挂恒盖死反链球（gfloat review P1-3） */
         defPos?: () => { x: number; y: number };
     }
@@ -69,37 +73,27 @@
     });
 
     function loadPos() {
-        const fallback = () => {
-            // 默认位避让右侧 dock 条（48px：dock ~32px + 间距；已拖动用户走 localStorage 不受影响）
+        // 档读取收口在 floatBallPos 模块：字典档优先，无档时一次性收编 localStorage
+        // 旧档（含 JSON.parse+isFinite 守卫，坏档不落 0,0——回默认位）
+        const saved = loadFloatBallPos(lsKey);
+        if (saved) {
+            x = saved.x;
+            y = saved.y;
+        } else {
+            // 默认位避让右侧 dock 条（48px：dock ~32px + 间距；已拖动用户走档不受影响）
             const p = defPos?.() ?? {
                 x: window.innerWidth - SIZE - 48,
                 y: Math.round(window.innerHeight * 0.4),
             };
             x = p.x;
             y = p.y;
-        };
-        try {
-            const raw = localStorage.getItem(lsKey);
-            if (raw) {
-                const p = JSON.parse(raw);
-                x = Number(p?.x);
-                y = Number(p?.y);
-                if (!Number.isFinite(x) || !Number.isFinite(y)) fallback();
-            } else {
-                fallback();
-            }
-        } catch {
-            fallback();
         }
         applyPos();
     }
 
     function savePos() {
-        try {
-            localStorage.setItem(lsKey, JSON.stringify({ x, y }));
-        } catch {
-            /* 存储满/隐私模式：位置仅会话内生效 */
-        }
+        // 写字典[lsKey] 后紧跟 write 确定性落盘（settingFactory.set 只写内存不落盘）
+        saveFloatBallPos(lsKey, { x, y });
     }
 
     function onDown(e: PointerEvent) {

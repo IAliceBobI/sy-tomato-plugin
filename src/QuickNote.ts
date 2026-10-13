@@ -31,6 +31,7 @@ import {
     storeNoteBox_selectedNoteType,
 } from "./libs/stores";
 import { chipsKinds, QN_CHANNEL, QN_ICON, qnCloseStale, qnFitRect, qnParseMsg, qnWindowRect } from "./libs/quicknoteCore";
+import { loadQuickNoteDraft, saveQuickNoteDraft } from "./libs/quicknoteDraft";
 import { winHotkey } from "./libs/winHotkey";
 import { tomatoI18n } from "./tomatoI18n";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
@@ -63,10 +64,11 @@ class QuickNote {
 
     /** 窗口池（globalThis 容忍 window.eval 重跑顶层；isDestroyed 后视为无池重建）。
      *  池键带协议版本（□4 起页面有 chips/keep 协议；close 迟到守卫升 v3；□2 三可调
-     *  协议加 opacity+窗 resizable 升 v4）：reload 升级后旧版页面窗残留会顶替新版窗
-     *  （show 出无新协议旧 UI），版本换键=强制重建；旧键窗 onload 顺手销毁 */
-    private get win(): any | null { return G.__tomatoQuickNoteWin_v4 ?? null; }
-    private set win(v: any) { G.__tomatoQuickNoteWin_v4 = v; }
+     *  协议加 opacity+窗 resizable 升 v4；lsfix 草稿协议加 draft/state.draft 升 v5）：
+     *  reload 升级后旧版页面窗残留会顶替新版窗（show 出无新协议旧 UI），版本换键=
+     *  强制重建；旧键窗 onload 顺手销毁 */
+    private get win(): any | null { return G.__tomatoQuickNoteWin_v5 ?? null; }
+    private set win(v: any) { G.__tomatoQuickNoteWin_v5 = v; }
 
     onload(plugin: BaseTomatoPlugin) {
         this.plugin = plugin;
@@ -81,10 +83,11 @@ class QuickNote {
         // □2 池窗跨 reload 存活，透明度是窗属性跟着窗走；实例字段跨 reload 重置须重读记忆
         this.curOpacity = quickNoteRect.get()?.opacity ?? 1;
 
-        // 旧版池窗清理（□1~□3 无 chips/keep 协议、v2 无 close 迟到守卫、v3 无三可调）：
-        // deploy 升级 reload 后残留会 show 出旧 UI/旧行为——直接销毁（仅插件 reload 升级
-        // 场景出现一次，正常使用零触发）
-        this.destroyPooledWins(["__tomatoQuickNoteWin", "__tomatoQuickNoteWin_v2", "__tomatoQuickNoteWin_v3"]);
+        // 旧版池窗清理（□1~□3 无 chips/keep 协议、v2 无 close 迟到守卫、v3 无三可调、
+        // v4 无草稿协议）：deploy 升级 reload 后残留会 show 出旧 UI/旧行为——直接销毁
+        // （仅插件 reload 升级场景出现一次，正常使用零触发；旧页草稿已由旧页自身防抖
+        // 写进 localStorage，新窗 hello→loadQuickNoteDraft 收编不丢）
+        this.destroyPooledWins(["__tomatoQuickNoteWin", "__tomatoQuickNoteWin_v2", "__tomatoQuickNoteWin_v3", "__tomatoQuickNoteWin_v4"]);
 
         // 主窗收文：BroadcastChannel。插件经 window.eval 重载后旧实例的 channel 仍在监听
         // （同窗双 client=消息双投，e2e 实锤）——挂 globalThis 先 close 旧再建新
@@ -238,8 +241,9 @@ class QuickNote {
         }
     }
 
-    /** 小窗初始态推送：类型集/当前类型/连续输入/透明度（与 NoteBox 面板共享同一组存储）。
-     *  need-0926-10：类型集走 chipsKinds（与面板同源，尾项恒附加纯文本内置类型） */
+    /** 小窗初始态推送：类型集/当前类型/连续输入/透明度/草稿（与 NoteBox 面板共享同一组存储）。
+     *  need-0926-10：类型集走 chipsKinds（与面板同源，尾项恒附加纯文本内置类型）；
+     *  lsfix：draft 经 loadQuickNoteDraft 顺手收编 localStorage 旧档（页面不再读它） */
     private pushState() {
         this.ch?.postMessage({
             type: "state",
@@ -247,6 +251,7 @@ class QuickNote {
             icon: storeNoteBox_selectedNoteType.get() || QN_ICON,
             keep: get(storeNoteBox_keep),
             opacity: this.curOpacity,
+            draft: loadQuickNoteDraft(),
         });
     }
 
@@ -277,6 +282,11 @@ class QuickNote {
         }
         if (msg.type === "keep") {
             storeNoteBox_keep.set(msg.keep); // subscribe 自动落盘，面板/小窗共享
+            return;
+        }
+        if (msg.type === "draft") {
+            // lsfix 草稿防抖上报：写工作空间档跨重启兜底（同值内部跳过不写盘）
+            saveQuickNoteDraft(msg.text);
             return;
         }
         if (msg.type === "openDaily") {
@@ -335,7 +345,7 @@ class QuickNote {
      *  BrowserWindow 由主进程持有→孤儿隐藏到思源退出——枚举主进程真窗补刀（URL 限定
      *  quicknote.html 防误杀；现役 v4 池窗按 id 豁免=插件 reload 存活语义不破） */
     private destroyPooledWins(keys = ["__tomatoQuickNoteWin", "__tomatoQuickNoteWin_v2",
-        "__tomatoQuickNoteWin_v3", "__tomatoQuickNoteWin_v4"]) {
+        "__tomatoQuickNoteWin_v3", "__tomatoQuickNoteWin_v4", "__tomatoQuickNoteWin_v5"]) {
         for (const k of keys) {
             const w = G[k];
             if (w) {
@@ -350,7 +360,7 @@ class QuickNote {
             // openNewWindow 给分离窗固定加载 window.html，URL 在文档期即定）；isMainWin 的 focus span
             // 在 onload 时布局未渲染恒 false 会连主窗一起拒（qn-robust e2e 实锤，勿换回）
             if (location.pathname.includes("/window.html")) return;
-            const live = G.__tomatoQuickNoteWin_v4;
+            const live = G.__tomatoQuickNoteWin_v5;
             const liveID = live && !live.isDestroyed?.() ? live.id : null;
             const { BrowserWindow } = window.require("@electron/remote");
             for (const w of BrowserWindow.getAllWindows()) {
@@ -375,6 +385,7 @@ class QuickNote {
                 throw new Error(tomatoI18n.速记器保存校验失败);
             }
             storeNoteBox_recentText.save({ id, type: msg.icon ?? QN_ICON, text: msg.text });
+            saveQuickNoteDraft(""); // lsfix：保存成功清草稿档（done 只清页面输入，档须插件侧清）
             debugLog("quicknote_saved", `ok id=${id}`, "quicknote");
             this.ch?.postMessage({ type: "done" });
             if (!msg.keep) this.hide();

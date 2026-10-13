@@ -35,6 +35,12 @@ type TomatoSettings = {
     exportWL4All: boolean,
     blockEditorMenu: boolean,
     qeFloatBall: boolean,
+    qeBallPos: { x: number; y: number } | null,
+    /** lsfix 2026-10-13 家族战役：块编辑器侧边布局/侧栏比例（原 localStorage 桌面端跨重启必丢） */
+    blockEditorSideLayout: boolean,
+    blockEditorSideRatio: number,
+    /** 仿写浮条位置（lsfix 2026-10-13 家族战役）：recite 桌面浮条拖拽位；null=无存档回默认 200,200 */
+    reciteFloatBarPos: { x: number; y: number } | null,
     superRefBoxGlobalLnkMenu: boolean,
     superRefBoxGlobalFixMenu: boolean,
     superRefBoxCheckBox: boolean,
@@ -195,6 +201,11 @@ type TomatoSettings = {
     floatbarFlatCollapsed: boolean,
     digSubrankOpen: boolean,
     floatbarExpandPref: boolean | null,
+    /** lsfix 2026-10-13 家族战役：渐进悬浮球（收起态）位置记忆（原 localStorage 桌面端跨重启必丢）；null=无存档回默认左下位 */
+    progFloatBallPos: { x: number; y: number } | null,
+    /** lsfix 2026-10-13 家族战役：共享轻量工具条（FloatBar.svelte）位置字典（键=调用方
+     *  posKey；消费者在渐进，tomato 侧只定义不 load） */
+    floatBarPos: Record<string, { x: number; y: number }>,
     /** □2 平铺区二级编排：按 kind 分份 × 5 段顺序清单（段名=FLAT_SEG_IDS，钮归属+段内序） */
     floatbarFlatManifest: Record<string, Record<string, string[]>>,
     markOriginTextBG: boolean,
@@ -227,6 +238,9 @@ type TomatoSettings = {
     graph_float: boolean,
     // gfloatnav：图内导航后自动收起悬浮面板
     graphFloatJumpClose: boolean,
+    /** lsfix 2026-10-13 家族战役：BkFloatBall/NavCompass 组件族三球位置字典（键=原 lsKey，
+     *  三球：反链/悬浮图/罗盘——罗盘与球共享同键=变身语义） */
+    floatBallPos: Record<string, { x: number; y: number }>,
     // navcompass：十字罗盘导航（第四悬浮球）——分端启用（独立默认开）+方向流派
     //（"tree"=↑父↓首子←前兄→后兄 默认；"hegemon"=←→父子 ↑↓前后篇）+翻页模式
     //（"sibling"=前后篇兄弟序 默认；"history"=浏览历史回退/前进+最新处续读下一篇）
@@ -234,6 +248,8 @@ type TomatoSettings = {
     nav_compass_mobile: boolean,
     nav_compass_scheme: string,
     nav_compass_flip: string,
+    /** lsfix 2026-10-13 家族战役：罗盘浏览轨迹（navHistory.ts NavHistoryState，原 localStorage） */
+    navHistory: { v: 1; t: { i: string; n: string }[]; c: number; p?: Record<string, string> },
     graphMaxAllBlocks: string,
     graphMaxPBlocks: string,
     // graphbox 期2：默认展开层级（按标题层级 h1=1；"all"=全部展开，段落链折叠独立于档位）
@@ -391,6 +407,14 @@ type TomatoSettings = {
     back_link_goto_bottom_btn: boolean,
     back_link_float: boolean,
     back_link_float_ball_stay: boolean,
+    /** lsfix 2026-10-13 家族战役：悬浮反链/悬浮图的面板开合重开态与球显隐意图、共用面板几何
+     *  （原 localStorage tomato-bkfloat-open/tomato-bkfloat-ball-hidden/tomato-gfloat-open/
+     *  tomato-gfloat-ball-hidden/tomato-bkfloat-panel；geo 的 o=透明度 0.4~1.0，null=无档） */
+    bkFloatPanelOpen: boolean,
+    bkFloatBallHidden: boolean,
+    graphFloatPanelOpen: boolean,
+    graphFloatBallHidden: boolean,
+    bkFloatPanelGeo: { x: number; y: number; w: number; h: number; o: number } | null,
     back_link_concept_fold: boolean,
     back_link_copy: boolean,
     back_link_move_to_dailynote: boolean,
@@ -426,6 +450,9 @@ type TomatoSettings = {
     "quickNoteCheckbox": boolean,
     "quickNoteOpenMode": "external" | "focus",
     "quickNoteRect": { x: number; y: number; width: number; height: number; opacity?: number } | null,
+    /** lsfix 2026-10-13 家族战役：速记器小窗草稿（原 localStorage quicknote-draft，经
+     *  BroadcastChannel 协议中转读写——消费者是零插件加载的独立小窗静态页） */
+    "quickNoteDraft": string,
     "dailyNoteReviewTopbar": boolean,
     "dailyNoteCopyFragment": boolean,
     storeNoteBox_selectedNoteType: string,
