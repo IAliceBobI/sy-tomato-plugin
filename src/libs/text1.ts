@@ -192,20 +192,22 @@ export abstract class TomatoI18nABC extends TomatoI18nABC2 {
             default: return "Redeem failed";
         }
     }
-    public get 兑换失败请检查网络后重试() {
+    // 网络层失败（fetch 抛异常）统一文案：真断网与「老版本指向已下线端点（换门牌后）」同路，
+    // 只提检查网络会误导后者 → 补升级提示。掉队老版本代码冻结救不了，防的是下一次 URL 迁移
+    public get 无法连接验证服务请检查网络或升级插件后重试() {
         switch (this.lang) {
-            case "zh_CN": return "兑换失败，请检查网络后重试";
-            case "es_ES": return "Error al canjear, compruebe la red e inténtelo de nuevo";
-            case "fr_FR": return "Échec de l'échange, vérifiez le réseau et réessayez";
-            case "ja_JP": return "引換に失敗しました。ネットワークを確認して再試行してください";
-            case "zh_CHT": return "兌換失敗，請檢查網絡後重試";
-            case "it_IT": return "Riscatto non riuscito, controlla la rete e riprova";
-            case "de_DE": return "Einlösung fehlgeschlagen, bitte Netzwerk prüfen und erneut versuchen";
-            case "he_IL": return "המימוש נכשל, בדוק את הרשת ונסה שוב";
-            case "ru_RU": return "Не удалось активировать код, проверьте сеть и повторите попытку";
-            case "pl_PL": return "Wymiana nie powiodła się, sprawdź sieć i spróbuj ponownie";
+            case "zh_CN": return "无法连接验证服务，请检查网络或将插件升级到最新版后重试";
+            case "es_ES": return "No se puede conectar al servicio de verificación; compruebe la red o actualice el plugin a la última versión e inténtelo de nuevo";
+            case "fr_FR": return "Impossible de contacter le service de vérification ; vérifiez le réseau ou mettez le plugin à jour puis réessayez";
+            case "ja_JP": return "検証サービスに接続できません。ネットワークを確認するか、プラグインを最新版に更新して再試行してください";
+            case "zh_CHT": return "無法連接驗證服務，請檢查網絡或將插件升級到最新版後重試";
+            case "it_IT": return "Impossibile connettersi al servizio di verifica; controlla la rete oppure aggiorna il plugin all'ultima versione e riprova";
+            case "de_DE": return "Verifizierungsdienst nicht erreichbar — Netzwerk prüfen oder Plugin aktualisieren und erneut versuchen";
+            case "he_IL": return "לא ניתן להתחבר לשירות האימות; בדקו את הרשת או עדכנו את התוסף לגרסה האחרונה ונסו שוב";
+            case "ru_RU": return "Не удалось связаться со службой проверки — проверьте сеть или обновите плагин до последней версии и повторите";
+            case "pl_PL": return "Nie można połączyć się z usługą weryfikacji; sprawdź sieć lub zaktualizuj wtyczkę do najnowszej wersji i spróbuj ponownie";
             case "en_US":
-            default: return "Redeem failed, please check network and retry";
+            default: return "Cannot reach the verification service — please check the network or update the plugin to the latest version and retry";
         }
     }
     public get 激活码已备份云端无需找回() {

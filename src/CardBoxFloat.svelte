@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import DialogSvelte from "./libs/DialogSvelte.svelte";
     import { CardSettingsID } from "./libs/gconst";
     import { tomatoI18n } from "./tomatoI18n";
@@ -28,6 +29,8 @@
         cardBoxDeleteNoConfirm,
         cardPriorityBoxCheckbox,
     } from "./libs/stores";
+    import { getCardPanelSections, onCardPanelSectionsChanged } from "./libs/cardPanelSections";
+    import type { RegisteredCardPanelSection } from "./libs/cardPanelSections";
 
     interface Props {
         id: Writable<string>;
@@ -116,6 +119,27 @@
             confirm(tomatoI18n.删除内容块, $cardPath, run);
         }
     }
+
+    // 跨插件面板段：$state 快照+注册变化事件刷新（渐进 onload 注册可晚于面板挂载）；
+    // 容器 $state 化让 bind:this 就位/增删触发 effect 重渲染。effect 只依赖 $id+容器集
+    // ——翻卡=先跑上轮清理再重渲染，关面板=组件 unmount 整树自摘（含注入段 DOM）
+    let extSections = $state<RegisteredCardPanelSection[]>(getCardPanelSections());
+    let extEls = $state<Record<string, HTMLElement | undefined>>({});
+
+    onMount(() => onCardPanelSectionsChanged(() => { extSections = getCardPanelSections(); }));
+
+    $effect(() => {
+        const cardID = $id;
+        // 容器就位/增删的依赖来自下方 extEls[s.key] 属性读取（bind:this 属性写触发；
+        // 勿改成解构/快照等非追踪读法——晚注册链路会静默失效）
+        const cleanups = extSections.map(s => {
+            const el = extEls[s.key];
+            // typeof 收窄：render 返回 void | (() => void)，?? null 不收敛 void
+            const r = el ? s.render(el, { cardID }) : undefined;
+            return typeof r === "function" ? r : null;
+        });
+        return () => { for (const c of cleanups) c?.(); };
+    });
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -155,6 +179,10 @@
                     </button>
                 {/each}
             </div>
+
+            {#each extSections as s (s.key)}
+                <div class="ext-section" bind:this={extEls[s.key]}></div>
+            {/each}
 
             <div class="cardui-group">
                 <label class="delay-label">
@@ -231,10 +259,13 @@
         flex-direction: column;
         gap: 6px;
     }
-    .cardui-group + .msg-container,
-    .act-group + .cardui-group {
+    /* 组间恒分隔（含跨插件注入段 .ext-section；:empty 段 display:none 整盒消失） */
+    .tomato-cardui > * + * {
         border-top: 1px solid var(--b3-border-color);
         padding-top: 6px;
+    }
+    .ext-section:empty {
+        display: none;
     }
 
     /* 动作组（快捷键/按钮合并）：白底行浮在灰窗上，整行可点执行、键帽就地改键 */

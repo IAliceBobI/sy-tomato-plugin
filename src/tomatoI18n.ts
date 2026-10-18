@@ -4531,6 +4531,27 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    /** 复习卡「回原书」胶囊带书名：片摘/书摘统一显书名（ctime 通道，不看 parentID）。
+        中文用间隔号非冒号——书名自带冒号（如「三体：黑暗森林」）会拼出双冒号 */
+    public 回原书带书名(title: string) {
+        switch (this.lang) {
+            case "zh_CN": return `回原书 · ${title}`;
+            case "zh_CHT": return `回原書 · ${title}`;
+            case "en_US":
+            default: return `Back to book: ${title}`;
+        }
+    }
+
+    /** 素材档「回出处」胶囊带写作书名（回出处键头注：素材来源不一定是书） */
+    public 回出处带名(name: string) {
+        switch (this.lang) {
+            case "zh_CN": return `回出处 · ${name}`;
+            case "zh_CHT": return `回出處 · ${name}`;
+            case "en_US":
+            default: return `Back to source: ${name}`;
+        }
+    }
+
     public get 继续读() {
         switch (this.lang) {
             case "zh_CN": return "继续读（从断点开片）";
@@ -4954,6 +4975,24 @@ export class TomatoI18n extends TomatoI18nABC {
             case "zh_CHT": return "再來一輪";
             case "en_US":
             default: return "Another round";
+        }
+    }
+
+    public get 未加入阅读推送() {
+        switch (this.lang) {
+            case "zh_CN": return "未加入阅读推送";
+            case "zh_CHT": return "未加入閱讀推送";
+            case "en_US":
+            default: return "Not in reading push";
+        }
+    }
+
+    public get 互转阅读推送() {
+        switch (this.lang) {
+            case "zh_CN": return "互转阅读推送";
+            case "zh_CHT": return "互轉閱讀推送";
+            case "en_US":
+            default: return "Convert reading push";
         }
     }
 

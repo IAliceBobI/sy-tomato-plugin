@@ -110,7 +110,7 @@
             try {
                 r = await redeemCode(redeem, $userID, product);
             } catch {
-                await siyuan.pushMsg(tomatoI18n.兑换失败请检查网络后重试);
+                await siyuan.pushMsg(tomatoI18n.无法连接验证服务请检查网络或升级插件后重试);
                 verifying = false;
                 return;
             }
@@ -139,7 +139,7 @@
             try {
                 r = await claimByOrderNo(text.trim(), $userID, product);
             } catch {
-                await siyuan.pushMsg(tomatoI18n.兑换失败请检查网络后重试);
+                await siyuan.pushMsg(tomatoI18n.无法连接验证服务请检查网络或升级插件后重试);
                 verifying = false;
                 return;
             }
