@@ -7262,6 +7262,59 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    // ===== 摘抄重插（2026-10-18 群反馈 650189）：digestRefill 中止提示/菜单确认/tip =====
+    public get 该摘抄没有可重插的内容() {
+        switch (this.lang) {
+            case "zh_CN": return "该摘抄没有可重插的内容（行块无原文血缘或原文已删）";
+            case "zh_CHT": return "該摘抄沒有可重插的內容（行塊無原文血緣或原文已刪）";
+            case "ja_JP": return "この抜粋には再挿入できる内容がありません（行に原文への参照がないか、原文が削除済みです）";
+            case "es_ES": return "Este excerpt no tiene contenido que reinsertar (las líneas no apuntan al original o este fue borrado)";
+            case "fr_FR": return "Cet extrait n'a rien à réinsérer (les lignes ne pointent pas vers l'original ou il a été supprimé)";
+            case "it_IT": return "Questo estratto non ha contenuto da reinserire (le righe non puntano all'originale o è stato eliminato)";
+            case "en_US":
+            default: return "This digest has nothing to reinsert (its lines carry no source link, or the source blocks are gone)";
+        }
+    }
+
+    public get 摘抄重插确认标题() {
+        switch (this.lang) {
+            case "zh_CN": return "清空并重插摘抄";
+            case "zh_CHT": return "清空並重插摘抄";
+            case "ja_JP": return "抜粋を空にして再挿入";
+            case "es_ES": return "Vaciar y reinsertar el excerpt";
+            case "fr_FR": return "Vider et réinsérer l'extrait";
+            case "it_IT": return "Svuota e reinserisci l'estratto";
+            case "en_US":
+            default: return "Clear and reinsert the digest";
+        }
+    }
+
+    public get 摘抄重插确认内容() {
+        switch (this.lang) {
+            case "zh_CN": return "将清空本篇摘抄的全部内容（包括你手写的笔记）；挂有闪卡的行，闪卡与复习进度会一并清除；含截选文字的行将按整段恢复。然后按所选方式重插原文。此操作不可撤销。";
+            case "zh_CHT": return "將清空本篇摘抄的全部內容（包括你手寫的筆記）；掛有閃卡的行，閃卡與複習進度會一併清除；含截選文字的行將按整段恢復。然後按所選方式重插原文。此操作不可撤銷。";
+            case "ja_JP": return "この抜粋の全内容（手書きノートを含む）を消去します。フラッシュカードが付いた行は、カードと復習進捗も一緒に削除されます。一部だけ選択して摘録した行は行全体で復元されます。その後、選択した方法で原文を再挿入します。取り消せません。";
+            case "es_ES": return "Se vaciará todo el contenido de este excerpt (tus notas manuscritas incluidas); las líneas con flashcards perderán también las tarjetas y su progreso de repaso; las líneas tomadas de una selección parcial se restaurarán como párrafo completo. Luego se reinsertará el original del modo elegido. No se puede deshacer.";
+            case "fr_FR": return "Tout le contenu de cet extrait sera vidé (notes manuscrites comprises) ; les lignes portant des flashcards perdront aussi leurs cartes et leur progression de révision ; les lignes issues d'une sélection partielle seront restaurées paragraphe entier. L'original sera ensuite réinséré selon le mode choisi. Irréversible.";
+            case "it_IT": return "Verrà svuotato tutto il contenuto di questo estratto (note scritte a mano incluse); le righe con flashcard perderanno anche le carte e i progressi di ripasso; le righe tratte da una selezione parziale saranno ripristinate per intero. L'originale sarà poi reinserito secondo la modalità scelta. Non si può annullare.";
+            case "en_US":
+            default: return "All content in this digest will be cleared (your handwritten notes included); lines with flashcards lose their cards and review progress too; lines taken from a partial selection will be restored as the full paragraph. The original text is then reinserted in the chosen mode. This cannot be undone.";
+        }
+    }
+
+    public get tip重插摘抄() {
+        switch (this.lang) {
+            case "zh_CN": return "清空本篇摘抄后按所选断句方式重插原文；挂有闪卡会一并清除";
+            case "zh_CHT": return "清空本篇摘抄後按所選斷句方式重插原文；掛有閃卡會一併清除";
+            case "ja_JP": return "この抜粋を空にし、選んだフレーズ設定で原文を再挿入します。フラッシュカードも一緒に削除されます";
+            case "es_ES": return "Vacía este excerpt y reinserta el original con la división elegida; las flashcards también se eliminan";
+            case "fr_FR": return "Vide cet extrait et réinsère l'original selon le découpage choisi ; les flashcards sont aussi supprimées";
+            case "it_IT": return "Svuota questo estratto e reinserisce l'originale con la suddivisione scelta; anche le flashcard vengono eliminate";
+            case "en_US":
+            default: return "Clear this digest and reinsert the original with the chosen split mode; attached flashcards are removed too";
+        }
+    }
+
     public get tip删原文() {
         switch (this.lang) {
             case "zh_CN": return "删除片内所有原文块，只留自己写的笔记";

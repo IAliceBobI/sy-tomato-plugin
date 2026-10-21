@@ -4,7 +4,7 @@ import { BlockNodeEnum, CUSTOM_RIFF_DECKS, DATA_NODE_ID, DATA_TYPE } from "./gco
 import { NewNodeID, cloneCleanDiv, count, dom2div, getAttribute, pmap, prepend_refs, siyuan } from "./utils";
 import { mapLimit } from "./miscUtils";
 import { domNewLine, DomSuperBlockBuilder, getSpans } from "./sydom";
-import { DocTracer, OpenSyFile2 } from "./docUtils";
+import { DocTracer } from "./docUtils";
 
 export async function delAllchecked(docID: string) {
     if (!docID) return;
@@ -68,7 +68,7 @@ export async function addFlashCard(protyle: IProtyle, docTracer: DocTracer, plug
     }
 }
 
-async function convert2list(selected: HTMLElement[], ids: string[], docTracer: DocTracer, plugin: Plugin, addRef: boolean) {
+async function convert2list(selected: HTMLElement[], ids: string[], docTracer: DocTracer, _plugin: Plugin, addRef: boolean) {
     if (!(selected.length > 0)) return;
 
     // 2026-09-15 转免费（C 窗口清零）：带引用的列表转换撤「前 3 次免费」限次
@@ -77,17 +77,14 @@ async function convert2list(selected: HTMLElement[], ids: string[], docTracer: D
     const sup = new DomSuperBlockBuilder();
     sup.setAttr("custom-super-card-box", "1")
 
-    let firstID = "";
     if (spans.length > 0) {
         const ref = domNewLine();
-        firstID = getAttribute(ref, "data-node-id")
         prepend_refs(ref, spans)
         sup.append(ref)
     }
 
     selected.map((div,) => {
         const c = cloneCleanDiv(div);
-        if (!firstID) firstID = c.newID
         sup.append(c.div)
     })
 
@@ -95,11 +92,7 @@ async function convert2list(selected: HTMLElement[], ids: string[], docTracer: D
     const ops = siyuan.transInsertBlocksAfter([domStr], ids[ids.length - 1])
     ops.push(...siyuan.transDeleteBlocks(ids))
     await siyuan.transactions(ops)
-    setTimeout(() => {
-        if (firstID) {
-            OpenSyFile2(plugin, firstID);
-        }
-    }, 200);
+    // 2026-10-21 issue#81 撤制卡后定位：新超级块落原选中位置无需滚动，OpenSyFile2→openTab 恒 scrollPosition:"start" 会把块滚到视口顶+高亮闪屏
     return sup.id
 }
 
