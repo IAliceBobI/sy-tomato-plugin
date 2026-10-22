@@ -10,7 +10,7 @@ import { debugLog } from "./libs/logUtils";
 import { tomatoI18n } from "./tomatoI18n";
 import { agentIconSymbolID } from "./agentIcon";
 import { ANNO_CHAT_BLOCK_TYPE, parseAnnoChatContent, renderNoteLines, type AnnoChatBlockMsg } from "./libs/annoChatBlock";
-import { inlineHtml, stripAllAnnoLinks } from "./libs/annoKramdown";
+import { excerptText, inlineHtml } from "./libs/annoKramdown";
 import { cardHostName } from "./libs/cardNav";
 import { fillSourceRow } from "./libs/sourceQuery";
 
@@ -43,13 +43,14 @@ function blockIdOf(element: HTMLElement): string {
     return element.closest("[data-node-id]")?.getAttribute("data-node-id") ?? "";
 }
 
-/** 摘录现查回填：宿主块 kramdown 剥 IAL 尾行+批注锚点链接；查空/孤儿/渲染宿主已换=静默保持
- *  hidden；折叠溢出检测须挂载后测（rAF，rp excerpt 同款） */
+/** 摘录现查回填：宿主块 kramdown 经 excerptText（剥全部块 IAL+批注锚点链接，代码围栏
+ *  保护——纯函数层 annoKramdown.ts）；查空/孤儿/渲染宿主已换=静默保持 hidden；
+ *  折叠溢出检测须挂载后测（rAF，rp excerpt 同款） */
 async function fillExcerpt(body: HTMLElement, hostID: string, more: HTMLButtonElement): Promise<void> {
     let text = "";
     try {
         const kd = (await siyuan.getBlockKramdown(hostID) as { kramdown?: string })?.kramdown ?? "";
-        text = stripAllAnnoLinks(kd.replace(/\n\{:[^\n]*\}\s*$/, "")).trim();
+        text = excerptText(kd);
     } catch { /* 取数失败=摘录缺席，卡面其余照常 */ }
     // ZWSP 空段判空（String.trim 剥不掉 \u200b，空块会渲染「看似空白的摘录框」）
     if (!text.replace(/[\s\u200b]/g, "") || !body.isConnected) return;
@@ -96,8 +97,8 @@ function renderCard(element: HTMLElement, content: string): void {
     card.append(head);
 
     // ---- □8 来源行+原文摘录：仅复习界面宿主（编辑器宿主卡就在原文下方，重复是噪音；rp 同构）。
-    // 来源行=hostID 现查回填（存量卡零迁移、改名跟最新、孤儿静默）；摘录=host 块 kramdown 剥
-    // IAL 尾行+全部批注锚点链接（标记是 UI 非内容），超长 CSS 折叠
+    // 来源行=hostID 现查回填（存量卡零迁移、改名跟最新、孤儿静默）；摘录=host 块 kramdown 经
+    // excerptText 剥全部块 IAL+全部批注锚点链接（标记是 UI 非内容），超长 CSS 折叠
     if (cardHostName(element) === "review") {
         const source = document.createElement("div");
         source.className = "tomato-annochat-card__source";

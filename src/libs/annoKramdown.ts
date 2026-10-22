@@ -166,6 +166,18 @@ export function hostQuoteBlock(kramdown: string, own?: { annoId: string; markVar
     return lines.join("\n").replace(/^[\n\u200b]+|[\n\u200b]+$/g, "");
 }
 
+/** 宿主块 kramdown → 摘录纯文本（anno-chat 沉淀卡原文摘录，textContent 通道）：
+ *  剥锚链接+剥全部块 IAL（整行〔含缩进/引文前缀〕+行内形态——编号列表宿主的列表项
+ *  IAL 两种形态都漏不得，复习界面满屏 {: id=} 标记修复）；代码围栏内原样（字面
+ *  {: id=} 行不吃，splitCodeFences 内容损坏防线）；无 mark 重放/span 转换（纯文本
+ *  通道，==/** 等 kramdown 源码字面保留，hostQuoteText 旧形态同款接受）。 */
+export function excerptText(kramdown: string): string {
+    return splitCodeFences(kramdown)
+        .map((s) => (s.code ? s.text : stripBlockIALs(stripAllAnnoLinks(s.text))))
+        .join("\n")
+        .replace(/^[\n\u200b]+|[\n\u200b]+$/g, "");
+}
+
 /** 结构化引文块的纯文本投影（纯划线列表行用）：自家生成的 mark span 展平为内文本
  *  （`**` 等源码残留与 hostQuoteText 旧形态同款，接受）；单块内多行折空格。 */
 export function flattenQuoteBlock(block: string): string {
