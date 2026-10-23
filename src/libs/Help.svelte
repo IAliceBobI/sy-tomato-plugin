@@ -53,6 +53,13 @@
     function md2html(md: string) {
         // 快照偶尔带出的同步块导出标签不渲染（裸标签对用户是噪音）
         md = md.replace(/<synced_reference[\s\S]*?><\/synced_reference>/g, "");
+        // 飞书导出的视频块 <figure view-type="Preview"><source name="…" token="…"/></figure>
+        // 原始标签不渲染（2026-10-22 vision P1：连 assets token 以转义文本漏出）：替换为
+        // [视频] 占位行——走 inline 的 🎬 徽标（title 指引去飞书看），name 为文件名
+        md = md.replace(/<figure[\s\S]*?<\/figure>/g, (m) => {
+            const name = m.match(/name="([^"]*)"/)?.[1];
+            return name ? `[视频] ${name}` : "[视频]";
+        });
         const out: string[] = [];
         // 有序/无序分流（2026-09-03 vision P1）：`1.` 与 `-` 混收同一 ul 会把步骤编号
         // 渲染成圆点，丢失两步流语义；按标记类型切列表（切换点=新列表）
@@ -76,7 +83,16 @@
             flushList();
             flushQuote();
         };
-        for (const raw of md.split("\n")) {
+        // GFM 表格（2026-10-22 vision P1）：连续 | 行聚合，首行表头 + 次行 |-| 分隔行
+        // 才是表格；缺分隔行的散装 | 行逐行落回 <p> 兜底（行为不变）。单元格按 | 直切
+        // （四家快照全量扫描无 \| 转义，飞书导出不产生）；分隔行容忍 |-|/|---|/| :-: | 族
+        const splitRow = (row: string) =>
+            row.replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+        const isDivider = (row: string) =>
+            /^\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?$/.test(row);
+        const lines = md.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+            const raw = lines[i];
             const line = raw.trim();
             if (code !== null) {
                 if (line.startsWith("```")) {
@@ -117,6 +133,23 @@
                 flushList();
                 quote.push(inline(line.replace(/^>\s?/, "")));
                 continue;
+            }
+            if (line.startsWith("|")) {
+                let j = i;
+                while (j < lines.length && lines[j].trim().startsWith("|")) j++;
+                const rows = lines.slice(i, j).map((l) => l.trim());
+                if (rows.length >= 2 && isDivider(rows[1])) {
+                    flush();
+                    const th = splitRow(rows[0]).map((c) => `<th>${inline(c)}</th>`).join("");
+                    const trs = rows
+                        .slice(2)
+                        .map((r) => `<tr>${splitRow(r).map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`)
+                        .join("");
+                    out.push(`<table><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table>`);
+                    i = j - 1;
+                    continue;
+                }
+                // 缺分隔行=非表格：落 <p> 兜底（散装 | 行逐行处理，行为不变）
             }
             flush();
             out.push(`<p>${inline(line)}</p>`);
@@ -189,6 +222,25 @@
         padding: 2px 10px;
         border-left: 3px solid var(--b3-border-color, #ddd);
         color: var(--b3-theme-on-surface-light, #666);
+    }
+    /* GFM 表格（2026-10-22）：全宽自适应容器，单元格边框+内边距，th 浅底加粗表头行
+       （var 兜底链与 code/blockquote 同款，暗色主题随内核变量生效） */
+    .help-body :global(table) {
+        margin: 8px 0;
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 13px;
+    }
+    .help-body :global(th),
+    .help-body :global(td) {
+        border: 1px solid var(--b3-border-color, #ddd);
+        padding: 4px 8px;
+        text-align: left;
+        vertical-align: top;
+    }
+    .help-body :global(th) {
+        background: var(--b3-theme-surface, #f5f5f5);
+        white-space: nowrap;
     }
     .help-body :global(pre) {
         margin: 6px 0;

@@ -10,12 +10,19 @@
     import { copyToClipboard } from "./libs/domUtils";
     import { siyuan } from "./libs/siyuanApi";
     import { MCP_GUIDE_URL, mcpSetupPrompt, type McpPluginKind } from "./libs/mcpGuide";
+    import type { HelpDoc } from "./libs/helpDialog";
+    import ConfHelpIcon from "./ConfHelpIcon.svelte";
 
     interface Props {
         /** 面板归属插件：决定说明文案与提示词第 4 步讲谁（缺省番茄，兼容不传的旧调用点） */
         plugin?: McpPluginKind;
+        /** 分区标题旁分篇帮助直达（可选——渐进侧 AI 接入域挂主篇入口，番茄/仿写不传不渲染） */
+        helpToken?: string;
+        /** 分篇快照源（可选——渐进侧传自家 help.json，token 才能在快照里命中秒开弹窗；
+            缺省回落 tomato 快照，本插件调用点不传行为不变） */
+        helpDocs?: Record<string, HelpDoc>;
     }
-    let { plugin = "tomato" }: Props = $props();
+    let { plugin = "tomato", helpToken = "", helpDocs }: Props = $props();
 
     const desc = $derived(
         plugin === "progressive" ? tomatoI18n.MCP接入说明渐进
@@ -33,7 +40,7 @@
 </script>
 
 <div class="settingBox mcp-promo">
-    <div class="section-title">{tomatoI18n.MCP接入}</div>
+    <div class="section-title">{tomatoI18n.MCP接入}{#if helpToken}<ConfHelpIcon token={helpToken} {helpDocs} />{/if}</div>
     <div class="mcp-desc">{desc}</div>
     <!-- 手动接线地址说明（09-14 bear 反馈：URL 从哪来得说清，不能只让用户贴） -->
     <div class="mcp-url">{tomatoI18n.MCP接线地址说明}</div>

@@ -17056,6 +17056,19 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "None";
         }
     }
+    // 浮条 tooltip 详情行（渐进 B1 帮助直达）：tip 末行可点行文案，点击 openHelpDialog 开分篇
+    public get 详细说明() {
+        switch (this.lang) {
+            case "zh_CN": return "详细说明";
+            case "zh_CHT": return "詳細說明";
+            case "ja_JP": return "詳細を見る";
+            case "es_ES": return "Más información";
+            case "fr_FR": return "En savoir plus";
+            case "it_IT": return "Per saperne di più";
+            case "en_US":
+            default: return "Learn more";
+        }
+    }
 }
 
 // public[^get]+\(  查找所有的函数
