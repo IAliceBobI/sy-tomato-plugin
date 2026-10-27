@@ -6,6 +6,7 @@ import { BLOCK_REF, DATA_ID, DATA_NODE_ID, DATA_SUBTYPE, DATA_TYPE } from "./gco
 import { pinyin } from "pinyin-pro";
 import { storeAttrManager, tag_to_ref_add_card, tag_to_ref_add_pinyin } from "./stores";
 import { verifyKeyTomato } from "./user";
+import { debugLog } from "./logUtils";
 
 /** 引用文档建档 hpath 拼装（纯函数）：保存目录前缀 path（getRefCreateSavePath 返回，
  *  是调用方故意拼的层级，原样不动）+ 名字。name 是用户可控字符串——item2ref 选中文本/
@@ -44,7 +45,15 @@ export async function createRefDoc(notebookId: string, name: string, category?: 
     }
 
     const { path } = await siyuan.getRefCreateSavePath(notebookId);
-    const id = await siyuanCache.createDocWithMdIfNotExists(5000, notebookId, buildRefDocPath(path, name), "");
+    // addr-adapt B1 型2（tag2ref 扫描/闪念引用建档）：建档穷尽失败 throw → debugLog 留痕+
+    // 返 ""（与旧吞错返 "" 同形，调用方 addRiffCards/add_ref 既有空值静默面承接），跳过本轮
+    let id = "";
+    try {
+        id = await siyuanCache.createDocWithMdIfNotExists(5000, notebookId, buildRefDocPath(path, name), "");
+    } catch (e) {
+        debugLog("addr", `ref doc create failed notebook=${notebookId} name=${name}: ${e}`, "refdoc");
+        return "";
+    }
     if (tag_to_ref_add_card.get()) {
         await siyuan.addRiffCards([id]);
     }

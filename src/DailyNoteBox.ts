@@ -408,7 +408,14 @@ class DailyNoteBox {
                 const files = (await siyuan.listDocsByPath(row.box, childDirOfPath(row.path), undefined, 0))?.files ?? [];
                 const hit = files.find(f => f?.name === name);
                 if (hit?.id) return hit.id;
-                return await siyuan.createDocWithMd(row.box, `${row.hpath}/${name}`, "");
+                // addr-adapt B1 型1：建档穷尽失败 throw → catch 提示+中止（不再拿空 id 落片段）
+                try {
+                    return await siyuan.createDocWithMd(row.box, `${row.hpath}/${name}`, "");
+                } catch (e) {
+                    debugLog("addr", `collect child doc create failed box=${row.box} path=${row.hpath}/${name}: ${e}`, "dailynote");
+                    await siyuan.pushMsg(tomatoI18n.文档创建失败请重试);
+                    return null;
+                }
             }
             // 源文档行缺失（未索引/已删）：退当日日记，行为不断链
         }

@@ -1,4 +1,5 @@
 import { siyuan, sanitizeName } from "./libs/utils";
+import { debugLog } from "./libs/logUtils";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { deleteBlocksMenu, pairBarEnabled } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
@@ -120,7 +121,21 @@ class CpBox {
         // 内核当中间层静默分层建两层文档
         const title = sanitizeName(div.textContent.slice(0, 15));
         const path = `${(await row).hpath}/${title}`
-        const subDocID = await siyuan.createDocWithMd(info.notebookId, path, "")
+        // addr-adapt A 桶：建档穷尽失败 throw（此处原无 try/catch，菜单 click 直调会冒
+        // 未处理 rejection）——catch 提示中止；data:null 索引窗仍可能返 ""，空 id 同样
+        // 中止搬运——不再 moveBlocksAsChild(ids, "") 静默丢目标
+        let subDocID = "";
+        try {
+            subDocID = await siyuan.createDocWithMd(info.notebookId, path, "")
+        } catch (e) {
+            debugLog("addr", `moveAll2SubDoc create failed path=${path}: ${e}`, "cpbox");
+            await siyuan.pushMsg(tomatoI18n.文档创建失败请重试);
+            return;
+        }
+        if (!subDocID) {
+            await siyuan.pushMsg(tomatoI18n.文档创建失败请重试);
+            return;
+        }
         const ids = root.children.map(b => b.id)
         await siyuan.moveBlocksAsChild(ids, subDocID)
     }

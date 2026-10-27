@@ -11963,6 +11963,20 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    /** addr-adapt B1 型1 处方文案骨架：建档穷尽双通道失败（DocCreateError）后统一用户提示 */
+    public get 文档创建失败请重试() {
+        switch (this.lang) {
+            case "zh_CN": return "文档创建失败，请重试";
+            case "zh_CHT": return "文檔建立失敗，請重試";
+            case "ja_JP": return "ドキュメントの作成に失敗しました。再試行してください";
+            case "es_ES": return "Error al crear el documento, reintenta";
+            case "fr_FR": return "Échec de création du document, réessayez";
+            case "it_IT": return "Creazione del documento non riuscita, riprova";
+            case "en_US":
+            default: return "Failed to create the document, please retry";
+        }
+    }
+
     public get 写作书名已存在() {
         switch (this.lang) {
             case "zh_CN": return "该笔记本下已有同名文档，请换个书名";

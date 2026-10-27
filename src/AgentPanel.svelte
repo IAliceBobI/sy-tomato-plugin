@@ -196,7 +196,10 @@
                 const notebooks = await siyuan.lsNotebooks(false);
                 const notebook = (notebooks ?? []).find((n: any) => !n.closed);
                 if (!notebook) { await siyuan.pushMsg(tomatoI18n.脚本保存失败, 2500); return; }
+                // addr-adapt A 桶：建档 throw（寻址被拒）由外层 catch 兜；data:null 索引窗
+                // 仍可能返 ""——空 id 判空拦截，不再让 appendBlock 打空 id 后报「脚本已存」假成功
                 docID = await siyuan.createDocWithMd(notebook.id, "/" + AGENT_SCRIPT_DOC_TITLE, "");
+                if (!docID) { await siyuan.pushMsg(tomatoI18n.脚本保存失败, 2500); return; }
                 await new Promise(r => setTimeout(r, 1200)); // 写后立查索引延迟窗口（群踩坑）
             }
             await siyuan.appendBlock(buildAgentScriptContent({ v: 1, name, code, ts: Date.now() }), docID);

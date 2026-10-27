@@ -4,6 +4,7 @@ import { events } from "./Events";
 import { storeNoteBox_fastnote, fastNoteBoxDelAfterCreating, fastNoteBoxAdd2Flashcard, fastNoteBoxDocPrefix } from "./stores";
 import { verifyKeyTomato } from "./user";
 import { siyuan, getContextPath, cloneCleanDiv, NewLute, NewNodeID, sanitizeName, timeUtil } from "./utils";
+import { debugLog } from "./logUtils";
 import { DATA_NODE_ID } from "./gconst";
 import { getNotebookByID } from "./notebookUtils";
 import { tomatoI18n } from "../tomatoI18n";
@@ -95,7 +96,16 @@ export async function createAndOpenFastNote(protyle: IProtyle | undefined, boxID
         if (name) title = `${sanitizeName(name)} | ${title}` // 空 protyle（冷启动）getInfo 回 {}——name 缺失不加前缀防 "undefined | f..."
     }
     const hpath = `/fast note/f${y}/f${y}-${M}/${title}`;
-    const id = await siyuan.createDocWithMdIfNotExists(boxID, hpath, md, { ...attrs, "custom-fastnote": y + M + d + h + m + s });
+    // addr-adapt A 桶（判空改 catch）：建档穷尽失败 throw DocCreateError → catch 提示中止；
+    // data:null 索引窗仍可能返 ""——判空兜底保留（该形态维持旧静默契约返 ""，不 throw）
+    let id = "";
+    try {
+        id = await siyuan.createDocWithMdIfNotExists(boxID, hpath, md, { ...attrs, "custom-fastnote": y + M + d + h + m + s });
+    } catch (e) {
+        debugLog("addr", `fast note create failed hpath=${hpath}: ${e}`, "fastnote");
+        siyuan.pushMsg(tomatoI18n.快速笔记创建失败);
+        return null;
+    }
     if (!id) {
         // 创建失败（内核异常/路径被拒等）原样静默——收敛点统一兜底（qn-robust）
         siyuan.pushMsg(tomatoI18n.快速笔记创建失败);

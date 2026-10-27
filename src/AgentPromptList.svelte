@@ -64,7 +64,10 @@
                     await siyuan.pushMsg(tomatoI18n.提示词保存失败, 2500);
                     return;
                 }
+                // addr-adapt A 桶：建档 throw（寻址被拒）由外层 catch 兜（提示词保存失败）；
+                // data:null 索引窗仍可能返 ""——判空拦截，不再让 appendBlock 打空 id 假成功
                 docID = await siyuan.createDocWithMd(notebook.id, "/" + AGENT_PROMPT_DOC_TITLE, "");
+                if (!docID) { await siyuan.pushMsg(tomatoI18n.提示词保存失败, 2500); return; }
                 await new Promise(r => setTimeout(r, 1200));
             }
             const r = await siyuan.appendBlock(

@@ -898,13 +898,20 @@ async function getTargetDoc() {
             const qID = NewNodeID();
             const attrs = {};
             attrs[TOMATO_IDEA_QUEUE] = "1";
-            return siyuan.createDocWithMd(
-                boxID,
-                `${row.hpath}/${qID}`,
-                "",
-                qID,
-                attrs,
-            );
+            // addr-adapt B1 型2（同步冲突队列）：建档穷尽失败 throw → debugLog 留痕+返
+            // undefined 跳过本轮（队列链下次自然重试），不中断收集主链
+            try {
+                return await siyuan.createDocWithMd(
+                    boxID,
+                    `${row.hpath}/${qID}`,
+                    "",
+                    qID,
+                    attrs,
+                );
+            } catch (e) {
+                debugLog("addr", `idea queue doc create failed box=${boxID} qID=${qID}: ${e}`, "notebox");
+                return undefined;
+            }
         }
     }
     return id;

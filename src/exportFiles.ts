@@ -134,7 +134,20 @@ async function doImportMD(docID: string, mdPath: string) {
     const title = file.slice(0, 15).replaceAll("\n", "").replaceAll("/", "-");
     file = doubleLnOutsideFences(file);
     row.hpath = row.hpath.split("/").slice(0, -1).extend(title).join("/")
-    const id = await siyuan.createDocWithMd(row.box, row.hpath, file);
+    // addr-adapt B1 型1：建档穷尽失败 throw → catch 提示+中止；data:null 索引窗返 "" 同样
+    // 不再 OpenSyFile2("") 无反应
+    let id = "";
+    try {
+        id = await siyuan.createDocWithMd(row.box, row.hpath, file);
+    } catch (e) {
+        debugLog("addr", `import md create failed box=${row.box} hpath=${row.hpath}: ${e}`, "exportfiles");
+        await siyuan.pushMsg("❌" + tomatoI18n.文档创建失败请重试);
+        return;
+    }
+    if (!id) {
+        await siyuan.pushMsg("❌" + tomatoI18n.文档创建失败请重试);
+        return;
+    }
     await OpenSyFile2(getTomatoPluginInstance(), id);
 }
 

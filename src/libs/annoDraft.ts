@@ -243,11 +243,10 @@ export async function ensureDraftDocID(): Promise<string> {
     }
     const docHPath = home ? `${home}/${DRAFT_DOC_TITLE}` : `/${DRAFT_DOC_TITLE}`;
     try {
-        // 中间目录（如空月份）不存在则先造（与真实月份文档同构；不赌 createDocWithMd 自动建层）
-        if (home) {
-            const ids = await siyuan.getIDsByHPath(home, box);
-            if (!(Array.isArray(ids) ? ids[0] : ids)) await siyuan.createDocWithMd(box, home, "");
-        }
+        // 中间目录（如空月份）不存在则先造——3.8.9 结构化寻址适配（addr-adapt A 桶）：
+        // 原「getIDsByHPath 探测 home + 缺则 createDocWithMd 补建」两级逻辑已搬进封装层
+        // （createDocSmart 新通道 resolveParentChain 全段解析+逐级补建+同名认领），调用点
+        // 简化为单次建档；旧内核上旧端点本就自动补建父级，行为等价
         const id = await siyuan.createDocWithMd(box, docHPath, "");
         if (id) {
             cachedDocID = id;

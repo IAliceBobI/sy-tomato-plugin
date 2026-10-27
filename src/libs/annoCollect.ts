@@ -582,7 +582,15 @@ export async function findOrCreateDailyDoc(box: string, ymd: string): Promise<st
         await new Promise((r) => setTimeout(r, 1200));
         hpath = (await siyuan.sqlOne(`select hpath from blocks where id='${today.id}'`))?.hpath ?? "";
     }
-    const docID = await siyuan.createDocWithMd(box, backfillDailyPath(hpath, ymd), "", "", { [attrName]: ymd } as any);
+    // addr-adapt B1 型2（批注收集）：历史日补建穷尽失败 throw → debugLog 留痕+返 "" 跳过
+    // 本轮（调用方既有空值分支承接：换本重试/提示未找到日记笔记本），不中断整批
+    let docID = "";
+    try {
+        docID = await siyuan.createDocWithMd(box, backfillDailyPath(hpath, ymd), "", "", { [attrName]: ymd } as any);
+    } catch (e) {
+        debugLog("addr", `backfill daily doc create failed box=${box} ymd=${ymd}: ${e}`, "anno");
+        return "";
+    }
     await siyuan.setBlockAttrs(docID, { [attrName]: ymd } as any);
     return docID;
 }

@@ -15,6 +15,7 @@ import { winHotkey } from "./libs/winHotkey";
 import { gatedAddCommand } from "./libs/cmdGate";
 import { addIfVisible } from "./libs/menuManager";
 import { verifyKeyTomato } from "./libs/user";
+import { debugLog } from "./libs/logUtils";
 
 type TomatoMenu = IEventBusMap["click-blockicon"] & IEventBusMap["open-menu-content"];
 
@@ -667,7 +668,16 @@ async function addNoRefPage(plugin: BaseTomatoPlugin, protyle: IProtyle) {
     ]
     // docRow.content（文档标题）为用户可控字符串：调用点先 sanitizeName 再拼（出口末段
     // 净化堵不住内嵌 / 静默分层）；?? "" 防 getDocRowByBlockID 查不中回 {} 时 undefined 炸 replace
-    const id = await siyuan.createDocWithMdIfNotExists(protyle.notebookId, `${docRow.hpath}/refs-${sanitizeName(docRow.content ?? "")}`, "", { "custom-off-tomatobacklink": "1" })
+    // addr-adapt B1 型1：建档穷尽失败 throw → catch 提示+return（此函数原无 try/catch，
+    // 命令回调直调会冒未处理 rejection）；clearAll/insert 打空 id 的静默失败链一并掐断
+    let id = "";
+    try {
+        id = await siyuan.createDocWithMdIfNotExists(protyle.notebookId, `${docRow.hpath}/refs-${sanitizeName(docRow.content ?? "")}`, "", { "custom-off-tomatobacklink": "1" })
+    } catch (e) {
+        debugLog("addr", `refs page create failed: ${e}`, "mixbox");
+        await siyuan.pushMsg(tomatoI18n.文档创建失败请重试);
+        return;
+    }
     await siyuan.clearAll(id);
     await siyuan.insertBlockAsChildOf(md.join("\n"), id)
     await OpenSyFile2(plugin, id)
@@ -686,8 +696,16 @@ async function addTaskPage(plugin: Plugin, protyle: IProtyle) {
     const docID = protyle.block.rootID
     const docRow = await siyuan.getDocRowByBlockID(docID)
     const sql = `{{select * from blocks where hpath like "${docRow.hpath}%" and type="l" and subtype="t" and (markdown like "* [ ] %" or markdown like "- [ ] %")}}`;
-    // 同 addNoRefPage：content 调用点预净化（内嵌 / 静默分层）+ ?? "" 防空行兜底
-    const id = await siyuan.createDocWithMdIfNotExists(protyle.notebookId, `${docRow.hpath}/tasks-${sanitizeName(docRow.content ?? "")}`, sql, { "custom-off-tomatobacklink": "1" })
+    // 同 addNoRefPage：content 调用点预净化（内嵌 / 静默分层）+ ?? "" 防空行兜底；
+    // addr-adapt B1 型1：建档穷尽失败 throw → catch 提示+return（防未处理 rejection）
+    let id = "";
+    try {
+        id = await siyuan.createDocWithMdIfNotExists(protyle.notebookId, `${docRow.hpath}/tasks-${sanitizeName(docRow.content ?? "")}`, sql, { "custom-off-tomatobacklink": "1" })
+    } catch (e) {
+        debugLog("addr", `tasks page create failed: ${e}`, "mixbox");
+        await siyuan.pushMsg(tomatoI18n.文档创建失败请重试);
+        return;
+    }
     await OpenSyFile2(plugin, id)
 }
 
