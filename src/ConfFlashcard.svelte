@@ -10,6 +10,7 @@
         cardBoxCheckbox,
         cardBoxDeleteNoConfirm,
         cardBoxReviewDocMenu,
+        cardBoxReviewTitleBtn,
         cardBoxSpradEvenlyPostpone,
         cardBoxSuperCard,
         cardPriorityBoxAutoHide,
@@ -81,6 +82,10 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxReviewDocMenu} />
                 {tomatoI18n.menu添加右键菜单 + "：" + tomatoI18n.复习此文档及子文档}
+            </div>
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$cardBoxReviewTitleBtn} />
+                {tomatoI18n.文档标题栏显示闪卡复习按钮}
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxCardtab} />

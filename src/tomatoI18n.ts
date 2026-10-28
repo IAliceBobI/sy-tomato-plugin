@@ -15637,6 +15637,18 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Review this doc and subdocuments";
         }
     }
+    // issue #82：标题栏复习钮的设置项文案（按钮 tooltip 复用「复习此文档及子文档」）
+    public get 文档标题栏显示闪卡复习按钮() {
+        switch (this.lang) {
+            case "zh_CN": return "文档标题栏显示闪卡复习按钮";
+            case "zh_CHT": return "文檔標題欄顯示閃卡複習按鈕";
+            case "es_ES": return "Botón de repaso de tarjetas en la barra de título del documento";
+            case "fr_FR": return "Bouton de révision des cartes dans la barre de titre du document";
+            case "ja_JP": return "ドキュメントタイトルバーにフラッシュカード復習ボタンを表示";
+            case "en_US":
+            default: return "Show flashcard review button on document title bar";
+        }
+    }
     // confgather2 期3（2026-09-17 bear 拍板收折叠）：低频配置折叠区标题三键
     // A5+A6 反链域「静态反链与失效引用清理」维护工具合集折叠（命名对齐「数据库反链与引用修复」先例）
     public get 静态反链与失效引用清理() {

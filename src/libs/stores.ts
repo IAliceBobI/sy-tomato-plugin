@@ -668,6 +668,8 @@ export const cardBoxSuperCard = settingFactory("cardBoxSuperCard", false, STORAG
 export const cardBoxAddConcepts = settingFactory("cardBoxAddConcepts", false, STORAGE_SETTINGS, null as TSK);
 // □1（vipdoctree 2026-09-13）：右键「复习此文档及子文档」菜单开关（文档树+编辑器双落点，默认开）
 export const cardBoxReviewDocMenu = settingFactory("cardBoxReviewDocMenu", true, STORAGE_SETTINGS, null as TSK);
+// issue #82：文档标题栏「复习本文档闪卡」按钮开关（默认开；TitleRiffBox 逐事件活读=非结构性键）
+export const cardBoxReviewTitleBtn = settingFactory("cardBoxReviewTitleBtn", true, STORAGE_SETTINGS, null as TSK);
 // □4（vipdoctree 2026-09-13）：右键「检查失效引用」菜单开关（文档树+编辑器双落点，默认开）
 export const refCleanMenu = settingFactory("refCleanMenu", true, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSpradEvenlyPostpone = settingFactory("cardBoxSpradEvenlyPostpone", true, STORAGE_SETTINGS, null as TSK);

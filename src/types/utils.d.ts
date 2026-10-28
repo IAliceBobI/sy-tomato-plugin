@@ -51,6 +51,8 @@ type TomatoSettings = {
     cardBoxSettingsShow: boolean,
     cardBoxDeleteNoConfirm: boolean,
     cardBoxReviewDocMenu: boolean,
+    /** issue #82：文档标题栏「复习本文档闪卡」按钮（.protyle-attr 行内 iconRiffCard 钮） */
+    cardBoxReviewTitleBtn: boolean,
     refCleanMenu: boolean,
     prefixArticlesTagsShow: boolean,
     prefixArticlesTagsGroup: boolean,
