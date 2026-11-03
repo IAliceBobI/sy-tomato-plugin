@@ -48,12 +48,15 @@ function warnP5Throttled(code: unknown, msg: string, reqData: any, url: string) 
  *  行内容），封装出口统一兜底：只净化最后一段——前缀段是调用方故意拼的层级，合法不动。
  *  末段语义照抄 sanitizeVolName：/ → 全角／（末段经 lastIndexOf 切净后结构上已无 /，
  *  留作裸名分支与语义同源的防御）、\t\r\n\u2028\u2029 → 空格、反斜杠 \ 原样不动
- *  （内核 Go path 只认 /，不过度处理）。幂等（全角／与空格不再命中），重复净化安全。 */
+ *  （内核 Go path 只认 /，不过度处理）、两端 trim——3.8.9 createDocByParent 对标题
+ *  前导/尾随空白（含全角空格 U+3000，JS .trim() 已覆盖）报 invalidTitle 拒、句中空白
+ *  无碍；控制符先替换成空格再 trim，尾随控制符一并去净。幂等（全角／与空格不再命中、
+ *  trim 后再 trim 不变），重复净化安全。 */
 export function sanitizePathTail(path_readable: string): string {
     const idx = path_readable.lastIndexOf("/");
     const head = idx < 0 ? "" : path_readable.slice(0, idx + 1);
     const tail = (idx < 0 ? path_readable : path_readable.slice(idx + 1))
-        .replace(/[\t\r\n\u2028\u2029]/g, " ").replace(/\//g, "／");
+        .replace(/[\t\r\n\u2028\u2029]/g, " ").replace(/\//g, "／").trim();
     return head + tail;
 }
 
@@ -64,11 +67,14 @@ export function sanitizePathTail(path_readable: string): string {
  *  的 /」，故正解=调用点对用户字符串本身先净化再拼（渐进侧 splitCore.sanitizeVolName
  *  同款做法）。⚠️ 裸字符串勿复用 sanitizePathTail——裸名含 / 会被它当路径切末段、
  *  前半漏网。语义同源：/ → 全角／、\t\r\n\u2028\u2029 → 空格、反斜杠 \ 原样不动
- *  （内核 Go path 只认 /）。恒 1:1 字符映射（每命中字符恰替换单字符）长度不变——
- *  调用点「先截断后净化」（如 CpBox 正文前 15 字）展示语义不扰动，两序可证等价。
- *  幂等（全角／与空格不再命中），与出口末段净化两级叠加安全。 */
+ *  （内核 Go path 只认 /）；替换恒 1:1 字符映射不动长度，但出口两端 trim（3.8.9
+ *  createDocByParent 对标题前导/尾随空白含全角空格 U+3000 报 invalidTitle 拒）——
+ *  两端含可净化字符时结果可短于原文：调用点「先截断后净化」（如 CpBox 正文前 15
+ *  字）在截断点恰落空白时得到更短的无边缘空白标题（invalidTitle 适配下的正解，
+ *  两序不再恒等价）。幂等（全角／与空格不再命中、trim 后再 trim 不变），与出口
+ *  末段净化两级叠加安全。 */
 export function sanitizeName(name: string): string {
-    return name.replace(/[\t\r\n\u2028\u2029]/g, " ").replace(/\//g, "／");
+    return name.replace(/[\t\r\n\u2028\u2029]/g, " ").replace(/\//g, "／").trim();
 }
 
 // ============================================
@@ -140,6 +146,27 @@ function clampTitle512(title: string): string {
     return runes.slice(0, 512).join("");
 }
 
+/** 劈净化后 hpath 取建档叶子（纯函数，单测锁定 trim 行为）：末段经 clampTitle512 截断后
+ *  两端 trim——出口 sanitizePathTail 已 trim 末段边缘，但 512 rune 截断可重新落出尾随
+ *  空白（第 512 位恰为空白时，边缘 trim 够不着的句中空白被截到边上），此为进通道前的
+ *  最后一道防线：3.8.9 createDocByParent 对标题前导/尾随空白（含全角空格 U+3000）报
+ *  invalidTitle 拒、句中空白无碍。劈末段在 trim 判空**之前**：全空白末段经 sanitizePathTail
+ *  trim 成 ""（「/书/  」→「/书/」）时若先 filter 滤空段再 pop，拿到的是父层段名——
+ *  「/书/  」被当「在 /书 下建『书』」静默错建（守卫只拦得住整条路径无真实段的形态）。
+ *  title 进新通道；path 仅在 trim 改变末段时用 trim 后标题回装（旧通道查建同源；保持原
+ *  path 绝对/裸名形态——前导 / 有无以入口为准），否则原样——clamp 截断不回装（旧端点
+ *  自会静默截断，原样透传不扰动既有行为）。 */
+export function splitTailTitle(path: string): { title: string; path: string } {
+    const raw = path.split("/");
+    const clamped = clampTitle512(raw.pop() ?? "");
+    const title = clamped.trim();
+    const segs = raw.filter(s => s !== "");
+    const rebuilt = title !== clamped
+        ? `${path.startsWith("/") ? "/" : ""}${[...segs, title].join("/")}`
+        : path;
+    return { title, path: rebuilt };
+}
+
 /** 建档锁（notebook 粒度，评审#7③）：新链路 resolve+create 多次往返无内核 createDocLock
  *  全局锁，两个并发对同一缺失父链会各建一份中间层——按 notebook 串行缓解；与 IfNotExists
  *  旧锁名不同不构成嵌套死锁。锁不住跨插件/跨端并发（与旧全局锁的差距诚实接受，nameConditions
@@ -187,21 +214,28 @@ async function createByParentOnce(
     };
 }
 
+/** A 档段名净化（resolveParentChain 查询与补建同用——查建同名）：sanitizeName（/→全角／：
+ *  含 / 标题会污染整条 hpath 旧寻址链=亲手造脏数据，contract §10；两端 trim）+512 rune
+ *  截断+截断后再 trim（截断点可恰落空白，同叶子 splitTailTitle 防线）。 */
+function segTitleForChain(seg: string): string {
+    return clampTitle512(sanitizeName(seg)).trim();
+}
+
 /** A 档全段解析+逐级补建（createDocSmart 新通道专用，3.8.9+）：resolveDocPath 逐级精确
  *  匹配标题（COLLATE BINARY）。resolved=全段命中（含末段）=**同名认领**——对齐旧端点
  *  hpathBtMap 复用语义（命中已有文档不建孪生，评审#7①）；ambiguous=取首候选+debugLog 续
  *  解析余段（决策 §4.5：中间层全是插件自管目录，不弹选择框）；missing=自 nextIndex（首个
  *  缺失段下标，treenode ResolveDocumentPath 语义）起逐级补建**中间段**——叶子由调用方携
  *  真实 markdown 落。首个补建段带 missing 响应的 nameConditions 乐观锁（并发改动链路内核
- *  报 planChanged，评审#7③）。已存在前缀按原段名查（不净化——净化会查不中既有落盘名）；
- *  新建中间段先过 sanitizeName（/→全角／：含 / 标题会污染整条 hpath 旧寻址链=亲手造脏
- *  数据，contract §10）+512 rune 截断。 */
+ *  报 planChanged，评审#7③）。resolve 查询与补建落盘同用 segTitleForChain 净化段名——
+ *  原段名查、trim 名建会让带空白中间段首轮 miss 补建落盘 trim 名后，此后每次同 hpath
+ *  查询恒 miss→重复补建（思源允许同名兄弟）；sanitizeName 幂等，已净化的段再过不变。 */
 async function resolveParentChain(
     notebook: string,
     segments: string[], // 全段（含末段叶子，均非空）
 ): Promise<{ claimID?: string; parentID: string | null; nameConditions?: DocNameCondition[] }> {
     let start: { kind: "root" } | { kind: "document"; id: string } = { kind: "root" };
-    let rest = segments;
+    let rest = segments.map(segTitleForChain);
     for (;;) {
         const resp = await siyuan.callFull("/api/filetree/resolveDocPath", { notebook, start, segments: rest });
         if (resp.code !== 0) {
@@ -229,7 +263,7 @@ async function resolveParentChain(
         let parentID: string | null = d.resolved?.id ?? null;
         let conditions: DocNameCondition[] | undefined = Array.isArray(d.nameConditions) ? d.nameConditions : undefined;
         for (let i = from; i < rest.length - 1; i++) { // 只补中间段，叶子留给调用方
-            const segTitle = clampTitle512(sanitizeName(rest[i]));
+            const segTitle = segTitleForChain(rest[i]);
             if (!segTitle) throw new DocCreateError("invalidTitle", `empty segment #${i} in [${rest.join("/")}]`, "none");
             const nid = NewNodeID();
             const r = await createByParentOnce(notebook, parentID, nid, segTitle, "", i === from ? conditions : undefined);
@@ -664,11 +698,13 @@ export const siyuan = {
      *  整体按 notebook 粒度 navigator.locks 串行。attr 两步 IAL 后挂（返回前）。 */
     async createDocSmart(notebook: string, hpath: string, markdown: string, opts: { id?: string; attr?: AttrType; parentID?: string } = {}): Promise<string> {
         return withDocCreateLock(notebook, async () => {
-            // 出口末段净化（幂等）：两通道共用净化后 path（查建同源）；末段即新端点 title
-            const path = sanitizePathTail(hpath);
-            const segs = path.split("/").filter(s => s !== "");
-            const title = clampTitle512(segs.pop() ?? "");
+            // 出口末段净化（幂等）：两通道共用净化后 path（查建同源）；末段即新端点 title——
+            // clamp 截断后再两端 trim（截断可把句中空白截到边上=invalidTitle 适配最后一道
+            // 防线；trim 改变末段时旧通道 path 同步回装，纯函数 splitTailTitle 单测锁定）
+            const { path, title } = splitTailTitle(sanitizePathTail(hpath));
             if (!title) throw new DocCreateError("invalidTitle", `empty document title in hpath "${path}"`, "none");
+            const segs = path.split("/").filter(s => s !== "");
+            segs.pop(); // segs=前缀段（A 档整链解析用），叶子=title
             // ""（非法值，封内拒绝）与 undefined（不传=A 档全段解析）显式区分——C 档落地
             // 前提（评审2轮#6 workbench 侧同款语义）
             if (opts.parentID === "") throw new DocCreateError("parentUnavailable", "parentID: empty string is not a valid parent (use null or omit)", "none");

@@ -116,9 +116,10 @@ class CpBox {
         const info = events.getInfo(protyle);
         const row = siyuan.getRowByID(info.docID);
         const { div, root } = await getDocBlocks(info.docID, "", false, true, 1)
-        // 先截断后净化：「前 15 字」以原文为基准的展示语义；sanitizeName 恒 1:1 映射长度
-        // 不变不扰动截断——内嵌 / 若不预净化，出口 sanitizePathTail 只切末段，前半仍会被
-        // 内核当中间层静默分层建两层文档
+        // 先截断后净化：「前 15 字」以原文为基准的展示语义；净化含两端 trim（长度可变——
+        // 截断点恰落空白时得到更短的无边缘空白标题，3.8.9 invalidTitle 适配下的正解）；
+        // 内嵌 / 若不预净化，出口 sanitizePathTail 只切末段，前半仍会被内核当中间层静默
+        // 分层建两层文档
         const title = sanitizeName(div.textContent.slice(0, 15));
         const path = `${(await row).hpath}/${title}`
         // addr-adapt A 桶：建档穷尽失败 throw（此处原无 try/catch，菜单 click 直调会冒
