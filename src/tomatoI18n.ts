@@ -17095,6 +17095,55 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Learn more";
         }
     }
+    // issue #83：⇧F8 一键制卡当前文档全部超级块的三条文案——命令名/结果反馈/空态提示
+    public get 当前文档内所有超级块制成闪卡() {
+        switch (this.lang) {
+            case "zh_CN": return "当前文档内所有超级块制成闪卡";
+            case "es_ES": return "Convertir todos los superbloques del documento actual en tarjetas flash";
+            case "fr_FR": return "Convertir tous les superblocs du document actuel en cartes mémoire";
+            case "ja_JP": return "現在のドキュメント内のすべてのスーパーブロックをフラッシュカードにする";
+            case "zh_CHT": return "當前文檔內所有超級塊製成閃卡";
+            case "it_IT": return "Converti tutti i superblocchi del documento corrente in flashcard";
+            case "de_DE": return "Alle Superblöcke im aktuellen Dokument in Flashkarten umwandeln";
+            case "he_IL": return "הפוך את כל הסופר בלוקים במסמך הנוכחי לכרטיסי זיכרון";
+            case "ru_RU": return "Превратить все суперблоки текущего документа во флеш-карты";
+            case "pl_PL": return "Zamień wszystkie superbloki w bieżącym dokumencie na fiszki";
+            case "en_US":
+            default: return "Make all superblocks in the current document into flashcards";
+        }
+    }
+    public 新增x张闪卡跳过x张(added: number, skipped: number) {
+        switch (this.lang) {
+            case "zh_CN": return `新增${added}张闪卡，跳过${skipped}张`;
+            case "es_ES": return `Se añadieron ${added} tarjetas flash, se omitieron ${skipped}`;
+            case "fr_FR": return `${added} cartes mémoire ajoutées, ${skipped} ignorées`;
+            case "ja_JP": return `${added}枚のフラッシュカードを追加、${skipped}枚をスキップ`;
+            case "zh_CHT": return `新增${added}張閃卡，跳過${skipped}張`;
+            case "it_IT": return `Aggiunte ${added} flashcard, saltate ${skipped}`;
+            case "de_DE": return `${added} Flashcards hinzugefügt, ${skipped} übersprungen`;
+            case "he_IL": return `נוספו ${added} כרטיסי זיכרון, דולגו ${skipped}`;
+            case "ru_RU": return `Добавлено ${added} флеш-карт, пропущено ${skipped}`;
+            case "pl_PL": return `Dodano ${added} fiszek, pominięto ${skipped}`;
+            case "en_US":
+            default: return `Added ${added} flashcards, skipped ${skipped}`;
+        }
+    }
+    public get 当前文档没有可制卡的超级块() {
+        switch (this.lang) {
+            case "zh_CN": return "当前文档没有可制卡的超级块";
+            case "es_ES": return "No hay superbloques para convertir en tarjetas flash en el documento actual";
+            case "fr_FR": return "Aucun superbloc à convertir en cartes mémoire dans le document actuel";
+            case "ja_JP": return "現在のドキュメントにフラッシュカードにできるスーパーブロックはありません";
+            case "zh_CHT": return "當前文檔沒有可製卡的超級塊";
+            case "it_IT": return "Nessun superblocco da convertire in flashcard nel documento corrente";
+            case "de_DE": return "Keine Superblöcke im aktuellen Dokument in Flashcards umzuwandeln";
+            case "he_IL": return "אין סופר בלוקים להפוך לכרטיסי זיכרון במסמך הנוכחי";
+            case "ru_RU": return "Нет суперблоков для создания флеш-карт в текущем документе";
+            case "pl_PL": return "Brak superbloków do zamiany na fiszki w bieżącym dokumencie";
+            case "en_US":
+            default: return "No superblocks to make into flashcards in the current document";
+        }
+    }
 }
 
 // public[^get]+\(  查找所有的函数

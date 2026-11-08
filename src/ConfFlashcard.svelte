@@ -29,6 +29,7 @@
     import { siyuan } from "./libs/utils";
     import {
         CardBox取消当前文档内所有闪卡,
+        CardBox当前文档内所有超级块制成闪卡,
         CardBox清理所有失效的闪卡,
         CardBox用选中的行创建超级块超级块制卡取消制卡,
     } from "./CardBox";
@@ -60,6 +61,10 @@
             <div>
                 {tomatoI18n.取消当前文档内所有闪卡}
                 <HotkeyCap hk={CardBox取消当前文档内所有闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+            <div>
+                {tomatoI18n.当前文档内所有超级块制成闪卡}
+                <HotkeyCap hk={CardBox当前文档内所有超级块制成闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 {tomatoI18n.清理所有失效的闪卡}

@@ -35,6 +35,7 @@ import {
 import {
     CardBox用选中的行创建超级块超级块制卡取消制卡,
     CardBox取消当前文档内所有闪卡,
+    CardBox当前文档内所有超级块制成闪卡,
     CardBox复习时删除当前闪卡,
     CardBox删除内容块,
     CardBox闪卡复习时打开闪卡设置,
@@ -220,7 +221,7 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
             { langKey: MixBox复制文档为纯文本.langKey, label: () => MixBox复制文档为纯文本.langText(), hk: MixBox复制文档为纯文本 },
         ],
     },
-    // 闪卡组（featgate □4）：CardBox 8+CardPriorityBox 5；字面量 langKey 命令闪卡组
+    // 闪卡组（featgate □4）：CardBox 9+CardPriorityBox 5；字面量 langKey 命令闪卡组
     // 一条（resume doc cards 无默认键）+日记组一条（dailyNoteReview）label 直取同 i18n
     // 键；分散推迟的 vip 门在回调内保留。两参 winHotkey 常量（无 langText 回调）label
     // 一律 i18n 直写勿调 .langText()——运行时崩且 Svelte 5 生产包静默（□4 实锤，
@@ -231,6 +232,7 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
         items: [
             { langKey: CardBox用选中的行创建超级块超级块制卡取消制卡.langKey, label: () => CardBox用选中的行创建超级块超级块制卡取消制卡.langText(), hk: CardBox用选中的行创建超级块超级块制卡取消制卡 },
             { langKey: CardBox取消当前文档内所有闪卡.langKey, label: () => CardBox取消当前文档内所有闪卡.langText(), hk: CardBox取消当前文档内所有闪卡 },
+            { langKey: CardBox当前文档内所有超级块制成闪卡.langKey, label: () => CardBox当前文档内所有超级块制成闪卡.langText(), hk: CardBox当前文档内所有超级块制成闪卡 },
             { langKey: CardBox复习时删除当前闪卡.langKey, label: () => CardBox复习时删除当前闪卡.langText(), hk: CardBox复习时删除当前闪卡 },
             { langKey: CardBox删除内容块.langKey, label: () => CardBox删除内容块.langText(), hk: CardBox删除内容块 },
             { langKey: CardBox闪卡复习时打开闪卡设置.langKey, label: () => CardBox闪卡复习时打开闪卡设置.langText(), hk: CardBox闪卡复习时打开闪卡设置 },

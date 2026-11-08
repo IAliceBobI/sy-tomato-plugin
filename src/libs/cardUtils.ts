@@ -15,6 +15,31 @@ export async function removeDocCards(docID: string) {
     await siyuan.removeRiffCards(ids);
 }
 
+// issue #83：⇧F8 一键把当前文档内全部超级块制成闪卡（查缺补漏——已带 custom-riff-decks
+// 的跳过）。超级块在 blocks 表 type='s'（内核 treenode/node.go NodeSuperBlock，issue 原文
+// 'h' 为笔误——'h' 是标题块）；嵌套超级块每块一行天然全量，limit 30000 同 listUtils 口径
+export async function addDocSuperCards(docID: string) {
+    if (!docID) return;
+    const all = (await siyuan.sql(`select id from blocks where type='s' and root_id="${docID}" limit 30000`)).map(row => row.id);
+    const carded = new Set((await siyuan.sql(`select block_id as id from attributes
+        where name="${CUSTOM_RIFF_DECKS}"
+        and root_id="${docID}"
+        limit 30000
+    `)).map(row => row.id));
+    const toAdd = all.filter(id => !carded.has(id));
+    if (all.length == 0) {
+        await siyuan.pushMsg(tomatoI18n.当前文档没有可制卡的超级块);
+        return;
+    }
+    // 全部已制卡（如连按两下幂等复查）仍走「新增 0/跳过 M」——与空文档区分，跳过数可见
+    if (toAdd.length == 0) {
+        await siyuan.pushMsg(tomatoI18n.新增x张闪卡跳过x张(0, all.length));
+        return;
+    }
+    await siyuan.addRiffCards(toAdd);
+    await siyuan.pushMsg(tomatoI18n.新增x张闪卡跳过x张(toAdd.length, all.length - toAdd.length));
+}
+
 // □7 推迟时长显示单位阶梯化（spreaddelay 战役，2026-09-07 拍板）：大值小时读感差
 // （2900 小时），贪心升档为高档单位。unit 与 tomatoI18n 单位词键同名，i18n 层直查。
 export type DurationUnit = "分钟" | "小时" | "天" | "月" | "年";
