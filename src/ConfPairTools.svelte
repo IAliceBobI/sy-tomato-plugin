@@ -10,7 +10,6 @@
         linkBoxSyncHref,
         linkBoxSyncRef,
         linkBoxSyncScanDeep,
-        linkBoxSyncRemapChildID,
         linkBoxBilinkMenu,
         linkBoxLnkTitle,
         linkBoxUseLnkOrRef,
@@ -128,15 +127,6 @@
                     />
                     {tomatoI18n.巡检重算哈希}
                 </div>
-                <div>
-                    <input
-                        type="checkbox"
-                        class="b3-switch"
-                        bind:checked={$linkBoxSyncRemapChildID}
-                    />
-                    {tomatoI18n.子块ID重映射实验}
-                </div>
-                <div>{tomatoI18n.开启后每个副本的子块使用独立块ID}</div>
                 <div class:codeNotValid>
                     <input
                         disabled={codeNotValid}

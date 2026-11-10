@@ -8,7 +8,7 @@ import { PROTYLE_WYSIWYG_SELECT } from "./libs/gconst";
 import { setAttribute, siyuan } from "./libs/utils";
 import * as utils from "./libs/utils";
 import { findElementByAttr } from "./libs/listUtils";
-import { linkBoxSyncRemapChildID, linkBoxSyncScanDeep } from "./libs/stores";
+import { linkBoxSyncScanDeep } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { debugLog } from "./libs/logUtils";
 import { anchorEditExemptsVersionGuards, createTrailingDebouncer, decideGroupAction, deepScanVerdict, editingInsideGroup, monotonicHeal, pendingIsDeletionShaped, pivotSyncPeers, scanRecheckPlan, verMapGate, LivePeer, SyncPeerState, VerMapCache } from "./libs/syncDecision";
@@ -174,7 +174,7 @@ async function runDoSyncLocked(ops: gconst.DoOperation, syncID: string, superDiv
         const hNew = utils.normalizeForHash(superDiv);
         setAttribute(superDiv, "custom-sync-hash", hNew);
         const gate = verMapGate(syncVer, cached, hNew);
-        debugLog("runDoSync", `id=${id} 传播分支 syncVer=${syncVer} cacheVer=${cached?.ver ?? -1} gate=${gate} remap=${linkBoxSyncRemapChildID.get()}`);
+        debugLog("runDoSync", `id=${id} 传播分支 syncVer=${syncVer} cacheVer=${cached?.ver ?? -1} gate=${gate}`);
         if (gate === "dup") return;
         if (gate === "allow") debugLog("runDoSync", `id=${id} 版本回摆放行：syncVer=${syncVer} ≤ cacheVer=${cached?.ver} 但内容是新编辑`);
         verMap.set(syncID, { ver: Math.max(syncVer, cached?.ver ?? 0), hash: hNew })
@@ -526,9 +526,8 @@ export async function syncAllBlocks(superDiv: HTMLElement, count: string, rows: 
     const hNew = utils.normalizeForHash(superDiv);
     setAttribute(superDiv, "custom-sync-hash", hNew);
     setAttribute(superDiv, "custom-sync-block-count", count);
-    // 子块 ID 重映射（§8.2 实验开关）：开着时顺手留存各目标的现有 DOM（下面那行探测本来就拉），
-    // prepareSyncClone 用它把克隆子块 ID 换成目标侧自己的；关着时克隆行为与从前逐字节一致
-    const remapOn = linkBoxSyncRemapChildID.get();
+    // 子块 ID 重映射（§8.2，2026-11-10 转必经——原实验开关 linkBoxSyncRemapChildID 退役）：
+    // 3.8.10 起内核 update/insert 拒写他处已存在子块 id（缺省克隆整批被静默吞），重映射成唯一活路
     const targetDOMs = new Map<string, string>();
     for (const row of rows) {
         // getBlockDOM 探测替换 checkBlockExist：僵尸成员（运行时树已无此块）混进 transUpdateBlocks
@@ -537,7 +536,7 @@ export async function syncAllBlocks(superDiv: HTMLElement, count: string, rows: 
         if (row.exists) {
             const dom = (await siyuan.getBlockDOM(row.block_id))?.dom;
             row.exists = !!dom;
-            if (remapOn && dom) targetDOMs.set(row.block_id, dom);
+            if (dom) targetDOMs.set(row.block_id, dom);
         }
     }
     const trans = siyuan.transUpdateBlocks(rows

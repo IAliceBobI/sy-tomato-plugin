@@ -26,11 +26,9 @@
         imgOverlayCheckbox,
         cssShowFlashCardBlank,
     } from "./libs/stores";
-    import { siyuan } from "./libs/utils";
     import {
         CardBox取消当前文档内所有闪卡,
         CardBox当前文档内所有超级块制成闪卡,
-        CardBox清理所有失效的闪卡,
         CardBox用选中的行创建超级块超级块制卡取消制卡,
     } from "./CardBox";
     import {
@@ -65,10 +63,6 @@
             <div>
                 {tomatoI18n.当前文档内所有超级块制成闪卡}
                 <HotkeyCap hk={CardBox当前文档内所有超级块制成闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
-            </div>
-            <div>
-                {tomatoI18n.清理所有失效的闪卡}
-                <HotkeyCap hk={CardBox清理所有失效的闪卡} pluginName="sy-tomato-plugin"></HotkeyCap>
             </div>
             <div>
                 <input
@@ -120,15 +114,6 @@
                 {tomatoI18n.推迟多个闪卡分散在一段时间内}<TomatoVIP {codeValid}></TomatoVIP>
             </div>
         {/if}
-        <div>
-            <button
-                class="b3-button b3-button--outline tomato-button"
-                onclick={() => {
-                    siyuan.removeBrokenCards(tomatoI18n);
-                }}
-                >🗑️
-            </button>{tomatoI18n.删除失效的闪卡}
-        </div>
     </div>
     <!-- 闪卡优先级 -->
     <div class="settingBox">

@@ -242,9 +242,10 @@ export function cloneForSync(div: HTMLElement, targetID: string): HTMLElement {
     return clone;
 }
 
-// ---- 同步块子块 ID 重映射（设计 §8.2，阶段 2 实验开关 linkBoxSyncRemapChildID） ----
-// 现状 cloneForSync 把源副本子块 data-node-id 原样写入所有副本 → 同 ID 多文档并存，
-// 子块级索引/搜索/反链只命中「当前副本」、删当前副本会让幸存副本索引全灭（§8.1 三宗罪）。
+// ---- 同步块子块 ID 重映射（设计 §8.2；原实验开关 linkBoxSyncRemapChildID 2026-11-10 转必经退役） ----
+// cloneForSync 把源副本子块 data-node-id 原样写入所有副本 → 同 ID 多文档并存，子块级
+// 索引/搜索/反链只命中「当前副本」、删当前副本会让幸存副本索引全灭（§8.1 三宗罪）；
+// 3.8.10 起内核更直接拒写他处已存在子块 id（原样克隆整批被静默吞），重映射成唯一活路。
 // 重映射让每个副本的子块永远持自己的 ID：item-id 匹配保目标 ID、位置启发式做一次性迁移、
 // 其余换新 ID。IO（getBlockDOM 拉目标 DOM）在调用方 syncAllBlocks，这里全部是纯函数。
 
@@ -294,9 +295,9 @@ export function remapChildIDs(clone: HTMLElement, index: SyncChildIDIndex): void
 }
 
 /**
- * 同步传播克隆制备：cloneForSync 之后按需做子块 ID 重映射（设计 §8.2）。
- * targetDOM 是目标块当前的 getBlockDOM 产物，仅当 linkBoxSyncRemapChildID 开启时由调用方传入；
- * 缺省（开关关/拿不到目标 DOM）时克隆与 cloneForSync 现状逐字节一致（单测④锁定零改动）。
+ * 同步传播克隆制备：cloneForSync 之后做子块 ID 重映射（设计 §8.2，3.8.10 起必经）。
+ * targetDOM 是目标块当前的 getBlockDOM 产物，由调用方传入；拿不到（undefined）时
+ * 退化为 cloneForSync 原样克隆（单测④锁定的 API 兜底分支）。
  */
 export function prepareSyncClone(superDiv: HTMLElement, targetID: string, targetDOM?: string): HTMLElement {
     const clone = cloneForSync(superDiv, targetID);

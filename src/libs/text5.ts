@@ -535,44 +535,6 @@ export abstract class TomatoI18nABC5 extends TomatoI18nABC6 {
                 return "Re-hash sync blocks on scan (detects out-of-engine changes)";
         }
     }
-    public get 子块ID重映射实验() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "子块ID重映射（实验）";
-            case "es_ES":
-                return "Remapear IDs de bloques secundarios (experimental)";
-            case "fr_FR":
-                return "Remapper les IDs des sous-blocs (expérimental)";
-            case "ja_JP":
-                return "子ブロックIDのリマップ（実験的）";
-            case "zh_CHT":
-                return "子塊ID重映射（實驗）";
-            case "it_IT":
-                return "Rimappa ID blocchi figli (sperimentale)";
-
-            default:
-                return "Remap child block IDs (experimental)";
-        }
-    }
-    public get 开启后每个副本的子块使用独立块ID() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "开启后每个副本的子块使用独立块ID，首次开启可能需要重新同步一次全组，建议先对全组执行一次「以此块为准」同步后再开启";
-            case "es_ES":
-                return "Al activarlo, los bloques secundarios de cada copia usan IDs de bloque independientes; la primera activación puede requerir resincronizar todo el grupo; se recomienda ejecutar «Sincronizar usando este bloque» en todo el grupo antes de activarlo";
-            case "fr_FR":
-                return "Une fois activé, les sous-blocs de chaque copie utilisent des IDs de bloc distincts ; la première activation peut nécessiter une resynchronisation du groupe entier ; il est recommandé d'exécuter « Synchroniser depuis ce bloc » sur tout le groupe avant de l'activer";
-            case "ja_JP":
-                return "有効にすると各コピーの子ブロックが独立したブロックIDを使用します。初回有効時はグループ全体の再同期が必要になる場合があります。有効にする前にグループ全体へ「このブロックを基準に同期」を実行することをお勧めします";
-            case "zh_CHT":
-                return "開啟後每個副本的子塊使用獨立塊ID，首次開啟可能需要重新同步一次全組，建議先對全組執行一次「以此塊為準」同步後再開啟";
-            case "it_IT":
-                return "Una volta attivato, i blocchi figli di ogni copia usano ID blocco indipendenti; la prima attivazione può richiedere una risincronizzazione dell'intero gruppo; si consiglia di eseguire \"Sincronizza da questo blocco\" sull'intero gruppo prima di attivarlo";
-
-            default:
-                return "Once enabled, each copy's child blocks use their own block IDs; the first activation may require a full-group re-sync; run \"Sync from this block\" on the whole group before turning it on";
-        }
-    }
     public get 无复本块() {
         switch (this.lang) {
             case "zh_CN":

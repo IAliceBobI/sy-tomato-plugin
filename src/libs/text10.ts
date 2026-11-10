@@ -104,23 +104,6 @@ export abstract class TomatoI18nABC10 extends TomatoI18nABC11 {
         }
     }
 
-    public get 清理所有失效的闪卡() {
-        switch (this.lang) {
-            case "zh_CN": return "清理所有失效的闪卡";
-            case "es_ES": return "Limpiar todas las tarjetas flash inválidas";
-            case "fr_FR": return "Nettoyer toutes les cartes mémoire invalides";
-            case "ja_JP": return "無効なフラッシュカードをすべて削除する";
-            case "zh_CHT": return "清理所有失效的閃卡";
-            case "it_IT": return "Rimuovi tutte le flashcard non valide";
-            case "de_DE": return "Alle ungültigen Flashcards bereinigen";
-            case "he_IL": return "נקה את כל הכרטיסים הלא תקינים";
-            case "ru_RU": return "Очистить все недействительные флеш-карты";
-            case "pl_PL": return "Wyczyść wszystkie nieprawidłowe karty pamięci";
-            case "en_US":
-            default: return "Clean up all invalid flashcards";
-        }
-    }
-
     // □7 阶梯时长单位词（ladderDuration 升档显示用）。面板输入标签曾借用（cardui □3
     // 小时制），cardrenew □1 改回天粒度后退役该用途，现仅服务 durationText
     public get 小时() {

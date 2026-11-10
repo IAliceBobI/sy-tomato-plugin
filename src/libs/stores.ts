@@ -578,6 +578,11 @@ export const nav_compass_scheme = settingFactory("nav_compass_scheme", "tree", S
 // 前后篇（默认，现状）；"history"=浏览历史回退/前进+最新处续读下一篇（数据层 libs/navHistory.ts，
 // localStorage 持久化轨迹）。运行时逐次读非结构键（保存即热切，同 scheme）
 export const nav_compass_flip = settingFactory("nav_compass_flip", "sibling", STORAGE_SETTINGS, null as TSK);
+// 后退/前进两悬浮球总开关（bfkeys 2026-11-10，bear 拍板：两功能独立成球、位置各自
+// 记忆自由摆放）。结构性键=NavFloat.onload 挂载决策读死（保存后钩子热重载生效）
+export const nav_compass_bf_balls = settingFactory("nav_compass_bf_balls", false, STORAGE_SETTINGS, null as TSK);
+// 罗盘内显示后退/前进键（默认关——主形态=上面两球；openCompass 逐次读=重开罗盘热切）
+export const nav_compass_bf_keys = settingFactory("nav_compass_bf_keys", false, STORAGE_SETTINGS, null as TSK);
 // 罗盘浏览轨迹（navflip 数据层，lsfix 2026-10-13 家族战役；原 localStorage
 // sy-tomato-plugin__nav-history-v1）：全时间线浏览记录 t（封顶 200）+游标 c+各父文档下
 // 最后浏览子文档记忆 p（navHistory.ts NavHistoryState）。桌面端随机端口下原档跨重启蒸发=
@@ -726,7 +731,6 @@ export const linkBoxSyncHref = settingFactory("linkBoxSyncHref", false, STORAGE_
 export const linkBoxSyncRef = settingFactory("linkBoxSyncRef", false, STORAGE_SETTINGS, null as TSK);
 export const linkBoxSyncBlockAuto = settingFactory("linkBoxSyncBlockAuto", true, STORAGE_SETTINGS, null as TSK);
 export const linkBoxSyncScanDeep = settingFactory("linkBoxSyncScanDeep", true, STORAGE_SETTINGS, null as TSK);
-export const linkBoxSyncRemapChildID = settingFactory("linkBoxSyncRemapChildID", false, STORAGE_SETTINGS, null as TSK);
 export const linkBoxLnkTitle = settingFactory("linkBoxLnkTitle", false, STORAGE_SETTINGS, null as TSK);
 export const linkBoxUseLnkOrRef = settingFactory("linkBoxUseLnkOrRef", false, STORAGE_SETTINGS, null as TSK);
 // 块配对接力浮条（□2 V1 起）：R5 □1 后总开关管全部注册，浮条灰态只剩 VIP 档（gate 退役）

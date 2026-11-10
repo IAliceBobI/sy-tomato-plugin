@@ -317,25 +317,6 @@ export abstract class TomatoI18nABC9 extends TomatoI18nABC10 {
                 return "Refresh database backlinks"; // 英语
         }
     }
-    public get 删除失效的闪卡() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "删除失效的闪卡。删卡时没有先取消闪卡，而是直接把闪卡的内容删除，则闪卡没有对应的内容，变成失效闪卡。（使用前请先创建备份）";
-            case "es_ES":
-                return "Eliminar tarjetas interactivas caducadas. Si se elimina el contenido de una tarjeta interactiva sin cancelarla primero, la tarjeta no tendrá contenido correspondiente y se convertirá en una tarjeta caducada. (Cree una copia de seguridad antes de usarla).";
-            case "fr_FR":
-                return "Supprimer les cartes mémoire expirées. Si vous supprimez le contenu d'une carte mémoire sans la désactiver d'abord, la carte n'aura plus de contenu correspondant et deviendra une carte mémoire expirée. (Faites une sauvegarde avant de l'utiliser).";
-            case "ja_JP":
-                return "無効なフラッシュカードを削除します。フラッシュカードをキャンセルせずに直接その内容を削除すると、フラッシュカードに対応する内容がなくなり、無効なフラッシュカードになります。（使用前にバックアップを作成してください）。";
-            case "zh_CHT":
-                return "刪除失效的閃卡。若未先取消閃卡，而是直接刪除閃卡內容，則閃卡將沒有對應內容，變成失效閃卡。（使用前請先建立備份）。";
-            case "it_IT":
-                return "Eliminare le schede lampo scadute. Se si elimina il contenuto di una scheda lampo senza prima annullarla, la scheda non avrà più un contenuto corrispondente e diventerà una scheda scaduta. (Fare un backup prima di utilizzarla).";
-
-            default:
-                return "Delete expired flashcards. If you delete the content of a flashcard without canceling it first, the flashcard will have no corresponding content and become an expired flashcard. (Create a backup before using it).";
-        }
-    }
     public get 删除失效的数据库() {
         switch (this.lang) {
             case "zh_CN":

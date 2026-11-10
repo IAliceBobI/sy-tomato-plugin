@@ -3,7 +3,7 @@
     // 方向导航文档树）。分端启用（独立默认开，结构性键=保存后整插件重载生效）+方向流派
     // （运行时热切）+桌面四方向键帽（键帽随功能走，09-17 bear 拍板形态：开关+名称+键帽
     // 一行紧凑）。共享样式见 IndexConf.css。
-    import { nav_compass_desktop, nav_compass_mobile, nav_compass_scheme, nav_compass_flip } from "./libs/stores";
+    import { nav_compass_desktop, nav_compass_mobile, nav_compass_scheme, nav_compass_flip, nav_compass_bf_balls, nav_compass_bf_keys } from "./libs/stores";
     import { events } from "./libs/Events";
     import { tomatoI18n } from "./tomatoI18n";
     import HotkeyCap from "./HotkeyCap.svelte";
@@ -23,6 +23,18 @@
         <input type="checkbox" class="b3-switch" bind:checked={$nav_compass_mobile} />
         {tomatoI18n.手机端启用十字罗盘}
     </div>
+
+    <!-- 后退/前进两悬浮球（bfkeys 2026-11-10，bear 拍板：默认关；勾选后出两球可拖动
+         自由摆放、位置各自记忆；结构性键=保存后钩子热重载生效） -->
+    <div>
+        <input type="checkbox" class="b3-switch" bind:checked={$nav_compass_bf_balls} />
+        {tomatoI18n.后退前进悬浮球}
+    </div>
+    <div>
+        <input type="checkbox" class="b3-switch" bind:checked={$nav_compass_bf_keys} />
+        {tomatoI18n.罗盘内显示后退前进键}
+    </div>
+    <div class="helpText">{tomatoI18n.后退前进球说明}</div>
 
     <!-- 方向流派（spec 拍板 5：默认树形；霸主流派=hierarchyNavigate 习惯的 ←→父子 ↑↓
          前后篇）。运行时逐次读=保存即热切，罗盘开着也即时换映射 -->

@@ -17082,6 +17082,48 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "None";
         }
     }
+    // 官方原生后退/前进角键（backForwardChannel）：title/aria 标签，快捷键后缀现读 keymap
+    public get 罗盘后退() {
+        switch (this.lang) {
+            case "zh_CN": return "后退";
+            case "zh_CHT": return "後退";
+            case "en_US":
+            default: return "Back";
+        }
+    }
+    public get 罗盘前进() {
+        switch (this.lang) {
+            case "zh_CN": return "前进";
+            case "zh_CHT": return "前進";
+            case "en_US":
+            default: return "Forward";
+        }
+    }
+    // bfkeys 2026-11-10：两球总开关+罗盘内键开关+说明（官方浏览历史后退/前进）
+    public get 后退前进悬浮球() {
+        switch (this.lang) {
+            case "zh_CN": return "后退/前进悬浮球";
+            case "zh_CHT": return "後退/前進懸浮球";
+            case "en_US":
+            default: return "Back/Forward floating balls";
+        }
+    }
+    public get 罗盘内显示后退前进键() {
+        switch (this.lang) {
+            case "zh_CN": return "罗盘内显示后退/前进键";
+            case "zh_CHT": return "羅盤內顯示後退/前進鍵";
+            case "en_US":
+            default: return "Show back/forward keys in compass";
+        }
+    }
+    public get 后退前进球说明() {
+        switch (this.lang) {
+            case "zh_CN": return "后退/前进=思源官方浏览历史（默认 ⌘[/⌘]，随官方键位设置）。悬浮球可拖动自由摆放、位置各自记忆；罗盘内键默认隐藏";
+            case "zh_CHT": return "後退/前進=思源官方瀏覽歷史（預設 ⌘[/⌘]，隨官方鍵位設定）。懸浮球可拖動自由擺放、位置各自記憶；羅盤內鍵預設隱藏";
+            case "en_US":
+            default: return "Back/Forward = SiYuan browsing history (default ⌘[/⌘], follows official keymap). Balls are draggable and remember their own positions; in-compass keys hidden by default";
+        }
+    }
     // 浮条 tooltip 详情行（渐进 B1 帮助直达）：tip 末行可点行文案，点击 openHelpDialog 开分篇
     public get 详细说明() {
         switch (this.lang) {

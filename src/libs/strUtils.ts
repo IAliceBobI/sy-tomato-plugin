@@ -80,17 +80,6 @@ export function newIDRegexp() {
     return new RegExp(/[0-9]{14}-[0-9a-z]{7}/g);
 }
 
-export function extractIDs(txt: string) {
-    // 20240607225626-o9dqy2r
-    const RefRegex = newIDRegexp();
-    const matches = txt.matchAll(RefRegex);
-    const set = new Set<string>();
-    for (const m of matches) {
-        if (m[0]) set.add(m[0])
-    }
-    return set;
-}
-
 export function getRefRegexp() {
     // [1] for id, [2] for text
     return new RegExp(/\(\(([0-9]{14}-[0-9a-z]{7}) (("[^"]*?")|('[^']*?'))\)\)/g);

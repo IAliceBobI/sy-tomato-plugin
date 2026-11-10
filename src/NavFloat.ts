@@ -16,13 +16,14 @@ import BkFloatBall from "./BkFloatBall.svelte";
 import NavCompass from "./NavCompass.svelte";
 import { getActiveEditor, getActiveTab, openMobileFileById, openTab, type Tab, type TProtyleAction } from "siyuan";
 import { events, EventType } from "./libs/Events";
-import { nav_compass_desktop, nav_compass_mobile, nav_compass_scheme, nav_compass_flip } from "./libs/stores";
+import { nav_compass_desktop, nav_compass_mobile, nav_compass_scheme, nav_compass_flip, nav_compass_bf_balls, nav_compass_bf_keys } from "./libs/stores";
 import { siyuan } from "./libs/utils";
 import { gatedAddCommand } from "./libs/cmdGate";
 import { winHotkey } from "./libs/winHotkey";
 import { noFocusAfterOpen } from "./libs/navUtils";
 import { getNavTree, invalidateNavCache, navDirTargets, parentDirOfPath, parentIDOfDir, type NavDir, type NavDocTarget, type NavTree } from "./libs/navTree";
 import { navHistoryStepTo, navHistoryTargets, recordVisit } from "./libs/navHistory";
+import { backForwardHotkeyTip, triggerBackForward, type BFDir } from "./libs/backForwardChannel";
 import { tomatoI18n } from "./tomatoI18n";
 import { debugLog } from "./libs/logUtils";
 import type { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
@@ -54,6 +55,9 @@ const NAV_HKS = [
 
 /** 位置记忆键：球与罗盘共享（变身前后同一落点；spec 拍板 4） */
 const LS_BALL_POS = "tomato-navcompass-ball-pos";
+
+/** 后退/前进两球各自的 floatBallPos 字典键（bfkeys 2026-11-10：位置独立记忆自由摆放） */
+const LS_BF_POS: Record<BFDir, string> = { back: "tomato-bfback-ball-pos", forward: "tomato-bfforward-ball-pos" };
 
 const LONG_PRESS_MS = 500;
 
@@ -119,6 +123,8 @@ export class NavFloatBox {
         this.ballHost = document.body.appendChild(document.createElement("div"));
         this.compassHost = document.body.appendChild(document.createElement("div"));
         this.mountBall();
+        // 后退/前进两球（bfkeys）：开关默认关（结构性键，保存后钩子热重载本 onload 生效）
+        if (nav_compass_bf_balls.get()) this.mountBFBalls();
 
         // 桌面四方向快捷键（spec 拍板 10；gatedAddCommand=命令面板+keymap 条目+可改键）
         if (!this.isMobile) {
@@ -213,6 +219,58 @@ export class NavFloatBox {
         this.setShift(null);
     }
 
+    // ---- 后退/前进两悬浮球（bfkeys 2026-11-10，bear 拍板：两功能独立成球、位置各自
+    //      记忆自由摆放；nav_compass_bf_balls 开关默认关。复用 BkFloatBall 参数化形态
+    //      （悬浮图球先例）：点击=triggerBackForward，拖动=位置记忆 floatBallPos 字典 ----
+
+    private bfBalls: { dir: BFDir; host: HTMLElement; sv: object; hidden: ReturnType<typeof writable<boolean>> }[] = [];
+
+    /** 两球默认位：左缘两档（右侧球列 0.4/0.55/0.7 已被反链/图/罗盘三球占，bfkeys
+     *  新球进左列防撞位）；手机左下拇指区两档（罗盘球在右下 78%） */
+    private bfDefPos(dir: BFDir): { x: number; y: number } {
+        if (this.isMobile) {
+            return { x: 14, y: Math.round(window.innerHeight * (dir === "back" ? 0.78 : 0.66)) };
+        }
+        return { x: 14, y: Math.round(window.innerHeight * (dir === "back" ? 0.5 : 0.62)) };
+    }
+
+    private mountBFBalls() {
+        const dirs: BFDir[] = ["back", "forward"];
+        for (const dir of dirs) {
+            if (this.bfBalls.some((b) => b.dir === dir)) continue;
+            const host = document.body.appendChild(document.createElement("div"));
+            const hidden = writable(false);
+            const sv = mount(BkFloatBall, {
+                target: host,
+                props: {
+                    count: this.zeroCount, // 恒 0=无徽标
+                    hidden,
+                    onToggle: () => triggerBackForward(dir),
+                    panelKeyHint: () => backForwardHotkeyTip(dir),
+                    shift: this.bfNoShift,
+                    onShiftAbsorbed: () => { /* 无让位机制，恒 null 无吸收 */ },
+                    lsKey: LS_BF_POS[dir],
+                    ballIcon: dir === "back" ? "Back" : "Forward",
+                    tip: dir === "back" ? tomatoI18n.罗盘后退 : tomatoI18n.罗盘前进,
+                    defPos: () => this.bfDefPos(dir),
+                },
+            });
+            this.bfBalls.push({ dir, host, sv, hidden });
+        }
+        debugLog("navcompass", "bf balls mounted", "nav");
+    }
+
+    private unmountBFBalls() {
+        for (const b of this.bfBalls) {
+            unmount(b.sv);
+            b.host.remove();
+        }
+        this.bfBalls = [];
+    }
+
+    /** 两球不接防遮挡让位（用户自由摆放=自己管理位置；恒 null 偏移） */
+    private bfNoShift = writable<{ x: number; y: number } | null>(null);
+
     private openCompass() {
         if (!this.alive || this.compassOpen) return;
         this.compassOpen = true;
@@ -225,6 +283,7 @@ export class NavFloatBox {
                 defPos: () => this.defPos(),
                 mobile: this.isMobile,
                 hidden: this.compassHiddenStore,
+                showBFKeys: nav_compass_bf_keys.get(),
                 // 数据基点统一宿主供给（三级兜底，见 currentDocID 注）——组件不直读
                 // events.docID（桌面端陈旧坑）
                 getDocID: () => this.currentDocID(),
@@ -324,6 +383,11 @@ export class NavFloatBox {
         };
         this.ballHost.addEventListener("touchstart", stopProp);
         this.ballHost.addEventListener("touchmove", blockMove, { passive: false });
+        // 后退/前进两球同礼仪（bfkeys：常驻球同样要断滚动链/左右滑切页签）
+        for (const b of this.bfBalls) {
+            b.host.addEventListener("touchstart", stopProp);
+            b.host.addEventListener("touchmove", blockMove, { passive: false });
+        }
 
         // 长按球 0.5s=直达本功能设置域（spec 拍板 12；桌面不设）。取消三监听挂 window
         // 且仅武装期在场（BkFloatBall 拖拽监听同款瞬时模式）：挂 ballHost 会漏「up 落在
@@ -380,12 +444,14 @@ export class NavFloatBox {
             if (!this.alive) return;
             this.ballHiddenStore.set(true);
             this.compassHiddenStore.set(true);
+            for (const b of this.bfBalls) b.hidden.set(true);
             debugLog("navcompass", "mobile keyboard show → hide", "nav");
         };
         const onHide = () => {
             if (!this.alive) return;
             this.ballHiddenStore.set(false);
             this.compassHiddenStore.set(false);
+            for (const b of this.bfBalls) b.hidden.set(false);
         };
         this.plugin.eventBus.on("mobile-keyboard-show", onShow);
         this.plugin.eventBus.on("mobile-keyboard-hide", onHide);
@@ -509,6 +575,7 @@ export class NavFloatBox {
             unmount(this.ballSv);
             this.ballSv = null;
         }
+        this.unmountBFBalls();
         this.ballHost?.remove();
         this.compassHost?.remove();
         this.ballHost = null;

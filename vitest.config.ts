@@ -11,7 +11,8 @@ export default defineConfig({
       {
         // siyuan npm 包只有类型声明、无运行时入口；src/libs 的 import 链全靠 named-import "siyuan"，
         // 单测里落到这个 Proxy stub 上（root 级 resolve.alias 不会被 projects 继承，必须放条目内）。
-        // 契约测试（tests/contract）直接 fetch dev 实例（6807，SIYUAN_URL 可覆盖）、不 import siyuan，不需要。
+        // 契约测试（tests/contract）直接 fetch dev 实例（6807，SIYUAN_URL 可覆盖）；import src 真
+        // 代码的用例（sync-remap-e2e）同样需要本 alias（见 contract 条目）。
         resolve: {
           alias: [
             {
@@ -31,6 +32,16 @@ export default defineConfig({
         },
       },
       {
+        // 同 unit 条目的 siyuan stub（真代码端到端用例 sync-remap-e2e import src/libs 真链，
+        // 其余契约文件不 import siyuan、alias 无感）
+        resolve: {
+          alias: [
+            {
+              find: /^siyuan$/,
+              replacement: fileURLToPath(new URL("./tests/unit/__stubs__/siyuan.cjs", import.meta.url)),
+            },
+          ],
+        },
         test: {
           name: "contract",
           // 契约测试，对 dev 实例（6807，SIYUAN_URL 可覆盖）验证思源 API 行为：make test-t

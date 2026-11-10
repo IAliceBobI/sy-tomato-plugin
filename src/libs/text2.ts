@@ -467,24 +467,6 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
 
 
 
-    public get 没有失效闪卡() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "没有失效闪卡";
-            case "es_ES":
-                return "No hay tarjetas flash inactivas";
-            case "fr_FR":
-                return "Aucune carte flash invalide";
-            case "ja_JP":
-                return "無効なフラッシュカードはありません";
-            case "zh_CHT":
-                return "沒有失效閃卡";
-
-            default:
-                return "No invalid flash cards";
-        }
-    }
-
     public get 复习闪卡时才能使用此功能() {
         switch (this.lang) {
             case "zh_CN":
@@ -701,24 +683,6 @@ export abstract class TomatoI18nABC2 extends TomatoI18nABC3 {
 
             default:
                 return "Unprocessed flashcards are postponed";
-        }
-    }
-
-    public get 正在确认无效闪卡请耐心等待() {
-        switch (this.lang) {
-            case "zh_CN":
-                return "正在确认无效闪卡，请耐心等待……";
-            case "es_ES":
-                return "Confirmando tarjeta flash inválida, por favor espere pacientemente...";
-            case "fr_FR":
-                return "En cours de confirmation de carte flash invalide, veuillez patienter...";
-            case "ja_JP":
-                return "無効なフラッシュカードを確認中です。お待ちください...";
-            case "zh_CHT":
-                return "正在確認無效的閃卡，請耐心等待...";
-
-            default:
-                return "Confirming invalid flashcard, please wait...";
         }
     }
 

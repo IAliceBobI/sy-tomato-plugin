@@ -28,7 +28,8 @@ export const CardBox取消当前文档内所有闪卡 = winHotkey("F8", "remove 
 // issue #83：与 F8「取消当前文档内所有闪卡」成对（F8 撤卡/⇧F8 补卡）；选键时四插件
 // 声明 grep 仅 F8/⇧F8/⌘⇧F8 三键互异，⇧F8 空闲
 export const CardBox当前文档内所有超级块制成闪卡 = winHotkey("⇧F8", "add cards in doc", "", () => tomatoI18n.当前文档内所有超级块制成闪卡)
-export const CardBox清理所有失效的闪卡 = winHotkey("⌘⇧7", "clean invalid cards", "", () => tomatoI18n.清理所有失效的闪卡)
+// 清理所有失效的闪卡（⌘⇧7）已下架（2026-11-10）：内核 3.8.x 起读侧过滤失效卡
+// （getRiffCards 不再返回）+写侧校验拦截删除（removeRiffCards code -1），工具双重失效
 export const CardBox定位闪卡 = winHotkey("⌘⌥J", "jump to card", "", () => tomatoI18n.定位闪卡)
 
 class CardBox {
@@ -99,13 +100,6 @@ class CardBox {
             langText: CardBox复习时跳过当前闪卡.langText(),
             hotkey: CardBox复习时跳过当前闪卡.m,
             callback: pressSkip,
-        });
-        gatedAddCommand(this.plugin, CardBox清理所有失效的闪卡.langKey, {
-            langText: CardBox清理所有失效的闪卡.langText(),
-            hotkey: CardBox清理所有失效的闪卡.m,
-            callback: () => {
-                siyuan.removeBrokenCards(tomatoI18n)
-            },
         });
         gatedAddCommand(this.plugin, CardBox定位闪卡.langKey, {
             langText: CardBox定位闪卡.langText(),

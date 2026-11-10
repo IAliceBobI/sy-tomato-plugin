@@ -19,6 +19,7 @@
     import { loadNavCompassPos, saveNavCompassPos } from "./libs/navCompassPos";
     import { getNavTree, navDirTargets, type NavDocTarget, type NavTree } from "./libs/navTree";
     import { childViews, navHistoryTargets } from "./libs/navHistory";
+    import { backForwardHotkeyTip, canBackForward, triggerBackForward, type BFDir } from "./libs/backForwardChannel";
     import { tomatoI18n } from "./tomatoI18n";
 
     interface Props {
@@ -34,12 +35,15 @@
         onNavigate: (target: NavDocTarget) => Promise<boolean>;
         /** 收起回球（点外/Esc/点中心） */
         onCollapse: () => void;
+        /** 罗盘内显示官方后退/前进键（bfkeys 设置项默认关——bear 2026-11-10 拍板：
+         *  两功能独立成悬浮球，罗盘内键可选；关时上臂行只剩 ↑，flex 自适应居中） */
+        showBFKeys?: boolean;
         /** 当前文档基点（宿主三级兜底供给）：组件不直读 events.docID——桌面端它只随
          *  click-editorcontent 更新（Events.ts:167 要 detail.event，而 switch-protyle/
          *  loaded-protyle-static 的内核回包无该字段），切页签不点编辑器时陈旧 */
         getDocID: () => string;
     }
-    let { lsKey, defPos, mobile, hidden, onNavigate, onCollapse, getDocID }: Props = $props();
+    let { lsKey, defPos, mobile, hidden, onNavigate, onCollapse, getDocID, showBFKeys = false }: Props = $props();
 
     const DRAG_THRESHOLD = 5;
 
@@ -63,8 +67,11 @@
     let sy = 0;
     let ox = 0;
     let oy = 0;
-    /** 拖拽后的第一次 click 吞掉（capture 期守卫）；下一次 pointerdown 复位 */
-    let suppressClick = false;
+    /** 拖拽后的第一次 click 吞掉（capture 期守卫）；下一次 pointerdown 复位。
+     *  初始 true=吞掉挂载瞬间的残留 click（bfkeys 2026-11-10 手机实测 bug：点球变身
+     *  罗盘展开，touch 序列尾部的合成 click 落在恰好盖住手指处的 ↑ 左侧后退键上，
+     *  一打开就直接触发后退——守卫吞掉，用户主动的第二次按下照常） */
+    let suppressClick = true;
 
     function clamp(v: number, min: number, max: number) {
         return Math.max(min, Math.min(max, v));
@@ -276,6 +283,37 @@
         void refresh(target.id);
     }
 
+    // ---- 官方后退/前进角键（backForwardChannel 全圈 window.siyuan 脏活） ----
+    /** 补读翻新轮次：官方栈非响应式（顶栏 disabled class / mobile tabs），指针进罗盘
+     *  与点角键时现读——堵边缘：罗盘开着时 ⌘[ 同文档块级回退不触发 switch 事件、
+     *  refresh 不跑，前进键该亮未亮 */
+    let bfTick = $state(0);
+
+    /** 角键可用性：随每轮 refresh（histTick，跨文档回退走 switch 事件链）+ 补读翻新 */
+    const bfCan: Record<BFDir, boolean> = $derived.by(() => {
+        histTick;
+        bfTick;
+        return { back: canBackForward("back"), forward: canBackForward("forward") };
+    });
+
+    /** 角键 title/aria：「后退（⌘[）」式——i18n 标签＋官方 keymap 现读（未配置不带括号） */
+    const bfTitle: Record<BFDir, string> = $derived.by(() => {
+        const tip = (d: BFDir, label: string) => {
+            const t = backForwardHotkeyTip(d);
+            return t ? `${label}（${t}）` : label;
+        };
+        return { back: tip("back", tomatoI18n.罗盘后退), forward: tip("forward", tomatoI18n.罗盘前进) };
+    });
+
+    function tapBF(dir: BFDir) {
+        triggerBackForward(dir);
+        bfTick++; // 点击即翻新禁用态（同文档回退无 switch 事件，不等 refresh）
+    }
+
+    function onCompassEnter() {
+        bfTick++; // 指针进罗盘=现读官方栈状态翻新（⌘[ 快捷键回退不经过本组件）
+    }
+
     onMount(() => {
         loadPos();
         void refresh();
@@ -313,28 +351,63 @@
     role="group"
     aria-label={tomatoI18n.十字罗盘}
     onpointerdown={onDown}
+    onpointerenter={onCompassEnter}
     onclickcapture={onRootClickCapture}
 >
-    <button
-        type="button"
-        class="nv-key nv-up"
-        class:disabled={phase === "ready" && !dirTargets?.up}
-        disabled={phase === "loading" || (phase === "ready" && !dirTargets?.up)}
-        aria-label={`${dirLabel.up}${dirTargets?.up ? `：${dirTargets.up.name}` : `：${tomatoI18n.无方向可导航}`}`}
-        title={dirTargets?.up ? `${dirLabel.up}：${dirTargets.up.name}` : dirLabel.up}
-        onclick={() => tapDir("up")}
-    >
-        {#if phase === "error"}
-            <span class="nv-arrow nv-err">{@html icon("Refresh", 16)}</span>
-        {:else}
-            <span class="nv-arrow">{@html icon("Up", 16)}</span>
+    <!-- 上臂行（uprow）：↑ 方向键居中轴不变，官方后退/前进键分列其左右两侧
+         （bear 2026-11-10 拍板：十字形态内嵌；键体=方向键同款大圆角矩形 nv-key，
+         图标+短标签）。nv-corner 仅语义标识，样式全走 nv-key；showBFKeys 默认关
+         （两功能主形态=独立悬浮球，罗盘内键可选） -->
+    <div class="nv-uprow">
+        {#if showBFKeys}
+        <button
+            type="button"
+            class="nv-key nv-corner nv-back"
+            class:disabled={!bfCan.back}
+            disabled={!bfCan.back}
+            aria-label={bfTitle.back}
+            title={bfTitle.back}
+            onclick={() => tapBF("back")}
+        >
+            <span class="nv-arrow">{@html icon("Back", 16)}</span>
+            <span class="nv-name">{tomatoI18n.罗盘后退}</span>
+        </button>
         {/if}
-        {#if dirTargets?.up}
-            <span class="nv-name">{dirTargets.up.name}</span>
-        {:else if phase === "ready"}
-            <span class="nv-name nv-none">{tomatoI18n.无方向可导航}</span>
+        <button
+            type="button"
+            class="nv-key nv-up"
+            class:disabled={phase === "ready" && !dirTargets?.up}
+            disabled={phase === "loading" || (phase === "ready" && !dirTargets?.up)}
+            aria-label={`${dirLabel.up}${dirTargets?.up ? `：${dirTargets.up.name}` : `：${tomatoI18n.无方向可导航}`}`}
+            title={dirTargets?.up ? `${dirLabel.up}：${dirTargets.up.name}` : dirLabel.up}
+            onclick={() => tapDir("up")}
+        >
+            {#if phase === "error"}
+                <span class="nv-arrow nv-err">{@html icon("Refresh", 16)}</span>
+            {:else}
+                <span class="nv-arrow">{@html icon("Up", 16)}</span>
+            {/if}
+            {#if dirTargets?.up}
+                <span class="nv-name">{dirTargets.up.name}</span>
+            {:else if phase === "ready"}
+                <span class="nv-name nv-none">{tomatoI18n.无方向可导航}</span>
+            {/if}
+        </button>
+        {#if showBFKeys}
+        <button
+            type="button"
+            class="nv-key nv-corner nv-forward"
+            class:disabled={!bfCan.forward}
+            disabled={!bfCan.forward}
+            aria-label={bfTitle.forward}
+            title={bfTitle.forward}
+            onclick={() => tapBF("forward")}
+        >
+            <span class="nv-arrow">{@html icon("Forward", 16)}</span>
+            <span class="nv-name">{tomatoI18n.罗盘前进}</span>
+        </button>
         {/if}
-    </button>
+    </div>
     <button
         type="button"
         class="nv-key nv-left"
@@ -418,7 +491,7 @@
         z-index: 10;
         display: grid;
         grid-template-areas:
-            ". up ."
+            "uprow uprow uprow"
             "left center right"
             ". down .";
         gap: 6px;
@@ -443,15 +516,19 @@
     .tomato-nav-compass.hidden {
         display: none;
     }
-    .nv-up { grid-area: up; }
+    .nv-uprow { grid-area: uprow; }
     .nv-left { grid-area: left; }
     .nv-center { grid-area: center; }
     .nv-right { grid-area: right; }
     .nv-down { grid-area: down; }
-    /* 竖臂对称（视觉 r2 P1）：中心列宽由中心键撑（桌面 104/手机 76），定宽 ↑↓ 键
-       （88/60）吃不满列，grid 默认 stretch 退化 start=左贴死右留 16px、竖臂中心左偏
-       8px——补 justify-self:center 归中（横臂左右键各自成列无空带，不需要） */
-    .nv-up,
+    /* 上臂行：↑ 键居中轴（整行 flex 居中，↑ 与下方中心键同轴）+ 后退/前进小圆键
+       分列左右；竖臂对称（视觉 r2 P1）↓ 键补 justify-self:center 归中 */
+    .nv-uprow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
     .nv-down {
         justify-self: center;
     }
@@ -539,6 +616,8 @@
         color: var(--b3-theme-error);
         opacity: 0.9;
     }
+    /* nv-corner（后退/前进键）零专属样式：键体/禁用灰化/hover/呼吸动画全走 nv-key
+       通用规则，宽随 --nv-key（桌面 88/手机 60）与其他方向键完全同款 */
     .nv-pos.nv-err {
         max-width: var(--nv-center);
         overflow: hidden;

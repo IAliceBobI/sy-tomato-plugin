@@ -250,6 +250,9 @@ type TomatoSettings = {
     nav_compass_mobile: boolean,
     nav_compass_scheme: string,
     nav_compass_flip: string,
+    // 后退/前进两悬浮球总开关（bfkeys：挂载决策读死）+罗盘内后退/前进键显示（运行时读）
+    nav_compass_bf_balls: boolean,
+    nav_compass_bf_keys: boolean,
     /** lsfix 2026-10-13 家族战役：罗盘浏览轨迹（navHistory.ts NavHistoryState，原 localStorage） */
     navHistory: { v: 1; t: { i: string; n: string }[]; c: number; p?: Record<string, string> },
     graphMaxAllBlocks: string,
@@ -310,7 +313,6 @@ type TomatoSettings = {
     linkBoxSyncHref: boolean,
     linkBoxSyncBlockAuto: boolean,
     linkBoxSyncScanDeep: boolean,
-    linkBoxSyncRemapChildID: boolean,
     linkBoxUseLnkOrRef: boolean,
     pairBarEnabled: boolean,
     pairBarDefaultFunc: string,

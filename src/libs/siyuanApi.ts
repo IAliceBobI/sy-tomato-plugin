@@ -4,17 +4,13 @@
 // 保持历史导入路径不变。
 // 注意：与 blockUtils.ts / fileScanUtils.ts / notebookUtils.ts 存在循环 import（方法体内互调），
 // 与原 utils.ts 内部一致，CJS 打包安全。
-import { Config, Constants, fetchSyncPost, confirm } from "siyuan";
+import { Config, Constants, fetchSyncPost } from "siyuan";
 import * as gconst from "./gconst";
-import { TomatoI18n } from "../tomatoI18n";
-import { events } from "./Events";
 import { getDocBlocks } from "./docUtils";
 import { Siyuan, NewNodeID } from "./globals";
 import { timeUtil } from "./timeUtil";
-import { extractIDs } from "./strUtils";
 import { sleep } from "./miscUtils";
 import { debugLog } from "./logUtils";
-import { getAllFilesAsBigText } from "./fileScanUtils";
 import { cleanDivOnly } from "./blockUtils";
 import { IUILayoutTabSearchConfigTypes } from "./types";
 
@@ -1664,63 +1660,9 @@ export const siyuan = {
         }
         return lines.join("\n");
     },
-    async removeBrokenCards(tomatoI18n: TomatoI18n): Promise<{ bigText: string, allIDs: Set<string> }> {
-        if (!events.isDesktop) {
-            siyuan.pushMsg("can only run in desktop env.");
-            return;
-        }
-        return navigator.locks.request("removeBrokenCardsLock", { ifAvailable: true }, async (lock) => {
-            if (!lock) return;
-            if (!(await siyuan.getConf())?.conf?.repo?.key) {
-                await siyuan.pushMsg(tomatoI18n.你还没秘钥插件无法为您创建本地快照, 0)
-                return;
-            }
-            siyuan.pushMsg(tomatoI18n.正在确认无效闪卡请耐心等待, 1800);
-            const bigText = await getAllFilesAsBigText()
-            const allIDs = extractIDs(bigText);
-            const invalidCardIDs: string[] = [];
-            const invalidSeen = new Set<string>();
-            for (const card of [...(await siyuan.getRiffCardsAll()).values()].flat()) {
-                // 同块多卡 flat 后同 id 出现多次，去重防止报数虚高
-                if (!allIDs.has(card.id) && !invalidSeen.has(card.id)) {
-                    invalidSeen.add(card.id);
-                    invalidCardIDs.push(card.id);
-                }
-            }
-            if (invalidCardIDs.length > 0) {
-                const MAX = 10;
-                const lnks = invalidCardIDs.slice(0, MAX).map(id => `<a href="siyuan://blocks/${id}">${id}</a>`).join("<br>")
-                let suffix = ""
-                if (invalidCardIDs.length > MAX) suffix = "<br>……"
-                confirm("⚠️" + tomatoI18n.准备删除失效闪卡(invalidCardIDs.length), tomatoI18n.即将创建快照 + "<br>" + lnks + suffix, async () => {
-                    await siyuan.createSnapshot(tomatoI18n.清理所有失效的闪卡);
-                    await siyuan.removeRiffCards(invalidCardIDs);
-                    // 内核 f2800e2da(2026-08) 起校验块树，块已不存在的卡 removeRiffCards 返回
-                    // code -1 且 siyuan.call 静默吞错，凭返回值判不了成败——重拉全量卡复验残余，
-                    // 删掉的报数、残留的降级提示（等待官方修复，见 cardUtils 同背景注释）
-                    const restIDs: string[] = [];
-                    for (const card of [...(await siyuan.getRiffCardsAll()).values()].flat()) {
-                        if (invalidSeen.has(card.id) && !restIDs.includes(card.id)) {
-                            restIDs.push(card.id);
-                        }
-                    }
-                    const removed = invalidCardIDs.length - restIDs.length;
-                    if (removed > 0) {
-                        await siyuan.pushMsg(tomatoI18n.清理所有失效的闪卡 + " : " + removed)
-                    }
-                    if (restIDs.length > 0) {
-                        const restLnks = restIDs.slice(0, MAX).map(id => `<a href="siyuan://blocks/${id}">${id}</a>`).join("<br>")
-                        let restSuffix = ""
-                        if (restIDs.length > MAX) restSuffix = "<br>……"
-                        confirm("⚠️" + tomatoI18n.仍有x张失效闪卡无法删除(restIDs.length), tomatoI18n.失效闪卡受内核校验限制无法删除 + "<br><br>" + restLnks + restSuffix)
-                    }
-                })
-            } else {
-                confirm("😄", tomatoI18n.没有失效闪卡)
-            }
-            return { bigText, allIDs }
-        });
-    },
+    // removeBrokenCards（清理失效闪卡）已下架（2026-11-10）：内核 3.8.x 起读侧过滤
+    // （getRiffCards 拉不到失效卡）+写侧校验（removeRiffCards 对失效卡 code -1），
+    // 找不到也删不掉，双重失效无修复通道
     async getDocNameByBlockID(blockID: string) {
         let row = await siyuan.sqlOne(
             `select root_id from blocks where id="${blockID}"`,

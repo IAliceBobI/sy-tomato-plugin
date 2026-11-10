@@ -40,7 +40,6 @@ import {
     CardBox删除内容块,
     CardBox闪卡复习时打开闪卡设置,
     CardBox复习时跳过当前闪卡,
-    CardBox清理所有失效的闪卡,
     CardBox定位闪卡,
 } from "../CardBox";
 import {
@@ -237,7 +236,6 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
             { langKey: CardBox删除内容块.langKey, label: () => CardBox删除内容块.langText(), hk: CardBox删除内容块 },
             { langKey: CardBox闪卡复习时打开闪卡设置.langKey, label: () => CardBox闪卡复习时打开闪卡设置.langText(), hk: CardBox闪卡复习时打开闪卡设置 },
             { langKey: CardBox复习时跳过当前闪卡.langKey, label: () => CardBox复习时跳过当前闪卡.langText(), hk: CardBox复习时跳过当前闪卡 },
-            { langKey: CardBox清理所有失效的闪卡.langKey, label: () => CardBox清理所有失效的闪卡.langText(), hk: CardBox清理所有失效的闪卡 },
             { langKey: CardBox定位闪卡.langKey, label: () => CardBox定位闪卡.langText(), hk: CardBox定位闪卡 },
             // 下列三条 winHotkey 为两参形态（无 langText 回调——原注册点即直写 i18n），
             // label 直取 i18n 勿调 .langText()（ConfFlashcard 先例同款）
