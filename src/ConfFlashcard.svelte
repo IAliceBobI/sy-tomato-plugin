@@ -11,6 +11,7 @@
         cardBoxDeleteNoConfirm,
         cardBoxReviewDocMenu,
         cardBoxReviewTitleBtn,
+        cardBoxRiffNumber,
         cardBoxSpradEvenlyPostpone,
         cardBoxSuperCard,
         cardPriorityBoxAutoHide,
@@ -85,6 +86,10 @@
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxReviewTitleBtn} />
                 {tomatoI18n.文档标题栏显示闪卡复习按钮}
+            </div>
+            <div>
+                <input type="checkbox" class="b3-switch" bind:checked={$cardBoxRiffNumber} />
+                {tomatoI18n.显示闪卡编号}
             </div>
             <div>
                 <input type="checkbox" class="b3-switch" bind:checked={$cardBoxCardtab} />

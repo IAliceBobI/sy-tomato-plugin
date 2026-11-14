@@ -675,6 +675,10 @@ export const cardBoxAddConcepts = settingFactory("cardBoxAddConcepts", false, ST
 export const cardBoxReviewDocMenu = settingFactory("cardBoxReviewDocMenu", true, STORAGE_SETTINGS, null as TSK);
 // issue #82：文档标题栏「复习本文档闪卡」按钮开关（默认开；TitleRiffBox 逐事件活读=非结构性键）
 export const cardBoxReviewTitleBtn = settingFactory("cardBoxReviewTitleBtn", true, STORAGE_SETTINGS, null as TSK);
+// issue #84：闪卡编号开关（默认关）——开=编辑器闪卡块左上角灰色圆圈序号 + 文档标题栏
+// 闪卡块总数两处启用；块数口径（一卡块占一号，嵌套父子卡按 DOM 顺序连号，与总数同口径）。
+// RiffNumberBox 逐事件活读+subscribe 即时生效=非结构性键，不进 STRUCTURAL_KEYS
+export const cardBoxRiffNumber = settingFactory("cardBoxRiffNumber", false, STORAGE_SETTINGS, null as TSK);
 // □4（vipdoctree 2026-09-13）：右键「检查失效引用」菜单开关（文档树+编辑器双落点，默认开）
 export const refCleanMenu = settingFactory("refCleanMenu", true, STORAGE_SETTINGS, null as TSK);
 export const cardBoxSpradEvenlyPostpone = settingFactory("cardBoxSpradEvenlyPostpone", true, STORAGE_SETTINGS, null as TSK);

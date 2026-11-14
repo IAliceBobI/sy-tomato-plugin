@@ -53,6 +53,8 @@ type TomatoSettings = {
     cardBoxReviewDocMenu: boolean,
     /** issue #82：文档标题栏「复习本文档闪卡」按钮（.protyle-attr 行内 iconRiffCard 钮） */
     cardBoxReviewTitleBtn: boolean,
+    /** issue #84：闪卡编号（编辑器块左上角圆圈序号+标题栏闪卡块总数，RiffNumberBox） */
+    cardBoxRiffNumber: boolean,
     refCleanMenu: boolean,
     prefixArticlesTagsShow: boolean,
     prefixArticlesTagsGroup: boolean,
