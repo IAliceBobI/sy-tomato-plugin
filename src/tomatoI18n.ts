@@ -15661,16 +15661,16 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Show flashcard numbers";
         }
     }
-    // issue #84：标题栏总数 tooltip（块数口径，与块编号同口径）
-    public 本文档闪卡块n个(n: number) {
+    // issue #84：标题栏总数 tooltip（内核口径：含子文档、按张计数，与官方复习界面同款）
+    public 本文档闪卡共n张(n: number) {
         switch (this.lang) {
-            case "zh_CN": return `本文档闪卡块 ${n} 个（按块计数，与编号同口径）`;
-            case "zh_CHT": return `此文檔閃卡塊 ${n} 個（按塊計數，與編號同口徑）`;
-            case "es_ES": return `${n} bloque(s) de tarjetas en este documento (conteo por bloque)`;
-            case "fr_FR": return `${n} bloc(s) de cartes dans ce document (comptage par bloc)`;
-            case "ja_JP": return `このドキュメントのフラッシュカードブロック：${n}（ブロック単位でカウント）`;
+            case "zh_CN": return `本文档闪卡共 ${n} 张（含子文档，与复习界面同口径）`;
+            case "zh_CHT": return `此文檔閃卡共 ${n} 張（含子文檔，與複習界面同口徑）`;
+            case "es_ES": return `${n} tarjeta(s) de repaso en este documento (subdocumentos incluidos, mismo criterio que la interfaz de repaso)`;
+            case "fr_FR": return `${n} carte(s) dans ce document (sous-documents inclus, même comptage que l'interface de révision)`;
+            case "ja_JP": return `このドキュメントのフラッシュカード：全 ${n} 枚（子ドキュメントを含む、復習画面と同じ集計）`;
             case "en_US":
-            default: return `${n} flashcard block${n === 1 ? "" : "s"} in this doc (counted per block)`;
+            default: return `${n} flashcard${n === 1 ? "" : "s"} in this doc (subdocs included, same count as the review UI)`;
         }
     }
     // confgather2 期3（2026-09-17 bear 拍板收折叠）：低频配置折叠区标题三键

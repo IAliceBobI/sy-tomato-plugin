@@ -6,11 +6,15 @@
 //    口径=一个闪卡块占一个号（不论该块几张卡）；嵌套闪卡（列表父子块都是卡）按
 //    DOM 顺序一并连号。仅编辑器内显示——复习界面/悬浮预览/搜索预览/反链面板内的
 //    protyle 走 TitleRiffBox 同款环境守卫链不挂（isCardUI 判定复用）。
-// 2. 标题栏总数：文档标题属性行（.protyle-title .protyle-attr）显示本文档闪卡块
-//    总数（iconNumber + N，tooltip 说明口径），与块编号同口径（块数），不会出现
-//    编号与总数对不上的观感。显隐门复用 TitleRiffBox 同款：只读模式/加密笔记本/
-//    「显示书签图标」关闭（属性行唯一 opacity:1 通道关闭）时不注入（跟 #82 复习
-//    按钮同一套门）。
+// 2. 标题栏总数：文档标题属性行（.protyle-title .protyle-attr）显示本文档闪卡
+//    总数（iconNumber + N，tooltip 说明口径）。口径=内核 getTreeRiffCards 的
+//    total——官方复习界面「文档卡数」同款：含子文档、按张计数（一块可有多张卡：
+//    图片挖空/一块多卡组）。#84 修复：旧实现按 DOM 已挂载块数（noOf.size）计数，
+//    长文档动态加载下未挂载块漏计+一块多卡按 1 计，双双偏少。总数异步查内核，按
+//    rootID+挂载块数缓存（稳定态零请求：打开查一次，制卡删卡/切文档后重查一次）；
+//    块编号仍按块连号（定位用），编号上限可小于总数，两口径刻意不同。显隐门复用
+//    TitleRiffBox 同款：只读模式/加密笔记本/「显示书签图标」关闭（属性行唯一
+//    opacity:1 通道关闭）时不注入（跟 #82 复习按钮同一套门）。
 //
 // DOM 注入配方（先例：CardPriorityBar 挂块 .protyle-attr=内核序列化安全区，DOM
 // 不进内核保存链）：编号徽标挂块属性行首（prepend 恒居行最左），CSS 把含徽标的
@@ -30,6 +34,7 @@ import { getOpenedEditors, icon, isBacklinkUI, isCardUI, isPopoverUI, isSearchUI
 import { cardBoxCheckbox, cardBoxRiffNumber } from "./libs/stores";
 import { tomatoI18n } from "./tomatoI18n";
 import { debugLog } from "./libs/logUtils";
+import { siyuan } from "./libs/siyuanApi";
 import { CUSTOM_RIFF_DECKS, TOMATO_BK_IGNORE } from "./libs/gconst";
 
 // 代际标记（TitleRiffBox.ts 同款配方）：插件 reload 整轮重跑模块顶层，旧实例
@@ -109,6 +114,17 @@ class RiffNumberBox {
     private sweepTimer: ReturnType<typeof setTimeout> | null = null;
     /** 开关 store 订阅注销器（onunload 收尾） */
     private unsubSwitch: (() => void) | null = null;
+    /** onunload 置位：in-flight 总数请求落地前先查，卸载后不再触 DOM（防停用后回调
+     *  把总数徽标又注回来；reload 场景另由模块代际守卫兜底） */
+    private dead = false;
+    /** 总数请求序号：同 rootID 后发请求顶掉先发（在途期间挂载块数再变=旧响应作废） */
+    private totalReqSeq = 0;
+    /** 内核闪卡总数缓存（#84 口径修正），键=编辑器元素（protyle.element）：count=上次
+     *  查询 total；rootID+mounted=失效键（换文档/制卡删卡改挂载数→重查）；seq=在途
+     *  请求去重与顶掉判定。按编辑器分键而非按 rootID——同文档多开分屏各自挂载块数
+     *  可不同（动态加载进度差），单键会 ping-pong 互顶（A 的响应触发 B 重查、B 的响
+     *  应再触发 A，请求风暴）；页签关闭留残条随实例回收，量级=会话内开过的页签数 */
+    private riffTotalCache = new Map<HTMLElement, { rootID: string; count: number; mounted: number; pending: boolean; seq: number }>();
 
     onload() {
         // 闪卡工具总开关（Checkbox 族=isStructuralKey 正则自动覆盖，改后保存自动整重载）
@@ -158,6 +174,7 @@ class RiffNumberBox {
     }
 
     onunload() {
+        this.dead = true; // 先闸住 in-flight 总数回调，再清场
         this.unsubSwitch?.();
         this.unsubSwitch = null;
         this.observer?.disconnect();
@@ -243,8 +260,13 @@ class RiffNumberBox {
 
     /** 标题栏总数：注入点与显隐门复用 TitleRiffBox 同款（.protyle-title 下属性行；
      *  聚焦隐藏标题/「显示书签图标」关闭（无 protyle-wysiwyg--attr 类=属性行唯一
-     *  opacity:1 通道关闭）/只读/加密笔记本时不注入，跟 #82 复习按钮同一套门） */
-    private updateTitleCount(protyle: IProtyle, count: number) {
+     *  opacity:1 通道关闭）/只读/加密笔记本时不注入，跟 #82 复习按钮同一套门）。
+     *  口径（#84 修复）：总数改取内核 getTreeRiffCards 的 total（官方复习界面「文档
+     *  卡数」同款：含子文档、按张计数），替换旧 noOf.size（DOM 已挂载块数：长文档
+     *  动态加载未挂载块漏计、一块多卡按 1 计，双双偏少）。异步：先注占位徽标，数到
+     *  手后落地；按 rootID+挂载块数缓存，稳定态零请求（打开查一次，制卡删卡/切文档
+     *  后重查一次） */
+    private updateTitleCount(protyle: IProtyle, mounted: number) {
         const titleEle = protyle.title?.element;
         if (!titleEle) return; // 卡片/预览等无标题 protyle 的结构兜底
         if (titleEle.classList.contains("fn__none")) return; // 聚焦态隐藏标题=不可见
@@ -259,30 +281,98 @@ class RiffNumberBox {
             attrRow.querySelector(`[${RIFF_CNT_ADD}]`)?.remove();
             return;
         }
-        // 幂等（TitleRiffBox 同款规则）：在场代 ≥ 本代且计数未变→跳过；低代/无代
-        // 残留→摘除换新；同代计数变了→就地改文本
+        const rootID = protyle.block?.rootID;
+        if (!rootID) return; // 无根块 id=无查询键（异常结构），不注入
+        const edKey = protyle.element;
+        if (!edKey) return;
+        const cached = this.riffTotalCache.get(edKey);
+        // 稳定态零请求：同编辑器同文档且挂载块数没变（未制卡/删卡）→缓存直读
+        if (cached && !cached.pending && cached.rootID === rootID && cached.mounted === mounted) {
+            this.renderTitleCount(attrRow, cached.count);
+            return;
+        }
+        // 同键请求在途（开文档事件簇连发去重）：占位/旧数已在场就等落地，不重复发
+        if (cached?.pending && cached.rootID === rootID && cached.mounted === mounted
+            && attrRow.querySelector(`[${RIFF_CNT_ADD}]`)) {
+            return;
+        }
+        // 首查/失效重查（制卡删卡改挂载数、同页签换文档、在途中块数又变 seq 顶旧）：
+        // 占位先上（同文档已落地过的旧数沿用显示，换文档不沿用），再异步查内核
+        const stale = cached && !cached.pending && cached.rootID === rootID ? cached.count : null;
+        this.renderTitleCount(attrRow, stale);
+        const seq = ++this.totalReqSeq;
+        this.riffTotalCache.set(edKey, { rootID, count: stale ?? 0, mounted, pending: true, seq });
+        this.fetchTreeRiffTotal(edKey, rootID, seq);
+    }
+
+    /** 标题栏总数唯一 DOM 写入点（TitleRiffBox 同款幂等规则）：在场代更高=更新实例
+     *  已挂载，不碰；同代=就地改数字/aria（data-count 未变零写入，observer 不自激）；
+     *  低代/无代=摘除重建。count=null=占位态（数位空、无 aria），数到手同代就地补 */
+    private renderTitleCount(attrRow: Element, count: number | null) {
         const old = attrRow.querySelector(`[${RIFF_CNT_ADD}]`);
         if (old) {
-            if (Number(old.getAttribute(RIFF_CNT_ADD)) >= Number(RIFF_NO_GEN)) {
+            const gen = Number(old.getAttribute(RIFF_CNT_ADD));
+            if (gen > Number(RIFF_NO_GEN)) return; // 更新实例已挂载，旧 in-flight 不得改
+            if (gen === Number(RIFF_NO_GEN)) {
                 if (old.getAttribute("data-count") !== String(count)) {
                     old.setAttribute("data-count", String(count));
-                    old.setAttribute("aria-label", tomatoI18n.本文档闪卡块n个(count));
+                    if (count == null) {
+                        old.removeAttribute("aria-label");
+                    } else {
+                        old.setAttribute("aria-label", tomatoI18n.本文档闪卡共n张(count));
+                    }
                     const num = old.querySelector(".tomato-riff-count-num");
-                    if (num) num.textContent = String(count);
+                    if (num) num.textContent = count == null ? "" : String(count);
                 }
                 return;
             }
-            old.remove();
+            old.remove(); // 低代/无代残留（旧实例 in-flight 注入）
         }
         const cnt = document.createElement("div");
         cnt.className = "tomato-riff-count ariaLabel";
         cnt.setAttribute(RIFF_CNT_ADD, RIFF_NO_GEN);
         cnt.setAttribute("data-count", String(count));
         cnt.setAttribute("role", "text");
-        cnt.setAttribute("aria-label", tomatoI18n.本文档闪卡块n个(count));
+        if (count != null) cnt.setAttribute("aria-label", tomatoI18n.本文档闪卡共n张(count));
         cnt.setAttribute("data-position", "north");
-        cnt.innerHTML = icon("iconNumber", 12) + `<span class="tomato-riff-count-num">${count}</span>`;
+        cnt.innerHTML = icon("iconNumber", 12) + `<span class="tomato-riff-count-num">${count == null ? "" : count}</span>`;
         attrRow.appendChild(cnt);
+    }
+
+    /** 查内核文档子树闪卡总数（getTreeRiffCards page=1/pageSize=1 只取 total，不拉
+     *  卡列表）。落地三重守卫：dead（onunload 后不触 DOM）、模块代际（reload 后新
+     *  实例已清场重挂，旧实例 in-flight 落地会注回旧代徽标→丢弃）、seq（同编辑器
+     *  更新请求已顶掉本次→交给新请求落地）。数到手写缓存后走 sweepOpenedEditors
+     *  重排落地——借 renumber 全套环境守卫（开关已关/只读态自动不注），同文档多开
+     *  分屏各自上数；失败只摘占位不重排（重排会立即重发请求，内核持续报错时死循环），
+     *  缓存删掉让下次 protyle 事件自然重试 */
+    private async fetchTreeRiffTotal(edKey: HTMLElement, rootID: string, seq: number) {
+        const gen = Number(RIFF_NO_GEN);
+        try {
+            const ret = await siyuan.getTreeRiffCards(rootID, 1, 1);
+            if (this.dead || gGen.__tomato_zZmqus5PtYRi_riffNoGen !== gen) return;
+            const entry = this.riffTotalCache.get(edKey);
+            if (!entry || entry.seq !== seq) return;
+            const total = ret?.total;
+            if (typeof total !== "number" || !Number.isFinite(total)) {
+                this.riffTotalCache.delete(edKey);
+                debugLog("riffno.total.bad", `doc=${rootID} resp=${JSON.stringify(ret)}`, "riffno");
+                for (const ed of getOpenedEditors()) {
+                    const p = ed.protyle?.protyle;
+                    if (p?.block?.rootID !== rootID) continue;
+                    p.title?.element?.querySelector(`:scope > .protyle-attr > [${RIFF_CNT_ADD}]`)?.remove();
+                }
+                return;
+            }
+            entry.pending = false;
+            entry.count = total;
+            debugLog("riffno.total", `doc=${rootID} total=${total}`, "riffno");
+            this.sweepOpenedEditors("total-arrived");
+        } catch (e) {
+            if (this.dead || gGen.__tomato_zZmqus5PtYRi_riffNoGen !== gen) return;
+            this.riffTotalCache.delete(edKey);
+            debugLog("riffno.total.err", `doc=${rootID} err=${e}`, "riffno");
+        }
     }
 }
 
