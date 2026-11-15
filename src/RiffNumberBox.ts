@@ -2,19 +2,29 @@
 //
 // 形态两处（单一开关 cardBoxRiffNumber「显示闪卡编号」控制，默认关）：
 // 1. 块编号：每个闪卡块（IAL 有 custom-riff-decks）左上角小灰色圆圈序号。
-//    编号=动态顺序号，按文档内 DOM 顺序连号（中间插卡后自动重排，不做稳定 ID）；
-//    口径=一个闪卡块占一个号（不论该块几张卡）；嵌套闪卡（列表父子块都是卡）按
-//    DOM 顺序一并连号。仅编辑器内显示——复习界面/悬浮预览/搜索预览/反链面板内的
-//    protyle 走 TitleRiffBox 同款环境守卫链不挂（isCardUI 判定复用）。
+//    编号=全文顺序号（#84 三轮修正）：打开文档时读 .sy 块树（/api/file/getFile）
+//    DFS 滤持卡块得有序 id 表（Children 数组序=文档顺序，文档顺序唯一可靠源——
+//    blocks 表 sort 列恒 10、getTreeRiffCards 卡序=deck 存储序，均不可用；.sy 每
+//    块 Properties 即 IAL 直接判卡，子文档独立文件天然不含），在场块一律查表取
+//    号。旧实现按在场 DOM 连号——编辑器动态加载只挂载视口附近块，长文档滚动换
+//    批就重排错号（上滚接号、进度条跳转从 1 重编），查表后滚到哪段号都是全文
+//    口径稳定号。失效：custom-riff-decks 属性突变（制卡/删卡/属性行重写）标脏
+//    重拉 + 在场号序非单调递增兜底（移动块不改属性、childList 与滚动加载同源不
+//    可区分，靠序关系检测）。口径=一个闪卡块占一个号（不论该块几张卡）；嵌套闪
+//    卡（列表父子块都是卡）按 DFS 序一并连号。仅编辑器内显示——复习界面/悬浮预
+//    览/搜索预览/反链面板内的 protyle 走 TitleRiffBox 同款环境守卫链不挂
+//    （isCardUI 判定复用）。
 // 2. 标题栏总数：文档标题属性行（.protyle-title .protyle-attr）显示本文档闪卡
 //    总数（iconNumber + N，tooltip 说明口径）。口径=内核 getTreeRiffCards 的
 //    total——官方复习界面「文档卡数」同款：含子文档、按张计数（一块可有多张卡：
-//    图片挖空/一块多卡组）。#84 修复：旧实现按 DOM 已挂载块数（noOf.size）计数，
-//    长文档动态加载下未挂载块漏计+一块多卡按 1 计，双双偏少。总数异步查内核，按
-//    rootID+挂载块数缓存（稳定态零请求：打开查一次，制卡删卡/切文档后重查一次）；
-//    块编号仍按块连号（定位用），编号上限可小于总数，两口径刻意不同。显隐门复用
-//    TitleRiffBox 同款：只读模式/加密笔记本/「显示书签图标」关闭（属性行唯一
-//    opacity:1 通道关闭）时不注入（跟 #82 复习按钮同一套门）。
+//    图片挖空/一块多卡组）。#84 二轮修复：旧实现按 DOM 已挂载块数（noOf.size）
+//    计数，长文档动态加载下未挂载块漏计+一块多卡按 1 计，双双偏少。总数与编号表
+//    同一次异步拉取、同缓存条目，失效只看 rootID+标脏（#84 三轮：旧按 rootID+
+//    挂载块数失效，动态加载滚一次挂载数变一次=滚动风暴重查，编号改查表后挂载数
+//    不再参与失效）；块编号按块连号（定位用），编号上限可小于总数（按张计），两
+//    口径刻意不同。显隐门复用 TitleRiffBox 同款：只读模式/加密笔记本/「显示书签
+//    图标」关闭（属性行唯一 opacity:1 通道关闭）时不注入（跟 #82 复习按钮同一
+//    套门）。
 //
 // DOM 注入配方（先例：CardPriorityBar 挂块 .protyle-attr=内核序列化安全区，DOM
 // 不进内核保存链）：编号徽标挂块属性行首（prepend 恒居行最左），CSS 把含徽标的
@@ -67,19 +77,25 @@ function injectRiffNoStyle() {
 div[custom-riff-decks] > .protyle-attr:has(.tomato-riff-no) {
     opacity: 1 !important;
 }
-/* 重锚块左上（cardPriBarPos left-top 档同构）：left:0 right:auto，top 保持内核
-   -12px 悬空块上边线。:not(:has([cardPriBar])) 排除同住着 CardPriorityBar 按钮条
-   的行——不排除会把用户在 cardPriBarPos 选的条位置档（默认 right=块右上）一并
-   拽到左上；该组合下徽标随行留在右上（常显已由上一条保证，仅位置跟随条档） */
-div[custom-riff-decks] > .protyle-attr:has(.tomato-riff-no):not(:has([cardPriBar])) {
+/* 重锚块左上恒定（#84 三轮）：left:0 right:auto，top 保持内核 -12px 悬空块上
+   边线。旧版 :not(:has([cardPriBar])) 避让优先级条=行随条位置档跳位，用户实测
+   开优先级后编号圈跑到右侧，位置不稳定不可接受——改恒左锚。同住属性行的
+   CardPriorityBar 按钮条（mount 恒 appendChild 行尾）自然排在徽标右侧同处左上
+   区，cardPriBarPos=left-top 档条规则与本品同向 left:0 无冲突；right 档（默认，
+   零注入）下条随行到左上=该组合的已知行为变化 */
+div[custom-riff-decks] > .protyle-attr:has(.tomato-riff-no) {
     left: 0 !important;
     right: auto !important;
 }
-/* 小灰色圆圈编号徽标：色值/底色全 --b3-* 主题变量（暗色自动跟随），等宽数字 */
+/* 小灰色圆圈编号徽标：色值/底色全 --b3-* 主题变量（暗色自动跟随），等宽数字。
+   居中配方（#84 三轮用户截图实锤数字偏左上后迭代）：不用 inline-flex——匿名
+   文本 flex item 的墨迹盒在主轴贴 padding 左缘（justify-center 管不到字形墨迹）
+   且 line-height:1 行盒内基线偏上；改 inline-block + text-align:center（行盒
+   撑满内容区，字形水平居中）+ line-height 16px（行盒高于 15px 容器，字形随
+   half-leading 下沉，Range 实测 topGap 3.0/bottomGap 2.0 视觉居中） */
 div[custom-riff-decks] > .protyle-attr > .tomato-riff-no {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
+    text-align: center;
     min-width: 15px;
     height: 15px;
     padding: 0 3px;
@@ -87,7 +103,7 @@ div[custom-riff-decks] > .protyle-attr > .tomato-riff-no {
     border-radius: 50%;
     color: var(--b3-theme-on-surface);
     font-size: 10px;
-    line-height: 1;
+    line-height: 16px;
     font-variant-numeric: tabular-nums;
     background-color: var(--b3-theme-surface);
     user-select: none;
@@ -117,14 +133,17 @@ class RiffNumberBox {
     /** onunload 置位：in-flight 总数请求落地前先查，卸载后不再触 DOM（防停用后回调
      *  把总数徽标又注回来；reload 场景另由模块代际守卫兜底） */
     private dead = false;
-    /** 总数请求序号：同 rootID 后发请求顶掉先发（在途期间挂载块数再变=旧响应作废） */
+    /** 请求序号：同 rootID 后发请求顶掉先发（在途期间再标脏=旧响应作废） */
     private totalReqSeq = 0;
-    /** 内核闪卡总数缓存（#84 口径修正），键=编辑器元素（protyle.element）：count=上次
-     *  查询 total；rootID+mounted=失效键（换文档/制卡删卡改挂载数→重查）；seq=在途
-     *  请求去重与顶掉判定。按编辑器分键而非按 rootID——同文档多开分屏各自挂载块数
-     *  可不同（动态加载进度差），单键会 ping-pong 互顶（A 的响应触发 B 重查、B 的响
-     *  应再触发 A，请求风暴）；页签关闭留残条随实例回收，量级=会话内开过的页签数 */
-    private riffTotalCache = new Map<HTMLElement, { rootID: string; count: number; mounted: number; pending: boolean; seq: number }>();
+    /** 文档卡数据缓存（#84 三轮重构），键=编辑器元素（protyle.element）：count=标题
+     *  栏总数（getTreeRiffCards 的 total，官方复习口径：含子文档按张计）；order=全文
+     *  编号表（块 id→全文序号，SQL 全树 DFS 滤持卡块，不含子文档块）；dirty=标脏重拉；
+     *  pending/seq=在途去重与顶掉。失效只看 rootID+dirty——旧版还比对挂载块数（制卡
+     *  删卡的失效信号），但动态加载滚动也变挂载数=滚动风暴重查；编号改查表后卡集合/
+     *  顺序变化走 attributes 标脏+单调性兜底，挂载数彻底退出失效链。按编辑器分键而非
+     *  按 rootID——同文档多开分屏各自缓存互不顶（标脏全量置无妨）；页签关闭留残条随
+     *  实例回收，量级=会话内开过的页签数 */
+    private riffTotalCache = new Map<HTMLElement, { rootID: string; count: number | null; order: Map<string, number> | null; dirty: boolean; pending: boolean; seq: number }>();
 
     onload() {
         // 闪卡工具总开关（Checkbox 族=isStructuralKey 正则自动覆盖，改后保存自动整重载）
@@ -146,9 +165,16 @@ class RiffNumberBox {
         // 块级变化（制卡/取消制卡属性变化、插块/删块/内核重渲染重写属性行）→ 重排。
         // attributeFilter 只放行制卡属性收窄 attributes 噪音（CardPriorityBox 同款）；
         // 回调不区分目标区域——重排只对打开的页签编辑器做，复习界面/预览内的变化
-        // 天然不消费；自挂徽标也触发 childList，diff 稳定态零写入即收敛
-        this.observer = new MutationObserver(() => {
+        // 天然不消费；自挂徽标也触发 childList，diff 稳定态零写入即收敛。
+        // attributes 突变=卡集合/顺序可能已变，编号表+总数全量标脏（#84 三轮：在场
+        // DOM 推不出全文状态，必须重拉内核；mutation target 反查所属编辑器不可靠，
+        // 制卡低频全量标脏代价可接受）。纯 childList（滚动加载/普通插删块）不标脏
+        // ——新卡块由 renumber 单调性兜底，滚动零重查
+        this.observer = new MutationObserver(muts => {
             if (!cardBoxRiffNumber.get()) return;
+            if (muts.some(m => m.type === "attributes")) {
+                for (const c of this.riffTotalCache.values()) c.dirty = true;
+            }
             if (this.sweepTimer) clearTimeout(this.sweepTimer);
             this.sweepTimer = setTimeout(() => {
                 this.sweepTimer = null;
@@ -211,17 +237,34 @@ class RiffNumberBox {
         this.renumber(protyle, eventType);
     }
 
-    /** 对单个编辑器重排：按 DOM 顺序给闪卡块连号（嵌套父子卡一并连号）+ 更新标题栏
-     *  总数。diff 语义：同代徽标序号不变零写入（observer 自激收敛）；序号变了/新卡
-     *  块→写或挂；宿主已非卡块（取消制卡）或跨代残留→摘 */
+    /** 对单个编辑器重排：在场闪卡块查全文编号表取号 + 更新标题栏总数。号=全文顺序
+     *  号（#84 三轮），滚动/进度条跳转换批不变号；表未就绪/查不到号的块不挂（表落地
+     *  后 sweep 补挂）。diff 语义不变：同代徽标号不变零写入（observer 自激收敛）；
+     *  号变了/新卡块→写或挂；宿主已非卡块（取消制卡）或跨代残留→摘 */
     private renumber(protyle: IProtyle, eventType = "") {
         const wysiwyg = protyle.wysiwyg?.element;
         if (!wysiwyg) return;
-        // querySelectorAll 返回文档序=DOM 顺序连号（含嵌套闪卡的父子块）
-        const blocks = [...wysiwyg.querySelectorAll(`[${CUSTOM_RIFF_DECKS}]`)] as HTMLElement[];
+        const edKey = protyle.element;
+        const rootID = protyle.block?.rootID;
+        const cached = edKey ? this.riffTotalCache.get(edKey) : undefined;
+        const order = cached && cached.rootID === rootID && !cached.dirty ? cached.order : null;
+        // 在场卡块按 data-node-id 查表取号（DOM 顺序遍历只取元素，号不来自 DOM 序）；
+        // 同时校验在场号序随 DOM 序严格递增（动态加载=全文序的连续子序列，嵌套父子
+        // 卡与截断边缘都保持单调）——非单调=全文顺序已变（移动块不改 custom-riff-
+        // decks、childList 与滚动加载同源，attributes 标脏抓不到），置脏走重拉自愈
         const noOf = new Map<HTMLElement, number>();
-        let no = 0;
-        for (const b of blocks) noOf.set(b, ++no);
+        let lastNo = 0, monotonic = true;
+        for (const b of wysiwyg.querySelectorAll(`[${CUSTOM_RIFF_DECKS}]`) as NodeListOf<HTMLElement>) {
+            const id = b.getAttribute("data-node-id");
+            const n = id && order ? order.get(id) : undefined;
+            if (n == null) continue; // 表未就绪/新制卡未刷新/孤儿行，表到或刷新后 sweep 补挂
+            if (n <= lastNo) monotonic = false;
+            lastNo = n;
+            noOf.set(b, n);
+        }
+        if (order && !monotonic) {
+            if (cached) cached.dirty = true;
+        }
         // 1. 在场徽标：宿主仍是卡块且同代→按需更新序号；否则摘（失宿主/异代）。
         //    宿主按 data-node-id 认（块固有属性恒在）——不能按 custom-riff-decks 认：
         //    嵌套父子卡中子块取消制卡时，子块徽标向上 closest 会误命中仍是卡块的
@@ -254,19 +297,17 @@ class RiffNumberBox {
             badge.textContent = String(n);
             attr.prepend(badge);
         }
-        this.updateTitleCount(protyle, noOf.size);
-        debugLog("riffno.renumber", `doc=${protyle.block?.rootID} blocks=${noOf.size} type=${eventType}`, "riffno");
+        this.updateTitleCount(protyle);
+        this.ensureDocRiff(protyle);
+        debugLog("riffno.renumber", `doc=${rootID} mounted=${noOf.size}/${order?.size ?? "?"} mono=${monotonic} type=${eventType}`, "riffno");
     }
 
-    /** 标题栏总数：注入点与显隐门复用 TitleRiffBox 同款（.protyle-title 下属性行；
-     *  聚焦隐藏标题/「显示书签图标」关闭（无 protyle-wysiwyg--attr 类=属性行唯一
-     *  opacity:1 通道关闭）/只读/加密笔记本时不注入，跟 #82 复习按钮同一套门）。
-     *  口径（#84 修复）：总数改取内核 getTreeRiffCards 的 total（官方复习界面「文档
-     *  卡数」同款：含子文档、按张计数），替换旧 noOf.size（DOM 已挂载块数：长文档
-     *  动态加载未挂载块漏计、一块多卡按 1 计，双双偏少）。异步：先注占位徽标，数到
-     *  手后落地；按 rootID+挂载块数缓存，稳定态零请求（打开查一次，制卡删卡/切文档
-     *  后重查一次） */
-    private updateTitleCount(protyle: IProtyle, mounted: number) {
+    /** 标题栏总数（纯展示，拉取入口在 ensureDocRiff）：注入点与显隐门复用 TitleRiffBox
+     *  同款（.protyle-title 下属性行；聚焦隐藏标题/「显示书签图标」关闭（无 protyle-
+     *  wysiwyg--attr 类=属性行唯一 opacity:1 通道关闭）/只读/加密笔记本时不注入，跟
+     *  #82 复习按钮同一套门）。展示值：同文档缓存直读（在途/标脏沿用旧数，马上有新
+     *  数落地 sweep 刷新），换文档/无缓存=占位（数位空、无 aria） */
+    private updateTitleCount(protyle: IProtyle) {
         const titleEle = protyle.title?.element;
         if (!titleEle) return; // 卡片/预览等无标题 protyle 的结构兜底
         if (titleEle.classList.contains("fn__none")) return; // 聚焦态隐藏标题=不可见
@@ -286,23 +327,25 @@ class RiffNumberBox {
         const edKey = protyle.element;
         if (!edKey) return;
         const cached = this.riffTotalCache.get(edKey);
-        // 稳定态零请求：同编辑器同文档且挂载块数没变（未制卡/删卡）→缓存直读
-        if (cached && !cached.pending && cached.rootID === rootID && cached.mounted === mounted) {
-            this.renderTitleCount(attrRow, cached.count);
-            return;
-        }
-        // 同键请求在途（开文档事件簇连发去重）：占位/旧数已在场就等落地，不重复发
-        if (cached?.pending && cached.rootID === rootID && cached.mounted === mounted
-            && attrRow.querySelector(`[${RIFF_CNT_ADD}]`)) {
-            return;
-        }
-        // 首查/失效重查（制卡删卡改挂载数、同页签换文档、在途中块数又变 seq 顶旧）：
-        // 占位先上（同文档已落地过的旧数沿用显示，换文档不沿用），再异步查内核
-        const stale = cached && !cached.pending && cached.rootID === rootID ? cached.count : null;
-        this.renderTitleCount(attrRow, stale);
+        this.renderTitleCount(attrRow, cached && cached.rootID === rootID ? cached.count : null);
+    }
+
+    /** 编号表+总数唯一拉取入口：缓存有效（同文档非脏非在途）零请求——滚动加载不
+     *  触发重拉（#84 三轮核心）；无缓存/换文档/标脏→置在途并异步拉（在途去重、后
+     *  发顶先发），同文档已落地过的旧表/旧数沿用过渡（换文档不沿用） */
+    private ensureDocRiff(protyle: IProtyle) {
+        const edKey = protyle.element;
+        const rootID = protyle.block?.rootID;
+        if (!edKey || !rootID) return;
+        const cached = this.riffTotalCache.get(edKey);
+        if (cached && cached.rootID === rootID && !cached.dirty && !cached.pending) return;
+        if (cached?.pending && cached.rootID === rootID) return; // 同文档在途，等落地
         const seq = ++this.totalReqSeq;
-        this.riffTotalCache.set(edKey, { rootID, count: stale ?? 0, mounted, pending: true, seq });
-        this.fetchTreeRiffTotal(edKey, rootID, seq);
+        const stale = cached && cached.rootID === rootID
+            ? { count: cached.count, order: cached.order }
+            : { count: null, order: null };
+        this.riffTotalCache.set(edKey, { rootID, count: stale.count, order: stale.order, dirty: false, pending: true, seq });
+        this.fetchDocRiff(edKey, rootID, seq);
     }
 
     /** 标题栏总数唯一 DOM 写入点（TitleRiffBox 同款幂等规则）：在场代更高=更新实例
@@ -339,24 +382,45 @@ class RiffNumberBox {
         attrRow.appendChild(cnt);
     }
 
-    /** 查内核文档子树闪卡总数（getTreeRiffCards page=1/pageSize=1 只取 total，不拉
-     *  卡列表）。落地三重守卫：dead（onunload 后不触 DOM）、模块代际（reload 后新
-     *  实例已清场重挂，旧实例 in-flight 落地会注回旧代徽标→丢弃）、seq（同编辑器
-     *  更新请求已顶掉本次→交给新请求落地）。数到手写缓存后走 sweepOpenedEditors
-     *  重排落地——借 renumber 全套环境守卫（开关已关/只读态自动不注），同文档多开
-     *  分屏各自上数；失败只摘占位不重排（重排会立即重发请求，内核持续报错时死循环），
-     *  缓存删掉让下次 protyle 事件自然重试 */
-    private async fetchTreeRiffTotal(edKey: HTMLElement, rootID: string, seq: number) {
+    /** 一次拉齐全文编号表+标题栏总数：总数=getTreeRiffCards 的 total（官方复习口径，
+     *  page=1/pageSize=1 只取 total 不拉卡列表）；编号表=SQL 查文档 path（1 行轻查）
+     *  + /api/file/getFile 读 .sy 块树原文 DFS——文档顺序唯一可靠源（blocks 表 sort
+     *  列恒 10 不承载顺序、getTreeRiffCards 卡序=deck 存储序，均不可用，2026-11-15
+     *  #84 三轮实测实锤）；.sy 每块 Properties 即 IAL，custom-riff-decks 在场即卡块，
+     *  不必再查 attributes 表。子文档是独立 .sy 文件天然不含（与在场 DOM 同域）。
+     *  落地三重守卫：dead（onunload 后不触 DOM）、模块代际（reload 后新实例已清场
+     *  重挂，旧实例 in-flight 落地会注回旧代徽标→丢弃）、seq（同编辑器更新请求已顶
+     *  掉本次→交给新请求落地）。落地清 dirty（读的是落盘文件，事务提交即写）写缓存
+     *  后 sweepOpenedEditors 重排——借 renumber 全套环境守卫（开关已关/只读态自动不
+     *  注），同文档多开分屏各自上数；总数响应坏只摘占位徽标不动编号表（条目留缓存），
+     *  异常整条删缓存下次 protyle 事件自然重试，失败不 sweep（立即重排会立刻重发请
+     *  求，内核持续报错时死循环） */
+    private async fetchDocRiff(edKey: HTMLElement, rootID: string, seq: number) {
         const gen = Number(RIFF_NO_GEN);
         try {
-            const ret = await siyuan.getTreeRiffCards(rootID, 1, 1);
+            const [totalRet, pathRows] = await Promise.all([
+                siyuan.getTreeRiffCards(rootID, 1, 1),
+                siyuan.sql(`select box, path from blocks where id='${rootID}' limit 1`),
+            ]);
+            const pathRow = (pathRows ?? [])[0] as { box?: string; path?: string } | undefined;
+            if (!pathRow?.box || !pathRow?.path) throw new Error(`no doc path row: ${JSON.stringify(pathRows)}`);
+            // getFile 需前发结果，串行第二跳；失败（文档移动竞态）走 catch 删缓存重试。
+            // ⚠️ 必须裸 fetch 不走 siyuan.call：getFile 响应体=.sy 内容本身（无 {code,data}
+            // 信封），call 的「无 data 字段返回原始 Response」分支会把 Response 对象当
+            // 树喂给 buildRiffOrder → 永远空表（2026-11-15 实测 order=0 实锤）
+            const resp = await fetch("/api/file/getFile", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ path: `/data/${pathRow.box}${pathRow.path}` }),
+            });
+            const syTree = await resp.json();
             if (this.dead || gGen.__tomato_zZmqus5PtYRi_riffNoGen !== gen) return;
             const entry = this.riffTotalCache.get(edKey);
             if (!entry || entry.seq !== seq) return;
-            const total = ret?.total;
+            const total = totalRet?.total;
             if (typeof total !== "number" || !Number.isFinite(total)) {
                 this.riffTotalCache.delete(edKey);
-                debugLog("riffno.total.bad", `doc=${rootID} resp=${JSON.stringify(ret)}`, "riffno");
+                debugLog("riffno.total.bad", `doc=${rootID} resp=${JSON.stringify(totalRet)}`, "riffno");
                 for (const ed of getOpenedEditors()) {
                     const p = ed.protyle?.protyle;
                     if (p?.block?.rootID !== rootID) continue;
@@ -364,16 +428,31 @@ class RiffNumberBox {
                 }
                 return;
             }
-            entry.pending = false;
             entry.count = total;
-            debugLog("riffno.total", `doc=${rootID} total=${total}`, "riffno");
-            this.sweepOpenedEditors("total-arrived");
+            entry.order = buildRiffOrder(syTree);
+            entry.pending = false;
+            entry.dirty = false;
+            debugLog("riffno.doc", `doc=${rootID} total=${total} order=${entry.order.size}`, "riffno");
+            this.sweepOpenedEditors("riff-arrived");
         } catch (e) {
             if (this.dead || gGen.__tomato_zZmqus5PtYRi_riffNoGen !== gen) return;
             this.riffTotalCache.delete(edKey);
-            debugLog("riffno.total.err", `doc=${rootID} err=${e}`, "riffno");
+            debugLog("riffno.doc.err", `doc=${rootID} err=${e}`, "riffno");
         }
     }
+}
+
+/** 全文卡块有序表（纯函数，.sy 块树→id→全文序号）：Children 数组序即文档顺序（DOM
+ *  树就是它的展开），DFS 滤 Properties 含 custom-riff-decks 的块连号。嵌套父子卡天
+ *  然父先子后；Properties 键原样存 IAL 键名（连字符原样，2026-11-15 实测） */
+function buildRiffOrder(syTree: unknown): Map<string, number> {
+    const out = new Map<string, number>();
+    const walk = (node: any) => {
+        if (node?.Properties?.[CUSTOM_RIFF_DECKS] != null) out.set(String(node.ID), out.size + 1);
+        for (const c of node?.Children ?? []) walk(c);
+    };
+    walk(syTree);
+    return out;
 }
 
 export const riffNumberBox = new RiffNumberBox();
