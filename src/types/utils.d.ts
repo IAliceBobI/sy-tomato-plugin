@@ -104,6 +104,12 @@ type TomatoSettings = {
     mindWireWordWire: boolean,
     mindWireBlockWire: boolean,
     mindWireHoverBar: boolean,
+    /** 划词快捷颜色（QuickColor.ts）：总开关＋四个槽各用第几号思源内置字色（1～13） */
+    quickColorEnable: boolean,
+    quickColor1: number,
+    quickColor2: number,
+    quickColor3: number,
+    quickColor4: number,
     addSelectionBtnsDesktop: boolean,
     addSelectionBtnsMobile: boolean,
     digestAddReadingpoint: boolean,

@@ -76,6 +76,12 @@ import {
     MindWire划词连线,
 } from "../MindWire";
 import {
+    QuickColor快捷颜色1,
+    QuickColor快捷颜色2,
+    QuickColor快捷颜色3,
+    QuickColor快捷颜色4,
+} from "../QuickColor";
+import {
     LinkBoxbilink,
     LinkBox链接到块底部,
     LinkBox修复双向链接,
@@ -273,7 +279,7 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
             { langKey: ReadingPointBox显示或隐藏悬浮球.langKey, label: () => ReadingPointBox显示或隐藏悬浮球.langText(), hk: ReadingPointBox显示或隐藏悬浮球 },
         ],
     },
-    // 可视化组（featgate □5）：块关系图 2+思维导线 3
+    // 可视化组（featgate □5）：块关系图 4+悬浮图 2+思维导线 3+快捷颜色 4
     {
         id: "visual",
         label: () => tomatoI18n.可视化,
@@ -287,6 +293,12 @@ export const COMMAND_GROUPS: GatedCommandGroup[] = [
             { langKey: MindWire启用或禁用思维导线.langKey, label: () => MindWire启用或禁用思维导线.langText(), hk: MindWire启用或禁用思维导线 },
             { langKey: MindWire启用或禁用文档思维导线.langKey, label: () => MindWire启用或禁用文档思维导线.langText(), hk: MindWire启用或禁用文档思维导线 },
             { langKey: MindWire划词连线.langKey, label: () => MindWire划词连线.langText(), hk: MindWire划词连线 },
+            // 划词快捷颜色（2026-11）：四个槽四条命令，与工具条四钮共享 langKey；不登记=用户关掉这四条
+            // 命令的记录会在启动清理时被当成「已退役命令」清掉
+            { langKey: QuickColor快捷颜色1.langKey, label: () => QuickColor快捷颜色1.langText(), hk: QuickColor快捷颜色1 },
+            { langKey: QuickColor快捷颜色2.langKey, label: () => QuickColor快捷颜色2.langText(), hk: QuickColor快捷颜色2 },
+            { langKey: QuickColor快捷颜色3.langKey, label: () => QuickColor快捷颜色3.langText(), hk: QuickColor快捷颜色3 },
+            { langKey: QuickColor快捷颜色4.langKey, label: () => QuickColor快捷颜色4.langText(), hk: QuickColor快捷颜色4 },
         ],
     },
     // 互链与引用组（featgate □5）：LinkBox 单功能 4+互链族 8+同步块 3（注册经

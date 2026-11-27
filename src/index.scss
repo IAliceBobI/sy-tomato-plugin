@@ -246,6 +246,13 @@ html[data-theme-mode="dark"] {
   &.tomato-mind-wire-nodot::after {
     display: none;
   }
+
+  // 箭头端（设计 2026-11-25-mindwire-small-batch-design.md「一、箭头」）：圆点换成 svg 三角形
+  // （渲染层画），藏掉 CSS 点——线跨行而词没折行时圆点全靠这个 ::after，只跳过 svg circle
+  // 会在箭头脚下剩一个圆点；线数回落/关箭头由 clearWordMarks 摘类恢复
+  &.tomato-mind-wire-arrow::after {
+    display: none;
+  }
 }
 
 @keyframes tomato-mind-wire-flash {
@@ -422,6 +429,38 @@ html[data-theme-mode="dark"] {
   height: 14px;
   margin: 0 2px;
   background: var(--b3-border-color);
+}
+
+// 迷你条「箭头」钮（设计 2026-11-25-mindwire-small-batch-design.md「一、箭头」，不分免费/Pro）：
+// 方钮同删除钮，图标=思源自带 #iconForward；开着时 aria-pressed="true"=按下态
+// （状态栏番茄钟运行档位同款配色）
+.tomato-mind-wire-arrow-btn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--b3-theme-on-surface);
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  &:hover {
+    color: var(--b3-theme-primary);
+    background: var(--b3-list-hover, var(--b3-theme-surface-lighter));
+    border-radius: 4px;
+  }
+
+  &[aria-pressed="true"] {
+    color: var(--b3-theme-primary);
+    background-color: var(--b3-theme-primary-lightest);
+    border-radius: 4px;
+  }
 }
 
 .tomato-mind-wire-x {
@@ -1919,4 +1958,63 @@ html[data-theme-mode="dark"] .tomato-annochat-card__m--user {
    悬浮面板语境无此语义且会占掉半屏正文——外层容器选择器隐藏，组件内部机制零改动带 */
 .tomato-bk-float-panel__body > .bk-panel ~ div {
     display: none;
+}
+
+/* =====================================================================
+   划词快捷颜色（2026-11，QuickColor.ts；设计 2026-11-25-mindwire-small-batch-design.md「二、快捷颜色」）
+   工具条四个钮：内核只给画图标（四个钮用同一个调色板图标），是哪号色靠右下角的色点显示——
+   QuickColor.ts 同步时把槽的色号写进钮上的 --tomato-quick-color，并在钮里放一个色点元素
+   （.tomato-quick-color-toolbar-dot，背景色读这个自定义属性）；按钮被内核重建后，下一次同步会补回。
+   色点是真实元素、不是伪元素：工具条钮带 .b3-tooltips，内核的悬停提示就画在它的伪元素上
+   （app/src/assets/scss/component/_tooltips.scss，内容取 aria-label、默认透明、悬停才显示），
+   占了它提示文字就没了。手机、平板不出现这四钮。
+   ===================================================================== */
+.protyle-toolbar__item[data-type^="QuickColor "] {
+  position: relative;
+
+  > .tomato-quick-color-toolbar-dot {
+    position: absolute;
+    right: 1px;
+    bottom: 1px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tomato-quick-color, var(--b3-font-color1));
+    // 一圈工具条底色，把色点和图标隔开（与思维导线圆点的隔离环同一口径）
+    box-shadow: 0 0 0 1.5px var(--b3-theme-background);
+    // 只是个标记：鼠标落上去照常算点在钮上，提示照常出
+    pointer-events: none;
+  }
+}
+
+// 设置卡「划词快捷颜色」（ConfVisual.svelte）：每个槽一行 13 个色点，选中的描一圈主题色
+.tomato-quick-color-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0 6px;
+  vertical-align: middle;
+}
+
+.tomato-quick-color-dot {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  // 一圈细边：暗色主题下深色号在设置卡底色上不糊成看不见
+  outline: 1px solid var(--b3-border-color);
+  outline-offset: 0;
+
+  &:hover {
+    outline: 2px solid var(--b3-theme-primary);
+    outline-offset: 1px;
+  }
+
+  &--selected,
+  &--selected:hover {
+    outline: 2px solid var(--b3-theme-primary);
+    outline-offset: 2px;
+  }
 }

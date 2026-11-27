@@ -14,7 +14,7 @@ export function findPluginCommand(cmdKey: string) {
 }
 
 // 当前活跃编辑器 protyle：events.protyle 冷启动 null（setReadingPointMap 赋值条件苛刻），
-// getAllEditor 全量兜底取首个（debugging/kernel/ui.md「Menu 单例」节同款配方）
+// getAllEditor 全量兜底取首个（debugging/kernel/ui/menu.md「Menu 单例」节同款配方）
 function currentProtyle() {
     return events.protyle?.protyle ?? (getAllEditor() as any[])[0]?.protyle;
 }

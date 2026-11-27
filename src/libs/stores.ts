@@ -1013,6 +1013,15 @@ export const mindWireWordWire = settingFactory("mindWireWordWire", true, STORAGE
 // 悬停弹出选色迷你条开关（bear 09-16 反馈：多线文档鼠标扫过频繁弹条打扰）；默认 true=
 // 现状；关后悬停只保留高亮不弹条（触屏长按唤出不受影响——无 hover 打扰问题）
 export const mindWireHoverBar = settingFactory("mindWireHoverBar", true, STORAGE_SETTINGS, null as TSK);
+// 划词快捷颜色（2026-11 流动兔反馈三件小改之二，QuickColor.ts）：总开关＋四个槽各用第几号思源内置字色
+// （1～13）。总开关默认关——不打扰现有用户，要用的人去设置里打开。名字故意不以 checkbox 结尾：那种
+// 名字会被 storageHotReload 当成结构性设置，一改就整插件重载；工具条项照思维导线连线钮的先例恒附，
+// 显隐靠运行时读开关，不必重载
+export const quickColorEnable = settingFactory("quickColorEnable", false, STORAGE_SETTINGS, null as TSK);
+export const quickColor1 = settingFactory("quickColor1", 1, STORAGE_SETTINGS, null as TSK);
+export const quickColor2 = settingFactory("quickColor2", 2, STORAGE_SETTINGS, null as TSK);
+export const quickColor3 = settingFactory("quickColor3", 3, STORAGE_SETTINGS, null as TSK);
+export const quickColor4 = settingFactory("quickColor4", 4, STORAGE_SETTINGS, null as TSK);
 export const aiBoxMenuShow = settingFactory("aiBoxMenuShow", true, STORAGE_SETTINGS, null as TSK);
 export const aiBoxPrompts = settingFactory("aiBoxPrompts", [], STORAGE_SETTINGS, null as TSK);
 export const fastNoteBoxCheckbox = settingFactory("fastNoteBoxCheckbox", false, STORAGE_SETTINGS, null as TSK);

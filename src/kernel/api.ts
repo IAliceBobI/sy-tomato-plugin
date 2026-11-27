@@ -30,7 +30,7 @@ export async function setBlockAttrs(id: string, attrs: Record<string, string>): 
 
 // ── 外网通道（knowledgebox □4：智谱知识库 MCP 工具用）──
 // 复刻自 sy-mainline-plugin/src/kernel/api.ts（remind 战役 P0 spike 实测通道，
-// 契约记录在 docs/agents/debugging/kernel/mcp.md「内核外网通道」节）——改源头须同步。
+// 契约记录在 docs/agents/debugging/kernel/mcp/network-proxy-devgate.md「内核外网通道」节）——改源头须同步。
 
 // goja 无 btoa：纯 JS base64url（RawURLEncoding）编码器
 const B64URL_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";

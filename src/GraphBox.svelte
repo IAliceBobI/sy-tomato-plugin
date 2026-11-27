@@ -2000,7 +2000,7 @@ import { focusNeighborhood, noStructureRows } from "./libs/graphFocus";
     // —— graphbox 期4 图→块交互 ——
 
     // 当前打开 rootID 文档的编辑器（events.protyle 冷启动 null，getAllEditor 全量兜底；
-    // debugging/kernel/ui.md「思源 Menu 单例 vs 插件自建菜单」节同款配方）
+    // debugging/kernel/ui/menu.md「思源 Menu 单例 vs 插件自建菜单」节同款配方）
     function editorOfRoot(rootID: string) {
         return (getAllEditor() as any[]).find(p => p?.protyle?.block?.rootID === rootID)?.protyle;
     }

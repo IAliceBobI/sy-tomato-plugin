@@ -727,7 +727,7 @@
 
     // ---------------- ⋯ 偏好菜单 / 卡 ⋯ 菜单（spec §3.2/§3.4） ----------------
 
-    /** independent 第三参防单例被同次 click 冒泡清空（debugging/kernel/ui.md「思源 Menu 单例」坑） */
+    /** independent 第三参防单例被同次 click 冒泡清空（debugging/kernel/ui/menu.md「思源 Menu 单例」坑） */
     function newIndependentMenu(id: string): Menu {
         return new (Menu as any)(id, undefined, true) as Menu;
     }

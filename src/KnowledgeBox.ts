@@ -141,7 +141,7 @@ export function initKnowledgeBox() {
 // 钉住——addDock 前就地把记忆的展示字段校正为当前值（icon/title 是插件资产，任何
 // 非当前值都归一；position/index/size/show 是用户布局资产不动，hotkey 走 keymap
 // 通道自愈不碰），并经 setLocalStorageVal 主动落盘（app=自身排除广播回声）——
-// 换名迁移配方见 docs/agents/debugging/kernel/ui.md「dock 图标名持久化」。
+// 换名迁移配方见 docs/agents/debugging/kernel/ui/index.md「dock 图标名持久化」。
 function syncDockMemory(pluginName: string) {
     const all = (window.siyuan as any).storage?.["local-plugin-docks"];
     const mem = all?.[pluginName]?.[pluginName + DOCK_TYPE];

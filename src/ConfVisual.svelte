@@ -28,10 +28,14 @@
         graphMaxPBlocks,
         graph定位到图中的节点Menu,
         graph打开块关系图Menu,
+        quickColorEnable,
     } from "./libs/stores";
     import { siyuan } from "./libs/siyuanApi";
     import { lastVerifyResult } from "./libs/user";
     import { MindWire启用或禁用思维导线, MindWire启用或禁用文档思维导线, MindWire划词连线 } from "./MindWire";
+    // 划词快捷颜色（2026-11）：四个槽＝命令常量（键帽）＋这个槽用的色号设置
+    import { QUICK_COLOR_SLOTS } from "./QuickColor";
+    import { fromStore } from "svelte/store";
     import { GraphBox定位到图中的节点, GraphBox打开块关系图, GraphBox标记此块 } from "./GraphBox";
     import { GraphFloatToggle, GraphFloatBallToggle } from "./GraphFloatBox";
     import { tomatoI18n } from "./tomatoI18n";
@@ -40,6 +44,12 @@
 
     let { codeValid }: { codeValid: boolean } = $props();
     let codeNotValid = $derived(!codeValid);
+
+    // 划词快捷颜色：思源内置字色 1～13 号（3.8.6 起 13 个；每号可在思源「管理颜色」里改）。
+    // 四个槽的色号先转成响应式读数再遍历——$store 自动订阅只认组件顶层声明的 store，each 里解构
+    // 出来的不行（store_invalid_scoped_subscription）。点色点写的是内存，跟其他设置一起在面板保存时落盘
+    const QUICK_COLOR_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+    const quickColorPicked = QUICK_COLOR_SLOTS.map((slot) => fromStore(slot.color));
 
     // 线型三档（spec §4.8 行 6）：实线须 Pro 生效才算选中态——非 Pro 存量 line=true 时
     // 渲染端走虚线/流动分支（MindWire.ts 实线判定带 lastVerifyResult），UI 与渲染同口径
@@ -152,6 +162,40 @@
                 </div>
             {/if}
         </div>
+    {/if}
+</div>
+<!-- 划词快捷颜色（2026-11）：总开关一行；开着时每个槽一行＝13 个色点＋这个槽的快捷键帽。
+     名字跟槽位走（「快捷颜色 1」～「4」），不跟色号走——换了色号名字不会说错，颜色看色点 -->
+<div class="settingBox">
+    <div class="section-title">
+        <input type="checkbox" class="b3-switch" bind:checked={$quickColorEnable} />
+        {tomatoI18n.划词快捷颜色}
+    </div>
+    {#if $quickColorEnable}
+        {#each QUICK_COLOR_SLOTS as { hk }, i (hk.langKey)}
+            {@const picked = quickColorPicked[i]}
+            <div>
+                {tomatoI18n.快捷颜色(i + 1)}
+                <span class="tomato-quick-color-dots" role="radiogroup" aria-label={tomatoI18n.快捷颜色(i + 1)}>
+                    {#each QUICK_COLOR_NUMBERS as n (n)}
+                        <button
+                            type="button"
+                            class="tomato-quick-color-dot b3-tooltips b3-tooltips__n"
+                            class:tomato-quick-color-dot--selected={picked.current === n}
+                            role="radio"
+                            aria-checked={picked.current === n}
+                            aria-label={`${tomatoI18n.快捷颜色(i + 1)} ${n}`}
+                            style="background: var(--b3-font-color{n})"
+                            onclick={() => {
+                                picked.current = n;
+                            }}
+                        ></button>
+                    {/each}
+                </span>
+                <HotkeyCap hk={hk} pluginName="sy-tomato-plugin"></HotkeyCap>
+            </div>
+        {/each}
+        <div class="helpText">{tomatoI18n.快捷颜色说明}</div>
     {/if}
 </div>
 <!-- 块关系图 -->

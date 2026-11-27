@@ -5618,6 +5618,57 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    // 清零历史欠债（2026-11-23 鸟反馈）：档位一次调高没读完就永久挂债，此前没有出口。
+    // 入口=状态栏火苗右键 / 舰队面板欠债胶囊 / 命令面板，三处共用一个确认菜单
+    public get 清零历史欠债() {
+        switch (this.lang) {
+            case "zh_CN": return "清零历史欠债";
+            case "zh_CHT": return "清零歷史欠債";
+            case "en_US":
+            default: return "Clear earlier debt";
+        }
+    }
+    public 清零历史欠债N片(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `清零历史欠债（${n} 片）`;
+            case "zh_CHT": return `清零歷史欠債（${n} 片）`;
+            case "en_US":
+            default: return `Clear ${n} owed earlier`;
+        }
+    }
+    public 历史欠债N片点击清零(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `历史欠债 ${n} 片，点击清零`;
+            case "zh_CHT": return `歷史欠債 ${n} 片，點擊清零`;
+            case "en_US":
+            default: return `${n} owed earlier, click to clear`;
+        }
+    }
+    public get 右键火苗可清零历史欠债() {
+        switch (this.lang) {
+            case "zh_CN": return "右键火苗可清零历史欠债";
+            case "zh_CHT": return "右鍵火苗可清零歷史欠債";
+            case "en_US":
+            default: return "Right-click the flame to clear earlier debt";
+        }
+    }
+    public get 历史欠债已清零() {
+        switch (this.lang) {
+            case "zh_CN": return "历史欠债已清零";
+            case "zh_CHT": return "歷史欠債已清零";
+            case "en_US":
+            default: return "Earlier debt cleared";
+        }
+    }
+    public get 没有历史欠债() {
+        switch (this.lang) {
+            case "zh_CN": return "没有历史欠债";
+            case "zh_CHT": return "沒有歷史欠債";
+            case "en_US":
+            default: return "No earlier debt";
+        }
+    }
+
     // □5 写作小火焰（写作量独立显示+点击直达写作现场）
     public get 写作火苗标签() {
         switch (this.lang) {
@@ -8218,6 +8269,17 @@ export class TomatoI18n extends TomatoI18nABC {
         }
     }
 
+    /** 阅读卡沉底尾标（dueRelOf）：FAR_DUE_DAYS 推远的存量卡不再裸显「99 天后」
+     * （2026-11-22 陆杰反馈被误读为「99 天后才复习」），改显语义 */
+    public get 暂不推送() {
+        switch (this.lang) {
+            case "zh_CN": return "暂不推送";
+            case "zh_CHT": return "暫不推送";
+            case "en_US":
+            default: return "on hold";
+        }
+    }
+
     public get 没有匹配的摘抄() {
         switch (this.lang) {
             case "zh_CN": return "没有匹配的摘抄";
@@ -10581,6 +10643,67 @@ export class TomatoI18n extends TomatoI18nABC {
             default: return "Word wires connect within one document";
         }
     }
+    // 表格单元格的内层编辑器只有右键时内核才递给插件：快捷键/工具条入口没右键过就写不了
+    // （硬写内核弹「状态异常」，MindWire setWordMark/removeWordMark）——按动作给两句话。
+    // 括号里那句是给「整页刚打开、还没在正文里点过」准备的：那时单元格里右键菜单没有连线项
+    // （内核还没记下当前编辑器，MindWire wordWireMenu 直接不出项），登记其实已经发生，照提示右键完
+    // 再走命令面板就通；在正文点一下之后菜单项也会出来（2026-11-27 mw-small 实测）
+    public get 表格单元格请先右键连线() {
+        switch (this.lang) {
+            case "zh_CN": return "在表格单元格里连线，请先在这一格点一下右键（菜单里没有连线项的话，先在正文里点一下再试）";
+            case "zh_CHT": return "在表格儲存格裡連線，請先在這一格點一下右鍵（選單裡沒有連線項的話，先在內文裡點一下再試）";
+            case "ja_JP": return "表のセル内で接続するには、先にそのセルを右クリックしてください（メニューに接続の項目がない場合は、先に本文をクリックしてからやり直してください）";
+            case "en_US":
+            default: return "To wire words in a table cell, right-click the cell first (if the menu has no wire item, click into the document body first and try again)";
+        }
+    }
+    public get 表格单元格请先右键摘标记() {
+        switch (this.lang) {
+            case "zh_CN": return "表格单元格里的连线标记没摘掉，请先在这一格点一下右键";
+            case "zh_CHT": return "表格單元格裡的連線標記沒摘掉，請先在這一格點一下右鍵";
+            case "ja_JP": return "表のセル内の接続マークを外せませんでした。先にそのセルを右クリックしてください";
+            case "en_US":
+            default: return "Couldn't remove the wire mark in a table cell. Right-click the cell first";
+        }
+    }
+    // 内核的内层小编辑器不止表格单元格一种：文档标题、数据库富文本格、列表脑图节点也是，里面写不了
+    // 连线标记（线画不出来；拿外层写内核弹「状态异常」）——不写，直说这里不支持（MindWire liteBlockMsg）。
+    // 文案说笼统的「这里」：挡下的地方不止一两种，逐个点名容易漏
+    public get 这里不支持连线() {
+        switch (this.lang) {
+            case "zh_CN": return "这里不支持连线，请在正文里选字";
+            case "zh_CHT": return "這裡不支援連線，請在內文中選字";
+            case "ja_JP": return "ここでは接続できません。本文中の語を選んでください";
+            case "en_US":
+            default: return "Word wires aren't supported here. Select words in the document body";
+        }
+    }
+    // 同一个限制落在划词快捷颜色上（QuickColor paint）：在单元格里选着字从命令面板运行「快捷颜色 N」，
+    // 内核递来的是外层编辑器，这一格没右键过就拿不到内层编辑器——不写，提示。
+    // 提示不指「先右键」：右键菜单开着时按 Esc，内核会把这一格的内层编辑器关掉（tableCellRichEditor.ts
+    // 的 Escape 分支，2026-11-27 mw-small 实测），重新点进去又是没登记的新编辑器，用户绕不出来；
+    // 快捷颜色也没有右键菜单项——所以指向单元格里现成的工具条「外观」钮（内核自己的叫法）。
+    // 叫用户「重新选一次字」：命令面板一开一关，内核把工具条收起了、选区恢复后也不重画，
+    // 不重选就看不到那个钮（2026-11-27 复审实测）
+    public get 表格单元格用工具条外观钮上色() {
+        switch (this.lang) {
+            case "zh_CN": return "表格单元格里用不了快捷颜色：重新选一次字，点选区上方工具条的「外观」钮上色";
+            case "zh_CHT": return "表格儲存格裡用不了快捷顏色：重新選一次字，點選區上方工具列的「外觀」鈕上色";
+            case "ja_JP": return "表のセル内ではクイックカラーを使えません。選択し直して、選択範囲の上のツールバーの「外観」ボタンで色を付けてください";
+            case "en_US":
+            default: return "Quick colors don't work inside a table cell. Select the text again and use the Appearance button on the toolbar above the selection";
+        }
+    }
+    // 列表脑图节点这类内层编辑器里也不写（拿外层写内核弹「内容已更新，请重新编辑」的错误条）
+    public get 这里不支持快捷上色() {
+        switch (this.lang) {
+            case "zh_CN": return "这里用不了快捷颜色";
+            case "zh_CHT": return "這裡用不了快捷顏色";
+            case "ja_JP": return "ここではクイックカラーを使えません";
+            case "en_US":
+            default: return "Quick colors aren't available here";
+        }
+    }
     public get 关联() {
         switch (this.lang) {
             case "zh_CN": return "关联";
@@ -10642,6 +10765,16 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "導線を削除";
             case "en_US":
             default: return "Delete wire";
+        }
+    }
+    /** 词级线的箭头（设计 2026-11-25-mindwire-small-batch-design.md「一、箭头」）：迷你条「箭头」钮的提示 */
+    public get 箭头() {
+        switch (this.lang) {
+            case "zh_CN": return "箭头";
+            case "zh_CHT": return "箭頭";
+            case "ja_JP": return "矢印";
+            case "en_US":
+            default: return "Arrow";
         }
     }
 
@@ -10725,6 +10858,37 @@ export class TomatoI18n extends TomatoI18nABC {
             case "ja_JP": return "語レベルの線は関係タイプで着色します：呼応/伏線/比喩/対比/因果";
             case "en_US":
             default: return "Word wires are colored by relation: echo / foreshadow / metaphor / contrast / cause";
+        }
+    }
+    // 划词快捷颜色（2026-11 流动兔反馈三件小改之二，设计 2026-11-25-mindwire-small-batch-design.md
+    // 「二、快捷颜色」）。名字跟槽位走、不跟色号走：用户把某个槽换成别的色号后名字不会说错
+    /** 四个颜色钮的名字（n＝槽号 1～4）：命令名与工具条钮提示共用 */
+    public 快捷颜色(n: number) {
+        switch (this.lang) {
+            case "zh_CN": return `快捷颜色 ${n}`;
+            case "zh_CHT": return `快捷顏色 ${n}`;
+            case "ja_JP": return `クイックカラー ${n}`;
+            case "en_US":
+            default: return `Quick color ${n}`;
+        }
+    }
+    public get 划词快捷颜色() {
+        switch (this.lang) {
+            case "zh_CN": return "划词快捷颜色";
+            case "zh_CHT": return "劃詞快捷顏色";
+            case "ja_JP": return "選択範囲のクイックカラー";
+            case "en_US":
+            default: return "Quick colors for selected text";
+        }
+    }
+    /** 设置卡末尾的说明（入口名照思源自己的叫法：设置 → 外观 → 管理颜色） */
+    public get 快捷颜色说明() {
+        switch (this.lang) {
+            case "zh_CN": return "想改某个色号本身的颜色，去思源的 设置 → 外观 → 管理颜色";
+            case "zh_CHT": return "想改某個色號本身的顏色，去思源的 設定 → 外觀 → 管理顏色";
+            case "ja_JP": return "特定の色番号そのものの色を変えたいときは、SiYuan の 設定 → スタイル → 色を管理 で変更してください";
+            case "en_US":
+            default: return "To change a color itself, go to SiYuan's Settings → Appearance → Manage colors";
         }
     }
     // 设置页重划 □1（2026-09-03）：左侧导航 9 域文案（「番茄钟」「闪卡」复用既有 key——

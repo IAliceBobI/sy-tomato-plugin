@@ -217,19 +217,168 @@ export function fineBlocksUnderRange(container: HTMLElement, range: Range): HTML
  *  非 collapsed + 有实文本 + 单块（setInlineMark 'a' 跨块静默失败）+ 非代码块。
  *  实文本剥零宽空格后判（内核同款语义 toolbar/index.ts:240——块重建后选区常落在
  *  ZWSP 上，不剥会被热键抓成空词起点）。工具条点击/快捷键触发时选区被顶掉，
- *  回退 protyle.toolbar.range 走同一判定。 */
-export function normalizeWordRange(range: Range | null | undefined): Range | null {
+ *  回退 protyle.toolbar.range 走同一判定。
+ *  空白选区（2026-11 群反馈）：选中的只有真空白（空格/换行/制表）时，传了 blank 才按
+ *  拖选方向改取紧挨的那个字（blankNeighborRange）；那一侧没有可用的字就换另一侧；只含
+ *  零宽空格的不算（内核重建块后残留的假选区，照旧 null）。不传 blank 行为一个字不改。 */
+export function normalizeWordRange(range: Range | null | undefined, blank?: WordBlankSide): Range | null {
     if (!range || range.collapsed) return null;
     // startContainer 已脱离文档 = 陈旧兜底 range（内核事务重建块 DOM 后 toolbar.range 残留
     // 旧引用，closest 在脱离子树上照样命中块 div 会误判有效——评审 P1-2；window 选区恒 connected 零误伤）
     if (!range.startContainer?.isConnected) return null;
-    if (!range.toString().replace(/\u200b/g, "").trim()) return null;
+    const text = range.toString().replace(/\u200b/g, "");
+    if (!text.trim()) {
+        if (!blank || !text) return null;
+        return blankNeighborRange(range, blank) ?? blankNeighborRange(range, blank === "before" ? "after" : "before");
+    }
     const asEl = (n: Node) => (n.nodeType === 3 ? n.parentElement : (n as HTMLElement));
     const startBlock = asEl(range.startContainer)?.closest?.("div[data-node-id]");
     const endBlock = asEl(range.endContainer)?.closest?.("div[data-node-id]");
     if (!startBlock || !endBlock || startBlock !== endBlock) return null;
     if (startBlock.getAttribute("data-type") === "NodeCodeBlock") return null;
     return range;
+}
+
+/** 空白选区取邻字的方向：before=选区左边那侧（从左往右拖），after=右边那侧 */
+export type WordBlankSide = "before" | "after";
+
+/** 邻字可带的行内类型（纯排版格式）：加粗、斜体、下划线、删除线、高亮、上下标、键盘、文字颜色
+ *  （文字颜色/字号/字体在内核里都是 data-type="text" + style，Font.ts setFontStyle）。白名单——
+ *  链接/别的线的锚词/批注（同为 a）、块引用、标签、行内公式、行内备注、行内代码，以及内核
+ *  以后新增的类型一律不当成可用 */
+const BLANK_NEIGHBOR_TYPES = new Set(["strong", "em", "u", "s", "mark", "sup", "sub", "kbd", "text"]);
+
+/** 空白选区取邻字（单侧）：从 range 的起点（before）或终点（after）出发，在本块的正文里沿
+ *  文本找第一个既非空白也非零宽字符的字（零宽空格；上标/下标/键盘/行内代码这类行内元素首部
+ *  的词连接符 \u2060，内核 3.8.12 inlineElementMarker.ts:14-17），一个字＝一个 Unicode 码点。
+ *  只认紧挨的第一个字，它必须能安全挂线才返回：到本块为止的祖先全是不带标记的元素，或
+ *  data-type 全是纯排版格式的 span。给带含义标记的字写连线标记会把原标记顶掉，旧线当场断、
+ *  按 Esc 也回不去（取消只摘新线的标记）——一次手滑只选到空格，不该弄断旁边已有的线。
+ *  这一侧没有可用的字返回 null，换另一侧由调用方做。
+ *  找的范围＝边界点所在的可编辑容器（到本块为止离得最近的那个带 contenteditable 的元素，或表格
+ *  单元格）：段落是它的正文层，标注块标题是 callout-title，表格是所在的那一格——只有同一格里的字
+ *  才能互为邻字（内核给链接类标记也要求同块同单元格，toolbar/index.ts setInlineMark）。
+ *  字可不可编辑，看离它最近的那个 contenteditable：外层只读、里层又开了可编辑的也算（表格和标注块
+ *  标题外面都套着一个只读容器）；块尾属性区、行内块引、只读模式的正文层取不到——那里本来就不该
+ *  写标记。嵌套子块在正文容器之外，进不了范围；简化结构里它自带的块级 data-type 也过不了白名单。 */
+export function blankNeighborRange(range: Range, side: WordBlankSide): Range | null {
+    const asEl = (n: Node) => (n.nodeType === 3 ? n.parentElement : (n as Element));
+    const container = side === "before" ? range.startContainer : range.endContainer;
+    const offset = side === "before" ? range.startOffset : range.endOffset;
+    const block = asEl(container)?.closest?.("div[data-node-id]");
+    if (!block || block.getAttribute("data-type") === "NodeCodeBlock") return null;
+    // 元素对 contenteditable 的表态：没写算没表态，接着往上找
+    const editableState = (el: Element) => el.getAttribute(gconst.CONTENT_EDITABLE);
+    // 找的范围：从边界所在元素往上，第一个表态的元素或单元格；到本块都没表态（边界挂在块节点
+    // 自身上、或没有正文容器的简化结构）就退回整块
+    let scope: Element = block;
+    for (let el = asEl(container); el && el !== block; el = el.parentElement) {
+        if (editableState(el) !== null || el.tagName === "TD" || el.tagName === "TH") {
+            scope = el;
+            break;
+        }
+    }
+    const texts: Text[] = [];
+    const collect = (n: Node) => {
+        if (n.nodeType === 3) {
+            texts.push(n as Text);
+            return;
+        }
+        [...n.childNodes].forEach(collect);
+    };
+    collect(scope);
+    // 边界之前的文本长度与上面的节点表同一口径（Range.toString），据此定位到节点内偏移。
+    // 不用 compareBoundaryPoints：同一位置的两种表示（元素容器 × 文本节点开头）它分不出来
+    const cut = document.createRange();
+    cut.setStart(scope, 0);
+    cut.setEnd(container, offset);
+    const pos = cut.toString().length;
+
+    // 「字」的判据与内核同口径：空白、零宽空格、词连接符都不算（\ufeff 本就在 \s 里，
+    // inlineElementBoundary.ts:12 的长文本判定用的是同一套）
+    const isChar = (ch: string) => !/\s/.test(ch) && ch !== "\u200b" && ch !== "\u2060";
+    const isLead = (code: number) => code >= 0xd800 && code <= 0xdbff;
+    const isTrail = (code: number) => code >= 0xdc00 && code <= 0xdfff;
+    // [0, to) 里从右往左、[from, 末尾) 里从左往右的第一个字；没有返回 -1
+    const lastChar = (data: string, to: number) => {
+        for (let k = to - 1; k >= 0; k--) {
+            if (isChar(data[k])) return k;
+        }
+        return -1;
+    };
+    const firstChar = (data: string, from: number) => {
+        for (let k = from; k < data.length; k++) {
+            if (isChar(data[k])) return k;
+        }
+        return -1;
+    };
+    // 一个字＝一个 Unicode 码点：先碰到的若是代理对的后半截，起点往前并一个码元；
+    // 起点是高代理且后半截也在可用段里，整个码点一起收
+    const codeStart = (data: string, hit: number) =>
+        hit > 0 && isTrail(data.charCodeAt(hit)) && isLead(data.charCodeAt(hit - 1)) ? hit - 1 : hit;
+    const codeLength = (data: string, start: number, limit: number) =>
+        start + 1 < limit && isLead(data.charCodeAt(start)) && isTrail(data.charCodeAt(start + 1)) ? 2 : 1;
+    const isEditableText = (text: Text) => {
+        // 可不可编辑看离它最近的那个表态；一路到本块都没表态=简化结构，当可编辑
+        for (let el = text.parentElement; el; el = el.parentElement) {
+            const state = editableState(el);
+            if (state !== null) return state !== "false";
+            if (el === block) return true;
+        }
+        return true;
+    };
+    const canHangWire = (text: Text) => {
+        for (let el = text.parentElement; el && el !== scope; el = el.parentElement) {
+            const types = el.getAttribute("data-type");
+            if (!types) continue;
+            if (el.tagName !== "SPAN") return false;
+            if (!types.split(/\s+/).every(t => BLANK_NEIGHBOR_TYPES.has(t))) return false;
+        }
+        return true;
+    };
+
+    let total = 0;
+    const starts = texts.map((text) => {
+        const start = total;
+        total += text.data.length;
+        return start;
+    });
+    const backward = side === "before";
+    for (let i = backward ? texts.length - 1 : 0; i >= 0 && i < texts.length; i += backward ? -1 : 1) {
+        const text = texts[i];
+        const data = text.data;
+        // 该节点落在边界这一侧的可用段
+        const from = backward ? 0 : Math.max(0, pos - starts[i]);
+        const to = backward ? Math.min(data.length, pos - starts[i]) : data.length;
+        if (from >= to) continue; // 整个节点在边界另一侧
+        if (!isEditableText(text)) return null;
+        const hit = backward ? lastChar(data, to) : firstChar(data, from);
+        if (hit < 0) continue;
+        if (!canHangWire(text)) return null;
+        const start = backward ? codeStart(data, hit) : hit;
+        const hitRange = document.createRange();
+        hitRange.setStart(text, start);
+        hitRange.setEnd(text, start + codeLength(data, start, backward ? to : data.length));
+        return hitRange;
+    }
+    return null;
+}
+
+/** 拖选方向（空白选区取邻字用）：按下点（anchor）在松开点（focus）之前＝从左往右拖 → before，
+ *  否则 after。两点按「选区公共祖先开头的文本长度」比文档序——按下点与 range 起点常是同一
+ *  位置的两种表示（元素容器 × 文本节点），比节点身份会判反。没有选区 → before */
+export function selectionBlankSide(sel: Selection | null | undefined): WordBlankSide {
+    if (!sel || sel.rangeCount === 0 || !sel.anchorNode || !sel.focusNode) return "before";
+    const common = sel.getRangeAt(0).commonAncestorContainer;
+    const root = common.nodeType === 3 ? common.parentElement : (common as Element);
+    if (!root) return "before";
+    const textBefore = (node: Node, offset: number) => {
+        const probe = document.createRange();
+        probe.setStart(root, 0);
+        probe.setEnd(node, offset);
+        return probe.toString().length;
+    };
+    return textBefore(sel.anchorNode, sel.anchorOffset) <= textBefore(sel.focusNode, sel.focusOffset) ? "before" : "after";
 }
 
 /** 批注选区有效性（□4 划词工具条通道）：非 collapsed + 未脱离文档 + 落在本编辑器内。

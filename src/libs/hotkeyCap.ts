@@ -75,11 +75,16 @@ function isLeaf(v: any): v is KeymapLeaf {
     return !!v && typeof v === "object" && typeof v.custom === "string";
 }
 
+/** 已加载插件命令表里的命令对象；插件或命令找不到 → undefined */
+function commandOf(pluginName: string, langKey: string): any {
+    return (Siyuan as any)?.ws?.app?.plugins
+        ?.find?.((p: any) => p.name === pluginName)
+        ?.commands?.find?.((cmd: any) => cmd.langKey === langKey);
+}
+
 /** 命令的可读名：从已加载插件命令表里取 langText，取不到回落 langKey */
 function commandLabel(pluginName: string, langKey: string): string {
-    const cmds = (Siyuan as any)?.ws?.app?.plugins?.find?.((p: any) => p.name === pluginName)?.commands;
-    const c = cmds?.find?.((cmd: any) => cmd.langKey === langKey);
-    return c?.langText || langKey;
+    return commandOf(pluginName, langKey)?.langText || langKey;
 }
 
 /**
@@ -156,8 +161,9 @@ export function suggestCombo(combo: string, selfPlugin: string, selfLangKey: str
 
 /**
  * 换默认键的存量迁移（批量串行）：仅当 custom 仍是旧默认（用户从未改过键）才写新默认；
- * 改过/删过的键不动（幂等——迁移后再跑 custom 已是新键自然跳过）。须在命令注册后调用
- * （keymap 条目由注册注入，无条目时 setPluginHotkey 落空返回 false）。逐条 await 串行是
+ * 改过/删过的键不动（幂等——迁移后再跑 custom 已是新键自然跳过）。只动键位表里有条目、
+ * 且 custom 还是旧默认的命令：条目不在时 currentCustom 是 undefined，直接跳过（没条目=用户从没
+ * 改过键，按键走的是代码里的新默认，本来就不用迁）。逐条 await 串行是
  * 硬要求：setPluginHotkey 是「深拷贝 keymap→整体 POST→整体替换内存」，并发多调时后完成
  * 者用旧快照覆盖先完成者的写入（2026-09-06 dev 实锤：三条并发只活最后一条）。v5 □7
  * 合并分片挪键未迁移导致存量 custom 残留继续双绑，是本函数的立据案例。
@@ -171,27 +177,36 @@ export async function migrateLegacyHotkeys(pluginName: string, plan: Array<[lang
 }
 
 /**
- * 写回内核 keymap：custom 传 null 即恢复默认（写 entry.default，官方 reset 语义——
+ * 写回内核 keymap：custom 传 null 即恢复默认（写条目的 default，官方 reset 语义——
  * 内核里 custom:"" 是「禁用」而非回落默认，直接写空串会造成显示与实际键位不符）。
  * custom 传 "" 即删除快捷键（命令不再响应任何键盘组合，customHotkey 为空）。
- * 四步协议见文件头注释；失败（无条目/网络错）返回 false，调用方保持原显示。
+ * 四步协议见文件头注释；失败（拿不到键位表/内核没存/网络错）返回 false，调用方保持原显示。
+ *
+ * 条目不在就补建（2026-11-27 快捷颜色 mw-small 实测）：内核 3.8.7 起页面整页加载后，启动完成时
+ * 的配置刷新会用盘上的键位表整体替换前端内存里的（app/src/config/setting/sync.ts applyKeymap），
+ * addCommand 时只在内存里建过的条目跟着没了——盘上从没落过条目的命令（新加的命令都是）这时在
+ * 键位表里找不到。原先这里遇到没条目直接返回 false：键帽点了停在「按下新组合键…」也没有提示，
+ * 要等插件热重载一次才好。官方键位面板是条目不在就建（app/src/plugin/keymap.ts
+ * setPluginKeymapCustom），这里同款：default 取命令对象上的 hotkey（内核 addCommand 写进去的
+ * keymapItem.default，app/src/plugin/index.ts addCommand）。默认键本身照常能用，不受这件事影响（实测）。
  */
 export async function setPluginHotkey(pluginName: string, langKey: string, custom: string | null): Promise<boolean> {
     const km: any = (Siyuan as any)?.config?.keymap;
-    const entry = km?.plugin?.[pluginName]?.[langKey];
-    if (!entry) return false;
-    const value = custom === null ? (entry.default || "") : custom;
+    if (!km) return false;
+    const entry = km.plugin?.[pluginName]?.[langKey];
+    const defaultKey = typeof entry?.default === "string" ? entry.default : (commandOf(pluginName, langKey)?.hotkey ?? "");
+    const value = custom === null ? defaultKey : custom;
 
     const data = JSON.parse(JSON.stringify(km));
-    data.plugin[pluginName][langKey].custom = value;
+    data.plugin ??= {};
+    data.plugin[pluginName] ??= {};
+    data.plugin[pluginName][langKey] = { default: defaultKey, ...data.plugin[pluginName][langKey], custom: value };
     const resp = await fetchSyncPost("/api/setting/setKeymap", { data });
     if (resp?.code !== 0) return false;
 
     // 成功后才动前端内存（官方 setKeymapFromDom 同款语义：整体替换 + 命令对象同步）
     (Siyuan as any).config.keymap = data;
-    const cmd = (Siyuan as any)?.ws?.app?.plugins
-        ?.find?.((p: any) => p.name === pluginName)
-        ?.commands?.find?.((c: any) => c.langKey === langKey);
+    const cmd = commandOf(pluginName, langKey);
     if (cmd) cmd.customHotkey = value;
     return true;
 }

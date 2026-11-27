@@ -3,16 +3,17 @@ import { mount, unmount } from "svelte";
 import { mindWireBlockWire, mindWireCheckbox, mindWireColorfull, mindWireDocMenu, mindWireDynamicLine, mindWireEnable, mindWireGlobalMenu, mindWireHoverBar, mindWireLine, mindWireStarRefOnly, mindWireWidth, mindWireWordWire, } from "./libs/stores";
 import { BaseTomatoPlugin } from "./libs/BaseTomatoPlugin";
 import { events, EventType } from "./libs/Events";
-import { getAttribute, getID, isEditor, normalizeWordRange, siyuan } from "./libs/utils";
+import { getAttribute, getID, isEditor, normalizeWordRange, selectionBlankSide, siyuan } from "./libs/utils";
 import { murmurHash3 } from "./libs/hash";
 import { winHotkey } from "./libs/winHotkey";
 import { gatedAddCommand } from "./libs/cmdGate";
+import { LiteBlock, markTarget, rememberLiteProtyle } from "./libs/mindWireLite";
 import { addIfVisible } from "./libs/menuManager";
 import { tomatoI18n } from "./tomatoI18n";
 import { lastVerifyResult, verifyKeyTomato } from "./libs/user";
 import { debugLog } from "./libs/logUtils";
-import { blockWirePath, clampStubX, getEdgePoint, shiftRect, stubAvoidShift, stubDir, stubEdgeShift, stubPos, toolbarAvoidShift, toolbarPos, toContentRect, wireViewState, wordWireGeometry } from "./libs/mindWireGeom";
-import { RELATIONS_ATTR, RELATION_COLOR, RelationKey, WORD_WIRE_HREF_PREFIX, checkWireEnd, cleanupRelations, groupWordWires, makeWireId, mergeTipKeepHotkey, parseRelations, relationColor, reviveWordPending, wireIdFromHref, wordClip, wordWireTip } from "./libs/mindWireData";
+import { arrowHeadLength, arrowHeadPath, blockWirePath, clampStubX, getEdgePoint, shiftRect, stubAvoidShift, stubDir, stubEdgeShift, stubPos, toolbarAvoidShift, toolbarPos, toContentRect, wireViewState, wordWireGeometry } from "./libs/mindWireGeom";
+import { ARROWS_ATTR, DeletedWires, RELATIONS_ATTR, RELATION_COLOR, ArrowValue, RelationKey, WORD_WIRE_HREF_PREFIX, WordWireItem, absentWireIds, arrowEndIndex, checkWireEnd, deletedWireIds, forgetDeletedWires, groupWordWires, makeWireId, mergeTipKeepHotkey, noteDeletedWires, orphanAttrPatch, parseArrows, parseRelations, presentWireIds, recordWireArrow, relationColor, reviveWordPending, toggleWireArrow, wireArrowForward, wireFragmentsJoined, wireIdFromHref, wirePresenceSql, wiresMissingFrom, wordClip, wordWireTip } from "./libs/mindWireData";
 import MindWirePending from "./MindWirePending.svelte";
 
 const dlog = (msg: string) => debugLog("mindwire", msg, "mindwire");
@@ -42,6 +43,12 @@ const HIT_CLASS = "tomato-mind-wire-hit";
 const HOT_CLASS = "tomato-mind-wire-hot";
 const FLASH_CLASS = "tomato-mind-wire-flash";
 const TOOLBAR_CLASS = "tomato-mind-wire-toolbar";
+/** 箭头端的锚词类（藏掉 CSS ::after 圆点——箭头脚下不能剩圆点；clearWordMarks 重画前摘） */
+const ARROW_CLASS = "tomato-mind-wire-arrow";
+/** svg 箭头三角形（尖朝着词） */
+const ARROWHEAD_CLASS = "tomato-mind-wire-arrowhead";
+/** 迷你条「箭头」钮 */
+const ARROW_BTN_CLASS = "tomato-mind-wire-arrow-btn";
 const STUB_CLASS = "tomato-mind-wire-stub";
 /** 残端 chip 隐藏态（双端同屏/双端离屏）：visibility 保布局（挂载期 offsetWidth 可测），滚动期切换不触发重排 */
 const STUB_OFF_CLASS = "tomato-mind-wire-stub--off";
@@ -203,11 +210,17 @@ function scheduleRedraw(protyle: IProtyle, wl: WireLayer) {
     }, 200);
 }
 
-/** 清词级锚词痕迹（accent 变量+跨行类+hot/flash/降级藏点残留）：重画前/门禁拒绝态/单端孤儿统一还原（与块级 clearAnchors 同模式） */
+/** 插件自己刚摘掉两端标记的线（删除钮），按文档分开记——为什么按文档分、多久过期见 mindWireData.ts
+ *  的 noteDeletedWires。孤儿清理时这些线号不必走「问索引＋正文复核」那两级 */
+const deletedWires: DeletedWires = new Map();
+/** 问索引时每批的线号数（一条语句里每个线号一个 LIKE，别一口气塞太多） */
+const PRESENCE_CHUNK = 50;
+
+/** 清词级锚词痕迹（accent 变量+跨行类+hot/flash/降级藏点/箭头端残留）：重画前/门禁拒绝态/单端孤儿统一还原（与块级 clearAnchors 同模式） */
 function clearWordMarks(element: HTMLElement) {
     element?.querySelectorAll(`span[data-type~="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`).forEach((e: HTMLElement) => {
         e.style.removeProperty(ACCENT_VAR);
-        e.classList.remove("tomato-mind-wire-ml", "tomato-mind-wire-nodot", "tomato-mind-wire-top", HOT_CLASS, FLASH_CLASS);
+        e.classList.remove("tomato-mind-wire-ml", "tomato-mind-wire-nodot", "tomato-mind-wire-top", ARROW_CLASS, HOT_CLASS, FLASH_CLASS);
     });
 }
 
@@ -271,7 +284,12 @@ async function drawWireLayer(protyle: IProtyle, wl: WireLayer) {
         wl.layer.removeAttribute("data-degrade");
         if (mindWireWordWire.get()) {
             const relations = parseRelations(attr?.[RELATIONS_ATTR]);
-            const { pairs, seen } = collectWordWires(element);
+            // 箭头记录（设计 2026-11-25-mindwire-small-batch-design.md「一、箭头」）：同在文档根
+            // 属性，不认识的值读的时候当没有；箭头不分免费/Pro（拍板：属于连线的基础表达）
+            const arrows = parseArrows(attr?.[ARROWS_ATTR]);
+            const { pairs, seen, middles } = collectWordWires(element);
+            // 删除钮记下的线（只要这一篇的；过期的顺手清掉）
+            const knownDeleted = deletedWireIds(deletedWires, protyle.block.rootID);
             // 长文自动降级 D11（spec §4.1.5）：>120 条=砍装饰（流动+圆点）不砍功能
             // （整线/跳转/残端 chip/迷你条保留）；线数回落自动恢复。层属性=e2e 断言锚。
             // 值必须写实 "1"：toggleAttribute 只设空串，[data-degrade="1"] 选择器与
@@ -283,17 +301,41 @@ async function drawWireLayer(protyle: IProtyle, wl: WireLayer) {
                 wl.layer.removeAttribute("data-degrade");
             }
             for (const { wireId, ends } of pairs) {
-                drawWordOne(wl, origin, wireId, ends[0], ends[1], relations[wireId], protyle, degraded);
+                drawWordOne(wl, origin, wireId, ends[0], ends[1], relations[wireId], protyle, degraded, arrows[wireId], middles.get(wireId) ?? []);
                 nw++;
             }
-            // 孤儿清理（spec §3.2）：属性条目 − DOM 扫集，差集非空才回写（避免无谓写）
-            const cleaned = cleanupRelations(attr?.[RELATIONS_ATTR], seen);
-            if (cleaned != null) {
-                try {
-                    await siyuan.setBlockAttrs(protyle.block.rootID, { [RELATIONS_ATTR]: cleaned } as AttrType);
-                    dlog(`orphan cleanup root=${protyle.block.rootID} cleaned="${cleaned}"`);
-                } catch (err) {
-                    dlog(`orphan cleanup error ${err}`);
+            // 孤儿清理（spec §3.2）：线真没了，属性条目才跟着删（关系色＋箭头并成一次写，一步撤销）。
+            // 页面上没有 ≠ 线没了：长文档内核只加载一部分块，只看页面会把没加载的线全当孤儿——
+            // 打开长文档这一下就删（2026-11-26 实例复现）。所以页面上没有的先当候选，内核两级确认
+            // （wiresGoneFromDoc）后才删；没确认成的一条都不删
+            const candidates = absentWireIds(seen, attr?.[RELATIONS_ATTR], attr?.[ARROWS_ATTR]);
+            if (candidates.length) {
+                const goneFromDoc = await wiresGoneFromDoc(protyle.block.rootID, candidates);
+                if (wl.gen != gen) return;
+                if (goneFromDoc?.size || knownDeleted?.size) {
+                    // 等内核回话期间属性可能被改过（点了箭头钮、别的编辑器连了新线）：按最新的属性算；
+                    // 且只删问过的那批（goneFromDoc 只含上面这批候选，新添的线号不在里面）
+                    const fresh = await siyuan.getBlockAttrs(protyle.block.rootID);
+                    if (wl.gen != gen) return;
+                    const patch = orphanAttrPatch({
+                        relations: fresh[RELATIONS_ATTR],
+                        arrows: fresh[ARROWS_ATTR],
+                        seen,
+                        goneFromDoc,
+                        knownDeleted,
+                    });
+                    if (patch) {
+                        const attrs = {} as AttrType;
+                        if (patch.relations != null) attrs[RELATIONS_ATTR] = patch.relations;
+                        if (patch.arrows != null) attrs[ARROWS_ATTR] = patch.arrows;
+                        try {
+                            await siyuan.setBlockAttrs(protyle.block.rootID, attrs);
+                            dlog(`orphan cleanup root=${protyle.block.rootID} gone=${patch.gone.join(",")} relations="${patch.relations ?? ""}" arrows="${patch.arrows ?? ""}"`);
+                            forgetDeletedWires(deletedWires, protyle.block.rootID, patch.gone);
+                        } catch (err) {
+                            dlog(`orphan cleanup error ${err}`);
+                        }
+                    }
                 }
             }
         }
@@ -324,6 +366,37 @@ async function drawWireLayer(protyle: IProtyle, wl: WireLayer) {
     }
 }
 
+/** 内核两级确认：候选线号里，哪些的标记真的已经不在这篇文档里。返回「没了的」集合——只含传进来
+ *  的线号；没确认成（接口失败、返回异常、索引里没有这篇文档、正文没读到）→ null，调用方一条都不删 */
+async function wiresGoneFromDoc(rootID: string, wireIds: string[]): Promise<Set<string> | null> {
+    // 第一级：问索引（便宜，每次重画都问得起）。连线标记在 blocks.markdown 里是原样的
+    // [词](#tomato-mindwire-线号)；线号多时分批
+    const missing = new Set<string>();
+    for (let i = 0; i < wireIds.length; i += PRESENCE_CHUNK) {
+        const chunk = wireIds.slice(i, i + PRESENCE_CHUNK);
+        try {
+            const present = presentWireIds(await siyuan.sql(wirePresenceSql(rootID, chunk)), chunk);
+            if (!present) return null;
+            for (const id of chunk) {
+                if (!present.has(id)) missing.add(id);
+            }
+        } catch (err) {
+            dlog(`orphan presence error ${err}`);
+            return null;
+        }
+    }
+    if (!missing.size) return missing;
+    // 第二级：索引说没了的，读文档正文复核。索引是异步队列、会滞后（同步刚合并进来的新线、刚连好
+    // 的线都可能还查不到）；正文是事务当时落盘的
+    try {
+        const exported = await siyuan.call("/api/export/exportMdContent", { id: rootID }) as { content?: string } | null | undefined;
+        return new Set(wiresMissingFrom(exported?.content, [...missing]));
+    } catch (err) {
+        dlog(`orphan content check error ${err}`);
+        return null;
+    }
+}
+
 /** 线对收集：块引用 + 互链（均限定本编辑器内；跨编辑器锚点在内容坐标系下无法表达，跳过） */
 function collectPairs(element: HTMLElement): [string, string][] {
     const pairs: [string, string][] = [];
@@ -349,12 +422,17 @@ function collectPairs(element: HTMLElement): [string, string][] {
 /** 词级线收集（spec §3）：本编辑器内词级标记 span 按 wireId 分组配对；
  *  前缀选择器天然不命中批注（#tomato-anno-）与普通链接。data-type 用 ~= 词匹配——
  *  内核把加粗等行内格式合并进锚 span 成复合词表（"strong a"），精确匹配漏带格式 run
- *  （anno 家族 09-16 同病已修，本族同款） */
-function collectWordWires(element: HTMLElement) {
-    const items: { href: string; end: HTMLElement }[] = [];
+ *  （anno 家族 09-16 同病已修，本族同款）。同一个线号接连出现的两片标上「是不是紧挨着」
+ *  （wireFragmentsJoined）：紧挨着＝同一个词被切开了，配对时先并成一个端点 */
+export function collectWordWires(element: HTMLElement) {
+    const items: WordWireItem<HTMLElement>[] = [];
+    const lastByHref = new Map<string, HTMLElement>();
     element.querySelectorAll(`span[data-type~="a"][data-href^="${WORD_WIRE_HREF_PREFIX}"]`).forEach((e: HTMLElement) => {
         const href = getAttribute(e, "data-href");
-        if (href) items.push({ href, end: e });
+        if (!href) return;
+        const prev = lastByHref.get(href);
+        items.push({ href, end: e, joined: prev ? wireFragmentsJoined(prev, e) : false });
+        lastByHref.set(href, e);
     });
     return groupWordWires(items);
 }
@@ -378,8 +456,15 @@ function firstFragmentRect(s: HTMLElement): { rect: DOMRect; multiline: boolean 
  *  跨行词的 CSS ::after 圆点挂实现定义 fragment 会与端点分离（P0-1）：改由 svg circle
  *  画点（dotY=端点靠词一侧 3.5px，底/顶缘同构），CSS 点藏掉。
  *  □3：同 d 隐形命中走廊（pointer-events:stroke）挂交互——hover 高亮/点线跳转/长按迷你条
- *  □4 D11：降级档（>120 条）不加流动、藏圆点（跨行 svg circle 同跳过——CSS 只藏 ::after 罩不到它） */
-function drawWordOne(wl: WireLayer, origin: { left: number; top: number }, wireId: string, s1: HTMLElement, s2: HTMLElement, relation: string | undefined, protyle: IProtyle, degraded: boolean) {
+ *  □4 D11：降级档（>120 条）不加流动、藏圆点（跨行 svg circle 同跳过——CSS 只藏 ::after 罩不到它）
+ *  箭头（设计 2026-11-25-mindwire-small-batch-design.md「一、箭头」）：arrow=文档根属性里的
+ *  箭头记录，开着的那端画 svg 三角形（尖=端点+长度×heads）、不画圆点——不画圆点分两步，
+ *  缺一不可：一律给那端的 span 加类藏 CSS ::after 点（线跨行而词没折行时圆点全靠它）；
+ *  词折行时圆点改由 svg circle 画，这里按端跳过。降级档藏圆点但照画箭头（箭头表示方向）
+ *  中间片段（groupWordWires.middles）：连线词的一部分被上色/
+ *  加粗后标记被切开，首尾之间的片段不是端点——藏 CSS 圆点，线色照样写上让淡背景跟两端一致（不写
+ *  就回落 4 号色，像一个没连线的端点）；它仍是锚词能点击跳转 */
+function drawWordOne(wl: WireLayer, origin: { left: number; top: number }, wireId: string, s1: HTMLElement, s2: HTMLElement, relation: string | undefined, protyle: IProtyle, degraded: boolean, arrow: ArrowValue | undefined, middles: HTMLElement[]) {
     const f1 = firstFragmentRect(s1);
     const f2 = firstFragmentRect(s2);
     if ((!f1.rect.width && !f1.rect.height) || (!f2.rect.width && !f2.rect.height)) return;
@@ -390,10 +475,18 @@ function drawWordOne(wl: WireLayer, origin: { left: number; top: number }, wireI
         : "var(--b3-font-color4)";
     s1.style.setProperty(ACCENT_VAR, color);
     s2.style.setProperty(ACCENT_VAR, color);
+    // 重画前 clearWordMarks 把类和变量一起摘，片段回到端点身份时会重新走上面两行
+    for (const m of middles) {
+        m.style.setProperty(ACCENT_VAR, color);
+        m.classList.add("tomato-mind-wire-nodot");
+    }
     s1.classList.toggle("tomato-mind-wire-ml", f1.multiline);
     s2.classList.toggle("tomato-mind-wire-ml", f2.multiline);
     s1.classList.toggle("tomato-mind-wire-nodot", degraded);
     s2.classList.toggle("tomato-mind-wire-nodot", degraded);
+    // 箭头画在哪一端（fwd=第二端、rev=第一端；配对给出的两端就是文档顺序）
+    const arrowAt = arrowEndIndex(arrow);
+    if (arrowAt != null) (arrowAt === 0 ? s1 : s2).classList.add(ARROW_CLASS);
 
     // 上方空间 hoist 共用（□3 spec §12.6.3：顶缘端点收窄与 □5 chip 下置同一量，零新增布局读）
     const gap1 = availAboveOf(s1, a1.top, origin.top);
@@ -418,13 +511,14 @@ function drawWordOne(wl: WireLayer, origin: { left: number; top: number }, wireI
     wl.svg.appendChild(path);
 
     // 跨行端点：CSS 圆点已藏，svg 补画（dotY 按 缘：底缘=字底+4.5 / 顶缘=(top−eTop)+3.5，
-    // spec §12.3）；降级档藏圆点时跨行端同跳过（线端点本身即视觉锚，spec §4.1.5）
+    // spec §12.3）；降级档藏圆点时跨行端同跳过（线端点本身即视觉锚，spec §4.1.5）；
+    // 箭头端不画圆点（箭头脚下不能剩圆点）
     const ends = [
-        { cx: a1.cx, end: geo.ends[0] },
-        { cx: a2.cx, end: geo.ends[1] },
+        { cx: a1.cx, end: geo.ends[0], ml: f1.multiline },
+        { cx: a2.cx, end: geo.ends[1], ml: f2.multiline },
     ];
-    for (const [{ cx, end }, ml] of [[ends[0], f1.multiline], [ends[1], f2.multiline]] as const) {
-        if (!ml || degraded) continue;
+    for (const [i, { cx, end, ml }] of ends.entries()) {
+        if (i === arrowAt || !ml || degraded) continue;
         const dot = document.createElementNS(SVG_NS, "circle");
         dot.setAttribute("class", "tomato-mind-wire-dot");
         dot.setAttribute("cx", cx.toString());
@@ -435,13 +529,30 @@ function drawWordOne(wl: WireLayer, origin: { left: number; top: number }, wireI
         dot.style.strokeWidth = "1px";
         wl.svg.appendChild(dot);
     }
+    // 箭头：底边中点落在线端点，尖=端点+长度×head；长度按出线距（端点到字缘：底缘恒 8，
+    // 顶缘 4~8）取——顶缘出线距被压小时箭头跟着缩短，不压进字里。隔离描边同圆点；
+    // 尖角处收圆头（miter 会把尖再顶出 ~0.8px，顶缘压缩档就压进字里了）。
+    // 降级档照画：箭头表示方向，不是装饰
+    if (arrowAt != null) {
+        const { cx, end } = ends[arrowAt];
+        const box = arrowAt === 0 ? a1 : a2;
+        const offset = end.edge === "top" ? box.top - end.y : end.y - box.bottom;
+        const head = document.createElementNS(SVG_NS, "path");
+        head.setAttribute("class", ARROWHEAD_CLASS);
+        head.setAttribute("d", arrowHeadPath({ x: cx, y: end.y }, geo.heads[arrowAt], arrowHeadLength(offset)).d);
+        head.style.fill = color;
+        head.style.stroke = "var(--b3-theme-background)";
+        head.style.strokeWidth = "1px";
+        head.style.strokeLinejoin = "round";
+        wl.svg.appendChild(head);
+    }
 
     // 命中走廊（□3 spec §4.5）：与可见 path 同 d、stroke:none + pointer-events:stroke
     const hit = document.createElementNS(SVG_NS, "path");
     hit.setAttribute("class", HIT_CLASS);
     hit.setAttribute("d", geo.d);
     wl.svg.appendChild(hit);
-    attachWireInteraction(wl, protyle, wireId, path, hit, s1, s2, geo.mid, relation);
+    attachWireInteraction(wl, protyle, wireId, path, hit, s1, s2, geo.mid, relation, arrow);
     // 残端 chip（□4）：标签取对端词；点击与点线/锚词跳转共用 jumpWire。
     // □5 拍板：锚上方可用空间（到所在块上一有盒兄弟）<38px 时上态 chip 下置防贴碰
     // （□3 后 gap 已在上方 hoist，此处直传共用——chip 几何零改动，spec §12.5）
@@ -460,7 +571,7 @@ function availAboveOf(span: HTMLElement, anchorTop: number, originTop: number): 
 
 // ---------------------------------------------------------------------------
 // 线交互（□3 · spec §4.5）：走廊 hover 高亮两端 / 点线跳转+闪高亮 / 线中点迷你条
-// （6 关系色点+×删除；触屏长按 350ms 唤出）；迷你条单例挂层内、重画/换线即重建。
+// （6 关系色点＋箭头钮＋×删除；触屏长按 350ms 唤出）；迷你条单例挂层内、重画/换线即重建。
 // ---------------------------------------------------------------------------
 
 /** 闪高亮重放（spec §4.6）：加类前先移除+强制 reflow，animationend 自摘；1.2s 兜底（后台 tab 不派发） */
@@ -527,9 +638,29 @@ async function setRelation(protyle: IProtyle, wireId: string, key: RelationKey) 
     }
 }
 
+/** 箭头开↔关（迷你条「箭头」钮，设计 2026-11-25-mindwire-small-batch-design.md「一、箭头」）：
+ *  读属性 → 改这一条 → 写回，只动文档根属性不碰标记 DOM，收尾与 setRelation 相同；
+ *  写失败只记日志 */
+async function toggleArrow(protyle: IProtyle, wireId: string) {
+    try {
+        const attr = await siyuan.getBlockAttrs(protyle.block.rootID);
+        const next = toggleWireArrow(attr?.[ARROWS_ATTR], wireId);
+        await siyuan.setBlockAttrs(protyle.block.rootID, { [ARROWS_ATTR]: next } as AttrType);
+        dlog(`arrow toggle ${wireId} ${next}`);
+    } catch (err) {
+        dlog(`toggleArrow error ${err}`);
+    } finally {
+        removeWireToolbar();
+        redrawWire(protyle);
+    }
+}
+
 /** 删除线（spec §4.5 × 钮）：逐端反选摘除标记（事务可 Ctrl+Z）；每摘一端内核重建块 DOM，
- *  必须按 href 现查下一端（旧引用已 detach）；属性条目由重画 cleanupRelations 差集兜 */
+ *  必须按 href 现查下一端（旧引用已 detach）；属性条目由重画的孤儿清理兜（这条线按文档记在 deletedWires） */
 async function deleteWordWire(protyle: IProtyle, wireId: string) {
+    // 记下来（按文档分）：重画清理时这条线不必走「问索引＋正文复核」（索引滞后几百毫秒，等它会让
+    // 「删线后记录没了」变成看运气）
+    noteDeletedWires(deletedWires, protyle.block.rootID, [wireId]);
     const href = WORD_WIRE_HREF_PREFIX + wireId;
     let guard = 0;
     while (guard++ < 4) {
@@ -543,11 +674,12 @@ async function deleteWordWire(protyle: IProtyle, wireId: string) {
 }
 
 /** 走廊交互挂接：桌面 pointerenter=hot+迷你条、leave=还原（迷你条常驻，见 removeWireToolbar
- *  节 dismiss 机制）；触屏无 hover——长按 350ms 唤迷你条；click=点线跳转（拖选不触发 click） */
+ *  节 dismiss 机制）；触屏无 hover——长按 350ms 唤迷你条；click=点线跳转（拖选不触发 click）。
+ *  arrow=这条线当前的箭头记录（迷你条「箭头」钮的按下态） */
 function attachWireInteraction(
     wl: WireLayer, protyle: IProtyle, wireId: string,
     path: SVGPathElement, hit: SVGPathElement, s1: HTMLElement, s2: HTMLElement,
-    mid: { x: number; y: number }, relation: string | undefined,
+    mid: { x: number; y: number }, relation: string | undefined, arrow: ArrowValue | undefined,
 ) {
     const setHot = (on: boolean) => {
         path.style.strokeWidth = (mindWireWidth.get() + (on ? 1 : 0)) + "px";
@@ -561,7 +693,7 @@ function attachWireInteraction(
         bar.className = TOOLBAR_CLASS + (pos.below ? " tomato-mind-wire-toolbar--below" : "");
         bar.style.left = pos.left + "px";
         bar.style.top = pos.top + "px";
-        // 关系色点行：Pro 门禁（colorfull+验签）关时迷你条退化为纯删除条（spec §4.5）
+        // 关系色点行：Pro 门禁（colorfull+验签）关时不显示，条上只剩「箭头＋删除」（spec §4.5）
         if (mindWireColorfull.get() && lastVerifyResult()) {
             for (const key of RELATION_KEYS) {
                 const dot = document.createElement("button");
@@ -576,6 +708,16 @@ function attachWireInteraction(
             sep.className = "tomato-mind-wire-toolbar-sep";
             bar.appendChild(sep);
         }
+        // 「箭头」钮（分隔线之后、删除钮之前）：不分免费/Pro——拍板：属于连线的基础表达，
+        // Pro 关着时迷你条由纯删除条变成「箭头＋删除」。开着时 aria-pressed="true"
+        const arrowBtn = document.createElement("button");
+        arrowBtn.className = ARROW_BTN_CLASS;
+        arrowBtn.setAttribute("aria-pressed", String(arrowEndIndex(arrow) != null));
+        arrowBtn.title = tomatoI18n.箭头;
+        arrowBtn.setAttribute("aria-label", tomatoI18n.箭头);
+        arrowBtn.innerHTML = `<svg><use xlink:href="#iconForward"></use></svg>`;
+        arrowBtn.addEventListener("click", () => void toggleArrow(protyle, wireId));
+        bar.appendChild(arrowBtn);
         const x = document.createElement("button");
         x.className = "tomato-mind-wire-x";
         x.setAttribute("aria-label", tomatoI18n.删除导线);
@@ -778,21 +920,30 @@ let pendingChip: { dismiss: () => void } | null = null;
 
 /** 划词选区判定（菜单项显隐与两步写入共用）：window 选区过词级有效性提纯
  *  （非 collapsed + 单块（a 类型跨块 setInlineMark 直接 return 静默失败，
- *  词粒度划选天然单块）+ 非代码块 + 有实文本，判定体在 domUtils normalizeWordRange） */
+ *  词粒度划选天然单块）+ 非代码块 + 有实文本，判定体在 domUtils normalizeWordRange）。
+ *  选中的只有空白时按拖选方向取紧挨的那个字（空白选区，方向读自选区的按下点/松开点）；
+ *  右键菜单入口和工具条钮显隐都走这里，三个入口一起受益 */
 function currentTextRange(): Range | null {
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0) return null;
-    return normalizeWordRange(sel.getRangeAt(0));
+    return normalizeWordRange(sel.getRangeAt(0), selectionBlankSide(sel));
 }
 
-/** 工具条/快捷键触发时的选区兜底（二期 □1）：选区未被顶掉走 window 选区（须落在本
- *  编辑器内——分屏下别把 A 屏选区写进 B 屏事务，评审 P1-1）；被顶掉（工具条点击吞选区/
- *  焦点漂移）回退 protyle.toolbar.range——内核划词渲染时留存，与 setWordMark 的前置赋值
- *  同一通道，过同一有效性判定（含脱离文档拦截） */
-function wordWireRange(protyle: IProtyle): Range | null {
+/** 命令这条路（正文里的快捷键、命令面板，都经 editorCallback 进来）取选区：只认窗口里现在的选区，且要
+ *  落在本编辑器的正文层里（分屏下别把 A 屏选区写进 B 屏事务，评审 P1-1）。不回退内核留存的
+ *  protyle.toolbar.range——那份只在鼠标松开时刷新：在文档标题这类内层编辑器里选着字跑命令，回退它＝
+ *  起点写进正文里上一次划的词；没选字只有光标时回退它＝给上一次划的词设起点（2026-11-27 复审发现；
+ *  快捷颜色的命令通道同款，QuickColor applyFromCommand） */
+function commandWordRange(protyle: IProtyle): Range | null {
     const sel = currentTextRange();
-    if (sel && protyle.wysiwyg?.element?.contains(sel.startContainer)) return sel;
-    return normalizeWordRange(protyle?.toolbar?.range);
+    return sel && protyle?.wysiwyg?.element?.contains(sel.startContainer) ? sel : null;
+}
+
+/** 划词工具条钮这条路（二期 □1）：点钮会吞选区（焦点漂移），窗口选区没了或者不在本编辑器里 → 回退
+ *  protyle.toolbar.range——内核划词渲染时留存，与 setWordMark 的前置赋值同一通道，过同一有效性判定
+ *  （含脱离文档拦截）。兜底 range 是内核留存的规范 range，没有拖选方向 → 当从左往右拖 */
+function toolbarWordRange(protyle: IProtyle): Range | null {
+    return commandWordRange(protyle) ?? normalizeWordRange(protyle?.toolbar?.range, "before");
 }
 
 /** 划词工具条两态钮状态同步（二期 □1）：内核只在工具条构建/插件装载时收项、划词
@@ -820,11 +971,28 @@ function selExistingWireId(range: Range): string | null {
     return span ? wireIdFromHref(getAttribute(span, "data-href")) : null;
 }
 
-/** 写词级标记（批注同款 API，Annotations.ts:393 先例）；写后清菜单防 linkMenu 残留 */
+/** 写不了时按卡在哪一种内层编辑器里给话：单元格＝这句动作提示（这一格右键过就能写）；
+ *  别处（文档标题、数据库富文本格、列表脑图节点）＝不支持连线 */
+function liteBlockMsg(block: LiteBlock | null, cellMsg: string): string {
+    return block === "cell" ? cellMsg : tomatoI18n.这里不支持连线;
+}
+
+/** 写词级标记（批注同款 API，Annotations.ts:393 先例）；写后清菜单防 linkMenu 残留。
+ *  选区落在表格单元格的内层编辑器里时改走内层那个（markTarget，mindWireLite.ts）：
+ *  拿外层编辑器写=把内层的临时块 id 发给内核，内核报 block not found 弹「状态异常」。
+ *  内层编辑器只有右键时内核才递给插件——没经右键的入口（命令面板等）拿不到，这时宁可不写
+ *  也不能退回外层，提示用户先在那一格右键一下。落在别的内层编辑器里（文档标题等）同样不写，
+ *  提示不支持 */
 function setWordMark(protyle: IProtyle, range: Range, href: string): boolean {
     try {
-        protyle.toolbar.range = range.cloneRange();
-        protyle.toolbar.setInlineMark(protyle, "a", "range", { type: "a", color: href });
+        const { writer, block } = markTarget(range.startContainer, protyle);
+        if (!writer) {
+            dlog(`setWordMark skip: lite editor (${block}) not writable`);
+            siyuan.pushMsg(liteBlockMsg(block, tomatoI18n.表格单元格请先右键连线));
+            return false;
+        }
+        writer.toolbar.range = range.cloneRange();
+        writer.toolbar.setInlineMark(writer, "a", "range", { type: "a", color: href });
         (globalThis as any).siyuan?.menus?.menu?.remove();
         return true;
     } catch (err) {
@@ -844,8 +1012,16 @@ function removeWordMark(protyle: IProtyle, span: HTMLElement): boolean {
         const range = document.createRange();
         range.setStart(first, 0);
         range.setEnd(last, (last.textContent ?? "").length);
-        protyle.toolbar.range = range;
-        protyle.toolbar.setInlineMark(protyle, "a", "range");
+        // 摘除同写入：标记还在单元格的内层编辑器里就走它（取消/替换/删线都经过这里）；
+        // 那一格没右键过就拿不到内层编辑器——不摘，提示（拿外层摘同样弹「状态异常」）
+        const { writer, block } = markTarget(span, protyle);
+        if (!writer) {
+            dlog(`removeWordMark skip: lite editor (${block}) not writable`);
+            siyuan.pushMsg(liteBlockMsg(block, tomatoI18n.表格单元格请先右键摘标记));
+            return false;
+        }
+        writer.toolbar.range = range;
+        writer.toolbar.setInlineMark(writer, "a", "range");
         (globalThis as any).siyuan?.menus?.menu?.remove();
         return true;
     } catch (err) {
@@ -854,16 +1030,23 @@ function removeWordMark(protyle: IProtyle, span: HTMLElement): boolean {
     }
 }
 
-/** 关系条目首写（默认「关联」灰，spec §4.7：线成后迷你条改色，不强迫先选） */
-async function ensureRelation(protyle: IProtyle, wireId: string) {
+/** 成线首写（spec §4.3）：关系条目缺则补默认「关联」（spec §4.7：线成后迷你条改色，不强迫
+ *  先选）；箭头记录=记下方向、箭头关着（新连的线不带箭头），这条线原来已有记录（孤儿拾回
+ *  续连）则开关沿用原值、只换方向。两个属性都在文档根块上，并成一次读写——往返次数和撤销
+ *  步数同原来只写关系时一样。forward=null（起点标记已被删，方向算不出）时不动箭头记录 */
+async function ensureWireAttrs(protyle: IProtyle, wireId: string, forward: boolean | null) {
     try {
         const attr = await siyuan.getBlockAttrs(protyle.block.rootID);
-        const map = parseRelations(attr?.[RELATIONS_ATTR]);
-        if (map[wireId]) return;
-        map[wireId] = "related";
-        await siyuan.setBlockAttrs(protyle.block.rootID, { [RELATIONS_ATTR]: JSON.stringify(map) } as AttrType);
+        const patch = {} as AttrType;
+        const relations = parseRelations(attr?.[RELATIONS_ATTR]);
+        if (!relations[wireId]) {
+            relations[wireId] = "related";
+            patch[RELATIONS_ATTR] = JSON.stringify(relations);
+        }
+        if (forward != null) patch[ARROWS_ATTR] = recordWireArrow(attr?.[ARROWS_ATTR], wireId, forward);
+        if (Object.keys(patch).length) await siyuan.setBlockAttrs(protyle.block.rootID, patch);
     } catch (err) {
-        dlog(`ensureRelation error ${err}`);
+        dlog(`ensureWireAttrs error ${err}`);
     }
 }
 
@@ -1124,7 +1307,12 @@ class MindWire {
         const protyle = events.protyle?.protyle;
         if (!protyle) return;
         // 菜单构造时判定选区（划词右键选区仍在）；点击回调里再验一次防选区被菜单交互顶掉
-        if (!currentTextRange()) return;
+        const range = currentTextRange();
+        if (!range) return;
+        // 选区落在文档标题、数据库富文本格、列表脑图节点这类内层编辑器里：写不了（拿外层写内核弹
+        // 「状态异常」），连线项不出，省得点了报错。表格单元格不算——右键这一下内核已经把那一格的
+        // 内层编辑器递给了插件（open-menu-content 里登记），照常能写
+        if (markTarget(range.startContainer, protyle).block === "other") return;
         addIfVisible(menu, WORD_MENU_KEY, pending ? {
             label: wordWireTip(pending.word, tomatoI18n.关联起点, tomatoI18n.连到),
             icon: "iconWire",
@@ -1174,7 +1362,7 @@ class MindWire {
     }
 
     /** 第二步连终点（spec §4.3）：同词/跨文档边界 toast 且 pending 保留；
-     *  成线=关系条目首写（属性先落防丢）→ 终点标记 → 主动重画+两端闪高亮 */
+     *  成线=文档根属性首写（关系条目＋箭头记录，属性先落防丢）→ 终点标记 → 主动重画+两端闪高亮 */
     private async finishWordWire(protyle: IProtyle, preRange?: Range | null) {
         const p = pending;
         if (!p) return;
@@ -1192,7 +1380,19 @@ class MindWire {
             siyuan.pushMsg(tomatoI18n.词级导线仅限本文档);
             return;
         }
-        await ensureRelation(protyle, p.wireId);
+        // 终点落在写不了的内层编辑器里（没右键过的单元格、文档标题等，见 markTarget）：写不了。
+        // setWordMark 自己也会拦，但那在写文档根属性之后——关系条目先落了、终点却没写上，
+        // 所以赶在前面判，起点和芯片原样留着
+        const endBlock = markTarget(range.startContainer, protyle).block;
+        if (endBlock) {
+            siyuan.pushMsg(liteBlockMsg(endBlock, tomatoI18n.表格单元格请先右键连线));
+            return;
+        }
+        // 箭头方向须在写终点标记之前算：起点标记已在文档里，终点就是当前选区；写终点标记
+        // 会让内核重建这一块的页面结构，之后再比位置就失效了。趁现在同步取——起点 span 与
+        // 选区都还是上面刚校验过的活引用
+        const forward = wireArrowForward(findEndSpan(protyle, p.wireId), range);
+        await ensureWireAttrs(protyle, p.wireId, forward);
         if (!setWordMark(protyle, range, WORD_WIRE_HREF_PREFIX + p.wireId)) return;
         pending = null;
         hidePendingChip();
@@ -1203,10 +1403,10 @@ class MindWire {
     }
 
     /** 入口三通道统一两态入口（二期 □1）：划词工具条项与命令快捷键共用（右键菜单
-     *  仍走 wordWireMenu 双验路径）；无 pending=标起点，有 pending=连终点 */
-    private wordWireAction(protyle: IProtyle) {
+     *  仍走 wordWireMenu 双验路径）；无 pending=标起点，有 pending=连终点。选区由两条路各自取好
+     *  递进来：命令=commandWordRange（只认窗口里现在的选区）、工具条钮=toolbarWordRange（会回退） */
+    private wordWireAction(protyle: IProtyle, range: Range | null) {
         if (!(mindWireCheckbox.get() && mindWireWordWire.get() && mindWireEnable.get())) return;
-        const range = wordWireRange(protyle);
         if (!range) return;
         if (pending) void this.finishWordWire(protyle, range);
         else this.startWordWire(protyle, range);
@@ -1223,7 +1423,7 @@ class MindWire {
             hotkey: MindWire划词连线.m,
             // 官方 click 实参=Protyle 包装类（ToolbarItem 调 getInstance()=>this），
             // toolbar/setInlineMark 在内层 .protyle（IProtyle）——e2e 实锤缺这层解包
-            click: (protyle: Protyle) => this.wordWireAction(protyle.protyle),
+            click: (protyle: Protyle) => this.wordWireAction(protyle.protyle, toolbarWordRange(protyle.protyle)),
         });
         return toolbar;
     }
@@ -1265,6 +1465,9 @@ class MindWire {
         document.querySelectorAll(`.${LAYER_CLASS}`).forEach(e => e.remove());
 
         this.plugin.eventBus.on("open-menu-content", ({ detail }) => {
+            // 单元格里右键时内核递来的是这一格的内层编辑器（events.protyle 记不到它），
+            // 记下来，写/摘标记按选区位置取用（mindWireLite.ts）
+            rememberLiteProtyle((detail as any)?.protyle);
             this.mindMenu(detail as any);
         });
 
@@ -1294,7 +1497,7 @@ class MindWire {
         gatedAddCommand(this.plugin, MindWire划词连线.langKey, {
             langText: MindWire划词连线.langText(),
             hotkey: MindWire划词连线.m,
-            editorCallback: (protyle: IProtyle) => this.wordWireAction(protyle),
+            editorCallback: (protyle: IProtyle) => this.wordWireAction(protyle, commandWordRange(protyle)),
         });
 
         // 补画当前已打开的编辑器（deploy 钩子 setPetalEnabled 重载插件时 loaded 事件

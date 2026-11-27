@@ -1,6 +1,6 @@
 // kernel 侧知识库通道（knowledgebox □4）：/mcp 的 knowledge_search/knowledge_status 在
 // kernel 进程内自足执行——外网经 /api/network/proxy 转发（goja 无 fetch，通道契约见
-// mcp.md「内核外网通道」节）。不走 rpc 转前端：kernel→前端仅 broadcast 无回执（request-
+// mcp/network-proxy-devgate.md「内核外网通道」节）。不走 rpc 转前端：kernel→前端仅 broadcast 无回执（request-
 // response 须自建协议），goja 无 setTimeout 无法超时守卫，前端忙=MCP 调用永久挂起；
 // proxy 线=单一事实源（knowledgeChannelCore 的智谱 adapter 一份代码双门脸注入不同 KbHttp）。
 import { createZhipuChannel, DEFAULT_KB_NAME, META_PATH, type KbChannel, type KbHttp } from "../libs/knowledgeChannelCore";

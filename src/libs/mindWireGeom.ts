@@ -1,6 +1,8 @@
 // □1 渲染层地基几何纯函数（spec docs/tomato-mindwire-visual-spec.md §2/§4.1/§5.3）。
 // 内容坐标系（D1）：所有坐标相对滚动容器内容原点（rect 差值一次换算），层挂容器内
 // 随滚动走，滚动期零重算。块级出线点为现役 getEdgePoint 行为原样迁移（块级现状不动）。
+// 箭头（2026-11 流动兔反馈三件小改之一）：wordWireGeometry 多给 heads（箭头尖指向词的
+// 单位向量），箭头三角形的长度与顶点在本文件末尾，渲染层只管填色挂 svg。
 
 export interface Pt {
     x: number;
@@ -59,13 +61,22 @@ export function blockWirePath(p1: Pt, p2: Pt): string {
 }
 
 /** 词级贝塞尔完整几何（二期 □3 spec §12：d + 线中点 + 两端锚定信息）。
- *  迷你条悬在中点上方 8px（spec §4.5）；ends 供圆点双路（CSS 类名/svg dotY）消费 */
+ *  迷你条悬在中点上方 8px（spec §4.5）；ends 供圆点双路（CSS 类名/svg dotY）消费；
+ *  heads 供箭头消费 */
 export interface WordWireGeometry {
     d: string;
     /** t=0.5 中点（de Casteljau；迷你条定位消费） */
     mid: Pt;
     ends: [WordWireEnd, WordWireEnd];
+    /** 两端各一个单位向量，方向=箭头尖指向词（尖=线端点＋长度×head） */
+    heads: [Pt, Pt];
 }
+
+/** 单位向量；零向量兜底朝上（同行分支不会出现：控制点恒在端点下方） */
+const unit = (v: Pt): Pt => {
+    const len = Math.hypot(v.x, v.y);
+    return len ? { x: v.x / len, y: v.y / len } : { x: 0, y: -1 };
+};
 
 /** 词级锚词盒（toContentRect 产出形，drawWordOne 的 a1/a2 直传零适配） */
 export interface WordBox {
@@ -119,6 +130,13 @@ export function wordWireGeometry(
                 { edge: "bottom", y: y1, dotY: b1.bottom + (EP_GAP - DOT_AFTER) },
                 { edge: "bottom", y: y2, dotY: b2.bottom + (EP_GAP - DOT_AFTER) },
             ],
+            // 箭头尖指向词：曲线从控制点弧向两端，端点处的朝向=端点−控制点，即曲线在该端的
+            // 切线方向——朝上、朝外（左端偏左、右端偏右），词距越大越接近水平（间距 264px
+            // 时偏离竖直约 73°，间距 48px 时约 48°）
+            heads: [
+                unit({ x: b1.cx - qx, y: y1 - qy }),
+                unit({ x: b2.cx - qx, y: y2 - qy }),
+            ],
         };
     }
     // 缘判定：对端在上→本端顶缘（盒中点一次比较，≥ 兜底底缘与 stubDir 同款）
@@ -146,7 +164,32 @@ export function wordWireGeometry(
             { edge: e1, y: y1, dotY: e1 === "bottom" ? b1.bottom + (EP_GAP - DOT_AFTER) : y1 + DOT_AFTER },
             { edge: e2, y: y2, dotY: e2 === "bottom" ? b2.bottom + (EP_GAP - DOT_AFTER) : y2 + DOT_AFTER },
         ],
+        // 箭头尖指向本端词：底缘出线朝上、顶缘出线朝下（控制臂 a 的反方向）
+        heads: [{ x: 0, y: -a1 }, { x: 0, y: -a2 }],
     };
+}
+
+const ARROW_LEN = 7;    // 箭头长度（尖到底边中点）
+const ARROW_HALF = 3;   // 箭头底边半宽
+
+/** 箭头长度：出线距（底缘恒 8；顶缘上方空间不足时 topAnchorOffset 收到 4~8）够 8 → 7，
+ *  不足 8 → 出线距−1——尖都落在缘外 1px，顶缘出线距被压小时箭头不会压进字里 */
+export function arrowHeadLength(anchorOffset: number): number {
+    return anchorOffset >= EP_GAP ? ARROW_LEN : anchorOffset - 1;
+}
+
+/** 箭头三角形：底边中点=线端点 p，尖=p+长度×head（head 取 wordWireGeometry 的 heads，单位向量），
+ *  底边半宽 3px；d=尖→底边一端→底边另一端，闭合。渲染层填线色、描 1px 背景色 */
+export function arrowHeadPath(p: Pt, head: Pt, length: number): { tip: Pt; base: [Pt, Pt]; d: string } {
+    const tip = { x: p.x + length * head.x, y: p.y + length * head.y };
+    // 底边方向=head 逆时针转 90°
+    const nx = -head.y;
+    const ny = head.x;
+    const base: [Pt, Pt] = [
+        { x: p.x + ARROW_HALF * nx, y: p.y + ARROW_HALF * ny },
+        { x: p.x - ARROW_HALF * nx, y: p.y - ARROW_HALF * ny },
+    ];
+    return { tip, base, d: `M ${tip.x} ${tip.y} L ${base[0].x} ${base[0].y} L ${base[1].x} ${base[1].y} Z` };
 }
 
 /** 线中点迷你条锚位（spec §4.5）：left/top=中点（上浮 8px 由 CSS transform 承担）；
